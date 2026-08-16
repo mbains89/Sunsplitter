@@ -1,30 +1,24 @@
-# Sunsplitter v0.28
+# Sunsplitter v0.28.1
 
-**Crew Pairs + The Last Off-Shift + Scheduled Warmth**
+**Truth Repair (P0 + core P1)**
 
 ## Changes
-One concern package under Grok locks 1–10 (2026-08-16).
+One-concern causality fix from Monte Carlo FAIL for final lock.
 
-1. **New file** `src/scenes-crewpairs.js` (registerScenes), loaded between scenes-promises.js and scenes-late.js.
-2. **faction_split onEnter** second guard: `if (!state.flags.junctionChoice) return "offshift_open"`.
-3. **The Last Off-Shift** (10 scenes): offshift_open + 8 character beats + offshift_tomas_r. Population rule, eligibility helpers, partner-unchosen closing lines.
-4. **Crew pairs (core):**
-   - Pair 1 Elias→Mira: cold micro-scene `pair_shield_cold` (Mira-dead + attributable). Alive-Mira branch + A.3 swap **cut** (LOCK 4 — no markedAgainst substrate).
-   - Pair 2 Tomas↔Jiro: `pair_grudge_settle` + entry on act3_spine_next.
-   - Pair 3 Amara→Sela: `pair_favor_confront` + entry on act3_spine_next.
-   - Pair 4 Jiro→Lena: helpers only this version (pair_turn flag ready).
-5. **Scheduled warmth** (3 one-shots): warmth_meal, warmth_laughter, warmth_music — entries on act3_spine_next.
-6. **State:** 11 new flags; helpers elig*, attributableDeath*, leansLiving, stillFavoring, neglected, partnerUnchosen, closingPartnerLine. sceneImages REUSE only.
-7. **Phrase spends:** Elias card + mint in pair_shield_cold / offshift_elias; Amara card in offshift_amara; Tomas alternate make in offshift_tomas (absent-gate).
-8. **LOCK 8:** offshift_vess "Answer it" may spend last_tx_spent.
-
-VERSION = "0.28".
+1. **P0 — Dead Tomas speech removed** from Living exclusive crisis.
+   - `breath_word_given` / `breath_word_refused` now gate all Tomas body/speech on `isAlive("tomas")`.
+   - Public word flag still written; onset choices remain available when Tomas is dead.
+2. **P1 — pair_shield_cold reachable**.
+   - Added real Mira lethal causes `"finished the repair"` and `"would not leave the board"` to `ATTRIBUTABLE_CAUSES`.
+3. **P1 — No dangling "made" promises into ending**.
+   - Off-Shift Tomas accept now writes `"kept"` (pure Off-Shift vow) instead of `"made"`.
+   - `forceResolvePromises()` runs at start of `resolveEnding()`: any remaining `"made"` → `"broken"`.
 
 ## Out of scope
-- Pair 1 alive-Mira branch / swap (no substrate)
-- Full cascade of unchosen-debt downstream hosts
-- Cascade Allusive (still 0.29)
-- Ticket 2 new-crew indicator
+Unreachable scenes (quiet_tomas, romance_amara_tomas*, reckon_truth) and unpaid resource costs deferred to 0.28.1b if needed.
 
-## Next
-Playtest 0.28 → 0.29 What Remains / cascade allusive, or Ticket 2 after lock.
+## Validate
+0 errors expected; scene count unchanged from 0.28.
+
+## Zip
+`artifacts/sun-v0.28.1-net.zip`
