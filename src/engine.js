@@ -299,7 +299,19 @@ function formatTagHtml(tag) {
   return ` <span class="choice-tag">[${label}]</span>`;
 }
 
+
+// 0.28.1 Truth Repair: untested "made" promises fail closed before ending.
+function forceResolvePromises() {
+  if (!state.promises) return;
+  for (const who of Object.keys(state.promises)) {
+    if (state.promises[who] === "made") {
+      state.promises[who] = "broken";
+    }
+  }
+}
+
 function resolveEnding() {
+  forceResolvePromises();
   const s = state.survivors;
   const c = state.cohesion;
   const emb = state.embryos;
