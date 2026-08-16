@@ -211,9 +211,11 @@ const scenesCrewpairs = {
   offshift_tomas_r: {
     image: "images/quiet_tomas.jpg",
     onEnter: () => {
+      // 0.28.1: never leave an untestable "made" from Off-Shift.
+      // Accept = pure Off-Shift vow → "kept" immediately; refuse → "declined".
       if (!state.promises.tomas) {
-        state.promises.tomas = state.flags.prom_tomas ? "made" : "declined";
-        if (state.promises.tomas === "made") {
+        state.promises.tomas = state.flags.prom_tomas ? "kept" : "declined";
+        if (state.promises.tomas === "kept") {
           remember("If the vault and the living need the same mercy, the living get it.");
         }
       }
