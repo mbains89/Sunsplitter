@@ -1,14 +1,14 @@
 // Sunsplitter — scenes-exclusive.js
-// Version 0.26.4 — Ideology Router + Exclusive Crises (art batch wire)
+// Version 0.28.1 — Truth Repair (P0 dead Tomas speech)
 // Pure data only. registerScenes merges this map.
 // Living → The Breath They Cost; Future → Custody of Tomorrow.
 // Death-free. Four flags only. Two ungated floors.
 
 const scenesExclusive = {
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
   // Ideology Router
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
 
   act3_crisis_router: {
     onEnter: () => {
@@ -47,9 +47,9 @@ const scenesExclusive = {
     ]
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
   // THE BREATH THEY COST (Living path)
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
 
   breath_onset: {
     image: "images/breath_onset.jpg",
@@ -84,8 +84,14 @@ const scenesExclusive = {
       state.flags.breath_word = "given";
     },
     text: () => {
-      let t = `Tomas nods once. The public word is given.\n\n`;
-      t += `"Then we hold the line together. I'll prep the crisis options. None of them are clean."`;
+      let t = "";
+      if (isAlive("tomas")) {
+        t += `Tomas nods once. The public word is given.\n\n`;
+        t += `"Then we hold the line together. I'll prep the crisis options. None of them are clean."`;
+      } else {
+        t += `The public word is given into the rumor. No one stands beside it to make it heavier.\n\n`;
+        t += `The crisis options still have to be prepped. None of them are clean.`;
+      }
       return t;
     },
     choices: [
@@ -99,8 +105,11 @@ const scenesExclusive = {
       state.flags.breath_word = "refused";
     },
     text: () => {
-      let t = `The refusal lands. Tomas does not argue.\n\n`;
-      if (isAlive("tomas")) t += `"Understood, Captain. The math is yours."\n\n`;
+      let t = `The refusal lands.\n\n`;
+      if (isAlive("tomas")) {
+        t += `Tomas does not argue.\n\n`;
+        t += `"Understood, Captain. The math is yours."\n\n`;
+      }
       t += `The rumor does not die. It only goes quieter.`;
       return t;
     },
@@ -125,7 +134,6 @@ const scenesExclusive = {
       {
         text: "Send crew into the contaminated scrubber trunks by hand.",
         next: "breath_trunks"
-        // ungated floor
       },
       {
         text: "Convert the hydroponics garden into a disposable biological scrubber.",
@@ -235,9 +243,9 @@ const scenesExclusive = {
     ]
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
   // CUSTODY OF TOMORROW (Future path)
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
 
   custody_onset: {
     image: "images/custody_onset.jpg",
@@ -271,7 +279,6 @@ const scenesExclusive = {
         {
           text: "Thaw outer embryo racks to absorb the heat.",
           next: "custody_thaw"
-          // ungated floor
         },
         {
           text: "Mira severs the fused thermal junction in the unpressurized skin.",
