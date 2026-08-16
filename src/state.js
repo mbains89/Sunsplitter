@@ -1,7 +1,7 @@
 // Sunsplitter — state.js
 // Version 0.27.2 — Allusion carriers (promise re-surfacing)
 // Game state, crew definitions, sceneImages map, core helpers
-const VERSION = "0.28";
+const VERSION = "0.28.1";
 
 // FLAGS: see validate + scene onEnter/flag writes. state.dying is sole source for slow-death clock (map form from 0.25).
 // Edit this file to change starting stats, characters, or image mappings
@@ -535,7 +535,9 @@ const ATTRIBUTABLE_CAUSES = [
   "resources diverted to the vault",
   "vented with the lower ring",
   "vented at twenty",
-  "ordered to stop treatment"
+  "ordered to stop treatment",
+  "finished the repair",
+  "would not leave the board"
 ];
 function attributableDeath(who) {
   const cause = state.deathCause && state.deathCause[who];
