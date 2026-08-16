@@ -34,14 +34,12 @@
 
   <div id="crew-panel" class="hidden" aria-label="Crew status"></div>
 
-  <!-- 0.21.3: pinned scene art — direct child of #app, outside the scroller -->
   <div id="scene-image-wrap">
     <img id="scene-image" alt="Scene" />
   </div>
 
   <div id="main">
 
-    <!-- 0.18 Tone contract — shown once until acknowledged -->
     <div id="tone-screen" class="hidden">
       <div class="tone-bg" aria-hidden="true"></div>
       <div class="tone-panel">
@@ -65,7 +63,7 @@
 
     <div id="title-screen" class="hidden">
       <div class="game-title">Sunsplitter</div>
-      <div class="game-subtitle" id="game-subtitle">v0.28</div>
+      <div class="game-subtitle" id="game-subtitle">v0.27.2</div>
       <div class="prologue">
         Earth failed in a cascade measured in hours.<br><br>
         The <em>Sunsplitter</em> was a colonization ark — built for thousands. Nine of you cleared the hatch.<br><br>
@@ -110,9 +108,6 @@
 
 </div>
 
-
-<!-- Load order matters: state → act scenes → engine → validate -->
-<!-- 0.22.0: scenes-crises.js after mid-b, before late (arrivals + exclusive crises land here) -->
 <script src="src/state.js"></script>
 <script src="src/scenes-early.js"></script>
 <script src="src/scenes-mid-a.js"></script>
@@ -120,7 +115,6 @@
 <script src="src/scenes-crises.js"></script>
 <script src="src/scenes-exclusive.js"></script>
 <script src="src/scenes-promises.js"></script>
-<script src="src/scenes-crewpairs.js"></script>
 <script src="src/scenes-late.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js"></script>
