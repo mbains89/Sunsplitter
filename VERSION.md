@@ -1,35 +1,30 @@
-# Sunsplitter v0.27.2
+# Sunsplitter v0.28
 
-**Allusion Carriers (Promise Re-surfacing)** — complete
+**Crew Pairs + The Last Off-Shift + Scheduled Warmth**
 
 ## Changes
-One concern only. Place one mid-run diegetic allusion per made promise so a player who accepted early cannot hit the keep/break test after a long session gap with zero reminder. Anti-gotcha only. Allude; never repeat the full contract sentence.
+One concern package under Grok locks 1–10 (2026-08-16).
 
-1. **Hosts (existing pure-data):**
-   - Amara → `act2_tether_sighting` (after her green-light line)
-   - Elias → `act2_tether_sighting` (after his suit-prep line)
-   - Mira → `act3_reckoning_pattern` (after her drift-schedule open)
-   - Lena → `act3_reckoning_pattern` (after her hypercapnic line)
-   - Sela → `act3_reckoning_pattern` (after her faith/arithmetic line)
-   - Tomas → `act3_spine_next` (corridor beat after bond return / make)
-2. **Gates:** `promises.<who> === "made" && isAlive(<who>) && !flags.prom_<who>_alluded`
-3. **One-shot flags:** `prom_amara_alluded`, `prom_tomas_alluded`, `prom_elias_alluded`, `prom_lena_alluded`, `prom_sela_alluded`, `prom_mira_alluded` — written on render; added to validate.js engineFlags
-4. Exact rider lines from MINTED_PHRASES RESERVED block — no rewrite
-5. No new scenes, no new prose invention, no art, no make/test cluster placement
+1. **New file** `src/scenes-crewpairs.js` (registerScenes), loaded between scenes-promises.js and scenes-late.js.
+2. **faction_split onEnter** second guard: `if (!state.flags.junctionChoice) return "offshift_open"`.
+3. **The Last Off-Shift** (10 scenes): offshift_open + 8 character beats + offshift_tomas_r. Population rule, eligibility helpers, partner-unchosen closing lines.
+4. **Crew pairs (core):**
+   - Pair 1 Elias→Mira: cold micro-scene `pair_shield_cold` (Mira-dead + attributable). Alive-Mira branch + A.3 swap **cut** (LOCK 4 — no markedAgainst substrate).
+   - Pair 2 Tomas↔Jiro: `pair_grudge_settle` + entry on act3_spine_next.
+   - Pair 3 Amara→Sela: `pair_favor_confront` + entry on act3_spine_next.
+   - Pair 4 Jiro→Lena: helpers only this version (pair_turn flag ready).
+5. **Scheduled warmth** (3 one-shots): warmth_meal, warmth_laughter, warmth_music — entries on act3_spine_next.
+6. **State:** 11 new flags; helpers elig*, attributableDeath*, leansLiving, stillFavoring, neglected, partnerUnchosen, closingPartnerLine. sceneImages REUSE only.
+7. **Phrase spends:** Elias card + mint in pair_shield_cold / offshift_elias; Amara card in offshift_amara; Tomas alternate make in offshift_tomas (absent-gate).
+8. **LOCK 8:** offshift_vess "Answer it" may spend last_tx_spent.
 
-VERSION = "0.27.2".
-
-## Validate
-191 scenes (unchanged), 0 syntax errors. All six phrases appear once.
-
-## Zip
-`artifacts/sun-v0.27.2-net.zip`
+VERSION = "0.28".
 
 ## Out of scope
-- 0.28 Off-Shift / pairs
+- Pair 1 alive-Mira branch / swap (no substrate)
+- Full cascade of unchosen-debt downstream hosts
+- Cascade Allusive (still 0.29)
 - Ticket 2 new-crew indicator
-- Cascade Allusive
-- Contract sentence rewrites
 
 ## Next
-0.28 Off-Shift + pairs, or Ticket 2 after Grok lock.
+Playtest 0.28 → 0.29 What Remains / cascade allusive, or Ticket 2 after lock.
