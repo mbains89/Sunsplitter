@@ -1,0 +1,875 @@
+/* Sunsplitter — grimdark industrial UI
+   Version 0.24.7 — Compact minimize size fix */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #08090b;
+  --panel: #101216;
+  --panel-2: #161a20;
+  --border: #2a3038;
+  --border-hot: #5c3030;
+  --text: #c4c8ce;
+  --dim: #6a707a;
+  --accent: #9a3a3a;
+  --accent-dim: #5c2424;
+  --danger: #c44;
+  --ok: #3d8f5f;
+  --pro: #4caf70;
+  --con: #d45a5a;
+  --cyan: #3a7a8a;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Share Tech Mono", "Consolas", "Courier New", monospace;
+  --touch: 48px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(90, 30, 30, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(30, 60, 70, 0.1) 0%, transparent 45%),
+    linear-gradient(180deg, #0a0c10 0%, #08090b 40%, #0b0d11 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px; /* ≥16px body — mobile readable, no iOS zoom-on-focus */
+  line-height: 1.55;
+  height: 100%;
+  height: 100dvh;
+  min-height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* subtle scanline / noise overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.35) 2px,
+      rgba(0, 0, 0, 0.35) 3px
+    );
+}
+
+#app {
+  width: 100%;
+  max-width: 720px;
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(16, 18, 22, 0.92) 0%, rgba(10, 11, 14, 0.96) 100%);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+/* ---- Status bar ---- */
+#status {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border-hot);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.stat {
+  background: var(--panel);
+  padding: 10px 4px 9px;
+  text-align: center;
+}
+
+.stat-label {
+  color: var(--dim);
+  font-size: 0.68rem; /* floor — never collapse below readable */
+  margin-bottom: 3px;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.stat-value {
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  line-height: 1.2;
+}
+
+.stat-value.low { color: var(--danger); }
+.stat-value.mid { color: #c9a227; }
+.stat-value.high { color: var(--ok); }
+
+/* Compact status on narrow phones — raise label floor vs 0.52rem */
+@media (max-width: 400px) {
+  #status {
+    font-size: 0.68rem;
+  }
+  .stat {
+    padding: 8px 2px 7px;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
+  }
+  .stat-value {
+    font-size: 0.92rem;
+  }
+}
+
+/* ---- Light crew panel ---- */
+#crew-panel {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px 10px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+
+#crew-panel.visible {
+  display: flex;
+}
+
+#crew-panel .crew-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crew-chip {
+  padding: 6px 10px;
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  line-height: 1.2;
+}
+
+.crew-chip:active {
+  border-color: var(--accent-dim);
+  background: #1a1e26;
+}
+
+.crew-chip.dead {
+  color: var(--dim);
+  text-decoration: line-through;
+  opacity: 0.6;
+  border-color: transparent;
+  background: transparent;
+}
+
+.crew-chip.favored {
+  border-color: var(--accent-dim);
+  color: #e0c0c0;
+}
+
+.crew-chip.selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.25);
+}
+
+.crew-detail {
+  font-size: 0.78rem;
+  color: var(--text);
+  line-height: 1.4;
+  padding: 4px 2px 0;
+  min-height: 1.4em;
+}
+
+.crew-detail .dim {
+  color: var(--dim);
+}
+
+/* ---- Main scroll ---- */
+#main {
+  flex: 1 1 auto;
+  min-height: 0; /* critical: allow flex child to scroll, kill void */
+  display: block;
+  padding: 12px 14px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: max(20px, calc(10px + env(safe-area-inset-bottom, 0px)));
+}
+
+#title-screen, #ending-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - 100px);
+  min-height: calc(100dvh - 100px);
+}
+
+.game-title {
+  font-family: var(--font-mono);
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+  margin-bottom: 8px;
+  text-shadow: 0 0 24px rgba(154, 58, 58, 0.25);
+}
+
+.game-subtitle {
+  font-family: var(--font-mono);
+  color: var(--dim);
+  font-size: 0.82rem;
+  margin-bottom: 40px;
+  letter-spacing: 0.08em;
+}
+
+.prologue {
+  max-width: 420px;
+  color: var(--dim);
+  font-size: 1rem;
+  margin-bottom: 36px;
+  line-height: 1.75;
+}
+
+/* ---- Scene art (0.21.3 pin; 0.24.7 expand full-width → minimize on scroll) ---- */
+#scene-image-wrap {
+  display: none;
+  flex-shrink: 0;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  background: #0d0d0f;
+  box-shadow:
+    0 0 0 1px rgba(139, 58, 58, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.4);
+  align-self: center;
+  box-sizing: border-box;
+  /* Locked plates are 784×1168 portrait (3/4) */
+  aspect-ratio: 3 / 4;
+  /* 0.24.6 expanded default: full horizontal width */
+  width: calc(100% - 16px);
+  max-width: 100%;
+  /* High enough that width drives size at 3/4 on phone (~full bleed) */
+  max-height: min(72vh, 640px);
+  transition: max-height 0.28s ease, width 0.28s ease, max-width 0.28s ease;
+}
+
+#scene-image-wrap.visible {
+  display: block;
+}
+
+/* 0.24.7 minimized on scroll: same compact size as 0.24.5 minimized */
+#scene-image-wrap.minimized {
+  width: auto;
+  max-width: calc(100% - 28px);
+  max-height: min(26vh, 200px);
+}
+#scene-image-wrap.intimate.minimized {
+  width: auto;
+  max-width: calc(100% - 28px);
+  max-height: min(30vh, 230px);
+}
+
+#scene-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  /* Soft upper-mid bias: keep heads when any residual crop occurs */
+  object-position: center 18%;
+  filter: saturate(0.82) contrast(1.06);
+  background: #0d0d0f;
+}
+
+/* Intimate plates: same 3/4, slightly taller expanded */
+#scene-image-wrap.intimate {
+  aspect-ratio: 3 / 4;
+  max-height: min(78vh, 680px);
+}
+
+#scene-image-wrap.intimate #scene-image {
+  object-fit: cover;
+  object-position: center 18%;
+}
+
+@media (max-width: 480px) {
+  #scene-image-wrap {
+    width: calc(100% - 12px);
+    max-width: 100%;
+    max-height: min(68vh, 560px);
+    aspect-ratio: 3 / 4;
+  }
+  #scene-image-wrap.intimate {
+    max-height: min(74vh, 600px);
+    aspect-ratio: 3 / 4;
+  }
+  #scene-image-wrap.minimized {
+    width: auto;
+    max-width: calc(100% - 24px);
+    max-height: min(24vh, 180px);
+  }
+  #scene-image-wrap.intimate.minimized {
+    width: auto;
+    max-width: calc(100% - 24px);
+    max-height: min(28vh, 210px);
+  }
+  .game-title {
+    font-size: 1.7rem;
+    letter-spacing: 0.16em;
+  }
+}
+
+#story {
+  flex: 0 0 auto;
+  margin-bottom: 14px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.scene-text {
+  font-size: 1.02rem;
+  line-height: 1.72;
+  color: #d0d4d8;
+}
+
+.scene-text p {
+  margin-bottom: 1.05em;
+}
+
+.scene-text p:last-child {
+  margin-bottom: 0;
+}
+
+#game-screen {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto; /* content-sized — no empty void under choices */
+  width: 100%;
+  align-content: flex-start;
+  justify-content: flex-start;
+  min-height: 0;
+}
+
+/* ---- Choices: thumb-zone, touch targets ---- */
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding-bottom: 4px;
+  margin-bottom: max(8px, var(--safe-bottom));
+}
+
+.choice-btn {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 13px 14px;
+  min-height: var(--touch); /* ≥48px */
+  text-align: left;
+  font-size: 1rem; /* ≥16px — no zoom on iOS */
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s, transform 0.08s;
+  border-radius: 1px;
+  line-height: 1.4;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.choice-btn:hover {
+  border-color: var(--accent);
+  background: #1a1e26;
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.2);
+}
+
+.choice-btn:focus {
+  outline: none;
+}
+
+.choice-btn:focus-visible {
+  border-color: var(--accent);
+  background: #1a1e26;
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.35);
+}
+
+.choice-btn:active {
+  background: #1c222c;
+  border-color: var(--accent-dim);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  transform: scale(0.985);
+}
+
+.choice-btn:disabled,
+.choice-btn.disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  border-color: var(--border);
+  background: #12151a;
+  color: var(--dim);
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.choice-btn:disabled:hover,
+.choice-btn.disabled:hover,
+.choice-btn:disabled:active,
+.choice-btn.disabled:active {
+  border-color: var(--border);
+  background: #12151a;
+  transform: none;
+  box-shadow: none;
+}
+
+.choice-label {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.choice-reason {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--dim);
+  letter-spacing: 0.02em;
+}
+
+.choice-effects {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.choice-tag {
+  margin-left: 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--dim);
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.effect-pro {
+  color: var(--pro);
+  margin-right: 0.55em;
+}
+
+.effect-con {
+  color: var(--con);
+  margin-right: 0.55em;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 28px;
+  min-height: var(--touch);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn:active {
+  background: #1a1e26;
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  border-color: var(--accent-dim);
+  background: var(--accent-dim);
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.ending-title {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: #e0e0e0;
+}
+
+.ending-text {
+  max-width: 520px;
+  color: var(--dim);
+  line-height: 1.75;
+  margin-bottom: 32px;
+  white-space: pre-wrap;
+  text-align: left;
+  font-size: 1rem;
+  padding: 0 4px;
+}
+
+.hidden { display: none !important; }
+
+#meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  padding-bottom: max(8px, var(--safe-bottom));
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+#meta button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  padding: 8px 10px;
+  min-height: 40px;
+  letter-spacing: 0.04em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#meta button:hover,
+#meta button:active {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+#scene-id {
+  font-family: var(--font-mono);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+
+#ending-image-wrap {
+  display: none;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 20px;
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  background: #0d0d0f;
+  box-shadow: 0 0 0 1px rgba(139, 58, 58, 0.12);
+}
+
+#ending-image-wrap.visible {
+  display: block;
+}
+
+#ending-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 320px;
+  object-fit: contain;
+  object-position: center top;
+  filter: saturate(0.82) contrast(1.06);
+}
+
+@media (max-width: 480px) {
+  #ending-image {
+    max-height: 240px;
+  }
+  .ending-title {
+    font-size: 1.15rem;
+  }
+  #main {
+    padding: 12px 12px 20px;
+  }
+}
+
+/* ---- 0.18 Onboarding / tone contract ---- */
+#tone-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: left;
+  padding: 24px 16px;
+  min-height: calc(100vh - 100px);
+  min-height: calc(100dvh - 100px);
+  overflow: hidden;
+}
+
+#tone-screen .tone-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 9, 11, 0.72) 0%, rgba(8, 9, 11, 0.88) 55%, rgba(8, 9, 11, 0.95) 100%),
+    url("../images/onboarding_background.jpg") center / cover no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#tone-screen .tone-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(16, 18, 22, 0.88);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-dim);
+  padding: 22px 18px 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+.tone-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.tone-title {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+  margin-bottom: 12px;
+}
+
+.tone-body {
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+.tone-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.tone-list li {
+  position: relative;
+  padding: 6px 0 6px 14px;
+  color: var(--dim);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  border-bottom: 1px solid rgba(42, 48, 56, 0.6);
+}
+
+.tone-list li:last-child {
+  border-bottom: none;
+}
+
+.tone-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.tone-meta {
+  color: var(--dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+#tone-screen .btn {
+  width: 100%;
+}
+
+.title-contract {
+  max-width: 420px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  margin: -18px auto 28px;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  #tone-screen {
+    padding: 16px 12px;
+    justify-content: flex-end;
+    padding-bottom: calc(24px + var(--safe-bottom));
+  }
+  #tone-screen .tone-panel {
+    padding: 18px 14px 20px;
+  }
+  .tone-title {
+    font-size: 1.15rem;
+  }
+  .prologue {
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+}
+
+/* ---- 0.19 Save / Resume ---- */
+.title-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.title-actions .btn {
+  width: 100%;
+  min-height: var(--touch);
+}
+
+#btn-begin.btn-primary {
+  /* When Continue is primary, New run is secondary-looking */
+}
+
+.title-actions #btn-resume:not(.hidden) + .resume-meta + #btn-begin {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  box-shadow: none;
+}
+
+.title-actions #btn-resume:not(.hidden) + .resume-meta + #btn-begin:hover,
+.title-actions #btn-resume:not(.hidden) + .resume-meta + #btn-begin:active {
+  color: var(--text);
+  border-color: var(--border-hot);
+}
+
+.resume-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--dim);
+  letter-spacing: 0.03em;
+  margin: -2px 0 4px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+#meta .meta-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.save-hint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--dim);
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 28%;
+}
+
+.save-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ok);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.save-status.visible {
+  opacity: 1;
+}
+
+.save-status.error {
+  color: var(--con);
+}
+
+@media (max-width: 480px) {
+  .save-hint {
+    max-width: 22%;
+    font-size: 0.6rem;
+  }
+  #scene-id {
+    max-width: 28%;
+  }
+}
