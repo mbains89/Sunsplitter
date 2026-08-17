@@ -598,8 +598,35 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
       if (isAlive("tomas") && !hasMark("tomas", "bonded") && !hasMark("tomas", "bond_skipped")) {
         opts.push({ text: "Sit a low-stakes game with Tomas if he will play.", next: "bond_tomas", effects: { cohesion: 1 }, alive: "tomas", tag: "bond" });
       }
+      // 0.28.1b: quiet_tomas was early-only while Tomas starts unrecovered — offer once post-recovery
+      if (isAlive("tomas") && !state.flags.quiet_tomas_done) {
+        opts.push({ text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas", tag: "bond" });
+      }
+      // 0.28.1b: Amara+Tomas private — intimacy_window can fire before Tomas recovery
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && state.flags.hydro === "full") {
+        opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
+      }
       if (isAlive("jiro") && !hasMark("jiro", "bonded") && !hasMark("jiro", "bond_skipped")) {
         opts.push({ text: "Join Jiro on a competence hang at the star tracker.", next: "bond_jiro", effects: { cohesion: 1 }, alive: "jiro", tag: "bond" });
+      }
+      // 0.28: pair settle + warmth optional one-shots (gated)
+      if (isAlive("elias") && !isAlive("mira") && attributableDeath("mira") && !state.flags.pair_shield) {
+        opts.push({ text: "Elias is still at the board after the report.", next: "pair_shield_cold" });
+      }
+      if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
+        opts.push({ text: "The sound of two people working carries from the trunk.", next: "pair_grudge_settle" });
+      }
+      if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
+        opts.push({ text: "Hydroponics wants a quiet word.", next: "pair_favor_confront" });
+      }
+      if (isAlive("tomas") && !state.flags.warmth_meal) {
+        opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
+      }
+      if (["lena","elias","mira","tomas","amara","jiro","sela","vess"].filter(isAlive).length >= 2 && !state.flags.warmth_laughter) {
+        opts.push({ text: "There's laughter around the spine bend. Stop before they see you.", next: "warmth_laughter" });
+      }
+      if (!state.flags.warmth_music) {
+        opts.push({ text: "There's music coming from the empty berths.", next: "warmth_music" });
       }
       // Preserve pregnancy check if any romance occurred; then tomas_break is reachable
       // 0.24.2: Vess pregnancy gate keys on physical intimacy (vess_intimate), not offer acceptance
