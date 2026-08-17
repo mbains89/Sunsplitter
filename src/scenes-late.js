@@ -1024,7 +1024,8 @@ The access door remains above safe-open temperature longer than the suit feed la
 
   faction_split: {
     onEnter: () => {
-      if (state.crisisPath == null) return "act3_crisis_router";
+      if (state.crisisPath == null) return "act3_crisis_router"; // existing 0.26
+      if (!state.flags.junctionChoice) return "offshift_open";   // 0.28
     },
     get text() {
       let t = `The crew is no longer one group.\n\n`;
@@ -1124,9 +1125,10 @@ return t;
     },
     choices: [
       { text: "Call them together and force the fracture into the open.", next: "reckon_summary", effects: { cohesion: -3, integrity: -2 }, lean: { living: 2 }, requires: { cohesion: { min: 25 }, survivors: { min: 4 } }, flag: { reckon: "public" } },
-      { text: "Keep the work moving. Ignore the sides until you cannot.", next: "reckon_summary", effects: { cohesion: 1, supplies: -2, integrity: 2 }, flag: { reckon: "suppress" } },
+      { text: "Keep the work moving. Ignore the sides until you cannot.", next: "reckon_summary", effects: { cohesion: 1, supplies: -2, integrity: 2 }, requires: { supplies: { min: 2 } }, flag: { reckon: "suppress" } },
       { text: "Pick a side yourself and make it visible.", next: "reckon_summary", effects: { cohesion: -6, integrity: 1 }, lean: { future: 2 }, requires: { survivors: { min: 5 }, cohesion: { min: 15 } }, flag: { reckon: "public" } },
-      { text: "Give them the right to remember the dead and the near-loss in their own words.", next: "reckon_summary", effects: { cohesion: 2 }, flag: { reckon: "memory" }, lean: { living: 1 } }
+      { text: "Give them the right to remember the dead and the near-loss in their own words.", next: "reckon_summary", effects: { cohesion: 2 }, flag: { reckon: "memory" }, lean: { living: 1 } },
+      { text: "Tell them the truth you have been carrying — planet, odds, and what remains.", next: "reckon_summary", effects: { cohesion: 1 }, flag: { reckon: "truth" }, lean: { living: 1 } }
     ]
   },
   reckon_public: {
