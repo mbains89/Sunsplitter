@@ -34,14 +34,12 @@
 
   <div id="crew-panel" class="hidden" aria-label="Crew status"></div>
 
-  <!-- 0.21.3: pinned scene art — direct child of #app, outside the scroller -->
   <div id="scene-image-wrap">
     <img id="scene-image" alt="Scene" />
   </div>
 
   <div id="main">
 
-    <!-- 0.18 Tone contract — shown once until acknowledged -->
     <div id="tone-screen" class="hidden">
       <div class="tone-bg" aria-hidden="true"></div>
       <div class="tone-panel">
@@ -65,7 +63,7 @@
 
     <div id="title-screen" class="hidden">
       <div class="game-title">Sunsplitter</div>
-      <div class="game-subtitle" id="game-subtitle">v0.28.1b</div>
+      <div class="game-subtitle" id="game-subtitle">v0.28.1c</div>
       <div class="prologue">
         Earth failed in a cascade measured in hours.<br><br>
         The <em>Sunsplitter</em> was a colonization ark — built for thousands. Nine of you cleared the hatch.<br><br>
@@ -110,18 +108,62 @@
 
 </div>
 
-
-<!-- Load order matters: state → act scenes → engine → validate -->
-<!-- 0.22.0: scenes-crises.js after mid-b, before late (arrivals + exclusive crises land here) -->
 <script src="src/state.js"></script>
-<script src="src/scenes-early.js"></script>
-<script src="src/scenes-mid-a.js"></script>
-<script src="src/scenes-mid-b.js"></script>
-<script src="src/scenes-crises.js"></script>
-<script src="src/scenes-exclusive.js"></script>
-<script src="src/scenes-promises.js"></script>
-<script src="src/scenes-crewpairs.js"></script>
-<script src="src/scenes-late.js"></script>
+<script src="src/scenes-01.js"></script>
+<script src="src/scenes-02.js"></script>
+<script src="src/scenes-03.js"></script>
+<script src="src/scenes-04.js"></script>
+<script src="src/scenes-05.js"></script>
+<script src="src/scenes-06.js"></script>
+<script src="src/scenes-07.js"></script>
+<script src="src/scenes-08.js"></script>
+<script src="src/scenes-09.js"></script>
+<script src="src/scenes-10.js"></script>
+<script src="src/scenes-11.js"></script>
+<script src="src/scenes-12.js"></script>
+<script src="src/scenes-13.js"></script>
+<script src="src/scenes-14.js"></script>
+<script src="src/scenes-15.js"></script>
+<script src="src/scenes-16.js"></script>
+<script src="src/scenes-17.js"></script>
+<script src="src/scenes-18.js"></script>
+<script src="src/scenes-19.js"></script>
+<script src="src/scenes-20.js"></script>
+<script src="src/scenes-21.js"></script>
+<script src="src/scenes-22.js"></script>
+<script src="src/scenes-23.js"></script>
+<script src="src/scenes-24.js"></script>
+<script src="src/scenes-25.js"></script>
+<script src="src/scenes-26.js"></script>
+<script src="src/scenes-27.js"></script>
+<script src="src/scenes-28.js"></script>
+<script src="src/scenes-29.js"></script>
+<script src="src/scenes-30.js"></script>
+<script src="src/scenes-31.js"></script>
+<script src="src/scenes-32.js"></script>
+<script src="src/scenes-33.js"></script>
+<script src="src/scenes-34.js"></script>
+<script src="src/scenes-35.js"></script>
+<script src="src/scenes-36.js"></script>
+<script src="src/scenes-37.js"></script>
+<script src="src/scenes-38.js"></script>
+<script src="src/scenes-39.js"></script>
+<script src="src/scenes-40.js"></script>
+<script src="src/scenes-41.js"></script>
+<script src="src/scenes-42.js"></script>
+<script src="src/scenes-43.js"></script>
+<script src="src/scenes-44.js"></script>
+<script src="src/scenes-45.js"></script>
+<script src="src/scenes-46.js"></script>
+<script src="src/scenes-47.js"></script>
+<script src="src/scenes-48.js"></script>
+<script src="src/scenes-49.js"></script>
+<script src="src/scenes-50.js"></script>
+<script src="src/scenes-51.js"></script>
+<script src="src/scenes-52.js"></script>
+<script src="src/scenes-53.js"></script>
+<script src="src/scenes-54.js"></script>
+<script src="src/scenes-55.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js"></script>
 </body>
