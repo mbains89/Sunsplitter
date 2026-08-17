@@ -1,24 +1,13 @@
-# Sunsplitter v0.28.1
+# Sunsplitter v0.28.1b
 
-**Truth Repair (P0 + core P1)**
+**Unreachable scenes + unpaid resource costs**
 
 ## Changes
-One-concern causality fix from Monte Carlo FAIL for final lock.
+One-concern causality hygiene after 0.28.1 Truth Repair.
 
-1. **P0 — Dead Tomas speech removed** from Living exclusive crisis.
-   - `breath_word_given` / `breath_word_refused` now gate all Tomas body/speech on `isAlive("tomas")`.
-   - Public word flag still written; onset choices remain available when Tomas is dead.
-2. **P1 — pair_shield_cold reachable**.
-   - Added real Mira lethal causes `"finished the repair"` and `"would not leave the board"` to `ATTRIBUTABLE_CAUSES`.
-3. **P1 — No dangling "made" promises into ending**.
-   - Off-Shift Tomas accept now writes `"kept"` (pure Off-Shift vow) instead of `"made"`.
-   - `forceResolvePromises()` runs at start of `resolveEnding()`: any remaining `"made"` → `"broken"`.
+1. **quiet_tomas reachable** — offered once from `act3_spine_next` after Tomas recovery (early offer was dead while unrecovered). `quiet_tomas_done` flag.
+2. **romance_amara_tomas / _sex reachable** — also offered from `act3_spine_next` when both alive + hydro full (intimacy_window can fire before recovery).
+3. **reckon_truth reachable** — fourth `faction_split` option sets `reckon: "truth"`.
+4. **Unpaid costs gated** — `canAffordEffects`: choices whose negative resource effects cannot be fully paid are disabled ("Cannot pay the full cost"). No silent free lunch. `faction_split` suppress gains `requires: supplies min 2`.
 
-## Out of scope
-Unreachable scenes (quiet_tomas, romance_amara_tomas*, reckon_truth) and unpaid resource costs deferred to 0.28.1b if needed.
-
-## Validate
-0 errors expected; scene count unchanged from 0.28.
-
-## Zip
-`artifacts/sun-v0.28.1-net.zip`
+No new story volume. No art. No 0.29.
