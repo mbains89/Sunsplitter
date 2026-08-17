@@ -1,0 +1,8 @@
+# Sunsplitter — Netlify config
+# Automatic deploys from git are disabled to save build credits.
+# Production updates only when the manual build hook is triggered.
+
+[build]
+  # Always skip builds triggered by git push / PR.
+  # Build hooks still run normally.
+  ignore = "exit 1"
