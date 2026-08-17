@@ -65,7 +65,7 @@
 
     <div id="title-screen" class="hidden">
       <div class="game-title">Sunsplitter</div>
-      <div class="game-subtitle" id="game-subtitle">v0.28.1</div>
+      <div class="game-subtitle" id="game-subtitle">v0.28.1b</div>
       <div class="prologue">
         Earth failed in a cascade measured in hours.<br><br>
         The <em>Sunsplitter</em> was a colonization ark — built for thousands. Nine of you cleared the hatch.<br><br>
@@ -112,6 +112,7 @@
 
 
 <!-- Load order matters: state → act scenes → engine → validate -->
+<!-- 0.22.0: scenes-crises.js after mid-b, before late (arrivals + exclusive crises land here) -->
 <script src="src/state.js"></script>
 <script src="src/scenes-early.js"></script>
 <script src="src/scenes-mid-a.js"></script>
