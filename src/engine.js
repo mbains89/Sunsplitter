@@ -156,14 +156,16 @@ function showScene(id) {
     if (c.aliveAll && !c.aliveAll.every(k => isAlive(k))) return;
     if (c.aliveAny && !c.aliveAny.some(k => isAlive(k))) return;
 
-    const gated = c.requires && !meetsRequirements(c.requires);
+    const unpaid = c.effects && !canAffordEffects(c.effects);
+    const gated = (c.requires && !meetsRequirements(c.requires)) || unpaid;
     const btn = document.createElement("button");
     btn.className = "choice-btn" + (gated ? " disabled" : "");
     btn.type = "button";
     const tagHtml = formatTagHtml(c.tag);
     if (gated) {
       btn.disabled = true;
-      const reason = formatRequiresReason(c.requires);
+      let reason = formatRequiresReason(c.requires);
+      if (!reason && unpaid) reason = "Cannot pay the full cost";
       btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>` +
         (reason ? `<span class="choice-reason">${escapeHtml(reason)}</span>` : "");
     } else {
@@ -175,6 +177,17 @@ function showScene(id) {
   });
 
   renderStatus();
+}
+
+function canAffordEffects(effects) {
+  if (!effects || typeof effects !== "object") return true;
+  for (const [k, v] of Object.entries(effects)) {
+    if (typeof v !== "number" || v >= 0) continue;
+    // Negative resource effect — must be fully payable
+    const cur = typeof state[k] === "number" ? state[k] : 0;
+    if (cur + v < 0) return false;
+  }
+  return true;
 }
 
 function formatRequiresReason(req) {
@@ -217,10 +230,10 @@ function crewFirstName(key) {
 
 function escapeHtml(s) {
   return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, "&")
+    .replace(/</g, "<")
+    .replace(/>/g, ">")
+    .replace(/"/g, """);
 }
 
 function meetsRequirements(req) {
@@ -427,11 +440,7 @@ function canYellowCircle() {
 }
 
 function buildYellowCircleText(vaultSac) {
-  let text = `You did not deliver the future intact. You did not land on a world with a sun.
-
-What you delivered was smaller and stranger: a crew that still draws yellow circles on bulkheads, that still argues about plants and paste, that still looks for each other in the corridors.
-
-Sela's suns multiplied. No one ordered them taken down.`;
+  let text = `You did not deliver the future intact. You did not land on a world with a sun.\n\nWhat you delivered was smaller and stranger: a crew that still draws yellow circles on bulkheads, that still argues about plants and paste, that still looks for each other in the corridors.\n\nSela's suns multiplied. No one ordered them taken down.`;
   // Only cite acts that can actually have occurred this run
   if (isAlive("jiro") && (hasMark("jiro", "bonded") || hasMark("sela", "spoken"))) {
     text += ` Jiro stopped correcting the orbital math long enough to acknowledge the circles.`;
@@ -449,18 +458,12 @@ Sela's suns multiplied. No one ordered them taken down.`;
     text += `There is no grand destination. There is the next cycle, and the circles, and the people who still make them.\n\n`;
   }
   if (state.memories.length) text += `Something private still sits with you: ${state.memories[state.memories.length - 1]}\n\n`;
-  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.
-
-That is rarer than landfall.`;
+  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.\n\nThat is rarer than landfall.`;
   return text;
 }
 
 function buildLandfallText(shape, planet, final) {
-  let text = `Against every probability, the ship holds together long enough.
-
-The rogue planet grows from a data point into a disc of ice and dark rock. There is no sun to rise over it. There is only the cold light of distant stars and the faint heat of the Sunsplitter's remaining systems.
-
-`;
+  let text = `Against every probability, the ship holds together long enough.\n\nThe rogue planet grows from a data point into a disc of ice and dark rock. There is no sun to rise over it. There is only the cold light of distant stars and the faint heat of the Sunsplitter's remaining systems.\n\n`;
   if (planet === "committed" && final === "hold") {
     text += `You locked the course early and held it when the ship tried to argue. The board still shows the same destination.\n\n`;
   } else if (final === "hold") {
@@ -471,27 +474,18 @@ The rogue planet grows from a data point into a disc of ice and dark rock. There
   text += `The vault is still viable. The living are still breathing. That combination was never guaranteed.\n\n`;
   if (shape === "future") text += `You kept the future intact when it cost you. The numbers people will remember that the package arrived.\n\n`;
   else if (shape === "split") text += `You tried to hold both sides of the argument. Arrival does not resolve it. It only changes the room in which it continues.\n\n`;
-  text += `You do not know if the subsurface ocean is real. You know only that the people who are left still look at one another, and that the restart package survived the journey with them.
-
-Arrival and salvation were never the same thing.
-
-You land anyway.`;
+  text += `You do not know if the subsurface ocean is real. You know only that the people who are left still look at one another, and that the restart package survived the journey with them.\n\nArrival and salvation were never the same thing.\n\nYou land anyway.`;
   return text;
 }
 
 function buildLivingShipText(futureVoices, livingVoices, preg, emb) {
-  let text = `You chose the people who were already breathing.
-
-The embryo counts are permanently lower (${emb}%). The vault remembers the cost.
-`;
+  let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
   text += `But the habitation ring is warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
-  text += `You did not deliver the future intact. You delivered a smaller, warmer present.
-
-Whether that is enough is no longer a command decision.`;
+  text += `You did not deliver the future intact. You delivered a smaller, warmer present.\n\nWhether that is enough is no longer a command decision.`;
   return text;
 }
 
@@ -500,13 +494,7 @@ function buildQuietShipText(deadNames, shape) {
   if (deadNames.length) text += `The dead: ${deadNames.join("; ")}.\n\n`;
   if (shape === "future") text += `You protected the vault when you could. It did not save the room.\n\n`;
   if (shape === "living") text += `You protected the living when you could. There were not enough left to matter.\n\n`;
-  text += `The Sunsplitter drifts. Systems fail one by one. There is no longer any pretense of a future.
-
-You sit with the last of them in the observation blister and watch the stars that do not care.
-
-When the final systems go dark, no one speaks.
-
-This is how the last light goes out.`;
+  text += `The Sunsplitter drifts. Systems fail one by one. There is no longer any pretense of a future.\n\nYou sit with the last of them in the observation blister and watch the stars that do not care.\n\nWhen the final systems go dark, no one speaks.\n\nThis is how the last light goes out.`;
   return text;
 }
 
@@ -533,15 +521,13 @@ function buildFractureText(shape, leadership, reckon, deadNames, futureVoices, l
   if (futureVoices.length && livingVoices.length) {
     text += `Future still speaks through ${futureVoices[0]}. Living still speaks through ${livingVoices[0]}. They no longer share a language.\n\n`;
   }
-  text += `You remain Commander in name. In practice the Sunsplitter is a collection of isolated survivors sharing a dying hull.
-
-The void does not need to kill you. You are doing it yourselves.`;
+  text += `You remain Commander in name. In practice the Sunsplitter is a collection of isolated survivors sharing a dying hull.\n\nThe void does not need to kill you. You are doing it yourselves.`;
   return text;
 }
 
 function buildLongDarkText(final, planet, emb, preg, shape, integ, sup) {
   let text = `You keep them alive. Not all of them. Not with dignity every day. But alive.\n\n`;
-  if (final === "hold" && planet === "committed") text += `The rogue planet remains ahead. The course is held.\n\n`;
+  if (final === "hold" && planet === "committed") text += `The course remains locked on the rogue planet. The course is held.\n\n`;
   else if (final === "hold") text += `You ordered the course held. Whether the planet is real enough is no longer the only question.\n\n`;
   else if (final === "transmission") text += `A final transmission was sent into the dark. No reply is expected.\n\n`;
   else if (final === "comfort") text += `You spent fuel on comfort. The horizon is closer and emptier.\n\n`;
@@ -552,11 +538,7 @@ function buildLongDarkText(final, planet, emb, preg, shape, integ, sup) {
   if (preg === true) text += `A living child may still be possible. That fact competes with every frozen future in the vault.\n\n`;
   if (shape === "future") text += `Your run leaned toward Future. The vault still has a claim on the ship.\n\n`;
   else if (shape === "living") text += `Your run leaned toward Living. The warmth has a cost the numbers will not forget.\n\n`;
-  text += `The Sunsplitter pushes on through the black.
-
-You do the work anyway.
-
-One more day, then the next, then the next.`;
+  text += `The Sunsplitter pushes on through the black.\n\nYou do the work anyway.\n\nOne more day, then the next, then the next.`;
   return text;
 }
 
