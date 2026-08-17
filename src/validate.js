@@ -1,5 +1,5 @@
 // Sunsplitter — validate.js
-// Version 0.27.2 — + prom_*_alluded engineFlags
+// Version 0.28 — + Off-Shift / pairs / warmth engineFlags
 // Scene validation. Runs when ?validate=1 or localStorage.sunsplitter_validate=1.
 // Strict scene shape: only text | choices | onEnter | image
 // Choice shape: ALLOWED_CHOICE_KEYS (text/next/effects/affinity/flag/lean/requires/trust/alive/aliveAll/aliveAny/mark/remember/tag)
@@ -220,7 +220,11 @@
       "prom_deck4_edited", "prom_deck4_buried", "prom_line_other", "prom_line_held",
       // 0.27.2 allusion carriers (one-shot mid-run re-surface)
       "prom_amara_alluded", "prom_tomas_alluded", "prom_elias_alluded",
-      "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded"
+      "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
+      // 0.28 Off-Shift + pairs + warmth
+      "junctionChoice", "lena_notes", "mira_fault_known", "course_briefed",
+      "pair_shield", "pair_grudge", "pair_favor", "pair_turn",
+      "warmth_meal", "warmth_laughter", "warmth_music"
     ]);
     deadWrites.forEach(f => {
       if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`);
