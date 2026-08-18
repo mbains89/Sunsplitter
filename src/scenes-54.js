@@ -14,7 +14,7 @@ registerScenes({
       {
         text: "Cannibalize sterile filters and outer embryo racks.",
         next: "breath_racks",
-        requires: { embryos: { min: 8 } }
+        requires: { embryos: { min: 12 }, cohesion: { min: 2 } }
       },
       {
         text: "Send crew into the contaminated scrubber trunks by hand.",
@@ -24,13 +24,13 @@ registerScenes({
         text: "Convert the hydroponics garden into a disposable biological scrubber.",
         next: "breath_garden",
         alive: "amara",
-        requires: { supplies: { min: 4 } }
+        requires: { supplies: { min: 6 }, cohesion: { min: 1 } }
       },
       {
         text: "Put the vulnerable into controlled black sleep. Lena stays awake to manage.",
         next: "breath_blacksleep",
         alive: "lena",
-        requires: { supplies: { min: 3 } }
+        requires: { supplies: { min: 4 } }
       }
     ]
   },
@@ -69,6 +69,10 @@ registerScenes({
         text: "Pull them out. Log the exposure.",
         next: "breath_after",
         effects: { cohesion: -5, integrity: -1 }
+      },
+      {
+        text: "Seal the fouled branch. Spend nothing more here.",
+        next: "breath_after"
       }
     ]
   },
@@ -118,7 +122,8 @@ registerScenes({
     image: "images/corridor_pressure_4.jpg",
     text: () => {
       let t = `The air loop stabilizes. The cost is already on the boards.\n\n`;
-      if (state.flags.breath_word === "given") t += `Tomas's public word held. The rumor has less room to grow.\n\n`;
+      if (state.flags.breath_word === "given" && isAlive("tomas")) t += `Tomas's public word held. The rumor has less room to grow.\n\n`;
+      else if (state.flags.breath_word === "given") t += `The public word held. The rumor has less room to grow.\n\n`;
       else if (state.flags.breath_word === "refused") t += `The refused word is still walking the corridors.\n\n`;
       t += `The ship has a path again. The fracture has not closed.`;
       return t;
