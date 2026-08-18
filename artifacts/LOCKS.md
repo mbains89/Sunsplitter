@@ -34,12 +34,12 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 | L-021 | LOCKED | Global cost rule | Every rendered scene must always have at least one affordable/enabled exit (zero-cost degraded exit allowed). Never soft-lock. No silent clamps. | 2026-08-18 Manraj |
 | L-022 | LOCKED | `vault_priority` | Preserve the player’s early Living/Future ideology choice. Re-key the later Lena choice so it no longer overwrites `vault_priority`. | 2026-08-18 Manraj |
 | L-023 | LOCKED | `pair_turn` | Remove the unused `pair_turn` flag from engineFlags / runtime state. | 2026-08-18 Manraj |
+| L-024 | LOCKED | Untested promise domain (Option B) | Untested promises remain `"made"` and are omitted from ending reflection / “What remains”. Never invent a player-authored betrayal on a dead holder. | 2026-08-18 Manraj |
 
 ## Unresolved decision gates
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-024 | DECISION_GATE | Four-state promise domain before 0.28.3 promise implementation and 0.29 prose | ROADMAP §§6, 14 |
 | L-025 | DECISION_GATE | Commander identity A/B at PX-4; B is recommended, not ruled | ROADMAP §§7, 14 |
 | L-026 | DECISION_GATE | Last Off-Shift zero/one branches: document defensive code or retire | ROADMAP §§6, 14 |
 | L-027 | DECISION_GATE | `vess_course_lost`: tested consumer or retirement | ROADMAP §§6, 14 |
