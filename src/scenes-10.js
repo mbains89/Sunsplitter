@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-10.js
-// 0.28.1c size hygiene. Pure mechanical. crises: tether sighting + vent + rush
+// 0.28.2 size hygiene. Pure mechanical. crises: tether sighting + vent + rush
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

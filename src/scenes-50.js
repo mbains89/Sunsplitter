@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-50.js
-// 0.28.1c size hygiene. Pure mechanical. crewpairs: amara + jiro
+// 0.28.2 size hygiene. Pure mechanical. crewpairs: amara + jiro
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-13.js
-// 0.28.1c size hygiene. Pure mechanical. crises: reckoning pattern + heading
+// 0.28.2 size hygiene. Pure mechanical. crises: reckoning pattern + heading
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

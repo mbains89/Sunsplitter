@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-19.js
-// 0.28.1c size hygiene. Pure mechanical. late: lena clock + sterile
+// 0.28.2 size hygiene. Pure mechanical. late: lena clock + sterile
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

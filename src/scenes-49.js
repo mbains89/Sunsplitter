@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-49.js
-// 0.28.1c size hygiene. Pure mechanical. crewpairs: mira + tomas + tomas_r
+// 0.28.2 size hygiene. Pure mechanical. crewpairs: mira + tomas + tomas_r
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

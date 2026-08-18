@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-11.js
-// 0.28.1c size hygiene. Pure mechanical. crises: tether hands + dock
+// 0.28.2 size hygiene. Pure mechanical. crises: tether hands + dock
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

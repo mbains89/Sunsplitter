@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-31.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: bond_lena + romance_amara_tomas + sex
+// 0.28.2 size hygiene. Pure mechanical. mid-b: bond_lena + romance_amara_tomas + sex
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

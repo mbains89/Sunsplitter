@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-27.js
-// 0.28.1c size hygiene. Pure mechanical. late: reckon_summary
+// 0.28.2 size hygiene. Pure mechanical. late: reckon_summary
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

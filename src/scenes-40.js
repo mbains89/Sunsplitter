@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-40.js
-// 0.28.1c size hygiene. Pure mechanical. early: priority through crew_walk
+// 0.28.2 size hygiene. Pure mechanical. early: priority through crew_walk
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-09.js
-// 0.28.1c size hygiene. Pure mechanical. mid-a: arc_living_3 + living_4 + vault_sacrifice
+// 0.28.2 size hygiene. Pure mechanical. mid-a: arc_living_3 + living_4 + vault_sacrifice
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

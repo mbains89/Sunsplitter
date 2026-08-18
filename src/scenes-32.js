@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-32.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: pursuit_window + pursuit_mira + sex
+// 0.28.2 size hygiene. Pure mechanical. mid-b: pursuit_window + pursuit_mira + sex
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

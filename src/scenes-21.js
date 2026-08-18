@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-21.js
-// 0.28.1c size hygiene. Pure mechanical. late: tomas cost + stores
+// 0.28.2 size hygiene. Pure mechanical. late: tomas cost + stores
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

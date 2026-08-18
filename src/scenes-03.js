@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-03.js
-// 0.28.1c size hygiene. Pure mechanical. mid-a: aftermath + lena_dying + romance_lena_1
+// 0.28.2 size hygiene. Pure mechanical. mid-a: aftermath + lena_dying + romance_lena_1
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-41.js
-// 0.28.1c size hygiene. Pure mechanical. early: empty_berths through quiet_amara
+// 0.28.2 size hygiene. Pure mechanical. early: empty_berths through quiet_amara
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

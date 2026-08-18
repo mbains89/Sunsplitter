@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-29.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: ship_interrupt + resolve + boarding + intimacy_window
+// 0.28.2 size hygiene. Pure mechanical. mid-b: ship_interrupt + resolve + boarding + intimacy_window
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
