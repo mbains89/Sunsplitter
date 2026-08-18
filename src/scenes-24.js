@@ -206,9 +206,14 @@ The access door remains above safe-open temperature longer than the suit feed la
     }
     return t;
   },
-  choices: [
-    { text: "Leave the completed trace on the board. Continue.", next: "faction_split" }
-  ],
+  get choices() {
+    const opts = [];
+    if (isAlive("elias") && !isAlive("mira") && attributableDeath("mira") && !state.flags.pair_shield) {
+      opts.push({ text: "Elias is still at the board after the report.", next: "pair_shield_cold" });
+    }
+    opts.push({ text: "Leave the completed trace on the board. Continue.", next: "faction_split" });
+    return opts;
+  },
   image: "images/corridor_variant.jpg"
 },
 
