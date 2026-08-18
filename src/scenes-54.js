@@ -122,7 +122,8 @@ registerScenes({
     image: "images/corridor_pressure_4.jpg",
     text: () => {
       let t = `The air loop stabilizes. The cost is already on the boards.\n\n`;
-      if (state.flags.breath_word === "given") t += `Tomas's public word held. The rumor has less room to grow.\n\n`;
+      if (state.flags.breath_word === "given" && isAlive("tomas")) t += `Tomas's public word held. The rumor has less room to grow.\n\n`;
+      else if (state.flags.breath_word === "given") t += `The public word held. The rumor has less room to grow.\n\n`;
       else if (state.flags.breath_word === "refused") t += `The refused word is still walking the corridors.\n\n`;
       t += `The ship has a path again. The fracture has not closed.`;
       return t;

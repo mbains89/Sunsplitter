@@ -26,7 +26,9 @@ registerScenes({
       opts.push({ text: "Leave them without a speech. Neither doctrine nor ban.", next: "ship_memory_payoff", effects: { cohesion: 1 }, flag: { sun_doctrine: "silent" }, lean: { living: 1 } });
       return opts;
     },
-    image: "images/sela_ritual.jpg"
+    get image() {
+      return isAlive("sela") ? "images/sela_ritual.jpg" : "images/observation.jpg";
+    }
   },
 
   ship_memory_payoff: {

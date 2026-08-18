@@ -72,7 +72,7 @@ Clothes come off against the console. She is explicit about what she wants — y
       if (!isAlive("amara")) return `The trays are unattended.`;
       return `Amara is alone in the hydroponics bay. The house key from Lagos turns once between her fingers, then stills.
 
-"Tomas listens. You decide. Those are not the same job."
+"Listening and deciding are not the same job."
 
 She looks at you directly — grounded, not coy.
 
