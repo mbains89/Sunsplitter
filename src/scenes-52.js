@@ -50,7 +50,7 @@ registerScenes({
       let t = `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
       return t;
     },
-    choices: [ { text: "Continue.", next: "act3_spine_next" } ]
+    choices: [ { text: "Continue.", next: "faction_split" } ]
   },
 
   // ═══════════════════════════════════════════════════════════════
