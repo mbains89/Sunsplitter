@@ -429,7 +429,7 @@ export function assertV6(rootDir, holder = "amara") {
   delete runtime.context.__v6Choice;
 
   const beforeDeath = stateSnapshot(runtime).promises[holder];
-  runtime.evaluate(`kill(${JSON.stringify(holder)}, "V6 fabricated death before authored promise test");`);
+  runtime.evaluate(`kill(${JSON.stringify(holder)}, "V6 fabricated death before authored test");`);
   const beforeEnding = stateSnapshot(runtime).promises[holder];
   runtime.evaluate("resolveEnding();");
   const after = stateSnapshot(runtime);
