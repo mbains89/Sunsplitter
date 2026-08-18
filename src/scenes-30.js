@@ -13,13 +13,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("mira")) return `Engineering is empty.`;
-      return `Mira is alone with the drive schematic and a cooling mug she has not touched.
-
-"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."
-
-She finally turns. Grease on her wrist. Tired eyes. No performance.
-
-"I am not asking for a future. I am asking for one honest hour that is not the ship."`;
+      return `Mira is alone with the drive schematic and a cooling mug she has not touched.\n\n"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."\n\nShe finally turns. Grease on her wrist. Tired eyes. No performance.\n\n"I am not asking for a future. I am asking for one honest hour that is not the ship."`;
     },
     get choices() {
       if (!isAlive("mira")) return [{ text: "Leave.", next: "intimacy_window" }];
@@ -32,11 +26,7 @@ She finally turns. Grease on her wrist. Tired eyes. No performance.
   },
 
   romance_mira_1: {
-    text: `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.
-
-Clothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.
-
-"That was not a mistake," she says quietly. "Do not treat it like one. And do not pretend Elias will not notice who you left engineering smelling like."`,
+    text: `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one. And do not pretend Elias will not notice who you left engineering smelling like."`,
     get choices() {
       const opts = [
         { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { mira: 8 }, lean: { living: 1 } },
@@ -70,13 +60,7 @@ Clothes come off against the console. She is explicit about what she wants — y
     },
     get text() {
       if (!isAlive("amara")) return `The trays are unattended.`;
-      return `Amara is alone in the hydroponics bay. The house key from Lagos turns once between her fingers, then stills.
-
-"Tomas listens. You decide. Those are not the same job."
-
-She looks at you directly — grounded, not coy.
-
-"I am not offering a three-person negotiation. I am asking if you want me. If the answer is no, I will keep growing food and we will still work. If the answer is yes, I need you to mean it when the crew starts counting who gets your private time."`;
+      return `Amara is alone in the hydroponics bay. The house key from Lagos turns once between her fingers, then stills.\n\n"Listening and deciding are not the same job."\n\nShe looks at you directly — grounded, not coy.\n\n"I am not offering a three-person negotiation. I am asking if you want me. If the answer is no, I will keep growing food and we will still work. If the answer is yes, I need you to mean it when the crew starts counting who gets your private time."`;
     },
     get choices() {
       if (!isAlive("amara")) return [{ text: "Leave.", next: "intimacy_window" }];
@@ -89,11 +73,7 @@ She looks at you directly — grounded, not coy.
   },
 
   romance_amara_1: {
-    text: `She locks the bay hatch. Not dramatic — practical.
-
-What follows is unhurried and explicit. Amara is vocal about what she likes and what she does not. She pulls you down among the warm trays, skin against skin, the smell of wet earth and her mouth at your ear. She does not perform vulnerability; she chooses it. When she finishes she laughs once, quiet, then goes still with her forehead against your shoulder.
-
-"The crew will smell the bay," she says. "Let them. I am done pretending only the vault gets a future."`,
+    text: `She locks the bay hatch. Not dramatic — practical.\n\nWhat follows is unhurried and explicit. Amara is vocal about what she likes and what she does not. She pulls you down among the warm trays, skin against skin, the smell of wet earth and her mouth at your ear. She does not perform vulnerability; she chooses it. When she finishes she laughs once, quiet, then goes still with her forehead against your shoulder.\n\n"The crew will smell the bay," she says. "Let them. I am done pretending only the vault gets a future."`,
     get choices() {
       const opts = [
         { text: "Stay until the next duty cycle forces you out.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { amara: 8 }, lean: { living: 2 } },
@@ -127,15 +107,7 @@ What follows is unhurried and explicit. Amara is vocal about what she likes and 
     },
     get text() {
       if (!isAlive("sela")) return `The bulkhead is unmarked tonight.`;
-      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.
-
-"You keep returning. That is data."
-
-A pause. She chooses the next sentence carefully.
-
-"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."
-
-Her voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
+      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.\n\n"You keep returning. That is data."\n\nA pause. She chooses the next sentence carefully.\n\n"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."\n\nHer voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
     },
     get choices() {
       if (!isAlive("sela")) return [{ text: "Leave.", next: "intimacy_window" }];
@@ -148,11 +120,7 @@ Her voice stays precise. Adult. The ritual plate rests between you like a third 
   },
 
   romance_sela_1: {
-    text: `She sets the pigment down.
-
-What happens is slower than the ship usually allows. Sela is exact about boundaries and exact about desire — she tells you where to touch and when to stop and when not to stop. The sex is quiet, intense, deliberate; she does not perform for an audience that is not there. Afterward she draws one small yellow mark on the inside of your wrist with a fingertip, then rubs it away before it can dry.
-
-"That was not a claim on the crew's time," she says. "It was mine. If they notice, that is their measurement, not ours."`,
+    text: `She sets the pigment down.\n\nWhat happens is slower than the ship usually allows. Sela is exact about boundaries and exact about desire — she tells you where to touch and when to stop and when not to stop. The sex is quiet, intense, deliberate; she does not perform for an audience that is not there. Afterward she draws one small yellow mark on the inside of your wrist with a fingertip, then rubs it away before it can dry.\n\n"That was not a claim on the crew's time," she says. "It was mine. If they notice, that is their measurement, not ours."`,
     get choices() {
       const opts = [
         { text: "Tell her you will protect what this was.", next: "pursuit_window", effects: { cohesion: 2 }, affinity: { sela: 10 }, lean: { living: 2 } },
