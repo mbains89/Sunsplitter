@@ -30,42 +30,37 @@ No deployment, artifact digest, runtime validation, or simulation pass is newly 
 
 ## Active work
 
-`milestone: Authority bootstrap; next executable milestone is 0.28.2 Truth Hotfix`  
-`ticket: 0.28.2 preflight and decision-gate rulings`  
-`owner: Grok / program office; Build after dispatch`  
-`state: AWAITING_LOCK`  
+`milestone: 0.28.2 Truth Hotfix`  
+`ticket: 0.28.2 preflight + ten-ticket batch (L-020–L-023 now ruled)`  
+`owner: Grok / program office → Build after dispatch`  
+`state: READY_FOR_DISPATCH`  
 `pull_request: none`
 
 ## Blocked
 
-- 0.28.2 implementation is blocked by L-020 through L-023.
 - Certified verification is blocked until `verify.mjs`, `simulate.mjs`, and the actions manifest exist on the 0.28.2 version branch.
 - Version integrity is failing across the three authoritative surfaces.
 - `images/lingerie_lena.jpg` is a 21-byte placeholder and remains inside the locked 0.28.2 batch.
 
-## Open locks
+## Open locks (remaining)
 
-- L-020 — `pair_shield_cold` disposition
-- L-021 — global cost rule
-- L-022 — `vault_priority` disposition
-- L-023 — `pair_turn` disposition
 - L-024 — four-state promise domain
 - L-025 — Commander identity A/B
 - L-026 — Last Off-Shift zero/one branches
 - L-027 — `vess_course_lost` consumer or retirement
 - L-028 — Ticket 2 new-crew indicator
 
-Full language and unchanged dispositions are in `LOCKS.md` and the cited roadmap sections.
+L-020 through L-023 were ruled 2026-08-18 and are no longer blockers. Full language in `LOCKS.md`.
 
 ## Canon and repository deltas
 
-- No runtime, canon, scene, state, CSS, image, deployment, or release-artifact bytes changed in the authority migration.
+- No runtime, canon, scene, state, CSS, image, deployment, or release-artifact bytes changed by the L-020–L-023 rulings.
 - `artifacts/ROADMAP.md` is the approved forward plan with source SHA-256 `1c60d45f0f05ac8f30400d884873ee35d8ad48692d1b17b0e96f0fdd6c406869`.
 - `/AGENTS.md`, `/CLAUDE.md`, `artifacts/LOCKS.md`, this compact status, `README.md`, and the `GITHUB_PUSH_RULES.md` retirement notice form the companion authority reconciliation.
 - Detailed pre-migration chronology remains in Git history at `3789062` and earlier; it is not live authority.
 
 ## Next action
 
-**Grok:** obtain and record Manraj's rulings for L-020 through L-023, then dispatch the 0.28.2 preflight against `main` after confirming the authority-bootstrap merge revision.
+**Grok:** Dispatch 0.28.2 preflight / first implementation tickets against current `main` (post L-020–L-023 lock commit). Build implements only from the dispatched ticket.
 
 <!-- STATUS_COMPLETE -->
