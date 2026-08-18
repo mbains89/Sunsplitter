@@ -70,7 +70,8 @@ registerScenes({
     choices: [
       { text: "Lock conservation mode. Habitation takes the brownouts.", next: "arc_future_3", effects: { embryos: 5, cohesion: -9, integrity: -4, supplies: -3 }, lean: { future: 4 }, affinity: { jiro: 8, elias: 6, tomas: -8, lena: -4 }, trust: { jiro: 6, tomas: -6 }, requires: { embryos: { min: 55 } } },
       { text: "Refuse the brownouts. Accept the permanent vault bleed.", next: "arc_future_3", effects: { embryos: -10, cohesion: 6, supplies: -2 }, lean: { living: 3 }, affinity: { tomas: 7, lena: 5, jiro: -6 }, flag: { embryo_ceiling: "lowered" } },
-      { text: "Split the pain on a schedule. Publish the numbers to the crew.", next: "arc_future_3", effects: { embryos: -3, cohesion: 2, supplies: -4 }, lean: { future: 1, living: 1 }, requires: { cohesion: { min: 28 } } }
+      { text: "Split the pain on a schedule. Publish the numbers to the crew.", next: "arc_future_3", effects: { embryos: -3, cohesion: 2, supplies: -4 }, lean: { future: 1, living: 1 }, requires: { cohesion: { min: 28 } } },
+      { text: "There are no parts left. Let the vault bleed and record the lower ceiling.", next: "arc_future_3", flag: { embryo_ceiling: "lowered" }, lean: { living: 2 } }
     ]
   },
 
