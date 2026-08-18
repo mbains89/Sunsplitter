@@ -57,7 +57,7 @@ registerScenes({
         if (state.promises.mira === "made") made.push("mira");
         // priority lena > sela > elias > mira
         const priority = ["lena", "sela", "elias", "mira"];
-        const named = priority.find(p => made.includes(p));
+        const named = priority.find(p => made.includes(p) && isAlive(p));
         if (named) {
           const names = { lena: "Lena", sela: "Sela", elias: "Elias", mira: "Mira" };
           t += `He sets his bowl down. "You made a promise once, with witnesses. I've been running the cost of keeping it, and the cost lands on somebody breathing. ${names[named]}. A promise kept at the wrong price is pride with a receipt. If it comes to that, break it in daylight, with me standing there, and I'll carry my share of the breaking. That's the ask. Nobody makes it twice."`;
