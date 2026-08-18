@@ -96,7 +96,7 @@ registerScenes({
       if (!state.promises.tomas) {
         state.promises.tomas = state.flags.prom_tomas ? "kept" : "declined";
         if (state.promises.tomas === "kept") {
-          remember("If the vault and the living need the same mercy, the living get it.");
+          remember("You gave Tomas the six words: living take the shared mercy before the vault.");
         }
       }
     },
