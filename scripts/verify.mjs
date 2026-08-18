@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+// Release-gate ownership:
+// - Manifest + syntax: exact browser load order and parseability.
+// - Runtime + validator: one-time registration, 207-scene count, and scene-ID digest.
+// - Policy simulations: Living, Future, and pragmatic routes reach truthful endings.
+// - V6 fixtures: Amara and Sela stay "made" when they die before an authored test,
+//   and their untested promises are omitted from ending reflection.
+
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -136,10 +143,12 @@ function main() {
     failures.push(...errors.map(error => `${result.policy}: ${error}`));
   }
 
-  const v6 = assertV6(ROOT, "amara");
-  printCheck("V6 untested dead-holder promise", v6.errors,
-    `${v6.holder}: before=${v6.beforeEnding}; after=${v6.afterEnding}; ending=${v6.endingTitle}`);
-  failures.push(...v6.errors.map(error => `V6: ${error}`));
+  for (const holder of ["amara", "sela"]) {
+    const v6 = assertV6(ROOT, holder);
+    printCheck(`V6 untested dead-holder promise (${holder})`, v6.errors,
+      `before=${v6.beforeEnding}; after=${v6.afterEnding}; ending=${v6.endingTitle}`);
+    failures.push(...v6.errors.map(error => `V6/${holder}: ${error}`));
+  }
 
   if (failures.length) {
     console.error(`\nRELEASE GATE FAIL — ${failures.length} failure(s)`);
