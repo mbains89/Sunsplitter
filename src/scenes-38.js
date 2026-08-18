@@ -38,9 +38,9 @@ Elias from the doorway: "We don't have time for the dying, Commander."`,
     ]
   },
   rourke_end: {
-    text: `You take Rourke's hand. It is already cold.
+    text: `You held Rourke's hand. It was already cold.
 
-He dies twelve minutes later. No one speaks.
+He died twelve minutes later. No one speaks.
 
 Lena covers his face. When she looks at you there is something like respect, or maybe just exhaustion.
 
@@ -59,7 +59,7 @@ Mira flinches. Sela watches from the edge of the room and does not look away.`,
   rourke_stop: {
     text: `You give the order. Lena stops working.
 
-Rourke makes a small sound. Then nothing.
+Rourke made one small sound before the room went still.
 
 The room feels colder. Mira will not look at you. Amara turns her face to the wall.
 

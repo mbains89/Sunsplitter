@@ -83,7 +83,7 @@ registerScenes({
   // ═══════════════════════════════════════════════════════════════
 
   vess_signal: {
-    image: "images/vess_signal.jpg",
+    image: "images/transmission.jpg",
     onEnter: () => {},
     text: () => {
       let t = `The long-range board lights on a carrier that has lived in the noise floor for eleven months. `;
@@ -113,7 +113,7 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
   },
 
   vess_cost: {
-    image: "images/vess_signal.jpg",
+    image: "images/transmission.jpg",
     onEnter: () => {
       state.flags.busDowngraded = true;
       state.flags.reaction_mass_spent = true;
