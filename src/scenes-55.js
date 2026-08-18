@@ -29,12 +29,12 @@ registerScenes({
       const opts = [
         {
           text: "Dump the heat through the inhabited ring. Vault remains possession.",
-          next: "custody_possession",
-          requires: { integrity: { min: 4 } }
+          next: "custody_possession"
         },
         {
           text: "Thaw outer embryo racks to absorb the heat.",
-          next: "custody_thaw"
+          next: "custody_thaw",
+          requires: { embryos: { min: 14 }, cohesion: { min: 1 } }
         },
         {
           text: "Mira severs the fused thermal junction in the unpressurized skin.",
@@ -70,6 +70,10 @@ registerScenes({
         text: "Log the exposure. Keep moving.",
         next: "custody_after",
         effects: { supplies: -3, integrity: -3, cohesion: -6 }
+      },
+      {
+        text: "Seal the scorched ring. Spend nothing more here.",
+        next: "custody_after"
       }
     ]
   },

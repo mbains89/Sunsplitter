@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SEED = 20260817;
-const RUNS_PER_POLICY = 25;
+const RUNS_PER_POLICY = 2000;
 const MAX_STEPS = 500;
 const POLICIES = ["random", "cheapest", "priciest"];
 const RESOURCE_KEYS = ["survivors", "integrity", "cohesion", "supplies", "embryos"];
@@ -105,7 +105,7 @@ function meetsRequirements(state, requirements) {
   return true;
 }
 
-function enabledChoices(world, scene) {
+function visibleChoices(world, scene) {
   const raw = scene.choices;
   const choices = typeof raw === "function" ? (raw.call(scene) || []) : (raw || []);
   if (!Array.isArray(choices)) throw new Error("scene choices did not resolve to an array");
@@ -113,8 +113,18 @@ function enabledChoices(world, scene) {
     if (choice.alive && !world.isAlive(choice.alive)) return false;
     if (choice.aliveAll && !choice.aliveAll.every(key => world.isAlive(key))) return false;
     if (choice.aliveAny && !choice.aliveAny.some(key => world.isAlive(key))) return false;
-    return canAfford(world.state, choice.effects) && meetsRequirements(world.state, choice.requires);
+    return true;
   });
+}
+
+function enabledChoices(world, choices) {
+  return choices.filter(choice =>
+    canAfford(world.state, choice.effects) && meetsRequirements(world.state, choice.requires)
+  );
+}
+
+function resourceSnapshot(state) {
+  return Object.fromEntries(RESOURCE_KEYS.map(key => [key, state[key]]));
 }
 
 function cost(choice) {
@@ -186,11 +196,33 @@ function runOnce(world, policy, random) {
       }
     }
 
-    const choices = enabledChoices(world, scene);
+    const visible = visibleChoices(world, scene);
+    const choices = enabledChoices(world, visible);
     if (choices.length === 0) {
-      return { outcome: "softlock", steps, survivors: world.state.survivors, sceneId };
+      return {
+        outcome: "softlock",
+        steps,
+        survivors: world.state.survivors,
+        sceneId,
+        resources: resourceSnapshot(world.state),
+        choices: visible.map(choice => ({
+          text: choice.text,
+          effects: choice.effects || null,
+          requires: choice.requires || null
+        }))
+      };
     }
     const choice = choose(policy, choices, random);
+    if (!canAfford(world.state, choice.effects)) {
+      return {
+        outcome: "unpaid",
+        steps,
+        survivors: world.state.survivors,
+        sceneId,
+        resources: resourceSnapshot(world.state),
+        choice: { text: choice.text, effects: choice.effects || null }
+      };
+    }
     applyChoice(world, choice);
     sceneId = choice.next;
   }
@@ -201,6 +233,18 @@ function runOnce(world, policy, random) {
 async function main() {
   const world = await createWorld();
   const summaries = [];
+  const v1Scenes = new Map();
+  const v4Scenes = new Map();
+
+  function recordViolation(target, policy, result) {
+    let record = target.get(result.sceneId);
+    if (!record) {
+      record = { hits: 0, policies: new Set(), example: result };
+      target.set(result.sceneId, record);
+    }
+    record.hits += 1;
+    record.policies.add(policy);
+  }
 
   for (const [policyIndex, policy] of POLICIES.entries()) {
     const summary = {
@@ -208,6 +252,7 @@ async function main() {
       runs: RUNS_PER_POLICY,
       endings: 0,
       softlocks: 0,
+      unpaid: 0,
       stepLimits: 0,
       errors: 0,
       totalSteps: 0,
@@ -221,7 +266,13 @@ async function main() {
         summary.totalSteps += result.steps;
         summary.totalSurvivors += result.survivors;
         if (result.outcome === "ending") summary.endings += 1;
-        else if (result.outcome === "softlock") summary.softlocks += 1;
+        else if (result.outcome === "softlock") {
+          summary.softlocks += 1;
+          recordViolation(v1Scenes, policy, result);
+        } else if (result.outcome === "unpaid") {
+          summary.unpaid += 1;
+          recordViolation(v4Scenes, policy, result);
+        }
         else summary.stepLimits += 1;
       } catch (error) {
         summary.errors += 1;
@@ -231,16 +282,32 @@ async function main() {
     summaries.push(summary);
   }
 
-  console.log("[simulate] Minimal deterministic skeleton");
+  console.log("[simulate] Deterministic V1/V4 assertions");
   console.log(`[simulate] seed=${SEED} runs=${RUNS_PER_POLICY}/policy maxSteps=${MAX_STEPS}`);
   for (const summary of summaries) {
     const avgSteps = (summary.totalSteps / summary.runs).toFixed(1);
     const avgSurvivors = (summary.totalSurvivors / summary.runs).toFixed(1);
-    console.log(`[simulate] ${summary.policy}: endings=${summary.endings} softlocks=${summary.softlocks} stepLimits=${summary.stepLimits} errors=${summary.errors} avgSteps=${avgSteps} avgSurvivors=${avgSurvivors}`);
+    console.log(`[simulate] ${summary.policy}: endings=${summary.endings} softlocks=${summary.softlocks} unpaid=${summary.unpaid} stepLimits=${summary.stepLimits} errors=${summary.errors} avgSteps=${avgSteps} avgSurvivors=${avgSurvivors}`);
   }
-  console.log("[simulate] complete; V1-V6 assertions are intentionally deferred");
 
-  if (summaries.some(summary => summary.errors > 0)) process.exitCode = 1;
+  const v1Total = summaries.reduce((total, summary) => total + summary.softlocks, 0);
+  const v4Total = summaries.reduce((total, summary) => total + summary.unpaid, 0);
+  const v1Ids = [...v1Scenes.keys()].sort();
+  const v4Ids = [...v4Scenes.keys()].sort();
+  console.log(`[simulate] V1 softlocks=${v1Total} scenes=${v1Ids.length ? v1Ids.join(",") : "none"}`);
+  for (const sceneId of v1Ids) {
+    const record = v1Scenes.get(sceneId);
+    const { resources, choices } = record.example;
+    console.log(`[simulate] V1 scene=${sceneId} hits=${record.hits} policies=${[...record.policies].sort().join(",")} resources=${JSON.stringify(resources)} choices=${JSON.stringify(choices)}`);
+  }
+  console.log(`[simulate] V4 unpaid=${v4Total} scenes=${v4Ids.length ? v4Ids.join(",") : "none"}`);
+  for (const sceneId of v4Ids) {
+    const record = v4Scenes.get(sceneId);
+    const { resources, choice } = record.example;
+    console.log(`[simulate] V4 scene=${sceneId} hits=${record.hits} policies=${[...record.policies].sort().join(",")} resources=${JSON.stringify(resources)} choice=${JSON.stringify(choice)}`);
+  }
+
+  if (summaries.some(summary => summary.errors > 0) || v1Total > 0 || v4Total > 0) process.exitCode = 1;
 }
 
 main().catch(error => {

@@ -128,7 +128,8 @@ The window does not stay open by hesitation. There is no refuse-contact option t
 
 She is coming aboard.`,
     choices: [
-      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } }
+      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } },
+      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding" }
     ]
   },
 

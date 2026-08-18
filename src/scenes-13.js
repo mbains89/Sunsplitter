@@ -76,6 +76,7 @@ Worse: the heading has to be committed now, publicly, logged — before Jiro's h
       if (isAlive("tomas") && state.recovered.tomas) {
         opts.push({ text: "One full cycle. We argue it properly, then we go.", next: "act3_reckoning_delay", effects: { supplies: -4, cohesion: -1 } });
       }
+      opts.push({ text: "Make the minimum burn. Accept the wider intercept.", next: "act3_reckoning_burn_stale" });
       return opts;
     }
   },
