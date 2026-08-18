@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-37.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: lena/mira shower + rear set
+// 0.28.2 size hygiene. Pure mechanical. mid-b: lena/mira shower + rear set
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

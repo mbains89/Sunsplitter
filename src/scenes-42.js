@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-42.js
-// 0.28.1c size hygiene. Pure mechanical. early: bond_elias through private_stores
+// 0.28.2 size hygiene. Pure mechanical. early: bond_elias through private_stores
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-07.js
-// 0.28.1c size hygiene. Pure mechanical. mid-a: arc_future_3 + future_4
+// 0.28.2 size hygiene. Pure mechanical. mid-a: arc_future_3 + future_4
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-35.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: favor_mira + coolant_trade + seal_or_food
+// 0.28.2 size hygiene. Pure mechanical. mid-b: favor_mira + coolant_trade + seal_or_food
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

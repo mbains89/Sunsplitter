@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-54.js
-// 0.28.1c size hygiene. Pure mechanical. exclusive: breath hub through after
+// 0.28.2 size hygiene. Pure mechanical. exclusive: breath hub through after
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

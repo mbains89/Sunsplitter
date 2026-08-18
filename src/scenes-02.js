@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-02.js
-// 0.28.1c size hygiene. Pure mechanical. mid-a: cut_out + vent + self_risk
+// 0.28.2 size hygiene. Pure mechanical. mid-a: cut_out + vent + self_risk
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

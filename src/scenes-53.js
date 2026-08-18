@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-53.js
-// 0.28.1c size hygiene. Pure mechanical. exclusive: crisis router + declare + breath onset to word
+// 0.28.2 size hygiene. Pure mechanical. exclusive: crisis router + declare + breath onset to word
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

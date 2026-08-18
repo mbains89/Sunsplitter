@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-51.js
-// 0.28.1c size hygiene. Pure mechanical. crewpairs: sela + vess
+// 0.28.2 size hygiene. Pure mechanical. crewpairs: sela + vess
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-36.js
-// 0.28.1c size hygiene. Pure mechanical. mid-b: history_elias + pregnancy_check + tomas_break
+// 0.28.2 size hygiene. Pure mechanical. mid-b: history_elias + pregnancy_check + tomas_break
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

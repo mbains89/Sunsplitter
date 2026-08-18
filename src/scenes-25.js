@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-25.js
-// 0.28.1c size hygiene. Pure mechanical. late: faction_split
+// 0.28.2 size hygiene. Pure mechanical. late: faction_split
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

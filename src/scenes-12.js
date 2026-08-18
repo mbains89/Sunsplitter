@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-12.js
-// 0.28.1c size hygiene. Pure mechanical. crises: tether manifest + truth + lie + spine_next
+// 0.28.2 size hygiene. Pure mechanical. crises: tether manifest + truth + lie + spine_next
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

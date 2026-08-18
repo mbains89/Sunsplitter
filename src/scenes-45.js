@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-45.js
-// 0.28.1c size hygiene. Pure mechanical. promises: vent + deck4
+// 0.28.2 size hygiene. Pure mechanical. promises: vent + deck4
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

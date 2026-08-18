@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-17.js
-// 0.28.1c size hygiene. Pure mechanical. crises: vess boarding + offer
+// 0.28.2 size hygiene. Pure mechanical. crises: vess boarding + offer
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

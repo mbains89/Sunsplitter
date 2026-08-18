@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-23.js
-// 0.28.1c size hygiene. Pure mechanical. late: elias order + sealant + brace + end
+// 0.28.2 size hygiene. Pure mechanical. late: elias order + sealant + brace + end
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 

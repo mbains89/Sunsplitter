@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-48.js
-// 0.28.1c size hygiene. Pure mechanical. crewpairs: open + lena + elias
+// 0.28.2 size hygiene. Pure mechanical. crewpairs: open + lena + elias
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
