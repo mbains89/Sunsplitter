@@ -6,9 +6,9 @@ registerScenes({
   pursuit_amara: {
     get text() {
       let t = `Amara does not pretend this is accidental. The lingerie is practical and deliberate — straps she can work in, fabric that will not snag on a tray rail. She locks the bay hatch a second time.\n\n`;
-      t += `"Tomas knows what the first night was. He does not get a vote on the second. You do. But I am not offering a free private hour."\n\n`;
+      t += `"The first night does not give anyone else a vote on the second. You decide. But I am not offering a free private hour."\n\n`;
       t += `She opens the purge schedule on the grow-deck panel. The contaminated compartment is flagged for vent this watch.\n\n`;
-      t += `"I can delay one cycle and keep the viable roots. You claim the delay on the board. Publicly. No soft private order. The clean-air margin moves. Elias and Jiro will see who asked for the living things. If you stay, the cost is visible and I will not hide it. I will not become the Commander's soft place that costs the ship nothing."\n\n`;
+      t += `"I can delay one cycle and keep the viable roots. You claim the delay on the board. Publicly. No soft private order. The clean-air margin moves. The crew will see who asked for the living things. If you stay, the cost is visible and I will not hide it. I will not become the Commander's soft place that costs the ship nothing."\n\n`;
       t += `The trays hum. The house key sits on the shelf. She is already undoing the collar.`;
       return t;
     },
@@ -81,7 +81,7 @@ registerScenes({
     get text() {
       let t = `She is as precise as before. The intimacy is quiet, exact, adult. Afterward she draws nothing on your skin. The lingerie is folded once. She only says:\n\n`;
       if (state.flags.pursuit_sela_cost === "vow") {
-        t += `"The log has the entry. Jiro will see it if he looks. That is his measurement. I will not solve it for you. Neither of us gets a private vault privilege because of this."\n\n`;
+        t += `"The log has the entry. The crew will see it if they look. That is their measurement. I will not solve it for you. Neither of us gets a private vault privilege because of this."\n\n`;
       } else {
         t += `"The private word is not nothing, but it is less than a logged cost. I accepted it. Do not make me soft in the story. The vow still holds between us."\n\n`;
       }
