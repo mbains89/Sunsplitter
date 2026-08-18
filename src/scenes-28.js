@@ -26,7 +26,9 @@ registerScenes({
       opts.push({ text: "Leave them without a speech. Neither doctrine nor ban.", next: "ship_memory_payoff", effects: { cohesion: 1 }, flag: { sun_doctrine: "silent" }, lean: { living: 1 } });
       return opts;
     },
-    image: "images/sela_ritual.jpg"
+    get image() {
+      return isAlive("sela") ? "images/sela_ritual.jpg" : "images/observation.jpg";
+    }
   },
 
   ship_memory_payoff: {
@@ -56,11 +58,7 @@ registerScenes({
   },
 
   patch_fails: {
-    text: `The course change loads Deck 4.
-
-The jury-rig — or the absence of a seal — gives a sound like a metal animal losing an argument. Remote valves slam. Hull numbers step down in public view.
-
-You can still hold the destination. You will hold it with a wounded ring and a crew that watched the schematic predict this.`,
+    text: `The course change loads Deck 4.\n\nThe jury-rig — or the absence of a seal — gives a sound like a metal animal losing an argument. Remote valves slam. Hull numbers step down in public view.\n\nYou can still hold the destination. You will hold it with a wounded ring and a crew that watched the schematic predict this.`,
     choices: [
       { text: "Hold course anyway. Pay the structural cost.", next: "ending_check", effects: { integrity: -12, cohesion: -4 }, flag: { final: "hold", patch: "failed" } },
       { text: "Abort the hard burn. Choose a softer final path.", next: "final_choice", effects: { integrity: -3, cohesion: 2 }, flag: { patch: "aborted" } }
