@@ -50,7 +50,8 @@ He lets that sit.
     choices: [
       { text: "Admit it. Own the cost in front of him.", next: "transmission", effects: { cohesion: -4 }, flag: { past: "owned" } },
       { text: "Tell him that the past is dead and the only ledger that matters is the living.", next: "transmission", effects: { cohesion: -6 }, flag: { past: "denied" } },
-      { text: "Ask what he wants in exchange for silence.", next: "transmission", effects: { cohesion: -2 }, flag: { past: "deal" } }
+      { text: "Ask what he wants in exchange for silence.", next: "transmission", effects: { cohesion: -2 }, flag: { past: "deal" } },
+      { text: "End the conversation. Give him nothing else tonight.", next: "transmission" }
     ],
     onEnter: () => { state.past_known = true; }
   },

@@ -29,7 +29,8 @@ Mira works like someone who has already accepted she might die today. Sparks. Sc
     },
     choices: [
       { text: "Check on Amara and Sela yourself.", next: "aftermath", effects: { cohesion: 3, supplies: -1 }, affinity: { amara: 8, sela: 6 }, lean: { living: 2 } },
-      { text: "Send Lena. You need to account for the cascade.", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } }
+      { text: "Send Lena. You need to account for the cascade.", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } },
+      { text: "Send them to triage. Spend nothing more here.", next: "aftermath" }
     ]
   },
   vent: {
@@ -55,7 +56,8 @@ Sela's last yellow circle remains fixed above the sealed bulkhead. No one has as
     },
     choices: [
       { text: "Stand at the sealed bulkhead. Let them see you there.", next: "aftermath", effects: { cohesion: -4 } },
-      { text: "Do not linger. The ship still needs orders.", next: "aftermath", effects: { cohesion: -6 }, affinity: { elias: 5 } }
+      { text: "Do not linger. The ship still needs orders.", next: "aftermath", effects: { cohesion: -6 }, affinity: { elias: 5 } },
+      { text: "Leave the order on the record. Move on.", next: "aftermath" }
     ],
     onEnter: () => {
       kill("amara", "vented with the lower ring");
