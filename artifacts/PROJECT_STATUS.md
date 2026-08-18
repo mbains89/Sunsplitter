@@ -1,77 +1,71 @@
-# Sunsplitter — Project Status
+# Sunsplitter — Current Status
 
-**Last updated:** 2026-08-18  
-**Current version:** **0.28.1d** (Image sync — lingerie redo + portrait drift)  
-**GitHub main baseline (verified):** `2bb4517707df90702a9b78fe0fa8fb55c1852dd8` — no later commits implement the audits or economy work below.  
-**Next:** **Economy, Systemic Truth, and Release Hardening** (APPROVED / PLANNED / NOT YET IMPLEMENTED) → **Player Experience Baseline & Design Governance** (new locked sequence) → then evidence-backed content (0.29 What Remains / Cascade Allusive and later). Ticket 2 still needs Grok lock.  
-**Monte Carlo audit 2026-08-16 (LOCKED):** 50k+ mixed runs; every full run reached an ending; validate 0 errors. **Verdict was FAIL for final lock** — 0.28.1 addresses P0 + core P1; 0.28.1b fixed unreachable + unpaid costs.  
-**Latest deploy zip:** `artifacts/sun-v0.28.1d-combined-net.zip` (numbered scenes + CURRENT portraits + CSS 784/1168)
+`schema_version: 1`  
+`updated_utc: 2026-08-18`  
+`authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 
-### Official portraits — SOURCE OF TRUTH (LOCKED 2026-08-17)
-**Canonical zip:** `artifacts/sunsplitter-official-portraits-CURRENT-2026-08-17.zip`
+This is the compact rolling handoff. It contains current state only. Process lives in `/AGENTS.md`, future scope and gates in `ROADMAP.md`, and decision dispositions in `LOCKS.md`.
 
-| File | Character |
-|------|-----------|
-| `lena.jpg` | Lena — ash-blonde, ice eyes, tank top |
-| `mira.jpg` | Mira — dark hair, light blue eyes, tank top |
-| `amara.jpg` | Amara — red hair, clean face (no cheek scar), tank top |
-| `sela.jpg` | Sela — East Asian, long dark hair, tank top |
-| `vess.jpg` | Vess — long white-silver hair, purple eyes, tank top |
-| `elias.jpg` | Elias — rugged, tank top |
-| `tomas.jpg` | Tomas — curly hair, beard, **no crosses**, tank top |
-| `jiro.jpg` | Jiro — intense, late-20s, tank top |
-| `rourke.jpg` | Rourke — younger senior, tank top |
+## Release
 
-- All 9 confirmed live on GitHub `main/images/` matching CURRENT sizes (2026-08-17).
-- Commander remains faceless — no official portrait.
-- Tank-top set is the primary official portrait set for all Art / Build / Narrative reference.
-- Do **not** use earlier `-final` or non-CURRENT portrait zips as authority.
-- Art rule unchanged: every new plate must match these faces/bodies exactly.
+`runtime_baseline_sha: 2bb4517707df90702a9b78fe0fa8fb55c1852dd8`  
+`release_label: 0.28.1d`  
+`release_state: SHIPPED_LABEL_ONLY`  
+`production_url: NOT_VERIFIED_IN_AUTHORITY_MIGRATION`  
+`release_artifact: artifacts/sun-v0.28.1d-combined-net.zip`  
+`artifact_digest: NOT_VERIFIED_IN_AUTHORITY_MIGRATION`  
+`version_integrity: FAIL — VERSION.md=0.28.1d; src/state.js=0.28.1b; index.html UI=0.28.1c`
 
----
-## LOCKED MILESTONE — Economy, Systemic Truth, and Release Hardening
-**Status:** APPROVED / PLANNED / NOT YET IMPLEMENTED  
-**Baseline:** GitHub `main` @ `2bb4517707df90702a9b78fe0fa8fb55c1852dd8` (verified 2026-08-18). No later commits implement any of the workstreams below.  
-**Placement note:** This milestone sits after 0.28.1d image/portrait/CSS work and before evidence-backed content (0.29 What Remains / Cascade Allusive). It is the gate that must close before any further story expansion or final packaging.
+The commit after the runtime baseline and before this migration (`3789062`) changed only this status document. It did not change runtime bytes.
 
-### Workstreams (ordered)
+## Verification — latest attributable evidence
 
-#### 1. Resource economy truth & balance
-Full-system review of supplies, integrity, cohesion, reaction-mass, and any derived gates.  
-Every choice that spends or gains a resource must be honest against current totals; silent clamps and free resources are forbidden.  
-Ending requirements (Landfall, Living Ship, Fracture, etc.) must be reachable only when the resource state actually supports them.  
-Produce a locked economy table (starting values, typical spends, hard floors, death thresholds) and a short simulation note (Monte-Carlo or hand-checked paths) that the table holds under realistic play.  
-No new meters, loops, or visible consequence labels.
+`tested_runtime_sha: 2bb4517707df90702a9b78fe0fa8fb55c1852dd8`  
+`verify_mjs: NOT_AVAILABLE — scripts/verify.mjs is absent from main`  
+`simulate_mjs: NOT_AVAILABLE — scripts/simulate.mjs is absent from main`  
+`validate_js: HISTORICAL_REPORT_ONLY — 207 scenes / 0 errors; not rerun by this documentation-only migration`  
+`external_audits: seven completed audit passes pinned to the tested runtime; ROADMAP §§3, 5, and 6 preserve the actionable findings`
 
-#### 2. Unified economy evaluation
-All resources, gains, costs, affordability checks, crisis costs, lethal rescues, and ending requirements are evaluated as **one complete economy**.  
-Balance changes must not create new systems, meters, loops, or visible consequence labels.  
-Record the final locked economy table and simulation evidence in the roadmap acceptance criteria / this file on close-out.
+No deployment, artifact digest, runtime validation, or simulation pass is newly claimed by the authority migration.
 
-#### 3. Promise-lifecycle truth repair
-Explicit decision-and-implementation ticket within the milestone.  
-**Current engine behavior:** `forceResolvePromises()` changes every remaining `"made"` promise to `"broken"` during ending resolution without checking whether the promise holder is alive.  
-**Verified consequence:** Amara and Sela can make promises on the early spine and die later, allowing the ending resolver to fabricate a `"broken"` promise on a dead holder.  
-**Requirement:** Explicit semantic lock **before** implementation. The implementation must ensure that an untested promise belonging to a dead character is never represented as a player-authored betrayal.  
-Do **not** silently choose among broader pending-promise policies. Record the final decision explicitly as one of:  
-- resolve only promises that received their authored test;  
-- leave untested promises `"made"` and omit them from reflection; or  
-- another explicitly approved rule that preserves run truth.  
-V6 must protect the chosen behavior from regression.
+## Active work
 
-#### 4. Causality-remediation pass
-Dedicated remediation ticket based on the completed causality lint audit.  
-The audit reported 128 unguarded roster mentions. These are **candidates**, not 128 automatically confirmed defects.  
-Require the implementer to classify each candidate as:  
-- confirmed reachable violation;  
-- legal memorial, historical, dead-state, or conditional reference;  
-- unreachable under current topology but requiring regression coverage;  
-- false positive.  
-Only confirmed defects receive prose, choice, alive/recovered-gate, image, or routing changes. Preserve the locked rule that dead and unrecovered characters never speak, act, appear as present, or receive present-tense credit.  
-Add regression coverage for every corrected reachable case.
+`milestone: Authority bootstrap; next executable milestone is 0.28.2 Truth Hotfix`  
+`ticket: 0.28.2 preflight and decision-gate rulings`  
+`owner: Grok / program office; Build after dispatch`  
+`state: AWAITING_LOCK`  
+`pull_request: none`
 
-#### 5. Canon and state-contract findings
-Convert actionable findings from the completed canon audit, state-key ledger, promise audit, and follow-up verification into discrete roadmap tickets.  
-Requirements:  
-- Do not treat audit production as remediation.  
-- Preserve citations to the exact audit evidence.  
+## Blocked
+
+- 0.28.2 implementation is blocked by L-020 through L-023.
+- Certified verification is blocked until `verify.mjs`, `simulate.mjs`, and the actions manifest exist on the 0.28.2 version branch.
+- Version integrity is failing across the three authoritative surfaces.
+- `images/lingerie_lena.jpg` is a 21-byte placeholder and remains inside the locked 0.28.2 batch.
+
+## Open locks
+
+- L-020 — `pair_shield_cold` disposition
+- L-021 — global cost rule
+- L-022 — `vault_priority` disposition
+- L-023 — `pair_turn` disposition
+- L-024 — four-state promise domain
+- L-025 — Commander identity A/B
+- L-026 — Last Off-Shift zero/one branches
+- L-027 — `vess_course_lost` consumer or retirement
+- L-028 — Ticket 2 new-crew indicator
+
+Full language and unchanged dispositions are in `LOCKS.md` and the cited roadmap sections.
+
+## Canon and repository deltas
+
+- No runtime, canon, scene, state, CSS, image, deployment, or release-artifact bytes changed in the authority migration.
+- `artifacts/ROADMAP.md` is the approved forward plan with source SHA-256 `1c60d45f0f05ac8f30400d884873ee35d8ad48692d1b17b0e96f0fdd6c406869`.
+- `/AGENTS.md`, `/CLAUDE.md`, `artifacts/LOCKS.md`, this compact status, `README.md`, and the `GITHUB_PUSH_RULES.md` retirement notice form the companion authority reconciliation.
+- Detailed pre-migration chronology remains in Git history at `3789062` and earlier; it is not live authority.
+
+## Next action
+
+**Grok:** obtain and record Manraj's rulings for L-020 through L-023, then dispatch the 0.28.2 preflight against `main` after confirming the authority-bootstrap merge revision.
+
+<!-- STATUS_COMPLETE -->
