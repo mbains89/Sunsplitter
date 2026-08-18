@@ -34,7 +34,11 @@ registerScenes({
         t += `The yellow circle is tighter than last time. Cleaner. When she speaks, it is without asking permission.\n\n`;
         t += `"The panels still run an Earth sunrise. That is a lie with a schedule. I am not trying to replace the sky. I am keeping a measurement the ship keeps trying to delete."\n\n`;
         t += `She turns the plate so you can see the latest version.\n\n`;
-        t += `"Jiro thinks I am mourning. He is half right. The other half is refusal. If we only optimize for what survives the dark, we will arrive as the dark."\n\n`;
+        if (isAlive("jiro")) {
+          t += `"Jiro thinks I am mourning. He is half right. The other half is refusal. If we only optimize for what survives the dark, we will arrive as the dark."\n\n`;
+        } else {
+          t += `"Some people think I am mourning. They are half right. The other half is refusal. If we only optimize for what survives the dark, we will arrive as the dark."\n\n`;
+        }
         if (state.flags.sela_attention === "ignored") t += `She does not mention that you walked past her once. She does not need to.\n\n`;
         if (state.flags.sela_attention === "present" || hasMark("sela", "spoken")) t += `She treats your presence as a fact, not a favor.\n\n`;
         if (isAlive("jiro")) t += `Jiro appears in the hatch, hears the last sentence, and does not correct her.`;
