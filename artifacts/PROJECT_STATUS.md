@@ -1,44 +1,42 @@
 # Sunsplitter — Current Status
 
 `schema_version: 1`  
-`updated_utc: 2026-08-18`  
+`updated_utc: 2026-08-19`  
 `authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 
-This is the compact rolling handoff. It contains current state only. Process lives in `/AGENTS.md`, future scope and gates in `ROADMAP.md`, and decision dispositions in `LOCKS.md`.
+This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`.
 
-## Release
+## Release / recovery state
 
-`runtime_baseline_sha: 8beee172de5ac7bd1e7148ee71716e4b4066d33d`  
-`release_label: 0.28.1d`  
-`release_state: SHIPPED_LABEL_ONLY`  
-`production_url: NOT_VERIFIED`  
-`release_artifact: artifacts/sun-v0.28.1d-combined-net.zip`  
-`version_integrity: FAIL — VERSION.md=0.28.1d; src/state.js=0.28.1b; index.html UI=0.28.1c` (deferred to milestone close)
+`runtime_baseline_sha: e4f84409759760d31fcf47b8a227802a61421f51`  
+`release_label: NO-PUBLISH recovery base`  
+`release_state: NO-PUBLISH`  
+`last_certified_baseline_label: 0.28.1d`  
+`last_certified_baseline_sha_associated: 2bb4517707df90702a9b78fe0fa8fb55c1852dd8`  
+`production_url: NOT_AUTHORIZED`  
+`release_artifact: none authorized from this base`  
+`version_integrity: NOT_CERTIFIED`
 
-## Verification — latest attributable evidence
+**HARD STOP.** Tree at `e4f8440` is the audited NO-PUBLISH recovery base only. Candidate labels such as `0.30` do not certify any sequential gate. No deploy, tag, Release, or itch.io upload from this base.
 
-`tested_runtime_sha: 8beee172de5ac7bd1e7148ee71716e4b4066d33d`  
-`verify_mjs: ON_MAIN` (scripts/verify.mjs)  
-`simulate_mjs: ON_MAIN` (scripts/simulate.mjs)  
-`V6: PASSES` for both Amara and Sela after R2  
-`remaining_gate_failure: L-021 Living-policy softlock at vess_cost`
+Authority documents:
+- `artifacts/GOV-01_AUTHORITY_RECONCILIATION.md`
+- `artifacts/RECOVERY-DEC_AMENDMENT.md`
+- Branch `recovery/e4f8440-nopub` + `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md`
 
 ## Active work
 
-`milestone: Economy / Systemic Truth / Release Hardening (IN PROGRESS)`  
-`completed_tickets:`  
-- L-024 LOCKED Option B (commit aae0901)  
-- 0.28.2-R1 Release Gate + Simulation Harness (scripts on main)  
-- 0.28.2-R2 Promise-lifecycle truth repair (engine.js on main; V6 passes)  
-`next_ticket: L-021 Living softlock at vess_cost`  
-`owner: Grok / program office → Build after dispatch`  
-`state: READY_FOR_NEXT_TICKET`  
-`pull_request: none`
+`milestone: Governance recovery bootstrap complete`  
+`state: GOVERNANCE_BOOTSTRAP_COMPLETE — awaiting Manraj acceptance of PIPE-BOOT before any integrity dispatch`  
+`governed_branch: recovery/e4f8440-nopub`  
+`owner: Grok / program office`
 
 ## Blocked
 
-- Full release gate still fails solely on L-021 (vess_cost softlock under Living policy).
-- Version integrity across VERSION.md / state.js / index.html deferred to milestone close.
+- All correction / integrity implementation until Manraj accepts PIPE-BOOT and issues a bounded dispatch.
+- Publication, tagging, deploy, monetization frozen.
+- Sequential gates from 0.28.2 onward remain uncertified.
+- L-025, L-026, L-027, L-028 open.
 
 ## Open locks (remaining)
 
@@ -47,16 +45,9 @@ This is the compact rolling handoff. It contains current state only. Process liv
 - L-027 — `vess_course_lost` consumer or retirement
 - L-028 — Ticket 2 new-crew indicator
 
-L-020 through L-024 are LOCKED. Full language in `LOCKS.md`.
-
-## Canon and repository deltas
-
-- `scripts/simulate.mjs` + `scripts/verify.mjs` now on main.
-- `src/engine.js` implements L-024 Option B: untested promises remain `"made"` and are omitted from ending reflection. Never invents player betrayal on a dead holder.
-- Detailed local chronology also in the long-form PROJECT_STATUS kept in the working tree.
-
 ## Next action
 
-**Grok:** Dispatch L-021 / vess_cost softlock ticket. Build implements only from the dispatched ticket.
+**Manraj:** Accept or reject PIPE-BOOT.  
+**Grok:** Only after acceptance, dispatch a bounded integrity ticket limited to the RECOVERY-DEC list. No correction work before that.
 
 <!-- STATUS_COMPLETE -->
