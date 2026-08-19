@@ -48,15 +48,19 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: Governance recovery bootstrap complete; REC-01 disposition pending`  
-`ticket: NONE — PIPE-BOOT-R1 closed; REC-01 remains frozen`  
-`pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
-`owner: Grok / program office`  
-`state: PIPE-BOOT-R1 CLOSED / LANDED at governed recovery successor 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7; no correction ticket authorized`  
-`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (merged)`  
-`governed_branch: recovery/e4f8440-nopub`  
-`implementation_branch: ticket/0.30.1-pipe-boot-r1 (merged source branch)`  
-`dispatch_base_sha: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`  
+`milestone: REC-01 quiet_tomas rewind — one-shot governed recovery dispatch`
+`ticket: REC-01 / issue #13 — fresh implementation from the exact REC-RATCHET-01 successor only`
+`pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`
+`rec_ratchet_01_authorization: APPROVED — Manraj — 2026-08-19`
+`rec_ratchet_01_source_sha: 78a64c7a180a34e786da3eefac42a06f50703bab`
+`rec_ratchet_01_state: CLOSES ON PROTECTED MERGE — governance and policy only; no gameplay bytes changed`
+`rec_01_state: DISPATCH AUTHORIZED ONLY AFTER REC-RATCHET-01 MERGE — issue #13 must record the exact structural successor before Build starts`
+`owner: Grok / program office until exact issue repin; then Build / GPT-Codex`
+`state: REC-01 FROZEN pending exact issue #13 repin; implementation-only afterward; NO-PUBLISH / NOT CERTIFIED remain active`
+`pull_request: PENDING`
+`governed_branch: recovery/e4f8440-nopub`
+`implementation_branch: ticket/0.30.1-rec-ratchet-01`
+`dispatch_base_sha: 78a64c7a180a34e786da3eefac42a06f50703bab`
 `audited_gameplay_runtime_provenance: e4f84409759760d31fcf47b8a227802a61421f51`
 
 ## Frozen work
@@ -69,7 +73,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Blocked
 
-- Every RECOVERY-DEC §4 correction remains blocked. PIPE-BOOT-R1 is closed, but REC-01 / issue #13 remains frozen until Grok / program office separately adjudicates and dispatches it.
+- Every RECOVERY-DEC §4 correction remains blocked. REC-RATCHET-01 may change only governance records and release-policy routing; REC-01 gameplay remains frozen until the transition lands and Grok / program office freshly dispatches issue #13.
 - The PIPE-BOOT-R1 prerequisite is closed at governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; that closure does not authorize any correction, merge, release, or deployment.
 - All sequential gates from 0.28.2 onward remain uncertified.
 - Publication, tagging, deploy, monetization frozen.
@@ -91,11 +95,12 @@ L-020 through L-024 previously ruled; recovery does not reopen them. Full langua
 - `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md` on `recovery/e4f8440-nopub`
 - `artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md` records exact-base discrepancy and issue #15 dispatch
 - PIPE-BOOT-R1 / issue #15 landed through protected PR #16 as governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`
+- REC-RATCHET-01 is authorized from recovery head `78a64c7a180a34e786da3eefac42a06f50703bab` to record the explicit post-rewind ratchet transition and arm one exact REC-01 route
 - REC-01 / issue #13 is frozen at isolated observed head `8e4fe42`; it is not merged into the recovery line
 - No gameplay, narrative, art, or publication bytes are authorized by PIPE-BOOT-R1
 
 ## Next action
 
-**Grok / program office:** Separately adjudicate REC-01 / issue #13 at frozen head `8e4fe42f376444049105e27ff7005a6220e88b9a` against governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; keep REC-01 frozen unless and until explicitly dispatched. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Grok / program office:** After REC-RATCHET-01 lands, verify that its merge is the exact structural successor of `78a64c7a180a34e786da3eefac42a06f50703bab`, then repin and freshly dispatch REC-01 / issue #13. Build may then apply only the authorized patch and fixture through the protected recovery workflow. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->
