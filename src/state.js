@@ -1,7 +1,7 @@
 // Sunsplitter — state.js
-// Version 0.29 — What Remains + Cascade Allusive
+// Version 0.30 — Packaging
 // Game state, crew definitions, sceneImages map, core helpers
-const VERSION = "0.29";
+const VERSION = "0.30";
 
 // FLAGS: see validate + scene onEnter/flag writes. state.dying is sole source for slow-death clock (map form from 0.25).
 // Edit this file to change starting stats, characters, or image mappings
