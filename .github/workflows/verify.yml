@@ -1,0 +1,121 @@
+name: Recovery Verify
+
+on:
+  pull_request:
+    branches:
+      - recovery/e4f8440-nopub
+      - main
+    types: [opened, reopened, synchronize, ready_for_review, edited]
+  push:
+    branches:
+      - recovery/e4f8440-nopub
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recovery-verify-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact event revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+
+      - name: Record exact provenance
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$GITHUB_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          test -z "$(git status --porcelain)"
+          printf 'SOURCE %s · RUNTIME %s · TASK PIPE-BOOT-R1/#15 · MODE verification\n' "${GITHUB_SHA:0:7}" "${GITHUB_SHA:0:7}"
+          printf 'exact tested SHA: %s\n' "$GITHUB_SHA"
+          printf 'pull-request head SHA: %s\n' "${PR_HEAD_SHA:-n/a}"
+          printf 'pull-request base SHA: %s\n' "${PR_BASE_SHA:-n/a}"
+
+      - name: Reject injected identity and version drift
+        run: node scripts/verify.mjs --self-test
+
+      - name: Run dependency-free recovery verifier
+        run: node scripts/verify.mjs
+
+      - name: Reject injected V1, V4, and ratchet regressions
+        run: node scripts/simulate.mjs --self-test
+
+  simulation_ratchet:
+    name: simulation-ratchet (${{ matrix.policy }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        policy: [random, cheapest, priciest]
+    steps:
+      - name: Check out exact event revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+
+      - name: Record exact simulation provenance
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$GITHUB_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          test -z "$(git status --porcelain)"
+          printf 'exact tested SHA: %s; policy: %s; seed: 20260817; runs: 2000\n' "$GITHUB_SHA" "${{ matrix.policy }}"
+
+      - name: Run locked non-certifying recovery ratchet
+        run: >-
+          node scripts/simulate.mjs
+          --profile locked
+          --policy "${{ matrix.policy }}"
+          --runs 2000
+          --seed 20260817
+          --start-run 0
+          --shard-size 500
+          --gate recovery
+          --baseline scripts/fixtures/pipe-boot-r1-simulation-baseline.json
+
+  simulation_gate:
+    name: simulation-gate
+    if: ${{ always() }}
+    needs: simulation_ratchet
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every locked policy ratchet
+        env:
+          MATRIX_RESULT: ${{ needs.simulation_ratchet.result }}
+        run: |
+          set -euo pipefail
+          test "$MATRIX_RESULT" = "success"
+          printf 'PASS random + cheapest + priciest recovery ratchets at exact event SHA %s\n' "$GITHUB_SHA"

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Release-gate ownership:
+// Recovery-verification ownership (non-certifying while NO-PUBLISH is active):
 // - Manifest + syntax: exact browser load order and parseability.
 // - Runtime + validator: one-time registration, 222-scene count, and scene-ID digest.
 // - Policy simulations: Living, Future, and pragmatic routes reach truthful endings.
@@ -10,6 +10,7 @@
 //   tested-promise selection, relational tense, and separate-surface rendering.
 
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -25,7 +26,9 @@ import {
 } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EXPECTED_VERSION = "0.29";
+const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
+const RECOVERY_CANDIDATE_LABEL = "0.30";
+const LAST_CERTIFIED_LABEL = "0.28.1d";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
@@ -64,20 +67,200 @@ function manifestChecks(scripts) {
   return errors;
 }
 
-function versionSurfaceChecks() {
+function uniqueStatusFields(source, keys) {
+  const values = {};
+  const errors = [];
+  for (const key of keys) {
+    const matches = [...source.matchAll(new RegExp("`" + key + ":\\s*([^`]+)`", "g"))]
+      .map(match => match[1].trim());
+    if (matches.length !== 1) {
+      errors.push(`STATUS ${key} occurs ${matches.length} time(s); expected exactly 1`);
+      values[key] = null;
+    } else {
+      values[key] = matches[0];
+    }
+  }
+  return { values, errors };
+}
+
+function sourceVersion(source, pattern) {
+  return source.match(pattern)?.[1] || null;
+}
+
+function gitResult(args) {
+  return spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
+}
+
+function identitySurfaceChecks({
+  candidateVersion,
+  stateHeader,
+  stateVersion,
+  runtimeVersion,
+  saveStamp,
+  subtitleFallback,
+  renderedSubtitle,
+  validatorHeader,
+  sceneConsensus,
+  releaseState,
+  versionIntegrity
+}) {
+  const recoveryMode = releaseState === "NO-PUBLISH" && versionIntegrity?.startsWith("NOT_CERTIFIED");
+  const rows = [
+    ["1", "VERSION.md candidate label", candidateVersion, RECOVERY_CANDIDATE_LABEL, candidateVersion === RECOVERY_CANDIDATE_LABEL ? "candidate only" : "mismatch"],
+    ["2", "state.js header", stateHeader, candidateVersion, stateHeader === candidateVersion ? "match" : "mismatch"],
+    ["3", "state.js VERSION", stateVersion, candidateVersion, stateVersion === candidateVersion ? "match" : "mismatch"],
+    ["4", "runtime VERSION", runtimeVersion, candidateVersion, runtimeVersion === candidateVersion ? "match" : "mismatch"],
+    ["5", "save snapshot gameVersion", saveStamp, candidateVersion, saveStamp === candidateVersion ? "match" : "mismatch"],
+    ["6", "index fallback subtitle", subtitleFallback, candidateVersion, subtitleFallback === candidateVersion ? "match" : "mismatch"],
+    ["7", "rendered title subtitle", renderedSubtitle, candidateVersion, renderedSubtitle === candidateVersion ? "match" : "mismatch"],
+    ["8", "validator historical header", validatorHeader, recoveryMode ? "reported" : candidateVersion, recoveryMode ? "recovery history" : (validatorHeader === candidateVersion ? "match" : "mismatch")],
+    ["9", "55 scene historical headers", sceneConsensus, recoveryMode ? "reported" : `${candidateVersion}×55`, recoveryMode ? "recovery history" : (sceneConsensus === `${candidateVersion}×55` ? "match" : "mismatch")],
+    ["10", "PROJECT_STATUS release identity", `${releaseState}; ${versionIntegrity}`, "NO-PUBLISH; NOT_CERTIFIED", recoveryMode ? "recovery" : "mismatch"],
+    ["11", "verifier recovery candidate pin", RECOVERY_CANDIDATE_LABEL, RECOVERY_CANDIDATE_LABEL, "non-certifying"]
+  ];
+  const errors = [];
+  for (const [number, label, actual, expected, disposition] of rows) {
+    if (disposition === "mismatch" || actual == null || actual === "missing") {
+      errors.push(`version surface ${number} ${label}=${actual || "missing"}; expected ${expected}`);
+    }
+  }
+  if (!/^\d+\.\d+(?:\.\d+)?(?:[A-Za-z0-9.-]+)?$/.test(candidateVersion || "")) {
+    errors.push(`VERSION.md candidate label is not a supported version token: ${candidateVersion || "missing"}`);
+  }
+  return { errors, rows, recoveryMode };
+}
+
+function recoveryIdentityChecks(runtime) {
   const errors = [];
   const versionFile = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
   const stateSource = readFileSync(resolve(ROOT, "src/state.js"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const stateMatch = stateSource.match(/const\s+VERSION\s*=\s*["']([^"']+)["']/);
-  const subtitleMatch = indexSource.match(/id=["']game-subtitle["'][^>]*>v([^<]+)</);
-  if (versionFile !== EXPECTED_VERSION) errors.push(`VERSION.md=${versionFile}; expected ${EXPECTED_VERSION}`);
-  if (stateMatch?.[1] !== EXPECTED_VERSION) errors.push(`src/state.js VERSION=${stateMatch?.[1] || "missing"}; expected ${EXPECTED_VERSION}`);
-  if (subtitleMatch?.[1] !== EXPECTED_VERSION) errors.push(`index subtitle=${subtitleMatch?.[1] || "missing"}; expected ${EXPECTED_VERSION}`);
+  const validatorSource = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  const statusSource = readFileSync(resolve(ROOT, "artifacts/PROJECT_STATUS.md"), "utf8");
+  const pipelineSource = readFileSync(resolve(ROOT, "artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md"), "utf8");
+  const stateHeader = sourceVersion(stateSource, /^\/\/ Version\s+([^\s—]+)/m);
+  const stateVersion = sourceVersion(stateSource, /const\s+VERSION\s*=\s*["']([^"']+)["']/);
+  const subtitleFallback = sourceVersion(indexSource, /id=["']game-subtitle["'][^>]*>v([^<]+)</);
+  const validatorHeader = sourceVersion(validatorSource, /^\/\/ Version\s+([^\s—]+)/m);
+  const status = uniqueStatusFields(statusSource, [
+    "release_state",
+    "version_integrity",
+    "runtime_baseline_sha",
+    "last_certified_baseline_label"
+  ]);
+  errors.push(...status.errors);
+  const releaseState = status.values.release_state;
+  const versionIntegrity = status.values.version_integrity;
+  const runtimeBaseline = status.values.runtime_baseline_sha;
+  const lastCertified = status.values.last_certified_baseline_label;
+  const runtimeVersion = runtime ? runtime.evaluate("VERSION") : null;
+  const saveStamp = runtime ? runtime.evaluate("snapshotState().gameVersion") : null;
+  let renderedSubtitle = null;
+  if (runtime) {
+    runtime.evaluate("showScreen('title')");
+    renderedSubtitle = String(runtime.browser.document.getElementById("game-subtitle").textContent || "").replace(/^v/, "");
+  }
+
+  const sceneHeaderCounts = new Map();
+  for (let index = 1; index <= 55; index += 1) {
+    const path = `src/scenes-${String(index).padStart(2, "0")}.js`;
+    const header = readFileSync(resolve(ROOT, path), "utf8").split(/\r?\n/, 12).join("\n");
+    const version = sourceVersion(header, /^\/\/\s*(?:Version\s+)?([0-9]+\.[0-9][0-9A-Za-z.]*)/m) || "missing";
+    sceneHeaderCounts.set(version, (sceneHeaderCounts.get(version) || 0) + 1);
+  }
+  const sceneConsensus = [...sceneHeaderCounts.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([version, count]) => `${version}×${count}`)
+    .join(", ");
+
+  const surface = identitySurfaceChecks({
+    candidateVersion: versionFile,
+    stateHeader,
+    stateVersion,
+    runtimeVersion,
+    saveStamp,
+    subtitleFallback,
+    renderedSubtitle,
+    validatorHeader,
+    sceneConsensus,
+    releaseState,
+    versionIntegrity
+  });
+  errors.push(...surface.errors);
+  if (runtimeBaseline !== RECOVERY_BASE_SHA) errors.push(`STATUS runtime_baseline_sha=${runtimeBaseline || "missing"}; expected ${RECOVERY_BASE_SHA}`);
+  if (lastCertified !== LAST_CERTIFIED_LABEL) errors.push(`STATUS last certified=${lastCertified || "missing"}; expected ${LAST_CERTIFIED_LABEL}`);
+  if (!pipelineSource.includes("**ACTIVE NO-PUBLISH CONTROLS (policy level):**")) errors.push("PIPE-BOOT active NO-PUBLISH control missing");
+  if (!pipelineSource.includes("decision: ACCEPTED")) errors.push("PIPE-BOOT acceptance missing");
+
+  const head = gitResult(["rev-parse", "HEAD"]);
+  const headSha = head.status === 0 ? head.stdout.trim() : null;
+  if (!headSha) errors.push(`could not resolve exact Git HEAD: ${(head.stderr || "unknown error").trim()}`);
+  const ancestor = gitResult(["merge-base", "--is-ancestor", RECOVERY_BASE_SHA, "HEAD"]);
+  if (ancestor.status !== 0) errors.push(`recovery base ${RECOVERY_BASE_SHA} is not an ancestor of HEAD`);
+  if (process.env.GITHUB_SHA && headSha !== process.env.GITHUB_SHA) {
+    errors.push(`GitHub SHA ${process.env.GITHUB_SHA} != checked-out HEAD ${headSha}`);
+  }
+
   for (const requiredId of ["what-remains-screen", "what-remains-image", "what-remains-text"]) {
     if (!indexSource.includes(`id="${requiredId}"`)) errors.push(`index missing ${requiredId}`);
   }
-  return errors;
+  return { errors, rows: surface.rows, headSha, candidateVersion: versionFile, recoveryMode: surface.recoveryMode };
+}
+
+export function runSelfTest() {
+  const failures = [];
+  const check = (condition, message) => { if (!condition) failures.push(message); };
+  const fixture = {
+    candidateVersion: "0.30",
+    stateHeader: "0.30",
+    stateVersion: "0.30",
+    runtimeVersion: "0.30",
+    saveStamp: "0.30",
+    subtitleFallback: "0.30",
+    renderedSubtitle: "0.30",
+    validatorHeader: "0.29",
+    sceneConsensus: "0.28.1c×50, 0.29×5",
+    releaseState: "NO-PUBLISH",
+    versionIntegrity: "NOT_CERTIFIED — negative fixture"
+  };
+  check(identitySurfaceChecks(fixture).errors.length === 0, "valid recovery identity fixture failed");
+
+  const drift = identitySurfaceChecks({ ...fixture, runtimeVersion: "0.31" });
+  check(drift.errors.some(error => error.startsWith("version surface 4 runtime VERSION=")), "runtime version drift did not fail closed");
+
+  const missing = identitySurfaceChecks({ ...fixture, saveStamp: null });
+  check(missing.errors.some(error => error.startsWith("version surface 5 save snapshot gameVersion=")), "missing save version did not fail closed");
+
+  const publishClaim = identitySurfaceChecks({ ...fixture, releaseState: "PUBLISH" });
+  check(publishClaim.errors.some(error => error.startsWith("version surface 10 PROJECT_STATUS release identity=")), "publication-state drift did not fail closed");
+
+  const coordinatedDrift = identitySurfaceChecks({
+    ...fixture,
+    candidateVersion: "0.31",
+    stateHeader: "0.31",
+    stateVersion: "0.31",
+    runtimeVersion: "0.31",
+    saveStamp: "0.31",
+    subtitleFallback: "0.31",
+    renderedSubtitle: "0.31"
+  });
+  check(coordinatedDrift.errors.some(error => error.startsWith("version surface 1 VERSION.md candidate label=")), "coordinated candidate relabel did not fail closed");
+
+  const duplicateStatus = uniqueStatusFields([
+    "`release_state: NO-PUBLISH`",
+    "`release_state: PUBLISH`"
+  ].join("\n"), ["release_state"]);
+  check(duplicateStatus.errors.some(error => error.includes("expected exactly 1")), "duplicate contradictory STATUS field did not fail closed");
+
+  return { passed: failures.length === 0, failures };
+}
+
+function printIdentityTable(identity) {
+  console.log(`IDENTITY exact-head=${identity.headSha || "unavailable"}`);
+  console.log("IDENTITY certification=NO-PUBLISH / NOT CERTIFIED");
+  for (const [number, label, actual, expected, disposition] of identity.rows) {
+    console.log(`  ${number.padStart(2, "0")} | ${label} | actual=${actual ?? "missing"} | expected=${expected} | ${disposition}`);
+  }
 }
 
 function registrationChecks(runtime) {
@@ -402,10 +585,6 @@ function main() {
   printCheck("script manifest", manifestErrors, `${scripts.length} files`);
   failures.push(...manifestErrors);
 
-  const versionErrors = versionSurfaceChecks();
-  printCheck("version + What Remains HTML surfaces", versionErrors, `v${EXPECTED_VERSION}`);
-  failures.push(...versionErrors);
-
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
   failures.push(...syntaxErrors);
@@ -421,6 +600,11 @@ function main() {
   }
 
   if (runtime) {
+    const identity = recoveryIdentityChecks(runtime);
+    printIdentityTable(identity);
+    printCheck("recovery identity + 11-surface version table", identity.errors, `candidate v${identity.candidateVersion}; NO-PUBLISH`);
+    failures.push(...identity.errors);
+
     const registration = registrationChecks(runtime);
     printCheck("scene registration", registration.errors, `${runtime.sceneIds.length} scenes; sha256=${registration.digest}`);
     failures.push(...registration.errors);
@@ -436,6 +620,11 @@ function main() {
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
     failures.push(...cascadeErrors);
+  } else {
+    const identity = recoveryIdentityChecks(null);
+    printIdentityTable(identity);
+    printCheck("recovery identity + 11-surface version table", identity.errors, "runtime unavailable; NO-PUBLISH");
+    failures.push(...identity.errors);
   }
 
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
@@ -453,16 +642,25 @@ function main() {
   }
 
   if (failures.length) {
-    console.error(`\nRELEASE GATE FAIL — ${failures.length} failure(s)`);
+    console.error(`\nRECOVERY VERIFICATION FAIL — ${failures.length} failure(s); NO-PUBLISH remains active`);
     process.exitCode = 1;
   } else {
-    console.log("\nRELEASE GATE PASS");
+    console.log("\nRECOVERY VERIFICATION PASS — NO-PUBLISH / NOT CERTIFIED");
   }
 }
 
 try {
-  main();
+  const args = process.argv.slice(2);
+  if (args.length === 1 && args[0] === "--self-test") {
+    const result = runSelfTest();
+    console.log(`[verify] SELF-TEST ${result.passed ? "PASS" : "FAIL"}${result.failures.length ? ` — ${result.failures.join("; ")}` : " — injected version drift rejected"}`);
+    if (!result.passed) process.exitCode = 1;
+  } else if (args.length) {
+    throw new Error(`Unknown argument(s): ${args.join(" ")}`);
+  } else {
+    main();
+  }
 } catch (error) {
-  console.error(`RELEASE GATE CRASH\n${error.stack || error.message}`);
+  console.error(`RECOVERY VERIFICATION CRASH — NO-PUBLISH remains active\n${error.stack || error.message}`);
   process.exitCode = 1;
 }
