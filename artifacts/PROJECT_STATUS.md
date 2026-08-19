@@ -57,7 +57,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `rec_01_state: DISPATCHED / IMPLEMENTATION — exact four-file route; merge separately gated`
 `owner: Build / GPT-Codex`
 `state: REC-01 ACTIVE / DRAFT PR ONLY; NO-PUBLISH / NOT CERTIFIED remain active`
-`pull_request: PENDING`
+`pull_request: https://github.com/mbains89/Sunsplitter/pull/22 (draft; unmerged)`
 `governed_branch: recovery/e4f8440-nopub`
 `implementation_branch: ticket/0.30.1-rec-01-r1`
 `dispatch_base_sha: 5e93b68a7412bcbed041e7c74a985ae30682a1d2`
