@@ -26,7 +26,10 @@ const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
 const PIPE_BOOT_CLOSEOUT_HEAD = "ticket/0.30.1-pipe-boot-r1-status-closeout";
 const RECOVERY_POLICY_HEAD = "ticket/recovery-governance-policy-r1";
+const RECOVERY_POLICY_PR_REF = "refs/pull/20/merge";
 const ROADMAP_L014_HEAD = "agent/roadmap-0.30.1-ai-hardening-recovery";
+const ROADMAP_L014_PR_REF = "refs/pull/17/merge";
+const ROADMAP_L014_AUTHORIZED_HEAD = "2f0b9a52059967d29846adf73b8fe48d19b604b8";
 const RECOVERY_POLICY_BASE_SHA = "78a64c7a180a34e786da3eefac42a06f50703bab";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
@@ -37,6 +40,8 @@ const GOV_01_SHA256 = "067832a3750f9909df7a4d8eff553d96dd450957c9235da8f37012607
 const RECOVERY_DEC_SHA256 = "48721ce3552cf44ff305747545eb908c0668cf04f84167d41eedefeb5f092efa";
 const NETLIFY_NO_BUILD_SHA256 = "02779c797969c4af09d5f4fa900ef7464473b6d3e2337b3d47eedbc94ca6187d";
 const SIMULATION_BASELINE_SHA256 = "bb1fb02cb7f85f0c0eddb3d9dbb0d3bb6c695d57156c2c051bf69f6f53f3b42b";
+const ROADMAP_L014_ROADMAP_SHA256 = "63a092a043f1bda60c2294203e25f96ab6d127c346b7d4dae7ed1ab399608a24";
+const ROADMAP_L014_LOCKS_SHA256 = "d9f8d9c879395c9c9f20adcb5ed7f4e745704976e95585e0ec89c0c9e7f0851e";
 const WORKFLOW_SHA256 = Object.freeze({
   "release-policy.yml": "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33",
   "verify.yml": "ab1a1f7d2783269b8ad76bd52ae13f1f25896ffb4e141defe66965cb491f8db2"
@@ -91,6 +96,35 @@ function git(args) {
   }).trim();
 }
 
+function fileHashAt(revision, relativePath) {
+  if (!FULL_SHA_RE.test(revision || "")) return null;
+  try {
+    const bytes = execFileSync("git", ["show", `${revision}:${relativePath}`], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    return sha256(bytes);
+  } catch {
+    return null;
+  }
+}
+
+function changedPathsBetween(base, head, mergeBase = false) {
+  if (!FULL_SHA_RE.test(base || "") || !FULL_SHA_RE.test(head || "")) return null;
+  try {
+    const output = git([
+      "diff",
+      "--name-only",
+      "--no-renames",
+      "--diff-filter=ACDMRTUXB",
+      `${base}${mergeBase ? "..." : ".."}${head}`
+    ]);
+    return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+  } catch {
+    return null;
+  }
+}
+
 function isAncestor(ancestor, descendant) {
   try {
     execFileSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], {
@@ -104,29 +138,15 @@ function isAncestor(ancestor, descendant) {
 }
 
 function changedPathsForEvent(environment) {
-  let range = null;
   if (environment.eventName === "pull_request") {
-    if (FULL_SHA_RE.test(environment.prBaseSha) && FULL_SHA_RE.test(environment.prHeadSha)) {
-      range = `${environment.prBaseSha}...${environment.prHeadSha}`;
-    }
+    return changedPathsBetween(environment.prBaseSha, environment.prHeadSha, true) || [];
   } else if (environment.eventName === "push" && environment.refType !== "tag") {
     const before = /^0{40}$/.test(environment.beforeSha)
       ? DISPATCH_BASE_SHA
       : environment.beforeSha;
-    if (FULL_SHA_RE.test(before) && FULL_SHA_RE.test(environment.afterSha)) {
-      range = `${before}..${environment.afterSha}`;
-    }
+    return changedPathsBetween(before, environment.afterSha) || [];
   }
-
-  if (!range) return [];
-  const output = git([
-    "diff",
-    "--name-only",
-    "--no-renames",
-    "--diff-filter=ACDMRTUXB",
-    range
-  ]);
-  return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+  return [];
 }
 
 function readRepositoryFacts(environment) {
@@ -145,22 +165,38 @@ function readRepositoryFacts(environment) {
   const recoveryDec = read("artifacts/RECOVERY-DEC_AMENDMENT.md");
   const netlify = read("netlify.toml");
   const simulationBaseline = read(SIMULATION_BASELINE_PATH);
+  const roadmap = read("artifacts/ROADMAP.md");
+  const locks = read("artifacts/LOCKS.md");
+  const policy = read("scripts/release-policy.mjs");
   const checkedOutSha = git(["rev-parse", "HEAD"]);
   const parentShas = git(["show", "-s", "--format=%P", checkedOutSha])
     .split(/\s+/)
     .filter(Boolean);
+  const normalizedBefore = /^0{40}$/.test(environment.beforeSha || "")
+    ? DISPATCH_BASE_SHA
+    : environment.beforeSha;
+  const routeHeadSha = environment.eventName === "pull_request"
+    ? environment.prHeadSha
+    : parentShas[1];
+  const policyBaseSha = environment.eventName === "pull_request"
+    ? environment.prBaseSha
+    : normalizedBefore;
 
   return {
     ...environment,
     checkedOutSha,
     parentShas,
     changedPaths: changedPathsForEvent(environment),
+    secondParentChangedPaths: parentShas[1]
+      ? changedPathsBetween(normalizedBefore, parentShas[1])
+      : null,
     recoveryBaseAncestor: isAncestor(RECOVERY_BASE_SHA, checkedOutSha),
     dispatchBaseAncestor: isAncestor(DISPATCH_BASE_SHA, checkedOutSha),
     prBaseAncestor: environment.eventName !== "pull_request"
       || isAncestor(environment.prBaseSha, checkedOutSha),
     prHeadAncestor: environment.eventName !== "pull_request"
       || isAncestor(environment.prHeadSha, checkedOutSha),
+    roadmapAuthorizedHeadAncestor: isAncestor(ROADMAP_L014_AUTHORIZED_HEAD, routeHeadSha),
     statusText: read("artifacts/PROJECT_STATUS.md").toString("utf8"),
     gov01Hash: sha256(gov01),
     recoveryDecHash: sha256(recoveryDec),
@@ -168,6 +204,11 @@ function readRepositoryFacts(environment) {
     reconciliationText: read("artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md").toString("utf8"),
     netlifyHash: sha256(netlify),
     simulationBaselineHash: sha256(simulationBaseline),
+    roadmapHash: sha256(roadmap),
+    locksHash: sha256(locks),
+    policyHash: sha256(policy),
+    basePolicyHash: fileHashAt(policyBaseSha, "scripts/release-policy.mjs"),
+    secondParentPolicyHash: fileHashAt(parentShas[1], "scripts/release-policy.mjs"),
     workflowNames,
     workflowTexts,
     workflowHashes: Object.fromEntries(
@@ -332,11 +373,37 @@ export function evaluatePolicy(facts) {
       }
     } else if (facts.headRef === RECOVERY_POLICY_HEAD) {
       changeRoute = "policy-amendment";
+      if (facts.ref !== RECOVERY_POLICY_PR_REF || facts.refName !== "20/merge") {
+        errors.push(`recovery-policy amendment must run only as ${RECOVERY_POLICY_PR_REF}`);
+      }
       if (facts.prBaseSha !== RECOVERY_POLICY_BASE_SHA) {
         errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != recovery-policy base ${RECOVERY_POLICY_BASE_SHA}`);
       }
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.prBaseSha || parents[1] !== facts.prHeadSha) {
+        errors.push("recovery-policy amendment PR must test the exact GitHub merge of its recorded base and head");
+      }
     } else if (facts.headRef === ROADMAP_L014_HEAD) {
       changeRoute = "roadmap-l014";
+      if (facts.ref !== ROADMAP_L014_PR_REF || facts.refName !== "17/merge") {
+        errors.push(`ROADMAP-L014 must run only as ${ROADMAP_L014_PR_REF}`);
+      }
+      if (!facts.roadmapAuthorizedHeadAncestor) {
+        errors.push(`ROADMAP-L014 head must descend from authorized proposal ${ROADMAP_L014_AUTHORIZED_HEAD}`);
+      }
+      if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 base policy bytes do not match the executing recovery policy");
+      }
+      if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256) {
+        errors.push("ROADMAP-L014 ROADMAP bytes do not match the approved proposal");
+      }
+      if (facts.locksHash !== ROADMAP_L014_LOCKS_SHA256) {
+        errors.push("ROADMAP-L014 LOCKS bytes do not match the approved proposal");
+      }
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.prBaseSha || parents[1] !== facts.prHeadSha) {
+        errors.push("ROADMAP-L014 PR must test the exact GitHub merge of its recorded base and head");
+      }
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery-policy route`);
     }
@@ -363,7 +430,17 @@ export function evaluatePolicy(facts) {
         changeRoute = "closeout";
       } else if (normalizedBefore === RECOVERY_POLICY_BASE_SHA) {
         changeRoute = "policy-amendment";
-      } else if (sameStringSet(facts.changedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+      } else if (
+        sameStringSet(facts.changedPaths || [], ROADMAP_L014_CHANGED_PATHS)
+        && facts.roadmapHash === ROADMAP_L014_ROADMAP_SHA256
+        && facts.locksHash === ROADMAP_L014_LOCKS_SHA256
+        && (facts.parentShas || []).length === 2
+        && facts.parentShas[0] === facts.beforeSha
+        && facts.roadmapAuthorizedHeadAncestor
+        && facts.basePolicyHash
+        && facts.basePolicyHash === facts.policyHash
+        && sameStringSet(facts.secondParentChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)
+      ) {
         changeRoute = "roadmap-l014";
       } else {
         errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery-policy base`);
@@ -390,13 +467,33 @@ export function evaluatePolicy(facts) {
     } else if (changeRoute === "roadmap-l014" && !sameStringSet(changedPaths, ROADMAP_L014_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the ROADMAP-L014 governance set: ${changedPaths.join(", ") || "<none>"}`);
     }
-    if (
-      facts.eventName === "push"
-      && (changeRoute === "policy-amendment" || changeRoute === "roadmap-l014")
-    ) {
+    if (facts.eventName === "push" && changeRoute === "policy-amendment") {
       const parents = facts.parentShas || [];
       if (parents.length !== 2 || parents[0] !== facts.beforeSha) {
-        errors.push(`${changeRoute} push must be a merge commit whose first parent is the recorded before SHA`);
+        errors.push("policy-amendment push must be a merge commit whose first parent is the recorded before SHA");
+      }
+      if (!sameStringSet(facts.secondParentChangedPaths || [], RECOVERY_POLICY_R1_CHANGED_PATHS)) {
+        errors.push("policy-amendment second parent does not have the exact authorized net diff");
+      }
+      if (!facts.secondParentPolicyHash || facts.secondParentPolicyHash !== facts.policyHash) {
+        errors.push("policy-amendment second-parent policy bytes do not match the checked-out policy");
+      }
+    } else if (facts.eventName === "push" && changeRoute === "roadmap-l014") {
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.beforeSha) {
+        errors.push("ROADMAP-L014 push must be a merge commit whose first parent is the recorded before SHA");
+      }
+      if (!facts.roadmapAuthorizedHeadAncestor) {
+        errors.push(`ROADMAP-L014 merge parent must descend from authorized proposal ${ROADMAP_L014_AUTHORIZED_HEAD}`);
+      }
+      if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 pre-merge policy bytes do not match the checked-out policy");
+      }
+      if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256 || facts.locksHash !== ROADMAP_L014_LOCKS_SHA256) {
+        errors.push("ROADMAP-L014 merged authority bytes do not match the approved proposal");
+      }
+      if (!sameStringSet(facts.secondParentChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+        errors.push("ROADMAP-L014 second parent does not have the exact authorized net diff");
       }
     }
   }
@@ -406,6 +503,8 @@ export function evaluatePolicy(facts) {
 
 function baseSelfTestFacts() {
   const sha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  const prHeadSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  const policyHash = "1".repeat(64);
   return {
     eventName: "pull_request",
     repository: EXPECTED_REPOSITORY,
@@ -418,14 +517,17 @@ function baseSelfTestFacts() {
     headRef: PIPE_BOOT_HEAD,
     prHeadRepository: EXPECTED_REPOSITORY,
     prBaseSha: DISPATCH_BASE_SHA,
-    prHeadSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    prHeadSha,
     beforeSha: "",
     afterSha: "",
+    parentShas: [DISPATCH_BASE_SHA, prHeadSha],
     changedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
+    secondParentChangedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
     recoveryBaseAncestor: true,
     dispatchBaseAncestor: true,
     prBaseAncestor: true,
     prHeadAncestor: true,
+    roadmapAuthorizedHeadAncestor: false,
     statusText: [
       `\`runtime_baseline_sha: ${RECOVERY_BASE_SHA}\``,
       "`release_state: NO-PUBLISH`",
@@ -440,6 +542,11 @@ function baseSelfTestFacts() {
     reconciliationText: `# PIPE-BOOT-R1\n${RECOVERY_BASE_SHA}\nNO-PUBLISH`,
     netlifyHash: NETLIFY_NO_BUILD_SHA256,
     simulationBaselineHash: SIMULATION_BASELINE_SHA256,
+    roadmapHash: "2".repeat(64),
+    locksHash: "3".repeat(64),
+    policyHash,
+    basePolicyHash: policyHash,
+    secondParentPolicyHash: policyHash,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
       "name: fixture",
@@ -475,6 +582,14 @@ function expectFailure(base, mutate, needle) {
   assert.ok(result.errors.some(error => error.includes(needle)), `missing failure ${needle}: ${result.errors.join(" | ")}`);
 }
 
+function expectAnyFailure(base, mutate, label) {
+  const facts = structuredClone(base);
+  mutate(facts);
+  const result = evaluatePolicy(facts);
+  assert.equal(result.passed, false, `expected fail-closed rejection: ${label}`);
+  assert.ok(result.errors.length > 0, `missing failure details: ${label}`);
+}
+
 function selfTest() {
   assert.deepEqual(
     [...PIPE_BOOT_R1_CHANGED_PATHS].sort(),
@@ -507,21 +622,43 @@ function selfTest() {
 
   const policyAmendment = structuredClone(positive);
   Object.assign(policyAmendment, {
+    ref: RECOVERY_POLICY_PR_REF,
+    refName: "20/merge",
     headRef: RECOVERY_POLICY_HEAD,
     prBaseSha: RECOVERY_POLICY_BASE_SHA,
+    parentShas: [RECOVERY_POLICY_BASE_SHA, positive.prHeadSha],
     changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS]
   });
   assert.deepEqual(evaluatePolicy(policyAmendment).errors, []);
+  expectFailure(policyAmendment, facts => { facts.ref = "refs/pull/999/merge"; }, "must run only");
   expectFailure(policyAmendment, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "recovery-policy base");
+  expectFailure(policyAmendment, facts => { facts.parentShas[1] = "c".repeat(40); }, "exact GitHub merge");
   expectFailure(policyAmendment, facts => { facts.changedPaths.push("artifacts/ROADMAP.md"); }, "recovery-policy amendment set");
 
   const roadmapL014 = structuredClone(positive);
   Object.assign(roadmapL014, {
+    ref: ROADMAP_L014_PR_REF,
+    refName: "17/merge",
     headRef: ROADMAP_L014_HEAD,
     prBaseSha: RECOVERY_POLICY_BASE_SHA,
-    changedPaths: [...ROADMAP_L014_CHANGED_PATHS]
+    prHeadSha: "c".repeat(40),
+    parentShas: [RECOVERY_POLICY_BASE_SHA, "c".repeat(40)],
+    changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    roadmapAuthorizedHeadAncestor: true,
+    roadmapHash: ROADMAP_L014_ROADMAP_SHA256,
+    locksHash: ROADMAP_L014_LOCKS_SHA256,
+    basePolicyHash: positive.policyHash
   });
   assert.deepEqual(evaluatePolicy(roadmapL014).errors, []);
+  expectFailure(roadmapL014, facts => { facts.ref = "refs/pull/999/merge"; }, "must run only");
+  expectFailure(roadmapL014, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
+  expectFailure(roadmapL014, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "must descend");
+  expectFailure(roadmapL014, facts => { facts.basePolicyHash = "4".repeat(64); }, "base policy bytes");
+  expectFailure(roadmapL014, facts => { facts.roadmapHash = "4".repeat(64); }, "ROADMAP bytes");
+  expectFailure(roadmapL014, facts => { facts.roadmapHash = null; }, "ROADMAP bytes");
+  expectFailure(roadmapL014, facts => { facts.locksHash = "4".repeat(64); }, "LOCKS bytes");
+  expectFailure(roadmapL014, facts => { facts.locksHash = null; }, "LOCKS bytes");
+  expectFailure(roadmapL014, facts => { facts.parentShas[1] = "d".repeat(40); }, "exact GitHub merge");
   expectFailure(roadmapL014, facts => { facts.changedPaths.pop(); }, "ROADMAP-L014 governance set");
   expectFailure(roadmapL014, facts => { facts.changedPaths.push("src/scenes-41.js"); }, "ROADMAP-L014 governance set");
   expectFailure(roadmapL014, facts => { facts.headRef = "agent/roadmap-other"; }, "authorized recovery-policy route");
@@ -597,19 +734,36 @@ function selfTest() {
   Object.assign(policyAmendmentPush, {
     beforeSha: RECOVERY_POLICY_BASE_SHA,
     changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS],
-    parentShas: [RECOVERY_POLICY_BASE_SHA, "d".repeat(40)]
+    parentShas: [RECOVERY_POLICY_BASE_SHA, "d".repeat(40)],
+    secondParentChangedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS],
+    secondParentPolicyHash: push.policyHash
   });
   assert.deepEqual(evaluatePolicy(policyAmendmentPush).errors, []);
   expectFailure(policyAmendmentPush, facts => { facts.parentShas = [RECOVERY_POLICY_BASE_SHA]; }, "must be a merge commit");
+  expectFailure(policyAmendmentPush, facts => { facts.secondParentChangedPaths.push("README.md"); }, "exact authorized net diff");
+  expectFailure(policyAmendmentPush, facts => { facts.secondParentPolicyHash = "4".repeat(64); }, "second-parent policy bytes");
 
   const roadmapL014Push = structuredClone(push);
   Object.assign(roadmapL014Push, {
     beforeSha: "c".repeat(40),
     changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
-    parentShas: ["c".repeat(40), "d".repeat(40)]
+    parentShas: ["c".repeat(40), "d".repeat(40)],
+    secondParentChangedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    roadmapAuthorizedHeadAncestor: true,
+    roadmapHash: ROADMAP_L014_ROADMAP_SHA256,
+    locksHash: ROADMAP_L014_LOCKS_SHA256,
+    basePolicyHash: push.policyHash
   });
   assert.deepEqual(evaluatePolicy(roadmapL014Push).errors, []);
-  expectFailure(roadmapL014Push, facts => { facts.parentShas[0] = "e".repeat(40); }, "first parent");
+  expectAnyFailure(roadmapL014Push, facts => { facts.basePolicyHash = "4".repeat(64); }, "wrong pre-merge policy bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.parentShas = [facts.beforeSha]; }, "one-parent ROADMAP push");
+  expectAnyFailure(roadmapL014Push, facts => { facts.parentShas[0] = "e".repeat(40); }, "wrong first parent");
+  expectAnyFailure(roadmapL014Push, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "unauthorized second-parent ancestry");
+  expectAnyFailure(roadmapL014Push, facts => { facts.roadmapHash = "4".repeat(64); }, "wrong ROADMAP bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.locksHash = "4".repeat(64); }, "wrong LOCKS bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.changedPaths.pop(); }, "missing ROADMAP-L014 path");
+  expectAnyFailure(roadmapL014Push, facts => { facts.changedPaths.push("README.md"); }, "extra ROADMAP-L014 path");
+  expectAnyFailure(roadmapL014Push, facts => { facts.secondParentChangedPaths.push("README.md"); }, "second-parent net diff broadened");
 
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
