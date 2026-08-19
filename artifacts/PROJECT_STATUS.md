@@ -30,17 +30,19 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: Governance recovery bootstrap (GOV-01 / RECOVERY-DEC / PIPE-BOOT)`  
-`ticket: PIPE-BOOT accepted on branch recovery/e4f8440-nopub`  
+`milestone: 0.30.1 bounded integrity recovery`  
+`ticket: REC-01 / GitHub issue #13 — quiet_tomas rewind`  
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
-`owner: Grok / program office`  
-`state: PIPE_BOOT_ACCEPTED — ready for bounded integrity dispatch`  
+`owner: Build / implementation agent`  
+`state: DISPATCHED — implementation not yet started`  
 `pull_request: none`  
-`governed_branch: recovery/e4f8440-nopub`
+`governed_branch: recovery/e4f8440-nopub`  
+`implementation_branch: ticket/0.30.1-01-quiet-tomas-rewind`  
+`dispatch_base_sha: 93ccb43e141da544b999ba2c45f664a19428a5e3`
 
 ## Blocked
 
-- All correction / integrity implementation remains blocked until Grok issues a bounded integrity ticket and Build receives an explicit dispatch.
+- Only REC-01 / issue #13 implementation is authorized. Every other RECOVERY-DEC §4 correction remains blocked pending its own bounded dispatch.
 - All sequential gates from 0.28.2 onward remain uncertified.
 - Publication, tagging, deploy, monetization frozen.
 - L-025, L-026, L-027, L-028 remain open decision gates.
@@ -59,10 +61,11 @@ L-020 through L-024 previously ruled; recovery does not reopen them. Full langua
 - `artifacts/GOV-01_AUTHORITY_RECONCILIATION.md` on main
 - `artifacts/RECOVERY-DEC_AMENDMENT.md` on main
 - `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md` on `recovery/e4f8440-nopub`
-- No gameplay, narrative, art, or publication bytes changed by the recovery bootstrap
+- REC-01 dispatched as GitHub issue #13 on `ticket/0.30.1-01-quiet-tomas-rewind`
+- No gameplay, narrative, art, or publication bytes changed by this dispatch
 
 ## Next action
 
-**Grok / program office:** Dispatch the first bounded integrity ticket limited to RECOVERY-DEC §4 and the authorized `0.30.1` boundary. Build remains blocked until that dispatch names the exact base SHA, bounded scope, acceptance criteria, and required evidence.
+**Build / implementation agent:** Implement REC-01 / issue #13 only on `ticket/0.30.1-01-quiet-tomas-rewind`, preserve NO-PUBLISH, run the required targeted and full verification, and open an evidence-bearing PR to `recovery/e4f8440-nopub`.
 
 <!-- STATUS_COMPLETE -->
