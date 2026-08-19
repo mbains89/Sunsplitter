@@ -57,7 +57,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `rec_01_state: DISPATCH AUTHORIZED ONLY AFTER REC-RATCHET-01 MERGE — issue #13 must record the exact structural successor before Build starts`
 `owner: Grok / program office until exact issue repin; then Build / GPT-Codex`
 `state: REC-01 FROZEN pending exact issue #13 repin; implementation-only afterward; NO-PUBLISH / NOT CERTIFIED remain active`
-`pull_request: PENDING`
+`pull_request: https://github.com/mbains89/Sunsplitter/pull/21 (draft; unmerged)`
 `governed_branch: recovery/e4f8440-nopub`
 `implementation_branch: ticket/0.30.1-rec-ratchet-01`
 `dispatch_base_sha: 78a64c7a180a34e786da3eefac42a06f50703bab`
