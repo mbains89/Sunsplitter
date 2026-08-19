@@ -1,44 +1,48 @@
 # Sunsplitter — Current Status
 
 `schema_version: 1`  
-`updated_utc: 2026-08-18`  
+`updated_utc: 2026-08-19`  
 `authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 
-This is the compact rolling handoff. It contains current state only. Process lives in `/AGENTS.md`, future scope and gates in `ROADMAP.md`, and decision dispositions in `LOCKS.md`.
+This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Recovery authority: `GOV-01_AUTHORITY_RECONCILIATION.md`, `RECOVERY-DEC_AMENDMENT.md`, `PIPE-BOOT_RECOVERY_PIPELINE.md`.
 
-## Release
+## Release / recovery state
 
-`runtime_baseline_sha: 8beee172de5ac7bd1e7148ee71716e4b4066d33d`  
-`release_label: 0.28.1d`  
-`release_state: SHIPPED_LABEL_ONLY`  
-`production_url: NOT_VERIFIED`  
-`release_artifact: artifacts/sun-v0.28.1d-combined-net.zip`  
-`version_integrity: FAIL — VERSION.md=0.28.1d; src/state.js=0.28.1b; index.html UI=0.28.1c` (deferred to milestone close)
+`runtime_baseline_sha: e4f84409759760d31fcf47b8a227802a61421f51`  
+`release_label: NO-PUBLISH recovery base (candidate labels such as 0.30 do not certify)`  
+`release_state: NO-PUBLISH`  
+`last_certified_baseline_label: 0.28.1d`  
+`last_certified_baseline_sha_associated: 2bb4517707df90702a9b78fe0fa8fb55c1852dd8`  
+`production_url: NOT_AUTHORIZED`  
+`release_artifact: none authorized from this base`  
+`artifact_digest: none — no release created`  
+`version_integrity: NOT_CERTIFIED — tree carries mixed historical labels; recovery in progress`
+
+**HARD STOP:** No deploy, tag, GitHub Release, itch.io upload, or public “released” claim from this base until a later Manraj authorization lifts NO-PUBLISH after governed integrity evidence.
 
 ## Verification — latest attributable evidence
 
-`tested_runtime_sha: 8beee172de5ac7bd1e7148ee71716e4b4066d33d`  
-`verify_mjs: ON_MAIN` (scripts/verify.mjs)  
-`simulate_mjs: ON_MAIN` (scripts/simulate.mjs)  
-`V6: PASSES` for both Amara and Sela after R2  
-`remaining_gate_failure: L-021 Living-policy softlock at vess_cost`
+`tested_runtime_sha: e4f84409759760d31fcf47b8a227802a61421f51` (audited recovery base, not certified)  
+`verify_mjs: present on tree`  
+`simulate_mjs: present on tree`  
+`external_audits: SUNSPLITTER_HOSTILE_PREPUBLICATION_AUDIT_E4F8440_2026-08-18.md + SUNSPLITTER_ULTRA_QUALITY_CRUCIBLE_2026-08-18.md (external evidence; not summed; unique findings preserved)`  
+`playable_file_match_reported: 190/190 (deployment provenance inferred, not certified)`
 
 ## Active work
 
-`milestone: Economy / Systemic Truth / Release Hardening (IN PROGRESS)`  
-`completed_tickets:`  
-- L-024 LOCKED Option B (commit aae0901)  
-- 0.28.2-R1 Release Gate + Simulation Harness (scripts on main)  
-- 0.28.2-R2 Promise-lifecycle truth repair (engine.js on main; V6 passes)  
-`next_ticket: L-021 Living softlock at vess_cost`  
-`owner: Grok / program office → Build after dispatch`  
-`state: READY_FOR_NEXT_TICKET`  
-`pull_request: none`
+`milestone: Governance recovery bootstrap (GOV-01 / RECOVERY-DEC / PIPE-BOOT)`  
+`ticket: PIPE-BOOT complete on branch recovery/e4f8440-nopub`  
+`owner: Grok / program office`  
+`state: GOVERNANCE_BOOTSTRAP_COMPLETE — awaiting Manraj acceptance before any integrity dispatch`  
+`pull_request: none`  
+`governed_branch: recovery/e4f8440-nopub`
 
 ## Blocked
 
-- Full release gate still fails solely on L-021 (vess_cost softlock under Living policy).
-- Version integrity across VERSION.md / state.js / index.html deferred to milestone close.
+- All correction / integrity implementation until Manraj accepts PIPE-BOOT and issues a bounded dispatch.
+- All sequential gates from 0.28.2 onward remain uncertified.
+- Publication, tagging, deploy, monetization frozen.
+- L-025, L-026, L-027, L-028 remain open decision gates.
 
 ## Open locks (remaining)
 
@@ -47,16 +51,18 @@ This is the compact rolling handoff. It contains current state only. Process liv
 - L-027 — `vess_course_lost` consumer or retirement
 - L-028 — Ticket 2 new-crew indicator
 
-L-020 through L-024 are LOCKED. Full language in `LOCKS.md`.
+L-020 through L-024 previously ruled; recovery does not reopen them. Full language in `LOCKS.md` + RECOVERY-DEC §4 for implementation posture.
 
-## Canon and repository deltas
+## Canon and repository deltas (governance only)
 
-- `scripts/simulate.mjs` + `scripts/verify.mjs` now on main.
-- `src/engine.js` implements L-024 Option B: untested promises remain `"made"` and are omitted from ending reflection. Never invents player betrayal on a dead holder.
-- Detailed local chronology also in the long-form PROJECT_STATUS kept in the working tree.
+- `artifacts/GOV-01_AUTHORITY_RECONCILIATION.md` on main
+- `artifacts/RECOVERY-DEC_AMENDMENT.md` on main
+- `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md` on `recovery/e4f8440-nopub`
+- No gameplay, narrative, art, or publication bytes changed by the recovery bootstrap
 
 ## Next action
 
-**Grok:** Dispatch L-021 / vess_cost softlock ticket. Build implements only from the dispatched ticket.
+**Manraj:** Review the three governance commits + this STATUS. Confirm PIPE-BOOT acceptance if satisfied.  
+**Grok:** Only after acceptance, may dispatch a bounded integrity ticket (scope limited to the RECOVERY-DEC / authorization list). No correction work before that.
 
 <!-- STATUS_COMPLETE -->
