@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-// PIPE-BOOT-R1, REC-RATCHET-01, and the one-shot REC-01 route.
+// PIPE-BOOT-R1, REC-RATCHET-01, the one-shot REC-01 route, and
+// RECOVERY-POLICY-R1's exact ROADMAP-L014 route.
 //
-// This is deliberately a recovery-only, fail-closed policy. It does not create
-// tags, releases, deployments, artifacts, or publication credentials. A later
-// governed ticket must replace this bounded policy before any other change may
-// target the recovery branch.
+// This remains a recovery-only, fail-closed policy. It does not create tags,
+// releases, deployments, artifacts, or publication credentials. The amendment
+// adds one exact self-update route and one exact ROADMAP-L014 documentation
+// route without authorizing runtime, release, deployment, or publication work.
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -14,10 +15,13 @@ import {
   appendFileSync,
   existsSync,
   lstatSync,
+  mkdtempSync,
   readFileSync,
-  readdirSync
+  readdirSync,
+  rmSync
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -26,6 +30,13 @@ const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
 const PIPE_BOOT_CLOSEOUT_HEAD = "ticket/0.30.1-pipe-boot-r1-status-closeout";
+const RECOVERY_POLICY_HEAD = "ticket/recovery-governance-policy-r1";
+const RECOVERY_POLICY_PR_REF = "refs/pull/20/merge";
+const ROADMAP_L014_HEAD = "agent/roadmap-0.30.1-ai-hardening-recovery";
+const ROADMAP_L014_PR_REF = "refs/pull/17/merge";
+const ROADMAP_L014_AUTHORIZED_HEAD = "2f0b9a52059967d29846adf73b8fe48d19b604b8";
+const RECOVERY_POLICY_PRE_RECONCILIATION_HEAD = "0b043c2a4628d12f50c1392bda23a02be10c1b90";
+const RECOVERY_POLICY_BASE_SHA = "5e93b68a7412bcbed041e7c74a985ae30682a1d2";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
 const PIPE_BOOT_MERGE_SHA = "0b600935aa6e21d4898bcc9c7ad09e78893ec6e7";
@@ -41,6 +52,8 @@ const GOV_01_SHA256 = "067832a3750f9909df7a4d8eff553d96dd450957c9235da8f37012607
 const RECOVERY_DEC_SHA256 = "48721ce3552cf44ff305747545eb908c0668cf04f84167d41eedefeb5f092efa";
 const NETLIFY_NO_BUILD_SHA256 = "02779c797969c4af09d5f4fa900ef7464473b6d3e2337b3d47eedbc94ca6187d";
 const SIMULATION_BASELINE_SHA256 = "bb1fb02cb7f85f0c0eddb3d9dbb0d3bb6c695d57156c2c051bf69f6f53f3b42b";
+const ROADMAP_L014_ROADMAP_SHA256 = "63a092a043f1bda60c2294203e25f96ab6d127c346b7d4dae7ed1ab399608a24";
+const ROADMAP_L014_LOCKS_SHA256 = "d9f8d9c879395c9c9f20adcb5ed7f4e745704976e95585e0ec89c0c9e7f0851e";
 const REC_01_SIMULATION_BASELINE_SHA256 = "0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2";
 const REC_RATCHET_ARTIFACT_SHA256 = "e1101102c7c79e2f2d7c12504e74f1fe28037ae199703d1b488c57aa2e329db8";
 const REC_RATCHET_PATCH_ARTIFACT_SHA256 = "f5c4f2a48f24f0c6c7d6d570d98acc6217156ebcdf3cef5a9224941629f2c438";
@@ -67,6 +80,15 @@ export const PIPE_BOOT_R1_CHANGED_PATHS = Object.freeze([
 export const PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS = Object.freeze([
   "artifacts/PROJECT_STATUS.md",
   "scripts/release-policy.mjs"
+]);
+
+export const RECOVERY_POLICY_R1_CHANGED_PATHS = Object.freeze([
+  "scripts/release-policy.mjs"
+]);
+
+export const ROADMAP_L014_CHANGED_PATHS = Object.freeze([
+  "artifacts/LOCKS.md",
+  "artifacts/ROADMAP.md"
 ]);
 
 export const REC_RATCHET_01_CHANGED_PATHS = Object.freeze([
@@ -107,6 +129,35 @@ function git(args) {
   }).trim();
 }
 
+function fileHashAt(revision, relativePath) {
+  if (!FULL_SHA_RE.test(revision || "")) return null;
+  try {
+    const bytes = execFileSync("git", ["show", `${revision}:${relativePath}`], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    return sha256(bytes);
+  } catch {
+    return null;
+  }
+}
+
+function changedPathsBetween(base, head, mergeBase = false) {
+  if (!FULL_SHA_RE.test(base || "") || !FULL_SHA_RE.test(head || "")) return null;
+  try {
+    const output = git([
+      "diff",
+      "--name-only",
+      "--no-renames",
+      "--diff-filter=ACDMRTUXB",
+      `${base}${mergeBase ? "..." : ".."}${head}`
+    ]);
+    return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+  } catch {
+    return null;
+  }
+}
+
 function isAncestor(ancestor, descendant) {
   try {
     execFileSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], {
@@ -131,63 +182,45 @@ function gitFileSha256(ref, relativePath) {
   }
 }
 
-function changedPathsBetween(base, head) {
-  if (!FULL_SHA_RE.test(base || "") || !FULL_SHA_RE.test(head || "")) return [];
-  try {
-    const output = git([
-      "diff",
-      "--name-only",
-      "--no-renames",
-      "--diff-filter=ACDMRTUXB",
-      `${base}..${head}`
-    ]);
-    return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
-  } catch {
-    return [];
-  }
-}
-
-function isExactRecRatchetSuccessor(ref) {
-  if (!FULL_SHA_RE.test(ref || "")) return false;
+function isExactRecoveryPolicySuccessor(ref, expectedPolicyHash) {
+  if (!FULL_SHA_RE.test(ref || "") || !/^[0-9a-f]{64}$/.test(expectedPolicyHash || "")) return false;
   try {
     const parents = git(["rev-list", "--parents", "-n", "1", ref]).split(/\s+/);
+    const firstParent = parents[1];
+    const secondParent = parents[2];
+    const secondParentParents = FULL_SHA_RE.test(secondParent || "")
+      ? git(["rev-list", "--parents", "-n", "1", secondParent]).split(/\s+/)
+      : [];
     return parents.length === 3
-      && parents[1] === REC_RATCHET_BASE_SHA
-      && sameStringSet(changedPathsBetween(REC_RATCHET_BASE_SHA, ref), REC_RATCHET_01_CHANGED_PATHS)
-      && gitFileSha256(ref, SIMULATION_BASELINE_PATH) === SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_ARTIFACT_PATH) === REC_RATCHET_ARTIFACT_SHA256
-      && gitFileSha256(ref, REC_RATCHET_BASELINE_ARTIFACT_PATH) === REC_01_SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_PATCH_ARTIFACT_PATH) === REC_RATCHET_PATCH_ARTIFACT_SHA256
-      && gitFileSha256(ref, ".github/workflows/verify.yml") === WORKFLOW_SHA256["verify.yml"];
+      && firstParent === RECOVERY_POLICY_BASE_SHA
+      && secondParentParents.length === 3
+      && secondParentParents[1] === RECOVERY_POLICY_PRE_RECONCILIATION_HEAD
+      && secondParentParents[2] === RECOVERY_POLICY_BASE_SHA
+      && sameStringSet(changedPathsBetween(firstParent, ref) || [], RECOVERY_POLICY_R1_CHANGED_PATHS)
+      && sameStringSet(changedPathsBetween(firstParent, secondParent) || [], RECOVERY_POLICY_R1_CHANGED_PATHS)
+      && gitFileSha256(ref, "scripts/release-policy.mjs") === expectedPolicyHash
+      && gitFileSha256(secondParent, "scripts/release-policy.mjs") === expectedPolicyHash
+      && gitFileSha256(ref, SIMULATION_BASELINE_PATH) === SIMULATION_BASELINE_SHA256;
   } catch {
     return false;
   }
 }
 
+function isAuthorizedRec01Base(ref, expectedPolicyHash) {
+  return ref === RECOVERY_POLICY_BASE_SHA
+    || isExactRecoveryPolicySuccessor(ref, expectedPolicyHash);
+}
+
 function changedPathsForEvent(environment) {
-  let range = null;
   if (environment.eventName === "pull_request") {
-    if (FULL_SHA_RE.test(environment.prBaseSha) && FULL_SHA_RE.test(environment.prHeadSha)) {
-      range = `${environment.prBaseSha}...${environment.prHeadSha}`;
-    }
+    return changedPathsBetween(environment.prBaseSha, environment.prHeadSha, true) || [];
   } else if (environment.eventName === "push" && environment.refType !== "tag") {
     const before = /^0{40}$/.test(environment.beforeSha)
       ? DISPATCH_BASE_SHA
       : environment.beforeSha;
-    if (FULL_SHA_RE.test(before) && FULL_SHA_RE.test(environment.afterSha)) {
-      range = `${before}..${environment.afterSha}`;
-    }
+    return changedPathsBetween(before, environment.afterSha) || [];
   }
-
-  if (!range) return [];
-  const output = git([
-    "diff",
-    "--name-only",
-    "--no-renames",
-    "--diff-filter=ACDMRTUXB",
-    range
-  ]);
-  return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+  return [];
 }
 
 function readRepositoryFacts(environment) {
@@ -206,21 +239,44 @@ function readRepositoryFacts(environment) {
   const recoveryDec = read("artifacts/RECOVERY-DEC_AMENDMENT.md");
   const netlify = read("netlify.toml");
   const simulationBaseline = read(SIMULATION_BASELINE_PATH);
+  const roadmap = read("artifacts/ROADMAP.md");
+  const locks = read("artifacts/LOCKS.md");
+  const policy = read("scripts/release-policy.mjs");
   const recRatchetPath = resolve(ROOT, REC_RATCHET_ARTIFACT_PATH);
   const recRatchetBaselinePath = resolve(ROOT, REC_RATCHET_BASELINE_ARTIFACT_PATH);
   const recRatchetPatchPath = resolve(ROOT, REC_RATCHET_PATCH_ARTIFACT_PATH);
   const checkedOutSha = git(["rev-parse", "HEAD"]);
+  const parentShas = git(["show", "-s", "--format=%P", checkedOutSha])
+    .split(/\s+/)
+    .filter(Boolean);
+  const normalizedBefore = /^0{40}$/.test(environment.beforeSha || "")
+    ? DISPATCH_BASE_SHA
+    : environment.beforeSha;
+  const routeHeadSha = environment.eventName === "pull_request"
+    ? environment.prHeadSha
+    : parentShas[1];
+  const policyBaseSha = environment.eventName === "pull_request"
+    ? environment.prBaseSha
+    : normalizedBefore;
 
   return {
     ...environment,
     checkedOutSha,
+    parentShas,
     changedPaths: changedPathsForEvent(environment),
+    prHeadChangedPaths: environment.eventName === "pull_request"
+      ? changedPathsBetween(environment.prBaseSha, environment.prHeadSha)
+      : null,
+    secondParentChangedPaths: parentShas[1]
+      ? changedPathsBetween(normalizedBefore, parentShas[1])
+      : null,
     recoveryBaseAncestor: isAncestor(RECOVERY_BASE_SHA, checkedOutSha),
     dispatchBaseAncestor: isAncestor(DISPATCH_BASE_SHA, checkedOutSha),
     prBaseAncestor: environment.eventName !== "pull_request"
       || isAncestor(environment.prBaseSha, checkedOutSha),
     prHeadAncestor: environment.eventName !== "pull_request"
       || isAncestor(environment.prHeadSha, checkedOutSha),
+    roadmapAuthorizedHeadAncestor: isAncestor(ROADMAP_L014_AUTHORIZED_HEAD, routeHeadSha),
     statusText: read("artifacts/PROJECT_STATUS.md").toString("utf8"),
     gov01Hash: sha256(gov01),
     recoveryDecHash: sha256(recoveryDec),
@@ -228,6 +284,12 @@ function readRepositoryFacts(environment) {
     reconciliationText: read("artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md").toString("utf8"),
     netlifyHash: sha256(netlify),
     simulationBaselineHash: sha256(simulationBaseline),
+    roadmapHash: sha256(roadmap),
+    locksHash: sha256(locks),
+    policyHash: sha256(policy),
+    basePolicyHash: fileHashAt(policyBaseSha, "scripts/release-policy.mjs"),
+    prHeadPolicyHash: fileHashAt(environment.prHeadSha, "scripts/release-policy.mjs"),
+    secondParentPolicyHash: fileHashAt(parentShas[1], "scripts/release-policy.mjs"),
     recRatchetHash: existsSync(recRatchetPath)
       ? sha256(readFileSync(recRatchetPath))
       : null,
@@ -245,10 +307,10 @@ function readRepositoryFacts(environment) {
     pushBeforeSimulationBaselineHash: environment.eventName === "push"
       ? gitFileSha256(environment.beforeSha, SIMULATION_BASELINE_PATH)
       : null,
-    prBaseIsRecRatchetSuccessor: environment.eventName === "pull_request"
-      && isExactRecRatchetSuccessor(environment.prBaseSha),
-    pushBeforeIsRecRatchetSuccessor: environment.eventName === "push"
-      && isExactRecRatchetSuccessor(environment.beforeSha),
+    prBaseIsAuthorizedRec01Base: environment.eventName === "pull_request"
+      && isAuthorizedRec01Base(environment.prBaseSha, sha256(policy)),
+    pushBeforeIsAuthorizedRec01Base: environment.eventName === "push"
+      && isAuthorizedRec01Base(environment.beforeSha, sha256(policy)),
     workflowNames,
     workflowTexts,
     workflowHashes: Object.fromEntries(
@@ -408,6 +470,45 @@ export function evaluatePolicy(facts) {
       if (facts.prBaseSha !== PIPE_BOOT_MERGE_SHA) {
         errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != PIPE-BOOT merge ${PIPE_BOOT_MERGE_SHA}`);
       }
+    } else if (facts.headRef === RECOVERY_POLICY_HEAD) {
+      changeRoute = "policy-amendment";
+      if (facts.ref !== RECOVERY_POLICY_PR_REF || facts.refName !== "20/merge") {
+        errors.push(`recovery-policy amendment must run only as ${RECOVERY_POLICY_PR_REF}`);
+      }
+      if (facts.prBaseSha !== RECOVERY_POLICY_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != recovery-policy base ${RECOVERY_POLICY_BASE_SHA}`);
+      }
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.prBaseSha || parents[1] !== facts.prHeadSha) {
+        errors.push("recovery-policy amendment PR must test the exact GitHub merge of its recorded base and head");
+      }
+    } else if (facts.headRef === ROADMAP_L014_HEAD) {
+      changeRoute = "roadmap-l014";
+      if (facts.ref !== ROADMAP_L014_PR_REF || facts.refName !== "17/merge") {
+        errors.push(`ROADMAP-L014 must run only as ${ROADMAP_L014_PR_REF}`);
+      }
+      if (!facts.roadmapAuthorizedHeadAncestor) {
+        errors.push(`ROADMAP-L014 head must descend from authorized proposal ${ROADMAP_L014_AUTHORIZED_HEAD}`);
+      }
+      if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 base policy bytes do not match the executing recovery policy");
+      }
+      if (!facts.prHeadPolicyHash || facts.prHeadPolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 head policy bytes do not match the executing recovery policy");
+      }
+      if (!sameStringSet(facts.prHeadChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+        errors.push("ROADMAP-L014 head must be reconciled to the policy base with only the two approved authority-file changes");
+      }
+      if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256) {
+        errors.push("ROADMAP-L014 ROADMAP bytes do not match the approved proposal");
+      }
+      if (facts.locksHash !== ROADMAP_L014_LOCKS_SHA256) {
+        errors.push("ROADMAP-L014 LOCKS bytes do not match the approved proposal");
+      }
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.prBaseSha || parents[1] !== facts.prHeadSha) {
+        errors.push("ROADMAP-L014 PR must test the exact GitHub merge of its recorded base and head");
+      }
     } else if (facts.headRef === REC_RATCHET_HEAD) {
       changeRoute = "rec-ratchet";
       if (facts.prBaseSha !== REC_RATCHET_BASE_SHA) {
@@ -415,8 +516,8 @@ export function evaluatePolicy(facts) {
       }
     } else if (facts.headRef === REC_01_HEAD) {
       changeRoute = "rec-01";
-      if (!facts.prBaseIsRecRatchetSuccessor) {
-        errors.push("REC-01 pull-request base is not the exact REC-RATCHET-01 merge-commit successor");
+      if (!facts.prBaseIsAuthorizedRec01Base) {
+        errors.push("REC-01 pull-request base is not an authorized exact recovery-policy successor");
       }
       if (facts.prBaseSimulationBaselineHash !== SIMULATION_BASELINE_SHA256) {
         errors.push("REC-01 pull-request base does not contain the pre-transition simulation baseline");
@@ -445,14 +546,38 @@ export function evaluatePolicy(facts) {
         changeRoute = "pipe-boot";
       } else if (normalizedBefore === PIPE_BOOT_MERGE_SHA) {
         changeRoute = "closeout";
+      } else if (
+        normalizedBefore === RECOVERY_POLICY_BASE_SHA
+        && sameStringSet(facts.changedPaths || [], RECOVERY_POLICY_R1_CHANGED_PATHS)
+        && (facts.parentShas || []).length === 2
+        && facts.parentShas[0] === facts.beforeSha
+        && sameStringSet(facts.secondParentChangedPaths || [], RECOVERY_POLICY_R1_CHANGED_PATHS)
+        && facts.secondParentPolicyHash
+        && facts.secondParentPolicyHash === facts.policyHash
+      ) {
+        changeRoute = "policy-amendment";
       } else if (normalizedBefore === REC_RATCHET_BASE_SHA) {
         changeRoute = "rec-ratchet";
       } else if (
-        facts.pushBeforeIsRecRatchetSuccessor
+        facts.pushBeforeIsAuthorizedRec01Base
         && facts.pushBeforeSimulationBaselineHash === SIMULATION_BASELINE_SHA256
         && facts.simulationBaselineHash === REC_01_SIMULATION_BASELINE_SHA256
       ) {
         changeRoute = "rec-01";
+      } else if (
+        sameStringSet(facts.changedPaths || [], ROADMAP_L014_CHANGED_PATHS)
+        && facts.roadmapHash === ROADMAP_L014_ROADMAP_SHA256
+        && facts.locksHash === ROADMAP_L014_LOCKS_SHA256
+        && (facts.parentShas || []).length === 2
+        && facts.parentShas[0] === facts.beforeSha
+        && facts.roadmapAuthorizedHeadAncestor
+        && facts.basePolicyHash
+        && facts.basePolicyHash === facts.policyHash
+        && facts.secondParentPolicyHash
+        && facts.secondParentPolicyHash === facts.policyHash
+        && sameStringSet(facts.secondParentChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)
+      ) {
+        changeRoute = "roadmap-l014";
       } else {
         errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery base`);
       }
@@ -473,6 +598,42 @@ export function evaluatePolicy(facts) {
       }
     } else if (changeRoute === "closeout" && !sameStringSet(changedPaths, PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the one-shot close-out set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "policy-amendment" && !sameStringSet(changedPaths, RECOVERY_POLICY_R1_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the recovery-policy amendment set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "roadmap-l014" && !sameStringSet(changedPaths, ROADMAP_L014_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the ROADMAP-L014 governance set: ${changedPaths.join(", ") || "<none>"}`);
+    }
+    if (facts.eventName === "push" && changeRoute === "policy-amendment") {
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.beforeSha) {
+        errors.push("policy-amendment push must be a merge commit whose first parent is the recorded before SHA");
+      }
+      if (!sameStringSet(facts.secondParentChangedPaths || [], RECOVERY_POLICY_R1_CHANGED_PATHS)) {
+        errors.push("policy-amendment second parent does not have the exact authorized net diff");
+      }
+      if (!facts.secondParentPolicyHash || facts.secondParentPolicyHash !== facts.policyHash) {
+        errors.push("policy-amendment second-parent policy bytes do not match the checked-out policy");
+      }
+    } else if (facts.eventName === "push" && changeRoute === "roadmap-l014") {
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.beforeSha) {
+        errors.push("ROADMAP-L014 push must be a merge commit whose first parent is the recorded before SHA");
+      }
+      if (!facts.roadmapAuthorizedHeadAncestor) {
+        errors.push(`ROADMAP-L014 merge parent must descend from authorized proposal ${ROADMAP_L014_AUTHORIZED_HEAD}`);
+      }
+      if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 pre-merge policy bytes do not match the checked-out policy");
+      }
+      if (!facts.secondParentPolicyHash || facts.secondParentPolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 second-parent policy bytes do not match the checked-out policy");
+      }
+      if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256 || facts.locksHash !== ROADMAP_L014_LOCKS_SHA256) {
+        errors.push("ROADMAP-L014 merged authority bytes do not match the approved proposal");
+      }
+      if (!sameStringSet(facts.secondParentChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+        errors.push("ROADMAP-L014 second parent does not have the exact authorized net diff");
+      }
     } else if (changeRoute === "rec-ratchet" && !sameStringSet(changedPaths, REC_RATCHET_01_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the REC-RATCHET-01 set: ${changedPaths.join(", ") || "<none>"}`);
     } else if (changeRoute === "rec-01" && !sameStringSet(changedPaths, REC_01_CHANGED_PATHS)) {
@@ -510,6 +671,8 @@ export function evaluatePolicy(facts) {
 
 function baseSelfTestFacts() {
   const sha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  const prHeadSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  const policyHash = "1".repeat(64);
   return {
     eventName: "pull_request",
     repository: EXPECTED_REPOSITORY,
@@ -522,14 +685,18 @@ function baseSelfTestFacts() {
     headRef: PIPE_BOOT_HEAD,
     prHeadRepository: EXPECTED_REPOSITORY,
     prBaseSha: DISPATCH_BASE_SHA,
-    prHeadSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    prHeadSha,
     beforeSha: "",
     afterSha: "",
+    parentShas: [DISPATCH_BASE_SHA, prHeadSha],
     changedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
+    prHeadChangedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
+    secondParentChangedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
     recoveryBaseAncestor: true,
     dispatchBaseAncestor: true,
     prBaseAncestor: true,
     prHeadAncestor: true,
+    roadmapAuthorizedHeadAncestor: false,
     statusText: [
       `\`runtime_baseline_sha: ${RECOVERY_BASE_SHA}\``,
       "`release_state: NO-PUBLISH`",
@@ -544,6 +711,12 @@ function baseSelfTestFacts() {
     reconciliationText: `# PIPE-BOOT-R1\n${RECOVERY_BASE_SHA}\nNO-PUBLISH`,
     netlifyHash: NETLIFY_NO_BUILD_SHA256,
     simulationBaselineHash: SIMULATION_BASELINE_SHA256,
+    roadmapHash: "2".repeat(64),
+    locksHash: "3".repeat(64),
+    policyHash,
+    basePolicyHash: policyHash,
+    prHeadPolicyHash: policyHash,
+    secondParentPolicyHash: policyHash,
     recRatchetHash: null,
     recRatchetBaselineHash: null,
     recRatchetPatchHash: null,
@@ -551,8 +724,8 @@ function baseSelfTestFacts() {
     verifyScriptHash: "0".repeat(64),
     prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
     pushBeforeSimulationBaselineHash: null,
-    prBaseIsRecRatchetSuccessor: false,
-    pushBeforeIsRecRatchetSuccessor: false,
+    prBaseIsAuthorizedRec01Base: false,
+    pushBeforeIsAuthorizedRec01Base: false,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
       "name: fixture",
@@ -588,7 +761,166 @@ function expectFailure(base, mutate, needle) {
   assert.ok(result.errors.some(error => error.includes(needle)), `missing failure ${needle}: ${result.errors.join(" | ")}`);
 }
 
+function expectAnyFailure(base, mutate, label) {
+  const facts = structuredClone(base);
+  mutate(facts);
+  const result = evaluatePolicy(facts);
+  assert.equal(result.passed, false, `expected fail-closed rejection: ${label}`);
+  assert.ok(result.errors.length > 0, `missing failure details: ${label}`);
+}
+
+function fixtureGit(args, input = undefined, extraEnvironment = {}) {
+  return execFileSync("git", args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      GIT_AUTHOR_NAME: "Recovery Policy Self-Test",
+      GIT_AUTHOR_EMAIL: "recovery-policy-self-test@example.invalid",
+      GIT_AUTHOR_DATE: "2000-01-01T00:00:00Z",
+      GIT_COMMITTER_NAME: "Recovery Policy Self-Test",
+      GIT_COMMITTER_EMAIL: "recovery-policy-self-test@example.invalid",
+      GIT_COMMITTER_DATE: "2000-01-01T00:00:00Z",
+      ...extraEnvironment
+    },
+    input,
+    stdio: ["pipe", "pipe", "pipe"]
+  }).trim();
+}
+
+function fixtureTree(policyBytes, extraEntries = []) {
+  const directory = mkdtempSync(join(tmpdir(), "sunsplitter-policy-self-test-"));
+  const indexPath = join(directory, "index");
+  const indexEnvironment = { GIT_INDEX_FILE: indexPath };
+  try {
+    fixtureGit(["read-tree", RECOVERY_POLICY_BASE_SHA], undefined, indexEnvironment);
+    const entries = [
+      { path: "scripts/release-policy.mjs", bytes: policyBytes },
+      ...extraEntries
+    ];
+    for (const entry of entries) {
+      const blob = fixtureGit(["hash-object", "-w", "--stdin"], entry.bytes);
+      fixtureGit(
+        ["update-index", "--add", "--cacheinfo", `100644,${blob},${entry.path}`],
+        undefined,
+        indexEnvironment
+      );
+    }
+    return fixtureGit(["write-tree"], undefined, indexEnvironment);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+function fixtureCommit(tree, parents, message) {
+  return fixtureGit([
+    "commit-tree",
+    tree,
+    ...parents.flatMap(parent => ["-p", parent]),
+    "-m",
+    message
+  ]);
+}
+
+function recoverySuccessorHelperSelfTest() {
+  const policyBytes = readFileSync(resolve(ROOT, "scripts/release-policy.mjs"));
+  const policyHash = sha256(policyBytes);
+  const exactTree = fixtureTree(policyBytes);
+  const validHead = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_PRE_RECONCILIATION_HEAD, RECOVERY_POLICY_BASE_SHA],
+    "valid reconciled PR20 head"
+  );
+  const validMerge = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA, validHead],
+    "valid PR20 recovery merge"
+  );
+
+  assert.equal(isAuthorizedRec01Base(RECOVERY_POLICY_BASE_SHA, policyHash), true);
+  assert.equal(isAuthorizedRec01Base(validMerge, policyHash), true);
+
+  const arbitraryRatchetSuccessor = fixtureCommit(
+    exactTree,
+    [REC_RATCHET_BASE_SHA, RECOVERY_POLICY_PRE_RECONCILIATION_HEAD],
+    "arbitrary ratchet successor"
+  );
+  assert.equal(isAuthorizedRec01Base(arbitraryRatchetSuccessor, policyHash), false);
+
+  const arbitraryPolicyHead = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA],
+    "arbitrary one-parent policy head"
+  );
+  const arbitraryPolicyMerge = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA, arbitraryPolicyHead],
+    "arbitrary one-file policy successor"
+  );
+  assert.equal(isAuthorizedRec01Base(arbitraryPolicyMerge, policyHash), false);
+
+  const wrongOrderHead = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA, RECOVERY_POLICY_PRE_RECONCILIATION_HEAD],
+    "wrong PR20 parent order"
+  );
+  const wrongOrderMerge = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA, wrongOrderHead],
+    "wrong-order policy successor"
+  );
+  assert.equal(isAuthorizedRec01Base(wrongOrderMerge, policyHash), false);
+
+  const oneParentMerge = fixtureCommit(exactTree, [RECOVERY_POLICY_BASE_SHA], "one-parent successor");
+  const octopusMerge = fixtureCommit(
+    exactTree,
+    [RECOVERY_POLICY_BASE_SHA, validHead, RECOVERY_POLICY_PRE_RECONCILIATION_HEAD],
+    "octopus successor"
+  );
+  assert.equal(isAuthorizedRec01Base(oneParentMerge, policyHash), false);
+  assert.equal(isAuthorizedRec01Base(octopusMerge, policyHash), false);
+
+  const extraTree = fixtureTree(policyBytes, [
+    { path: "README.md", bytes: Buffer.from("unauthorized extra path\n", "utf8") }
+  ]);
+  const extraHead = fixtureCommit(
+    extraTree,
+    [RECOVERY_POLICY_PRE_RECONCILIATION_HEAD, RECOVERY_POLICY_BASE_SHA],
+    "extra-path PR20 head"
+  );
+  const extraMerge = fixtureCommit(extraTree, [RECOVERY_POLICY_BASE_SHA, extraHead], "extra-path successor");
+  assert.equal(isAuthorizedRec01Base(extraMerge, policyHash), false);
+
+  const baseTree = fixtureGit(["rev-parse", `${RECOVERY_POLICY_BASE_SHA}^{tree}`]);
+  const cancelledHead = fixtureCommit(
+    baseTree,
+    [RECOVERY_POLICY_PRE_RECONCILIATION_HEAD, RECOVERY_POLICY_BASE_SHA],
+    "cancelled-path PR20 head"
+  );
+  const cancelledMerge = fixtureCommit(
+    baseTree,
+    [RECOVERY_POLICY_BASE_SHA, cancelledHead],
+    "cancelled-path successor"
+  );
+  assert.equal(isAuthorizedRec01Base(cancelledMerge, policyHash), false);
+
+  const wrongPolicyBytes = Buffer.concat([policyBytes, Buffer.from("\n", "utf8")]);
+  const wrongPolicyTree = fixtureTree(wrongPolicyBytes);
+  const wrongPolicyHead = fixtureCommit(
+    wrongPolicyTree,
+    [RECOVERY_POLICY_PRE_RECONCILIATION_HEAD, RECOVERY_POLICY_BASE_SHA],
+    "wrong-policy PR20 head"
+  );
+  const wrongPolicyMerge = fixtureCommit(
+    wrongPolicyTree,
+    [RECOVERY_POLICY_BASE_SHA, wrongPolicyHead],
+    "wrong-policy successor"
+  );
+  assert.equal(isAuthorizedRec01Base(wrongPolicyMerge, policyHash), false);
+}
+
 function selfTest() {
+  recoverySuccessorHelperSelfTest();
   assert.deepEqual(
     [...PIPE_BOOT_R1_CHANGED_PATHS].sort(),
     [
@@ -617,6 +949,52 @@ function selfTest() {
   expectFailure(closeout, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "pull-request base SHA");
   expectFailure(closeout, facts => { facts.changedPaths.push("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md"); }, "one-shot close-out set");
   expectFailure(closeout, facts => { facts.changedPaths.pop(); }, "one-shot close-out set");
+
+  const policyAmendment = structuredClone(positive);
+  Object.assign(policyAmendment, {
+    ref: RECOVERY_POLICY_PR_REF,
+    refName: "20/merge",
+    headRef: RECOVERY_POLICY_HEAD,
+    prBaseSha: RECOVERY_POLICY_BASE_SHA,
+    parentShas: [RECOVERY_POLICY_BASE_SHA, positive.prHeadSha],
+    changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS]
+  });
+  assert.deepEqual(evaluatePolicy(policyAmendment).errors, []);
+  expectFailure(policyAmendment, facts => { facts.ref = "refs/pull/999/merge"; }, "must run only");
+  expectFailure(policyAmendment, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "recovery-policy base");
+  expectFailure(policyAmendment, facts => { facts.parentShas[1] = "c".repeat(40); }, "exact GitHub merge");
+  expectFailure(policyAmendment, facts => { facts.changedPaths.push("artifacts/ROADMAP.md"); }, "recovery-policy amendment set");
+
+  const roadmapL014 = structuredClone(positive);
+  Object.assign(roadmapL014, {
+    ref: ROADMAP_L014_PR_REF,
+    refName: "17/merge",
+    headRef: ROADMAP_L014_HEAD,
+    prBaseSha: RECOVERY_POLICY_BASE_SHA,
+    prHeadSha: "c".repeat(40),
+    parentShas: [RECOVERY_POLICY_BASE_SHA, "c".repeat(40)],
+    changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    prHeadChangedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    roadmapAuthorizedHeadAncestor: true,
+    roadmapHash: ROADMAP_L014_ROADMAP_SHA256,
+    locksHash: ROADMAP_L014_LOCKS_SHA256,
+    basePolicyHash: positive.policyHash
+  });
+  assert.deepEqual(evaluatePolicy(roadmapL014).errors, []);
+  expectFailure(roadmapL014, facts => { facts.ref = "refs/pull/999/merge"; }, "must run only");
+  expectFailure(roadmapL014, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
+  expectFailure(roadmapL014, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "must descend");
+  expectFailure(roadmapL014, facts => { facts.basePolicyHash = "4".repeat(64); }, "base policy bytes");
+  expectFailure(roadmapL014, facts => { facts.prHeadPolicyHash = "4".repeat(64); }, "head policy bytes");
+  expectFailure(roadmapL014, facts => { facts.prHeadChangedPaths.push("scripts/release-policy.mjs"); }, "must be reconciled");
+  expectFailure(roadmapL014, facts => { facts.roadmapHash = "4".repeat(64); }, "ROADMAP bytes");
+  expectFailure(roadmapL014, facts => { facts.roadmapHash = null; }, "ROADMAP bytes");
+  expectFailure(roadmapL014, facts => { facts.locksHash = "4".repeat(64); }, "LOCKS bytes");
+  expectFailure(roadmapL014, facts => { facts.locksHash = null; }, "LOCKS bytes");
+  expectFailure(roadmapL014, facts => { facts.parentShas[1] = "d".repeat(40); }, "exact GitHub merge");
+  expectFailure(roadmapL014, facts => { facts.changedPaths.pop(); }, "ROADMAP-L014 governance set");
+  expectFailure(roadmapL014, facts => { facts.changedPaths.push("src/scenes-41.js"); }, "ROADMAP-L014 governance set");
+  expectFailure(roadmapL014, facts => { facts.headRef = "agent/roadmap-other"; }, "authorized recovery route");
 
   const recRatchet = structuredClone(positive);
   Object.assign(recRatchet, {
@@ -647,10 +1025,13 @@ function selfTest() {
     scenes41Hash: REC_01_SCENES_41_SHA256,
     verifyScriptHash: REC_01_VERIFY_SHA256,
     prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    prBaseIsRecRatchetSuccessor: true
+    prBaseIsAuthorizedRec01Base: true
   });
   assert.deepEqual(evaluatePolicy(rec01).errors, []);
-  expectFailure(rec01, facts => { facts.prBaseIsRecRatchetSuccessor = false; }, "exact REC-RATCHET-01 merge-commit successor");
+  const rec01OnCurrentRatchetBase = structuredClone(rec01);
+  rec01OnCurrentRatchetBase.prBaseSha = RECOVERY_POLICY_BASE_SHA;
+  assert.deepEqual(evaluatePolicy(rec01OnCurrentRatchetBase).errors, []);
+  expectFailure(rec01, facts => { facts.prBaseIsAuthorizedRec01Base = false; }, "authorized exact recovery-policy successor");
   expectFailure(rec01, facts => { facts.prBaseSimulationBaselineHash = REC_01_SIMULATION_BASELINE_SHA256; }, "pre-transition simulation baseline");
   expectFailure(rec01, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
   expectFailure(rec01, facts => { facts.recRatchetHash = "c".repeat(64); }, "authorized transition artifact");
@@ -728,6 +1109,42 @@ function selfTest() {
   assert.deepEqual(evaluatePolicy(closeoutPush).errors, []);
   expectFailure(closeoutPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot close-out set");
 
+  const policyAmendmentPush = structuredClone(push);
+  Object.assign(policyAmendmentPush, {
+    beforeSha: RECOVERY_POLICY_BASE_SHA,
+    changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS],
+    parentShas: [RECOVERY_POLICY_BASE_SHA, "d".repeat(40)],
+    secondParentChangedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS],
+    secondParentPolicyHash: push.policyHash
+  });
+  assert.deepEqual(evaluatePolicy(policyAmendmentPush).errors, []);
+  expectAnyFailure(policyAmendmentPush, facts => { facts.parentShas = [RECOVERY_POLICY_BASE_SHA]; }, "policy amendment must be a merge commit");
+  expectAnyFailure(policyAmendmentPush, facts => { facts.secondParentChangedPaths.push("README.md"); }, "policy amendment exact net diff");
+  expectAnyFailure(policyAmendmentPush, facts => { facts.secondParentPolicyHash = "4".repeat(64); }, "policy amendment second-parent bytes");
+
+  const roadmapL014Push = structuredClone(push);
+  Object.assign(roadmapL014Push, {
+    beforeSha: "c".repeat(40),
+    changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    parentShas: ["c".repeat(40), "d".repeat(40)],
+    secondParentChangedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    roadmapAuthorizedHeadAncestor: true,
+    roadmapHash: ROADMAP_L014_ROADMAP_SHA256,
+    locksHash: ROADMAP_L014_LOCKS_SHA256,
+    basePolicyHash: push.policyHash
+  });
+  assert.deepEqual(evaluatePolicy(roadmapL014Push).errors, []);
+  expectAnyFailure(roadmapL014Push, facts => { facts.basePolicyHash = "4".repeat(64); }, "wrong pre-merge policy bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.secondParentPolicyHash = "4".repeat(64); }, "wrong second-parent policy bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.parentShas = [facts.beforeSha]; }, "one-parent ROADMAP push");
+  expectAnyFailure(roadmapL014Push, facts => { facts.parentShas[0] = "e".repeat(40); }, "wrong first parent");
+  expectAnyFailure(roadmapL014Push, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "unauthorized second-parent ancestry");
+  expectAnyFailure(roadmapL014Push, facts => { facts.roadmapHash = "4".repeat(64); }, "wrong ROADMAP bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.locksHash = "4".repeat(64); }, "wrong LOCKS bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.changedPaths.pop(); }, "missing ROADMAP-L014 path");
+  expectAnyFailure(roadmapL014Push, facts => { facts.changedPaths.push("README.md"); }, "extra ROADMAP-L014 path");
+  expectAnyFailure(roadmapL014Push, facts => { facts.secondParentChangedPaths.push("README.md"); }, "second-parent net diff broadened");
+
   const recRatchetPush = structuredClone(push);
   Object.assign(recRatchetPush, {
     beforeSha: REC_RATCHET_BASE_SHA,
@@ -750,10 +1167,13 @@ function selfTest() {
     scenes41Hash: REC_01_SCENES_41_SHA256,
     verifyScriptHash: REC_01_VERIFY_SHA256,
     pushBeforeSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    pushBeforeIsRecRatchetSuccessor: true
+    pushBeforeIsAuthorizedRec01Base: true
   });
   assert.deepEqual(evaluatePolicy(rec01Push).errors, []);
-  expectFailure(rec01Push, facts => { facts.pushBeforeIsRecRatchetSuccessor = false; }, "push before SHA");
+  const rec01PushOnCurrentRatchetBase = structuredClone(rec01Push);
+  rec01PushOnCurrentRatchetBase.beforeSha = RECOVERY_POLICY_BASE_SHA;
+  assert.deepEqual(evaluatePolicy(rec01PushOnCurrentRatchetBase).errors, []);
+  expectFailure(rec01Push, facts => { facts.pushBeforeIsAuthorizedRec01Base = false; }, "push before SHA");
   expectFailure(rec01Push, facts => { facts.pushBeforeSimulationBaselineHash = REC_01_SIMULATION_BASELINE_SHA256; }, "push before SHA");
   expectFailure(rec01Push, facts => { facts.changedPaths.push("README.md"); }, "one-shot REC-01 set");
 
@@ -764,7 +1184,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 routes + REC-RATCHET-01 transition + one-shot REC-01 route; 53 policy cases)");
+  console.log("PASS release-policy self-test (PIPE-BOOT + REC-RATCHET-01 + REC-01 + recovery-policy amendment + exact ROADMAP-L014 routes)");
 }
 
 function environmentFromProcess() {
@@ -788,6 +1208,7 @@ function environmentFromProcess() {
 function taskForRoute(route) {
   if (route === "rec-01") return "REC-01/#13";
   if (route === "rec-ratchet") return "REC-RATCHET-01";
+  if (["policy-amendment", "roadmap-l014"].includes(route)) return "RECOVERY-POLICY-R1";
   return "PIPE-BOOT-R1/#15";
 }
 
