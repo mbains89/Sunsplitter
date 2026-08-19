@@ -1,0 +1,62 @@
+name: Recovery Release Policy
+
+on:
+  pull_request:
+    branches:
+      - recovery/e4f8440-nopub
+      - main
+    types: [opened, reopened, synchronize, ready_for_review, edited]
+  push:
+    branches:
+      - recovery/e4f8440-nopub
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recovery-release-policy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  release-policy:
+    name: release-policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact event revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+
+      - name: Run release-policy positive and negative fixtures
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/release-policy.mjs --self-test
+
+      - name: Enforce recovery route and NO-PUBLISH
+        env:
+          POLICY_EVENT_NAME: ${{ github.event_name }}
+          POLICY_REPOSITORY: ${{ github.repository }}
+          POLICY_SHA: ${{ github.sha }}
+          POLICY_REF: ${{ github.ref }}
+          POLICY_REF_NAME: ${{ github.ref_name }}
+          POLICY_REF_TYPE: ${{ github.ref_type }}
+          POLICY_BASE_REF: ${{ github.base_ref }}
+          POLICY_HEAD_REF: ${{ github.head_ref }}
+          POLICY_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          POLICY_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          POLICY_BEFORE_SHA: ${{ github.event.before }}
+          POLICY_AFTER_SHA: ${{ github.event.after }}
+        run: node scripts/release-policy.mjs

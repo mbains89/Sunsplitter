@@ -6,8 +6,18 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import vm from "node:vm";
 
-export const POLICY_NAMES = ["living", "future", "pragmatic"];
+export const SMOKE_POLICY_NAMES = ["living", "future", "pragmatic"];
+// Compatibility export for the existing verifier and any documented smoke invocations.
+export const POLICY_NAMES = SMOKE_POLICY_NAMES;
+export const LOCKED_POLICY_NAMES = ["random", "cheapest", "priciest"];
 export const EXPECTED_SCENE_COUNT = 222;
+export const LOCKED_SEED = 20260817;
+export const LOCKED_RUNS_PER_POLICY = 2_000;
+export const DEFAULT_LOCKED_SHARD_SIZE = 500;
+export const RECOVERY_RUNTIME_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
+export const PIPE_BOOT_R1_DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
+
+const DEFAULT_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 
 const POLICY_ALIASES = new Map([
   ["living", "living"],
@@ -23,6 +33,21 @@ const SCRIPT_TAG_RE = /<script\b[^>]*\bsrc\s*=\s*(["'])([^"']+)\1[^>]*><\/script
 const RESOURCE_KEYS = ["survivors", "integrity", "cohesion", "supplies", "embryos"];
 const CREW_KEYS = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess", "rourke"];
 const PROMISE_STATES = new Set(["made", "declined", "kept", "broken"]);
+
+function plainClone(value) {
+  return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function mulberry32(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6D2B79F5;
+    let next = value;
+    next = Math.imul(next ^ (next >>> 15), next | 1);
+    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 class ClassList {
   constructor() {
@@ -225,8 +250,49 @@ export function loadGame(rootDir, { includeValidator = true } = {}) {
   };
 }
 
+function installPaymentProbe(runtime) {
+  runtime.evaluate(`(() => {
+    if (globalThis.__simulationPaymentProbeInstalled) return;
+    globalThis.__simulationPaymentProbeInstalled = true;
+    globalThis.__simulationPayments = [];
+    const originalUpdateStats = updateStats;
+    updateStats = function simulationPaymentProbe(changes = {}) {
+      const keys = ["survivors", "integrity", "cohesion", "supplies", "embryos"];
+      const before = Object.fromEntries(keys.map(key => [key, state[key]]));
+      const affordable = canAffordEffects(changes);
+      originalUpdateStats(changes);
+      const after = Object.fromEntries(keys.map(key => [key, state[key]]));
+      globalThis.__simulationPayments.push({
+        changes: Object.assign({}, changes),
+        before,
+        after,
+        affordable
+      });
+    };
+  })()`);
+}
+
+function resetRuntime(runtime) {
+  runtime.browser.localStorage.clear();
+  for (const element of runtime.browser.elements.values()) {
+    element.textContent = "";
+    element.innerHTML = "";
+    element.className = "";
+    element.classList.values.clear();
+    element.children = [];
+    element.attributes.clear();
+    element.disabled = false;
+    element.onclick = null;
+    element.scrollTop = 0;
+    element.src = "";
+    element.alt = "";
+    element.type = "";
+  }
+  runtime.evaluate("globalThis.__simulationPayments = []; resetRunState(); showScene('wake');");
+}
+
 function stateSnapshot(runtime) {
-  return runtime.evaluate(`({
+  return plainClone(runtime.evaluate(`({
     survivors: state.survivors,
     integrity: state.integrity,
     cohesion: state.cohesion,
@@ -240,23 +306,48 @@ function stateSnapshot(runtime) {
     promises: Object.assign({}, state.promises || {}),
     ideology: Object.assign({}, state.ideology || {}),
     memories: (state.memories || []).slice()
-  })`);
+  })`));
 }
 
-function availableChoices(runtime) {
+function choiceInventory(runtime) {
   return runtime.evaluate(`(() => {
     const scene = scenes[state.scene];
     if (!scene) return [];
     const list = typeof scene.choices === "function" ? scene.choices() : (scene.choices || []);
-    return list.filter(choice => {
+    return list.map((choice, index) => ({ choice, index })).filter(entry => {
+      const choice = entry.choice;
       if (choice.alive && !isAlive(choice.alive)) return false;
       if (choice.aliveAll && !choice.aliveAll.every(key => isAlive(key))) return false;
       if (choice.aliveAny && !choice.aliveAny.some(key => isAlive(key))) return false;
-      if (choice.requires && !meetsRequirements(choice.requires)) return false;
-      if (choice.effects && !canAffordEffects(choice.effects)) return false;
       return true;
-    });
+    }).map(entry => ({
+      choice: entry.choice,
+      index: entry.index,
+      requirementsMet: !entry.choice.requires || meetsRequirements(entry.choice.requires),
+      affordable: !entry.choice.effects || canAffordEffects(entry.choice.effects)
+    }));
   })()`);
+}
+
+function choiceDescriptor(entry) {
+  return plainClone({
+    index: entry.index,
+    text: String(entry.choice.text || ""),
+    effects: entry.choice.effects || null,
+    requires: entry.choice.requires || null,
+    next: entry.choice.next || null,
+    requirementsMet: entry.requirementsMet,
+    affordable: entry.affordable
+  });
+}
+
+function v1ViolationForRender(sceneId, state, inventory) {
+  return {
+    rule: "legally_reached_render_has_zero_enabled_exits",
+    scene: sceneId,
+    resources: Object.fromEntries(RESOURCE_KEYS.map(key => [key, state[key]])),
+    choices: inventory.map(choiceDescriptor)
+  };
 }
 
 function textScore(text, positiveWords, negativeWords) {
@@ -313,16 +404,37 @@ function hashTie(seed, sceneId, index) {
   return digest.readUInt32BE(0);
 }
 
-function choose(runtime, choices, policy, seed, visits) {
+function advertisedCost(choice) {
+  if (!choice.effects || typeof choice.effects !== "object") return 0;
+  return RESOURCE_KEYS.reduce((total, key) => {
+    const value = Number(choice.effects[key] || 0);
+    return value < 0 ? total - value : total;
+  }, 0);
+}
+
+function choose(runtime, candidates, policy, seed, visits, random) {
+  if (LOCKED_POLICY_NAMES.includes(policy)) {
+    if (policy === "random") {
+      return candidates[Math.floor(random() * candidates.length)];
+    }
+    const costs = candidates.map(entry => advertisedCost(entry.choice));
+    const target = policy === "cheapest" ? Math.min(...costs) : Math.max(...costs);
+    const tied = candidates.filter((entry, index) => costs[index] === target);
+    return tied[Math.floor(random() * tied.length)];
+  }
+
   const state = stateSnapshot(runtime);
   const sceneId = state.scene;
-  const ranked = choices.map((choice, index) => {
-    const key = `${sceneId}:${index}`;
+  const ranked = candidates.map(entry => {
+    const { choice, index } = entry;
+    // Preserve the original smoke runner's tie/index contract: it indexed the
+    // enabled list after gates were filtered, not the raw authored list.
+    const policyIndex = entry.policyIndex ?? index;
+    const key = `${sceneId}:${policyIndex}`;
     return {
-      choice,
-      index,
+      ...entry,
       score: choiceScore(choice, policy, state, visits.get(key) || 0),
-      tie: hashTie(seed, sceneId, index),
+      tie: hashTie(seed, sceneId, policyIndex),
       key
     };
   }).sort((a, b) => b.score - a.score || a.tie - b.tie || a.index - b.index);
@@ -331,19 +443,125 @@ function choose(runtime, choices, policy, seed, visits) {
   return selected;
 }
 
-function summarize(runtime, policy, seed, path, chosen, failure = null) {
+function v4ViolationsForChoice(entry, payments, sceneId) {
+  const choice = entry.choice;
+  const violations = [];
+  const negativeEffects = RESOURCE_KEYS.filter(key => Number(choice.effects?.[key] || 0) < 0);
+  const payment = payments[0] || null;
+
+  if (!entry.affordable) {
+    violations.push({
+      rule: "unaffordable_choice_executed",
+      scene: sceneId,
+      choice: String(choice.text || "")
+    });
+  }
+
+  for (const key of negativeEffects) {
+    const expected = Number(choice.effects[key]);
+    const actual = payment ? Number(payment.after[key]) - Number(payment.before[key]) : null;
+    if (!payment || !payment.affordable || actual !== expected) {
+      violations.push({
+        rule: "declared_negative_cost_not_paid",
+        scene: sceneId,
+        choice: String(choice.text || ""),
+        resource: key,
+        expected,
+        actual
+      });
+    }
+  }
+
+  // Audit-backed immediate-cost contract: both final=comfort choices advertise a
+  // fixed fuel reserve via their Supplies minimum. The current recovery base has
+  // no matching negative Supplies effect; keep this visible until a gameplay ticket fixes it.
+  if (choice.flag?.final === "comfort") {
+    const rule = choice.requires?.supplies;
+    const advertised = typeof rule === "number" ? rule : Number(rule?.min);
+    const declared = Number(choice.effects?.supplies || 0);
+    if (Number.isFinite(advertised) && advertised > 0 && declared !== -advertised) {
+      violations.push({
+        rule: "comfort_fuel_cost_not_declared",
+        scene: sceneId,
+        choice: String(choice.text || ""),
+        resource: "supplies",
+        expected: -advertised,
+        actual: declared
+      });
+    }
+  }
+
+  return violations;
+}
+
+function v5ViolationsForEnding(state, ending, facts) {
+  const violations = [];
+  const final = state.flags?.final;
+  const planet = state.flags?.planet;
+
+  if (ending.title === "Landfall" && final !== "hold") {
+    violations.push({
+      rule: "landfall_without_final_hold",
+      scene: "ending_check",
+      final: final || null,
+      planet: planet || null,
+      ending: ending.title
+    });
+  }
+
+  if (final !== "hold" && /The course is a fact on the board|The course remains locked|The commitment made earlier was enough/i.test(ending.text)) {
+    violations.push({
+      rule: "abandoned_course_reported_locked",
+      scene: "ending_check",
+      final: final || null,
+      planet: planet || null,
+      ending: ending.title
+    });
+  }
+
+  const future = Number(state.ideology?.future || 0);
+  const living = Number(state.ideology?.living || 0);
+  const vaultSacrifice = state.flags?.vault_sacrifice;
+  // Mirror ideologyShape() exactly: the hard vault choice has precedence over
+  // accumulated soft leans. Omitting this precedence fabricates V5 failures.
+  const aggregate = ["future", "living", "split"].includes(vaultSacrifice)
+    ? vaultSacrifice
+    : (future - living >= 8 ? "future" : living - future >= 8 ? "living" : "split");
+  const ideologyLines = {
+    future: "Across the recorded orders, Future carried more weight.",
+    living: "Across the recorded orders, Living carried more weight.",
+    split: "The recorded orders remained split between Future and Living."
+  };
+  if (facts[0] !== ideologyLines[aggregate]) {
+    violations.push({
+      rule: "what_remains_ideology_disagrees_with_totals",
+      scene: "what_remains",
+      future,
+      living,
+      expected: ideologyLines[aggregate],
+      actual: facts[0] || null
+    });
+  }
+
+  return violations;
+}
+
+function summarize(runtime, policy, seed, path, chosen, failure = null, invariants = { V1: [], V4: [], V5: [] }) {
   const state = stateSnapshot(runtime);
   const title = runtime.browser.document.getElementById("ending-title").textContent;
   const endingText = runtime.browser.document.getElementById("ending-text").textContent;
   const alive = CREW_KEYS.filter(key => runtime.evaluate(`isAlive(${JSON.stringify(key)})`));
   const recovered = Object.entries(state.recovered).filter(([, value]) => value).map(([key]) => key);
+  const facts = plainClone(runtime.evaluate(`typeof whatRemainsFacts === "function" ? whatRemainsFacts() : []`));
+  const ending = { title, text: endingText };
+  if (!failure && title) invariants.V5.push(...v5ViolationsForEnding(state, ending, facts));
   return {
     policy,
     seed,
     completed: !failure && !!title,
     failure,
     steps: chosen.length,
-    ending: { title, text: endingText },
+    ending,
     resources: Object.fromEntries(RESOURCE_KEYS.map(key => [key, state[key]])),
     alive,
     recovered,
@@ -351,41 +569,56 @@ function summarize(runtime, policy, seed, path, chosen, failure = null) {
     promises: state.promises,
     ideology: state.ideology,
     flags: state.flags,
-    facts: runtime.evaluate(`typeof whatRemainsFacts === "function" ? whatRemainsFacts() : []`),
+    facts,
     path,
-    choices: chosen
+    choices: chosen,
+    invariants
   };
 }
 
-export function simulateRun(rootDir, { policy = "pragmatic", seed = 20260817, maxSteps = 600 } = {}) {
-  if (!POLICY_NAMES.includes(policy)) throw new Error(`Unknown policy ${policy}`);
-  const runtime = loadGame(rootDir);
-  runtime.evaluate("resetRunState(); showScene('wake');");
+function simulateRuntime(runtime, { policy = "pragmatic", seed = LOCKED_SEED, maxSteps = 600 } = {}) {
+  if (![...SMOKE_POLICY_NAMES, ...LOCKED_POLICY_NAMES].includes(policy)) throw new Error(`Unknown policy ${policy}`);
+  installPaymentProbe(runtime);
+  resetRuntime(runtime);
   const path = [];
   const chosen = [];
   const visits = new Map();
+  const random = mulberry32(seed);
+  const invariants = { V1: [], V4: [], V5: [] };
 
   for (let step = 0; step < maxSteps; step += 1) {
     const sceneId = runtime.evaluate("state.scene");
     path.push(sceneId);
     const endingTitle = runtime.browser.document.getElementById("ending-title").textContent;
-    if (endingTitle) return summarize(runtime, policy, seed, path, chosen);
+    if (endingTitle) return summarize(runtime, policy, seed, path, chosen, null, invariants);
     if (!runtime.scenes[sceneId]) {
-      return summarize(runtime, policy, seed, path, chosen, `missing scene: ${sceneId}`);
+      return summarize(runtime, policy, seed, path, chosen, `missing scene: ${sceneId}`, invariants);
     }
 
-    const choices = availableChoices(runtime);
+    const inventory = choiceInventory(runtime);
+    const choices = inventory
+      .filter(entry => entry.requirementsMet && entry.affordable)
+      .map((entry, policyIndex) => ({ ...entry, policyIndex }));
     if (!choices.length) {
-      return summarize(runtime, policy, seed, path, chosen, `no affordable/enabled exit at ${sceneId}`);
+      invariants.V1.push(v1ViolationForRender(sceneId, stateSnapshot(runtime), inventory));
+      return summarize(runtime, policy, seed, path, chosen, `no affordable/enabled exit at ${sceneId}`, invariants);
     }
-    const selected = choose(runtime, choices, policy, seed, visits);
+    const selected = choose(runtime, choices, policy, seed, visits, random);
     chosen.push({ scene: sceneId, index: selected.index, text: String(selected.choice.text || "") });
     runtime.context.__simChoice = selected.choice;
+    runtime.evaluate("globalThis.__simulationPayments = [];");
     runtime.evaluate("makeChoice(globalThis.__simChoice);");
+    const payments = plainClone(runtime.context.__simulationPayments || []);
+    invariants.V4.push(...v4ViolationsForChoice(selected, payments, sceneId));
     delete runtime.context.__simChoice;
   }
 
-  return summarize(runtime, policy, seed, path, chosen, `step limit exceeded (${maxSteps})`);
+  return summarize(runtime, policy, seed, path, chosen, `step limit exceeded (${maxSteps})`, invariants);
+}
+
+export function simulateRun(rootDir, options = {}) {
+  const runtime = loadGame(rootDir);
+  return simulateRuntime(runtime, options);
 }
 
 export function simulationAssertions(result) {
@@ -414,13 +647,378 @@ export function runPolicySet(rootDir, { policies = POLICY_NAMES, runs = 1, seed 
   return results;
 }
 
+function emptyLockedSummary(policy, runs) {
+  return {
+    policy,
+    runs,
+    endings: 0,
+    incomplete: 0,
+    errors: 0,
+    stepLimits: 0,
+    totalSteps: 0,
+    endingCounts: {},
+    invariantTotals: { V1: 0, V4: 0, V5: 0 },
+    invariantRules: { V1: {}, V4: {}, V5: {} },
+    invariantScenes: { V1: {}, V4: {}, V5: {} },
+    invariantFingerprints: { V1: {}, V4: {}, V5: {} },
+    witnesses: { V1: {}, V4: {}, V5: {} },
+    errorWitness: null
+  };
+}
+
+function increment(map, key, amount = 1) {
+  map[key] = (map[key] || 0) + amount;
+}
+
+function recordInvariant(summary, invariant, violation, result) {
+  summary.invariantTotals[invariant] += 1;
+  increment(summary.invariantRules[invariant], violation.rule || "unknown");
+  increment(summary.invariantScenes[invariant], violation.scene || "unknown");
+  const witnessKey = `${violation.rule || "unknown"}@${violation.scene || "unknown"}`;
+  increment(summary.invariantFingerprints[invariant], witnessKey);
+  if (!summary.witnesses[invariant][witnessKey]) {
+    summary.witnesses[invariant][witnessKey] = {
+      seed: result.seed,
+      failure: result.failure,
+      violation: plainClone(violation),
+      pathTail: result.path.slice(-8)
+    };
+  }
+}
+
+function derivedLockedSeed(baseSeed, policy, runIndex) {
+  const policyIndex = LOCKED_POLICY_NAMES.indexOf(policy);
+  if (policyIndex < 0) throw new Error(`Unknown locked policy ${policy}`);
+  return baseSeed + policyIndex * 100_000 + runIndex;
+}
+
+export function runLockedProfile(rootDir, {
+  policies = LOCKED_POLICY_NAMES,
+  runs = LOCKED_RUNS_PER_POLICY,
+  seed = LOCKED_SEED,
+  startRun = 0,
+  shardSize = DEFAULT_LOCKED_SHARD_SIZE,
+  maxSteps = 600
+} = {}) {
+  if (!Array.isArray(policies) || !policies.length || policies.some(policy => !LOCKED_POLICY_NAMES.includes(policy))) {
+    throw new Error(`Locked policies must be drawn from ${LOCKED_POLICY_NAMES.join(", ")}`);
+  }
+  for (const [label, value] of Object.entries({ runs, seed, startRun, shardSize, maxSteps })) {
+    if (!Number.isInteger(value) || (label !== "startRun" && label !== "seed" && value < 1) || (label === "startRun" && value < 0)) {
+      throw new Error(`${label} must be ${label === "startRun" ? "a non-negative" : "a positive"} integer`);
+    }
+  }
+
+  const summaries = [];
+  for (const policy of policies) {
+    const summary = emptyLockedSummary(policy, runs);
+    for (let shardStart = 0; shardStart < runs; shardStart += shardSize) {
+      const shardEnd = Math.min(runs, shardStart + shardSize);
+      let runtime;
+      try {
+        runtime = loadGame(rootDir);
+        installPaymentProbe(runtime);
+      } catch (error) {
+        summary.errors += shardEnd - shardStart;
+        summary.incomplete += shardEnd - shardStart;
+        summary.errorWitness ||= `runtime load failed: ${error.stack || error.message}`;
+        continue;
+      }
+
+      for (let offset = shardStart; offset < shardEnd; offset += 1) {
+        const runIndex = startRun + offset;
+        const runSeed = derivedLockedSeed(seed, policy, runIndex);
+        try {
+          const result = simulateRuntime(runtime, { policy, seed: runSeed, maxSteps });
+          summary.totalSteps += result.steps;
+          if (result.completed) {
+            summary.endings += 1;
+            increment(summary.endingCounts, result.ending.title || "(empty)");
+          } else {
+            summary.incomplete += 1;
+            if (String(result.failure || "").startsWith("step limit")) summary.stepLimits += 1;
+          }
+          for (const invariant of ["V1", "V4", "V5"]) {
+            for (const violation of result.invariants[invariant]) {
+              recordInvariant(summary, invariant, violation, result);
+            }
+          }
+        } catch (error) {
+          summary.errors += 1;
+          summary.incomplete += 1;
+          summary.errorWitness ||= `${policy}/${runSeed}: ${error.stack || error.message}`;
+        }
+      }
+      runtime = null;
+    }
+    summaries.push(summary);
+  }
+
+  return {
+    profile: "locked",
+    certification: "NO-PUBLISH / NOT CERTIFIED",
+    provenance: {
+      dispatchIssue: 15,
+      dispatchBaseSha: PIPE_BOOT_R1_DISPATCH_BASE_SHA,
+      runtimeBaselineSha: RECOVERY_RUNTIME_BASE_SHA,
+      expectedSceneCount: EXPECTED_SCENE_COUNT
+    },
+    coverage: {
+      V1: "all legally reached rendered choices under the locked policies",
+      V4: "declared negative payment plus audit-backed final-comfort advertised cost",
+      V5: [
+        "landfall_without_final_hold",
+        "abandoned_course_reported_locked",
+        "what_remains_ideology_disagrees_with_totals"
+      ]
+    },
+    config: { policies: [...policies], runs, seed, startRun, shardSize, maxSteps },
+    summaries
+  };
+}
+
+function sortedKeys(value) {
+  return Object.keys(value || {}).sort();
+}
+
+export function compareRecoveryBaseline(profile, baseline) {
+  const errors = [];
+  if (!baseline || baseline.schemaVersion !== 1) errors.push("baseline schemaVersion must be 1");
+  if (baseline?.certification !== "NO-PUBLISH / NOT CERTIFIED") {
+    errors.push("baseline must explicitly remain NO-PUBLISH / NOT CERTIFIED");
+  }
+  const requiredProvenance = {
+    dispatchIssue: 15,
+    dispatchBaseSha: PIPE_BOOT_R1_DISPATCH_BASE_SHA,
+    runtimeBaselineSha: RECOVERY_RUNTIME_BASE_SHA,
+    expectedSceneCount: EXPECTED_SCENE_COUNT
+  };
+  for (const [key, expected] of Object.entries(requiredProvenance)) {
+    if (baseline?.provenance?.[key] !== expected) {
+      errors.push(`baseline provenance ${key}=${baseline?.provenance?.[key] ?? "missing"}; expected ${expected}`);
+    }
+    if (profile?.provenance?.[key] !== expected) {
+      errors.push(`profile provenance ${key}=${profile?.provenance?.[key] ?? "missing"}; expected ${expected}`);
+    }
+  }
+  for (const key of ["seed", "runs", "startRun", "maxSteps"]) {
+    if (profile.config[key] !== baseline?.config?.[key]) {
+      errors.push(`profile ${key}=${profile.config[key]} does not match baseline ${baseline?.config?.[key]}`);
+    }
+  }
+
+  for (const summary of profile.summaries) {
+    const expected = baseline?.policies?.[summary.policy];
+    if (!expected) {
+      errors.push(`baseline has no policy ${summary.policy}`);
+      continue;
+    }
+    if (summary.runs !== expected.runs) errors.push(`${summary.policy}: runs ${summary.runs} != baseline ${expected.runs}`);
+    if (summary.errors > 0) errors.push(`${summary.policy}: runtime errors=${summary.errors}`);
+    if (summary.stepLimits > 0) errors.push(`${summary.policy}: step limits=${summary.stepLimits}`);
+    const expectedIncomplete = expected.runs - expected.endings;
+    if (summary.incomplete > expectedIncomplete) {
+      errors.push(`${summary.policy}: incomplete runs worsened ${summary.incomplete} > ${expectedIncomplete}`);
+    }
+    if (summary.incomplete !== summary.invariantTotals.V1) {
+      errors.push(`${summary.policy}: unclassified incomplete runs=${summary.incomplete - summary.invariantTotals.V1}; every incomplete recovery run must be attributable to V1`);
+    }
+    if (summary.endings < expected.endings) {
+      errors.push(`${summary.policy}: endings regressed ${summary.endings} < baseline ${expected.endings}`);
+    }
+
+    for (const invariant of ["V1", "V4", "V5"]) {
+      const actualTotal = summary.invariantTotals[invariant];
+      const expectedTotal = expected.invariantTotals?.[invariant];
+      if (!Number.isInteger(expectedTotal)) {
+        errors.push(`${summary.policy}/${invariant}: baseline total missing`);
+        continue;
+      }
+      if (actualTotal > expectedTotal) {
+        errors.push(`${summary.policy}/${invariant}: violations worsened ${actualTotal} > ${expectedTotal}`);
+      }
+      for (const dimension of ["invariantRules", "invariantScenes"]) {
+        const actual = summary[dimension][invariant] || {};
+        const pinned = expected[dimension]?.[invariant] || {};
+        for (const key of sortedKeys(actual)) {
+          if (!(key in pinned)) {
+            errors.push(`${summary.policy}/${invariant}: new ${dimension === "invariantRules" ? "rule" : "scene"} ${key}`);
+          } else if (actual[key] > pinned[key]) {
+            errors.push(`${summary.policy}/${invariant}/${key}: count worsened ${actual[key]} > ${pinned[key]}`);
+          }
+        }
+      }
+      const actualFingerprints = summary.invariantFingerprints[invariant] || {};
+      const pinnedFingerprints = expected.invariantFingerprints?.[invariant] || {};
+      for (const fingerprint of sortedKeys(actualFingerprints)) {
+        if (!(fingerprint in pinnedFingerprints)) {
+          errors.push(`${summary.policy}/${invariant}: new rule@scene fingerprint ${fingerprint}`);
+        } else if (actualFingerprints[fingerprint] > pinnedFingerprints[fingerprint]) {
+          errors.push(`${summary.policy}/${invariant}/${fingerprint}: fingerprint count worsened ${actualFingerprints[fingerprint]} > ${pinnedFingerprints[fingerprint]}`);
+        }
+      }
+      for (const witnessKey of sortedKeys(summary.witnesses[invariant])) {
+        if (!(witnessKey in pinnedFingerprints)) {
+          errors.push(`${summary.policy}/${invariant}: new witness fingerprint ${witnessKey}`);
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+export function lockedReleaseAssertions(profile) {
+  const errors = [];
+  if (profile.config.seed !== LOCKED_SEED || profile.config.runs !== LOCKED_RUNS_PER_POLICY || profile.config.startRun !== 0) {
+    errors.push(`release profile must use seed=${LOCKED_SEED}, runs=${LOCKED_RUNS_PER_POLICY}/policy, startRun=0`);
+  }
+  for (const summary of profile.summaries) {
+    if (summary.errors) errors.push(`${summary.policy}: runtime errors=${summary.errors}`);
+    if (summary.stepLimits) errors.push(`${summary.policy}: step limits=${summary.stepLimits}`);
+    if (summary.incomplete) errors.push(`${summary.policy}: incomplete runs=${summary.incomplete}`);
+    for (const invariant of ["V1", "V4", "V5"]) {
+      if (summary.invariantTotals[invariant]) {
+        errors.push(`${summary.policy}/${invariant}: violations=${summary.invariantTotals[invariant]}`);
+      }
+    }
+  }
+  return errors;
+}
+
+function syntheticProfile(summary) {
+  return {
+    profile: "locked",
+    certification: "NO-PUBLISH / NOT CERTIFIED",
+    provenance: {
+      dispatchIssue: 15,
+      dispatchBaseSha: PIPE_BOOT_R1_DISPATCH_BASE_SHA,
+      runtimeBaselineSha: RECOVERY_RUNTIME_BASE_SHA,
+      expectedSceneCount: EXPECTED_SCENE_COUNT
+    },
+    config: {
+      policies: [summary.policy],
+      runs: LOCKED_RUNS_PER_POLICY,
+      seed: LOCKED_SEED,
+      startRun: 0,
+      shardSize: DEFAULT_LOCKED_SHARD_SIZE,
+      maxSteps: 600
+    },
+    summaries: [summary]
+  };
+}
+
+function baselineFromSyntheticProfile(profile) {
+  return {
+    schemaVersion: 1,
+    certification: "NO-PUBLISH / NOT CERTIFIED",
+    provenance: plainClone(profile.provenance),
+    config: {
+      seed: profile.config.seed,
+      runs: profile.config.runs,
+      startRun: profile.config.startRun,
+      maxSteps: profile.config.maxSteps
+    },
+    policies: Object.fromEntries(profile.summaries.map(summary => [summary.policy, plainClone(summary)]))
+  };
+}
+
+export function runSelfTest() {
+  const failures = [];
+  const check = (condition, message) => { if (!condition) failures.push(message); };
+
+  const disabledInventory = [{
+    choice: { text: "Injected unaffordable exit", effects: { supplies: -2 }, next: "fixture_end" },
+    index: 0,
+    requirementsMet: true,
+    affordable: false
+  }];
+  const v1 = v1ViolationForRender("fixture_v1", { survivors: 8, integrity: 50, cohesion: 50, supplies: 0, embryos: 80 }, disabledInventory);
+  check(v1.rule === "legally_reached_render_has_zero_enabled_exits" && v1.scene === "fixture_v1", "injected V1 was not classified");
+
+  const v4 = v4ViolationsForChoice({
+    choice: {
+      text: "Injected comfort cost",
+      flag: { final: "comfort" },
+      requires: { supplies: { min: 15 } }
+    },
+    index: 0,
+    requirementsMet: true,
+    affordable: true
+  }, [], "fixture_v4");
+  check(v4.some(item => item.rule === "comfort_fuel_cost_not_declared"), "injected V4 was not classified");
+
+  const vaultPrecedence = v5ViolationsForEnding({
+    flags: { vault_sacrifice: "living" },
+    ideology: { future: 100, living: 0 }
+  }, { title: "Fixture", text: "" }, ["Across the recorded orders, Living carried more weight."]);
+  check(!vaultPrecedence.some(item => item.rule === "what_remains_ideology_disagrees_with_totals"), "V5 ignored ideologyShape vault precedence");
+
+  const v5 = v5ViolationsForEnding({
+    flags: { final: "comfort", planet: "committed", vault_sacrifice: "split" },
+    ideology: { future: 0, living: 0 }
+  }, {
+    title: "Landfall",
+    text: "The course remains locked."
+  }, ["The recorded orders remained split between Future and Living."]);
+  check(v5.some(item => item.rule === "landfall_without_final_hold"), "injected Landfall V5 was not classified");
+  check(v5.some(item => item.rule === "abandoned_course_reported_locked"), "injected locked-course V5 was not classified");
+
+  const summary = emptyLockedSummary("random", LOCKED_RUNS_PER_POLICY);
+  summary.endings = LOCKED_RUNS_PER_POLICY - 2;
+  summary.incomplete = 2;
+  summary.invariantTotals.V1 = 2;
+  summary.invariantRules.V1 = { rule_a: 1, rule_b: 1 };
+  summary.invariantScenes.V1 = { scene_a: 1, scene_b: 1 };
+  summary.invariantFingerprints.V1 = { "rule_a@scene_a": 1, "rule_b@scene_b": 1 };
+  summary.witnesses.V1 = { "rule_a@scene_a": {}, "rule_b@scene_b": {} };
+  summary.invariantTotals.V4 = 1;
+  summary.invariantRules.V4 = { comfort_fuel_cost_not_declared: 1 };
+  summary.invariantScenes.V4 = { fixture_v4: 1 };
+  summary.invariantFingerprints.V4 = { "comfort_fuel_cost_not_declared@fixture_v4": 1 };
+  summary.witnesses.V4 = { "comfort_fuel_cost_not_declared@fixture_v4": {} };
+  const profile = syntheticProfile(summary);
+  const baseline = baselineFromSyntheticProfile(profile);
+  check(compareRecoveryBaseline(profile, baseline).length === 0, "unchanged recovery baseline did not pass");
+
+  const crossed = plainClone(profile);
+  crossed.summaries[0].invariantFingerprints.V1 = { "rule_a@scene_b": 1, "rule_b@scene_a": 1 };
+  crossed.summaries[0].witnesses.V1 = { "rule_a@scene_b": {}, "rule_b@scene_a": {} };
+  const crossedErrors = compareRecoveryBaseline(crossed, baseline);
+  check(crossedErrors.some(error => error.includes("new rule@scene fingerprint")), "ratchet accepted a new rule@scene fingerprint");
+
+  const worsened = plainClone(profile);
+  worsened.summaries[0].invariantTotals.V4 = 2;
+  worsened.summaries[0].invariantRules.V4.comfort_fuel_cost_not_declared = 2;
+  worsened.summaries[0].invariantScenes.V4.fixture_v4 = 2;
+  worsened.summaries[0].invariantFingerprints.V4["comfort_fuel_cost_not_declared@fixture_v4"] = 2;
+  check(compareRecoveryBaseline(worsened, baseline).some(error => error.includes("violations worsened")), "ratchet accepted a worsened V4 count");
+
+  const unclassified = plainClone(profile);
+  unclassified.summaries[0].invariantTotals.V1 = 1;
+  check(
+    compareRecoveryBaseline(unclassified, baseline).some(error => error.includes("unclassified incomplete runs")),
+    "ratchet accepted an incomplete run that was no longer attributable to V1"
+  );
+
+  const badProvenance = plainClone(baseline);
+  badProvenance.provenance.runtimeBaselineSha = "0".repeat(40);
+  check(compareRecoveryBaseline(profile, badProvenance).some(error => error.includes("baseline provenance runtimeBaselineSha")), "ratchet accepted false baseline provenance");
+
+  const releaseErrors = lockedReleaseAssertions(profile);
+  check(releaseErrors.some(error => error.includes("/V1")) && releaseErrors.some(error => error.includes("/V4")), "strict release gate did not reject injected V1/V4");
+
+  return { passed: failures.length === 0, failures };
+}
+
 export function assertV6(rootDir, holder = "amara") {
   if (!new Set(["amara", "sela"]).has(holder)) throw new Error("V6 holder must be amara or sela");
   const runtime = loadGame(rootDir);
   runtime.evaluate("resetRunState();");
   const sceneId = `prom_make_${holder}`;
   runtime.evaluate(`showScene(${JSON.stringify(sceneId)});`);
-  const choices = availableChoices(runtime);
+  const choices = choiceInventory(runtime)
+    .filter(entry => entry.requirementsMet && entry.affordable)
+    .map(entry => entry.choice);
   if (!choices.length) throw new Error(`V6 fixture could not enter ${sceneId}`);
   const promiseChoice = choices.find(choice => choice.flag && choice.flag[`prom_${holder}`]);
   if (!promiseChoice) throw new Error(`V6 fixture found no promise-making choice for ${holder}`);
@@ -461,24 +1059,67 @@ export function assertV6(rootDir, holder = "amara") {
 }
 
 function parseCli(argv) {
-  const options = { policy: "all", runs: 1, seed: 20260817, json: false, assertV6: false };
+  const options = {
+    profile: "smoke",
+    policy: "all",
+    runs: null,
+    seed: LOCKED_SEED,
+    startRun: 0,
+    shardSize: DEFAULT_LOCKED_SHARD_SIZE,
+    maxSteps: 600,
+    gate: null,
+    baseline: DEFAULT_BASELINE_PATH,
+    json: false,
+    assertV6: false,
+    selfTest: false
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (arg === "--policy") options.policy = argv[++index];
+    if (arg === "--profile") options.profile = argv[++index];
+    else if (arg === "--policy") options.policy = argv[++index];
     else if (arg === "--runs") options.runs = Number(argv[++index]);
     else if (arg === "--seed") options.seed = Number(argv[++index]);
+    else if (arg === "--start-run") options.startRun = Number(argv[++index]);
+    else if (arg === "--shard-size") options.shardSize = Number(argv[++index]);
+    else if (arg === "--max-steps") options.maxSteps = Number(argv[++index]);
+    else if (arg === "--gate") options.gate = argv[++index];
+    else if (arg === "--baseline") options.baseline = argv[++index];
     else if (arg === "--root") options.root = resolve(argv[++index]);
     else if (arg === "--json") options.json = true;
     else if (arg === "--assert-v6") options.assertV6 = true;
+    else if (arg === "--self-test") options.selfTest = true;
     else if (arg === "--help") options.help = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
+  if (!new Set(["smoke", "locked"]).has(options.profile)) throw new Error("--profile must be smoke or locked");
+  if (options.runs == null) options.runs = options.profile === "locked" ? LOCKED_RUNS_PER_POLICY : 1;
+  if (options.gate == null) options.gate = options.profile === "locked" ? "release" : "smoke";
   if (!Number.isInteger(options.runs) || options.runs < 1) throw new Error("--runs must be a positive integer");
   if (!Number.isInteger(options.seed)) throw new Error("--seed must be an integer");
-  if (options.policy !== "all" && !POLICY_ALIASES.has(options.policy)) {
-    throw new Error("--policy must be all, living[-aligned], future[-aligned], mixed, or pragmatic");
+  if (!Number.isInteger(options.startRun) || options.startRun < 0) throw new Error("--start-run must be a non-negative integer");
+  if (!Number.isInteger(options.shardSize) || options.shardSize < 1) throw new Error("--shard-size must be a positive integer");
+  if (!Number.isInteger(options.maxSteps) || options.maxSteps < 1) throw new Error("--max-steps must be a positive integer");
+  if (!new Set(["smoke", "release", "recovery", "none"]).has(options.gate)) {
+    throw new Error("--gate must be smoke, release, recovery, or none");
   }
-  if (options.policy !== "all") options.policy = POLICY_ALIASES.get(options.policy);
+
+  if (options.profile === "smoke") {
+    if (options.policy !== "all" && !POLICY_ALIASES.has(options.policy)) {
+      throw new Error("smoke --policy must be all, living[-aligned], future[-aligned], mixed, or pragmatic");
+    }
+    if (options.policy !== "all") options.policy = POLICY_ALIASES.get(options.policy);
+    if (!new Set(["smoke", "none"]).has(options.gate)) throw new Error("smoke profile supports --gate smoke|none");
+  } else {
+    if (options.policy !== "all" && !LOCKED_POLICY_NAMES.includes(options.policy)) {
+      throw new Error("locked --policy must be all, random, cheapest, or priciest");
+    }
+    if (!new Set(["release", "recovery", "none"]).has(options.gate)) {
+      throw new Error("locked profile supports --gate release|recovery|none");
+    }
+    if (options.gate !== "none" && (options.seed !== LOCKED_SEED || options.runs !== LOCKED_RUNS_PER_POLICY || options.startRun !== 0)) {
+      throw new Error(`locked ${options.gate} gate requires --seed ${LOCKED_SEED} --runs ${LOCKED_RUNS_PER_POLICY} --start-run 0`);
+    }
+  }
   return options;
 }
 
@@ -492,25 +1133,89 @@ function printHuman(results, v6) {
     console.log(`  dead=${deaths} ideology=future:${result.ideology.future || 0},living:${result.ideology.living || 0}`);
     console.log(`  promises=${JSON.stringify(result.promises)}`);
     console.log(`  facts=${result.facts.length ? result.facts.join(" | ") : "none"}`);
+    console.log(`  invariants=V1:${result.invariants.V1.length} V4:${result.invariants.V4.length} V5:${result.invariants.V5.length}`);
   }
   if (v6) console.log(`V6 ${v6.passed ? "PASS" : "FAIL"}: ${v6.errors.join("; ") || "locked Option B preserved"}`);
+}
+
+function printLockedHuman(profile, gate, assertions) {
+  console.log(`[simulate] LOCKED PROFILE — ${profile.certification}`);
+  console.log(`[simulate] seed=${profile.config.seed} runs=${profile.config.runs}/policy start=${profile.config.startRun} shardSize=${profile.config.shardSize} maxSteps=${profile.config.maxSteps}`);
+  for (const summary of profile.summaries) {
+    const average = summary.runs ? (summary.totalSteps / summary.runs).toFixed(1) : "0.0";
+    console.log(`[simulate] ${summary.policy}: endings=${summary.endings} incomplete=${summary.incomplete} errors=${summary.errors} avgSteps=${average}`);
+    console.log(`[simulate] ${summary.policy}: V1=${summary.invariantTotals.V1} V4=${summary.invariantTotals.V4} V5=${summary.invariantTotals.V5}`);
+    for (const invariant of ["V1", "V4", "V5"]) {
+      const rules = Object.entries(summary.invariantRules[invariant]).sort(([a], [b]) => a.localeCompare(b));
+      const scenes = Object.entries(summary.invariantScenes[invariant]).sort(([a], [b]) => a.localeCompare(b));
+      console.log(`[simulate] ${summary.policy}/${invariant} rules=${rules.length ? rules.map(([key, count]) => `${key}:${count}`).join(",") : "none"}`);
+      console.log(`[simulate] ${summary.policy}/${invariant} scenes=${scenes.length ? scenes.map(([key, count]) => `${key}:${count}`).join(",") : "none"}`);
+    }
+  }
+  if (assertions.length) {
+    console.error(`[simulate] ${gate.toUpperCase()} GATE FAIL (${assertions.length})`);
+    assertions.forEach(error => console.error(`  - ${error}`));
+  } else if (gate === "recovery") {
+    console.log("[simulate] RECOVERY RATCHET PASS — known failures did not worsen; release remains NO-PUBLISH / NOT CERTIFIED");
+  } else {
+    console.log(`[simulate] ${gate.toUpperCase()} GATE PASS`);
+  }
 }
 
 async function main() {
   const options = parseCli(process.argv.slice(2));
   if (options.help) {
-    console.log("Usage: node scripts/simulate.mjs [--policy all|living[-aligned]|future[-aligned]|mixed|pragmatic] [--runs N] [--seed N] [--json] [--assert-v6]");
+    console.log("Self-test: node scripts/simulate.mjs --self-test [--json]");
+    console.log("Smoke:  node scripts/simulate.mjs --profile smoke [--policy all|living|future|pragmatic] [--runs N] [--seed N] [--assert-v6] [--json]");
+    console.log(`Locked: node scripts/simulate.mjs --profile locked [--policy all|random|cheapest|priciest] [--runs ${LOCKED_RUNS_PER_POLICY}] [--seed ${LOCKED_SEED}] [--shard-size ${DEFAULT_LOCKED_SHARD_SIZE}] [--gate release|recovery|none] [--baseline PATH] [--json]`);
+    return;
+  }
+  if (options.selfTest) {
+    const result = runSelfTest();
+    if (options.json) console.log(JSON.stringify(result, null, 2));
+    else console.log(`[simulate] SELF-TEST ${result.passed ? "PASS" : "FAIL"}${result.failures.length ? ` — ${result.failures.join("; ")}` : " — injected V1/V4/V5 and ratchet negatives rejected"}`);
+    if (!result.passed) process.exitCode = 1;
     return;
   }
   const defaultRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const rootDir = options.root || defaultRoot;
-  const policies = options.policy === "all" ? POLICY_NAMES : [options.policy];
-  const results = runPolicySet(rootDir, { policies, runs: options.runs, seed: options.seed });
-  const assertions = results.flatMap(result => simulationAssertions(result).map(error => `${result.policy}/${result.seed}: ${error}`));
-  const v6 = options.assertV6 ? assertV6(rootDir) : null;
-  if (v6 && !v6.passed) assertions.push(...v6.errors.map(error => `V6: ${error}`));
-  if (options.json) console.log(JSON.stringify({ results, v6, assertions }, null, 2));
-  else printHuman(results, v6);
+  if (options.profile === "smoke") {
+    const policies = options.policy === "all" ? POLICY_NAMES : [options.policy];
+    const results = runPolicySet(rootDir, { policies, runs: options.runs, seed: options.seed });
+    const assertions = options.gate === "none" ? [] : results.flatMap(result => simulationAssertions(result).map(error => `${result.policy}/${result.seed}: ${error}`));
+    const v6 = options.assertV6 ? assertV6(rootDir) : null;
+    if (v6 && !v6.passed) assertions.push(...v6.errors.map(error => `V6: ${error}`));
+    if (options.json) console.log(JSON.stringify({ profile: "smoke", certification: "NO-PUBLISH / NOT CERTIFIED", results, v6, assertions }, null, 2));
+    else printHuman(results, v6);
+    if (assertions.length) process.exitCode = 1;
+    return;
+  }
+
+  const policies = options.policy === "all" ? LOCKED_POLICY_NAMES : [options.policy];
+  const profile = runLockedProfile(rootDir, {
+    policies,
+    runs: options.runs,
+    seed: options.seed,
+    startRun: options.startRun,
+    shardSize: options.shardSize,
+    maxSteps: options.maxSteps
+  });
+  let baseline = null;
+  let assertions = [];
+  if (options.gate === "release") {
+    assertions = lockedReleaseAssertions(profile);
+  } else if (options.gate === "recovery") {
+    const baselinePath = resolve(rootDir, options.baseline);
+    baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
+    assertions = compareRecoveryBaseline(profile, baseline);
+  } else {
+    assertions = profile.summaries.flatMap(summary => [
+      ...(summary.errors ? [`${summary.policy}: runtime errors=${summary.errors}`] : []),
+      ...(summary.stepLimits ? [`${summary.policy}: step limits=${summary.stepLimits}`] : [])
+    ]);
+  }
+  if (options.json) console.log(JSON.stringify({ ...profile, gate: options.gate, baseline: baseline ? options.baseline : null, assertions }, null, 2));
+  else printLockedHuman(profile, options.gate, assertions);
   if (assertions.length) process.exitCode = 1;
 }
 

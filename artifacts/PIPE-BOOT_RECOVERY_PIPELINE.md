@@ -34,6 +34,7 @@
 | RECOVERY-DEC | Formal amendment | `47c2ec486c70f037867267fbdc8de68ed27343dc` (`artifacts/RECOVERY-DEC_AMENDMENT.md`) |
 | PIPE-BOOT | This pipeline bootstrap | (this commit on `recovery/e4f8440-nopub`) |
 | PIPE-BOOT acceptance | Manraj acceptance recorded | (acceptance commit on `recovery/e4f8440-nopub`) |
+| PIPE-BOOT-R1 | Reconcile missing/stale blocking controls; GitHub issue #15 | dispatch base `d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`; `artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md` |
 | Last certified baseline label | `0.28.1d` | associated historical SHA `2bb4517707df90702a9b78fe0fa8fb55c1852dd8` |
 
 ## 4. Verification controls
@@ -41,7 +42,9 @@
 - `scripts/verify.mjs` and `scripts/simulate.mjs` already exist on the tree and remain the starting point.
 - Exact-SHA pinning: any integrity claim must name the commit under test; a green local run without a named SHA is not acceptance evidence.
 - Known failures may remain red. **Do not** delete, skip, or relabel requirements to force green.
-- Minimal workflow already present under `.github/workflows/` for the earlier 0.28.2 path; recovery work must target this recovery branch or a later explicitly authorized version branch.
+- Reconciliation at exact dispatch base `d7728f7` proved that `.github/` is absent, `verify.mjs` has three stale `0.29` expectations against existing `0.30` surfaces, and `simulate.mjs` lacks the required deterministic random/cheapest/priciest 2,000-runs-per-policy V1/V4/V5 reporting contract. V5 detector coverage is not presumed comprehensive and may not be presented as certification.
+- PIPE-BOOT-R1 / GitHub issue #15 is authorized to repair only those bounded pipeline controls and the associated NO-PUBLISH check. Its full authority, allowlist, evidence contract, and stop conditions are recorded in `PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md`.
+- Until PIPE-BOOT-R1 is adjudicated from exact-SHA evidence, the blocking-control prerequisite is **INCOMPLETE** and every correction ticket, including REC-01, remains frozen.
 
 ## 5. Release-policy / publication hard block
 
@@ -55,19 +58,27 @@
 
 Branch-protection and required-check enforcement that require repository-admin rights beyond the ordinary push token are reported honestly in the handoff. Policy-level blocks above are active regardless.
 
+`recovery_required_checks: NOT CONFIGURED`
+`recovery_ruleset_or_branch_protection: NOT CONFIGURED`
+
+The absence of administrative enforcement must not be described as an active mechanical block. A workflow run and a required-check/ruleset configuration are separate evidence claims.
+
 ## 6. What remains blocked until a future dispatch
 
-- All RECOVERY-DEC §4 implementation rulings
+- All RECOVERY-DEC §4 implementation rulings, including REC-01 / issue #13
 - The bounded `0.30.1` integrity build
 - Any merge of divergent historical repair branches wholesale
 - Any claim that 0.28.2 / 0.28.3 / PX / 0.29 / 0.30 gates are closed
 
+REC-01 is **FROZEN**. Its observed head `8e4fe42f376444049105e27ff7005a6220e88b9a` must remain isolated from PIPE-BOOT-R1 and from the recovery integration branch pending a later program-office adjudication.
+
 ## 7. Next authorized actor
 
-After this commit is present and the handoff evidence package is returned:
+After the PIPE-BOOT-R1 discrepancy was verified and Manraj authorized its repair:
 
-- Grok may dispatch a **bounded** integrity ticket only if Manraj confirms PIPE-BOOT acceptance.
-- Build may implement only from that future ticket, on a branch descended from this recovery line, with exact-SHA evidence.
+- Build may implement GitHub issue #15 only, from exact base `d7728f7`, within its exact allowlist.
+- Grok / program office may adjudicate PIPE-BOOT-R1 only after the exact-SHA evidence package is returned.
+- No correction ticket may resume before that adjudication; closing PIPE-BOOT-R1 does not itself merge or authorize REC-01.
 
 ## 8. Manraj acceptance
 
@@ -77,7 +88,9 @@ After this commit is present and the handoff evidence package is returned:
 
 Manraj explicitly accepted PIPE-BOOT. This closes only the governance prerequisite named in §7. It does not dispatch or implement the correction build, certify the recovery base, close any sequential gate, or lift NO-PUBLISH.
 
-**Next authorized actor:** Grok / program office may dispatch one bounded integrity ticket limited to RECOVERY-DEC §4 and the authorized `0.30.1` integrity boundary. Build remains blocked until that dispatch names an exact base SHA, bounded scope, acceptance criteria, and required evidence.
+Subsequent exact-base review found that the blocking controls described in §4 were not present or current. Manraj therefore authorized PIPE-BOOT-R1. The original acceptance remains recorded as a governance decision, but it is not evidence that the missing controls are operational.
+
+**Next authorized actor:** Build completes PIPE-BOOT-R1 / issue #15 and returns exact-SHA evidence. REC-01 remains frozen; NO-PUBLISH and NOT_CERTIFIED remain unchanged.
 
 ---
 
