@@ -187,6 +187,9 @@ function readRepositoryFacts(environment) {
     checkedOutSha,
     parentShas,
     changedPaths: changedPathsForEvent(environment),
+    prHeadChangedPaths: environment.eventName === "pull_request"
+      ? changedPathsBetween(environment.prBaseSha, environment.prHeadSha)
+      : null,
     secondParentChangedPaths: parentShas[1]
       ? changedPathsBetween(normalizedBefore, parentShas[1])
       : null,
@@ -208,6 +211,7 @@ function readRepositoryFacts(environment) {
     locksHash: sha256(locks),
     policyHash: sha256(policy),
     basePolicyHash: fileHashAt(policyBaseSha, "scripts/release-policy.mjs"),
+    prHeadPolicyHash: fileHashAt(environment.prHeadSha, "scripts/release-policy.mjs"),
     secondParentPolicyHash: fileHashAt(parentShas[1], "scripts/release-policy.mjs"),
     workflowNames,
     workflowTexts,
@@ -394,6 +398,12 @@ export function evaluatePolicy(facts) {
       if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
         errors.push("ROADMAP-L014 base policy bytes do not match the executing recovery policy");
       }
+      if (!facts.prHeadPolicyHash || facts.prHeadPolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 head policy bytes do not match the executing recovery policy");
+      }
+      if (!sameStringSet(facts.prHeadChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+        errors.push("ROADMAP-L014 head must be reconciled to the policy base with only the two approved authority-file changes");
+      }
       if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256) {
         errors.push("ROADMAP-L014 ROADMAP bytes do not match the approved proposal");
       }
@@ -439,6 +449,8 @@ export function evaluatePolicy(facts) {
         && facts.roadmapAuthorizedHeadAncestor
         && facts.basePolicyHash
         && facts.basePolicyHash === facts.policyHash
+        && facts.secondParentPolicyHash
+        && facts.secondParentPolicyHash === facts.policyHash
         && sameStringSet(facts.secondParentChangedPaths || [], ROADMAP_L014_CHANGED_PATHS)
       ) {
         changeRoute = "roadmap-l014";
@@ -489,6 +501,9 @@ export function evaluatePolicy(facts) {
       if (!facts.basePolicyHash || facts.basePolicyHash !== facts.policyHash) {
         errors.push("ROADMAP-L014 pre-merge policy bytes do not match the checked-out policy");
       }
+      if (!facts.secondParentPolicyHash || facts.secondParentPolicyHash !== facts.policyHash) {
+        errors.push("ROADMAP-L014 second-parent policy bytes do not match the checked-out policy");
+      }
       if (facts.roadmapHash !== ROADMAP_L014_ROADMAP_SHA256 || facts.locksHash !== ROADMAP_L014_LOCKS_SHA256) {
         errors.push("ROADMAP-L014 merged authority bytes do not match the approved proposal");
       }
@@ -522,6 +537,7 @@ function baseSelfTestFacts() {
     afterSha: "",
     parentShas: [DISPATCH_BASE_SHA, prHeadSha],
     changedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
+    prHeadChangedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
     secondParentChangedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
     recoveryBaseAncestor: true,
     dispatchBaseAncestor: true,
@@ -546,6 +562,7 @@ function baseSelfTestFacts() {
     locksHash: "3".repeat(64),
     policyHash,
     basePolicyHash: policyHash,
+    prHeadPolicyHash: policyHash,
     secondParentPolicyHash: policyHash,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
@@ -644,6 +661,7 @@ function selfTest() {
     prHeadSha: "c".repeat(40),
     parentShas: [RECOVERY_POLICY_BASE_SHA, "c".repeat(40)],
     changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    prHeadChangedPaths: [...ROADMAP_L014_CHANGED_PATHS],
     roadmapAuthorizedHeadAncestor: true,
     roadmapHash: ROADMAP_L014_ROADMAP_SHA256,
     locksHash: ROADMAP_L014_LOCKS_SHA256,
@@ -654,6 +672,8 @@ function selfTest() {
   expectFailure(roadmapL014, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
   expectFailure(roadmapL014, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "must descend");
   expectFailure(roadmapL014, facts => { facts.basePolicyHash = "4".repeat(64); }, "base policy bytes");
+  expectFailure(roadmapL014, facts => { facts.prHeadPolicyHash = "4".repeat(64); }, "head policy bytes");
+  expectFailure(roadmapL014, facts => { facts.prHeadChangedPaths.push("scripts/release-policy.mjs"); }, "must be reconciled");
   expectFailure(roadmapL014, facts => { facts.roadmapHash = "4".repeat(64); }, "ROADMAP bytes");
   expectFailure(roadmapL014, facts => { facts.roadmapHash = null; }, "ROADMAP bytes");
   expectFailure(roadmapL014, facts => { facts.locksHash = "4".repeat(64); }, "LOCKS bytes");
@@ -756,6 +776,7 @@ function selfTest() {
   });
   assert.deepEqual(evaluatePolicy(roadmapL014Push).errors, []);
   expectAnyFailure(roadmapL014Push, facts => { facts.basePolicyHash = "4".repeat(64); }, "wrong pre-merge policy bytes");
+  expectAnyFailure(roadmapL014Push, facts => { facts.secondParentPolicyHash = "4".repeat(64); }, "wrong second-parent policy bytes");
   expectAnyFailure(roadmapL014Push, facts => { facts.parentShas = [facts.beforeSha]; }, "one-parent ROADMAP push");
   expectAnyFailure(roadmapL014Push, facts => { facts.parentShas[0] = "e".repeat(40); }, "wrong first parent");
   expectAnyFailure(roadmapL014Push, facts => { facts.roadmapAuthorizedHeadAncestor = false; }, "unauthorized second-parent ancestry");
