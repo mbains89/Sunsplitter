@@ -1,6 +1,6 @@
 # Sunsplitter — Minted Phrases Ledger
 
-**Last verified against build:** v0.28  
+**Last verified against build:** v0.29
 **Purpose:** Track distinctive spoken lines that must appear only where authored (no accidental reuse, no silent drift). Contract-class promises appear exactly twice per run (make + quote-back); source may contain a third afterglow make that is mutually exclusive with the standard make via interstitial bounce.
 
 ## SPENT in shipped build
@@ -24,6 +24,14 @@
 | You did the math. I'm not arguing the math. Live in it like I have to. | Elias | pair_shield_cold | 0.28 | Card realization. |
 | She was what the job was for. | Elias | pair_shield_cold / offshift_elias (dead-branch, exclusive via attributable guard) | 0.28 | Mint + spend; single use. |
 | I'll not tell you it wasn't your doing. I'll tell you I'm still here. Mind the difference. | Amara | offshift_amara | 0.28 | Card realization. |
+| I am the hand-off. | Sela | filters_stencil | 0.29 | Cascade Allusive; single-owner, single-use. |
+| Standing question. | Elias | aftermath_seal_order | 0.29 | Cascade Allusive; single-owner, single-use. |
+
+## RESERVED
+
+| Phrase | Speaker | Intended placement | Status |
+|--------|---------|--------------------|--------|
+| People were tier four. | Tomas | Late Living reckon/ending only | RESERVED — not present in renderable 0.29 prose. |
 
 ## Process
 - On mint: add to this ledger with intended scene.
