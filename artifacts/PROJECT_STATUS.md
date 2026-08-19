@@ -25,8 +25,14 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `tested_runtime_sha: e4f84409759760d31fcf47b8a227802a61421f51` (audited recovery base, not certified)  
 `verify_mjs: present on tree`  
 `simulate_mjs: present on tree`  
-`pipe_boot_r1_dispatch_base: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
-`pipe_boot_r1_control_state: CODE APPROVED AT 027d61d; ADMIN CONTROLS ACTIVE — record reconciliation on draft PR #16 pending exact-head Actions and final program-office adjudication`
+`pipe_boot_r1_dispatch_base: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`  
+`pipe_boot_r1_approved_head_sha: b4d932527b7899fb9467f341cd83e01901e207b2`  
+`pipe_boot_r1_approved_tree_sha: 3befa469312fb00e45f2871b349510ff7e0a4042`  
+`pipe_boot_r1_synthetic_merge_sha: 69bdc0d79f0c5228815f17c47b96e629d75a1a22`  
+`pipe_boot_r1_merge_sha: 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`  
+`governed_recovery_successor_sha: 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`  
+`pipe_boot_r1_ci: PASS — ready-for-review runs 32295713512 and 32295713513; six required jobs successful`  
+`pipe_boot_r1_control_state: CLOSED / LANDED — PR #16 merged after exact-head program-office adjudication; NO-PUBLISH and NOT_CERTIFIED remain active`
 `github_workflows_at_dispatch_base: ABSENT`
 `verify_mjs_at_dispatch_base: FAIL — three stale 0.29 expectations against existing 0.30 surfaces`
 `simulate_mjs_at_dispatch_base: CONTRACT MISMATCH — required random/cheapest/priciest 2,000-run V1/V4/V5 reporting absent; V5 detector coverage not proven comprehensive`
@@ -42,15 +48,15 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: PIPE-BOOT-R1 recovery-pipeline reconciliation`
-`ticket: PIPE-BOOT-R1 / GitHub issue #15 — restore blocking recovery controls`
+`milestone: Governance recovery bootstrap complete; REC-01 disposition pending`  
+`ticket: NONE — PIPE-BOOT-R1 closed; REC-01 remains frozen`  
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
-`owner: Build / implementation agent`  
-`state: CODE APPROVED; ADMIN CONTROLS ACTIVE — record reconciliation pending on draft PR; not merged`
-`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (draft)`
+`owner: Grok / program office`  
+`state: PIPE-BOOT-R1 CLOSED / LANDED at governed recovery successor 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7; no correction ticket authorized`  
+`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (merged)`  
 `governed_branch: recovery/e4f8440-nopub`  
-`implementation_branch: ticket/0.30.1-pipe-boot-r1`
-`dispatch_base_sha: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
+`implementation_branch: ticket/0.30.1-pipe-boot-r1 (merged source branch)`  
+`dispatch_base_sha: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`  
 `audited_gameplay_runtime_provenance: e4f84409759760d31fcf47b8a227802a61421f51`
 
 ## Frozen work
@@ -63,8 +69,8 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Blocked
 
-- Every RECOVERY-DEC §4 correction is blocked. REC-01 / issue #13 is explicitly frozen until PIPE-BOOT-R1 evidence is adjudicated and Grok/program office separately authorizes its disposition.
-- GitHub branch and tag rulesets and Netlify production controls are active. The PR records must be reconciled and renewed exact-head Actions must pass before final program-office adjudication.
+- Every RECOVERY-DEC §4 correction remains blocked. PIPE-BOOT-R1 is closed, but REC-01 / issue #13 remains frozen until Grok / program office separately adjudicates and dispatches it.
+- The PIPE-BOOT-R1 prerequisite is closed at governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; that closure does not authorize any correction, merge, release, or deployment.
 - All sequential gates from 0.28.2 onward remain uncertified.
 - Publication, tagging, deploy, monetization frozen.
 - L-025, L-026, L-027, L-028 remain open decision gates.
@@ -84,12 +90,12 @@ L-020 through L-024 previously ruled; recovery does not reopen them. Full langua
 - `artifacts/RECOVERY-DEC_AMENDMENT.md` on main
 - `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md` on `recovery/e4f8440-nopub`
 - `artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md` records exact-base discrepancy and issue #15 dispatch
-- PIPE-BOOT-R1 dispatched as GitHub issue #15 on `ticket/0.30.1-pipe-boot-r1`
+- PIPE-BOOT-R1 / issue #15 landed through protected PR #16 as governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`
 - REC-01 / issue #13 is frozen at isolated observed head `8e4fe42`; it is not merged into the recovery line
 - No gameplay, narrative, art, or publication bytes are authorized by PIPE-BOOT-R1
 
 ## Next action
 
-**Grok / program office:** Adjudicate PIPE-BOOT-R1 draft PR #16 only after this administrative-evidence reconciliation has renewed green exact-head Actions; keep REC-01 frozen and NO-PUBLISH active.
+**Grok / program office:** Separately adjudicate REC-01 / issue #13 at frozen head `8e4fe42f376444049105e27ff7005a6220e88b9a` against governed recovery successor `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; keep REC-01 frozen unless and until explicitly dispatched. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->

@@ -24,8 +24,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
+const PIPE_BOOT_CLOSEOUT_HEAD = "ticket/0.30.1-pipe-boot-r1-status-closeout";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
+const PIPE_BOOT_MERGE_SHA = "0b600935aa6e21d4898bcc9c7ad09e78893ec6e7";
 const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 
 const GOV_01_SHA256 = "067832a3750f9909df7a4d8eff553d96dd450957c9235da8f37012607a7bb14e";
@@ -48,6 +50,11 @@ export const PIPE_BOOT_R1_CHANGED_PATHS = Object.freeze([
   "scripts/release-policy.mjs",
   "scripts/simulate.mjs",
   "scripts/verify.mjs"
+]);
+
+export const PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS = Object.freeze([
+  "artifacts/PROJECT_STATUS.md",
+  "scripts/release-policy.mjs"
 ]);
 
 const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
@@ -291,19 +298,27 @@ export function evaluatePolicy(facts) {
   requirePattern(errors, facts.reconciliationText || "", /NO-PUBLISH/i, "PIPE-BOOT-R1 NO-PUBLISH guard");
   requirePattern(errors, facts.reconciliationText || "", new RegExp(RECOVERY_BASE_SHA), "PIPE-BOOT-R1 recovery base");
 
+  let changeRoute = null;
   if (facts.eventName === "pull_request") {
     if (facts.baseRef === "main") errors.push("all pull requests to main are blocked while NO-PUBLISH is active");
     if (facts.baseRef !== RECOVERY_BRANCH) {
       errors.push(`pull-request base ${facts.baseRef || "<missing>"} != ${RECOVERY_BRANCH}`);
     }
-    if (facts.headRef !== PIPE_BOOT_HEAD) {
-      errors.push(`pull-request head ${facts.headRef || "<missing>"} != ${PIPE_BOOT_HEAD}`);
+    if (facts.headRef === PIPE_BOOT_HEAD) {
+      changeRoute = "pipe-boot";
+      if (facts.prBaseSha !== DISPATCH_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != dispatch base ${DISPATCH_BASE_SHA}`);
+      }
+    } else if (facts.headRef === PIPE_BOOT_CLOSEOUT_HEAD) {
+      changeRoute = "closeout";
+      if (facts.prBaseSha !== PIPE_BOOT_MERGE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != PIPE-BOOT merge ${PIPE_BOOT_MERGE_SHA}`);
+      }
+    } else {
+      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized PIPE-BOOT route`);
     }
     if (facts.prHeadRepository !== EXPECTED_REPOSITORY) {
       errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
-    }
-    if (facts.prBaseSha !== DISPATCH_BASE_SHA) {
-      errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != dispatch base ${DISPATCH_BASE_SHA}`);
     }
     if (!FULL_SHA_RE.test(facts.prHeadSha || "")) errors.push("pull-request head SHA is not a full SHA-1");
     if (!facts.prBaseAncestor) errors.push("pull-request base SHA is not an ancestor of the tested merge SHA");
@@ -319,8 +334,12 @@ export function evaluatePolicy(facts) {
       const normalizedBefore = /^0{40}$/.test(facts.beforeSha || "")
         ? DISPATCH_BASE_SHA
         : facts.beforeSha;
-      if (normalizedBefore !== DISPATCH_BASE_SHA) {
-        errors.push(`push before SHA ${normalizedBefore || "<missing>"} != dispatch base ${DISPATCH_BASE_SHA}`);
+      if (normalizedBefore === DISPATCH_BASE_SHA) {
+        changeRoute = "pipe-boot";
+      } else if (normalizedBefore === PIPE_BOOT_MERGE_SHA) {
+        changeRoute = "closeout";
+      } else {
+        errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized PIPE-BOOT base`);
       }
       if (facts.afterSha !== facts.sha) {
         errors.push(`push after SHA ${facts.afterSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
@@ -331,9 +350,14 @@ export function evaluatePolicy(facts) {
   }
 
   if (!(facts.eventName === "push" && (facts.refType === "tag" || facts.refName === "main"))) {
-    if (!(facts.changedPaths || []).length) errors.push("changed-path set is empty or unavailable");
-    for (const path of facts.changedPaths || []) {
-      if (!ALLOWED_PATHS.has(path)) errors.push(`changed path is outside issue #15: ${path}`);
+    const changedPaths = facts.changedPaths || [];
+    if (!changedPaths.length) errors.push("changed-path set is empty or unavailable");
+    if (changeRoute === "pipe-boot") {
+      for (const path of changedPaths) {
+        if (!ALLOWED_PATHS.has(path)) errors.push(`changed path is outside issue #15: ${path}`);
+      }
+    } else if (changeRoute === "closeout" && !sameStringSet(changedPaths, PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the one-shot close-out set: ${changedPaths.join(", ") || "<none>"}`);
     }
   }
 
@@ -430,6 +454,17 @@ function selfTest() {
   const positive = baseSelfTestFacts();
   assert.deepEqual(evaluatePolicy(positive).errors, []);
 
+  const closeout = structuredClone(positive);
+  Object.assign(closeout, {
+    headRef: PIPE_BOOT_CLOSEOUT_HEAD,
+    prBaseSha: PIPE_BOOT_MERGE_SHA,
+    changedPaths: [...PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS]
+  });
+  assert.deepEqual(evaluatePolicy(closeout).errors, []);
+  expectFailure(closeout, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "pull-request base SHA");
+  expectFailure(closeout, facts => { facts.changedPaths.push("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md"); }, "one-shot close-out set");
+  expectFailure(closeout, facts => { facts.changedPaths.pop(); }, "one-shot close-out set");
+
   expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
   expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
   expectFailure(positive, facts => { facts.recoveryBaseAncestor = false; }, "audited recovery base");
@@ -489,6 +524,14 @@ function selfTest() {
   });
   assert.deepEqual(evaluatePolicy(push).errors, []);
 
+  const closeoutPush = structuredClone(push);
+  Object.assign(closeoutPush, {
+    beforeSha: PIPE_BOOT_MERGE_SHA,
+    changedPaths: [...PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS]
+  });
+  assert.deepEqual(evaluatePolicy(closeoutPush).errors, []);
+  expectFailure(closeoutPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot close-out set");
+
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
     facts.refName = "sun-v0.30.1";
@@ -496,7 +539,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 allowlist + 23 policy cases)");
+  console.log("PASS release-policy self-test (issue #15 allowlist + original 23 policy cases + 6 one-shot close-out cases)");
 }
 
 function environmentFromProcess() {
