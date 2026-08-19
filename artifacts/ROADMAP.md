@@ -533,11 +533,10 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 ### Locked baseline
 
 - Remove production chrome such as raw scene IDs; keep one authoritative visible version.
-- Correct ending action labels and completed-save behavior.
 - Strengthen cold-open/mobile composition, type scale, line length, contrast tokens, touch targets, reduced motion, semantic headings/labels, and screen-reader announcements.
 - Provide visible focus, keyboard-safe modal dismissal, focus return, and meaningful accessible labels.
 - Keep the content notice revisitable without turning it into a settings dashboard.
-- Resolve decision briefs for title/tone merge, settings surface, alt-text policy, scene cadence, death beat, ending hierarchy, and completed-save semantics before 0.32.
+- Resolve decision briefs for title/tone merge, settings surface, alt-text policy, scene cadence, death beat, and ending hierarchy before 0.32.
 - Do not add a new surface unless clarity, accessibility, or measured first-run evidence requires it.
 
 ### Candidate presentation experiments
@@ -550,12 +549,131 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 
 The breast-cover toggle remains HELD and is not part of this milestone.
 
+Completed-save semantics and associated ending-action corrections are intentionally deferred to 0.30.1. Do not widen the in-flight 0.30 build to absorb them.
+
 ---
 
-## 10. 0.31 — Independent External Review #2
+## 10. 0.30.1 — Pre-Review AI Hardening
+
+**Status:** MANRAJ-APPROVED LOCK PROPOSAL; effective only after Grok records L-014 and the authority change lands.
+**Entry:** 0.30 is deployed and its exact source SHA, artifact digest, and deployment record are known.
+**Concern:** close high-judgment trust, truth, continuity, and presentation risks before independent human review.
+
+### Branch and scope boundary
+
+- Start from the exact deployed 0.30 source revision. Do not edit, retarget, or merge into an in-flight 0.30 branch.
+- This milestone may repair verified defects, add verification coverage, and implement the completed-save decision below. It may not add story volume, gameplay systems, cast, meters, save slots, account/backend services, or commercial scope.
+- Findings do not self-authorize implementation. Every repair must cite an exact reproduction, violated lock or acceptance rule, smallest safe correction, and regression test.
+- AI audits and synthetic playthroughs are supplemental evidence. They never count as either of the two independent strangers required by 0.31.
+- This roadmap proposal itself authorizes no runtime edit, merge, deployment, tag, release, publication, or REC-01 unfreeze. Grok must dispatch bounded implementation tickets after recording the lock.
+
+### Workstream 1 — Completed-save semantics
+
+Preserve the completed run in the existing single localStorage slot. A save is completed only when `saved.scene === "ending_check"`; do not add a completion flag, second slot, history, archive, or schema key.
+
+Required behavior:
+
+- No save shows **Begin** and no resume action.
+- An unfinished save shows **Continue** and **Start new run**.
+- A completed save shows **View ending** and **Start new run**.
+- Ending and What Remains replace misleading **Play Again** actions with **Return to title**.
+- **View ending** loads the preserved snapshot through the existing load path, reproduces the same ending, keeps What Remains reachable, and does not mutate state, `savedAt`, version, or storage.
+- **Return to title** preserves the completed slot.
+- **Start new run** remains the only destructive action. Existing confirmation stays mandatory when any save exists; cancel preserves the slot byte-for-byte, and confirm safely replaces it with a fresh run at `wake`.
+- Refresh or reopen from the ending or What Remains returns to the title with **View ending** available. No reload loop, automatic restart, or implicit deletion is permitted.
+- Valid 0.29 completed saves remain viewable in 0.30.1 without rewrite; only a confirmed new run creates a fresh 0.30.1 snapshot.
+
+### Workstream 2 — Executable truth contract
+
+Translate the permanent locks and approved scene contracts into independent executable checks that fail closed without mirroring production logic. At minimum prove:
+
+- every rendered scene has an affordable enabled exit;
+- redirects terminate and every registered target exists;
+- costs never execute unpaid or silently clamp;
+- dead or unrecovered characters never speak, act, volunteer, vote, contribute effects, or appear in current-state imagery;
+- lethal outcomes are attributable and required follow-ups occur;
+- endings and What Remains cite only current-run facts;
+- one-time scenes and consequences occur exactly once;
+- save/reload cannot duplicate entry effects or corrupt a completed save;
+- registered flags and state keys remain within their legal domains; and
+- every choice target is reachable under at least one valid state or is explicitly classified as defensive/unreachable by design.
+
+Detector logic, fixtures, and expected results must be reviewable independently from the runtime implementation. Existing pinned recovery baselines remain historical evidence and may not be normalized away.
+
+### Workstream 3 — Adversarial whole-game audit
+
+Run a read-only, exact-SHA audit before repairs across six independent tracks:
+
+1. scene graph, redirects, reachability, and softlocks;
+2. resource affordability, advertised costs, and effect enforcement;
+3. death awareness, actor attribution, survivor-only actions, and run-state imagery;
+4. promises, relationship debt, romance, consent continuity, and consequence ownership;
+5. ending claims, debt mirrors, Cascade beats, and What Remains truth; and
+6. mobile presentation, completed-save behavior, accessibility, release packaging, and artifact honesty.
+
+Reclassify prior causality-lint and audit findings against the exact 0.30.1 base. Each surviving finding requires reproduction path, source evidence, severity, violated lock, and minimal repair. Harmless memorial/history references must be separated from present-state violations.
+
+### Workstream 4 — Visual and character continuity audit
+
+Compare every referenced image and representative mobile crop against current authoritative portraits, bodysuits, chronology, location, injuries, roster, survival state, and Commander anonymity.
+
+The audit must identify:
+
+- incorrect identity, clothing, hair, age, injury, crew count, or activity;
+- dead or unrecovered crew shown as present;
+- technology/location contradictions, curved-ring interiors, and repeated compositions;
+- style drift between approved batches;
+- unreadable or misleading phone crops; and
+- missing, malformed, unreferenced, or incorrectly mapped assets.
+
+Return a prioritized mapping/repair list. Do not generate or silently replace art under the audit ticket.
+
+### Workstream 5 — Bounded repairs and regression closure
+
+Grok assigns accepted findings to one-concern repair tickets. Repairs use the smallest coherent delta, preserve locked prose and state when unrelated, and add base-negative/head-positive evidence.
+
+- All confirmed P0 findings close and pass exact-path retest.
+- P1 findings close or receive an explicit owner/version disposition; save trust, first-run comprehension, accessibility, or image-honesty P1s block 0.31.
+- P2 findings may be ranked-deferred but remain recorded.
+- No repair may weaken a truth contract, raise a pinned failure ceiling, overwrite historical baselines, or treat a passing synthetic route as human experience evidence.
+
+### Workstream 6 — Twelve-route synthetic playtest council
+
+On the exact integrated 0.30.1 candidate, run and independently review at least these twelve routes:
+
+1. Living loyalist;
+2. Future loyalist;
+3. ideological reversal;
+4. maximum survival;
+5. heavy casualties;
+6. romance variants;
+7. promise keeper;
+8. promise breaker;
+9. resource-poor run;
+10. high-cohesion run;
+11. returning player with a completed save; and
+12. cold first-time mobile player.
+
+Record route inputs, ending, deaths, resource floor, promises, relationship state, completed-save result, visual mismatches, and every comprehension/truth concern. The council sharpens the 0.31 protocol; it does not replace real strangers or certify subjective pacing.
+
+### Exit gate
+
+0.30.1 exits only when:
+
+- the exact candidate SHA and artifact digest are recorded;
+- completed-save acceptance passes on desktop and iPhone-class mobile viewports;
+- `node --check`, `verify.mjs`, `simulate.mjs`, and every new independent truth contract pass at their locked thresholds;
+- every adversarial and visual-audit finding is fixed, explicitly deferred, rejected with evidence, or blocked by a named decision gate;
+- all twelve synthetic routes finish without P0, save loss, zero-exit state, unpaid cost, dead presence, or false ending;
+- no new save schema, storage key, slot, state namespace, gameplay system, story volume, or unapproved art exists; and
+- the candidate is handed to 0.31 with a concise human-test protocol derived from unresolved experience questions.
+
+---
+
+## 11. 0.31 — Independent External Review #2
 
 **Status:** LOCKED definition.
-**Entry:** 0.30 candidate build; `verify.mjs` and `simulate.mjs` green.
+**Entry:** 0.30.1 exits on an exact integrated candidate; `verify.mjs`, `simulate.mjs`, and the independent truth contracts are green.
 
 ### Purpose
 
@@ -575,6 +693,22 @@ Fresh-stranger structural and experience audit after systemic truth, PX governan
 - Short experience notes: what felt earned, opaque, memorable, or exhausting.
 - Explicit confirmation checks for dead speech, unpaid cost execution, save loss, softlock, and counterfactual ending text.
 
+### Post-review evidence synthesis
+
+After both independent reviewers finish and mandatory retests are complete, one high-reasoning adjudicator synthesizes the human notes, screenshots, route records, telemetry if any, and 0.30.1 evidence.
+
+The synthesis must distinguish:
+
+- repeated player evidence;
+- one-off preference;
+- demonstrated comprehension failure;
+- accessibility defect;
+- narrative disagreement;
+- technical defect; and
+- scope-expanding suggestion.
+
+It recommends the smallest coherent 0.32 package and gives every surviving finding one disposition: fixed and retested, accepted with evidence, ranked-deferred with owner/version, rejected with rationale, or blocked by a named decision gate. It may not convert AI predictions into human findings or silently widen 0.32.
+
 ### Severity and exit
 
 - **P0:** causality lie, unpaid cost execution, dead speech/presence, save loss, unrecoverable softlock, or false ending. Blocks everything later.
@@ -584,14 +718,15 @@ Fresh-stranger structural and experience audit after systemic truth, PX governan
 - P1 is fixed or ranked-deferred with owner/version; any P1 affecting first-run trust or save integrity blocks 1.0.
 - Reviewers can finish on phone without developer habits.
 - Fixes and mandatory retests ship as 0.31.x; new findings may not be waved through without retest evidence.
+- The post-review synthesis is accepted, every finding has one explicit disposition, and the smallest coherent 0.32 package is recorded before 0.32 begins.
 - No “fix” introduces a new system, meter, or adult-content softening.
 
 ---
 
-## 11. 0.32 — PC Readiness
+## 12. 0.32 — PC Readiness
 
 **Status:** LOCKED amendment.
-**Entry:** 0.31 has no open P0 and blocking P1s are resolved.
+**Entry:** 0.31 has no open P0, blocking P1s are resolved, mandatory retests pass, and the post-review evidence synthesis is accepted.
 
 PC is a second composition of the same browser build, not a port.
 
@@ -619,7 +754,7 @@ PC is a second composition of the same browser build, not a port.
 
 ---
 
-## 12. 0.33 — Commercial Readiness
+## 13. 0.33 — Commercial Readiness
 
 **Status:** LOCKED direction, with submission-time policy recheck.
 **Entry:** 0.32 passes.
@@ -657,7 +792,7 @@ Official policy references to re-check:
 
 ---
 
-## 13. 1.0 — Release Candidate / Launch Gate
+## 14. 1.0 — Release Candidate / Launch Gate
 
 **Status:** LOCKED definition.
 
@@ -666,8 +801,8 @@ Official policy references to re-check:
 - the authored arc is complete;
 - a stranger can start, save/resume, and finish on phone or desktop without developer habits;
 - all permanent causality, adult-content, art, architecture, and outcome locks still hold;
-- no P0 remains; blocking first-run/save P1s are closed and retested;
-- `verify.mjs` and the locked V1–V6 simulation gates pass at the exact release revision;
+- no P0 remains; blocking first-run/save P1s are closed and retested; the 0.31 human-evidence synthesis remains satisfied;
+- `verify.mjs`, the locked V1–V6 simulation gates, and the 0.30.1 independent truth contracts pass at the exact release revision;
 - save compatibility/recovery, accessibility, and device matrices pass;
 - the adult-tagged, AI-disclosed build is purchasable on itch.io;
 - store copy, known bugs, privacy posture, support path, release artifact, digest, tag, and deployment record agree;
@@ -677,10 +812,11 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 14. Proposal, deferred, held, and rejected register
+## 15. Proposal, deferred, held, and rejected register
 
 | Item | Disposition |
 |---|---|
+| Post-0.30 AI hardening | LOCKED at 0.30.1 after exact 0.30 deployment; supplemental to, never a substitute for, 0.31 human review |
 | Earth-calamity opening video | CANDIDATE at 0.30 after PX evidence |
 | Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
 | Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
@@ -704,7 +840,7 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 15. Agent operating rules
+## 16. Agent operating rules
 
 ### Grok / program office
 
@@ -742,10 +878,11 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 - Separate source correctness from experience predictions.
 - Do not invent systems, keys, content volume, policy claims, or locks.
 - Return one copy-ready text block or one coherent artifact bundle.
+- Synthetic playtests, audits, and model consensus remain supplemental and never count toward the 0.31 independent-human quota.
 
 ---
 
-## 16. Quick reference
+## 17. Quick reference
 
 | Stage | Exit summary |
 |---|---|
@@ -755,7 +892,8 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 | PX Gate | Measured baseline, pacing/outcome standards, identity/power/chronology/save/a11y/distribution decisions |
 | 0.29 | Truthful What Remains + evidence-backed density |
 | 0.30 | Stranger-ready presentation; user ideas only if evidence-backed |
-| 0.31 | Independent mobile/desktop review; blockers fixed and retested |
+| 0.30.1 | Completed-save trust, executable truth contracts, adversarial/visual audits, bounded repairs, and twelve-route synthetic closure |
+| 0.31 | Independent mobile/desktop review; blockers fixed and retested; human-evidence synthesis accepted |
 | 0.32 | Same browser game works cleanly on PC |
 | 0.33 | itch.io commercial package, disclosures, rights/privacy/release checks |
 | 1.0 | Phone-or-desktop, adult-tagged, AI-disclosed, purchasable, verified |

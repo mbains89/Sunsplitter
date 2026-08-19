@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Grok / program office  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `1c60d45f0f05ac8f30400d884873ee35d8ad48692d1b17b0e96f0fdd6c406869`
+**Roadmap source SHA-256:** `a7503604d4702d1de54f9ca6381073a3b58396b990f3434acfc99c31fa32b2bb`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and Grok records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -21,10 +21,11 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 | L-007 | LOCKED | Player-experience gate sequence PX-0 through PX-6 | ROADMAP §7 |
 | L-008 | LOCKED | 0.29 What Remains narrative destination | ROADMAP §8 |
 | L-009 | LOCKED | 0.30 onboarding, opening, and wrapper definition | ROADMAP §9 |
-| L-010 | LOCKED | 0.31 external review definition | ROADMAP §10 |
-| L-011 | LOCKED | 0.32 PC-readiness definition | ROADMAP §11 |
-| L-012 | LOCKED | 0.33 commercial direction | ROADMAP §12 |
-| L-013 | LOCKED | 1.0 release-candidate and launch gate | ROADMAP §13 |
+| L-010 | LOCKED | 0.31 external review definition | ROADMAP §11 |
+| L-011 | LOCKED | 0.32 PC-readiness definition | ROADMAP §12 |
+| L-012 | LOCKED | 0.33 commercial direction | ROADMAP §13 |
+| L-013 | LOCKED | 1.0 release-candidate and launch gate | ROADMAP §14 |
+| L-014 | LOCKED | 0.30.1 pre-review AI hardening and 0.31 evidence-synthesis gate | ROADMAP §§10–11 |
 
 ## Ruled (0.28.2 blockers closed 2026-08-18)
 
@@ -40,24 +41,24 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-025 | DECISION_GATE | Commander identity A/B at PX-4; B is recommended, not ruled | ROADMAP §§7, 14 |
-| L-026 | DECISION_GATE | Last Off-Shift zero/one branches: document defensive code or retire | ROADMAP §§6, 14 |
-| L-027 | DECISION_GATE | `vess_course_lost`: tested consumer or retirement | ROADMAP §§6, 14 |
-| L-028 | DECISION_GATE | Ticket 2 new-crew indicator; no implementation before PX evidence and Grok lock | ROADMAP §14 |
+| L-025 | DECISION_GATE | Commander identity A/B at PX-4; B is recommended, not ruled | ROADMAP §§7, 15 |
+| L-026 | DECISION_GATE | Last Off-Shift zero/one branches: document defensive code or retire | ROADMAP §§6, 15 |
+| L-027 | DECISION_GATE | `vess_course_lost`: tested consumer or retirement | ROADMAP §§6, 15 |
+| L-028 | DECISION_GATE | Ticket 2 new-crew indicator; no implementation before PX evidence and Grok lock | ROADMAP §15 |
 
 ## Held, deferred, rejected, and limited
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-040 | HELD | Breast-cover / explicit-content toggle | ROADMAP §§2, 14 |
-| L-041 | DEFERRED | Pair residual textures, debt, and pregnancy texture to evidence-gated 0.29 scope | ROADMAP §14 |
-| L-042 | REJECTED | Unrestricted AI roadmap editing; proposal PR only | ROADMAP §14 |
-| L-043 | DEFERRED | Engine/state mechanical split until after 1.0 or separate approval | ROADMAP §14 |
-| L-044 | OUT | Native wrapper, gamepad, achievements, and cloud saves before 1.0 | ROADMAP §§13, 14 |
-| L-045 | DEFERRED | Steam launch to a separate post-1.0 decision | ROADMAP §§12–14 |
-| L-046 | ACCEPTED_LIMITATION | Fixed event order unless Manraj explicitly reopens it | ROADMAP §14 |
-| L-047 | REJECTED | Conventional HUD, dashboard, meters, and quest log | ROADMAP §§2, 14 |
-| L-048 | REJECTED | V2 literal-name lint as a zero gate; spike detector only | ROADMAP §14 |
+| L-040 | HELD | Breast-cover / explicit-content toggle | ROADMAP §§2, 15 |
+| L-041 | DEFERRED | Pair residual textures, debt, and pregnancy texture to evidence-gated 0.29 scope | ROADMAP §15 |
+| L-042 | REJECTED | Unrestricted AI roadmap editing; proposal PR only | ROADMAP §15 |
+| L-043 | DEFERRED | Engine/state mechanical split until after 1.0 or separate approval | ROADMAP §15 |
+| L-044 | OUT | Native wrapper, gamepad, achievements, and cloud saves before 1.0 | ROADMAP §§14, 15 |
+| L-045 | DEFERRED | Steam launch to a separate post-1.0 decision | ROADMAP §§13–15 |
+| L-046 | ACCEPTED_LIMITATION | Fixed event order unless Manraj explicitly reopens it | ROADMAP §15 |
+| L-047 | REJECTED | Conventional HUD, dashboard, meters, and quest log | ROADMAP §§2, 15 |
+| L-048 | REJECTED | V2 literal-name lint as a zero gate; spike detector only | ROADMAP §15 |
 
 ## Recording rule
 
