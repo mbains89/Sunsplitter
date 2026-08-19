@@ -4,7 +4,8 @@
 **Owner:** Manraj.
 **Lock steward:** Grok records approved locks and prevents scope drift; Grok does not override Manraj.
 **Initial authority date:** 2026-08-18.
-**Prepared against GitHub `main`:** `3789062f1d0703f63feb8ada66503bb773879550`.
+**Prepared against GitHub `main`:** `3789062f1d0703f63feb8ada66503bb773879550`.  
+**Player-Love / Itch Readiness amendment:** approved by Manraj on 2026-08-18; prepared against `main@e4f84409759760d31fcf47b8a227802a61421f51`.
 **Verified game-code/audit baseline:** `2bb4517707df90702a9b78fe0fa8fb55c1852dd8`. The only change between these revisions is `artifacts/PROJECT_STATUS.md`, so source findings pinned to `2bb4517` still apply at `3789062`.
 
 The copy of this file committed on GitHub `main` is authoritative. Pasted copies, local drafts, project-doc copies, and AI memory are not authoritative unless the user explicitly asks to work from a draft. The containing Git commit identifies the current revision; do not try to embed that self-referential final commit SHA inside this file.
@@ -118,7 +119,7 @@ These rules survive every version unless Manraj explicitly reopens one.
 
 ### UI and save model
 
-- Mobile-first, single-column composition remains the primary layout through 0.31.
+- Mobile-first, single-column composition remains the primary layout through 0.32. Version 0.33 adds the locked PC composition without changing scene data or consequences.
 - Artwork stays pinned while scene text scrolls below/alongside it according to the active composition.
 - Choices remain stacked, thumb-friendly, and legible. No mobile-only story branch.
 - Primary interface is scene text, speaker/context, choices, and minimal utility buttons—not a conventional HUD, dashboard, notification layer, or quest surface.
@@ -239,18 +240,26 @@ PX GATE — Player Experience Baseline & Design Governance
   ↓
 0.30 — Packaging & Presentation
   ↓
-0.31 — Independent External Review #2 + remediation/retest
+0.31 — Player-Love + Itch Readiness
   ↓
-0.32 — PC Readiness
+0.32 — Independent External Review #2 + remediation/retest
   ↓
-0.33 — Commercial Readiness
+0.33 — PC Readiness
   ↓
-1.0 — Release Candidate / launch gate
+0.34 — Itch Commercial Readiness
+  ↓
+0.35 — Launch Rehearsal / Release Candidate
+  ↓
+1.0 — Launch
 ```
 
 **Milestone A = 0.28.2 + 0.28.3.** Both must ship before the PX gate closes or any 0.29 prose opens.
 
-No new story volume, art batch, gameplay system, Ticket 2 implementation, tutorial, opening video, or crew dossier may jump this sequence.
+The Player-Love amendment does not reopen 0.29 or widen 0.30. It adds bounded work only after a clean 0.30 exact-SHA candidate. Any current mismatch between runtime truth and `PROJECT_STATUS.md` must be reconciled before the 0.31 version branch opens.
+
+Versions 0.31 through 0.35 are intentionally narrow delivery boundaries. One-concern tickets may be reviewed independently into the active version branch, but versions remain sequential and each closes through one consolidated PR. Patch versions carry evidence-backed remediation and mandatory retests; they are not feature buckets.
+
+No new story volume, art batch, gameplay system, Ticket 2 implementation, tutorial, opening video, or crew dossier may jump this sequence or bypass its evidence gate.
 
 The authority bootstrap is a one-time documentation-only migration PR explicitly outside the recurring game-version cadence. It changes no runtime bytes, must be reviewed atomically, and is the last non-version PR permitted to target `main`. After it lands, only conforming version close-out PRs may target `main`.
 
@@ -480,7 +489,7 @@ Choose and record one canon:
 
 ### PX-8 — Accessibility and Real-Device Performance
 
-- Audit iPhone Safari and representative Android Chrome first; include desktop browsers before 0.32.
+- Audit iPhone Safari and representative Android Chrome first; include desktop browsers before 0.33.
 - Measure text scaling, contrast, focus, touch targets, announcements, reduced motion, scrolling, memory/load time, image decode, save/resume, and orientation/resize behavior.
 - Rank measured failures P0/P1/P2 and change only what evidence supports.
 - Preserve the locked presentation model unless a measured failure requires a revision.
@@ -492,7 +501,7 @@ Choose and record one canon:
 - Record what success means: intended audience, paid/free posture, replay/share goal, support burden, and launch channel.
 - Decide how playtest receipts, screenshots, content descriptors, and public messaging represent the game honestly.
 - Distribution constraints do not soften canonical adult content.
-- Reconfirm the 0.33 itch.io direction and current platform/payment rules before commercial work opens.
+- Reconfirm the 0.34 itch.io direction and current platform/payment rules before commercial work opens.
 
 **Exit:** written strategic decision approved by Manraj before public commercial push.
 
@@ -527,7 +536,7 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 
 ## 9. 0.30 — Packaging and Presentation
 
-**Status:** LOCKED presentation milestone; three user ideas remain CANDIDATES.
+**Status:** LOCKED presentation milestone; three user ideas remain CANDIDATES. Any candidate that remains evidence-backed moves to 0.31 and does not widen 0.30.
 **Entry:** 0.29 complete.
 
 ### Locked baseline
@@ -544,28 +553,84 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 
 | Candidate | Earliest placement | Gate |
 |---|---|---|
-| Initial Earth-calamity video | 0.30 | PX-1 must show the cold open needs it. Require skip/pause, captions or equivalent text, reduced-motion/static fallback, load budget, and no autoplay trap. |
-| Initial skippable tutorial | 0.30 | PX-1 must identify a first-run comprehension failure. It must be skippable, replayable, touch/keyboard safe, and must teach existing interactions only. |
-| Clickable crew portrait/details | 0.30, with desktop composition refined at 0.32 | May show existing portrait, bio, and truthful known status. No numeric/upgradable “stats,” affinity values, hidden flags, or new management system. |
+| Initial Earth-calamity video | 0.31 | PX-1 must show the cold open needs it. Require skip/pause, captions or equivalent text, reduced-motion/static fallback, load budget, and no autoplay trap. |
+| Initial skippable tutorial | 0.31 | PX-1 must identify a first-run comprehension failure. It must be skippable, replayable, touch/keyboard safe, and must teach existing interactions only. |
+| Clickable crew portrait/details | 0.31, with desktop composition refined at 0.33 | May show existing portrait, bio, and truthful known status. No numeric/upgradable “stats,” affinity values, hidden flags, or new management system. |
 
 The breast-cover toggle remains HELD and is not part of this milestone.
 
 ---
 
-## 10. 0.31 — Independent External Review #2
+## 10. 0.31 — Player-Love and Itch Readiness
+
+**Status:** LOCKED amendment; approved by Manraj on 2026-08-18 and recorded through L-015.  
+**Entry:** 0.30 closes at one exact SHA with verifier/simulator green, deterministic runtime package and manifest, live-candidate launch, iPhone and desktop smoke tests, and reconciled status/close-out evidence.
+
+### Purpose
+
+Convert the itch.io deep-dive recommendations into a bounded product-readiness pass before strangers certify the game. This is density and clarity work, not a request for more systems, cast, campaign length, or speculative content.
+
+The working control hook for testing is:
+
+> Nine survivors. One dying ark. Every order saves a future by deciding who pays for it.
+
+The hook may be refined by evidence, but store copy and the opening must make the same truthful promise.
+
+### Parallel ticket lanes
+
+The following one-concern lanes may be reviewed independently into `version/0.31` when their file ownership does not overlap:
+
+1. **Ten-second promise:** landing page, content notice, cold open, and first decision communicate premise, role, adult tone, and interaction without developer context.
+2. **Survivor attachment:** audit first meaningful impressions, recovery recognition, aftermath, and death residue. Prefer line-level strengthening and existing-scene callbacks.
+3. **Consequence chain:** classify each release-defining major choice against `cost → reaction → later echo → ending fact`; repair only truthful gaps that fit existing topology.
+4. **Ending and replay:** make What Remains immediately legible, emotionally specific, screenshot-ready, and honest about the completed run.
+5. **Mobile/browser resilience:** cold load, image decode, touch flow, local save/resume, completed-save behavior, orientation/resize, and itch iframe/fullscreen behavior.
+6. **Itch preview kit:** private/draft page copy, capsule/cover/banner plan, representative screenshots, short trailer/GIF plan, content descriptors, accessibility statement, support path, and AI disclosure draft. Publishing, pricing, and monetization remain 0.34 work.
+
+### Triage law
+
+Every finding receives exactly one disposition:
+
+- **Must fix before 0.32:** premise failure, attachment/consequence break, dishonest ending, save/resume failure, softlock, or material mobile launch problem.
+- **Safe quick win:** bounded wording, CSS, metadata, image-weight, or page-package improvement with no state/canon expansion.
+- **Defer:** valuable but not necessary for first-run trust or recommendation.
+- **Reject:** conflicts with a permanent lock or adds scope without evidence.
+
+### Hard boundaries
+
+- Do not reopen the approved 0.29 feature design or the locked 0.30 packaging scope.
+- No new named cast, scenes, endings, romance routes, economy, gameplay systems, meters, flags, save-schema changes, quest log, tutorial, or longer campaign without a separate approved lock.
+- No arbitrary external links, manipulative conversion design, analytics, or tracking by default.
+- Install/platform language must describe the build truthfully. Do not call a browser shortcut a native app.
+- Adult content remains canonical. Distribution adapts to platform constraints; the game is not softened to fit them.
+
+### Acceptance
+
+- The readiness matrix covers every lane, cites exact scenes/UI locations/files, and records all four dispositions.
+- Every must-fix item is closed in 0.31 or a 0.31.x remediation build and passes its mandatory retest.
+- Major-choice consequence coverage and What Remains truth tests are green.
+- A fresh user can launch, understand, save/resume, and finish the exact package on iPhone and desktop without developer instructions.
+- The private itch preview package is complete enough for 0.32 reviewers, but nothing is publicly launched or monetized.
+- No permanent product, causality, adult-content, art, architecture, state, or UI lock regresses.
+
+---
+
+## 11. 0.32 — Independent External Review #2
 
 **Status:** LOCKED definition.
-**Entry:** 0.30 candidate build; `verify.mjs` and `simulate.mjs` green.
+**Entry:** 0.31 closes with its exact-SHA package, readiness matrix, and required device smoke tests green; `verify.mjs` and `simulate.mjs` green.
 
 ### Purpose
 
 Fresh-stranger structural and experience audit after systemic truth, PX governance, content, and packaging. Catch residual lies, save/UI trust failures, and pacing problems that project authors no longer see.
 
-### Reviewer independence
+### Reviewer independence and cohort
 
-- At least two reviewers who have never seen the codebase or prior internal reports.
-- At least one mobile-primary reviewer (iPhone Safari preferred) and one desktop reviewer.
-- No prior playthrough of an earlier Sunsplitter build.
+- At least 15 first-time participants: five itch narrative/horror players, five mobile-first players, and five interactive-fiction/choice-game players. Count each participant in only one cohort.
+- At least two participants serve as formal reviewers who have never seen the codebase or prior internal reports.
+- At least one formal reviewer is mobile-primary (iPhone Safari preferred) and one is desktop-primary.
+- No counted participant has played an earlier Sunsplitter build.
+- Formal reviewers may count within the 15-player cohort.
 
 ### Scope and artifacts
 
@@ -573,25 +638,35 @@ Fresh-stranger structural and experience audit after systemic truth, PX governan
 - First-run clarity, save/resume trust, choice legibility, art/text composition, resource honesty, death continuity, ending specificity, adult-content discoverability/consent clarity, and replay desire.
 - P0/P1/P2 findings with exact scene ID or UI location, device/browser, reproduction steps, and evidence.
 - Short experience notes: what felt earned, opaque, memorable, or exhausting.
+- Every participant answers four fixed questions: when they first cared about a survivor; which decision was hardest and why; what confused or frustrated them; and whether they would replay or recommend the game.
 - Explicit confirmation checks for dead speech, unpaid cost execution, save loss, softlock, and counterfactual ending text.
+
+### Player-love targets
+
+- At least 80% accurately explain the premise after the opening.
+- At least 70% complete a run without developer assistance and within the approved PX-2 target range.
+- At least 60% remember two or more survivors without prompting.
+- At least 60% identify a genuinely difficult decision and its trade-off.
+- At least 50% express genuine replay or recommendation intent.
+- Missed targets produce P1 findings unless evidence shows recruitment or measurement failure; they are not hidden by averaging.
 
 ### Severity and exit
 
 - **P0:** causality lie, unpaid cost execution, dead speech/presence, save loss, unrecoverable softlock, or false ending. Blocks everything later.
 - **P1:** major pacing/comprehension failure, missing gate telegraph, broken image honesty, first-run trust failure, or save-integrity risk.
 - **P2:** polish/discoverability/minor wording/non-blocking layout.
-- All P0 close and pass retest. A recorded risk acceptance does not silently erase P0 severity; it still blocks 0.32, 0.33, and 1.0 unless evidence supports formal reclassification.
+- All P0 close and pass retest. A recorded risk acceptance does not silently erase P0 severity; it still blocks 0.33, 0.34, 0.35, and 1.0 unless evidence supports formal reclassification.
 - P1 is fixed or ranked-deferred with owner/version; any P1 affecting first-run trust or save integrity blocks 1.0.
 - Reviewers can finish on phone without developer habits.
-- Fixes and mandatory retests ship as 0.31.x; new findings may not be waved through without retest evidence.
+- Fixes and mandatory retests ship as 0.32.x; new findings may not be waved through without retest evidence.
 - No “fix” introduces a new system, meter, or adult-content softening.
 
 ---
 
-## 11. 0.32 — PC Readiness
+## 12. 0.33 — PC Readiness
 
 **Status:** LOCKED amendment.
-**Entry:** 0.31 has no open P0 and blocking P1s are resolved.
+**Entry:** 0.32 has no open P0 and blocking P1s are resolved.
 
 PC is a second composition of the same browser build, not a port.
 
@@ -619,18 +694,19 @@ PC is a second composition of the same browser build, not a port.
 
 ---
 
-## 12. 0.33 — Commercial Readiness
+## 13. 0.34 — Itch Commercial Readiness
 
-**Status:** LOCKED direction, with submission-time policy recheck.
-**Entry:** 0.32 passes.
+**Status:** LOCKED direction, with submission-time policy recheck and L-029/L-030 decision gates.  
+**Entry:** 0.33 passes.
 
 ### Distribution direction
 
-- itch.io is the primary 1.0 commercial storefront.
+- itch.io is the primary public 1.0 release channel.
 - Before submission, complete itch.io's Adult classification and built-in AI Disclosure; keep cover art non-explicit; verify content and monetization against current adult-content and payment-processor rules.
 - Re-check policies at submission because platform and processor requirements change and some review is case-by-case.
-- Retire Netlify as the canonical public/commercial game host before monetization, or retain only a private preview/non-explicit marketing mirror. This is a conservative continuity decision, not a claim that Netlify categorically bans lawful adult content.
-- Steam is a separate post-1.0 decision. If later pursued, submit the stable near-final build/store page with mature-content and generative-AI disclosures and allow extra review time.
+- If paid adult distribution is constrained, unreliable, or creates material processor risk, the default recommendation is a free/no-payment itch release. Any alternate monetization channel requires its own approved commercial decision.
+- Retire Netlify as the canonical public/commercial game host before launch, or retain it only as a private preview/non-explicit marketing mirror. This is a conservative continuity decision, not a claim that Netlify categorically bans lawful adult content.
+- Steam remains a separate post-1.0 decision.
 
 Official policy references to re-check:
 
@@ -645,21 +721,51 @@ Official policy references to re-check:
 - [Steam content survey](https://partner.steamgames.com/doc/gettingstarted/contentsurvey)
 - [Steam review process](https://partner.steamgames.com/doc/store/review_process)
 
+### Decision gates
+
+- **L-029 — Itch monetization posture:** after the current policy/payment review, Manraj locks paid, free/no-payment, or another compliant posture. Do not imply purchasability before this ruling.
+- **L-030 — Key-art production:** Manraj chooses commissioned human-made cover/banner/key art or carefully curated generated art with accurate disclosure. This gate does not authorize a full in-game art replacement.
+
 ### Commercial checklist
 
 - Audit and bundle fonts; confirm licenses such as OFL where applicable.
 - Enumerate third-party code/assets and preserve license notices.
-- Manraj decides price.
-- Prepare honest store copy, screenshots, adult/content descriptors, AI disclosure, trailer/press kit as justified, support contact, and known-bugs list.
+- If the release is paid, Manraj decides price after L-029.
+- Finalize honest store copy, screenshots, non-explicit capsule/cover/banner, adult/content descriptors, AI disclosure, trailer/GIFs, accessibility statement, support contact, and known-bugs list.
 - Verify before claiming: localStorage-only saves, zero analytics, no account/backend, and the exact privacy posture stated on the page.
-- Run the full release gate: `verify.mjs` green; V1–V6 at their locked hard thresholds; mobile/desktop playtest sign-off; policy/content review; artifact digest.
+- Run the full release gate: `verify.mjs` green; V1–V6 at locked hard thresholds; mobile/desktop playtest sign-off; policy/content review; deterministic artifact and digest.
 - Business-entity and tax setup remains owner-handled and outside the game roadmap.
 
 ---
 
-## 13. 1.0 — Release Candidate / Launch Gate
+## 14. 0.35 — Launch Rehearsal / Release Candidate
 
-**Status:** LOCKED definition.
+**Status:** LOCKED amendment; recorded through L-016.  
+**Entry:** 0.34 passes, L-029 and L-030 are ruled, and the storefront package is complete.
+
+### Scope
+
+- Freeze story, scene topology, state schema, and art inventory except for evidence-backed P0/P1 remediation.
+- Build the deterministic itch ZIP, manifest, license bundle, release notes, known-bugs list, support path, privacy statement, and artifact digest from one exact SHA.
+- Upload the candidate to a private or restricted itch page using the intended adult classification, AI disclosure, page layout, embed/fullscreen settings, and distribution posture.
+- Run clean-account launch, iPhone Safari, representative Android Chrome, and desktop browser smoke tests against the uploaded candidate.
+- Verify load, start, content notice, save/resume, completed-save behavior, full playthrough, What Remains, replay, and page-to-game return flow.
+- Record rollback procedure, candidate URL, exact SHA, ZIP hash, manifest hash, device/browser evidence, and final go/no-go packet.
+
+### Exit
+
+- The uploaded bytes match the recorded artifact digest and exact release-candidate SHA.
+- No P0 or blocking P1 remains; any repair ships as 0.35.x and repeats the affected rehearsal.
+- Store page, build, manifest, version surfaces, disclosures, known bugs, privacy statement, and support path agree.
+- A stranger can launch and finish from the itch page on phone or desktop without developer help.
+- No feature, prose, art, pricing, or platform experiment is added during rehearsal.
+
+---
+
+## 15. 1.0 — Launch Gate
+
+**Status:** LOCKED definition.  
+**Entry:** 0.35 passes at the exact candidate SHA.
 
 1.0 may release only when:
 
@@ -669,21 +775,21 @@ Official policy references to re-check:
 - no P0 remains; blocking first-run/save P1s are closed and retested;
 - `verify.mjs` and the locked V1–V6 simulation gates pass at the exact release revision;
 - save compatibility/recovery, accessibility, and device matrices pass;
-- the adult-tagged, AI-disclosed build is purchasable on itch.io;
-- store copy, known bugs, privacy posture, support path, release artifact, digest, tag, and deployment record agree;
+- the adult-tagged, AI-disclosed build is available on itch.io under the approved L-029 distribution posture;
+- store copy, known bugs, privacy posture, support path, release artifact, digest, tag, and deployment record agree with the rehearsed 0.35 candidate;
 - Manraj gives the final go/no-go.
 
 Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirements for 1.0.
 
 ---
 
-## 14. Proposal, deferred, held, and rejected register
+## 16. Proposal, deferred, held, and rejected register
 
 | Item | Disposition |
 |---|---|
-| Earth-calamity opening video | CANDIDATE at 0.30 after PX evidence |
-| Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
-| Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
+| Earth-calamity opening video | CANDIDATE at 0.31 only if a measured opening-comprehension failure survives a text-first fix; otherwise defer |
+| Skippable first-run tutorial | CANDIDATE at 0.31 only if measured interaction failure survives simpler copy/UI repair |
+| Clickable crew portrait/details | CANDIDATE at 0.31/0.33; descriptive only, no hidden/numeric stats |
 | “PM-like” quick roadmap updater | CANDIDATE 0.28.3 governance helper. It may fetch `main`, draft a patch/draft PR, validate, and return a copy-ready summary. It may never write directly to `main` or self-lock. |
 | Ticket 2 new-crew indicator | DECISION GATE; no implementation before PX evidence and Grok lock |
 | Four-state promise domain | DECISION GATE before 0.28.3 promise implementation and all 0.29 prose |
@@ -695,6 +801,10 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
 | Engine/state mechanical split | DEFERRED until after 1.0 or a separately approved architectural need |
 | Native wrapper, gamepad, achievements, cloud saves | OUT before 1.0 |
+| Player-Love + Itch Readiness | LOCKED at 0.31 through L-015; bounded density/clarity/resilience work only |
+| Itch monetization posture | DECISION GATE at 0.34 through L-029 |
+| Key-art production method | DECISION GATE at 0.34 through L-030 |
+| Launch rehearsal | LOCKED at 0.35 through L-016 |
 | Steam launch | DEFERRED to a separate post-1.0 decision |
 | Fixed event-order redesign | ACCEPTED PERMANENT LIMITATION unless Manraj explicitly reopens the lock; no scheduled redesign |
 | `warmth_laughter` latent Vess guard/duplicate wording | Ranked P2 debt outside the exact 0.28.2 ten-ticket batch; fix only through a separately approved ticket |
@@ -704,7 +814,7 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 15. Agent operating rules
+## 17. Agent operating rules
 
 ### Grok / program office
 
@@ -745,7 +855,7 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 16. Quick reference
+## 18. Quick reference
 
 | Stage | Exit summary |
 |---|---|
@@ -754,10 +864,12 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 | 0.28.3 | Chain-of-custody enforced; promise/economy/state foundation truthful; V6 hard |
 | PX Gate | Measured baseline, pacing/outcome standards, identity/power/chronology/save/a11y/distribution decisions |
 | 0.29 | Truthful What Remains + evidence-backed density |
-| 0.30 | Stranger-ready presentation; user ideas only if evidence-backed |
-| 0.31 | Independent mobile/desktop review; blockers fixed and retested |
-| 0.32 | Same browser game works cleanly on PC |
-| 0.33 | itch.io commercial package, disclosures, rights/privacy/release checks |
-| 1.0 | Phone-or-desktop, adult-tagged, AI-disclosed, purchasable, verified |
+| 0.30 | Exact-SHA packaging/presentation candidate; iPhone and desktop smoke green |
+| 0.31 | Player-love readiness matrix; must-fix items closed; private itch review package ready |
+| 0.32 | Fifteen-player independent review; targets measured; blockers fixed and retested |
+| 0.33 | Same browser game works cleanly on PC |
+| 0.34 | Compliant itch package; monetization and key-art gates ruled |
+| 0.35 | Uploaded launch rehearsal matches exact SHA and artifact digest |
+| 1.0 | Phone-or-desktop, adult-tagged, AI-disclosed, verified launch |
 
-**Do not start 0.29 or any new story/art volume until both 0.28.2 and 0.28.3 are complete and the PX gate exits.**
+**Do not reopen 0.29 or widen 0.30. Close and verify 0.30 at one exact SHA, reconcile STATUS, then open 0.31.**
