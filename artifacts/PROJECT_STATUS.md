@@ -26,7 +26,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `verify_mjs: present on tree`  
 `simulate_mjs: present on tree`  
 `pipe_boot_r1_dispatch_base: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
-`pipe_boot_r1_control_state: INCOMPLETE — issue #15 dispatched`
+`pipe_boot_r1_control_state: IMPLEMENTED ON DRAFT PR #16 — awaiting Actions evidence and program-office adjudication`
 `github_workflows_at_dispatch_base: ABSENT`
 `verify_mjs_at_dispatch_base: FAIL — three stale 0.29 expectations against existing 0.30 surfaces`
 `simulate_mjs_at_dispatch_base: CONTRACT MISMATCH — required random/cheapest/priciest 2,000-run V1/V4/V5 reporting absent; V5 detector coverage not proven comprehensive`
@@ -41,8 +41,8 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `ticket: PIPE-BOOT-R1 / GitHub issue #15 — restore blocking recovery controls`
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
 `owner: Build / implementation agent`  
-`state: DISPATCHED — implementation authorized within exact allowlist`
-`pull_request: none`  
+`state: IMPLEMENTED — draft PR open; not merged`
+`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (draft)`  
 `governed_branch: recovery/e4f8440-nopub`  
 `implementation_branch: ticket/0.30.1-pipe-boot-r1`
 `dispatch_base_sha: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
@@ -85,6 +85,6 @@ L-020 through L-024 previously ruled; recovery does not reopen them. Full langua
 
 ## Next action
 
-**Build / implementation agent:** Complete PIPE-BOOT-R1 / issue #15 only on `ticket/0.30.1-pipe-boot-r1`, preserve NO-PUBLISH and NOT_CERTIFIED, keep REC-01 frozen, and return the exact-SHA evidence package for Grok/program-office adjudication.
+**Grok / program office:** Adjudicate PIPE-BOOT-R1 draft PR #16 only after its exact-head Actions evidence is complete; keep REC-01 frozen and NO-PUBLISH active.
 
 <!-- STATUS_COMPLETE -->
