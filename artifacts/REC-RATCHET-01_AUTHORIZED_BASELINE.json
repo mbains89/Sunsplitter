@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "certification": "NO-PUBLISH / NOT CERTIFIED",
+  "purpose": "Ratchet-only REC-RATCHET-01 transition baseline after the bounded quiet_tomas rewind repair. Counts remain known recovery defects, not release acceptance thresholds.",
+  "provenance": {
+    "dispatchIssue": 15,
+    "dispatchBaseSha": "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e",
+    "runtimeBaselineSha": "e4f84409759760d31fcf47b8a227802a61421f51",
+    "expectedSceneCount": 222,
+    "transition": "REC-RATCHET-01",
+    "authorizedBy": "Manraj",
+    "authorizedDate": "2026-08-19",
+    "sourceRecoverySha": "78a64c7a180a34e786da3eefac42a06f50703bab",
+    "repair": "REC-01 / quiet_tomas rewind",
+    "frozenEvidenceHead": "8e4fe42f376444049105e27ff7005a6220e88b9a"
+  },
+  "config": {
+    "seed": 20260817,
+    "runs": 2000,
+    "startRun": 0,
+    "maxSteps": 600,
+    "policies": [
+      "random",
+      "cheapest",
+      "priciest"
+    ]
+  },
+  "policies": {
+    "random": {
+      "runs": 2000,
+      "endings": 1869,
+      "invariantTotals": {
+        "V1": 131,
+        "V4": 182,
+        "V5": 150
+      },
+      "invariantRules": {
+        "V1": {
+          "legally_reached_render_has_zero_enabled_exits": 131
+        },
+        "V4": {
+          "comfort_fuel_cost_not_declared": 182
+        },
+        "V5": {
+          "landfall_without_final_hold": 46,
+          "abandoned_course_reported_locked": 104
+        }
+      },
+      "invariantScenes": {
+        "V1": {
+          "act3_reckoning_heading": 43,
+          "custody_possession": 70,
+          "vent": 5,
+          "vault_voice": 6,
+          "arc_future_1": 3,
+          "past_leak": 4
+        },
+        "V4": {
+          "final_choice": 182
+        },
+        "V5": {
+          "ending_check": 150
+        }
+      },
+      "invariantFingerprints": {
+        "V1": {
+          "legally_reached_render_has_zero_enabled_exits@act3_reckoning_heading": 43,
+          "legally_reached_render_has_zero_enabled_exits@custody_possession": 70,
+          "legally_reached_render_has_zero_enabled_exits@vent": 5,
+          "legally_reached_render_has_zero_enabled_exits@vault_voice": 6,
+          "legally_reached_render_has_zero_enabled_exits@arc_future_1": 3,
+          "legally_reached_render_has_zero_enabled_exits@past_leak": 4
+        },
+        "V4": {
+          "comfort_fuel_cost_not_declared@final_choice": 182
+        },
+        "V5": {
+          "landfall_without_final_hold@ending_check": 46,
+          "abandoned_course_reported_locked@ending_check": 104
+        }
+      }
+    },
+    "cheapest": {
+      "runs": 2000,
+      "endings": 2000,
+      "invariantTotals": {
+        "V1": 0,
+        "V4": 499,
+        "V5": 3896
+      },
+      "invariantRules": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared": 499
+        },
+        "V5": {
+          "landfall_without_final_hold": 1896,
+          "abandoned_course_reported_locked": 2000
+        }
+      },
+      "invariantScenes": {
+        "V1": {},
+        "V4": {
+          "final_choice": 499
+        },
+        "V5": {
+          "ending_check": 3896
+        }
+      },
+      "invariantFingerprints": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared@final_choice": 499
+        },
+        "V5": {
+          "landfall_without_final_hold@ending_check": 1896,
+          "abandoned_course_reported_locked@ending_check": 2000
+        }
+      }
+    },
+    "priciest": {
+      "runs": 2000,
+      "endings": 1561,
+      "invariantTotals": {
+        "V1": 439,
+        "V4": 0,
+        "V5": 0
+      },
+      "invariantRules": {
+        "V1": {
+          "legally_reached_render_has_zero_enabled_exits": 439
+        },
+        "V4": {},
+        "V5": {}
+      },
+      "invariantScenes": {
+        "V1": {
+          "vent": 276,
+          "act3_reckoning_heading": 31,
+          "custody_possession": 83,
+          "custody_thaw": 10,
+          "pregnancy_check": 39
+        },
+        "V4": {},
+        "V5": {}
+      },
+      "invariantFingerprints": {
+        "V1": {
+          "legally_reached_render_has_zero_enabled_exits@vent": 276,
+          "legally_reached_render_has_zero_enabled_exits@act3_reckoning_heading": 31,
+          "legally_reached_render_has_zero_enabled_exits@custody_possession": 83,
+          "legally_reached_render_has_zero_enabled_exits@custody_thaw": 10,
+          "legally_reached_render_has_zero_enabled_exits@pregnancy_check": 39
+        },
+        "V4": {},
+        "V5": {}
+      }
+    }
+  }
+}

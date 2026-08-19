@@ -43,13 +43,27 @@ jobs:
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REF: ${{ github.head_ref }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           actual_sha="$(git rev-parse HEAD)"
           test "$actual_sha" = "$GITHUB_SHA"
           test "$(node --version)" = "v${NODE_VERSION}"
           test -z "$(git status --porcelain)"
-          printf 'SOURCE %s · RUNTIME %s · TASK PIPE-BOOT-R1/#15 · MODE verification\n' "${GITHUB_SHA:0:7}" "${GITHUB_SHA:0:7}"
+          task_id="GOVERNED-RECOVERY"
+          case "${PR_HEAD_REF:-}" in
+            ticket/0.30.1-rec-ratchet-01) task_id="REC-RATCHET-01" ;;
+            ticket/0.30.1-rec-01-r1) task_id="REC-01/#13" ;;
+            "")
+              if [ "${PUSH_BEFORE_SHA:-}" = "78a64c7a180a34e786da3eefac42a06f50703bab" ]; then
+                task_id="REC-RATCHET-01"
+              else
+                task_id="REC-01/#13"
+              fi
+              ;;
+          esac
+          printf 'SOURCE %s · RUNTIME %s · TASK %s · MODE verification\n' "${GITHUB_SHA:0:7}" "${GITHUB_SHA:0:7}" "$task_id"
           printf 'exact tested SHA: %s\n' "$GITHUB_SHA"
           printf 'pull-request head SHA: %s\n' "${PR_HEAD_SHA:-n/a}"
           printf 'pull-request base SHA: %s\n' "${PR_BASE_SHA:-n/a}"
