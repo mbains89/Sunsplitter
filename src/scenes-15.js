@@ -1,7 +1,21 @@
 // Sunsplitter — scenes-15.js
-// 0.28.1c size hygiene. Pure mechanical. crises: reckoning briefing + vault_face
+// 0.29 Cascade Allusive: Jiro night shift + Tomas vault bolts
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
+
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // SCENE_IDS: observation_nightshift, observation_nightshift_ask,
+  //   observation_nightshift_leave
+  // VERSION: 0.29        TICKET: Cascade Allusive 4/6
+  // PACKAGE: Night Shift
+  // SPINE: adjacent after act3_reckoning_briefing; exits to act3_lethal_lena_clock
+  // PRECONDITIONS: isAlive("jiro"); one-shot inherited from briefing route
+  // STATE WRITES: none; pure texture; future private hook remains cold
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: every node redirects when !isAlive("jiro")
+  // IMAGE: REUSE images/observation.jpg; NO ART_REQUEST
+  // LANE RULE: no reference to Mira's change orders, ever
+  // ═════════════════════════════════════════════════════════════════
 
   act3_reckoning_briefing: {
     image: "images/cascade_records.jpg",
@@ -30,13 +44,51 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
       return t;
     },
     choices: [
-      { text: "Dismissed. Get some rest — that's an order that includes you, Jiro.", next: "act3_lethal_lena_clock" }
+      { text: "Dismissed. Get some rest — that's an order that includes you, Jiro.", next: "observation_nightshift" }
     ]
+  },
+
+  observation_nightshift: {
+    image: "images/observation.jpg",
+    onEnter: () => { if (!isAlive("jiro")) return "act3_lethal_lena_clock"; },
+    text: `Jiro has charts spread under the observation glass, working by less light than the work needs.\n\n"Alignment sims run at night. Still do. The sky picked the night shift once; I keep the shift out of superstition."\n\nHe squares a printout without looking up.\n\n"The burn we flew was computed nine weeks before the cascade. Contingency file. Somebody asked for it in June. Name is not in the header."`,
+    choices: [
+      { text: "Then ask. Out loud. Now.", next: "observation_nightshift_ask", alive: "jiro" },
+      { text: "Let it lie.", next: "observation_nightshift_leave", alive: "jiro" }
+    ]
+  },
+
+  observation_nightshift_ask: {
+    image: "images/observation.jpg",
+    onEnter: () => { if (!isAlive("jiro")) return "act3_lethal_lena_clock"; },
+    text: `"Not tonight. Position I can give you to the meter. Cause is not my column."\n\nA beat.\n\n"Not tonight."`,
+    choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
+  },
+
+  observation_nightshift_leave: {
+    image: "images/observation.jpg",
+    onEnter: () => { if (!isAlive("jiro")) return "act3_lethal_lena_clock"; },
+    text: `He rolls the chart. The tube of it makes a sound like a door that closes politely.`,
+    choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
   },
 
   // ═══════════════════════════════════════════════════════════════
   // Package C — "Vault needs a face"
   // ═══════════════════════════════════════════════════════════════
+
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // SCENE_IDS: hold_bolts, hold_bolts_again, hold_bolts_silent
+  // VERSION: 0.29        TICKET: Cascade Allusive 3/6
+  // PACKAGE: The Bolts
+  // SPINE: adjacent after act3_vault_face / act3_vault_face_read;
+  //   exits to act3_spine_next
+  // PRECONDITIONS: isAlive("tomas"); one-shot inherited from vault-face route
+  // STATE WRITES: none; pure texture
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: every node redirects when !isAlive("tomas")
+  // IMAGE: REUSE images/vault.jpg; NO ART_REQUEST
+  // PHRASE: tier-four line remains reserved; do not place in text
+  // ═════════════════════════════════════════════════════════════════
 
   act3_vault_face: {
     image: "images/vault.jpg",
@@ -69,8 +121,8 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
       if (isAlive("sela") || isAlive("elias")) {
         opts.push({ text: "Read the next one.", next: "act3_vault_face_read" });
       }
-      opts.push({ text: "Stay until the entry's done, then go quietly.", next: "act3_spine_next" });
-      opts.push({ text: "Leave the light on behind you.", next: "act3_spine_next" });
+      opts.push({ text: "Stay until the entry's done, then go quietly.", next: "hold_bolts" });
+      opts.push({ text: "Leave the light on behind you.", next: "hold_bolts" });
       return opts;
     }
   },
@@ -88,8 +140,32 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
       return t;
     },
     choices: [
-      { text: "Back to the watch.", next: "act3_spine_next" }
+      { text: "Back to the watch.", next: "hold_bolts" }
     ]
+  },
+
+  hold_bolts: {
+    image: "images/vault.jpg",
+    onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
+    text: `Tomas is torquing the vault's deck bolts. They do not need it. He does it anyway, on a schedule only he keeps.\n\n"I bolted this down myself. Mass margin said the vault or the second printer. The vault does not eat. We do."\n\nHe tips his slate: the load-out deviation, his signature at the bottom of it.\n\n"Somebody signed that trade, and it was me."`,
+    choices: [
+      { text: "You'd sign it again?", next: "hold_bolts_again", alive: "tomas" },
+      { text: "Say nothing.", next: "hold_bolts_silent", alive: "tomas" }
+    ]
+  },
+
+  hold_bolts_again: {
+    image: "images/vault.jpg",
+    onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
+    text: `"Ask me on a day the trays are full. You will get a cleaner answer, and it will be worth less."`,
+    choices: [ { text: "Return to the watch.", next: "act3_spine_next" } ]
+  },
+
+  hold_bolts_silent: {
+    image: "images/vault.jpg",
+    onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
+    text: `"Check the torque yourself if you want. The bolts hold. That was never the question."`,
+    choices: [ { text: "Return to the watch.", next: "act3_spine_next" } ]
   },
 
   // Spine after vault face → Vess window (0.24) then tomas_break / pregnancy / faction

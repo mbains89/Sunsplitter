@@ -417,11 +417,6 @@ function resolveEnding() {
     text += buildEndingFooter(deadNames, title, fav, shape);
   }
 
-  // v0.15: endings name 2–3 concrete decisions from this run
-  if (typeof concreteRunFacts === "function") {
-    const facts = concreteRunFacts();
-    if (facts.length) text = facts.join(" ") + "\n\n" + text;
-  }
   const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
   if (debt.length) {
     const names = debt.map(k => crew[k] ? crew[k].name : k);
@@ -432,6 +427,14 @@ function resolveEnding() {
   document.getElementById("ending-text").textContent = text;
   setEndingArt(art);
   showScreen("ending");
+}
+
+function showWhatRemains() {
+  const el = document.getElementById("what-remains-text");
+  if (!el) return;
+  const facts = typeof whatRemainsFacts === "function" ? whatRemainsFacts() : [];
+  el.textContent = facts.join("\n\n");
+  showScreen("what-remains");
 }
 
 function canYellowCircle() {
@@ -581,14 +584,20 @@ function buildEndingFooter(deadNames, title, fav, shape) {
 }
 
 function setEndingArt(src) {
-  const wrap = document.getElementById("ending-image-wrap");
-  const img = document.getElementById("ending-image");
-  if (!wrap || !img) return;
-  if (src) {
-    img.src = src;
-    wrap.classList.add("visible");
-  } else {
-    wrap.classList.remove("visible");
+  const targets = [
+    ["ending-image-wrap", "ending-image"],
+    ["what-remains-image-wrap", "what-remains-image"]
+  ];
+  for (const [wrapId, imageId] of targets) {
+    const wrap = document.getElementById(wrapId);
+    const img = document.getElementById(imageId);
+    if (!wrap || !img) continue;
+    if (src) {
+      img.src = src;
+      wrap.classList.add("visible");
+    } else {
+      wrap.classList.remove("visible");
+    }
   }
 }
 

@@ -1,12 +1,53 @@
 // Sunsplitter — scenes-25.js
-// 0.28.1c size hygiene. Pure mechanical. late: faction_split
+// 0.29 Cascade Allusive: Elias post-crisis seal + faction_split
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
+
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // SCENE_IDS: aftermath_seal, aftermath_seal_order, aftermath_seal_holds
+  // VERSION: 0.29        TICKET: Cascade Allusive 6/6
+  // PACKAGE: Eighty Seconds
+  // SPINE: first post-crisis private-adjacent beat; precedes offshift_open
+  // PRECONDITIONS: isAlive("elias") && !state.flags.junctionChoice;
+  //   one-shot inherited from Last Off-Shift routing
+  // STATE WRITES: none; flags.elias_question deliberately remains cold
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: every node redirects when !isAlive("elias")
+  // IMAGE: REUSE images/corridor_variant.jpg; NO ART_REQUEST
+  // PHRASE: spends "Standing question." once, here
+  // ═════════════════════════════════════════════════════════════════
+
+  aftermath_seal: {
+    image: "images/corridor_variant.jpg",
+    onEnter: () => { if (!isAlive("elias")) return "offshift_open"; },
+    text: `Elias is re-checking a seal that does not need checking. He hears you and does not stop.\n\n"The countdown said ninety. I sealed at eighty."\n\nThe wheel takes a quarter turn it did not have to give.\n\n"There were faces in the tube glass. I knew four of them. That is the whole report."`,
+    choices: [
+      { text: "Whose order was it?", next: "aftermath_seal_order", alive: "elias" },
+      { text: "The seal held.", next: "aftermath_seal_holds", alive: "elias" }
+    ]
+  },
+
+  aftermath_seal_order: {
+    image: "images/corridor_variant.jpg",
+    onEnter: () => { if (!isAlive("elias")) return "offshift_open"; },
+    text: `"Flagged station command. Station command had been dead an hour by the debris log. So whose order did I follow."\n\nHe sets the wheel.\n\n"Standing question."`,
+    choices: [ { text: "Let the private hour begin.", next: "offshift_open" } ]
+  },
+
+  aftermath_seal_holds: {
+    image: "images/corridor_variant.jpg",
+    onEnter: () => { if (!isAlive("elias")) return "offshift_open"; },
+    text: `"The seal held. That is what I am for."\n\nHe moves to the next seal that does not need him.`,
+    choices: [ { text: "Let the private hour begin.", next: "offshift_open" } ]
+  },
 
   faction_split: {
     onEnter: () => {
       if (state.crisisPath == null) return "act3_crisis_router"; // existing 0.26
-      if (!state.flags.junctionChoice) return "offshift_open";   // 0.28
+      if (!state.flags.junctionChoice) {
+        if (isAlive("elias")) return "aftermath_seal";
+        return "offshift_open";
+      }
     },
     get text() {
       let t = `The crew is no longer one group.\n\n`;

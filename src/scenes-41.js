@@ -1,19 +1,74 @@
 // Sunsplitter — scenes-41.js
-// 0.28.1c size hygiene. Pure mechanical. early: empty_berths through quiet_amara
+// 0.29 Cascade Allusive: empty_berths manifest insertion
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // SCENE_IDS: empty_berths [HOST REPLACEMENT], berths_manifest
+  // VERSION: 0.29        TICKET: Cascade Allusive 1/6
+  // PACKAGE: Two Hundred Columns
+  // SPINE: off-spine; existing empty_berths visit; returns to lead_prompt
+  // PRECONDITIONS: insertion requires !state.flags.manifest && isAlive("amara");
+  //   result requires state.flags.manifest === "read" | "declined"
+  // STATE WRITES: host choice sets state.flags.manifest = "read" | "declined";
+  //   read preserves cohesion +2 and locker-name memory; decline preserves integrity +1
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: all Amara speech/action gated by isAlive("amara"); dead variant cut
+  // IMAGE: REUSE images/empty_berths.jpg; NO ART_REQUEST
+  // ═════════════════════════════════════════════════════════════════
+
   empty_berths: {
-    text: `The habitation spine was never meant to feel this hollow.
+    get text() {
+      let t = `The habitation spine was never meant to feel this hollow.
 
 You pass berth tags still waiting for check-in: families, specialists, a whole hydroponics cohort that never left the pad. Someone's handwritten list is taped inside a locker door — first names only, a few crossed out in a different ink, the rest left open as if the cascade might reverse.
 
 In the laundry nook, uniforms hang in sizes that will not be filled. The ship's inventory system still politely requests biometric updates for three hundred and forty-one missing crew IDs.
 
-This is not a mystery. It is a design that assumed a different launch day. The Sunsplitter did not become empty by accident. It launched incomplete.`,
+This is not a mystery. It is a design that assumed a different launch day. The Sunsplitter did not become empty by accident. It launched incomplete.`;
+      if (!state.flags.manifest && isAlive("amara")) {
+        t += `\n\nAmara is at the far end of the berth rows, tablet face-down against her thigh. She does not ask why you are here. Nobody asks that, here.\n\n"The manifest was in my hands when the alarm sounded," she says. "That is the whole story of how I boarded. I was holding the list."\n\nShe turns the tablet face-up. She does not offer it. She does not withdraw it.`;
+      }
+      return t;
+    },
+    get choices() {
+      if (!state.flags.manifest && isAlive("amara")) {
+        return [
+          {
+            text: "Read the names.",
+            next: "berths_manifest",
+            effects: { cohesion: 2 },
+            flag: { manifest: "read" },
+            remember: "You kept one name from a locker list of people who never boarded."
+          },
+          {
+            text: "Leave it closed.",
+            next: "berths_manifest",
+            effects: { integrity: 1 },
+            flag: { manifest: "declined" }
+          }
+        ];
+      }
+      return [
+        { text: "Take one name from the list into memory. Then go back to the living.", next: "lead_prompt", effects: { cohesion: 2 }, remember: "You kept one name from a locker list of people who never boarded." },
+        { text: "Close the locker. The living are waiting for orders.", next: "lead_prompt", effects: { integrity: 1 } }
+      ];
+    }
+  },
+
+  berths_manifest: {
+    image: "images/empty_berths.jpg",
+    onEnter: () => {
+      if (!isAlive("amara") || !state.flags.manifest) return "lead_prompt";
+    },
+    text: () => {
+      if (state.flags.manifest === "read") {
+        return `The names scroll. Two hundred fourteen confirmed berths. Beside some of them, codes — untaught, unglossed, appearing exactly once.\n\n"Sponsor codes. Triage codes. Somebody's shorthand. I've decided not to decide."`;
+      }
+      return `She turns the tablet face-down again.\n\n"It keeps," she says.\n\nIt is not clear whether the word is about the tablet.`;
+    },
     choices: [
-      { text: "Take one name from the list into memory. Then go back to the living.", next: "lead_prompt", effects: { cohesion: 2 }, remember: "You kept one name from a locker list of people who never boarded." },
-      { text: "Close the locker. The living are waiting for orders.", next: "lead_prompt", effects: { integrity: 1 } }
+      { text: "Return to the living.", next: "lead_prompt" }
     ]
   },
 

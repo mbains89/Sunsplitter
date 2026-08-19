@@ -1,5 +1,5 @@
 // Sunsplitter — validate.js
-// Version 0.28 — + Off-Shift / pairs / warmth engineFlags
+// Version 0.29 — + Cascade Allusive flag domains
 // Scene validation. Runs when ?validate=1 or localStorage.sunsplitter_validate=1.
 // Strict scene shape: only text | choices | onEnter | image
 // Choice shape: ALLOWED_CHOICE_KEYS (text/next/effects/affinity/flag/lean/requires/trust/alive/aliveAll/aliveAny/mark/remember/tag)
@@ -13,6 +13,10 @@
     "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag"
   ]);
   const ROMANCE_IDS = ["lena", "mira", "amara", "sela"];
+  const LOCKED_FLAG_VALUES = {
+    manifest: new Set(["read", "declined"]),
+    changeorders: new Set(["logged", "buried"])
+  };
 
   function shouldRun() {
     try {
@@ -100,7 +104,13 @@
         }
         // Flag writes from choice.flag
         if (c.flag && typeof c.flag === "object") {
-          Object.keys(c.flag).forEach(fk => writtenFlags.add(fk));
+          Object.keys(c.flag).forEach(fk => {
+            writtenFlags.add(fk);
+            const domain = LOCKED_FLAG_VALUES[fk];
+            if (domain && !domain.has(c.flag[fk])) {
+              errors.push(`${id}: choice[${i}] invalid ${fk} value ${JSON.stringify(c.flag[fk])}`);
+            }
+          });
         }
         // Mark writes
         if (c.mark && typeof c.mark === "object") {
@@ -208,12 +218,12 @@
       "feedstock", "coolant", "pregnancy_risk", "vault_priority", "vault_voice",
       "abandoned", "tomas", "sela_attention", "priority", "rourke", "mira_favor",
       "patch", "elias_power", "lena_authority", "interrupt_return",
-      // 0.24.1 crisis-request currencies (read in concreteRunFacts / later lethals)
+      // 0.24.1 crisis-request currencies (read in later lethals / What Remains)
       "sela_vault_vow", "lena_regen", "mira_memory_public", "amara_vent_delayed",
       "pursuit_mira_cost", "pursuit_amara_cost", "pursuit_sela_cost", "pursuit_lena_cost",
       "busDowngraded", "reaction_mass_spent", "last_tx_spent", "vess_intimate",
       "vess_course_lost",
-      // 0.26 exclusive crises (onEnter-only writes; read later in concreteRunFacts / What remains)
+      // 0.26 exclusive crises (onEnter-only writes; read later in What Remains)
       "breath_word", "breath_answer", "custody_roll", "custody_answer",
       // 0.27 spoken promises
       "prom_amara", "prom_tomas", "prom_elias", "prom_lena", "prom_sela", "prom_mira",
@@ -224,7 +234,9 @@
       // 0.28 Off-Shift + pairs + warmth
       "junctionChoice", "lena_notes", "mira_fault_known", "course_briefed",
       "pair_shield", "pair_grudge", "pair_favor", "pair_turn",
-      "warmth_meal", "warmth_laughter", "warmth_music"
+      "warmth_meal", "warmth_laughter", "warmth_music",
+      // 0.29 Cascade Allusive
+      "manifest", "changeorders"
     ]);
     deadWrites.forEach(f => {
       if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`);

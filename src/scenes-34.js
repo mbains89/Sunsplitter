@@ -58,10 +58,59 @@ registerScenes({
     image: "images/afterglow_lena.jpg"
   },
 
+  // ═══ SCENE INSERTION DECLARATION ═════════════════════════════════
+  // SCENE_ID: debt_notice [TEXT INSERTION ONLY]
+  // VERSION: 0.29        TICKET: post-intimacy + cross-route mirrors
+  // PACKAGE: Operational Return / Original Four Awareness
+  // SPINE: existing debt_notice; no route or choice changes
+  // PRECONDITIONS: partner line requires state.romance.<who> && isAlive("<who>");
+  //   mirror clause requires another living romance among Lena/Mira/Amara/Sela
+  // STATE WRITES: none; render is side-effect-free
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: each partner line uses an isAlive guard
+  // IMAGE: REUSE current debt_notice images/corridor_pressure_4.jpg; NO ART_REQUEST
+  // ═════════════════════════════════════════════════════════════════
+
   debt_notice: {
     get text() {
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       let t = `The private hours end. The ship does not.\n\n`;
+      const activeOriginals = ["lena", "mira", "amara", "sela"]
+        .filter(k => state.romance[k] && isAlive(k));
+      const joinNames = (keys) => {
+        const names = keys.map(k => crew[k] ? crew[k].first : k);
+        if (names.length < 2) return names[0] || "";
+        if (names.length === 2) return names[0] + " and " + names[1];
+        return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
+      };
+
+      if (state.romance.lena && isAlive("lena")) {
+        const others = joinNames(activeOriginals.filter(k => k !== "lena"));
+        t += others
+          ? `Lena's first report after the private hours is verdict-first. "No acute injury. I know about ${others}. Nobody gets rounded off. Now give me the ship."\n\n`
+          : `Lena's first report after the private hours is verdict-first. "No acute injury. Personal chart closed. Now give me the ship."\n\n`;
+      }
+
+      if (state.romance.mira && isAlive("mira")) {
+        const others = joinNames(activeOriginals.filter(k => k !== "mira"));
+        t += others
+          ? `Mira opens the next watch without preamble. "Private interval logged. ${others} remain known conditions, not faults. Drive load unchanged."\n\n`
+          : `Mira opens the next watch without preamble. "Private interval logged. Drive load unchanged."\n\n`;
+      }
+
+      if (state.romance.amara && isAlive("amara")) {
+        const others = joinNames(activeOriginals.filter(k => k !== "amara"));
+        t += others
+          ? `Amara sends the next yield sheet with one dry line. "I know who else gets your quiet hours: ${others}. I'll not make them smaller. The crop ledger still carries everyone."\n\n`
+          : `Amara sends the next yield sheet with one dry line. "Private hour's over. The crop ledger still carries everyone."\n\n`;
+      }
+
+      if (state.romance.sela && isAlive("sela")) {
+        const others = joinNames(activeOriginals.filter(k => k !== "sela"));
+        t += others
+          ? `Sela returns to the vault count. "I know about ${others}. I will not pretend otherwise. The private mark is not a claim on the next watch."\n\n`
+          : `Sela returns to the vault count. "The private mark is not a claim on the next watch."\n\n`;
+      }
       if (debt.length) {
         t += `When you return to the common corridor, the temperature has changed.\n\n`;
         if (debt.includes("elias")) t += `Elias's reports get shorter. He does not argue. He also does not offer.\n`;

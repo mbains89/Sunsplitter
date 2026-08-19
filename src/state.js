@@ -1,7 +1,7 @@
 // Sunsplitter — state.js
-// Version 0.28.2 — Unreachable scenes + unpaid cost gate
+// Version 0.29 — What Remains + Cascade Allusive
 // Game state, crew definitions, sceneImages map, core helpers
-const VERSION = "0.28.2";
+const VERSION = "0.29";
 
 // FLAGS: see validate + scene onEnter/flag writes. state.dying is sole source for slow-death clock (map form from 0.25).
 // Edit this file to change starting stats, characters, or image mappings
@@ -418,35 +418,218 @@ function relationshipDebtors() {
   return debtors.slice(0, 4);
 }
 
-function concreteRunFacts() {
-  const facts = [];
-  const dead = namedDead();
-  if (dead.length) facts.push("Lost: " + dead.join(", ") + ".");
-  if (state.flags.mid_arc === "future") facts.push("Mid-voyage you leaned Future.");
-  else if (state.flags.mid_arc === "living") facts.push("Mid-voyage you leaned Living.");
-  if (state.flags.vault_sacrifice === "future") facts.push("At the vault fault you chose the package.");
-  else if (state.flags.vault_sacrifice === "living") facts.push("At the vault fault you chose the living.");
-  const fav = favoritism();
-  if (fav && crew[fav.favored] && isAlive(fav.favored)) {
-    facts.push("The crew saw who you kept close: " + crew[fav.favored].name + ".");
+// ═══ CONTENT-BLOCK DECLARATION ══════════════════════════════════
+// CONTENT_ID: what_remains [POST-ENDING REFLECTION DATA]
+// VERSION: 0.29        TICKET: What Remains
+// SPINE: after the resolved ending screen; separately skippable
+// PRECONDITIONS: an ending has resolved; every candidate is proven by
+//   current-run state under the selector below
+// STATE WRITES: none; selection and rendering are side-effect-free
+// DEATH EXPOSURE: reads state.dead plus matching state.deathCause only;
+//   dead names are past-tense facts and never emit speech or action
+// IMAGE: REUSE resolved ending image/background; NO ART_REQUEST
+// ═════════════════════════════════════════════════════════════════
+
+function whatRemainsJoinNames(keys) {
+  const names = keys.map(key => crew[key] ? crew[key].first : key);
+  if (names.length < 2) return names[0] || "";
+  if (names.length === 2) return names[0] + " and " + names[1];
+  return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
+}
+
+function whatRemainsDeathClause(key, cause) {
+  const name = crew[key] ? crew[key].first : key;
+  switch (cause) {
+    case "died with company":
+      return `${name} died with company`;
+    case "ordered to stop treatment":
+      return `${name} died after treatment was ordered stopped`;
+    case "attempted rescue, still died":
+      return `${name} died during the attempted rescue`;
+    case "died in silence while orders waited":
+      return `${name} died in silence while orders waited`;
+    case "died while command was taken":
+      return `${name} died while command was taken`;
+    case "vented with the lower ring":
+      return `${name} died when the lower ring was vented`;
+    case "vented at twenty":
+      return `${name} died when the lower ring vented at twenty`;
+    case "resources diverted to the vault":
+      return `${name} died after medical power was diverted to the vault`;
+    case "kept working until the clock ran out":
+      return `${name} died after working until her clock ran out`;
+    case "refused the order and paid for it":
+      return `${name} died after refusing the order`;
+    case "went back for the living and did not return":
+      return `${name} went back for the living and did not return`;
+    case "held the line":
+      return `${name} died holding the line`;
+    case "would not leave the board":
+      return `${name} died after refusing to leave the board`;
+    case "finished the repair":
+      return `${name} finished the repair and died`;
+    case "lost the shared medical line to Lena":
+      return `${name} died when the shared medical line moved to Lena`;
+    case "vented breathing in the service pocket":
+      return `${name} died breathing when the service pocket was vented`;
+    default:
+      return `${name} died`;
   }
-  const roms = ["lena", "mira", "amara", "sela", "vess"].filter(k => state.romance[k]).map(k => crew[k] ? crew[k].name : k);
-  if (roms.length) facts.push("Private lines crossed with " + roms.join(", ") + ".");
-  if (state.recovered && state.recovered.vess) facts.push("Vess came aboard from the Dawnbreak fragment.");
-  if (state.flags.busDowngraded) facts.push("The environmental bus runs degraded for her relay.");
-  if (state.flags.past === "owned") facts.push("You owned a piece of your past in front of Elias.");
-  else if (state.flags.past === "deal") facts.push("You made a quiet deal over your past.");
-  if (state.flags.ship_memory === "jury_rig") facts.push("The Deck 4 seal was only ever a jury-rig.");
-  else if (state.flags.ship_memory === "open_wound") facts.push("You left Deck 4's seal to the odds for food.");
-  else if (state.flags.ship_memory === "proper_seal") facts.push("You spent feedstock on a proper Deck 4 seal.");
-  if (state.flags.sun_doctrine === "doctrine") facts.push("Sela's yellow marks became unofficial doctrine.");
-  else if (state.flags.sun_doctrine === "scrubbed") facts.push("You ordered the yellow marks removed.");
-  if (state.flags.sela_vault_vow === "accepted") facts.push("You and Sela logged a vow: no command privilege for vault places.");
-  else if (state.flags.sela_vault_vow === "refused") facts.push("Sela asked for a vault vow and you refused it.");
-  if (state.flags.lena_regen) facts.push("The last regenerative treatment was spent on Lena.");
-  if (state.flags.mira_memory_public) facts.push("Mira forced full disclosure of the retained intimate and vault record.");
-  if (state.flags.amara_vent_delayed) facts.push("You publicly delayed a contaminated grow vent for Amara's cultures.");
-  return facts.slice(0, 4);
+}
+
+function whatRemainsDeathFacts() {
+  const seen = new Set();
+  const ordered = [];
+  for (const key of (state.dead || [])) {
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    ordered.push(key);
+  }
+  const rourkeIndex = ordered.indexOf("rourke");
+  if (rourkeIndex > 0) ordered.unshift(ordered.splice(rourkeIndex, 1)[0]);
+  const clauses = ordered.map(key => whatRemainsDeathClause(
+    key,
+    state.deathCause && state.deathCause[key]
+  ));
+  if (!clauses.length) return [];
+  if (clauses.length <= 3) return [clauses.join("; ") + "."];
+  const splitAt = Math.ceil(clauses.length / 2);
+  return [
+    clauses.slice(0, splitAt).join("; ") + ".",
+    clauses.slice(splitAt).join("; ") + "."
+  ];
+}
+
+function whatRemainsCrisisFact() {
+  const vaultClauses = {
+    future: "At the vault fault, the restart package was kept and habitation paid the cost",
+    living: "At the vault fault, habitation was protected and the embryo count fell",
+    split: "At the vault fault, both habitation and the restart package were degraded"
+  };
+  const breathClauses = {
+    racks: "The Breath They Cost ended with sterile filters and outer embryo racks stripped into the air loop",
+    trunks: "The Breath They Cost ended with crew clearing the contaminated scrubber trunks by hand",
+    garden: "The Breath They Cost ended with the hydroponics garden converted into a disposable scrubber",
+    blacksleep: "The Breath They Cost ended with the vulnerable in controlled black sleep while Lena managed the loop awake"
+  };
+  const custodyClauses = {
+    possession: "Custody of Tomorrow ended with heat dumped through the inhabited ring while the vault stayed whole",
+    thawed: "Custody of Tomorrow ended with outer embryo racks thawed to absorb the heat",
+    severed: "Custody of Tomorrow ended with Mira severing the fused junction and carrying the cold-radiation injury",
+    shared: "Custody of Tomorrow ended with Sela holding the second physical key"
+  };
+  const clauses = [];
+  const vault = vaultClauses[state.flags.vault_sacrifice];
+  if (vault) clauses.push(vault);
+  if (state.crisisPath === "breath") {
+    const breath = breathClauses[state.flags.breath_answer];
+    if (breath) clauses.push(breath);
+  } else if (state.crisisPath === "custody") {
+    const custody = custodyClauses[state.flags.custody_answer];
+    if (custody) clauses.push(custody);
+  }
+  return clauses.length ? clauses.join("; ") + "." : null;
+}
+
+function whatRemainsPromiseCausedDeath(owner) {
+  if (state.promises[owner] !== "broken") return false;
+  const causes = Object.values(state.deathCause || {});
+  if (owner === "amara") return causes.includes("vented breathing in the service pocket");
+  if (owner === "lena") return causes.includes("lost the shared medical line to Lena");
+  return false;
+}
+
+function whatRemainsPromiseLine(owner) {
+  const result = state.promises[owner];
+  if (result !== "kept" && result !== "broken") return null;
+  const lines = {
+    amara: {
+      kept: "At the service-pocket test, the vent stayed shut until the reader came out breathing.",
+      broken: "At the service-pocket test, the pocket was vented while the reader was still breathing."
+    },
+    tomas: {
+      kept: "At the custody test, the living received the shared mercy promised to Tomas.",
+      broken: "At the custody test, the inhabited ring paid to keep the vault as possession."
+    },
+    lena: {
+      kept: "At the shared-line test, the medical line stayed with the other patient.",
+      broken: "At the shared-line test, the medical line moved to Lena and the other patient died."
+    },
+    sela: {
+      kept: "At the petition test, Sela was not made the price of the crew's fear.",
+      broken: "At the petition test, the room was allowed to put its fear on Sela."
+    },
+    mira: {
+      kept: "The Earth-era directive binding was refused; authority stayed with the living.",
+      broken: "The ark was rebound to Earth-era directives written by the dead."
+    }
+  };
+  if (owner === "elias") {
+    if (result === "kept") return "The complete Deck Four record went to Elias first.";
+    if (state.flags.prom_deck4_edited) {
+      return "Elias received an edited Deck Four record after it entered the general log.";
+    }
+    if (state.flags.prom_deck4_buried) {
+      return "The Deck Four record was buried; Elias later heard it from the ship.";
+    }
+    return null;
+  }
+  return lines[owner] ? lines[owner][result] : null;
+}
+
+function whatRemainsPromiseFact() {
+  const owners = ["amara", "tomas", "elias", "lena", "sela", "mira"];
+  const tested = owners.filter(owner => {
+    const result = state.promises[owner];
+    return result === "kept" || result === "broken";
+  });
+  const prioritized = [
+    ...tested.filter(whatRemainsPromiseCausedDeath),
+    ...tested.filter(owner => !whatRemainsPromiseCausedDeath(owner))
+  ];
+  for (const owner of prioritized) {
+    const line = whatRemainsPromiseLine(owner);
+    if (line) return line;
+  }
+  return null;
+}
+
+function whatRemainsRelationalFact() {
+  const partners = ROMANCEABLE.filter(key => state.romance[key]);
+  if (!partners.length) return null;
+  const living = partners.filter(isAlive);
+  const dead = partners.filter(key => !isAlive(key));
+  const allNames = whatRemainsJoinNames(partners);
+  if (partners.length === 1) {
+    if (living.length) return `A private line was crossed with ${allNames}; she was alive when the run ended.`;
+    return `A private line was crossed with ${allNames} before her death.`;
+  }
+  if (!dead.length) {
+    const subject = partners.length === 2 ? "both" : "all";
+    return `Private lines were crossed with ${allNames}; ${subject} were alive when the run ended.`;
+  }
+  if (!living.length) return `Private lines were crossed with ${allNames} before their deaths.`;
+  const livingNames = whatRemainsJoinNames(living);
+  const deadNames = whatRemainsJoinNames(dead);
+  const livingVerb = living.length === 1 ? "was" : "were";
+  return `Private lines were crossed with ${allNames}; ${livingNames} ${livingVerb} alive at the ending, and ${deadNames} had died.`;
+}
+
+function whatRemainsFacts() {
+  const ideologyLines = {
+    future: "Across the recorded orders, Future carried more weight.",
+    living: "Across the recorded orders, Living carried more weight.",
+    split: "The recorded orders remained split between Future and Living."
+  };
+  const facts = [ideologyLines[ideologyShape()]];
+  facts.push(...whatRemainsDeathFacts());
+  const crisis = whatRemainsCrisisFact();
+  if (crisis) facts.push(crisis);
+  const promise = whatRemainsPromiseFact();
+  if (promise && facts.length < 6) facts.push(promise);
+  const relational = whatRemainsRelationalFact();
+  if (relational && facts.length < 6) facts.push(relational);
+  return facts.filter(Boolean).slice(0, 6);
 }
 
 function romanceOpen(who) {
@@ -477,7 +660,7 @@ function renderStatus() {
 }
 
 function showScreen(id) {
-  ["tone-screen", "title-screen", "game-screen", "ending-screen", "status", "meta", "crew-panel"].forEach(x => {
+  ["tone-screen", "title-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
@@ -505,6 +688,7 @@ function showScreen(id) {
     document.getElementById("meta").classList.remove("hidden");
   }
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
+  if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
 }
 
 // ─── 0.28 helpers: Last Off-Shift eligibility + pairs + attributable death ───
