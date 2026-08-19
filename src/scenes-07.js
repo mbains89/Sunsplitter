@@ -1,7 +1,21 @@
 // Sunsplitter — scenes-07.js
-// 0.28.1c size hygiene. Pure mechanical. mid-a: arc_future_3 + future_4
+// 0.29 Cascade Allusive: arc_future_3 change-order insertion
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
+
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // SCENE_IDS: records_changeorders, records_changeorders_after
+  // VERSION: 0.29        TICKET: Cascade Allusive 2/6
+  // PACKAGE: The Unsigned Pages
+  // SPINE: adjacent after arc_future_3; exits to arc_future_4
+  // PRECONDITIONS: isAlive("mira") && !state.flags.changeorders
+  // STATE WRITES: choice sets state.flags.changeorders = "logged" | "buried";
+  //   writes NOTHING else
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: both nodes redirect when !isAlive("mira")
+  // IMAGE: REUSE images/cascade_records.jpg; NO ART_REQUEST
+  // LANE RULE: never reference Jiro's contingency file here
+  // ═════════════════════════════════════════════════════════════════
 
   arc_future_3: {
     get text() {
@@ -19,9 +33,34 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Seal the records. The crew cannot use this truth yet.", next: "arc_future_4", effects: { cohesion: 2, integrity: 1 }, flag: { cascade_truth: "sealed" }, lean: { future: 2 }, affinity: { elias: 5 } },
-      { text: "Tell the senior crew. No more official stories between us.", next: "arc_future_4", effects: { cohesion: -5, supplies: -1 }, flag: { cascade_truth: "senior" }, lean: { living: 1 }, affinity: { lena: 4, tomas: 4, jiro: 3 } },
-      { text: "Broadcast it. The empty ship already knows. The living should too.", next: "arc_future_4", effects: { cohesion: -10, integrity: -2 }, flag: { cascade_truth: "open" }, lean: { living: 2 }, affinity: { tomas: 6, elias: -6 }, trust: { elias: -8, tomas: 6 } }
+      { text: "Seal the records. The crew cannot use this truth yet.", next: "records_changeorders", effects: { cohesion: 2, integrity: 1 }, flag: { cascade_truth: "sealed" }, lean: { future: 2 }, affinity: { elias: 5 } },
+      { text: "Tell the senior crew. No more official stories between us.", next: "records_changeorders", effects: { cohesion: -5, supplies: -1 }, flag: { cascade_truth: "senior" }, lean: { living: 1 }, affinity: { lena: 4, tomas: 4, jiro: 3 } },
+      { text: "Broadcast it. The empty ship already knows. The living should too.", next: "records_changeorders", effects: { cohesion: -10, integrity: -2 }, flag: { cascade_truth: "open" }, lean: { living: 2 }, affinity: { tomas: 6, elias: -6 }, trust: { elias: -8, tomas: 6 } }
+    ]
+  },
+
+  records_changeorders: {
+    image: "images/cascade_records.jpg",
+    onEnter: () => {
+      if (!isAlive("mira") || state.flags.changeorders) return "arc_future_4";
+    },
+    text: `Mira has the commissioning log open — to the unsigned pages, the way she keeps it.\n\n"Schedule compressed twice in the last month. Change orders 4417 and 4491. Justification field empty on both. That is not a conclusion. It is a gap where a reason should be."\n\nShe sets the log where the record terminal can image it, or not. Her hands wait.`,
+    choices: [
+      { text: "Enter it into the record.", next: "records_changeorders_after", flag: { changeorders: "logged" } },
+      { text: "Leave it out.", next: "records_changeorders_after", flag: { changeorders: "buried" } }
+    ]
+  },
+
+  records_changeorders_after: {
+    image: "images/cascade_records.jpg",
+    onEnter: () => {
+      if (!isAlive("mira") || !state.flags.changeorders) return "arc_future_4";
+    },
+    text: () => state.flags.changeorders === "logged"
+      ? `"Entered. It proves the schedule moved. Nothing else. I want that on the same line."`
+      : `"Understood."\n\nShe closes the log. She does not close it all the way.`,
+    choices: [
+      { text: "Continue.", next: "arc_future_4" }
     ]
   },
 
