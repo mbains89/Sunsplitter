@@ -246,10 +246,8 @@ function workflowSecurityErrors(workflowTexts) {
 export function evaluatePolicy(facts) {
   const errors = [];
   const notices = [
-    "Recovery required checks/ruleset: NOT CONFIGURED — repository code cannot prevent a direct/force push or require these checks; an admin ruleset must protect the branch with no bypass.",
-    "Default-branch/main enforcement: NOT CONFIGURED — recovery-branch workflow files do not by themselves establish a trusted required check on main.",
-    "Tag-prevention ruleset: NOT CONFIGURED — repository code cannot preempt tag creation; an admin tag ruleset must block tags while NO-PUBLISH is active.",
-    "External publication controls: NOT CONFIGURED — Netlify Build Hooks and production-environment permissions are outside GitHub Actions; production remains NOT AUTHORIZED."
+    "External administrative state is not verified by this workflow — final adjudication must independently confirm GitHub rulesets 21051662 and 21051665 and the recorded Netlify controls.",
+    "Policy-level NO-PUBLISH and NOT_CERTIFIED remain active regardless of external administrative-control state."
   ];
 
   if (facts.repository !== EXPECTED_REPOSITORY) {

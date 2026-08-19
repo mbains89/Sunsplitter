@@ -86,6 +86,22 @@ PIPE-BOOT-R1 must produce exact-SHA evidence for all of the following:
 
 Adding a workflow does not by itself prove that GitHub administratively requires it. The close-out must report enforcement as configured with evidence or retain `NOT CONFIGURED`; it may never infer protection from a green voluntary run.
 
+### Current independently verified administrative state
+
+The dispatch-state table above is historical. Independent live-configuration review after code approval verified:
+
+| Control | Current state |
+|---|---|
+| Recovery and default-branch protection | **ACTIVE** — GitHub ruleset `21051662` targets `main` and `recovery/e4f8440-nopub`; empty bypass list; pull request required; deletion and force-push blocked |
+| Required recovery checks | **ACTIVE** — `release-policy`, `verify`, and `simulation-gate`; branch must be up to date |
+| Tag prevention | **ACTIVE** — GitHub ruleset `21051665` targets all tags; empty bypass list; creation and deletion restricted; force-push blocked |
+| Netlify automatic builds | **STOPPED** — project `sunsplitter`, site `6af8d4bc-df5f-4e41-8042-57a10108a2a9` |
+| Netlify published deploy | **LOCKED** — deploy `6a85163bab20340008f53e95`, commit `e4f84409759760d31fcf47b8a227802a61421f51` |
+| Netlify Build Hooks | **NONE** |
+| Netlify production deployment methods | **GIT-ONLY** — CLI, MCP, and API cannot deploy to production |
+
+Applying these controls triggered no build or deploy. They do not certify or publish the recovery base, authorize a merge, or lift NO-PUBLISH. The configuration evidence and renewed exact-head Actions are separate inputs to final program-office adjudication.
+
 ## 8. Locks and gates preserved
 
 - L-025 — Commander identity A/B remains `DECISION_GATE`.
@@ -104,7 +120,7 @@ Stop and report without widening scope if implementation needs a non-allowlisted
 
 Only Grok / program office may adjudicate PIPE-BOOT-R1 closure from the issue #15 PR/head SHA, complete local transcripts, normalized audit evidence, negative-fixture evidence, Actions run URLs, changed-file list, and honest administrative-enforcement state.
 
-**Next authorized actor:** Build completes issue #15 within the exact allowlist and returns the evidence package; REC-01 remains frozen.
+**Next authorized actor:** Grok / program office adjudicates the reconciled exact head only after renewed Actions are green; REC-01 remains frozen.
 
 ---
 

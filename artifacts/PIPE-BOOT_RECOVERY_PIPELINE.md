@@ -52,16 +52,21 @@
 
 1. No GitHub Release may be created from `e4f8440` or from this recovery branch without a later Manraj authorization that explicitly lifts NO-PUBLISH.
 2. No tag that implies a certified release may be cut from this base.
-3. No production deploy / Build Hook promotion that makes the tree publicly playable as a “released” build.
+3. No production deploy or Build Hook promotion that makes the tree publicly playable as a “released” build; Netlify production is restricted to the Git production branch while builds remain stopped.
 4. No itch.io upload or monetization from this base.
 5. STATUS and VERSION surfaces must continue to show recovery / NO-PUBLISH state until a later governed close-out changes them.
 
 Branch-protection and required-check enforcement that require repository-admin rights beyond the ordinary push token are reported honestly in the handoff. Policy-level blocks above are active regardless.
 
-`recovery_required_checks: NOT CONFIGURED`
-`recovery_ruleset_or_branch_protection: NOT CONFIGURED`
+`recovery_required_checks: ACTIVE — ruleset 21051662 requires release-policy, verify, and simulation-gate with the branch up to date`
+`recovery_ruleset_or_branch_protection: ACTIVE — ruleset 21051662 targets main and recovery/e4f8440-nopub; empty bypass list; pull request required; deletion and force-push blocked`
+`tag_creation_protection: ACTIVE — ruleset 21051665 targets all tags; empty bypass list; creation and deletion restricted; force-push blocked`
+`netlify_build_state: STOPPED`
+`netlify_published_deploy_lock: ACTIVE — deploy 6a85163bab20340008f53e95 at e4f84409759760d31fcf47b8a227802a61421f51`
+`netlify_build_hooks: NONE`
+`netlify_production_deployment_methods: GIT-ONLY — CLI, MCP, and API production deploys blocked`
 
-The absence of administrative enforcement must not be described as an active mechanical block. A workflow run and a required-check/ruleset configuration are separate evidence claims.
+These are external administrative controls verified from the live GitHub and Netlify configuration. The workflows do not prove that state by themselves; final adjudication must use both renewed exact-head Actions and the recorded live-configuration evidence.
 
 ## 6. What remains blocked until a future dispatch
 
@@ -90,7 +95,7 @@ Manraj explicitly accepted PIPE-BOOT. This closes only the governance prerequisi
 
 Subsequent exact-base review found that the blocking controls described in §4 were not present or current. Manraj therefore authorized PIPE-BOOT-R1. The original acceptance remains recorded as a governance decision, but it is not evidence that the missing controls are operational.
 
-**Next authorized actor:** Build completes PIPE-BOOT-R1 / issue #15 and returns exact-SHA evidence. REC-01 remains frozen; NO-PUBLISH and NOT_CERTIFIED remain unchanged.
+**Next authorized actor:** Grok / program office adjudicates PIPE-BOOT-R1 only after the administrative-evidence reconciliation receives renewed green exact-head Actions. REC-01 remains frozen; NO-PUBLISH and NOT_CERTIFIED remain unchanged.
 
 ---
 
