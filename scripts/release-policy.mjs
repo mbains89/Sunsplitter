@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// PIPE-BOOT-R1 / GitHub issue #15.
+// PIPE-BOOT-R1 / GitHub issue #15, amended by RECOVERY-POLICY-R1.
 //
-// This is deliberately a recovery-only, fail-closed policy. It does not create
-// tags, releases, deployments, artifacts, or publication credentials. A later
-// governed ticket must replace this bounded policy before any other change may
-// target the recovery branch.
+// This remains a recovery-only, fail-closed policy. It does not create tags,
+// releases, deployments, artifacts, or publication credentials. The amendment
+// adds one exact self-update route and one exact ROADMAP-L014 documentation
+// route without authorizing runtime, release, deployment, or publication work.
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -25,6 +25,9 @@ const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
 const PIPE_BOOT_CLOSEOUT_HEAD = "ticket/0.30.1-pipe-boot-r1-status-closeout";
+const RECOVERY_POLICY_HEAD = "ticket/recovery-governance-policy-r1";
+const ROADMAP_L014_HEAD = "agent/roadmap-0.30.1-ai-hardening-recovery";
+const RECOVERY_POLICY_BASE_SHA = "78a64c7a180a34e786da3eefac42a06f50703bab";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
 const PIPE_BOOT_MERGE_SHA = "0b600935aa6e21d4898bcc9c7ad09e78893ec6e7";
@@ -55,6 +58,15 @@ export const PIPE_BOOT_R1_CHANGED_PATHS = Object.freeze([
 export const PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS = Object.freeze([
   "artifacts/PROJECT_STATUS.md",
   "scripts/release-policy.mjs"
+]);
+
+export const RECOVERY_POLICY_R1_CHANGED_PATHS = Object.freeze([
+  "scripts/release-policy.mjs"
+]);
+
+export const ROADMAP_L014_CHANGED_PATHS = Object.freeze([
+  "artifacts/LOCKS.md",
+  "artifacts/ROADMAP.md"
 ]);
 
 const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
@@ -134,10 +146,14 @@ function readRepositoryFacts(environment) {
   const netlify = read("netlify.toml");
   const simulationBaseline = read(SIMULATION_BASELINE_PATH);
   const checkedOutSha = git(["rev-parse", "HEAD"]);
+  const parentShas = git(["show", "-s", "--format=%P", checkedOutSha])
+    .split(/\s+/)
+    .filter(Boolean);
 
   return {
     ...environment,
     checkedOutSha,
+    parentShas,
     changedPaths: changedPathsForEvent(environment),
     recoveryBaseAncestor: isAncestor(RECOVERY_BASE_SHA, checkedOutSha),
     dispatchBaseAncestor: isAncestor(DISPATCH_BASE_SHA, checkedOutSha),
@@ -314,8 +330,15 @@ export function evaluatePolicy(facts) {
       if (facts.prBaseSha !== PIPE_BOOT_MERGE_SHA) {
         errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != PIPE-BOOT merge ${PIPE_BOOT_MERGE_SHA}`);
       }
+    } else if (facts.headRef === RECOVERY_POLICY_HEAD) {
+      changeRoute = "policy-amendment";
+      if (facts.prBaseSha !== RECOVERY_POLICY_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != recovery-policy base ${RECOVERY_POLICY_BASE_SHA}`);
+      }
+    } else if (facts.headRef === ROADMAP_L014_HEAD) {
+      changeRoute = "roadmap-l014";
     } else {
-      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized PIPE-BOOT route`);
+      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery-policy route`);
     }
     if (facts.prHeadRepository !== EXPECTED_REPOSITORY) {
       errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
@@ -338,8 +361,12 @@ export function evaluatePolicy(facts) {
         changeRoute = "pipe-boot";
       } else if (normalizedBefore === PIPE_BOOT_MERGE_SHA) {
         changeRoute = "closeout";
+      } else if (normalizedBefore === RECOVERY_POLICY_BASE_SHA) {
+        changeRoute = "policy-amendment";
+      } else if (sameStringSet(facts.changedPaths || [], ROADMAP_L014_CHANGED_PATHS)) {
+        changeRoute = "roadmap-l014";
       } else {
-        errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized PIPE-BOOT base`);
+        errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery-policy base`);
       }
       if (facts.afterSha !== facts.sha) {
         errors.push(`push after SHA ${facts.afterSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
@@ -358,6 +385,19 @@ export function evaluatePolicy(facts) {
       }
     } else if (changeRoute === "closeout" && !sameStringSet(changedPaths, PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the one-shot close-out set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "policy-amendment" && !sameStringSet(changedPaths, RECOVERY_POLICY_R1_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the recovery-policy amendment set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "roadmap-l014" && !sameStringSet(changedPaths, ROADMAP_L014_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the ROADMAP-L014 governance set: ${changedPaths.join(", ") || "<none>"}`);
+    }
+    if (
+      facts.eventName === "push"
+      && (changeRoute === "policy-amendment" || changeRoute === "roadmap-l014")
+    ) {
+      const parents = facts.parentShas || [];
+      if (parents.length !== 2 || parents[0] !== facts.beforeSha) {
+        errors.push(`${changeRoute} push must be a merge commit whose first parent is the recorded before SHA`);
+      }
     }
   }
 
@@ -465,6 +505,27 @@ function selfTest() {
   expectFailure(closeout, facts => { facts.changedPaths.push("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md"); }, "one-shot close-out set");
   expectFailure(closeout, facts => { facts.changedPaths.pop(); }, "one-shot close-out set");
 
+  const policyAmendment = structuredClone(positive);
+  Object.assign(policyAmendment, {
+    headRef: RECOVERY_POLICY_HEAD,
+    prBaseSha: RECOVERY_POLICY_BASE_SHA,
+    changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS]
+  });
+  assert.deepEqual(evaluatePolicy(policyAmendment).errors, []);
+  expectFailure(policyAmendment, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "recovery-policy base");
+  expectFailure(policyAmendment, facts => { facts.changedPaths.push("artifacts/ROADMAP.md"); }, "recovery-policy amendment set");
+
+  const roadmapL014 = structuredClone(positive);
+  Object.assign(roadmapL014, {
+    headRef: ROADMAP_L014_HEAD,
+    prBaseSha: RECOVERY_POLICY_BASE_SHA,
+    changedPaths: [...ROADMAP_L014_CHANGED_PATHS]
+  });
+  assert.deepEqual(evaluatePolicy(roadmapL014).errors, []);
+  expectFailure(roadmapL014, facts => { facts.changedPaths.pop(); }, "ROADMAP-L014 governance set");
+  expectFailure(roadmapL014, facts => { facts.changedPaths.push("src/scenes-41.js"); }, "ROADMAP-L014 governance set");
+  expectFailure(roadmapL014, facts => { facts.headRef = "agent/roadmap-other"; }, "authorized recovery-policy route");
+
   expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
   expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
   expectFailure(positive, facts => { facts.recoveryBaseAncestor = false; }, "audited recovery base");
@@ -532,6 +593,24 @@ function selfTest() {
   assert.deepEqual(evaluatePolicy(closeoutPush).errors, []);
   expectFailure(closeoutPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot close-out set");
 
+  const policyAmendmentPush = structuredClone(push);
+  Object.assign(policyAmendmentPush, {
+    beforeSha: RECOVERY_POLICY_BASE_SHA,
+    changedPaths: [...RECOVERY_POLICY_R1_CHANGED_PATHS],
+    parentShas: [RECOVERY_POLICY_BASE_SHA, "d".repeat(40)]
+  });
+  assert.deepEqual(evaluatePolicy(policyAmendmentPush).errors, []);
+  expectFailure(policyAmendmentPush, facts => { facts.parentShas = [RECOVERY_POLICY_BASE_SHA]; }, "must be a merge commit");
+
+  const roadmapL014Push = structuredClone(push);
+  Object.assign(roadmapL014Push, {
+    beforeSha: "c".repeat(40),
+    changedPaths: [...ROADMAP_L014_CHANGED_PATHS],
+    parentShas: ["c".repeat(40), "d".repeat(40)]
+  });
+  assert.deepEqual(evaluatePolicy(roadmapL014Push).errors, []);
+  expectFailure(roadmapL014Push, facts => { facts.parentShas[0] = "e".repeat(40); }, "first parent");
+
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
     facts.refName = "sun-v0.30.1";
@@ -539,7 +618,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 allowlist + original 23 policy cases + 6 one-shot close-out cases)");
+  console.log("PASS release-policy self-test (PIPE-BOOT routes + one-shot recovery-policy amendment + exact ROADMAP-L014 governance route)");
 }
 
 function environmentFromProcess() {
@@ -563,13 +642,13 @@ function environmentFromProcess() {
 function writeSummary(facts, result) {
   const source = (facts.sha || "unknown").slice(0, 7);
   const lines = [
-    "## PIPE-BOOT-R1 release policy",
+    "## Recovery release policy",
     "",
     `- Exact tested SHA: \`${facts.sha || "missing"}\``,
     `- PR head SHA: \`${facts.prHeadSha || "n/a"}\``,
     `- PR base SHA: \`${facts.prBaseSha || facts.beforeSha || "n/a"}\``,
     `- Result: **${result.passed ? "PASS" : "FAIL"}**`,
-    `- Source declaration: \`SOURCE ${source} · RUNTIME ${source} · TASK PIPE-BOOT-R1/#15 · MODE verification\``,
+    `- Source declaration: \`SOURCE ${source} · RUNTIME ${source} · TASK RECOVERY-POLICY-R1 · MODE verification\``,
     "",
     "### Platform controls still requiring repository administration",
     "",
@@ -592,7 +671,7 @@ function main() {
   const facts = readRepositoryFacts(environment);
   const result = evaluatePolicy(facts);
   const shortSha = facts.sha.slice(0, 7);
-  console.log(`SOURCE ${shortSha} · RUNTIME ${shortSha} · TASK PIPE-BOOT-R1/#15 · MODE verification`);
+  console.log(`SOURCE ${shortSha} · RUNTIME ${shortSha} · TASK RECOVERY-POLICY-R1 · MODE verification`);
   console.log(`exact tested SHA: ${facts.sha}`);
   if (facts.prHeadSha) console.log(`pull-request head SHA: ${facts.prHeadSha}`);
   if (facts.prBaseSha) console.log(`pull-request base SHA: ${facts.prBaseSha}`);
@@ -604,7 +683,7 @@ function main() {
     result.errors.forEach(error => console.error(`FAIL ${error}`));
     process.exitCode = 1;
   } else {
-    console.log("PASS PIPE-BOOT-R1 release policy; NO-PUBLISH remains active");
+    console.log("PASS recovery release policy; NO-PUBLISH remains active");
   }
 }
 
