@@ -57,6 +57,7 @@ jobs:
           POLICY_HEAD_REF: ${{ github.head_ref }}
           POLICY_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           POLICY_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          POLICY_PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           POLICY_BEFORE_SHA: ${{ github.event.before }}
           POLICY_AFTER_SHA: ${{ github.event.after }}
         run: node scripts/release-policy.mjs

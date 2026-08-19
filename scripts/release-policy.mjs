@@ -26,12 +26,14 @@ const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
+const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 
 const GOV_01_SHA256 = "067832a3750f9909df7a4d8eff553d96dd450957c9235da8f37012607a7bb14e";
 const RECOVERY_DEC_SHA256 = "48721ce3552cf44ff305747545eb908c0668cf04f84167d41eedefeb5f092efa";
 const NETLIFY_NO_BUILD_SHA256 = "02779c797969c4af09d5f4fa900ef7464473b6d3e2337b3d47eedbc94ca6187d";
+const SIMULATION_BASELINE_SHA256 = "bb1fb02cb7f85f0c0eddb3d9dbb0d3bb6c695d57156c2c051bf69f6f53f3b42b";
 const WORKFLOW_SHA256 = Object.freeze({
-  "release-policy.yml": "e3e76eef96028447427764772ce033c510430d91eef891ffd2ea7f10c308f5f8",
+  "release-policy.yml": "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33",
   "verify.yml": "ab1a1f7d2783269b8ad76bd52ae13f1f25896ffb4e141defe66965cb491f8db2"
 });
 
@@ -42,7 +44,7 @@ export const PIPE_BOOT_R1_CHANGED_PATHS = Object.freeze([
   "artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md",
   "artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md",
   "artifacts/PROJECT_STATUS.md",
-  "scripts/fixtures/pipe-boot-r1-simulation-baseline.json",
+  SIMULATION_BASELINE_PATH,
   "scripts/release-policy.mjs",
   "scripts/simulate.mjs",
   "scripts/verify.mjs"
@@ -123,6 +125,7 @@ function readRepositoryFacts(environment) {
   const gov01 = read("artifacts/GOV-01_AUTHORITY_RECONCILIATION.md");
   const recoveryDec = read("artifacts/RECOVERY-DEC_AMENDMENT.md");
   const netlify = read("netlify.toml");
+  const simulationBaseline = read(SIMULATION_BASELINE_PATH);
   const checkedOutSha = git(["rev-parse", "HEAD"]);
 
   return {
@@ -141,6 +144,7 @@ function readRepositoryFacts(environment) {
     pipeBootText: read("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md").toString("utf8"),
     reconciliationText: read("artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md").toString("utf8"),
     netlifyHash: sha256(netlify),
+    simulationBaselineHash: sha256(simulationBaseline),
     workflowNames,
     workflowTexts,
     workflowHashes: Object.fromEntries(
@@ -261,6 +265,9 @@ export function evaluatePolicy(facts) {
   if (facts.gov01Hash !== GOV_01_SHA256) errors.push("GOV-01 bytes differ from the dispatch base");
   if (facts.recoveryDecHash !== RECOVERY_DEC_SHA256) errors.push("RECOVERY-DEC bytes differ from the dispatch base");
   if (facts.netlifyHash !== NETLIFY_NO_BUILD_SHA256) errors.push("netlify.toml differs from the frozen no-Git-build baseline");
+  if (facts.simulationBaselineHash !== SIMULATION_BASELINE_SHA256) {
+    errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the issue #15 pinned fixture`);
+  }
   if (!sameStringSet(facts.workflowNames || [], ALLOWED_WORKFLOWS)) {
     errors.push(`workflow allowlist mismatch: ${(facts.workflowNames || []).join(", ") || "<none>"}`);
   }
@@ -293,6 +300,9 @@ export function evaluatePolicy(facts) {
     }
     if (facts.headRef !== PIPE_BOOT_HEAD) {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} != ${PIPE_BOOT_HEAD}`);
+    }
+    if (facts.prHeadRepository !== EXPECTED_REPOSITORY) {
+      errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
     }
     if (facts.prBaseSha !== DISPATCH_BASE_SHA) {
       errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != dispatch base ${DISPATCH_BASE_SHA}`);
@@ -344,6 +354,7 @@ function baseSelfTestFacts() {
     refType: "branch",
     baseRef: RECOVERY_BRANCH,
     headRef: PIPE_BOOT_HEAD,
+    prHeadRepository: EXPECTED_REPOSITORY,
     prBaseSha: DISPATCH_BASE_SHA,
     prHeadSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     beforeSha: "",
@@ -366,6 +377,7 @@ function baseSelfTestFacts() {
     pipeBootText: `# PIPE-BOOT — Governed Recovery Pipeline\n${RECOVERY_BRANCH}\nNO-PUBLISH`,
     reconciliationText: `# PIPE-BOOT-R1\n${RECOVERY_BASE_SHA}\nNO-PUBLISH`,
     netlifyHash: NETLIFY_NO_BUILD_SHA256,
+    simulationBaselineHash: SIMULATION_BASELINE_SHA256,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
       "name: fixture",
@@ -425,6 +437,7 @@ function selfTest() {
   expectFailure(positive, facts => { facts.recoveryBaseAncestor = false; }, "audited recovery base");
   expectFailure(positive, facts => { facts.baseRef = "main"; }, "pull requests to main");
   expectFailure(positive, facts => { facts.headRef = "ticket/0.30.1-01-quiet-tomas-rewind"; }, "pull-request head");
+  expectFailure(positive, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
   expectFailure(positive, facts => { facts.prBaseSha = "c".repeat(40); }, "pull-request base SHA");
   expectFailure(positive, facts => { facts.changedPaths.push("src/scenes-41.js"); }, "outside issue #15");
   expectFailure(positive, facts => { facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED"); }, "STATUS NO-PUBLISH");
@@ -451,6 +464,16 @@ function selfTest() {
     facts.workflowHashes["verify.yml"] = "c".repeat(64);
   }, "bytes differ from the issue #15 reviewed workflow");
   expectFailure(positive, facts => { facts.netlifyHash = "c".repeat(64); }, "netlify.toml");
+  const baselineBytes = readFileSync(resolve(ROOT, SIMULATION_BASELINE_PATH));
+  assert.equal(sha256(baselineBytes), SIMULATION_BASELINE_SHA256, "checked-in simulation baseline does not match its pinned SHA-256");
+  const inflatedBaselineBytes = Buffer.from(
+    baselineBytes.toString("utf8").replace('"V1": 255', '"V1": 256'),
+    "utf8"
+  );
+  assert.notDeepEqual(inflatedBaselineBytes, baselineBytes, "baseline inflation fixture did not alter bytes");
+  expectFailure(positive, facts => {
+    facts.simulationBaselineHash = sha256(inflatedBaselineBytes);
+  }, "simulation-baseline.json: bytes differ");
 
   const push = structuredClone(positive);
   Object.assign(push, {
@@ -475,7 +498,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 allowlist + 21 policy cases)");
+  console.log("PASS release-policy self-test (issue #15 allowlist + 23 policy cases)");
 }
 
 function environmentFromProcess() {
@@ -488,6 +511,7 @@ function environmentFromProcess() {
     refType: process.env.POLICY_REF_TYPE || "",
     baseRef: process.env.POLICY_BASE_REF || "",
     headRef: process.env.POLICY_HEAD_REF || "",
+    prHeadRepository: process.env.POLICY_PR_HEAD_REPOSITORY || "",
     prBaseSha: process.env.POLICY_PR_BASE_SHA || "",
     prHeadSha: process.env.POLICY_PR_HEAD_SHA || "",
     beforeSha: process.env.POLICY_BEFORE_SHA || "",

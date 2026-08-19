@@ -781,6 +781,45 @@ function sortedKeys(value) {
   return Object.keys(value || {}).sort();
 }
 
+const RECOVERY_INVARIANTS = Object.freeze(["V1", "V4", "V5"]);
+const RECOVERY_COUNT_DIMENSIONS = Object.freeze([
+  "invariantRules",
+  "invariantScenes",
+  "invariantFingerprints"
+]);
+
+function invariantCrossTotalErrors(label, summary) {
+  const errors = [];
+  for (const invariant of RECOVERY_INVARIANTS) {
+    const total = summary?.invariantTotals?.[invariant];
+    const validTotal = Number.isInteger(total) && total >= 0;
+    if (!validTotal) errors.push(`${label}/${invariant}: total must be a non-negative integer`);
+
+    for (const dimension of RECOVERY_COUNT_DIMENSIONS) {
+      const counts = summary?.[dimension]?.[invariant];
+      if (!counts || typeof counts !== "object" || Array.isArray(counts)) {
+        errors.push(`${label}/${invariant}: ${dimension} must be an object`);
+        continue;
+      }
+
+      let sum = 0;
+      let validCounts = true;
+      for (const [key, count] of Object.entries(counts)) {
+        if (!Number.isInteger(count) || count < 0) {
+          errors.push(`${label}/${invariant}/${dimension}/${key}: count must be a non-negative integer`);
+          validCounts = false;
+        } else {
+          sum += count;
+        }
+      }
+      if (validTotal && validCounts && sum !== total) {
+        errors.push(`${label}/${invariant}: total ${total} != ${dimension} sum ${sum}`);
+      }
+    }
+  }
+  return errors;
+}
+
 export function compareRecoveryBaseline(profile, baseline) {
   const errors = [];
   if (!baseline || baseline.schemaVersion !== 1) errors.push("baseline schemaVersion must be 1");
@@ -813,6 +852,8 @@ export function compareRecoveryBaseline(profile, baseline) {
       errors.push(`baseline has no policy ${summary.policy}`);
       continue;
     }
+    errors.push(...invariantCrossTotalErrors(`profile/${summary.policy}`, summary));
+    errors.push(...invariantCrossTotalErrors(`baseline/${summary.policy}`, expected));
     if (summary.runs !== expected.runs) errors.push(`${summary.policy}: runs ${summary.runs} != baseline ${expected.runs}`);
     if (summary.errors > 0) errors.push(`${summary.policy}: runtime errors=${summary.errors}`);
     if (summary.stepLimits > 0) errors.push(`${summary.policy}: step limits=${summary.stepLimits}`);
@@ -827,7 +868,7 @@ export function compareRecoveryBaseline(profile, baseline) {
       errors.push(`${summary.policy}: endings regressed ${summary.endings} < baseline ${expected.endings}`);
     }
 
-    for (const invariant of ["V1", "V4", "V5"]) {
+    for (const invariant of RECOVERY_INVARIANTS) {
       const actualTotal = summary.invariantTotals[invariant];
       const expectedTotal = expected.invariantTotals?.[invariant];
       if (!Number.isInteger(expectedTotal)) {
@@ -979,6 +1020,22 @@ export function runSelfTest() {
   const profile = syntheticProfile(summary);
   const baseline = baselineFromSyntheticProfile(profile);
   check(compareRecoveryBaseline(profile, baseline).length === 0, "unchanged recovery baseline did not pass");
+
+  const inconsistentProfile = plainClone(profile);
+  inconsistentProfile.summaries[0].invariantTotals.V4 = 2;
+  const inconsistentProfileErrors = compareRecoveryBaseline(inconsistentProfile, baseline);
+  check(
+    RECOVERY_COUNT_DIMENSIONS.every(dimension => inconsistentProfileErrors.some(error => error.includes(`profile/random/V4: total 2 != ${dimension} sum 1`))),
+    "ratchet accepted profile totals that disagreed with rule, scene, or fingerprint sums"
+  );
+
+  const inflatedBaseline = plainClone(baseline);
+  inflatedBaseline.policies.random.invariantTotals.V4 = 2;
+  const inflatedBaselineErrors = compareRecoveryBaseline(profile, inflatedBaseline);
+  check(
+    RECOVERY_COUNT_DIMENSIONS.every(dimension => inflatedBaselineErrors.some(error => error.includes(`baseline/random/V4: total 2 != ${dimension} sum 1`))),
+    "ratchet accepted baseline totals that disagreed with rule, scene, or fingerprint sums"
+  );
 
   const crossed = plainClone(profile);
   crossed.summaries[0].invariantFingerprints.V1 = { "rule_a@scene_b": 1, "rule_b@scene_a": 1 };
