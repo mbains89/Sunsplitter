@@ -1,4 +1,4 @@
-0.28.2
+0.29
 
-Image sync + official Batch A tank-top portraits + CSS aspect-ratio 784/1168.
-Numbered scene split (01–55) from 0.28.1c.
+What Remains post-ending reflection + six Cascade Allusive crew beats.
+Post-intimacy operational shifts + original-four cross-route awareness.
