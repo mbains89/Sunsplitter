@@ -568,6 +568,69 @@ function cascadeAndMirrorChecks(runtime) {
   return errors;
 }
 
+function quietTomasRewindChecks(runtime) {
+  const errors = [];
+  const fixtures = runtime.evaluate(`(() => [0, 1].map(index => {
+    resetRunState();
+    state.recovered.tomas = true;
+    state.recovered.vess = true;
+    showScene("act3_spine_next");
+
+    const offer = scenes.act3_spine_next.choices.find(choice => choice.next === "quiet_tomas");
+    if (!offer) return { index, error: "late quiet_tomas offer missing" };
+
+    makeChoice(offer);
+    const enteredScene = state.scene;
+    const doneOnEnter = state.flags.quiet_tomas_done === true;
+    const quietChoice = scenes.quiet_tomas.choices[index];
+    const exitTarget = quietChoice && quietChoice.next;
+    if (quietChoice) makeChoice(quietChoice);
+
+    return {
+      index,
+      enteredScene,
+      doneOnEnter,
+      exitTarget,
+      finalScene: state.scene,
+      offeredAgain: scenes.act3_spine_next.choices.some(choice => choice.next === "quiet_tomas"),
+      cohesion: state.cohesion,
+      affinity: state.affinity.tomas,
+      trust: state.trust.tomas,
+      living: state.ideology.living
+    };
+  }))()`);
+
+  const expected = [
+    { cohesion: 53, affinity: 20, trust: 58, living: 1 },
+    { cohesion: 51, affinity: 15, trust: 53, living: 0 }
+  ];
+
+  fixtures.forEach((fixture, index) => {
+    if (fixture.error) {
+      errors.push(`choice ${index}: ${fixture.error}`);
+      return;
+    }
+    if (fixture.enteredScene !== "quiet_tomas") {
+      errors.push(`choice ${index}: late offer entered ${fixture.enteredScene} instead of quiet_tomas`);
+    }
+    if (!fixture.doneOnEnter) errors.push(`choice ${index}: quiet_tomas_done was not set on entry`);
+    if (fixture.exitTarget !== "act3_spine_next") {
+      errors.push(`choice ${index}: exit targets ${fixture.exitTarget} instead of act3_spine_next`);
+    }
+    if (fixture.finalScene !== "act3_spine_next") {
+      errors.push(`choice ${index}: ended at ${fixture.finalScene} instead of act3_spine_next`);
+    }
+    if (fixture.offeredAgain) errors.push(`choice ${index}: quiet_tomas was offered again after completion`);
+    for (const [key, value] of Object.entries(expected[index])) {
+      if (fixture[key] !== value) {
+        errors.push(`choice ${index}: ${key}=${fixture[key]} after one traversal; expected ${value}`);
+      }
+    }
+  });
+
+  return errors;
+}
+
 function printCheck(label, errors, detail = "") {
   if (errors.length) {
     console.error(`FAIL ${label}${detail ? ` (${detail})` : ""}`);
@@ -620,6 +683,10 @@ function main() {
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
     failures.push(...cascadeErrors);
+
+    const quietTomasErrors = quietTomasRewindChecks(runtime);
+    printCheck("quiet_tomas late-path rewind regression", quietTomasErrors, "both exits");
+    failures.push(...quietTomasErrors);
   } else {
     const identity = recoveryIdentityChecks(null);
     printIdentityTable(identity);
