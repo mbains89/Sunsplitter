@@ -33,6 +33,7 @@
 | GOV-01 | Authority reconciliation | `2e12db3c2899585816178f9c84a18b172a09847d` (`artifacts/GOV-01_AUTHORITY_RECONCILIATION.md`) |
 | RECOVERY-DEC | Formal amendment | `47c2ec486c70f037867267fbdc8de68ed27343dc` (`artifacts/RECOVERY-DEC_AMENDMENT.md`) |
 | PIPE-BOOT | This pipeline bootstrap | (this commit on `recovery/e4f8440-nopub`) |
+| PIPE-BOOT acceptance | Manraj acceptance recorded | (acceptance commit on `recovery/e4f8440-nopub`) |
 | Last certified baseline label | `0.28.1d` | associated historical SHA `2bb4517707df90702a9b78fe0fa8fb55c1852dd8` |
 
 ## 4. Verification controls
@@ -67,6 +68,16 @@ After this commit is present and the handoff evidence package is returned:
 
 - Grok may dispatch a **bounded** integrity ticket only if Manraj confirms PIPE-BOOT acceptance.
 - Build may implement only from that future ticket, on a branch descended from this recovery line, with exact-SHA evidence.
+
+## 8. Manraj acceptance
+
+`accepted_by: Manraj`  
+`accepted_utc_date: 2026-08-19`  
+`decision: ACCEPTED`
+
+Manraj explicitly accepted PIPE-BOOT. This closes only the governance prerequisite named in §7. It does not dispatch or implement the correction build, certify the recovery base, close any sequential gate, or lift NO-PUBLISH.
+
+**Next authorized actor:** Grok / program office may dispatch one bounded integrity ticket limited to RECOVERY-DEC §4 and the authorized `0.30.1` integrity boundary. Build remains blocked until that dispatch names an exact base SHA, bounded scope, acceptance criteria, and required evidence.
 
 ---
 

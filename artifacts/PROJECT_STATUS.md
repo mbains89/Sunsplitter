@@ -31,15 +31,16 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Active work
 
 `milestone: Governance recovery bootstrap (GOV-01 / RECOVERY-DEC / PIPE-BOOT)`  
-`ticket: PIPE-BOOT complete on branch recovery/e4f8440-nopub`  
+`ticket: PIPE-BOOT accepted on branch recovery/e4f8440-nopub`  
+`pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
 `owner: Grok / program office`  
-`state: GOVERNANCE_BOOTSTRAP_COMPLETE — awaiting Manraj acceptance before any integrity dispatch`  
+`state: PIPE_BOOT_ACCEPTED — ready for bounded integrity dispatch`  
 `pull_request: none`  
 `governed_branch: recovery/e4f8440-nopub`
 
 ## Blocked
 
-- All correction / integrity implementation until Manraj accepts PIPE-BOOT and issues a bounded dispatch.
+- All correction / integrity implementation remains blocked until Grok issues a bounded integrity ticket and Build receives an explicit dispatch.
 - All sequential gates from 0.28.2 onward remain uncertified.
 - Publication, tagging, deploy, monetization frozen.
 - L-025, L-026, L-027, L-028 remain open decision gates.
@@ -62,7 +63,6 @@ L-020 through L-024 previously ruled; recovery does not reopen them. Full langua
 
 ## Next action
 
-**Manraj:** Review the three governance commits + this STATUS. Confirm PIPE-BOOT acceptance if satisfied.  
-**Grok:** Only after acceptance, may dispatch a bounded integrity ticket (scope limited to the RECOVERY-DEC / authorization list). No correction work before that.
+**Grok / program office:** Dispatch the first bounded integrity ticket limited to RECOVERY-DEC §4 and the authorized `0.30.1` boundary. Build remains blocked until that dispatch names the exact base SHA, bounded scope, acceptance criteria, and required evidence.
 
 <!-- STATUS_COMPLETE -->
