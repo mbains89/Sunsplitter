@@ -7,7 +7,7 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 export const POLICY_NAMES = ["living", "future", "pragmatic"];
-export const EXPECTED_SCENE_COUNT = 207;
+export const EXPECTED_SCENE_COUNT = 222;
 
 const POLICY_ALIASES = new Map([
   ["living", "living"],
@@ -351,7 +351,7 @@ function summarize(runtime, policy, seed, path, chosen, failure = null) {
     promises: state.promises,
     ideology: state.ideology,
     flags: state.flags,
-    facts: runtime.evaluate(`typeof concreteRunFacts === "function" ? concreteRunFacts() : []`),
+    facts: runtime.evaluate(`typeof whatRemainsFacts === "function" ? whatRemainsFacts() : []`),
     path,
     choices: chosen
   };
@@ -433,7 +433,9 @@ export function assertV6(rootDir, holder = "amara") {
   const beforeEnding = stateSnapshot(runtime).promises[holder];
   runtime.evaluate("resolveEnding();");
   const after = stateSnapshot(runtime);
-  const reflection = runtime.browser.document.getElementById("ending-text").textContent;
+  const endingReflection = runtime.browser.document.getElementById("ending-text").textContent;
+  const whatRemains = runtime.evaluate(`typeof whatRemainsFacts === "function" ? whatRemainsFacts() : []`);
+  const reflection = [endingReflection, ...whatRemains].join("\n");
   const holderName = runtime.evaluate(`crew[${JSON.stringify(holder)}].first`);
   const brokenPattern = new RegExp(`(?:broken.{0,80}promise.{0,80}${holderName}|${holderName}.{0,80}promise.{0,80}broken)`, "i");
   const promisePattern = new RegExp(`(?:promise.{0,80}${holderName}|${holderName}.{0,80}promise)`, "i");
