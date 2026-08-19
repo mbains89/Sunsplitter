@@ -42,7 +42,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`  
 `owner: Build / implementation agent`  
 `state: IMPLEMENTED — draft PR open; not merged`
-`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (draft)`  
+`pull_request: https://github.com/mbains89/Sunsplitter/pull/16 (draft)`
 `governed_branch: recovery/e4f8440-nopub`  
 `implementation_branch: ticket/0.30.1-pipe-boot-r1`
 `dispatch_base_sha: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
