@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-// PIPE-BOOT-R1, REC-RATCHET-01, REC-01, and the one-shot lock-record route.
+// PIPE-BOOT-R1, REC-RATCHET-01, REC-01, the one-shot lock-record route,
+// and the exact two-stage ART-INTEGRATION-R2 route.
 //
 // This is deliberately a recovery-only, fail-closed policy. It does not create
 // tags, releases, deployments, artifacts, or publication credentials. A later
@@ -34,6 +35,10 @@ const REC_RATCHET_BASE_SHA = "78a64c7a180a34e786da3eefac42a06f50703bab";
 const REC_01_HEAD = "ticket/0.30.1-rec-01-r1";
 const LOCK_RECORD_HEAD = "ticket/0.30.1-locks-l025-l028-r1";
 const LOCK_RECORD_BASE_SHA = "9bb4ccf7efbf856ffed569436787f779ad195698";
+const ART_R2_GOVERNANCE_HEAD = "ticket/art-integration-r2-governance-repin";
+const ART_R2_GOVERNANCE_BASE_SHA = "8a840397d80b8fe1027a22ca89603d92f0e562e6";
+const ART_R2_IMPLEMENTATION_HEAD = "ticket/art-integration-r2-55";
+const ART_R2_GOVERNANCE_RECORD_PATH = "artifacts/ART-INTEGRATION-R2_GOVERNANCE_REPIN.md";
 const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const REC_RATCHET_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_BASELINE_TRANSITION.md";
 const REC_RATCHET_BASELINE_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_AUTHORIZED_BASELINE.json";
@@ -48,6 +53,13 @@ const REC_RATCHET_ARTIFACT_SHA256 = "e1101102c7c79e2f2d7c12504e74f1fe28037ae1997
 const REC_RATCHET_PATCH_ARTIFACT_SHA256 = "f5c4f2a48f24f0c6c7d6d570d98acc6217156ebcdf3cef5a9224941629f2c438";
 const REC_01_SCENES_41_SHA256 = "b67563297cb4b4ae89330fe61523d06b1b11c3703bd7c5ba412492e7860fc106";
 const REC_01_VERIFY_SHA256 = "ba413f6b41d4f0278238f69feea59865e0d3e979b177c76db6b380854afec084";
+const ART_R2_GOVERNANCE_DOCUMENT_SHA256 = Object.freeze({
+  [ART_R2_GOVERNANCE_RECORD_PATH]: "4151879697d7edcc265daab2073a1cbd3aff261e62338397313b8785a17726b5",
+  "artifacts/ART_RULES.md": "2e4cb5caf80824b5ee980e3282293f5e6c77271755421d3472458a5103cb207b",
+  "artifacts/LOCKS.md": "f8debebc10b4fe69a0e5fee1305a70500e15c8c6fd0beb74c7ab9ba8bffa078e",
+  "artifacts/PROJECT_STATUS.md": "5094ca4f6404f9e74b3c20788a2f67a1a20de58e8ecbca3f1063302722b69759",
+  "artifacts/ROADMAP.md": "5c79b798065c8b9dcae41cc53ba1118a1e5dd934803c310539be3f350b4cbf90"
+});
 const WORKFLOW_SHA256 = Object.freeze({
   "release-policy.yml": "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33",
   "verify.yml": "9a498bbf75ea62b04235fcfffea1c21ec9a768b8cec5416b7a2fb2e593b67ec2"
@@ -92,6 +104,97 @@ export const LOCK_RECORD_CHANGED_PATHS = Object.freeze([
   "artifacts/PROJECT_STATUS.md",
   "artifacts/ROADMAP.md",
   "scripts/release-policy.mjs"
+]);
+
+export const ART_R2_GOVERNANCE_CHANGED_PATHS = Object.freeze([
+  ART_R2_GOVERNANCE_RECORD_PATH,
+  "artifacts/ART_RULES.md",
+  "artifacts/LOCKS.md",
+  "artifacts/PROJECT_STATUS.md",
+  "artifacts/ROADMAP.md",
+  "scripts/release-policy.mjs"
+]);
+
+export const ART_R2_IMPLEMENTATION_CHANGED_PATHS = Object.freeze([
+  "artifacts/ART-INTEGRATION-R2-55_RECORD.json",
+  "images/act2_tether_dock.jpg",
+  "images/act2_tether_hand_elias.jpg",
+  "images/act2_tether_hand_mira.jpg",
+  "images/act2_tether_hand_sela.jpg",
+  "images/act2_tether_lie.jpg",
+  "images/act2_tether_manifest.jpg",
+  "images/act2_tether_rush.jpg",
+  "images/act2_tether_vent.jpg",
+  "images/act3_lethal_elias_end.jpg",
+  "images/act3_lethal_lena_clock.jpg",
+  "images/act3_lethal_lena_power.jpg",
+  "images/act3_lethal_lena_sterile.jpg",
+  "images/act3_lethal_mira_end.jpg",
+  "images/act3_lethal_tomas_end.jpg",
+  "images/act3_lethal_tomas_stores.jpg",
+  "images/act3_lethal_tomas_structure.jpg",
+  "images/act3_reckoning_burn_stale.jpg",
+  "images/act3_reckoning_burn_verified.jpg",
+  "images/arc_fork.jpg",
+  "images/arc_future_1.jpg",
+  "images/arc_living_1.jpg",
+  "images/coolant_trade.jpg",
+  "images/crew_walk.jpg",
+  "images/dying.jpg",
+  "images/faction_split.jpg",
+  "images/history_elias.jpg",
+  "images/offshift_elias.jpg",
+  "images/offshift_tomas.jpg",
+  "images/offshift_tomas_r.jpg",
+  "images/pair_shield_cold.jpg",
+  "images/past_leak.jpg",
+  "images/prom_direct.jpg",
+  "images/prom_direct_break.jpg",
+  "images/prom_direct_keep.jpg",
+  "images/prom_line_keep.jpg",
+  "images/prom_make_elias.jpg",
+  "images/prom_make_lena.jpg",
+  "images/prom_make_tomas.jpg",
+  "images/prom_price.jpg",
+  "images/prom_price_break.jpg",
+  "images/prom_price_keep.jpg",
+  "images/prom_r_elias.jpg",
+  "images/prom_r_lena.jpg",
+  "images/prom_r_tomas.jpg",
+  "images/prom_vent.jpg",
+  "images/prom_vent_break.jpg",
+  "images/prom_vent_keep.jpg",
+  "images/reckon_memory.jpg",
+  "images/reckon_public.jpg",
+  "images/reckon_suppress.jpg",
+  "images/reckon_truth.jpg",
+  "images/seal_or_food.jpg",
+  "images/status.jpg",
+  "images/time_pass.jpg",
+  "images/wake.jpg",
+  "scripts/validate-art-r2.mjs",
+  "scripts/verify.mjs",
+  "src/engine.js",
+  "src/scenes-10.js",
+  "src/scenes-11.js",
+  "src/scenes-12.js",
+  "src/scenes-14.js",
+  "src/scenes-19.js",
+  "src/scenes-20.js",
+  "src/scenes-21.js",
+  "src/scenes-22.js",
+  "src/scenes-23.js",
+  "src/scenes-24.js",
+  "src/scenes-35.js",
+  "src/scenes-43.js",
+  "src/scenes-44.js",
+  "src/scenes-45.js",
+  "src/scenes-46.js",
+  "src/scenes-47.js",
+  "src/scenes-48.js",
+  "src/scenes-49.js",
+  "src/scenes-52.js",
+  "src/state.js"
 ]);
 
 const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
@@ -173,6 +276,35 @@ function isExactRecRatchetSuccessor(ref) {
   }
 }
 
+function gitFilesMatchSha256(ref, expectedByPath) {
+  return Object.entries(expectedByPath)
+    .every(([path, expected]) => gitFileSha256(ref, path) === expected);
+}
+
+function isExactArtR2GovernanceSuccessor(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return false;
+  try {
+    const parents = git(["rev-list", "--parents", "-n", "1", ref]).split(/\s+/);
+    return parents.length === 3
+      && parents[1] === ART_R2_GOVERNANCE_BASE_SHA
+      && sameStringSet(
+        changedPathsBetween(ART_R2_GOVERNANCE_BASE_SHA, ref),
+        ART_R2_GOVERNANCE_CHANGED_PATHS
+      )
+      && gitFilesMatchSha256(ref, ART_R2_GOVERNANCE_DOCUMENT_SHA256)
+      && gitFileSha256(ref, SIMULATION_BASELINE_PATH) === REC_01_SIMULATION_BASELINE_SHA256
+      && gitFileSha256(ref, REC_RATCHET_ARTIFACT_PATH) === REC_RATCHET_ARTIFACT_SHA256
+      && gitFileSha256(ref, REC_RATCHET_BASELINE_ARTIFACT_PATH) === REC_01_SIMULATION_BASELINE_SHA256
+      && gitFileSha256(ref, REC_RATCHET_PATCH_ARTIFACT_PATH) === REC_RATCHET_PATCH_ARTIFACT_SHA256
+      && gitFileSha256(ref, "src/scenes-41.js") === REC_01_SCENES_41_SHA256
+      && gitFileSha256(ref, "scripts/verify.mjs") === REC_01_VERIFY_SHA256
+      && gitFileSha256(ref, ".github/workflows/release-policy.yml") === WORKFLOW_SHA256["release-policy.yml"]
+      && gitFileSha256(ref, ".github/workflows/verify.yml") === WORKFLOW_SHA256["verify.yml"];
+  } catch {
+    return false;
+  }
+}
+
 function changedPathsForEvent(environment) {
   let range = null;
   if (environment.eventName === "pull_request") {
@@ -246,6 +378,10 @@ function readRepositoryFacts(environment) {
     recRatchetPatchHash: existsSync(recRatchetPatchPath)
       ? sha256(readFileSync(recRatchetPatchPath))
       : null,
+    artR2GovernanceDocumentHashes: Object.fromEntries(
+      Object.keys(ART_R2_GOVERNANCE_DOCUMENT_SHA256)
+        .map(path => [path, sha256(read(path))])
+    ),
     scenes41Hash: sha256(read("src/scenes-41.js")),
     verifyScriptHash: sha256(read("scripts/verify.mjs")),
     prBaseSimulationBaselineHash: environment.eventName === "pull_request"
@@ -256,8 +392,12 @@ function readRepositoryFacts(environment) {
       : null,
     prBaseIsRecRatchetSuccessor: environment.eventName === "pull_request"
       && isExactRecRatchetSuccessor(environment.prBaseSha),
+    prBaseIsArtR2GovernanceSuccessor: environment.eventName === "pull_request"
+      && isExactArtR2GovernanceSuccessor(environment.prBaseSha),
     pushBeforeIsRecRatchetSuccessor: environment.eventName === "push"
       && isExactRecRatchetSuccessor(environment.beforeSha),
+    pushAfterIsArtR2GovernanceSuccessor: environment.eventName === "push"
+      && isExactArtR2GovernanceSuccessor(environment.afterSha),
     workflowNames,
     workflowTexts,
     workflowHashes: Object.fromEntries(
@@ -435,6 +575,16 @@ export function evaluatePolicy(facts) {
       if (facts.prBaseSha !== LOCK_RECORD_BASE_SHA) {
         errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != lock-record base ${LOCK_RECORD_BASE_SHA}`);
       }
+    } else if (facts.headRef === ART_R2_GOVERNANCE_HEAD) {
+      changeRoute = "art-r2-governance";
+      if (facts.prBaseSha !== ART_R2_GOVERNANCE_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != ART-R2 governance base ${ART_R2_GOVERNANCE_BASE_SHA}`);
+      }
+    } else if (facts.headRef === ART_R2_IMPLEMENTATION_HEAD) {
+      changeRoute = "art-r2-implementation";
+      if (!facts.prBaseIsArtR2GovernanceSuccessor) {
+        errors.push("ART-R2 implementation base is not the exact protected governance merge successor");
+      }
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery route`);
     }
@@ -469,6 +619,11 @@ export function evaluatePolicy(facts) {
         changeRoute = "rec-01";
       } else if (normalizedBefore === LOCK_RECORD_BASE_SHA) {
         changeRoute = "lock-record";
+      } else if (normalizedBefore === ART_R2_GOVERNANCE_BASE_SHA) {
+        changeRoute = "art-r2-governance";
+        if (!facts.pushAfterIsArtR2GovernanceSuccessor) {
+          errors.push("ART-R2 governance push after SHA is not the exact two-parent protected governance successor");
+        }
       } else {
         errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery base`);
       }
@@ -495,33 +650,51 @@ export function evaluatePolicy(facts) {
       errors.push(`changed paths do not exactly match the one-shot REC-01 set: ${changedPaths.join(", ") || "<none>"}`);
     } else if (changeRoute === "lock-record" && !sameStringSet(changedPaths, LOCK_RECORD_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the one-shot lock-record set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "art-r2-governance" && !sameStringSet(changedPaths, ART_R2_GOVERNANCE_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the ART-R2 governance set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "art-r2-implementation" && !sameStringSet(changedPaths, ART_R2_IMPLEMENTATION_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the ART-R2 implementation set: ${changedPaths.join(", ") || "<none>"}`);
     }
   }
 
-  const expectsRec01Tree = ["rec-01", "lock-record"].includes(changeRoute);
+  const expectsRec01Tree = [
+    "rec-01",
+    "lock-record",
+    "art-r2-governance",
+    "art-r2-implementation"
+  ].includes(changeRoute);
   const expectedSimulationBaselineHash = expectsRec01Tree
     ? REC_01_SIMULATION_BASELINE_SHA256
     : SIMULATION_BASELINE_SHA256;
   if (facts.simulationBaselineHash !== expectedSimulationBaselineHash) {
     errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the ${expectsRec01Tree ? "REC-RATCHET-01 authorized replacement" : "issue #15 pinned fixture"}`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetHash !== REC_RATCHET_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_ARTIFACT_PATH}: bytes differ from the authorized transition artifact`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
     errors.push(`${REC_RATCHET_BASELINE_ARTIFACT_PATH}: bytes differ from the authorized inactive baseline`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetPatchHash !== REC_RATCHET_PATCH_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_PATCH_ARTIFACT_PATH}: bytes differ from the authorized implementation patch`);
   }
-  if (["rec-01", "lock-record"].includes(changeRoute) && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
+  if (["rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
+      && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
     errors.push("src/scenes-41.js: bytes differ from the authorized REC-01 target");
   }
-  if (["rec-01", "lock-record"].includes(changeRoute) && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
+  if (["rec-01", "lock-record", "art-r2-governance"].includes(changeRoute)
+      && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
     errors.push("scripts/verify.mjs: bytes differ from the authorized REC-01 target");
+  }
+  if (["art-r2-governance", "art-r2-implementation"].includes(changeRoute)) {
+    for (const [path, expectedHash] of Object.entries(ART_R2_GOVERNANCE_DOCUMENT_SHA256)) {
+      if (facts.artR2GovernanceDocumentHashes?.[path] !== expectedHash) {
+        errors.push(`${path}: bytes differ from the approved ART-R2 governance record`);
+      }
+    }
   }
 
   return { passed: errors.length === 0, errors, notices, route: changeRoute };
@@ -566,12 +739,15 @@ function baseSelfTestFacts() {
     recRatchetHash: null,
     recRatchetBaselineHash: null,
     recRatchetPatchHash: null,
+    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 },
     scenes41Hash: "0".repeat(64),
     verifyScriptHash: "0".repeat(64),
     prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
     pushBeforeSimulationBaselineHash: null,
     prBaseIsRecRatchetSuccessor: false,
+    prBaseIsArtR2GovernanceSuccessor: false,
     pushBeforeIsRecRatchetSuccessor: false,
+    pushAfterIsArtR2GovernanceSuccessor: false,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
       "name: fixture",
@@ -631,6 +807,20 @@ function selfTest() {
       "scripts/release-policy.mjs"
     ].sort()
   );
+  assert.deepEqual(
+    [...ART_R2_GOVERNANCE_CHANGED_PATHS].sort(),
+    [
+      "artifacts/ART-INTEGRATION-R2_GOVERNANCE_REPIN.md",
+      "artifacts/ART_RULES.md",
+      "artifacts/LOCKS.md",
+      "artifacts/PROJECT_STATUS.md",
+      "artifacts/ROADMAP.md",
+      "scripts/release-policy.mjs"
+    ].sort()
+  );
+  assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.length, 79);
+  assert.equal(new Set(ART_R2_IMPLEMENTATION_CHANGED_PATHS).size, 79);
+  assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.filter(path => path.startsWith("images/")).length, 55);
 
   const positive = baseSelfTestFacts();
   assert.deepEqual(evaluatePolicy(positive).errors, []);
@@ -712,6 +902,45 @@ function selfTest() {
   expectFailure(lockRecord, facts => { facts.scenes41Hash = "c".repeat(64); }, "authorized REC-01 target");
   expectFailure(lockRecord, facts => { facts.verifyScriptHash = "c".repeat(64); }, "authorized REC-01 target");
   expectFailure(lockRecord, facts => { facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED"); }, "STATUS NO-PUBLISH");
+
+  const artR2Governance = structuredClone(positive);
+  Object.assign(artR2Governance, {
+    headRef: ART_R2_GOVERNANCE_HEAD,
+    prBaseSha: ART_R2_GOVERNANCE_BASE_SHA,
+    changedPaths: [...ART_R2_GOVERNANCE_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256,
+    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 }
+  });
+  assert.deepEqual(evaluatePolicy(artR2Governance).errors, []);
+  expectFailure(artR2Governance, facts => { facts.prBaseSha = "c".repeat(40); }, "ART-R2 governance base");
+  expectFailure(artR2Governance, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 governance set");
+  expectFailure(artR2Governance, facts => { facts.changedPaths.pop(); }, "ART-R2 governance set");
+  expectFailure(artR2Governance, facts => {
+    facts.artR2GovernanceDocumentHashes[ART_R2_GOVERNANCE_RECORD_PATH] = "c".repeat(64);
+  }, "approved ART-R2 governance record");
+
+  const artR2Implementation = structuredClone(artR2Governance);
+  Object.assign(artR2Implementation, {
+    headRef: ART_R2_IMPLEMENTATION_HEAD,
+    prBaseSha: "e".repeat(40),
+    prBaseIsArtR2GovernanceSuccessor: true,
+    changedPaths: [...ART_R2_IMPLEMENTATION_CHANGED_PATHS],
+    verifyScriptHash: "c".repeat(64)
+  });
+  assert.deepEqual(evaluatePolicy(artR2Implementation).errors, []);
+  expectFailure(artR2Implementation, facts => {
+    facts.prBaseIsArtR2GovernanceSuccessor = false;
+  }, "exact protected governance merge successor");
+  expectFailure(artR2Implementation, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 implementation set");
+  expectFailure(artR2Implementation, facts => { facts.changedPaths.pop(); }, "ART-R2 implementation set");
+  expectFailure(artR2Implementation, facts => {
+    facts.artR2GovernanceDocumentHashes["artifacts/ART_RULES.md"] = "c".repeat(64);
+  }, "approved ART-R2 governance record");
 
   expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
   expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
@@ -825,6 +1054,28 @@ function selfTest() {
   expectFailure(lockRecordPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot lock-record set");
   expectFailure(lockRecordPush, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
 
+  const artR2GovernancePush = structuredClone(push);
+  Object.assign(artR2GovernancePush, {
+    beforeSha: ART_R2_GOVERNANCE_BASE_SHA,
+    changedPaths: [...ART_R2_GOVERNANCE_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256,
+    pushAfterIsArtR2GovernanceSuccessor: true,
+    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 }
+  });
+  assert.deepEqual(evaluatePolicy(artR2GovernancePush).errors, []);
+  expectFailure(artR2GovernancePush, facts => {
+    facts.pushAfterIsArtR2GovernanceSuccessor = false;
+  }, "exact two-parent protected governance successor");
+  expectFailure(artR2GovernancePush, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 governance set");
+  expectFailure(artR2GovernancePush, facts => {
+    facts.artR2GovernanceDocumentHashes["artifacts/LOCKS.md"] = "c".repeat(64);
+  }, "approved ART-R2 governance record");
+
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
     facts.refName = "sun-v0.30.1";
@@ -832,7 +1083,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 routes + REC-RATCHET-01 transition + one-shot REC-01 and lock-record routes)");
+  console.log("PASS release-policy self-test (issue #15 + REC-RATCHET-01 + REC-01 + lock-record + exact two-stage ART-R2 routes)");
 }
 
 function environmentFromProcess() {
@@ -857,6 +1108,8 @@ function taskForRoute(route) {
   if (route === "rec-01") return "REC-01/#13";
   if (route === "rec-ratchet") return "REC-RATCHET-01";
   if (route === "lock-record") return "LOCK-RECORD-R1/L-025-L-028";
+  if (route === "art-r2-governance") return "ART-INTEGRATION-R2/GOVERNANCE";
+  if (route === "art-r2-implementation") return "ART-INTEGRATION-R2/55-PLATE-DRAFT";
   return "PIPE-BOOT-R1/#15";
 }
 
