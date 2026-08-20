@@ -4,7 +4,7 @@
 registerScenes({
 
   act3_reckoning_burn_stale: {
-    image: "images/power_crisis.jpg",
+    image: "images/act3_reckoning_burn_stale.jpg",
     onEnter: () => {
       state.flags.burn_unverified = true;
       state.flags.course_option_lost = true;
@@ -26,7 +26,7 @@ Nothing feels wrong. That is the honest description: nothing feels wrong.`;
   },
 
   act3_reckoning_burn_verified: {
-    image: "images/power_crisis.jpg",
+    image: "images/act3_reckoning_burn_verified.jpg",
     onEnter: () => {
       state.flags.margin_committed = true;
       remember("Committed the verified correction burn; spent the insertion margin.");

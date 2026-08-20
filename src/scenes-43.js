@@ -85,7 +85,7 @@ She settles back against you. Neither of you performs sleep.`
 
   // PRE: isAlive(lena) && !promises.lena | WRITES: choice flag + remember | DEATH: none | IMG: reuse
   prom_make_lena: {
-    image: "images/medbay_dim.jpg",
+    image: "images/prom_make_lena.jpg",
     onEnter: () => {
       if (!isAlive("lena") || state.promises.lena) return "past_leak";
     },
@@ -106,7 +106,7 @@ She kills the display. "Notice we're alone and I'm not calling you Commander. Th
 
   // PRE: entered from prom_make_lena only | WRITES: onEnter promises.lena (idempotent) | DEATH: none | IMG: reuse
   prom_r_lena: {
-    image: "images/medbay_dim.jpg",
+    image: "images/prom_r_lena.jpg",
     onEnter: () => {
       if (!state.promises.lena) state.promises.lena = state.flags.prom_lena ? "made" : "declined";
     },

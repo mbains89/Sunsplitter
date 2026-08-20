@@ -119,7 +119,7 @@ He sets the helmet down long enough to leave the decision with you.`;
       }
     ];
   },
-  image: "images/tomas_break.jpg"
+  image: "images/act3_lethal_tomas_end.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -143,7 +143,7 @@ He sets the helmet down long enough to leave the decision with you.`;
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Tomas dialogue/action guarded by isAlive('tomas'); any
 //   stranded named character is selected through isAlive() before acting
-// IMAGE: images/quiet_tomas.jpg [REUSE quiet_tomas; EXISTS; NO BAKED TEXT]
+// IMAGE: images/act3_lethal_tomas_stores.jpg [LOCKED ART-INTEGRATION-R2 plate]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_tomas_stores: {
   onEnter: () => {
@@ -186,7 +186,7 @@ Eight points leave Supplies before the green strip becomes too small to see. Tom
   choices: [
     { text: "Post the expenditure. Continue.", next: "act3_lethal_elias_order" }
   ],
-  image: "images/quiet_tomas.jpg"
+  image: "images/act3_lethal_tomas_stores.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -210,6 +210,6 @@ Eight points leave Supplies before the green strip becomes too small to see. Tom
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Tomas dialogue/action guarded by isAlive('tomas'); any
 //   stranded named character is selected through isAlive() before acting
-// IMAGE: images/quiet_tomas.jpg [REUSE quiet_tomas; EXISTS; NO BAKED TEXT]
+// IMAGE: images/act3_lethal_tomas_structure.jpg [LOCKED ART-INTEGRATION-R2 plate]
 // ═════════════════════════════════════════════════════════════════
 });

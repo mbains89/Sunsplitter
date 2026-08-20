@@ -24,6 +24,7 @@ import {
   sceneIdDigest,
   simulationAssertions
 } from "./simulate.mjs";
+import { runArtR2SelfTest, validateArtR2 } from "./validate-art-r2.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
@@ -251,6 +252,9 @@ export function runSelfTest() {
     "`release_state: PUBLISH`"
   ].join("\n"), ["release_state"]);
   check(duplicateStatus.errors.some(error => error.includes("expected exactly 1")), "duplicate contradictory STATUS field did not fail closed");
+
+  const artR2 = runArtR2SelfTest(ROOT);
+  artR2.failures.forEach(failure => failures.push(`ART-INTEGRATION-R2: ${failure}`));
 
   return { passed: failures.length === 0, failures };
 }
@@ -694,6 +698,11 @@ function main() {
     failures.push(...identity.errors);
   }
 
+  const artR2 = validateArtR2(ROOT, { runtime, loadRuntime: false });
+  printCheck("ART-INTEGRATION-R2 exact assets + scene wiring", artR2.errors,
+    `${artR2.wave2Count}+${artR2.wave3Count}=${artR2.plateCount} plates; ${artR2.warnings.length} warning(s)`);
+  failures.push(...artR2.errors.map(error => `ART-INTEGRATION-R2: ${error}`));
+
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
   for (const result of simulations) {
     const errors = simulationAssertions(result);
@@ -720,7 +729,7 @@ try {
   const args = process.argv.slice(2);
   if (args.length === 1 && args[0] === "--self-test") {
     const result = runSelfTest();
-    console.log(`[verify] SELF-TEST ${result.passed ? "PASS" : "FAIL"}${result.failures.length ? ` — ${result.failures.join("; ")}` : " — injected version drift rejected"}`);
+    console.log(`[verify] SELF-TEST ${result.passed ? "PASS" : "FAIL"}${result.failures.length ? ` — ${result.failures.join("; ")}` : " — injected version and ART-R2 drift rejected"}`);
     if (!result.passed) process.exitCode = 1;
   } else if (args.length) {
     throw new Error(`Unknown argument(s): ${args.join(" ")}`);

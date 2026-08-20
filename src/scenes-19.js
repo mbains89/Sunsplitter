@@ -62,7 +62,7 @@ Without either, Lena can finish the watch. The clock will finish with her.`;
     });
     return opts;
   },
-  image: "images/medbay_dim.jpg"
+  image: "images/act3_lethal_lena_clock.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -82,7 +82,7 @@ Without either, Lena can finish the watch. The clock will finish with her.`;
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Lena dialogue/action guarded by isAlive('lena'); dead entry
 //   redirects before image/text/choices
-// IMAGE: images/medbay_dim.jpg [REUSE generic medical plate; EXISTS; ART-HONEST]
+// IMAGE: images/act3_lethal_lena_sterile.jpg [LOCKED ART-INTEGRATION-R2 plate]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_lena_sterile: {
   onEnter: () => {
@@ -102,7 +102,7 @@ She inventories the empty wrappers before she sits down.
   choices: [
     { text: "Leave the empty shelf visible. Continue.", next: "act3_vault_face" }
   ],
-  image: "images/medbay_dim.jpg"
+  image: "images/act3_lethal_lena_sterile.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -122,6 +122,6 @@ She inventories the empty wrappers before she sits down.
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Lena dialogue/action guarded by isAlive('lena'); dead entry
 //   redirects before image/text/choices
-// IMAGE: images/medbay_dim.jpg [REUSE generic medical plate; EXISTS; NO BAKED TEXT]
+// IMAGE: images/act3_lethal_lena_power.jpg [LOCKED ART-INTEGRATION-R2 plate]
 // ═════════════════════════════════════════════════════════════════
 });

@@ -68,7 +68,7 @@ Elias keeps one finger on B-four.
       }
     ];
   },
-  image: "images/bond_elias.jpg"
+  image: "images/act3_lethal_elias_end.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -206,6 +206,6 @@ The line holds. Security authority remains on the board with no living name besi
 // DEATH EXPOSURE: can kill mira via the final choice
 // DEAD-SPEECH CHECK: Mira dialogue/action and lethal choice are guarded by
 //   isAlive('mira'); dead entry redirects before image/text/choices
-// IMAGE: images/quiet_mira.jpg [REUSE live Mira portrait; EXISTS; NO BAKED TEXT]
+// IMAGE: images/act3_lethal_mira_end.jpg [LOCKED ART-INTEGRATION-R2 living pre-commitment plate]
 // ═════════════════════════════════════════════════════════════════
 });

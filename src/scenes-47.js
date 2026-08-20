@@ -4,7 +4,7 @@
 registerScenes({
 
   prom_price: {
-    image: "images/vault_reveal.jpg",
+    image: "images/prom_price.jpg",
     onEnter: () => {
       if (state.promises.sela !== "made" || !isAlive("sela")) return "custody_hub";
     },
@@ -32,7 +32,7 @@ Three of the crew came to you separately inside one watch. A petition is on the 
 
   // PRE: from prom_price choice 1 | WRITES: onEnter promises.sela="kept" (idempotent) | DEATH: none | IMG: reuse
   prom_price_keep: {
-    image: "images/vault_reveal.jpg",
+    image: "images/prom_price_keep.jpg",
     onEnter: () => {
       if (state.promises.sela === "made") state.promises.sela = "kept";
     },
@@ -49,7 +49,7 @@ Sela steps up beside you. Not behind.
 
   // PRE: from prom_price choice 2 | WRITES: onEnter promises.sela="broken" (idempotent) | DEATH: none | IMG: reuse
   prom_price_break: {
-    image: "images/vault_reveal.jpg",
+    image: "images/prom_price_break.jpg",
     onEnter: () => {
       if (state.promises.sela === "made") state.promises.sela = "broken";
     },
