@@ -250,7 +250,24 @@ PX GATE — Player Experience Baseline & Design Governance
 
 **Milestone A = 0.28.2 + 0.28.3.** Both must ship before the PX gate closes or any 0.29 prose opens.
 
-No new story volume, art batch, gameplay system, Ticket 2 implementation, tutorial, opening video, or crew dossier may jump this sequence.
+No new story volume, art batch, gameplay system, Ticket 2 implementation, tutorial, opening video, or crew dossier may jump this sequence except the exact owner-approved ART-INTEGRATION-R2 exception below.
+
+### L-004 one-time ART-INTEGRATION-R2 exception
+
+Manraj approved one bounded sequencing exception on 2026-08-20. It does not reopen the dependency spine or authorize further art volume.
+
+- Governance is repinned from the superseded `9bb4ccf7efbf856ffed569436787f779ad195698` target to exact recovery commit `8a840397d80b8fe1027a22ca89603d92f0e562e6`, tree `0af206bdc531b355598840402e94be297e297fc8`.
+- Scope is exactly 55 approved unique-event plates: 34 Wave 2 plates from `/Sunsplitter/Sunsplitter-all-art-replacements-for-Grok.zip` version 26 at SHA-256 `1d1b23afbaeafda3b4f865302ab9f605e8e38780bf94abafa0c5c68ab52bd485`, plus 21 Wave 3 plates from `/Sunsplitter/Sunsplitter-Wave3-21-approved-event-art.zip` at SHA-256 `6f1f40886a112fe6b2e0e543690cecce36a522b5daf408b784a21f67821e633f`.
+- The exception integrates only exact approved bytes into the existing presentation layer. It changes no prose, dialogue, choices, consequences, resources, state, death timing, route topology, save behavior, release identity, or deployment control.
+- The three lethal-moment files bind to their living pre-commitment scenes: `act3_lethal_elias_order`, `act3_lethal_mira_board`, and `act3_lethal_tomas_cost`. Their `_end` scenes retain death-neutral art.
+- `arc_fork` leaves the obsolete Tomas/Jiro group guard because its approved plate is roster-neutral. `status` leaves that obsolete guard; at five or fewer survivors it uses `images/corridor.jpg`, otherwise it requires Elias, Mira, Lena, and Sela or uses `images/observation.jpg`, and only then may render the approved plate.
+- `reckon_suppress` requires Elias, recovered Tomas, and Amara; `reckon_truth` requires Tomas, Jiro, Lena, and Sela. Each otherwise retains its pre-R2 death-neutral image.
+- `prom_vent_keep`, `prom_price`, and `prom_price_keep` use fail-closed depicted-headcount guards with their pre-R2 images as fallbacks. The thresholds, respectively, are seven available people with Amara alive, the complete nine-person current roster with Sela alive, and six available people with Sela alive.
+- `faction_split` preserves the existing all-eight named-crew resolver exactly and uses `images/corridor_variant.jpg` whenever anyone is dead or unavailable. The approved plate may render only on the complete-roster path.
+- Full mapping, guard arithmetic, archive evidence, and the exact six-file governance route are controlled by `ART-INTEGRATION-R2_GOVERNANCE_REPIN.md` and `ART_RULES.md` at the same landed revision.
+- Stage 1 must land through a protected pull request after required checks and independent exact-head program-office PASS. Stage 2 must branch from that exact merge, open only a draft pull request, and remain unmerged.
+
+`NO-PUBLISH / NOT CERTIFIED` remains active. This exception authorizes no tag, release, deployment, Netlify action, production mutation, or milestone certification.
 
 The authority bootstrap is a one-time documentation-only migration PR explicitly outside the recurring game-version cadence. It changes no runtime bytes, must be reviewed atomically, and is the last non-version PR permitted to target `main`. After it lands, only conforming version close-out PRs may target `main`.
 

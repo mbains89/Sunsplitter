@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Grok / program office  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `468b053c0517928d704dda54b084b6092609cbf5c513592da59dd3abb1b71722`
+**Roadmap source SHA-256:** `5c79b798065c8b9dcae41cc53ba1118a1e5dd934803c310539be3f350b4cbf90`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and Grok records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -15,7 +15,7 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 |---|---|---|---|
 | L-001 | LOCKED | Authority and change-control law | ROADMAP §1 |
 | L-002 | LOCKED | Permanent product, canon, causality, architecture, state, UI, art, and release locks | ROADMAP §2 |
-| L-004 | LOCKED | Dependency spine and milestone order | ROADMAP §4 |
+| L-004 | LOCKED | Dependency spine and milestone order, with the sole exact ART-INTEGRATION-R2 55-plate exception | ROADMAP §4 |
 | L-005 | LOCKED | 0.28.2 ten-ticket Truth Hotfix batch boundary | ROADMAP §5 |
 | L-006 | LOCKED | 0.28.3 Chain-of-Custody and Systemic Truth scope | ROADMAP §6 |
 | L-007 | LOCKED | Player-experience gate sequence PX-0 through PX-6 | ROADMAP §7 |
@@ -25,6 +25,10 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 | L-011 | LOCKED | 0.32 PC-readiness definition | ROADMAP §11 |
 | L-012 | LOCKED | 0.33 commercial direction | ROADMAP §12 |
 | L-013 | LOCKED | 1.0 release-candidate and launch gate | ROADMAP §13 |
+
+### L-004 owner-approved sequencing exception (2026-08-20)
+
+ART-INTEGRATION-R2 is the sole exception to the pre-Milestone-A art-volume prohibition: exactly 34 Wave 2 plus 21 Wave 3 approved event plates, governed from recovery commit `8a840397d80b8fe1027a22ca89603d92f0e562e6`. It requires a protected governance merge before draft-only implementation, preserves the exact scene-honesty guards in ROADMAP §4 and `ART-INTEGRATION-R2_GOVERNANCE_REPIN.md`, and authorizes no gameplay, narrative, release, deployment, publication, certification, or further art batch. Approved by Manraj on 2026-08-20; independent exact-head adjudication remains mandatory for the governance pull request.
 
 ## Ruled (0.28.2 blockers closed 2026-08-18)
 
