@@ -78,7 +78,7 @@ These rules survive every version unless Manraj explicitly reopens one.
 - Sunsplitter is a short, grim narrative-survival browser game. The player is the Commander of a damaged colonization ark after Earth's sudden cascade.
 - The ship is a full O'Neill cylinder. Interior art uses rectangular rooms, bays, and straight corridors only; no curved-ring interior architecture.
 - Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. The Commander is not an additional named NPC. No permanent character may be added beyond Vess.
-- The Commander remains faceless and has no official portrait.
+- **Commander identity (L-025, Option B):** the Commander is a player-shaped second-person protagonist. The Commander remains faceless, has no official portrait, and gains no identity system. Remove accidental gendering from every rendered prose path and handle reproductive facts deliberately.
 - Permanent constants do not drift: `04:19:07`, Tube 3, 214 berths, change orders 4417/4491, 61/19/42 systems, manifest tiers 1–4, nine through the hatch, and the ship name `Sunsplitter`.
 - Earth departure remains a colonization mission overtaken by a sudden cascade measured in hours to roughly two days. The official account appears first; contested truths arrive later.
 - Fixed event order is an accepted pre-1.0 design limitation, not an open replayability defect.
@@ -312,7 +312,7 @@ Before the first hotfix ticket, the certified verifier/simulator copies, minimal
 
 ## 6. 0.28.3 — Chain-of-Custody + Systemic-Truth Foundation
 
-**Status:** LOCKED scope; promise semantics and several small dispositions remain decision gates.
+**Status:** LOCKED scope; unresolved promise work remains gated. L-026 and L-027 are ruled below.
 **Concern:** make truth repeatable, auditable, and safe to ship.
 **Entry:** 0.28.2 green.
 
@@ -336,9 +336,9 @@ Before the first hotfix ticket, the certified verifier/simulator copies, minimal
 - Move render-time state writes in numbered scene modules and `offshift_amara` into `onEnter`; rendering becomes side-effect-free.
 - Harden `validate.js`: real reachability, Vess in romance IDs, fail-closed unknown requirements, invalid-name `isAlive` guard, no accidental global `scenes`, and negative fixtures.
 - Change intimacy-window first-offer gates to `romanceOpen`.
-- Give `vess_course_lost` a tested downstream consumer or retire the flag and its promise.
+- Retire `vess_course_lost` and its promised downstream-course consequence. Do not add a consumer or broaden this ruling to other Vess flags or effects.
 - Close the solo-Amara first-offer after `amara_tomas` and add the group relationship to current-run facts.
-- Keep or retire Last Off-Shift zero/one branches explicitly; validator/docs must not misreport structurally unreachable defensive code as playable content.
+- Retain the Last Off-Shift zero-eligible bypass and one-eligible auto-route solely as tested defensive save-recovery guards. Preserve existing `junctionChoice` behavior. Validator and documentation coverage must classify them as defensive recovery paths, not ordinary playable content.
 - Adopt the coverage-proof rule: future external audits are rejected if they do not declare scanned files/scenes, classifications, and unresolved rows.
 - Refresh the stale README layout to the numbered scene modules and add only verified simulator usage; do not reuse the rejected retired-layout README.
 - Produce the unified economy close-out: starting values, typical spends, hard floors, lethal thresholds, ending requirements, resource-rich/poor viable paths, and full-survival evidence. PX-3 later judges dominance/feel; 0.28.3 proves honesty and viability.
@@ -400,7 +400,7 @@ No story or economy change is justified merely because an internal reviewer pred
 
 1. PX-1 baseline.
 2. PX-2 pacing target and PX-3 outcome envelope.
-3. PX-4 Commander identity decision and PX-5 command-authority/sexual-power audit.
+3. PX-4 Commander identity implementation audit and PX-5 command-authority/sexual-power audit.
 4. PX-6 private voyage chronology.
 5. Only evidence-backed narrative/economy changes.
 6. PX-7 save portability and PX-8 accessibility/performance.
@@ -441,16 +441,13 @@ The compact playtest receipt belongs here. Full save export/import belongs to PX
 
 **Exit:** approved outcome-envelope definitions plus reproducible simulation evidence.
 
-### PX-4 — Commander Identity Decision
+### PX-4 — Commander Identity Implementation Audit
 
-Choose and record one canon:
+**Locked canon (L-025, Option B):** the Commander is a player-shaped second-person protagonist. The Commander remains faceless, has no official portrait, and gains no identity system. Accidental gendering must be removed and reproductive facts handled deliberately.
 
-- **A:** defined male protagonist, communicated early and consistently; or
-- **B:** player-shaped second-person Commander, with accidental gendering removed and reproductive facts handled deliberately.
+PX-4 does not reopen the A/B choice. Audit every rendered prose path, not only literal source lines, then synchronize the relevant Bible, voice, and status notes.
 
-**Recommendation:** B, because the game already relies on a faceless second-person Commander.
-
-**Exit:** Manraj approves A or B; Grok records it; every rendered prose path—not only literal source lines—is audited; relevant Bible/voice/status notes are synchronized.
+**Exit:** the rendered-path gender and reproductive-fact audit is complete, any approved prose corrections are validated, and the relevant Bible, voice, and status notes agree with Option B.
 
 ### PX-5 — Command Authority and Sexual Power
 
@@ -685,11 +682,11 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 | Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
 | Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
 | “PM-like” quick roadmap updater | CANDIDATE 0.28.3 governance helper. It may fetch `main`, draft a patch/draft PR, validate, and return a copy-ready summary. It may never write directly to `main` or self-lock. |
-| Ticket 2 new-crew indicator | DECISION GATE; no implementation before PX evidence and Grok lock |
+| Ticket 2 new-crew indicator | DEFERRED — default RETIRE. Reconsider only if mobile PX evidence meets a pre-registered, Manraj-approved comprehension threshold in the dispatched PX protocol; absent qualifying evidence at PX closure, retire. No implementation now. |
 | Four-state promise domain | DECISION GATE before 0.28.3 promise implementation and all 0.29 prose |
-| Commander identity A/B | DECISION GATE at PX-4; B recommended |
-| Last Off-Shift zero/one branches | DECISION GATE in 0.28.3: document defensive code or retire it |
-| `vess_course_lost` | DECISION GATE in 0.28.3: tested consumer or retire |
+| Commander identity A/B | LOCKED — Option B; player-shaped second-person Commander; rendered-path audit still required. |
+| Last Off-Shift zero/one branches | LOCKED — retain zero/one routes solely as tested defensive save-recovery guards; preserve `junctionChoice` behavior. |
+| `vess_course_lost` | LOCKED — retire `vess_course_lost` and its promised downstream-course consequence; no consumer. |
 | Pair residual textures/debt/pregnancy texture | DEFERRED to evidence-gated 0.29 scope |
 | Breast-cover/explicit-content toggle | HELD/UNSCHEDULED |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
