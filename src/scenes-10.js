@@ -42,7 +42,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
   },
 
   act2_tether_vent: {
-    image: "images/power_crisis.jpg",
+    image: "images/act2_tether_vent.jpg",
     onEnter: () => {
       state.flags.water_vented = true;
       remember("Vented 1,100 liters of reserve water to match the agri-annex drift.");
@@ -73,7 +73,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
   },
 
   act2_tether_rush: {
-    image: "images/debris_field.jpg",
+    image: "images/act2_tether_rush.jpg",
     onEnter: () => {
       state.flags.tether_rushed = true;
       remember("Ordered a hard intercept of the agri-annex to preserve the water reserve.");

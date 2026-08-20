@@ -613,6 +613,11 @@ function isIntimateScene(id, scene) {
 
 function resolveSceneImage(id, scene) {
   const map = (typeof sceneImages !== "undefined" && sceneImages) ? sceneImages : {};
+  const eight = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
+  const availableRosterCount = Math.min(
+    Number.isFinite(state.survivors) ? state.survivors : 0,
+    1 + eight.filter(key => isAlive(key)).length
+  );
   // Death-aware + unrecovered-aware group plates FIRST.
   // isAlive already treats !recovered.tomas/jiro as not alive (0.22+).
   // Fallbacks use literal paths — map keys are scene ids, not generic location names.
@@ -650,20 +655,34 @@ function resolveSceneImage(id, scene) {
     }
   }
 
-  // Group / observation_crew family — never show while Tomas or Jiro unrecovered
-  // (map already parked most of these on observation.jpg; keep runtime guard).
-  if (id === "status" || id === "lead_together" || id === "arc_fork" ||
-      id === "act2_tether_truth" || id === "reckon_truth" || id === "observation_crew") {
+  // Status plate shows Elias, Mira, Lena, and Sela; depletion takes precedence.
+  if (id === "status") {
+    if (state.survivors <= 5) return "images/corridor.jpg";
+    if (!isAlive("elias") || !isAlive("mira") || !isAlive("lena") || !isAlive("sela")) {
+      return "images/observation.jpg";
+    }
+  }
+
+  // Legacy observation_crew family — never show while Tomas or Jiro unrecovered.
+  if (id === "lead_together" || id === "act2_tether_truth" || id === "observation_crew") {
     if (!isAlive("tomas") || !isAlive("jiro")) {
       return "images/observation.jpg";
     }
   }
 
+  // Approved reckoning plates retain exact cast-aware fallbacks.
+  if (id === "reckon_suppress" &&
+      (!isAlive("elias") || !isAlive("tomas") || !isAlive("amara"))) {
+    return "images/observation_reckon.jpg";
+  }
+  if (id === "reckon_truth" &&
+      (!isAlive("tomas") || !isAlive("jiro") || !isAlive("lena") || !isAlive("sela"))) {
+    return "images/observation.jpg";
+  }
+
   // Faction / debt / group plates: substitute whenever ANY of the eight named crew is not alive (0.25 Edit H).
-  // Enumerated against live sceneImages map at implementation. faction_split permanently on corridor_variant.
   if (id === "faction_split" || id === "faction_split_alt" || id === "debt_notice" ||
       id === "reckon_public" || id === "reckon_summary") {
-    const eight = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
     const anyMissing = eight.some(k => !isAlive(k));
     if (anyMissing) {
       if (id === "debt_notice" || id === "faction_split" || id === "faction_split_alt") {
@@ -673,7 +692,19 @@ function resolveSceneImage(id, scene) {
     }
   }
 
-  if (id === "crew_walk" || id === "status") {
+  // Promises plates with multi-person compositions fail closed on both named
+  // character availability and the actual available roster count.
+  if (id === "prom_vent_keep" && (!isAlive("amara") || availableRosterCount < 7)) {
+    return "images/corridor_variant.jpg";
+  }
+  if (id === "prom_price" && (!isAlive("sela") || availableRosterCount < 9)) {
+    return "images/vault_reveal.jpg";
+  }
+  if (id === "prom_price_keep" && (!isAlive("sela") || availableRosterCount < 6)) {
+    return "images/vault_reveal.jpg";
+  }
+
+  if (id === "crew_walk") {
     // absence felt — prefer corridor / empty capacity plates when depleted
     if (state.survivors <= 5) return "images/corridor.jpg";
   }

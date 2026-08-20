@@ -4,7 +4,7 @@
 registerScenes({
 
   act2_tether_hand_elias: {
-    image: "images/self_risk.jpg",
+    image: "images/act2_tether_hand_elias.jpg",
     onEnter: () => { state.flags.tether_hand_elias = true; },
     text: () => {
       const rushed = !!state.flags.tether_rushed;
@@ -21,7 +21,7 @@ registerScenes({
   },
 
   act2_tether_hand_mira: {
-    image: "images/self_risk.jpg",
+    image: "images/act2_tether_hand_mira.jpg",
     onEnter: () => { state.flags.tether_hand_mira = true; },
     text: () => {
       const rushed = !!state.flags.tether_rushed;
@@ -35,7 +35,7 @@ On the line she narrates the whole ride in measurements — range, closure, seam
   },
 
   act2_tether_hand_sela: {
-    image: "images/self_risk.jpg",
+    image: "images/act2_tether_hand_sela.jpg",
     onEnter: () => { state.flags.tether_hand_sela = true; },
     text: () => `Sela puts the suit on without being shown twice. "I will go," she says. "I have caught falling things before. None this large. The principle holds."
 
@@ -46,7 +46,7 @@ On the line she does not fill the silence. Range calls only, exact, unhurried. A
   },
 
   act2_tether_dock: {
-    image: "images/bulkhead.jpg",
+    image: "images/act2_tether_dock.jpg",
     onEnter: () => {
       if (!isRecovered("tomas")) {
         state.recovered.tomas = true;

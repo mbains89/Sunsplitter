@@ -41,7 +41,7 @@ registerScenes({
 
   // Pair 1 cold (micro, reachable when Mira dead + Elias alive + attributable)
   pair_shield_cold: {
-    image: "images/elias.jpg",
+    image: "images/pair_shield_cold.jpg",
     onEnter: () => {
       state.flags.pair_shield = true;
       remember("Elias said she was what the job was for");

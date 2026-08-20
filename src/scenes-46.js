@@ -52,7 +52,7 @@ Lena, half-conscious, finds enough voice for one line. "Two patients. One line."
 
   // PRE: from prom_line choice 1 | WRITES: onEnter promises.lena="kept" (idempotent) | DEATH: none | IMG: reuse
   prom_line_keep: {
-    image: "images/medbay_dim.jpg",
+    image: "images/prom_line_keep.jpg",
     onEnter: () => {
       if (state.promises.lena === "made") state.promises.lena = "kept";
     },
@@ -101,7 +101,7 @@ Med-bay stays open after that. She does not.`;
 
   // PRE: promises.mira made && isAlive(mira) | WRITES: none | DEATH: none | IMG: reuse
   prom_direct: {
-    image: "images/power_crisis.jpg",
+    image: "images/prom_direct.jpg",
     onEnter: () => {
       if (state.promises.mira !== "made" || !isAlive("mira")) return "faction_split";
     },
@@ -124,7 +124,7 @@ Mira has already modeled it twice.
 
   // PRE: from prom_direct choice 1 | WRITES: onEnter promises.mira="kept" (idempotent) | DEATH: none | IMG: reuse
   prom_direct_keep: {
-    image: "images/power_crisis.jpg",
+    image: "images/prom_direct_keep.jpg",
     onEnter: () => {
       if (state.promises.mira === "made") state.promises.mira = "kept";
     },
@@ -142,7 +142,7 @@ She does not say safer. She says, "Ours."`;
 
   // PRE: from prom_direct choice 2 | WRITES: onEnter promises.mira="broken" (idempotent) | DEATH: none | IMG: reuse
   prom_direct_break: {
-    image: "images/power_crisis.jpg",
+    image: "images/prom_direct_break.jpg",
     onEnter: () => {
       if (state.promises.mira === "made") state.promises.mira = "broken";
     },
