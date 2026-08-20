@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// PIPE-BOOT-R1, REC-RATCHET-01, and the one-shot REC-01 route.
+// PIPE-BOOT-R1, REC-RATCHET-01, REC-01, and the one-shot lock-record route.
 //
 // This is deliberately a recovery-only, fail-closed policy. It does not create
 // tags, releases, deployments, artifacts, or publication credentials. A later
@@ -32,6 +32,8 @@ const PIPE_BOOT_MERGE_SHA = "0b600935aa6e21d4898bcc9c7ad09e78893ec6e7";
 const REC_RATCHET_HEAD = "ticket/0.30.1-rec-ratchet-01";
 const REC_RATCHET_BASE_SHA = "78a64c7a180a34e786da3eefac42a06f50703bab";
 const REC_01_HEAD = "ticket/0.30.1-rec-01-r1";
+const LOCK_RECORD_HEAD = "ticket/0.30.1-locks-l025-l028-r1";
+const LOCK_RECORD_BASE_SHA = "9bb4ccf7efbf856ffed569436787f779ad195698";
 const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const REC_RATCHET_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_BASELINE_TRANSITION.md";
 const REC_RATCHET_BASELINE_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_AUTHORIZED_BASELINE.json";
@@ -83,6 +85,13 @@ export const REC_01_CHANGED_PATHS = Object.freeze([
   SIMULATION_BASELINE_PATH,
   "scripts/verify.mjs",
   "src/scenes-41.js"
+]);
+
+export const LOCK_RECORD_CHANGED_PATHS = Object.freeze([
+  "artifacts/LOCKS.md",
+  "artifacts/PROJECT_STATUS.md",
+  "artifacts/ROADMAP.md",
+  "scripts/release-policy.mjs"
 ]);
 
 const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
@@ -421,6 +430,11 @@ export function evaluatePolicy(facts) {
       if (facts.prBaseSimulationBaselineHash !== SIMULATION_BASELINE_SHA256) {
         errors.push("REC-01 pull-request base does not contain the pre-transition simulation baseline");
       }
+    } else if (facts.headRef === LOCK_RECORD_HEAD) {
+      changeRoute = "lock-record";
+      if (facts.prBaseSha !== LOCK_RECORD_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != lock-record base ${LOCK_RECORD_BASE_SHA}`);
+      }
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery route`);
     }
@@ -453,6 +467,8 @@ export function evaluatePolicy(facts) {
         && facts.simulationBaselineHash === REC_01_SIMULATION_BASELINE_SHA256
       ) {
         changeRoute = "rec-01";
+      } else if (normalizedBefore === LOCK_RECORD_BASE_SHA) {
+        changeRoute = "lock-record";
       } else {
         errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery base`);
       }
@@ -477,31 +493,34 @@ export function evaluatePolicy(facts) {
       errors.push(`changed paths do not exactly match the REC-RATCHET-01 set: ${changedPaths.join(", ") || "<none>"}`);
     } else if (changeRoute === "rec-01" && !sameStringSet(changedPaths, REC_01_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the one-shot REC-01 set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "lock-record" && !sameStringSet(changedPaths, LOCK_RECORD_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the one-shot lock-record set: ${changedPaths.join(", ") || "<none>"}`);
     }
   }
 
-  const expectedSimulationBaselineHash = changeRoute === "rec-01"
+  const expectsRec01Tree = ["rec-01", "lock-record"].includes(changeRoute);
+  const expectedSimulationBaselineHash = expectsRec01Tree
     ? REC_01_SIMULATION_BASELINE_SHA256
     : SIMULATION_BASELINE_SHA256;
   if (facts.simulationBaselineHash !== expectedSimulationBaselineHash) {
-    errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the ${changeRoute === "rec-01" ? "REC-RATCHET-01 authorized replacement" : "issue #15 pinned fixture"}`);
+    errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the ${expectsRec01Tree ? "REC-RATCHET-01 authorized replacement" : "issue #15 pinned fixture"}`);
   }
-  if (["rec-ratchet", "rec-01"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
       && facts.recRatchetHash !== REC_RATCHET_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_ARTIFACT_PATH}: bytes differ from the authorized transition artifact`);
   }
-  if (["rec-ratchet", "rec-01"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
       && facts.recRatchetBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
     errors.push(`${REC_RATCHET_BASELINE_ARTIFACT_PATH}: bytes differ from the authorized inactive baseline`);
   }
-  if (["rec-ratchet", "rec-01"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record"].includes(changeRoute)
       && facts.recRatchetPatchHash !== REC_RATCHET_PATCH_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_PATCH_ARTIFACT_PATH}: bytes differ from the authorized implementation patch`);
   }
-  if (changeRoute === "rec-01" && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
+  if (["rec-01", "lock-record"].includes(changeRoute) && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
     errors.push("src/scenes-41.js: bytes differ from the authorized REC-01 target");
   }
-  if (changeRoute === "rec-01" && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
+  if (["rec-01", "lock-record"].includes(changeRoute) && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
     errors.push("scripts/verify.mjs: bytes differ from the authorized REC-01 target");
   }
 
@@ -603,6 +622,15 @@ function selfTest() {
       "scripts/verify.mjs"
     ].sort()
   );
+  assert.deepEqual(
+    [...LOCK_RECORD_CHANGED_PATHS].sort(),
+    [
+      "artifacts/LOCKS.md",
+      "artifacts/PROJECT_STATUS.md",
+      "artifacts/ROADMAP.md",
+      "scripts/release-policy.mjs"
+    ].sort()
+  );
 
   const positive = baseSelfTestFacts();
   assert.deepEqual(evaluatePolicy(positive).errors, []);
@@ -660,6 +688,30 @@ function selfTest() {
   expectFailure(rec01, facts => { facts.verifyScriptHash = "c".repeat(64); }, "authorized REC-01 target");
   expectFailure(rec01, facts => { facts.changedPaths.push("README.md"); }, "one-shot REC-01 set");
   expectFailure(rec01, facts => { facts.changedPaths.pop(); }, "one-shot REC-01 set");
+
+  const lockRecord = structuredClone(positive);
+  Object.assign(lockRecord, {
+    headRef: LOCK_RECORD_HEAD,
+    prBaseSha: LOCK_RECORD_BASE_SHA,
+    changedPaths: [...LOCK_RECORD_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256
+  });
+  assert.deepEqual(evaluatePolicy(lockRecord).errors, []);
+  expectFailure(lockRecord, facts => { facts.prBaseSha = "c".repeat(40); }, "lock-record base");
+  expectFailure(lockRecord, facts => { facts.changedPaths.push("README.md"); }, "one-shot lock-record set");
+  expectFailure(lockRecord, facts => { facts.changedPaths.pop(); }, "one-shot lock-record set");
+  expectFailure(lockRecord, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
+  expectFailure(lockRecord, facts => { facts.recRatchetHash = "c".repeat(64); }, "authorized transition artifact");
+  expectFailure(lockRecord, facts => { facts.recRatchetBaselineHash = "c".repeat(64); }, "authorized inactive baseline");
+  expectFailure(lockRecord, facts => { facts.recRatchetPatchHash = "c".repeat(64); }, "authorized implementation patch");
+  expectFailure(lockRecord, facts => { facts.scenes41Hash = "c".repeat(64); }, "authorized REC-01 target");
+  expectFailure(lockRecord, facts => { facts.verifyScriptHash = "c".repeat(64); }, "authorized REC-01 target");
+  expectFailure(lockRecord, facts => { facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED"); }, "STATUS NO-PUBLISH");
 
   expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
   expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
@@ -757,6 +809,22 @@ function selfTest() {
   expectFailure(rec01Push, facts => { facts.pushBeforeSimulationBaselineHash = REC_01_SIMULATION_BASELINE_SHA256; }, "push before SHA");
   expectFailure(rec01Push, facts => { facts.changedPaths.push("README.md"); }, "one-shot REC-01 set");
 
+  const lockRecordPush = structuredClone(push);
+  Object.assign(lockRecordPush, {
+    beforeSha: LOCK_RECORD_BASE_SHA,
+    changedPaths: [...LOCK_RECORD_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256
+  });
+  assert.deepEqual(evaluatePolicy(lockRecordPush).errors, []);
+  expectFailure(lockRecordPush, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
+  expectFailure(lockRecordPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot lock-record set");
+  expectFailure(lockRecordPush, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
+
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
     facts.refName = "sun-v0.30.1";
@@ -764,7 +832,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 routes + REC-RATCHET-01 transition + one-shot REC-01 route; 53 policy cases)");
+  console.log("PASS release-policy self-test (issue #15 routes + REC-RATCHET-01 transition + one-shot REC-01 and lock-record routes)");
 }
 
 function environmentFromProcess() {
@@ -788,6 +856,7 @@ function environmentFromProcess() {
 function taskForRoute(route) {
   if (route === "rec-01") return "REC-01/#13";
   if (route === "rec-ratchet") return "REC-RATCHET-01";
+  if (route === "lock-record") return "LOCK-RECORD-R1/L-025-L-028";
   return "PIPE-BOOT-R1/#15";
 }
 
