@@ -1,7 +1,7 @@
 # Sunsplitter — Current Status
 
 `schema_version: 1`  
-`updated_utc: 2026-08-20`
+`updated_utc: 2026-08-21`
 `authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Recovery authority: `GOV-01_AUTHORITY_RECONCILIATION.md`, `RECOVERY-DEC_AMENDMENT.md`, `PIPE-BOOT_RECOVERY_PIPELINE.md`, `PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md`.
@@ -22,7 +22,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Verification — latest attributable evidence
 
-`tested_runtime_sha: 8a840397d80b8fe1027a22ca89603d92f0e562e6` (protected LOCK-RECORD-R1 merge; required recovery checks passed; recovery evidence, not certification)
+`tested_runtime_sha: 23951012655b0037a55e82c755b66dd4d852f20b` (protected ART-INTEGRATION-R2 governance merge; required recovery checks passed; recovery evidence, not certification)
 `verify_mjs: present on tree`  
 `simulate_mjs: present on tree`  
 `pipe_boot_r1_dispatch_base: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`  
@@ -30,7 +30,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `pipe_boot_r1_approved_tree_sha: 3befa469312fb00e45f2871b349510ff7e0a4042`  
 `pipe_boot_r1_synthetic_merge_sha: 69bdc0d79f0c5228815f17c47b96e629d75a1a22`  
 `pipe_boot_r1_merge_sha: 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`  
-`governed_recovery_successor_sha: 8a840397d80b8fe1027a22ca89603d92f0e562e6`
+`governed_recovery_successor_sha: 23951012655b0037a55e82c755b66dd4d852f20b`
 `rec_01_approved_head_sha: 7824aac5615df58cfeb7c26361ad4c04c8f47ad9`
 `rec_01_approved_tree_sha: 9ccbfbbcceed2c98900fabd635830abe3b5a424c`
 `rec_01_merge_sha: 9bb4ccf7efbf856ffed569436787f779ad195698`
@@ -39,6 +39,21 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `lock_record_r1_approved_tree_sha: 0af206bdc531b355598840402e94be297e297fc8`
 `lock_record_r1_merge_sha: 8a840397d80b8fe1027a22ca89603d92f0e562e6`
 `lock_record_r1_control_state: CLOSED / LANDED — protected PR #23; NO-PUBLISH and NOT_CERTIFIED remain active`
+`art_r2_governance_approved_head_sha: a00aab77faa0d4881be4962b435a5e80a0741e40`
+`art_r2_governance_approved_head_tree: 96829ad0e01619f56bed2121a666645b3f9b5259`
+`art_r2_governance_merge_sha: 23951012655b0037a55e82c755b66dd4d852f20b`
+`art_r2_governance_control_state: CLOSED / LANDED — protected PR #25 merged 2026-08-20T14:13:18Z; NO-PUBLISH and NOT_CERTIFIED remain active`
+`art_r2_held_head_sha: 7fe31675b678d041c980605ed5c5533d3ea22581`
+`art_r2_held_head_tree: 52551891fe55324bc2fcd073bff56b9a8cd2c061`
+`art_r2_held_synthetic_merge_sha: c18d8c71243623914601efcf5b88ab952eda637f`
+`art_r2_final_adjudication: HOLD — NOT ELIGIBLE; PR route passes, protected-push route rejects predecessor 2395101 and incorrectly selects the obsolete issue #15 fixture`
+`art_r2_push_ratchet_superseded_head_sha: b68bc42fc1a3efd72314c90b01f5aaa66ce2df74`
+`art_r2_push_ratchet_superseded_head_tree: b4f141c82ed89c78e260c01acecd1dc2a6c793d0`
+`art_r2_push_ratchet_b01_state: CORRECTION AUTHORIZED / CANDIDATE NOT ADJUDICATED — superseded predicate accepted a distinct raw commit object; correction binds the exact raw payload and a byte-projected policy-source self-seal; final corrected head and tree are recorded externally in draft PR #27 after deterministic construction to avoid literal self-reference`
+`art_r2_push_ratchet_b01_alternate_sha: 653a71903ac810c1065e171dae90060f07279d85 — same protected parent, tree, paths, modes, file bytes, and normalized manifest text as the superseded head; prohibited by exact raw-object correction`
+`art_r2_push_ratchet_b01_old_raw: payload 755 bytes / SHA-256 33638b74e5dcc296c0b57535eb58ec20cd0bda37ca341f7cba8122c21a4693da; message 493 bytes / SHA-256 3be268eea78476ea13aa0b7c4e71b2bf545bff33a34456cc106cac253c155956 / no terminal LF`
+`art_r2_push_ratchet_b01_alternate_raw: payload 690 bytes / SHA-256 f16fb6f2ac10d8d70d009545ce9f389a168b96b40a5f53fa20dec0c5e2b92205; message 494 bytes / SHA-256 70f6274b0f29fb3d581e2e31faa2eae3abd2ca9d8611425ae5e1931003ab7c81 / terminal LF`
+`art_r2_push_ratchet_b01_reproduction: exact alternate reconstructed as a real Git object; real equivalent successor 01b3cd1666d39aad32b14a528a4a9b0e2703cc32 with ordered parents [23951012655b0037a55e82c755b66dd4d852f20b, 653a71903ac810c1065e171dae90060f07279d85] passed the superseded PR and protected-push policy routes`
 `pipe_boot_r1_ci: PASS — ready-for-review runs 32295713512 and 32295713513; six required jobs successful`  
 `pipe_boot_r1_control_state: CLOSED / LANDED — PR #16 merged after exact-head program-office adjudication; NO-PUBLISH and NOT_CERTIFIED remain active`
 `github_workflows_at_dispatch_base: ABSENT`
@@ -56,8 +71,8 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: ART-INTEGRATION-R2 — governed exact 55-plate presentation integration`
-`ticket: ART-INTEGRATION-R2 / issue #19 — governance repin, then draft-only 55-plate implementation`
+`milestone: ART-R2-PUSH-RATCHET-R1-B01 — exact raw-commit correction on existing draft PR #27; independent adjudication required before any protected successor`
+`ticket: ART-R2-PUSH-RATCHET-R1-B01 governs only the exact three-path correction and lease-protected replacement of the existing precursor candidate; reconciliation and every protected merge require separate tickets`
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`
 `rec_ratchet_01_authorization: APPROVED — Manraj — 2026-08-19`
 `rec_ratchet_01_source_sha: 78a64c7a180a34e786da3eefac42a06f50703bab`
@@ -69,13 +84,17 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `art_integration_r2_authorization: APPROVED — Manraj — 2026-08-20`
 `art_integration_r2_wave2_archive_sha256: 1d1b23afbaeafda3b4f865302ab9f605e8e38780bf94abafa0c5c68ab52bd485 — 129/129 internal records PASS — 34 runtime plates`
 `art_integration_r2_wave3_archive_sha256: 6f1f40886a112fe6b2e0e543690cecce36a522b5daf408b784a21f67821e633f — 45/45 manifest entries PASS — 21 runtime plates`
-`owner: Build / GPT-Codex; independent Grok / program-office adjudication required before the Stage 1 merge`
-`state: ART-INTEGRATION-R2 GOVERNANCE ACTIVE; Stage 2 blocked until protected governance merge; NO-PUBLISH / NOT CERTIFIED remain active`
+`art_integration_r2_governance_state: CLOSED / LANDED — protected PR #25 merge 23951012655b0037a55e82c755b66dd4d852f20b`
+`art_integration_r2_implementation_state: TOPOLOGY-CONDITIONAL — held at 7fe31675b678d041c980605ed5c5533d3ea22581 before the precursor successor; eligible only as an exact content-preserving reconciliation head plus fresh adjudication after that successor; landed only through a separately authorized protected ART merge`
+`art_r2_push_ratchet_authorization: B01 CORRECTION APPROVED — Manraj — 2026-08-21`
+`art_r2_push_ratchet_state: B01 CORRECTION / CANDIDATE / DRAFT / UNMERGED — superseded b68bc42fc1a3efd72314c90b01f5aaa66ce2df74 is not eligible; corrected exact head must pass attributable checks and a new independent adjudication; no merge is authorized here`
+`owner: GROK / PROGRAM OFFICE NEXT — issue and perform a new independent exact-head adjudication of the corrected PR #27 candidate; Build may not self-adjudicate or begin any later phase`
+`state: FAIL-CLOSED — PR #27 remains draft and unmerged; PR #26 remains held and unchanged; REC-RATCHET-02 and REC-02 blocked; NO-PUBLISH / NOT CERTIFIED remain active`
 `governed_branch: recovery/e4f8440-nopub`
-`governance_branch: ticket/art-integration-r2-governance-repin`
-`implementation_branch: ticket/art-integration-r2-55 (must be created only after the Stage 1 merge)`
-`dispatch_base_sha: 8a840397d80b8fe1027a22ca89603d92f0e562e6`
-`dispatch_base_tree: 0af206bdc531b355598840402e94be297e297fc8`
+`precursor_branch: ticket/art-r2-push-ratchet-r1`
+`held_implementation_branch: ticket/art-integration-r2-55`
+`dispatch_base_sha: 23951012655b0037a55e82c755b66dd4d852f20b`
+`dispatch_base_tree: 96829ad0e01619f56bed2121a666645b3f9b5259`
 `audited_gameplay_runtime_provenance: e4f84409759760d31fcf47b8a227802a61421f51`
 
 ## Historical REC-01 evidence
@@ -90,7 +109,9 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 - Every RECOVERY-DEC §4 correction after REC-01 remains blocked pending separate dispatch. REC-01 is closed at protected merge `9bb4ccf7efbf856ffed569436787f779ad195698`.
 - PIPE-BOOT-R1 remains closed at `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; later protected successors are REC-RATCHET-01 at `5e93b68a7412bcbed041e7c74a985ae30682a1d2`, REC-01 at `9bb4ccf7efbf856ffed569436787f779ad195698`, and LOCK-RECORD-R1 at `8a840397d80b8fe1027a22ca89603d92f0e562e6`.
-- ART-INTEGRATION-R2 Stage 2 is blocked until the exact six-file governance/policy patch lands through required checks, independent exact-head PASS, and a protected merge commit. The prior ten scene-honesty conflicts are owner-disposed in `ART-INTEGRATION-R2_GOVERNANCE_REPIN.md`; no canon question remains open for the bounded mapping.
+- At this status revision, ART-INTEGRATION-R2 PR #26 was held at `7fe31675b678d041c980605ed5c5533d3ea22581`; that commit remains the immutable implementation anchor. While protected head is `23951012655b0037a55e82c755b66dd4d852f20b`, PR #26 may not change. After an exact precursor successor, only a separately authorized reconciliation merge with ordered parents `[7fe31675b678d041c980605ed5c5533d3ea22581, precursor-successor]` may advance it, without content edits and without marking it ready.
+- While protected head is `23951012655b0037a55e82c755b66dd4d852f20b`, the corrected ART-R2-PUSH-RATCHET-R1-B01 candidate must first pass attributable checks and a new independent exact-head adjudication. The superseded head `b68bc42fc1a3efd72314c90b01f5aaa66ce2df74`, alternate `653a71903ac810c1065e171dae90060f07279d85`, and any successor that uses either are ineligible. Only a later, separately authorized exact protected precursor merge may create the successor needed by a new PR #26 reconciliation ticket.
+- REC-RATCHET-02 / issue #24 and REC-02 remain blocked. This precursor does not start, duplicate, repin, or modify either stage.
 - All sequential gates from 0.28.2 onward remain uncertified.
 - Publication, tagging, deployment, and monetization remain frozen.
 - Implementation flowing from L-025 through L-027 requires separate dispatch and applicable gates. L-028 is DEFERRED and defaults to retirement unless its recorded mobile-PX threshold condition is met.
@@ -114,10 +135,12 @@ L-020 through L-024 remain ruled; recovery does not reopen them. Historical reco
 - REC-RATCHET-01 landed through protected PR #21 at merge `5e93b68a7412bcbed041e7c74a985ae30682a1d2`, recording the post-rewind ratchet transition and arming one exact REC-01 route
 - REC-01 / issue #13 landed through protected PR #22 at merge `9bb4ccf7efbf856ffed569436787f779ad195698` (approved head `7824aac5615df58cfeb7c26361ad4c04c8f47ad9`, tree `9ccbfbbcceed2c98900fabd635830abe3b5a424c`); the earlier isolated head `8e4fe42f376444049105e27ff7005a6220e88b9a` remains closed, unmerged, and non-evidence
 - LOCK-RECORD-R1 landed through protected PR #23 at merge `8a840397d80b8fe1027a22ca89603d92f0e562e6`, tree `0af206bdc531b355598840402e94be297e297fc8`
-- ART-INTEGRATION-R2 is the sole owner-approved L-004 art-sequencing exception: exactly 55 approved event plates, presentation-only wiring, protected governance first, draft-only implementation second
+- ART-INTEGRATION-R2 governance landed through protected PR #25 at merge `23951012655b0037a55e82c755b66dd4d852f20b`, tree `96829ad0e01619f56bed2121a666645b3f9b5259`
+- ART-INTEGRATION-R2 implementation PR #26 was open, draft, unmerged, and unchanged at `7fe31675b678d041c980605ed5c5533d3ea22581` at this status revision; that commit remains the held implementation anchor, and any later head must be the exact separately authorized reconciliation described above
+- ART-R2-PUSH-RATCHET-R1-B01 is the sole active repair at this status revision while the protected head remains `23951012655b0037a55e82c755b66dd4d852f20b`: exact raw-commit identity correction on the existing three-path precursor and draft PR #27; no runtime, artwork, fixture, workflow, PR #26, or later-stage change
 
 ## Next action
 
-**Build / GPT-Codex:** Open the exact ART-INTEGRATION-R2 six-file governance/policy pull request from `8a840397`, run required checks, and obtain independent exact-head program-office PASS before any protected merge. Do not start Stage 2 from unlanded governance. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Exact next action:** Grok / program office issues and performs a new independent exact-head adjudication of the corrected draft PR #27 candidate, binding the exact head, tree, parent, raw commit-object evidence, three changed-file hashes, and attributable CI. No merge, PR #26 reconciliation, REC-RATCHET-02, or REC-02 action is authorized from this record. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->

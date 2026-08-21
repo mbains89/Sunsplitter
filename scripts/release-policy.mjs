@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 // PIPE-BOOT-R1, REC-RATCHET-01, REC-01, the one-shot lock-record route,
-// and the exact two-stage ART-INTEGRATION-R2 route.
+// the exact ART-INTEGRATION-R2 routes, and the one-shot ART-R2 protected-push
+// ratchet that repairs their final protected-merge enforcement.
 //
 // This is deliberately a recovery-only, fail-closed policy. It does not create
 // tags, releases, deployments, artifacts, or publication credentials. A later
@@ -15,9 +16,12 @@ import {
   appendFileSync,
   existsSync,
   lstatSync,
+  mkdtempSync,
   readFileSync,
-  readdirSync
+  readdirSync,
+  rmSync
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -39,6 +43,25 @@ const ART_R2_GOVERNANCE_HEAD = "ticket/art-integration-r2-governance-repin";
 const ART_R2_GOVERNANCE_BASE_SHA = "8a840397d80b8fe1027a22ca89603d92f0e562e6";
 const ART_R2_IMPLEMENTATION_HEAD = "ticket/art-integration-r2-55";
 const ART_R2_GOVERNANCE_RECORD_PATH = "artifacts/ART-INTEGRATION-R2_GOVERNANCE_REPIN.md";
+const ART_R2_PUSH_RATCHET_HEAD = "ticket/art-r2-push-ratchet-r1";
+const ART_R2_PUSH_RATCHET_BASE_SHA = "23951012655b0037a55e82c755b66dd4d852f20b";
+const ART_R2_PUSH_RATCHET_BASE_TREE_SHA = "96829ad0e01619f56bed2121a666645b3f9b5259";
+const ART_R2_PUSH_RATCHET_RECORD_PATH = "artifacts/ART-INTEGRATION-R2_PROTECTED_PUSH_REPAIR.md";
+const ART_R2_PUSH_RATCHET_POLICY_PATH = "scripts/release-policy.mjs";
+const ART_R2_PUSH_RATCHET_COMMIT_TITLE = "ART-R2-PUSH-RATCHET-R1-B01: bind exact raw commit object";
+const ART_R2_PUSH_RATCHET_AUTHOR_HEADER = "author Codex <codex@openai.com> 1787299200 -0500";
+const ART_R2_PUSH_RATCHET_COMMITTER_HEADER = "committer Codex <codex@openai.com> 1787299260 -0500";
+const ART_R2_B01_OLD_HEAD_SHA = "b68bc42fc1a3efd72314c90b01f5aaa66ce2df74";
+const ART_R2_B01_ALTERNATE_SHA = "653a71903ac810c1065e171dae90060f07279d85";
+const ART_R2_B01_OLD_TREE_SHA = "b4f141c82ed89c78e260c01acecd1dc2a6c793d0";
+const ART_R2_B01_OLD_PAYLOAD_SHA256 = "33638b74e5dcc296c0b57535eb58ec20cd0bda37ca341f7cba8122c21a4693da";
+const ART_R2_B01_OLD_MESSAGE_SHA256 = "3be268eea78476ea13aa0b7c4e71b2bf545bff33a34456cc106cac253c155956";
+const ART_R2_B01_ALTERNATE_PAYLOAD_SHA256 = "f16fb6f2ac10d8d70d009545ce9f389a168b96b40a5f53fa20dec0c5e2b92205";
+const ART_R2_B01_ALTERNATE_MESSAGE_SHA256 = "70f6274b0f29fb3d581e2e31faa2eae3abd2ca9d8611425ae5e1931003ab7c81";
+const ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256 = "4e8bedd98fc1ef72efd3ae220d860d16778045d459530ff08beda19e7f71ae24";
+const ART_R2_HELD_IMPLEMENTATION_HEAD_SHA = "7fe31675b678d041c980605ed5c5533d3ea22581";
+const ART_R2_HELD_IMPLEMENTATION_TREE_SHA = "52551891fe55324bc2fcd073bff56b9a8cd2c061";
+const ART_R2_INTEGRATION_RECORD_PATH = "artifacts/ART-INTEGRATION-R2-55_RECORD.json";
 const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const REC_RATCHET_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_BASELINE_TRANSITION.md";
 const REC_RATCHET_BASELINE_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_AUTHORIZED_BASELINE.json";
@@ -60,6 +83,19 @@ const ART_R2_GOVERNANCE_DOCUMENT_SHA256 = Object.freeze({
   "artifacts/PROJECT_STATUS.md": "5094ca4f6404f9e74b3c20788a2f67a1a20de58e8ecbca3f1063302722b69759",
   "artifacts/ROADMAP.md": "5c79b798065c8b9dcae41cc53ba1118a1e5dd934803c310539be3f350b4cbf90"
 });
+const ART_R2_IMMUTABLE_GOVERNANCE_SHA256 = Object.freeze({
+  [ART_R2_GOVERNANCE_RECORD_PATH]: ART_R2_GOVERNANCE_DOCUMENT_SHA256[ART_R2_GOVERNANCE_RECORD_PATH],
+  "artifacts/ART_RULES.md": ART_R2_GOVERNANCE_DOCUMENT_SHA256["artifacts/ART_RULES.md"],
+  "artifacts/LOCKS.md": ART_R2_GOVERNANCE_DOCUMENT_SHA256["artifacts/LOCKS.md"],
+  "artifacts/ROADMAP.md": ART_R2_GOVERNANCE_DOCUMENT_SHA256["artifacts/ROADMAP.md"]
+});
+const ART_R2_PUSH_RATCHET_DOCUMENT_SHA256 = "494545fd11ecda0c7083045e37d07a318717dda4f4bc787c627815d21feeba4f";
+const ART_R2_PUSH_RATCHET_STATUS_SHA256 = "bc5536b646773c95bc7ad649aac752fa2913d19af4d0cd0dfe95273dc1172b8b";
+const ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256 = "f617b540572839c5915a1ef3bf57ea89c1241dd3eaa0d3fa6cf24a876673ad65";
+const ART_R2_IMAGE_CONTENT_MANIFEST_SHA256 = "1441be78e8d0d95f4cf2cfd9ace72b7e6458aa0ec230336748de6a2b96db7baa";
+const ART_R2_INTEGRATION_RECORD_SHA256 = "d4512affd47ae29e6e8d9e711fd095b8273767de02f7bec06d1d4c5a9a33f29f";
+const ART_R2_VALIDATOR_SHA256 = "bed3a5443255510e8201fa896a4db05fbb466da2e13c4d431fae1fe28fdf5141";
+const ART_R2_VERIFY_SHA256 = "654193d383a4fd2e32472c554ba2b85c64d25f2941048a8b4fe936cbc985471f";
 const WORKFLOW_SHA256 = Object.freeze({
   "release-policy.yml": "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33",
   "verify.yml": "9a498bbf75ea62b04235fcfffea1c21ec9a768b8cec5416b7a2fb2e593b67ec2"
@@ -113,6 +149,12 @@ export const ART_R2_GOVERNANCE_CHANGED_PATHS = Object.freeze([
   "artifacts/PROJECT_STATUS.md",
   "artifacts/ROADMAP.md",
   "scripts/release-policy.mjs"
+]);
+
+export const ART_R2_PUSH_RATCHET_CHANGED_PATHS = Object.freeze([
+  ART_R2_PUSH_RATCHET_RECORD_PATH,
+  "artifacts/PROJECT_STATUS.md",
+  ART_R2_PUSH_RATCHET_POLICY_PATH
 ]);
 
 export const ART_R2_IMPLEMENTATION_CHANGED_PATHS = Object.freeze([
@@ -197,6 +239,10 @@ export const ART_R2_IMPLEMENTATION_CHANGED_PATHS = Object.freeze([
   "src/state.js"
 ]);
 
+const ART_R2_IMAGE_PATHS = Object.freeze(
+  ART_R2_IMPLEMENTATION_CHANGED_PATHS.filter(path => path.startsWith("images/"))
+);
+
 const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
 const ALLOWED_WORKFLOWS = Object.freeze([
   "release-policy.yml",
@@ -217,6 +263,15 @@ function git(args) {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"]
   }).trim();
+}
+
+function gitRaw(args, options = {}) {
+  return execFileSync("git", args, {
+    cwd: ROOT,
+    input: options.input,
+    env: options.env ? { ...process.env, ...options.env } : process.env,
+    stdio: [options.input === undefined ? "ignore" : "pipe", "pipe", "pipe"]
+  });
 }
 
 function isAncestor(ancestor, descendant) {
@@ -241,6 +296,94 @@ function gitFileSha256(ref, relativePath) {
   } catch {
     return null;
   }
+}
+
+function gitTreeSha(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return null;
+  try {
+    const tree = git(["rev-parse", `${ref}^{tree}`]);
+    return FULL_SHA_RE.test(tree) ? tree : null;
+  } catch {
+    return null;
+  }
+}
+
+function gitParents(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return [];
+  try {
+    return git(["rev-list", "--parents", "-n", "1", ref]).split(/\s+/).slice(1);
+  } catch {
+    return [];
+  }
+}
+
+function gitRawCommitObject(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return null;
+  try {
+    if (git(["rev-parse", "--show-object-format"]) !== "sha1") return null;
+    const oid = git(["rev-parse", `${ref}^{commit}`]);
+    if (oid !== ref || git(["cat-file", "-t", oid]) !== "commit") return null;
+    const payload = gitRaw(["cat-file", "commit", oid]);
+    const declaredSize = Number(git(["cat-file", "-s", oid]));
+    if (!Number.isSafeInteger(declaredSize) || declaredSize !== payload.length) return null;
+    const frame = Buffer.from(`commit ${payload.length}\0`, "ascii");
+    const framed = Buffer.concat([frame, payload]);
+    const framedSha1 = createHash("sha1").update(framed).digest("hex");
+    return {
+      oid,
+      payload,
+      framed,
+      framedSha1,
+      payloadSha256: sha256(payload),
+      framedSha256: sha256(framed)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function gitFileIdentity(ref, relativePath) {
+  if (!FULL_SHA_RE.test(ref || "")) return null;
+  try {
+    const row = git(["ls-tree", ref, "--", relativePath]);
+    const match = row.match(/^(\d{6})\s+(\w+)\s+([0-9a-f]{40})\t(.+)$/);
+    if (!match || match[4] !== relativePath) return null;
+    const bytes = execFileSync("git", ["show", `${ref}:${relativePath}`], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    return { mode: match[1], type: match[2], sha256: sha256(bytes) };
+  } catch {
+    return null;
+  }
+}
+
+function gitPathsAreRegularBlobs(ref, paths) {
+  return paths.every(path => {
+    const identity = gitFileIdentity(ref, path);
+    return identity?.mode === "100644" && identity.type === "blob";
+  });
+}
+
+// Canonical ART commitment: sorted mode + NUL + type + NUL + path + NUL +
+// SHA-256(file bytes) + LF. Changing this framing changes the pinned digest.
+function gitFilesContentManifestSha256(ref, paths) {
+  const unique = [...new Set(paths || [])].sort();
+  if (unique.length !== (paths || []).length) return null;
+  const digest = createHash("sha256");
+  for (const path of unique) {
+    const identity = gitFileIdentity(ref, path);
+    if (!identity) return null;
+    digest.update(identity.mode);
+    digest.update("\0");
+    digest.update(identity.type);
+    digest.update("\0");
+    digest.update(path);
+    digest.update("\0");
+    digest.update(identity.sha256);
+    digest.update("\n");
+  }
+  return digest.digest("hex");
 }
 
 function changedPathsBetween(base, head) {
@@ -279,6 +422,196 @@ function isExactRecRatchetSuccessor(ref) {
 function gitFilesMatchSha256(ref, expectedByPath) {
   return Object.entries(expectedByPath)
     .every(([path, expected]) => gitFileSha256(ref, path) === expected);
+}
+
+function artR2PushRatchetManifestMessageBytes(actualHashes) {
+  if (!actualHashes) return null;
+  const prefix = "ART-R2-PUSH-RATCHET-R1-File-SHA256: ";
+  const entries = ART_R2_PUSH_RATCHET_CHANGED_PATHS.map(path => {
+    const digest = actualHashes[path];
+    if (!/^[0-9a-f]{64}$/.test(digest || "")) return null;
+    return `${prefix}${path}=${digest}`;
+  });
+  if (entries.some(entry => entry === null)) return null;
+  return Buffer.from([
+    ART_R2_PUSH_RATCHET_COMMIT_TITLE,
+    "",
+    "NO-PUBLISH / NOT CERTIFIED",
+    "",
+    ...entries,
+    ""
+  ].join("\n"), "utf8");
+}
+
+function artR2PushRatchetExpectedRawCommitPayload(ref) {
+  const actualHashes = Object.fromEntries(
+    ART_R2_PUSH_RATCHET_CHANGED_PATHS.map(path => [path, gitFileSha256(ref, path)])
+  );
+  const message = artR2PushRatchetManifestMessageBytes(actualHashes);
+  const tree = gitTreeSha(ref);
+  if (!message || !FULL_SHA_RE.test(tree || "")) return null;
+  const headers = Buffer.from([
+    `tree ${tree}`,
+    `parent ${ART_R2_PUSH_RATCHET_BASE_SHA}`,
+    ART_R2_PUSH_RATCHET_AUTHOR_HEADER,
+    ART_R2_PUSH_RATCHET_COMMITTER_HEADER,
+    "",
+    ""
+  ].join("\n"), "utf8");
+  return Buffer.concat([headers, message]);
+}
+
+function hasExactArtR2PushRatchetRawCommit(ref) {
+  const actual = gitRawCommitObject(ref);
+  const expectedPayload = artR2PushRatchetExpectedRawCommitPayload(ref);
+  return Boolean(actual && expectedPayload)
+    && actual.framedSha1 === actual.oid
+    && actual.payload.equals(expectedPayload);
+}
+
+function artR2PushRatchetPolicyProjectionSha256(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return null;
+  try {
+    const source = gitRaw(["show", `${ref}:${ART_R2_PUSH_RATCHET_POLICY_PATH}`]);
+    const prefix = Buffer.from(
+      "const ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256 = \"",
+      "ascii"
+    );
+    const valueStart = source.indexOf(prefix);
+    if (valueStart < 0 || valueStart !== source.lastIndexOf(prefix)) return null;
+    const digestStart = valueStart + prefix.length;
+    const digestEnd = digestStart + 64;
+    const suffix = Buffer.from("\";", "ascii");
+    if (!source.subarray(digestEnd, digestEnd + suffix.length).equals(suffix)) return null;
+    const embedded = source.subarray(digestStart, digestEnd).toString("ascii");
+    if (embedded !== ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256) return null;
+    const projected = Buffer.concat([
+      source.subarray(0, digestStart),
+      Buffer.from("0".repeat(64), "ascii"),
+      source.subarray(digestEnd)
+    ]);
+    return sha256(projected);
+  } catch {
+    return null;
+  }
+}
+
+function postRatchetAuthorityHashesMatch(ref) {
+  return gitFilesMatchSha256(ref, ART_R2_IMMUTABLE_GOVERNANCE_SHA256)
+    && gitFileSha256(ref, ART_R2_PUSH_RATCHET_RECORD_PATH) === ART_R2_PUSH_RATCHET_DOCUMENT_SHA256
+    && gitFileSha256(ref, "artifacts/PROJECT_STATUS.md") === ART_R2_PUSH_RATCHET_STATUS_SHA256
+    && artR2PushRatchetPolicyProjectionSha256(ref) === ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256;
+}
+
+function preservedRec01AndWorkflowHashesMatch(ref) {
+  return gitFileSha256(ref, SIMULATION_BASELINE_PATH) === REC_01_SIMULATION_BASELINE_SHA256
+    && gitFileSha256(ref, REC_RATCHET_ARTIFACT_PATH) === REC_RATCHET_ARTIFACT_SHA256
+    && gitFileSha256(ref, REC_RATCHET_BASELINE_ARTIFACT_PATH) === REC_01_SIMULATION_BASELINE_SHA256
+    && gitFileSha256(ref, REC_RATCHET_PATCH_ARTIFACT_PATH) === REC_RATCHET_PATCH_ARTIFACT_SHA256
+    && gitFileSha256(ref, "src/scenes-41.js") === REC_01_SCENES_41_SHA256
+    && gitFileSha256(ref, ".github/workflows/release-policy.yml") === WORKFLOW_SHA256["release-policy.yml"]
+    && gitFileSha256(ref, ".github/workflows/verify.yml") === WORKFLOW_SHA256["verify.yml"];
+}
+
+function isExactArtR2PushRatchetHead(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return false;
+  try {
+    const parents = gitParents(ref);
+    return sameStringSet(
+      changedPathsBetween(ART_R2_PUSH_RATCHET_BASE_SHA, ref),
+      ART_R2_PUSH_RATCHET_CHANGED_PATHS
+    )
+      && parents.length === 1
+      && parents[0] === ART_R2_PUSH_RATCHET_BASE_SHA
+      && gitTreeSha(ART_R2_PUSH_RATCHET_BASE_SHA) === ART_R2_PUSH_RATCHET_BASE_TREE_SHA
+      && gitPathsAreRegularBlobs(ref, ART_R2_PUSH_RATCHET_CHANGED_PATHS)
+      && hasExactArtR2PushRatchetRawCommit(ref)
+      && postRatchetAuthorityHashesMatch(ref)
+      && preservedRec01AndWorkflowHashesMatch(ref);
+  } catch {
+    return false;
+  }
+}
+
+function isExactArtR2PushRatchetSuccessor(ref) {
+  if (!FULL_SHA_RE.test(ref || "")) return false;
+  try {
+    const parents = gitParents(ref);
+    const head = parents[1];
+    return parents.length === 2
+      && parents[0] === ART_R2_PUSH_RATCHET_BASE_SHA
+      && isExactArtR2PushRatchetHead(head)
+      && gitTreeSha(ref) === gitTreeSha(head)
+      && sameStringSet(
+        changedPathsBetween(ART_R2_PUSH_RATCHET_BASE_SHA, ref),
+        ART_R2_PUSH_RATCHET_CHANGED_PATHS
+      )
+      && postRatchetAuthorityHashesMatch(ref)
+      && preservedRec01AndWorkflowHashesMatch(ref);
+  } catch {
+    return false;
+  }
+}
+
+function artR2TargetHashesMatch(ref) {
+  return gitTreeSha(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA) === ART_R2_HELD_IMPLEMENTATION_TREE_SHA
+    && gitFilesContentManifestSha256(ref, ART_R2_IMPLEMENTATION_CHANGED_PATHS)
+      === ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256
+    && gitFilesContentManifestSha256(ref, ART_R2_IMAGE_PATHS)
+      === ART_R2_IMAGE_CONTENT_MANIFEST_SHA256
+    && gitFileSha256(ref, ART_R2_INTEGRATION_RECORD_PATH) === ART_R2_INTEGRATION_RECORD_SHA256
+    && gitFileSha256(ref, "scripts/validate-art-r2.mjs") === ART_R2_VALIDATOR_SHA256
+    && gitFileSha256(ref, "scripts/verify.mjs") === ART_R2_VERIFY_SHA256;
+}
+
+function isExactArtR2ReconciledHead(ref, precursorSuccessor) {
+  if (!FULL_SHA_RE.test(ref || "") || !isExactArtR2PushRatchetSuccessor(precursorSuccessor)) {
+    return false;
+  }
+  try {
+    const parents = gitParents(ref);
+    return parents.length === 2
+      && parents[0] === ART_R2_HELD_IMPLEMENTATION_HEAD_SHA
+      && parents[1] === precursorSuccessor
+      && isAncestor(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, ref)
+      && isAncestor(precursorSuccessor, ref)
+      && sameStringSet(
+        changedPathsBetween(precursorSuccessor, ref),
+        ART_R2_IMPLEMENTATION_CHANGED_PATHS
+      )
+      && sameStringSet(
+        changedPathsBetween(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, ref),
+        ART_R2_PUSH_RATCHET_CHANGED_PATHS
+      )
+      && artR2TargetHashesMatch(ref)
+      && postRatchetAuthorityHashesMatch(ref)
+      && preservedRec01AndWorkflowHashesMatch(ref);
+  } catch {
+    return false;
+  }
+}
+
+function isExactArtR2ImplementationSuccessor(ref, precursorSuccessor) {
+  if (!FULL_SHA_RE.test(ref || "") || !isExactArtR2PushRatchetSuccessor(precursorSuccessor)) {
+    return false;
+  }
+  try {
+    const parents = gitParents(ref);
+    const reconciledHead = parents[1];
+    return parents.length === 2
+      && parents[0] === precursorSuccessor
+      && isExactArtR2ReconciledHead(reconciledHead, precursorSuccessor)
+      && gitTreeSha(ref) === gitTreeSha(reconciledHead)
+      && sameStringSet(
+        changedPathsBetween(precursorSuccessor, ref),
+        ART_R2_IMPLEMENTATION_CHANGED_PATHS
+      )
+      && artR2TargetHashesMatch(ref)
+      && postRatchetAuthorityHashesMatch(ref)
+      && preservedRec01AndWorkflowHashesMatch(ref);
+  } catch {
+    return false;
+  }
 }
 
 function isExactArtR2GovernanceSuccessor(ref) {
@@ -350,7 +683,11 @@ function readRepositoryFacts(environment) {
   const recRatchetPath = resolve(ROOT, REC_RATCHET_ARTIFACT_PATH);
   const recRatchetBaselinePath = resolve(ROOT, REC_RATCHET_BASELINE_ARTIFACT_PATH);
   const recRatchetPatchPath = resolve(ROOT, REC_RATCHET_PATCH_ARTIFACT_PATH);
+  const artR2PushRatchetPath = resolve(ROOT, ART_R2_PUSH_RATCHET_RECORD_PATH);
+  const artR2IntegrationRecordPath = resolve(ROOT, ART_R2_INTEGRATION_RECORD_PATH);
+  const artR2ValidatorPath = resolve(ROOT, "scripts/validate-art-r2.mjs");
   const checkedOutSha = git(["rev-parse", "HEAD"]);
+  const status = read("artifacts/PROJECT_STATUS.md");
 
   return {
     ...environment,
@@ -362,7 +699,8 @@ function readRepositoryFacts(environment) {
       || isAncestor(environment.prBaseSha, checkedOutSha),
     prHeadAncestor: environment.eventName !== "pull_request"
       || isAncestor(environment.prHeadSha, checkedOutSha),
-    statusText: read("artifacts/PROJECT_STATUS.md").toString("utf8"),
+    statusText: status.toString("utf8"),
+    statusHash: sha256(status),
     gov01Hash: sha256(gov01),
     recoveryDecHash: sha256(recoveryDec),
     pipeBootText: read("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md").toString("utf8"),
@@ -382,6 +720,27 @@ function readRepositoryFacts(environment) {
       Object.keys(ART_R2_GOVERNANCE_DOCUMENT_SHA256)
         .map(path => [path, sha256(read(path))])
     ),
+    artR2ImmutableGovernanceHashes: Object.fromEntries(
+      Object.keys(ART_R2_IMMUTABLE_GOVERNANCE_SHA256)
+        .map(path => [path, sha256(read(path))])
+    ),
+    artR2PushRatchetDocumentHash: existsSync(artR2PushRatchetPath)
+      ? sha256(readFileSync(artR2PushRatchetPath))
+      : null,
+    artR2ImplementationContentManifestHash: gitFilesContentManifestSha256(
+      checkedOutSha,
+      ART_R2_IMPLEMENTATION_CHANGED_PATHS
+    ),
+    artR2ImageContentManifestHash: gitFilesContentManifestSha256(
+      checkedOutSha,
+      ART_R2_IMAGE_PATHS
+    ),
+    artR2IntegrationRecordHash: existsSync(artR2IntegrationRecordPath)
+      ? sha256(readFileSync(artR2IntegrationRecordPath))
+      : null,
+    artR2ValidatorHash: existsSync(artR2ValidatorPath)
+      ? sha256(readFileSync(artR2ValidatorPath))
+      : null,
     scenes41Hash: sha256(read("src/scenes-41.js")),
     verifyScriptHash: sha256(read("scripts/verify.mjs")),
     prBaseSimulationBaselineHash: environment.eventName === "pull_request"
@@ -394,10 +753,26 @@ function readRepositoryFacts(environment) {
       && isExactRecRatchetSuccessor(environment.prBaseSha),
     prBaseIsArtR2GovernanceSuccessor: environment.eventName === "pull_request"
       && isExactArtR2GovernanceSuccessor(environment.prBaseSha),
+    prHeadIsArtR2PushRatchetHead: environment.eventName === "pull_request"
+      && isExactArtR2PushRatchetHead(environment.prHeadSha),
+    prCheckoutIsArtR2PushRatchetSuccessor: environment.eventName === "pull_request"
+      && isExactArtR2PushRatchetSuccessor(checkedOutSha),
+    prBaseIsArtR2PushRatchetSuccessor: environment.eventName === "pull_request"
+      && isExactArtR2PushRatchetSuccessor(environment.prBaseSha),
+    prHeadIsArtR2ReconciledHead: environment.eventName === "pull_request"
+      && isExactArtR2ReconciledHead(environment.prHeadSha, environment.prBaseSha),
+    prCheckoutIsArtR2ImplementationSuccessor: environment.eventName === "pull_request"
+      && isExactArtR2ImplementationSuccessor(checkedOutSha, environment.prBaseSha),
     pushBeforeIsRecRatchetSuccessor: environment.eventName === "push"
       && isExactRecRatchetSuccessor(environment.beforeSha),
     pushAfterIsArtR2GovernanceSuccessor: environment.eventName === "push"
       && isExactArtR2GovernanceSuccessor(environment.afterSha),
+    pushBeforeIsArtR2PushRatchetSuccessor: environment.eventName === "push"
+      && isExactArtR2PushRatchetSuccessor(environment.beforeSha),
+    pushAfterIsArtR2PushRatchetSuccessor: environment.eventName === "push"
+      && isExactArtR2PushRatchetSuccessor(environment.afterSha),
+    pushAfterIsArtR2ImplementationSuccessor: environment.eventName === "push"
+      && isExactArtR2ImplementationSuccessor(environment.afterSha, environment.beforeSha),
     workflowNames,
     workflowTexts,
     workflowHashes: Object.fromEntries(
@@ -580,10 +955,27 @@ export function evaluatePolicy(facts) {
       if (facts.prBaseSha !== ART_R2_GOVERNANCE_BASE_SHA) {
         errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != ART-R2 governance base ${ART_R2_GOVERNANCE_BASE_SHA}`);
       }
+    } else if (facts.headRef === ART_R2_PUSH_RATCHET_HEAD) {
+      changeRoute = "art-r2-push-ratchet";
+      if (facts.prBaseSha !== ART_R2_PUSH_RATCHET_BASE_SHA) {
+        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != ART-R2 push-ratchet base ${ART_R2_PUSH_RATCHET_BASE_SHA}`);
+      }
+      if (!facts.prHeadIsArtR2PushRatchetHead) {
+        errors.push("ART-R2 push-ratchet pull-request head is not the exact direct-child three-path candidate with pinned commit manifest");
+      }
+      if (!facts.prCheckoutIsArtR2PushRatchetSuccessor) {
+        errors.push("ART-R2 push-ratchet pull-request checkout is not the exact two-parent synthetic successor");
+      }
     } else if (facts.headRef === ART_R2_IMPLEMENTATION_HEAD) {
       changeRoute = "art-r2-implementation";
-      if (!facts.prBaseIsArtR2GovernanceSuccessor) {
-        errors.push("ART-R2 implementation base is not the exact protected governance merge successor");
+      if (!facts.prBaseIsArtR2PushRatchetSuccessor) {
+        errors.push("ART-R2 implementation base is not the exact protected push-ratchet merge successor");
+      }
+      if (!facts.prHeadIsArtR2ReconciledHead) {
+        errors.push("ART-R2 implementation head is not the exact held-head plus push-ratchet reconciliation merge");
+      }
+      if (!facts.prCheckoutIsArtR2ImplementationSuccessor) {
+        errors.push("ART-R2 implementation pull-request checkout is not the exact two-parent protected-merge candidate");
       }
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery route`);
@@ -624,6 +1016,16 @@ export function evaluatePolicy(facts) {
         if (!facts.pushAfterIsArtR2GovernanceSuccessor) {
           errors.push("ART-R2 governance push after SHA is not the exact two-parent protected governance successor");
         }
+      } else if (normalizedBefore === ART_R2_PUSH_RATCHET_BASE_SHA) {
+        changeRoute = "art-r2-push-ratchet";
+        if (!facts.pushAfterIsArtR2PushRatchetSuccessor) {
+          errors.push("ART-R2 push-ratchet push after SHA is not the exact two-parent protected precursor successor");
+        }
+      } else if (facts.pushBeforeIsArtR2PushRatchetSuccessor) {
+        changeRoute = "art-r2-implementation";
+        if (!facts.pushAfterIsArtR2ImplementationSuccessor) {
+          errors.push("ART-R2 implementation push after SHA is not the exact two-parent protected ART successor");
+        }
       } else {
         errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery base`);
       }
@@ -652,6 +1054,8 @@ export function evaluatePolicy(facts) {
       errors.push(`changed paths do not exactly match the one-shot lock-record set: ${changedPaths.join(", ") || "<none>"}`);
     } else if (changeRoute === "art-r2-governance" && !sameStringSet(changedPaths, ART_R2_GOVERNANCE_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the ART-R2 governance set: ${changedPaths.join(", ") || "<none>"}`);
+    } else if (changeRoute === "art-r2-push-ratchet" && !sameStringSet(changedPaths, ART_R2_PUSH_RATCHET_CHANGED_PATHS)) {
+      errors.push(`changed paths do not exactly match the ART-R2 push-ratchet set: ${changedPaths.join(", ") || "<none>"}`);
     } else if (changeRoute === "art-r2-implementation" && !sameStringSet(changedPaths, ART_R2_IMPLEMENTATION_CHANGED_PATHS)) {
       errors.push(`changed paths do not exactly match the ART-R2 implementation set: ${changedPaths.join(", ") || "<none>"}`);
     }
@@ -661,6 +1065,7 @@ export function evaluatePolicy(facts) {
     "rec-01",
     "lock-record",
     "art-r2-governance",
+    "art-r2-push-ratchet",
     "art-r2-implementation"
   ].includes(changeRoute);
   const expectedSimulationBaselineHash = expectsRec01Tree
@@ -669,31 +1074,75 @@ export function evaluatePolicy(facts) {
   if (facts.simulationBaselineHash !== expectedSimulationBaselineHash) {
     errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the ${expectsRec01Tree ? "REC-RATCHET-01 authorized replacement" : "issue #15 pinned fixture"}`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-push-ratchet", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetHash !== REC_RATCHET_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_ARTIFACT_PATH}: bytes differ from the authorized transition artifact`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-push-ratchet", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
     errors.push(`${REC_RATCHET_BASELINE_ARTIFACT_PATH}: bytes differ from the authorized inactive baseline`);
   }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
+  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-push-ratchet", "art-r2-implementation"].includes(changeRoute)
       && facts.recRatchetPatchHash !== REC_RATCHET_PATCH_ARTIFACT_SHA256) {
     errors.push(`${REC_RATCHET_PATCH_ARTIFACT_PATH}: bytes differ from the authorized implementation patch`);
   }
-  if (["rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
+  if (["rec-01", "lock-record", "art-r2-governance", "art-r2-push-ratchet", "art-r2-implementation"].includes(changeRoute)
       && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
     errors.push("src/scenes-41.js: bytes differ from the authorized REC-01 target");
   }
-  if (["rec-01", "lock-record", "art-r2-governance"].includes(changeRoute)
+  if (["rec-01", "lock-record", "art-r2-governance", "art-r2-push-ratchet"].includes(changeRoute)
       && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
     errors.push("scripts/verify.mjs: bytes differ from the authorized REC-01 target");
   }
-  if (["art-r2-governance", "art-r2-implementation"].includes(changeRoute)) {
+  if (changeRoute === "art-r2-governance") {
     for (const [path, expectedHash] of Object.entries(ART_R2_GOVERNANCE_DOCUMENT_SHA256)) {
       if (facts.artR2GovernanceDocumentHashes?.[path] !== expectedHash) {
         errors.push(`${path}: bytes differ from the approved ART-R2 governance record`);
       }
+    }
+  }
+  if (["art-r2-push-ratchet", "art-r2-implementation"].includes(changeRoute)) {
+    for (const [path, expectedHash] of Object.entries(ART_R2_IMMUTABLE_GOVERNANCE_SHA256)) {
+      if (facts.artR2ImmutableGovernanceHashes?.[path] !== expectedHash) {
+        errors.push(`${path}: bytes differ from the immutable ART-R2 governance authority`);
+      }
+    }
+    if (facts.artR2PushRatchetDocumentHash !== ART_R2_PUSH_RATCHET_DOCUMENT_SHA256) {
+      errors.push(`${ART_R2_PUSH_RATCHET_RECORD_PATH}: bytes differ from the protected-push repair authority`);
+    }
+    if (facts.statusHash !== ART_R2_PUSH_RATCHET_STATUS_SHA256) {
+      errors.push("artifacts/PROJECT_STATUS.md: bytes differ from the protected-push repair target");
+    }
+  }
+  if (changeRoute === "art-r2-push-ratchet") {
+    const predecessorBaselineHash = facts.eventName === "pull_request"
+      ? facts.prBaseSimulationBaselineHash
+      : facts.pushBeforeSimulationBaselineHash;
+    if (predecessorBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
+      errors.push("ART-R2 push-ratchet predecessor does not contain the preserved REC-01 simulation fixture");
+    }
+  }
+  if (changeRoute === "art-r2-implementation") {
+    const predecessorBaselineHash = facts.eventName === "pull_request"
+      ? facts.prBaseSimulationBaselineHash
+      : facts.pushBeforeSimulationBaselineHash;
+    if (predecessorBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
+      errors.push("ART-R2 implementation predecessor does not contain the preserved REC-01 simulation fixture");
+    }
+    if (facts.artR2ImplementationContentManifestHash !== ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256) {
+      errors.push("ART-R2 implementation 79-path content manifest differs from the held approved head");
+    }
+    if (facts.artR2ImageContentManifestHash !== ART_R2_IMAGE_CONTENT_MANIFEST_SHA256) {
+      errors.push("ART-R2 implementation 55-image content manifest differs from the held approved head");
+    }
+    if (facts.artR2IntegrationRecordHash !== ART_R2_INTEGRATION_RECORD_SHA256) {
+      errors.push(`${ART_R2_INTEGRATION_RECORD_PATH}: bytes differ from the held approved integration record`);
+    }
+    if (facts.artR2ValidatorHash !== ART_R2_VALIDATOR_SHA256) {
+      errors.push("scripts/validate-art-r2.mjs: bytes differ from the held approved ART validator");
+    }
+    if (facts.verifyScriptHash !== ART_R2_VERIFY_SHA256) {
+      errors.push("scripts/verify.mjs: bytes differ from the held approved ART target");
     }
   }
 
@@ -730,6 +1179,7 @@ function baseSelfTestFacts() {
       "`artifact_digest: none — no release created`",
       "`version_integrity: NOT_CERTIFIED — recovery`"
     ].join("\n"),
+    statusHash: "0".repeat(64),
     gov01Hash: GOV_01_SHA256,
     recoveryDecHash: RECOVERY_DEC_SHA256,
     pipeBootText: `# PIPE-BOOT — Governed Recovery Pipeline\n${RECOVERY_BRANCH}\nNO-PUBLISH`,
@@ -740,14 +1190,28 @@ function baseSelfTestFacts() {
     recRatchetBaselineHash: null,
     recRatchetPatchHash: null,
     artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 },
+    artR2ImmutableGovernanceHashes: { ...ART_R2_IMMUTABLE_GOVERNANCE_SHA256 },
+    artR2PushRatchetDocumentHash: null,
+    artR2ImplementationContentManifestHash: null,
+    artR2ImageContentManifestHash: null,
+    artR2IntegrationRecordHash: null,
+    artR2ValidatorHash: null,
     scenes41Hash: "0".repeat(64),
     verifyScriptHash: "0".repeat(64),
     prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
     pushBeforeSimulationBaselineHash: null,
     prBaseIsRecRatchetSuccessor: false,
     prBaseIsArtR2GovernanceSuccessor: false,
+    prHeadIsArtR2PushRatchetHead: false,
+    prCheckoutIsArtR2PushRatchetSuccessor: false,
+    prBaseIsArtR2PushRatchetSuccessor: false,
+    prHeadIsArtR2ReconciledHead: false,
+    prCheckoutIsArtR2ImplementationSuccessor: false,
     pushBeforeIsRecRatchetSuccessor: false,
     pushAfterIsArtR2GovernanceSuccessor: false,
+    pushBeforeIsArtR2PushRatchetSuccessor: false,
+    pushAfterIsArtR2PushRatchetSuccessor: false,
+    pushAfterIsArtR2ImplementationSuccessor: false,
     workflowNames: [...ALLOWED_WORKFLOWS],
     workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
       "name: fixture",
@@ -781,6 +1245,516 @@ function expectFailure(base, mutate, needle) {
   const result = evaluatePolicy(facts);
   assert.equal(result.passed, false, `expected failure containing ${needle}`);
   assert.ok(result.errors.some(error => error.includes(needle)), `missing failure ${needle}: ${result.errors.join(" | ")}`);
+}
+
+function writeGitObject(type, payload, { literally = false } = {}) {
+  assert.ok(Buffer.isBuffer(payload), `${type} fixture payload must be a Buffer`);
+  const output = gitRaw([
+    "hash-object",
+    ...(literally ? ["--literally"] : []),
+    "-t",
+    type,
+    "-w",
+    "--stdin"
+  ], { input: payload });
+  const match = output.toString("ascii").match(/^([0-9a-f]{40})\n$/);
+  assert.ok(match, `git hash-object returned an invalid ${type} object id`);
+  return match[1];
+}
+
+function rawCommitPayload(headerLines, messageBytes) {
+  assert.ok(
+    Array.isArray(headerLines) && headerLines.every(line => typeof line === "string" && !line.includes("\n")),
+    "raw commit fixture headers must be single lines"
+  );
+  assert.ok(Buffer.isBuffer(messageBytes), "raw commit fixture message must be a Buffer");
+  return Buffer.concat([
+    Buffer.from(`${headerLines.join("\n")}\n\n`, "utf8"),
+    messageBytes
+  ]);
+}
+
+function writeRawCommitFixture({
+  tree,
+  parents = [ART_R2_PUSH_RATCHET_BASE_SHA],
+  authorHeader = ART_R2_PUSH_RATCHET_AUTHOR_HEADER,
+  committerHeader = ART_R2_PUSH_RATCHET_COMMITTER_HEADER,
+  message,
+  headerLines = null
+}) {
+  const headers = headerLines || [
+    `tree ${tree}`,
+    ...parents.map(parent => `parent ${parent}`),
+    authorHeader,
+    committerHeader
+  ];
+  return writeGitObject("commit", rawCommitPayload(headers, message), { literally: true });
+}
+
+function commitMessageBytes(rawCommit) {
+  const boundary = rawCommit.payload.indexOf(Buffer.from("\n\n", "ascii"));
+  assert.ok(boundary >= 0, `commit ${rawCommit.oid} has no raw header/message boundary`);
+  return rawCommit.payload.subarray(boundary + 2);
+}
+
+function mutateTree(ref, { path, bytes = null, mode = "100644", remove = false }) {
+  const temporaryDirectory = mkdtempSync(resolve(tmpdir(), "sunsplitter-b01-index-"));
+  const environment = { GIT_INDEX_FILE: resolve(temporaryDirectory, "index") };
+  try {
+    gitRaw(["read-tree", ref], { env: environment });
+    if (remove) {
+      gitRaw(["update-index", "--force-remove", "--", path], { env: environment });
+    } else {
+      const blobBytes = bytes || gitRaw(["show", `${ref}:${path}`]);
+      const blob = writeGitObject("blob", blobBytes);
+      gitRaw(["update-index", "--add", "--cacheinfo", mode, blob, path], { env: environment });
+    }
+    const output = gitRaw(["write-tree"], { env: environment });
+    const match = output.toString("ascii").match(/^([0-9a-f]{40})\n$/);
+    assert.ok(match, "git write-tree returned an invalid tree object id");
+    return match[1];
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+}
+
+function findExactArtR2PushRatchetHeadForSelfTest() {
+  const reachable = git(["rev-list", "--topo-order", "HEAD"]).split(/\r?\n/).filter(Boolean);
+  const candidate = reachable.find(isExactArtR2PushRatchetHead);
+  assert.ok(candidate, "exact ART-R2 B01 precursor is not reachable from HEAD");
+  return candidate;
+}
+
+function assertArtR2B01RealObjectFixtures() {
+  const candidate = findExactArtR2PushRatchetHeadForSelfTest();
+  const candidateTree = gitTreeSha(candidate);
+  const candidateHashes = Object.fromEntries(
+    ART_R2_PUSH_RATCHET_CHANGED_PATHS.map(path => [path, gitFileSha256(candidate, path)])
+  );
+  const canonicalMessage = artR2PushRatchetManifestMessageBytes(candidateHashes);
+  const expectedPayload = artR2PushRatchetExpectedRawCommitPayload(candidate);
+  const candidateRaw = gitRawCommitObject(candidate);
+  assert.ok(candidateRaw && canonicalMessage && expectedPayload, "corrected candidate raw identity is unreadable");
+  assert.equal(candidateRaw.oid, candidate);
+  assert.equal(candidateRaw.framedSha1, candidate);
+  assert.ok(candidateRaw.payload.equals(expectedPayload));
+  assert.ok(commitMessageBytes(candidateRaw).equals(canonicalMessage));
+  assert.equal(canonicalMessage.at(-1), 0x0a);
+  assert.equal(
+    artR2PushRatchetPolicyProjectionSha256(candidate),
+    ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256
+  );
+  assert.equal(writeGitObject("commit", expectedPayload), candidate);
+
+  const oldMessage = Buffer.from([
+    "ART-R2-PUSH-RATCHET-R1: repair protected push policy",
+    "",
+    "NO-PUBLISH / NOT CERTIFIED",
+    "",
+    "ART-R2-PUSH-RATCHET-R1-File-SHA256: artifacts/ART-INTEGRATION-R2_PROTECTED_PUSH_REPAIR.md=d276dc60f4a576ee83838891c564f34a6b1276ded11f302c28087f5c9553b5d1",
+    "ART-R2-PUSH-RATCHET-R1-File-SHA256: artifacts/PROJECT_STATUS.md=7f6d07df265910d707a0231115c77a34d33a5d01f677925f7eee884477ee86b4",
+    "ART-R2-PUSH-RATCHET-R1-File-SHA256: scripts/release-policy.mjs=0c88592906a016cfd3c5344c008abbee66862e34e452f473ea105382c98f7258"
+  ].join("\n"), "utf8");
+  const oldPayload = rawCommitPayload([
+    `tree ${ART_R2_B01_OLD_TREE_SHA}`,
+    `parent ${ART_R2_PUSH_RATCHET_BASE_SHA}`,
+    "author Manraj Bains <54219887+mbains89@users.noreply.github.com> 1787276927 -0500",
+    "committer Manraj Bains <54219887+mbains89@users.noreply.github.com> 1787276927 -0500"
+  ], oldMessage);
+  assert.equal(writeGitObject("commit", oldPayload), ART_R2_B01_OLD_HEAD_SHA);
+  const oldRaw = gitRawCommitObject(ART_R2_B01_OLD_HEAD_SHA);
+  assert.ok(oldRaw, "reconstructed superseded ART-R2 precursor raw object is unreadable");
+  assert.ok(commitMessageBytes(oldRaw).equals(oldMessage));
+  assert.equal(oldRaw.payload.length, 755);
+  assert.equal(oldRaw.payloadSha256, ART_R2_B01_OLD_PAYLOAD_SHA256);
+  assert.equal(oldMessage.length, 493);
+  assert.equal(sha256(oldMessage), ART_R2_B01_OLD_MESSAGE_SHA256);
+  assert.notEqual(oldMessage.at(-1), 0x0a);
+
+  const alternateMessage = Buffer.concat([oldMessage, Buffer.from("\n", "ascii")]);
+  const alternate = writeRawCommitFixture({
+    tree: ART_R2_B01_OLD_TREE_SHA,
+    authorHeader: "author Codex <codex@openai.com> 1787275397 +0900",
+    committerHeader: "committer Codex <codex@openai.com> 1787275597 +0900",
+    message: alternateMessage
+  });
+  assert.equal(alternate, ART_R2_B01_ALTERNATE_SHA);
+  const alternateRaw = gitRawCommitObject(alternate);
+  assert.ok(alternateRaw, "prohibited alternate raw object is unreadable");
+  assert.equal(alternateRaw.payload.length, 690);
+  assert.equal(alternateRaw.payloadSha256, ART_R2_B01_ALTERNATE_PAYLOAD_SHA256);
+  assert.equal(alternateMessage.length, 494);
+  assert.equal(sha256(alternateMessage), ART_R2_B01_ALTERNATE_MESSAGE_SHA256);
+  assert.equal(alternateMessage.at(-1), 0x0a);
+  assert.equal(isExactArtR2PushRatchetHead(alternate), false);
+
+  const canonicalHeaders = [
+    `tree ${candidateTree}`,
+    `parent ${ART_R2_PUSH_RATCHET_BASE_SHA}`,
+    ART_R2_PUSH_RATCHET_AUTHOR_HEADER,
+    ART_R2_PUSH_RATCHET_COMMITTER_HEADER
+  ];
+  const manifestLines = canonicalMessage.toString("utf8").split("\n");
+  const writeHeaderOrMessageFixture = ({ headerLines = canonicalHeaders, message = canonicalMessage }) =>
+    writeRawCommitFixture({ tree: candidateTree, message, headerLines });
+  const headFixtures = new Map();
+  headFixtures.set("terminal LF removed", writeHeaderOrMessageFixture({
+    message: canonicalMessage.subarray(0, canonicalMessage.length - 1)
+  }));
+  headFixtures.set("terminal LF duplicated", writeHeaderOrMessageFixture({
+    message: Buffer.concat([canonicalMessage, Buffer.from("\n", "ascii")])
+  }));
+  headFixtures.set("CRLF-normalized equivalent", writeHeaderOrMessageFixture({
+    message: Buffer.from(canonicalMessage.toString("utf8").replaceAll("\n", "\r\n"), "utf8")
+  }));
+  headFixtures.set("missing raw blank-line boundary", writeGitObject("commit", Buffer.concat([
+    Buffer.from(`${canonicalHeaders.join("\n")}\n`, "utf8"),
+    canonicalMessage
+  ]), { literally: true }));
+  headFixtures.set("additional raw blank-line boundary", writeHeaderOrMessageFixture({
+    message: Buffer.concat([Buffer.from("\n", "ascii"), canonicalMessage])
+  }));
+  headFixtures.set("altered canonical title", writeHeaderOrMessageFixture({
+    message: Buffer.from(
+      canonicalMessage.toString("utf8").replace(
+        ART_R2_PUSH_RATCHET_COMMIT_TITLE,
+        "ART-R2-PUSH-RATCHET-R1-B01: generic bypass"
+      ),
+      "utf8"
+    )
+  }));
+  headFixtures.set("altered NO-PUBLISH token", writeHeaderOrMessageFixture({
+    message: Buffer.from(
+      canonicalMessage.toString("utf8").replace("NO-PUBLISH / NOT CERTIFIED", "PUBLISH / CERTIFIED"),
+      "utf8"
+    )
+  }));
+  headFixtures.set("author identity", writeRawCommitFixture({
+    tree: candidateTree,
+    authorHeader: "author Other <other@example.invalid> 1787299200 -0500",
+    message: canonicalMessage
+  }));
+  headFixtures.set("author timestamp", writeRawCommitFixture({
+    tree: candidateTree,
+    authorHeader: "author Codex <codex@openai.com> 1787299201 -0500",
+    message: canonicalMessage
+  }));
+  headFixtures.set("author timezone", writeRawCommitFixture({
+    tree: candidateTree,
+    authorHeader: "author Codex <codex@openai.com> 1787299200 +0000",
+    message: canonicalMessage
+  }));
+  headFixtures.set("committer identity", writeRawCommitFixture({
+    tree: candidateTree,
+    committerHeader: "committer Other <other@example.invalid> 1787299260 -0500",
+    message: canonicalMessage
+  }));
+  headFixtures.set("committer timestamp", writeRawCommitFixture({
+    tree: candidateTree,
+    committerHeader: "committer Codex <codex@openai.com> 1787299261 -0500",
+    message: canonicalMessage
+  }));
+  headFixtures.set("committer timezone", writeRawCommitFixture({
+    tree: candidateTree,
+    committerHeader: "committer Codex <codex@openai.com> 1787299260 +0000",
+    message: canonicalMessage
+  }));
+  headFixtures.set("reordered headers", writeHeaderOrMessageFixture({
+    headerLines: [canonicalHeaders[0], canonicalHeaders[1], canonicalHeaders[3], canonicalHeaders[2]]
+  }));
+  headFixtures.set("duplicate header", writeHeaderOrMessageFixture({
+    headerLines: [...canonicalHeaders, ART_R2_PUSH_RATCHET_COMMITTER_HEADER]
+  }));
+  headFixtures.set("missing header", writeHeaderOrMessageFixture({
+    headerLines: canonicalHeaders.filter(line => line !== ART_R2_PUSH_RATCHET_AUTHOR_HEADER)
+  }));
+  headFixtures.set("extra header", writeHeaderOrMessageFixture({
+    headerLines: [...canonicalHeaders, "x-b01 unexpected"]
+  }));
+  headFixtures.set("encoding header", writeHeaderOrMessageFixture({
+    headerLines: [...canonicalHeaders, "encoding UTF-8"]
+  }));
+  headFixtures.set("signature header", writeHeaderOrMessageFixture({
+    headerLines: [...canonicalHeaders, "gpgsig prohibited-fixture"]
+  }));
+  headFixtures.set("multiline signature header", writeHeaderOrMessageFixture({
+    headerLines: [
+      ...canonicalHeaders,
+      "gpgsig -----BEGIN PGP SIGNATURE-----",
+      " prohibited-fixture-continuation",
+      " -----END PGP SIGNATURE-----"
+    ]
+  }));
+  headFixtures.set("additional parent", writeRawCommitFixture({
+    tree: candidateTree,
+    parents: [ART_R2_PUSH_RATCHET_BASE_SHA, ART_R2_B01_OLD_HEAD_SHA],
+    message: canonicalMessage
+  }));
+  headFixtures.set("stale predecessor", writeRawCommitFixture({
+    tree: candidateTree,
+    parents: [ART_R2_B01_OLD_HEAD_SHA],
+    message: canonicalMessage
+  }));
+
+  const missingManifest = [...manifestLines];
+  missingManifest.splice(4, 1);
+  headFixtures.set("missing manifest entry", writeHeaderOrMessageFixture({
+    message: Buffer.from(missingManifest.join("\n"), "utf8")
+  }));
+  const duplicateManifest = [...manifestLines];
+  duplicateManifest.splice(5, 0, duplicateManifest[4]);
+  headFixtures.set("duplicate manifest entry", writeHeaderOrMessageFixture({
+    message: Buffer.from(duplicateManifest.join("\n"), "utf8")
+  }));
+  const additionalManifest = [...manifestLines];
+  additionalManifest.splice(
+    -1,
+    0,
+    `ART-R2-PUSH-RATCHET-R1-File-SHA256: README.md=${"a".repeat(64)}`
+  );
+  headFixtures.set("additional manifest entry", writeHeaderOrMessageFixture({
+    message: Buffer.from(additionalManifest.join("\n"), "utf8")
+  }));
+  const reorderedManifest = [...manifestLines];
+  [reorderedManifest[4], reorderedManifest[5]] = [reorderedManifest[5], reorderedManifest[4]];
+  headFixtures.set("reordered manifest entries", writeHeaderOrMessageFixture({
+    message: Buffer.from(reorderedManifest.join("\n"), "utf8")
+  }));
+  const mismatchedManifest = [...manifestLines];
+  mismatchedManifest[4] = mismatchedManifest[4].replace(/[0-9a-f]{64}$/, "0".repeat(64));
+  headFixtures.set("mismatched manifest entry", writeHeaderOrMessageFixture({
+    message: Buffer.from(mismatchedManifest.join("\n"), "utf8")
+  }));
+
+  for (const [label, fixture] of headFixtures) {
+    assert.notEqual(fixture, candidate, `${label} fixture unexpectedly reproduced the candidate`);
+    assert.equal(isExactArtR2PushRatchetHead(fixture), false, `${label} raw object was accepted`);
+  }
+
+  const fixtureMergeMessage = Buffer.from("ART-R2 B01 real-object topology fixture\n", "utf8");
+  const positiveSuccessor = writeRawCommitFixture({
+    tree: candidateTree,
+    parents: [ART_R2_PUSH_RATCHET_BASE_SHA, candidate],
+    authorHeader: "author B01 Fixture <b01@example.invalid> 1787299320 -0500",
+    committerHeader: "committer B01 Fixture <b01@example.invalid> 1787299380 -0500",
+    message: fixtureMergeMessage
+  });
+  assert.equal(isExactArtR2PushRatchetSuccessor(positiveSuccessor), true);
+
+  const alternateSuccessor = writeRawCommitFixture({
+    tree: ART_R2_B01_OLD_TREE_SHA,
+    parents: [ART_R2_PUSH_RATCHET_BASE_SHA, alternate],
+    authorHeader: "author B01 Fixture <b01@example.invalid> 1787299440 -0500",
+    committerHeader: "committer B01 Fixture <b01@example.invalid> 1787299500 -0500",
+    message: fixtureMergeMessage
+  });
+  assert.deepEqual(gitParents(alternateSuccessor), [ART_R2_PUSH_RATCHET_BASE_SHA, alternate]);
+  assert.equal(isExactArtR2PushRatchetSuccessor(alternateSuccessor), false);
+
+  const topologyFixtures = new Map([
+    ["one-parent protected merge", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [candidate],
+      message: fixtureMergeMessage
+    })],
+    ["squash", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [ART_R2_PUSH_RATCHET_BASE_SHA],
+      message: Buffer.from("squashed B01 fixture\n", "utf8")
+    })],
+    ["rebase", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [ART_R2_B01_OLD_HEAD_SHA],
+      message: Buffer.from("rebased B01 fixture\n", "utf8")
+    })],
+    ["cherry-pick", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [ART_R2_PUSH_RATCHET_BASE_SHA],
+      authorHeader: "author Cherry Pick <pick@example.invalid> 1787299560 -0500",
+      committerHeader: "committer Cherry Pick <pick@example.invalid> 1787299620 -0500",
+      message: canonicalMessage
+    })],
+    ["swapped parents", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [candidate, ART_R2_PUSH_RATCHET_BASE_SHA],
+      message: fixtureMergeMessage
+    })],
+    ["octopus", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [ART_R2_PUSH_RATCHET_BASE_SHA, candidate, ART_R2_B01_OLD_HEAD_SHA],
+      message: fixtureMergeMessage
+    })],
+    ["repeated use", writeRawCommitFixture({
+      tree: candidateTree,
+      parents: [positiveSuccessor, candidate],
+      message: fixtureMergeMessage
+    })]
+  ]);
+  assert.equal(isExactArtR2PushRatchetSuccessor(candidate), false);
+  for (const [label, fixture] of topologyFixtures) {
+    assert.equal(isExactArtR2PushRatchetHead(fixture), false, `${label} object was accepted as the precursor`);
+    assert.equal(isExactArtR2PushRatchetSuccessor(fixture), false, `${label} object was accepted as the successor`);
+  }
+
+  const changedBytes = (path, marker) => Buffer.concat([
+    gitRaw(["show", `${candidate}:${path}`]),
+    Buffer.from(marker, "utf8")
+  ]);
+  const workflowBytes = gitRaw(["show", `${candidate}:.github/workflows/verify.yml`]);
+  const weakenedWorkflowBytes = Buffer.from(
+    workflowBytes.toString("utf8").replace("contents: read", "contents: write"),
+    "utf8"
+  );
+  assert.notDeepEqual(weakenedWorkflowBytes, workflowBytes, "workflow weakening fixture did not alter bytes");
+  const treeFixtures = new Map([
+    ["wrong tree", ART_R2_PUSH_RATCHET_BASE_TREE_SHA],
+    ["wrong mode", mutateTree(candidate, {
+      path: ART_R2_PUSH_RATCHET_RECORD_PATH,
+      mode: "100755"
+    })],
+    ["missing path", mutateTree(candidate, {
+      path: ART_R2_PUSH_RATCHET_RECORD_PATH,
+      remove: true
+    })],
+    ["extra path", mutateTree(candidate, {
+      path: "artifacts/ART-R2-B01-EXTRA.md",
+      bytes: Buffer.from("prohibited extra path\n", "utf8")
+    })],
+    ["changed path", mutateTree(candidate, {
+      path: "artifacts/PROJECT_STATUS.md",
+      bytes: changedBytes("artifacts/PROJECT_STATUS.md", "\nprohibited changed-path fixture\n")
+    })],
+    ["content drift", mutateTree(candidate, {
+      path: ART_R2_PUSH_RATCHET_RECORD_PATH,
+      bytes: changedBytes(ART_R2_PUSH_RATCHET_RECORD_PATH, "\nprohibited content drift\n")
+    })],
+    ["governance drift", mutateTree(candidate, {
+      path: "artifacts/LOCKS.md",
+      bytes: changedBytes("artifacts/LOCKS.md", "\nprohibited governance drift\n")
+    })],
+    ["artwork drift", mutateTree(candidate, {
+      path: "images/corridor.jpg",
+      bytes: changedBytes("images/corridor.jpg", "B01-artwork-drift")
+    })],
+    ["REC-01 fixture drift", mutateTree(candidate, {
+      path: SIMULATION_BASELINE_PATH,
+      bytes: changedBytes(SIMULATION_BASELINE_PATH, "\nprohibited REC-01 fixture drift\n")
+    })],
+    ["REC-01 authority drift", mutateTree(candidate, {
+      path: REC_RATCHET_ARTIFACT_PATH,
+      bytes: changedBytes(REC_RATCHET_ARTIFACT_PATH, "\nprohibited REC-01 authority drift\n")
+    })],
+    ["workflow weakening", mutateTree(candidate, {
+      path: ".github/workflows/verify.yml",
+      bytes: weakenedWorkflowBytes
+    })],
+    ["workflow drift", mutateTree(candidate, {
+      path: ".github/workflows/release-policy.yml",
+      bytes: changedBytes(".github/workflows/release-policy.yml", "\n# prohibited workflow drift\n")
+    })],
+    ["unrelated recovery work", mutateTree(candidate, {
+      path: "src/scenes-22.js",
+      bytes: changedBytes("src/scenes-22.js", "\n// prohibited unrelated recovery work\n")
+    })],
+    ["version change", mutateTree(candidate, {
+      path: "VERSION.md",
+      bytes: changedBytes("VERSION.md", "\nprohibited version change\n")
+    })],
+    ["release change", mutateTree(candidate, {
+      path: "artifacts/ART-R2-B01-RELEASE.md",
+      bytes: Buffer.from("prohibited release change\n", "utf8")
+    })],
+    ["deployment change", mutateTree(candidate, {
+      path: "netlify.toml",
+      bytes: changedBytes("netlify.toml", "\n# prohibited deployment change\n")
+    })],
+    ["publication change", mutateTree(candidate, {
+      path: "scripts/publish-b01.mjs",
+      bytes: Buffer.from("throw new Error('prohibited publication change');\n", "utf8")
+    })],
+    ["secret change", mutateTree(candidate, {
+      path: ".env",
+      bytes: Buffer.from("PROHIBITED_SECRET=fixture\n", "utf8")
+    })],
+    ["ruleset change", mutateTree(candidate, {
+      path: ".github/rulesets/b01.json",
+      bytes: Buffer.from("{}\n", "utf8")
+    })],
+    ["administration change", mutateTree(candidate, {
+      path: ".github/settings.yml",
+      bytes: Buffer.from("prohibited: true\n", "utf8")
+    })]
+  ]);
+  for (const [label, tree] of treeFixtures) {
+    const fixture = writeRawCommitFixture({ tree, message: canonicalMessage });
+    assert.equal(isExactArtR2PushRatchetHead(fixture), false, `${label} tree object was accepted`);
+  }
+
+  const unsealedPolicyDrift = changedBytes(
+    ART_R2_PUSH_RATCHET_POLICY_PATH,
+    "\n// prohibited policy content drift\n"
+  );
+  const projectionPrefix = Buffer.from(
+    "const ART_R2_PUSH_RATCHET_POLICY_PROJECTION_SHA256 = \"",
+    "ascii"
+  );
+  const projectionPrefixStart = unsealedPolicyDrift.indexOf(projectionPrefix);
+  assert.ok(
+    projectionPrefixStart >= 0 && projectionPrefixStart === unsealedPolicyDrift.lastIndexOf(projectionPrefix),
+    "policy-drift fixture projection marker is not unique"
+  );
+  const projectionDigestStart = projectionPrefixStart + projectionPrefix.length;
+  const projectionDigestEnd = projectionDigestStart + 64;
+  const zeroProjectedPolicyDrift = Buffer.concat([
+    unsealedPolicyDrift.subarray(0, projectionDigestStart),
+    Buffer.from("0".repeat(64), "ascii"),
+    unsealedPolicyDrift.subarray(projectionDigestEnd)
+  ]);
+  const policyDriftProjection = sha256(zeroProjectedPolicyDrift);
+  const selfConsistentPolicyDrift = Buffer.concat([
+    unsealedPolicyDrift.subarray(0, projectionDigestStart),
+    Buffer.from(policyDriftProjection, "ascii"),
+    unsealedPolicyDrift.subarray(projectionDigestEnd)
+  ]);
+  assert.equal(
+    sha256(Buffer.concat([
+      selfConsistentPolicyDrift.subarray(0, projectionDigestStart),
+      Buffer.from("0".repeat(64), "ascii"),
+      selfConsistentPolicyDrift.subarray(projectionDigestEnd)
+    ])),
+    policyDriftProjection,
+    "policy-drift fixture is not projection-self-consistent"
+  );
+  const policyDriftTree = mutateTree(candidate, {
+    path: ART_R2_PUSH_RATCHET_POLICY_PATH,
+    bytes: selfConsistentPolicyDrift
+  });
+  const policyDriftHashes = Object.fromEntries(
+    ART_R2_PUSH_RATCHET_CHANGED_PATHS.map(path => [path, gitFileSha256(policyDriftTree, path)])
+  );
+  const policyDriftMessage = artR2PushRatchetManifestMessageBytes(policyDriftHashes);
+  assert.ok(policyDriftMessage, "policy-drift manifest fixture could not be constructed");
+  const policyDrift = writeRawCommitFixture({
+    tree: policyDriftTree,
+    message: policyDriftMessage
+  });
+  assert.equal(
+    isExactArtR2PushRatchetHead(policyDrift),
+    false,
+    "self-consistent policy content drift was accepted"
+  );
+
+  const tag = writeGitObject("tag", Buffer.from([
+    `object ${candidate}`,
+    "type commit",
+    "tag art-r2-b01-negative-fixture",
+    "tagger Codex <codex@openai.com> 1787299680 -0500",
+    "",
+    "prohibited tag-creation fixture",
+    ""
+  ].join("\n"), "utf8"));
+  assert.equal(isExactArtR2PushRatchetHead(tag), false);
+  assert.equal(isExactArtR2PushRatchetSuccessor(tag), false);
 }
 
 function selfTest() {
@@ -818,9 +1792,77 @@ function selfTest() {
       "scripts/release-policy.mjs"
     ].sort()
   );
+  assert.deepEqual(
+    [...ART_R2_PUSH_RATCHET_CHANGED_PATHS].sort(),
+    [
+      "artifacts/ART-INTEGRATION-R2_PROTECTED_PUSH_REPAIR.md",
+      "artifacts/PROJECT_STATUS.md",
+      "scripts/release-policy.mjs"
+    ].sort()
+  );
   assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.length, 79);
   assert.equal(new Set(ART_R2_IMPLEMENTATION_CHANGED_PATHS).size, 79);
-  assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.filter(path => path.startsWith("images/")).length, 55);
+  assert.equal(ART_R2_IMAGE_PATHS.length, 55);
+  assert.equal(new Set(ART_R2_IMAGE_PATHS).size, 55);
+
+  assert.notEqual(ART_R2_PUSH_RATCHET_DOCUMENT_SHA256, "0".repeat(64));
+  assert.notEqual(ART_R2_PUSH_RATCHET_STATUS_SHA256, "0".repeat(64));
+  assert.equal(
+    sha256(readFileSync(resolve(ROOT, ART_R2_PUSH_RATCHET_RECORD_PATH))),
+    ART_R2_PUSH_RATCHET_DOCUMENT_SHA256
+  );
+  assert.equal(
+    sha256(readFileSync(resolve(ROOT, "artifacts/PROJECT_STATUS.md"))),
+    ART_R2_PUSH_RATCHET_STATUS_SHA256
+  );
+  assert.equal(gitTreeSha(ART_R2_PUSH_RATCHET_BASE_SHA), ART_R2_PUSH_RATCHET_BASE_TREE_SHA);
+  assert.equal(gitTreeSha(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA), ART_R2_HELD_IMPLEMENTATION_TREE_SHA);
+  assert.equal(
+    gitFilesContentManifestSha256(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, ART_R2_IMPLEMENTATION_CHANGED_PATHS),
+    ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256
+  );
+  assert.equal(
+    gitFilesContentManifestSha256(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, ART_R2_IMAGE_PATHS),
+    ART_R2_IMAGE_CONTENT_MANIFEST_SHA256
+  );
+  assert.equal(
+    gitFileSha256(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, ART_R2_INTEGRATION_RECORD_PATH),
+    ART_R2_INTEGRATION_RECORD_SHA256
+  );
+  assert.equal(
+    gitFileSha256(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, "scripts/validate-art-r2.mjs"),
+    ART_R2_VALIDATOR_SHA256
+  );
+  assert.equal(
+    gitFileSha256(ART_R2_HELD_IMPLEMENTATION_HEAD_SHA, "scripts/verify.mjs"),
+    ART_R2_VERIFY_SHA256
+  );
+
+  const manifestHashes = Object.fromEntries(
+    ART_R2_PUSH_RATCHET_CHANGED_PATHS.map((path, index) => [path, String(index + 1).repeat(64)])
+  );
+  const manifestPrefix = "ART-R2-PUSH-RATCHET-R1-File-SHA256: ";
+  const expectedManifestMessage = Buffer.from([
+    ART_R2_PUSH_RATCHET_COMMIT_TITLE,
+    "",
+    "NO-PUBLISH / NOT CERTIFIED",
+    "",
+    ...ART_R2_PUSH_RATCHET_CHANGED_PATHS.map(
+      path => `${manifestPrefix}${path}=${manifestHashes[path]}`
+    ),
+    ""
+  ].join("\n"), "utf8");
+  const manifestMessage = artR2PushRatchetManifestMessageBytes(manifestHashes);
+  assert.ok(manifestMessage?.equals(expectedManifestMessage));
+  assert.equal(manifestMessage.at(-1), 0x0a);
+  assert.equal(
+    artR2PushRatchetManifestMessageBytes({
+      ...manifestHashes,
+      [ART_R2_PUSH_RATCHET_CHANGED_PATHS[0]]: "not-a-sha256"
+    }),
+    null
+  );
+  assertArtR2B01RealObjectFixtures();
 
   const positive = baseSelfTestFacts();
   assert.deepEqual(evaluatePolicy(positive).errors, []);
@@ -924,23 +1966,112 @@ function selfTest() {
     facts.artR2GovernanceDocumentHashes[ART_R2_GOVERNANCE_RECORD_PATH] = "c".repeat(64);
   }, "approved ART-R2 governance record");
 
-  const artR2Implementation = structuredClone(artR2Governance);
+  const artR2PushRatchet = structuredClone(positive);
+  Object.assign(artR2PushRatchet, {
+    headRef: ART_R2_PUSH_RATCHET_HEAD,
+    prBaseSha: ART_R2_PUSH_RATCHET_BASE_SHA,
+    changedPaths: [...ART_R2_PUSH_RATCHET_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256,
+    artR2ImmutableGovernanceHashes: { ...ART_R2_IMMUTABLE_GOVERNANCE_SHA256 },
+    artR2PushRatchetDocumentHash: ART_R2_PUSH_RATCHET_DOCUMENT_SHA256,
+    statusHash: ART_R2_PUSH_RATCHET_STATUS_SHA256,
+    prBaseSimulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    prHeadIsArtR2PushRatchetHead: true,
+    prCheckoutIsArtR2PushRatchetSuccessor: true
+  });
+  assert.deepEqual(evaluatePolicy(artR2PushRatchet).errors, []);
+  expectFailure(artR2PushRatchet, facts => {
+    facts.headRef = ART_R2_IMPLEMENTATION_HEAD;
+  }, "exact protected push-ratchet merge successor");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.prBaseSha = "c".repeat(40);
+  }, "ART-R2 push-ratchet base");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.prHeadIsArtR2PushRatchetHead = false;
+  }, "exact direct-child three-path candidate");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.prCheckoutIsArtR2PushRatchetSuccessor = false;
+  }, "exact two-parent synthetic successor");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.changedPaths.push("README.md");
+  }, "ART-R2 push-ratchet set");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.changedPaths.pop();
+  }, "ART-R2 push-ratchet set");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.prBaseSimulationBaselineHash = SIMULATION_BASELINE_SHA256;
+  }, "preserved REC-01 simulation fixture");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.artR2PushRatchetDocumentHash = "c".repeat(64);
+  }, "protected-push repair authority");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.statusHash = "c".repeat(64);
+  }, "protected-push repair target");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.artR2ImmutableGovernanceHashes["artifacts/ART_RULES.md"] = "c".repeat(64);
+  }, "immutable ART-R2 governance authority");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256;
+  }, "REC-RATCHET-01 authorized replacement");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.recRatchetHash = "c".repeat(64);
+  }, "authorized transition artifact");
+  expectFailure(artR2PushRatchet, facts => {
+    facts.scenes41Hash = "c".repeat(64);
+  }, "authorized REC-01 target");
+
+  const artR2Implementation = structuredClone(artR2PushRatchet);
   Object.assign(artR2Implementation, {
     headRef: ART_R2_IMPLEMENTATION_HEAD,
     prBaseSha: "e".repeat(40),
-    prBaseIsArtR2GovernanceSuccessor: true,
+    prBaseIsArtR2PushRatchetSuccessor: true,
+    prHeadIsArtR2ReconciledHead: true,
+    prCheckoutIsArtR2ImplementationSuccessor: true,
     changedPaths: [...ART_R2_IMPLEMENTATION_CHANGED_PATHS],
-    verifyScriptHash: "c".repeat(64)
+    verifyScriptHash: ART_R2_VERIFY_SHA256,
+    artR2ImplementationContentManifestHash: ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256,
+    artR2ImageContentManifestHash: ART_R2_IMAGE_CONTENT_MANIFEST_SHA256,
+    artR2IntegrationRecordHash: ART_R2_INTEGRATION_RECORD_SHA256,
+    artR2ValidatorHash: ART_R2_VALIDATOR_SHA256
   });
   assert.deepEqual(evaluatePolicy(artR2Implementation).errors, []);
   expectFailure(artR2Implementation, facts => {
-    facts.prBaseIsArtR2GovernanceSuccessor = false;
-  }, "exact protected governance merge successor");
+    facts.prBaseIsArtR2PushRatchetSuccessor = false;
+  }, "exact protected push-ratchet merge successor");
+  expectFailure(artR2Implementation, facts => {
+    facts.prHeadIsArtR2ReconciledHead = false;
+  }, "exact held-head plus push-ratchet reconciliation merge");
+  expectFailure(artR2Implementation, facts => {
+    facts.prCheckoutIsArtR2ImplementationSuccessor = false;
+  }, "exact two-parent protected-merge candidate");
   expectFailure(artR2Implementation, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 implementation set");
   expectFailure(artR2Implementation, facts => { facts.changedPaths.pop(); }, "ART-R2 implementation set");
   expectFailure(artR2Implementation, facts => {
-    facts.artR2GovernanceDocumentHashes["artifacts/ART_RULES.md"] = "c".repeat(64);
-  }, "approved ART-R2 governance record");
+    facts.artR2ImplementationContentManifestHash = "c".repeat(64);
+  }, "79-path content manifest");
+  expectFailure(artR2Implementation, facts => {
+    facts.artR2ImageContentManifestHash = "c".repeat(64);
+  }, "55-image content manifest");
+  expectFailure(artR2Implementation, facts => {
+    facts.artR2IntegrationRecordHash = "c".repeat(64);
+  }, "held approved integration record");
+  expectFailure(artR2Implementation, facts => {
+    facts.artR2ValidatorHash = "c".repeat(64);
+  }, "held approved ART validator");
+  expectFailure(artR2Implementation, facts => {
+    facts.verifyScriptHash = "c".repeat(64);
+  }, "held approved ART target");
+  expectFailure(artR2Implementation, facts => {
+    facts.artR2ImmutableGovernanceHashes["artifacts/LOCKS.md"] = "c".repeat(64);
+  }, "immutable ART-R2 governance authority");
+  expectFailure(artR2Implementation, facts => {
+    facts.prBaseSimulationBaselineHash = SIMULATION_BASELINE_SHA256;
+  }, "preserved REC-01 simulation fixture");
 
   expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
   expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
@@ -967,6 +2098,21 @@ function selfTest() {
   expectFailure(positive, facts => {
     facts.workflowTexts["verify.yml"] += "\n      - run: gh release create sun-v0.30.1\n";
   }, "release/deploy/upload command");
+  expectFailure(positive, facts => {
+    facts.workflowTexts["verify.yml"] += "\n    environment: production\n";
+  }, "deployment environment use");
+  expectFailure(positive, facts => {
+    facts.workflowTexts["verify.yml"] += "\n      - run: netlify deploy --prod\n";
+  }, "release/deploy/upload command");
+  expectFailure(positive, facts => {
+    facts.workflowTexts["verify.yml"] += "\n      - run: npm publish\n";
+  }, "release/deploy/upload command");
+  expectFailure(positive, facts => {
+    facts.workflowTexts["verify.yml"] += "\n      - run: git push origin HEAD:main\n";
+  }, "release/deploy/upload command");
+  expectFailure(positive, facts => {
+    facts.workflowTexts["verify.yml"] += "\n      - run: echo ${{ secrets.DEPLOY_TOKEN }}\n";
+  }, "secret access");
   expectFailure(positive, facts => {
     facts.workflowTexts["verify.yml"] += "\n    tags: ['**']\n";
   }, "tag trigger/filter");
@@ -1076,6 +2222,78 @@ function selfTest() {
     facts.artR2GovernanceDocumentHashes["artifacts/LOCKS.md"] = "c".repeat(64);
   }, "approved ART-R2 governance record");
 
+  const artR2PushRatchetPush = structuredClone(push);
+  Object.assign(artR2PushRatchetPush, {
+    beforeSha: ART_R2_PUSH_RATCHET_BASE_SHA,
+    changedPaths: [...ART_R2_PUSH_RATCHET_CHANGED_PATHS],
+    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
+    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
+    scenes41Hash: REC_01_SCENES_41_SHA256,
+    verifyScriptHash: REC_01_VERIFY_SHA256,
+    artR2ImmutableGovernanceHashes: { ...ART_R2_IMMUTABLE_GOVERNANCE_SHA256 },
+    artR2PushRatchetDocumentHash: ART_R2_PUSH_RATCHET_DOCUMENT_SHA256,
+    statusHash: ART_R2_PUSH_RATCHET_STATUS_SHA256,
+    pushBeforeSimulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
+    pushAfterIsArtR2PushRatchetSuccessor: true
+  });
+  assert.deepEqual(evaluatePolicy(artR2PushRatchetPush).errors, []);
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.pushAfterIsArtR2PushRatchetSuccessor = false;
+  }, "exact two-parent protected precursor successor");
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.beforeSha = "c".repeat(40);
+  }, "push before SHA");
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.changedPaths.push("README.md");
+  }, "ART-R2 push-ratchet set");
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.changedPaths.pop();
+  }, "ART-R2 push-ratchet set");
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.pushBeforeSimulationBaselineHash = SIMULATION_BASELINE_SHA256;
+  }, "preserved REC-01 simulation fixture");
+  expectFailure(artR2PushRatchetPush, facts => {
+    facts.workflowHashes["release-policy.yml"] = "c".repeat(64);
+  }, "bytes differ from the issue #15 reviewed workflow");
+
+  const artR2ImplementationPush = structuredClone(artR2PushRatchetPush);
+  Object.assign(artR2ImplementationPush, {
+    beforeSha: "e".repeat(40),
+    changedPaths: [...ART_R2_IMPLEMENTATION_CHANGED_PATHS],
+    verifyScriptHash: ART_R2_VERIFY_SHA256,
+    pushBeforeIsArtR2PushRatchetSuccessor: true,
+    pushAfterIsArtR2PushRatchetSuccessor: false,
+    pushAfterIsArtR2ImplementationSuccessor: true,
+    artR2ImplementationContentManifestHash: ART_R2_IMPLEMENTATION_CONTENT_MANIFEST_SHA256,
+    artR2ImageContentManifestHash: ART_R2_IMAGE_CONTENT_MANIFEST_SHA256,
+    artR2IntegrationRecordHash: ART_R2_INTEGRATION_RECORD_SHA256,
+    artR2ValidatorHash: ART_R2_VALIDATOR_SHA256
+  });
+  assert.deepEqual(evaluatePolicy(artR2ImplementationPush).errors, []);
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.pushAfterIsArtR2ImplementationSuccessor = false;
+  }, "exact two-parent protected ART successor");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.pushBeforeIsArtR2PushRatchetSuccessor = false;
+  }, "push before SHA");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.changedPaths.push("README.md");
+  }, "ART-R2 implementation set");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.changedPaths.pop();
+  }, "ART-R2 implementation set");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.artR2ImageContentManifestHash = "c".repeat(64);
+  }, "55-image content manifest");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256;
+  }, "REC-RATCHET-01 authorized replacement");
+  expectFailure(artR2ImplementationPush, facts => {
+    facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED");
+  }, "STATUS NO-PUBLISH");
+
   expectFailure(push, facts => {
     facts.ref = "refs/tags/sun-v0.30.1";
     facts.refName = "sun-v0.30.1";
@@ -1083,7 +2301,7 @@ function selfTest() {
   }, "tag creation");
   expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
 
-  console.log("PASS release-policy self-test (issue #15 + REC-RATCHET-01 + REC-01 + lock-record + exact two-stage ART-R2 routes)");
+  console.log("PASS release-policy self-test (issue #15 + REC-RATCHET-01 + REC-01 + lock-record + ART-R2 protected-push ratchet + exact ART implementation route)");
 }
 
 function environmentFromProcess() {
@@ -1109,6 +2327,7 @@ function taskForRoute(route) {
   if (route === "rec-ratchet") return "REC-RATCHET-01";
   if (route === "lock-record") return "LOCK-RECORD-R1/L-025-L-028";
   if (route === "art-r2-governance") return "ART-INTEGRATION-R2/GOVERNANCE";
+  if (route === "art-r2-push-ratchet") return "ART-R2-PUSH-RATCHET-R1";
   if (route === "art-r2-implementation") return "ART-INTEGRATION-R2/55-PLATE-DRAFT";
   return "PIPE-BOOT-R1/#15";
 }
