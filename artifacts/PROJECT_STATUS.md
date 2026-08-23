@@ -1,7 +1,7 @@
 # Sunsplitter — Current Status
 
 `schema_version: 1`
-`updated_utc: 2026-08-22`
+`updated_utc: 2026-08-23`
 `authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Recovery authority: `GOV-01_AUTHORITY_RECONCILIATION.md`, `RECOVERY-DEC_AMENDMENT.md`, `PIPE-BOOT_RECOVERY_PIPELINE.md`, `PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md`.
@@ -22,7 +22,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Verification — latest attributable evidence
 
-`tested_runtime_sha: 23951012655b0037a55e82c755b66dd4d852f20b` (protected ART-INTEGRATION-R2 governance successor; recovery evidence, not certification)
+`tested_runtime_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a` (exact protected REC-RATCHET-02 successor; recovery evidence, not certification)
 `verify_mjs: present on tree`
 `simulate_mjs: present on tree`
 `pipe_boot_r1_dispatch_base: d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e`
@@ -30,7 +30,11 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `pipe_boot_r1_approved_tree_sha: 3befa469312fb00e45f2871b349510ff7e0a4042`
 `pipe_boot_r1_synthetic_merge_sha: 69bdc0d79f0c5228815f17c47b96e629d75a1a22`
 `pipe_boot_r1_merge_sha: 0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`
-`governed_recovery_successor_sha: 23951012655b0037a55e82c755b66dd4d852f20b`
+`governed_recovery_successor_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`rec_ratchet_02_approved_head_sha: f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab`
+`rec_ratchet_02_approved_tree_sha: f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
+`rec_ratchet_02_merge_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`rec_ratchet_02_control_state: CLOSED / LANDED — protected PR #29 merged 2026-08-23T00:26:09Z; NO-PUBLISH and NOT_CERTIFIED remain active`
 `rec_01_approved_head_sha: 7824aac5615df58cfeb7c26361ad4c04c8f47ad9`
 `rec_01_approved_tree_sha: 9ccbfbbcceed2c98900fabd635830abe3b5a424c`
 `rec_01_merge_sha: 9bb4ccf7efbf856ffed569436787f779ad195698`
@@ -60,8 +64,8 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: TEMP-EXACT-HEAD-RECOVERY-GATE-R2-A — REC-RATCHET-02 exact candidate`
-`ticket: REC-RATCHET-02 / issue #24 — Gate A repinned to protected 2395101`
+`milestone: REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R1 — phase-safe control repair`
+`ticket: REC-RATCHET-02 policy self-test correction — owner-authorized local candidate construction`
 `pipe_boot_acceptance: ACCEPTED — Manraj — 2026-08-19`
 `rec_ratchet_01_authorization: APPROVED — Manraj — 2026-08-19`
 `rec_ratchet_01_source_sha: 78a64c7a180a34e786da3eefac42a06f50703bab`
@@ -74,12 +78,34 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `art_integration_r2_wave2_archive_sha256: 1d1b23afbaeafda3b4f865302ab9f605e8e38780bf94abafa0c5c68ab52bd485 — 129/129 internal records PASS — 34 runtime plates`
 `art_integration_r2_wave3_archive_sha256: 6f1f40886a112fe6b2e0e543690cecce36a522b5daf408b784a21f67821e633f — 45/45 manifest entries PASS — 21 runtime plates`
 `owner: Build / GPT-Codex; independent Grok preliminary review is separate; merge executor Manraj requires separate exact protected-merge authorization`
-`state: GATE A CANDIDATE — one direct-child candidate and one draft PR authorized; no protected merge authorized; NO-PUBLISH / NOT CERTIFIED`
+`state: POLICY CORRECTION C3 CANDIDATE — exact three-path local construction only; no push, pull request, ready transition, or protected merge authorized; NO-PUBLISH / NOT CERTIFIED`
 `governed_branch: recovery/e4f8440-nopub`
-`implementation_branch: ticket/0.30.1-rec-ratchet-02`
-`dispatch_base_sha: 23951012655b0037a55e82c755b66dd4d852f20b`
-`dispatch_base_tree: 96829ad0e01619f56bed2121a666645b3f9b5259`
-`gate_a_scope: exactly .github/workflows/verify.yml; artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md; scripts/release-policy.mjs`
+`implementation_branch: ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r1`
+`dispatch_base_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`dispatch_base_tree: f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
+`gate_a_scope: LANDED PRECURSOR — exact six-path envelope retained as immutable evidence`
+`policy_correction_scope: exactly artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md; scripts/release-policy.mjs`
+`failed_rec_02_r1_head: bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e`
+`failed_rec_02_r1_tree: 34fa0adbfb027e01448a1a0771c8ff5af3997e26`
+`failed_rec_02_r1_parent: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`failed_rec_02_r1_manifest_sha256: de647dda0cf7b36290126489a342732d2022eee0816f220993b3f3d6c6478315`
+`failed_rec_02_r1_raw_sha256: ec41001c92a8d96e6913615dcd6fa82d108e0d91cd0c0135ecce9bdfad81d80a`
+`failed_rec_02_r1_disposition: FAILED REQUIRED GATE / LOCAL ONLY / UNPUSHED / NON-REUSABLE`
+`failed_policy_correction_c1_head: b12ff37ef9153a509827d914b825dd51ec6de0ca`
+`failed_policy_correction_c1_tree: 14dcaa3fb6a92349b6bebf06a606d356456859e8`
+`failed_policy_correction_c1_parent: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`failed_policy_correction_c1_manifest_sha256: 0d43560c72b994981e0dc5232156abfbbe99884ee0677ea469455a8fa79b34e7`
+`failed_policy_correction_c1_raw_sha256: cca58ea7ae7576af6dac9bf081c8a9723ae697a15112facae2734273aba72f78`
+`failed_policy_correction_c1_policy_projection_sha256: 986182e1d58019a20f75f0b66211bb2f1746e9066e1fefa8aa619bb0d507619f`
+`failed_policy_correction_c1_disposition: FAILED REQUIRED REVIEW / LOCAL ONLY / UNPUSHED / NON-REUSABLE`
+`failed_policy_correction_c2_head: 5c3b526d287d888bc3e0765569e6632ec5f6e0e6`
+`failed_policy_correction_c2_tree: dc1e677d66c35873ac040c598e33b39c05c78e54`
+`failed_policy_correction_c2_parent: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+`failed_policy_correction_c2_manifest_sha256: d102608126737abcc8ae739d952b17e656a805373d186aacf53b232e8175b56e`
+`failed_policy_correction_c2_raw_sha256: efb805938179bd721cff84bc0b947cb2e2741065dfa194ad6a4ee6d49cf41652`
+`failed_policy_correction_c2_policy_projection_sha256: fc7905cc051b12a7ec8410a046d48ae480b1e987504fc15c37e90d5e2a77a5d9`
+`failed_policy_correction_c2_disposition: FAILED REQUIRED REVIEW / LOCAL ONLY / UNPUSHED / NON-REUSABLE`
+`fresh_rec_02_branch: ticket/0.30.1-rec-02-r2 — BLOCKED until an exact correction successor lands and issue #24 is repinned`
 `active_simulation_baseline_sha256: 0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2 — unchanged in Gate A`
 `functional_projection_state: EVIDENCE ONLY — exact inactive REC-02 baseline + verifier + seven source files; later STATUS is separate and full exact-head verification must rerun`
 `rec_02_governed_scenes: cut_out; vent; past_leak; vault_voice; arc_future_1; act3_reckoning_heading; pregnancy_check; custody_possession; custody_thaw`
@@ -99,8 +125,11 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Blocked
 
-- REC-RATCHET-02 protected merge is not authorized. Reviewer PASS would establish eligibility only.
-- REC-02 source implementation remains inactive until REC-RATCHET-02 passes checks, receives independent exact-head PASS, lands through a separately authorized protected merge, and issue #24 is repinned to that exact successor.
+- REC-RATCHET-02 landed through protected PR #29 at exact successor `31aca17b807c4dc8edef3683e30d5fefdd47ad7a`; that Gate A authorization is consumed.
+- The first REC-02 candidate `bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e` failed the mandatory release-policy self-test because the landed policy reconstructed historical Gate A evidence from the current Stage 2 STATUS. Its gameplay verification PASS is diagnostic only. That head, tree, parent, manifest, and raw payload are local-only failed evidence and may not be pushed, retried, rebased, reused, or merged.
+- The first locally sealed policy-correction candidate `b12ff37ef9153a509827d914b825dd51ec6de0ca` passed its technical gates but failed final governance review because its recorded next action required attributable CI while the same authority prohibited the branch push and draft PR needed to create that CI. That head, tree, parent, manifest, raw payload, and policy projection are local-only failed evidence and may not be pushed, retried, amended, rebased, reused, or merged.
+- The second locally sealed policy-correction candidate `5c3b526d287d888bc3e0765569e6632ec5f6e0e6` passed its technical and governance gates but failed final design review because its mechanically derived REC-02 r2 STATUS simultaneously marked the projection activated and retained `fresh_rec_02_branch` as blocked. That head, tree, parent, manifest, raw payload, and policy projection are local-only failed evidence and may not be pushed, retried, amended, rebased, reused, or merged.
+- Fresh REC-02 construction is blocked. After a separately authorized correction merge, issue #24 must be repinned to that exact protected successor and all REC-02 STATUS, parent, tree, manifest, raw-payload, and OID identities must be freshly derived on `ticket/0.30.1-rec-02-r2`.
 - B2 and all V4/V5 decisions and bytes remain unapproved. The inactive baseline records surviving V4/V5 evidence without claiming repair.
 - PIPE-BOOT-R1 remains closed at `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`; later protected successors are REC-RATCHET-01 at `5e93b68a7412bcbed041e7c74a985ae30682a1d2`, REC-01 at `9bb4ccf7efbf856ffed569436787f779ad195698`, and LOCK-RECORD-R1 at `8a840397d80b8fe1027a22ca89603d92f0e562e6`.
 - PR #26 remains frozen. ART reconciliation is a future governed action and the 55-image digest must remain exact.
@@ -132,9 +161,13 @@ L-020 through L-024 remain ruled; recovery does not reopen them. Historical reco
 - LOCK-RECORD-R1 landed through protected PR #23 at merge `8a840397d80b8fe1027a22ca89603d92f0e562e6`, tree `0af206bdc531b355598840402e94be297e297fc8`
 - ART-INTEGRATION-R2 is the sole owner-approved L-004 art-sequencing exception: exactly 55 approved event plates, presentation-only wiring, protected governance first, draft-only implementation second
 - ART-INTEGRATION-R2 governance landed through protected PR #25 at `23951012655b0037a55e82c755b66dd4d852f20b`; PR #26 remains the frozen draft implementation evidence
+- REC-RATCHET-02 landed through protected PR #29 at `31aca17b807c4dc8edef3683e30d5fefdd47ad7a`, tree `f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`, with ordered parents `[23951012655b0037a55e82c755b66dd4d852f20b, f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab]`
+- REC-02 r1 at `bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e` is preserved as local failed required-gate evidence only; no remote branch or pull request was created
+- Policy-correction C1 at `b12ff37ef9153a509827d914b825dd51ec6de0ca` is preserved as local failed required-review evidence only; no remote branch or pull request was created
+- Policy-correction C2 at `5c3b526d287d888bc3e0765569e6632ec5f6e0e6` is preserved as local failed required-review evidence only; no remote branch or pull request was created
 
 ## Next action
 
-**Manraj:** After the REC-RATCHET-02 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Manraj:** Authorize the newly sealed exact local correction candidate branch to be pushed and exactly one draft pull request to be opened against `recovery/e4f8440-nopub`. This grants no ready transition, merge, REC-02 construction, deployment, release, publication, or certification authority. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->
