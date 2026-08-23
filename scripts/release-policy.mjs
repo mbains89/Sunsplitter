@@ -1,1089 +1,1101 @@
 #!/usr/bin/env node
 
-// PIPE-BOOT-R1, REC-RATCHET-01, REC-01, the one-shot lock-record route,
-// and the exact two-stage ART-INTEGRATION-R2 route.
+// TEMP-EXACT-HEAD-RECOVERY-GATE-R2-A
 //
-// This is deliberately a recovery-only, fail-closed policy. It does not create
-// tags, releases, deployments, artifacts, or publication credentials. A later
-// governed ticket must replace this bounded policy before any other change may
-// target the recovery branch.
+// One exact REC-RATCHET-02 candidate route, one structurally exact protected
+// merge, one exact REC-02 activation route, and one structurally exact closure
+// merge. The envelope then consumes itself. It never publishes, deploys, tags,
+// releases, certifies, changes rulesets, or supplies credentials.
 
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   appendFileSync,
-  existsSync,
-  lstatSync,
-  readFileSync,
-  readdirSync
+  mkdtempSync,
+  readFileSync
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
-const PIPE_BOOT_HEAD = "ticket/0.30.1-pipe-boot-r1";
-const PIPE_BOOT_CLOSEOUT_HEAD = "ticket/0.30.1-pipe-boot-r1-status-closeout";
+const GATE_A_BRANCH = "ticket/0.30.1-rec-ratchet-02";
+const FUTURE_BRANCH = "ticket/0.30.1-rec-02-r1";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
-const DISPATCH_BASE_SHA = "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e";
-const PIPE_BOOT_MERGE_SHA = "0b600935aa6e21d4898bcc9c7ad09e78893ec6e7";
-const REC_RATCHET_HEAD = "ticket/0.30.1-rec-ratchet-01";
-const REC_RATCHET_BASE_SHA = "78a64c7a180a34e786da3eefac42a06f50703bab";
-const REC_01_HEAD = "ticket/0.30.1-rec-01-r1";
-const LOCK_RECORD_HEAD = "ticket/0.30.1-locks-l025-l028-r1";
-const LOCK_RECORD_BASE_SHA = "9bb4ccf7efbf856ffed569436787f779ad195698";
-const ART_R2_GOVERNANCE_HEAD = "ticket/art-integration-r2-governance-repin";
-const ART_R2_GOVERNANCE_BASE_SHA = "8a840397d80b8fe1027a22ca89603d92f0e562e6";
-const ART_R2_IMPLEMENTATION_HEAD = "ticket/art-integration-r2-55";
-const ART_R2_GOVERNANCE_RECORD_PATH = "artifacts/ART-INTEGRATION-R2_GOVERNANCE_REPIN.md";
-const SIMULATION_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
-const REC_RATCHET_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_BASELINE_TRANSITION.md";
-const REC_RATCHET_BASELINE_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_AUTHORIZED_BASELINE.json";
-const REC_RATCHET_PATCH_ARTIFACT_PATH = "artifacts/REC-RATCHET-01_AUTHORIZED_REC-01.patch.json";
+const GATE_A_BASE_SHA = "23951012655b0037a55e82c755b66dd4d852f20b";
+const GATE_A_BASE_TREE = "96829ad0e01619f56bed2121a666645b3f9b5259";
+const ACTIVE_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
+const INACTIVE_BASELINE_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json";
+const PATCH_ARTIFACT_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json";
+const TRANSITION_PATH = "artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md";
+const STATUS_PATH = "artifacts/PROJECT_STATUS.md";
+const POLICY_PATH = "scripts/release-policy.mjs";
+const VERIFY_WORKFLOW_PATH = ".github/workflows/verify.yml";
+const RELEASE_WORKFLOW_PATH = ".github/workflows/release-policy.yml";
 
-const GOV_01_SHA256 = "067832a3750f9909df7a4d8eff553d96dd450957c9235da8f37012607a7bb14e";
-const RECOVERY_DEC_SHA256 = "48721ce3552cf44ff305747545eb908c0668cf04f84167d41eedefeb5f092efa";
-const NETLIFY_NO_BUILD_SHA256 = "02779c797969c4af09d5f4fa900ef7464473b6d3e2337b3d47eedbc94ca6187d";
-const SIMULATION_BASELINE_SHA256 = "bb1fb02cb7f85f0c0eddb3d9dbb0d3bb6c695d57156c2c051bf69f6f53f3b42b";
-const REC_01_SIMULATION_BASELINE_SHA256 = "0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2";
-const REC_RATCHET_ARTIFACT_SHA256 = "e1101102c7c79e2f2d7c12504e74f1fe28037ae199703d1b488c57aa2e329db8";
-const REC_RATCHET_PATCH_ARTIFACT_SHA256 = "f5c4f2a48f24f0c6c7d6d570d98acc6217156ebcdf3cef5a9224941629f2c438";
-const REC_01_SCENES_41_SHA256 = "b67563297cb4b4ae89330fe61523d06b1b11c3703bd7c5ba412492e7860fc106";
-const REC_01_VERIFY_SHA256 = "ba413f6b41d4f0278238f69feea59865e0d3e979b177c76db6b380854afec084";
-const ART_R2_GOVERNANCE_DOCUMENT_SHA256 = Object.freeze({
-  [ART_R2_GOVERNANCE_RECORD_PATH]: "4151879697d7edcc265daab2073a1cbd3aff261e62338397313b8785a17726b5",
-  "artifacts/ART_RULES.md": "2e4cb5caf80824b5ee980e3282293f5e6c77271755421d3472458a5103cb207b",
-  "artifacts/LOCKS.md": "f8debebc10b4fe69a0e5fee1305a70500e15c8c6fd0beb74c7ab9ba8bffa078e",
-  "artifacts/PROJECT_STATUS.md": "5094ca4f6404f9e74b3c20788a2f67a1a20de58e8ecbca3f1063302722b69759",
-  "artifacts/ROADMAP.md": "5c79b798065c8b9dcae41cc53ba1118a1e5dd934803c310539be3f350b4cbf90"
+const NO_PUBLISH_TOKEN = "NO-PUBLISH / NOT CERTIFIED";
+const GATE_A_COMMIT_TITLE = "REC-RATCHET-02: pin exact REC-02 recovery projection";
+const FUTURE_COMMIT_TITLE = "REC-02: apply authorized zero-exit projection";
+const GATE_A_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787443200 -0500";
+const FUTURE_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787529600 -0500";
+
+const POLICY_PROJECTION_SHA256 = "02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5";
+const TRANSITION_SHA256 = "a01180e9d5f917e47eafb9b65eea3c1c045e325b7b97690cfd8bfbef0110ba2a";
+
+const VERIFY_WORKFLOW_SHA256 = "7f0047c7de5dd862083fbbd6c7cc56d018700a536f88e2c0904a7de922184cbd";
+const RELEASE_WORKFLOW_SHA256 = "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33";
+const GATE_A_STATUS_SHA256 = "e84a750b32350c0a6cfecfd60c4b1a9b6e44a22f57ed5fdeb9c5afa941d56d33";
+const INACTIVE_BASELINE_SHA256 = "048ee211f4708252b8609d475b47d3b6c05e85bd1d8bd1ae9c44f9229b659c20";
+const PATCH_ARTIFACT_SHA256 = "b9d97f57ef5ab755db2509789ebee2dda129460f7ce6a7934a71e7ebc5b04eb3";
+const ACTIVE_BASELINE_INPUT_SHA256 = "0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2";
+const FUNCTIONAL_TREE = "57e1439741965bf290cd6daf305c551e2f104182";
+const FUNCTIONAL_MANIFEST_SHA256 = "3f10dbc636fadc942ee17dd6356ff7be023a34a5347c147d2c7631132b0fe48d";
+const EMBEDDED_PATCH_SHA256 = "b33fdc96c1a5942e1dcd2fdb9d5606ca4222696133302c0ed3ebdd225e9d38fd";
+const NORMALIZED_SIMULATION_SHA256 = "c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08";
+const EXACT_SIMULATION_OUTPUT_SHA256 = "f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d";
+const ART_R2_IMAGE_MANIFEST_SHA256 = "1441be78e8d0d95f4cf2cfd9ace72b7e6458aa0ec230336748de6a2b96db7baa";
+
+const NORMALIZED_POLICY_SHA256 = Object.freeze({
+  random: "13c043596cd756badc06844d72e0b4575e4470fe2947e5b46a68018230c1e385",
+  cheapest: "0eb8095881dadec2f947bf3ebe05139eb7c2b91be75151273171681bd9a6cdcd",
+  priciest: "38b752e6b7194da98368ef1e11e9389d710e6915859eed4a53d889efd94ef05a"
 });
-const WORKFLOW_SHA256 = Object.freeze({
-  "release-policy.yml": "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f053e6d1187c0395dd33",
-  "verify.yml": "9a498bbf75ea62b04235fcfffea1c21ec9a768b8cec5416b7a2fb2e593b67ec2"
-});
 
-// Exact issue #15 boundary. Do not broaden this list to make a check green.
-export const PIPE_BOOT_R1_CHANGED_PATHS = Object.freeze([
-  ".github/workflows/release-policy.yml",
-  ".github/workflows/verify.yml",
-  "artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md",
-  "artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md",
-  "artifacts/PROJECT_STATUS.md",
-  SIMULATION_BASELINE_PATH,
-  "scripts/release-policy.mjs",
-  "scripts/simulate.mjs",
-  "scripts/verify.mjs"
-]);
+const ART_R2_HEAD = "7fe31675b678d041c980605ed5c5533d3ea22581";
+const ART_R2_TREE = "52551891fe55324bc2fcd073bff56b9a8cd2c061";
+const ART_R2_VERIFY_SHA256 = "654193d383a4fd2e32472c554ba2b85c64d25f2941048a8b4fe936cbc985471f";
+const ART_R2_VERIFY_BLOB = "b72530bb37fb07916e89c9d51ff7ee69a4ae4897";
+const ART_R2_CHANGED_MANIFEST_SHA256 = "f617b540572839c5915a1ef3bf57ea89c1241dd3eaa0d3fa6cf24a876673ad65";
+const ART_R2_RECORD_SHA256 = "d4512affd47ae29e6e8d9e711fd095b8273767de02f7bec06d1d4c5a9a33f29f";
+const ART_R2_VALIDATOR_SHA256 = "bed3a5443255510e8201fa896a4db05fbb466da2e13c4d431fae1fe28fdf5141";
+const REC_02_VERIFY_SHA256 = "c1258c11e1ac5ef56637a93bcbedb4c81b3d7b45ea15f332f51389e5eeddbe23";
+const REC_02_VERIFY_BLOB = "a4a828d423addf4717164cfbb7f61eca659ae9d7";
+const ART_R2_COMBINED_VERIFY_SHA256 = "7d06703e8af22a1aec080ef8453c22ed9238852e1fc5df31fdc67e600ef79440";
+const ART_R2_COMBINED_VERIFY_BLOB = "b1cbd17b732c7c3b8d72d123dbed7874791f5906";
+const ART_R2_COMBINED_TREE = "558a4d6d1fb491d6bd7cd3c07f0482ad6e35a482";
+const ART_R2_COMBINED_MANIFEST_SHA256 = "0973fcfeaab8370fd5e7e36ddef089b6f7eedaa4ed386b5e6f2bf3a83c116609";
+const ART_R2_TRANSFORM_FUNCTION_SHA256 = "aedfce193f9fe9ed3ec975b848cea82d2aac70943dad2ea2d628b63ed40c51e7";
 
-export const PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS = Object.freeze([
-  "artifacts/PROJECT_STATUS.md",
-  "scripts/release-policy.mjs"
-]);
-
-export const REC_RATCHET_01_CHANGED_PATHS = Object.freeze([
-  ".github/workflows/verify.yml",
-  REC_RATCHET_BASELINE_ARTIFACT_PATH,
-  REC_RATCHET_ARTIFACT_PATH,
-  REC_RATCHET_PATCH_ARTIFACT_PATH,
-  "artifacts/PROJECT_STATUS.md",
-  "scripts/release-policy.mjs"
-]);
-
-export const REC_01_CHANGED_PATHS = Object.freeze([
-  "artifacts/PROJECT_STATUS.md",
-  SIMULATION_BASELINE_PATH,
-  "scripts/verify.mjs",
-  "src/scenes-41.js"
-]);
-
-export const LOCK_RECORD_CHANGED_PATHS = Object.freeze([
-  "artifacts/LOCKS.md",
-  "artifacts/PROJECT_STATUS.md",
-  "artifacts/ROADMAP.md",
-  "scripts/release-policy.mjs"
-]);
-
-export const ART_R2_GOVERNANCE_CHANGED_PATHS = Object.freeze([
-  ART_R2_GOVERNANCE_RECORD_PATH,
-  "artifacts/ART_RULES.md",
-  "artifacts/LOCKS.md",
-  "artifacts/PROJECT_STATUS.md",
-  "artifacts/ROADMAP.md",
-  "scripts/release-policy.mjs"
-]);
-
-export const ART_R2_IMPLEMENTATION_CHANGED_PATHS = Object.freeze([
-  "artifacts/ART-INTEGRATION-R2-55_RECORD.json",
-  "images/act2_tether_dock.jpg",
-  "images/act2_tether_hand_elias.jpg",
-  "images/act2_tether_hand_mira.jpg",
-  "images/act2_tether_hand_sela.jpg",
-  "images/act2_tether_lie.jpg",
-  "images/act2_tether_manifest.jpg",
-  "images/act2_tether_rush.jpg",
-  "images/act2_tether_vent.jpg",
-  "images/act3_lethal_elias_end.jpg",
-  "images/act3_lethal_lena_clock.jpg",
-  "images/act3_lethal_lena_power.jpg",
-  "images/act3_lethal_lena_sterile.jpg",
-  "images/act3_lethal_mira_end.jpg",
-  "images/act3_lethal_tomas_end.jpg",
-  "images/act3_lethal_tomas_stores.jpg",
-  "images/act3_lethal_tomas_structure.jpg",
-  "images/act3_reckoning_burn_stale.jpg",
-  "images/act3_reckoning_burn_verified.jpg",
-  "images/arc_fork.jpg",
-  "images/arc_future_1.jpg",
-  "images/arc_living_1.jpg",
-  "images/coolant_trade.jpg",
-  "images/crew_walk.jpg",
-  "images/dying.jpg",
-  "images/faction_split.jpg",
-  "images/history_elias.jpg",
-  "images/offshift_elias.jpg",
-  "images/offshift_tomas.jpg",
-  "images/offshift_tomas_r.jpg",
-  "images/pair_shield_cold.jpg",
-  "images/past_leak.jpg",
-  "images/prom_direct.jpg",
-  "images/prom_direct_break.jpg",
-  "images/prom_direct_keep.jpg",
-  "images/prom_line_keep.jpg",
-  "images/prom_make_elias.jpg",
-  "images/prom_make_lena.jpg",
-  "images/prom_make_tomas.jpg",
-  "images/prom_price.jpg",
-  "images/prom_price_break.jpg",
-  "images/prom_price_keep.jpg",
-  "images/prom_r_elias.jpg",
-  "images/prom_r_lena.jpg",
-  "images/prom_r_tomas.jpg",
-  "images/prom_vent.jpg",
-  "images/prom_vent_break.jpg",
-  "images/prom_vent_keep.jpg",
-  "images/reckon_memory.jpg",
-  "images/reckon_public.jpg",
-  "images/reckon_suppress.jpg",
-  "images/reckon_truth.jpg",
-  "images/seal_or_food.jpg",
-  "images/status.jpg",
-  "images/time_pass.jpg",
-  "images/wake.jpg",
-  "scripts/validate-art-r2.mjs",
-  "scripts/verify.mjs",
-  "src/engine.js",
-  "src/scenes-10.js",
-  "src/scenes-11.js",
-  "src/scenes-12.js",
-  "src/scenes-14.js",
-  "src/scenes-19.js",
-  "src/scenes-20.js",
-  "src/scenes-21.js",
-  "src/scenes-22.js",
-  "src/scenes-23.js",
-  "src/scenes-24.js",
-  "src/scenes-35.js",
-  "src/scenes-43.js",
-  "src/scenes-44.js",
-  "src/scenes-45.js",
-  "src/scenes-46.js",
-  "src/scenes-47.js",
-  "src/scenes-48.js",
-  "src/scenes-49.js",
-  "src/scenes-52.js",
-  "src/state.js"
-]);
-
-const ALLOWED_PATHS = new Set(PIPE_BOOT_R1_CHANGED_PATHS);
-const ALLOWED_WORKFLOWS = Object.freeze([
-  "release-policy.yml",
-  "verify.yml"
-]);
 const CHECKOUT_ACTION = "actions/checkout@11d5960a326750d5838078e36cf38b85af677262";
 const SETUP_NODE_ACTION = "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020";
 const ALLOWED_ACTIONS = new Set([CHECKOUT_ACTION, SETUP_NODE_ACTION]);
 const FULL_SHA_RE = /^[0-9a-f]{40}$/;
+const FULL_SHA256_RE = /^[0-9a-f]{64}$/;
+
+export const GATE_A_CHANGED_PATHS = Object.freeze([
+  VERIFY_WORKFLOW_PATH,
+  STATUS_PATH,
+  INACTIVE_BASELINE_PATH,
+  PATCH_ARTIFACT_PATH,
+  TRANSITION_PATH,
+  POLICY_PATH
+].sort());
+
+export const FUTURE_CHANGED_PATHS = Object.freeze([
+  STATUS_PATH,
+  ACTIVE_BASELINE_PATH,
+  "scripts/verify.mjs",
+  "src/scenes-02.js",
+  "src/scenes-04.js",
+  "src/scenes-05.js",
+  "src/scenes-06.js",
+  "src/scenes-13.js",
+  "src/scenes-36.js",
+  "src/scenes-55.js"
+].sort());
+
+const GATE_A_FIXED_SHA256 = Object.freeze({
+  [VERIFY_WORKFLOW_PATH]: VERIFY_WORKFLOW_SHA256,
+  [STATUS_PATH]: GATE_A_STATUS_SHA256,
+  [INACTIVE_BASELINE_PATH]: INACTIVE_BASELINE_SHA256,
+  [PATCH_ARTIFACT_PATH]: PATCH_ARTIFACT_SHA256,
+  [TRANSITION_PATH]: TRANSITION_SHA256
+});
+
+const PROJECTION_CONSTANT_NAMES = Object.freeze([
+  "POLICY_PROJECTION_SHA256",
+  "TRANSITION_SHA256"
+]);
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-function git(args) {
-  return execFileSync("git", args, {
-    cwd: ROOT,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  }).trim();
-}
-
-function isAncestor(ancestor, descendant) {
-  try {
-    execFileSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], {
-      cwd: ROOT,
-      stdio: "ignore"
-    });
-    return true;
-  } catch {
-    return false;
+function recursivelySorted(value) {
+  if (Array.isArray(value)) return value.map(recursivelySorted);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value).sort().map(key => [key, recursivelySorted(value[key])])
+    );
   }
+  return value;
 }
 
-function gitFileSha256(ref, relativePath) {
-  if (!FULL_SHA_RE.test(ref || "")) return null;
+function canonicalJsonBytes(value) {
+  return Buffer.from(`${JSON.stringify(recursivelySorted(value))}\n`, "utf8");
+}
+
+const NORMALIZED_POLICY_FIELDS = Object.freeze([
+  "runs",
+  "endings",
+  "incomplete",
+  "errors",
+  "stepLimits",
+  "totalSteps",
+  "endingCounts",
+  "invariantTotals",
+  "invariantRules",
+  "invariantScenes",
+  "invariantFingerprints"
+]);
+
+function normalizedSimulationEvidence(baseline) {
+  const policies = {};
+  for (const policy of baseline.config?.policies || []) {
+    const source = baseline.policies?.[policy] || {};
+    policies[policy] = Object.fromEntries(NORMALIZED_POLICY_FIELDS.map(field => [field, source[field]]));
+  }
+  const config = {
+    seed: baseline.config?.seed,
+    runs: baseline.config?.runs,
+    startRun: baseline.config?.startRun,
+    shardSize: baseline.config?.shardSize,
+    maxSteps: baseline.config?.maxSteps,
+    policies: baseline.config?.policies
+  };
+  const perPolicyConfig = {
+    seed: config.seed,
+    runs: config.runs,
+    startRun: config.startRun,
+    shardSize: config.shardSize,
+    maxSteps: config.maxSteps
+  };
+  return {
+    core: sha256(canonicalJsonBytes({ config, policies })),
+    policies: Object.fromEntries((config.policies || []).map(policy => [
+      policy,
+      sha256(canonicalJsonBytes({ config: perPolicyConfig, policy, summary: policies[policy] }))
+    ]))
+  };
+}
+
+function gitObjectOid(type, bytes) {
+  return createHash("sha1")
+    .update(Buffer.from(`${type} ${bytes.length}\0`))
+    .update(bytes)
+    .digest("hex");
+}
+
+function runGit(args, { input, env, allowFailure = false } = {}) {
+  const result = spawnSync("git", args, {
+    cwd: ROOT,
+    env: env ? { ...process.env, ...env } : process.env,
+    input,
+    encoding: null,
+    maxBuffer: 32 * 1024 * 1024
+  });
+  if (!allowFailure && result.status !== 0) {
+    const detail = Buffer.concat([
+      Buffer.from(result.stdout || ""),
+      Buffer.from(result.stderr || "")
+    ]).toString("utf8").trim();
+    throw new Error(`git ${args.join(" ")} failed (${result.status}): ${detail}`);
+  }
+  return result;
+}
+
+function gitBytes(args, options) {
+  return Buffer.from(runGit(args, options).stdout || "");
+}
+
+function gitText(args, options) {
+  return gitBytes(args, options).toString("utf8").trim();
+}
+
+function resolveCommit(ref) {
+  if (!ref) return null;
+  const result = runGit(["rev-parse", "--verify", ref], { allowFailure: true });
+  if (result.status !== 0) return null;
+  const oid = Buffer.from(result.stdout).toString("utf8").trim();
+  if (!FULL_SHA_RE.test(oid)) return null;
+  const type = runGit(["cat-file", "-t", oid], { allowFailure: true });
+  if (type.status !== 0 || Buffer.from(type.stdout).toString("utf8").trim() !== "commit") return null;
+  return oid;
+}
+
+function rawCommit(ref) {
+  const oid = resolveCommit(ref);
+  if (!oid) return null;
+  if (gitText(["rev-parse", "--show-object-format"]) !== "sha1") return null;
+  const result = runGit(["cat-file", "commit", oid], { allowFailure: true });
+  if (result.status !== 0) return null;
+  const bytes = Buffer.from(result.stdout);
+  const declaredSize = Number(gitText(["cat-file", "-s", oid]));
+  return declaredSize === bytes.length && gitObjectOid("commit", bytes) === oid
+    ? { oid, bytes, declaredSize }
+    : null;
+}
+
+function commitHeaders(ref) {
+  const raw = rawCommit(ref);
+  if (!raw) return null;
+  const text = raw.bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(raw.bytes)) return null;
+  const split = text.indexOf("\n\n");
+  if (split < 0) return null;
+  const headerLines = text.slice(0, split).split("\n");
+  const treeLines = headerLines.filter(line => line.startsWith("tree "));
+  const parentLines = headerLines.filter(line => line.startsWith("parent "));
+  if (treeLines.length !== 1) return null;
+  const tree = treeLines[0].slice(5);
+  const parents = parentLines.map(line => line.slice(7));
+  if (!FULL_SHA_RE.test(tree) || parents.some(parent => !FULL_SHA_RE.test(parent))) return null;
+  return { ...raw, tree, parents, headerLines, message: text.slice(split + 2) };
+}
+
+function fileIdentity(ref, path) {
+  const result = runGit(["ls-tree", "-z", ref, "--", path], { allowFailure: true });
+  if (result.status !== 0) return null;
+  const raw = Buffer.from(result.stdout);
+  const match = raw.toString("utf8").match(/^(\d{6}) blob ([0-9a-f]{40})\t([^\0]+)\0$/);
+  if (!match || match[3] !== path) return null;
+  const bytesResult = runGit(["cat-file", "blob", match[2]], { allowFailure: true });
+  if (bytesResult.status !== 0) return null;
+  const bytes = Buffer.from(bytesResult.stdout);
+  if (gitObjectOid("blob", bytes) !== match[2]) return null;
+  return {
+    path,
+    mode: match[1],
+    blob: match[2],
+    sha256: sha256(bytes),
+    byteLength: bytes.length,
+    bytes
+  };
+}
+
+function changedPaths(base, head) {
+  if (!FULL_SHA_RE.test(base || "") || !FULL_SHA_RE.test(head || "")) return [];
+  const result = runGit([
+    "diff", "--name-only", "--no-renames", "--diff-filter=ACDMRTUXB", `${base}..${head}`
+  ], { allowFailure: true });
+  if (result.status !== 0) return [];
+  return [...new Set(Buffer.from(result.stdout).toString("utf8").trim().split(/\r?\n/).filter(Boolean))].sort();
+}
+
+function sameList(left, right) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function canonicalRecords(ref, paths) {
+  return paths.map(path => fileIdentity(ref, path));
+}
+
+function canonicalManifest(records) {
+  return records.map(record => `${record.mode} ${record.blob} ${record.sha256}\t${record.path}\n`).join("");
+}
+
+function canonicalMessage(title, records) {
+  return [
+    title,
+    "",
+    NO_PUBLISH_TOKEN,
+    "",
+    "Canonical manifest (mode blob sha256 path):",
+    canonicalManifest(records)
+  ].join("\n");
+}
+
+function canonicalRawCommit(tree, parent, author, title, records) {
+  return Buffer.from([
+    `tree ${tree}`,
+    `parent ${parent}`,
+    `author ${author}`,
+    `committer ${author}`,
+    "",
+    canonicalMessage(title, records)
+  ].join("\n"), "utf8");
+}
+
+function normalizedPolicyBytes(bytes) {
+  let text = bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("policy source is not lossless UTF-8");
+  for (const name of PROJECTION_CONSTANT_NAMES) {
+    const pattern = new RegExp(`(const ${name} = \")[0-9a-f]{64}(\";)`, "g");
+    const matches = [...text.matchAll(pattern)];
+    if (matches.length !== 1) throw new Error(`${name} must occur exactly once`);
+    text = text.replace(pattern, `$1${"0".repeat(64)}$2`);
+  }
+  return Buffer.from(text, "utf8");
+}
+
+function policyProjection(ref) {
+  const policy = fileIdentity(ref, POLICY_PATH);
+  if (!policy) return null;
   try {
-    return sha256(execFileSync("git", ["show", `${ref}:${relativePath}`], {
-      cwd: ROOT,
-      stdio: ["ignore", "pipe", "pipe"]
-    }));
+    return sha256(normalizedPolicyBytes(policy.bytes));
   } catch {
     return null;
   }
 }
 
-function changedPathsBetween(base, head) {
-  if (!FULL_SHA_RE.test(base || "") || !FULL_SHA_RE.test(head || "")) return [];
+function parseJson(bytes, label, errors) {
   try {
-    const output = git([
-      "diff",
-      "--name-only",
-      "--no-renames",
-      "--diff-filter=ACDMRTUXB",
-      `${base}..${head}`
-    ]);
-    return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
-  } catch {
-    return [];
+    return JSON.parse(bytes.toString("utf8"));
+  } catch (error) {
+    errors.push(`${label} is not valid JSON: ${error.message}`);
+    return null;
   }
 }
 
-function isExactRecRatchetSuccessor(ref) {
-  if (!FULL_SHA_RE.test(ref || "")) return false;
-  try {
-    const parents = git(["rev-list", "--parents", "-n", "1", ref]).split(/\s+/);
-    return parents.length === 3
-      && parents[1] === REC_RATCHET_BASE_SHA
-      && sameStringSet(changedPathsBetween(REC_RATCHET_BASE_SHA, ref), REC_RATCHET_01_CHANGED_PATHS)
-      && gitFileSha256(ref, SIMULATION_BASELINE_PATH) === SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_ARTIFACT_PATH) === REC_RATCHET_ARTIFACT_SHA256
-      && gitFileSha256(ref, REC_RATCHET_BASELINE_ARTIFACT_PATH) === REC_01_SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_PATCH_ARTIFACT_PATH) === REC_RATCHET_PATCH_ARTIFACT_SHA256
-      && gitFileSha256(ref, ".github/workflows/verify.yml") === WORKFLOW_SHA256["verify.yml"];
-  } catch {
-    return false;
-  }
+function stagedIdentity(indexPath, path) {
+  const env = { GIT_INDEX_FILE: indexPath };
+  const row = gitText(["ls-files", "-s", "--", path], { env });
+  const match = row.match(/^(\d{6}) ([0-9a-f]{40}) 0\t(.+)$/);
+  if (!match || match[3] !== path) return null;
+  const bytes = gitBytes(["cat-file", "blob", match[2]]);
+  return { mode: match[1], blob: match[2], sha256: sha256(bytes), byteLength: bytes.length };
 }
 
-function gitFilesMatchSha256(ref, expectedByPath) {
-  return Object.entries(expectedByPath)
-    .every(([path, expected]) => gitFileSha256(ref, path) === expected);
+function updateIndexBytes(indexPath, path, bytes, mode = "100644") {
+  const blob = gitText(["hash-object", "-w", "--stdin"], { input: bytes });
+  runGit(["update-index", "--add", "--cacheinfo", `${mode},${blob},${path}`], {
+    env: { GIT_INDEX_FILE: indexPath }
+  });
+  return blob;
 }
 
-function isExactArtR2GovernanceSuccessor(ref) {
-  if (!FULL_SHA_RE.test(ref || "")) return false;
-  try {
-    const parents = git(["rev-list", "--parents", "-n", "1", ref]).split(/\s+/);
-    return parents.length === 3
-      && parents[1] === ART_R2_GOVERNANCE_BASE_SHA
-      && sameStringSet(
-        changedPathsBetween(ART_R2_GOVERNANCE_BASE_SHA, ref),
-        ART_R2_GOVERNANCE_CHANGED_PATHS
-      )
-      && gitFilesMatchSha256(ref, ART_R2_GOVERNANCE_DOCUMENT_SHA256)
-      && gitFileSha256(ref, SIMULATION_BASELINE_PATH) === REC_01_SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_ARTIFACT_PATH) === REC_RATCHET_ARTIFACT_SHA256
-      && gitFileSha256(ref, REC_RATCHET_BASELINE_ARTIFACT_PATH) === REC_01_SIMULATION_BASELINE_SHA256
-      && gitFileSha256(ref, REC_RATCHET_PATCH_ARTIFACT_PATH) === REC_RATCHET_PATCH_ARTIFACT_SHA256
-      && gitFileSha256(ref, "src/scenes-41.js") === REC_01_SCENES_41_SHA256
-      && gitFileSha256(ref, "scripts/verify.mjs") === REC_01_VERIFY_SHA256
-      && gitFileSha256(ref, ".github/workflows/release-policy.yml") === WORKFLOW_SHA256["release-policy.yml"]
-      && gitFileSha256(ref, ".github/workflows/verify.yml") === WORKFLOW_SHA256["verify.yml"];
-  } catch {
-    return false;
-  }
-}
+const projectionCache = new Map();
 
-function changedPathsForEvent(environment) {
-  let range = null;
-  if (environment.eventName === "pull_request") {
-    if (FULL_SHA_RE.test(environment.prBaseSha) && FULL_SHA_RE.test(environment.prHeadSha)) {
-      range = `${environment.prBaseSha}...${environment.prHeadSha}`;
-    }
-  } else if (environment.eventName === "push" && environment.refType !== "tag") {
-    const before = /^0{40}$/.test(environment.beforeSha)
-      ? DISPATCH_BASE_SHA
-      : environment.beforeSha;
-    if (FULL_SHA_RE.test(before) && FULL_SHA_RE.test(environment.afterSha)) {
-      range = `${before}..${environment.afterSha}`;
-    }
-  }
-
-  if (!range) return [];
-  const output = git([
-    "diff",
-    "--name-only",
-    "--no-renames",
-    "--diff-filter=ACDMRTUXB",
-    range
-  ]);
-  return output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
-}
-
-function readRepositoryFacts(environment) {
-  const read = relativePath => readFileSync(resolve(ROOT, relativePath));
-  const workflowDir = resolve(ROOT, ".github/workflows");
-  const workflowNames = readdirSync(workflowDir).sort();
-  const workflowTexts = {};
-  for (const name of workflowNames) {
-    if (!lstatSync(resolve(workflowDir, name)).isFile()) {
-      throw new Error(`workflow entry is not a regular file: ${name}`);
-    }
-    workflowTexts[name] = readFileSync(resolve(workflowDir, name), "utf8");
-  }
-
-  const gov01 = read("artifacts/GOV-01_AUTHORITY_RECONCILIATION.md");
-  const recoveryDec = read("artifacts/RECOVERY-DEC_AMENDMENT.md");
-  const netlify = read("netlify.toml");
-  const simulationBaseline = read(SIMULATION_BASELINE_PATH);
-  const recRatchetPath = resolve(ROOT, REC_RATCHET_ARTIFACT_PATH);
-  const recRatchetBaselinePath = resolve(ROOT, REC_RATCHET_BASELINE_ARTIFACT_PATH);
-  const recRatchetPatchPath = resolve(ROOT, REC_RATCHET_PATCH_ARTIFACT_PATH);
-  const checkedOutSha = git(["rev-parse", "HEAD"]);
-
-  return {
-    ...environment,
-    checkedOutSha,
-    changedPaths: changedPathsForEvent(environment),
-    recoveryBaseAncestor: isAncestor(RECOVERY_BASE_SHA, checkedOutSha),
-    dispatchBaseAncestor: isAncestor(DISPATCH_BASE_SHA, checkedOutSha),
-    prBaseAncestor: environment.eventName !== "pull_request"
-      || isAncestor(environment.prBaseSha, checkedOutSha),
-    prHeadAncestor: environment.eventName !== "pull_request"
-      || isAncestor(environment.prHeadSha, checkedOutSha),
-    statusText: read("artifacts/PROJECT_STATUS.md").toString("utf8"),
-    gov01Hash: sha256(gov01),
-    recoveryDecHash: sha256(recoveryDec),
-    pipeBootText: read("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md").toString("utf8"),
-    reconciliationText: read("artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md").toString("utf8"),
-    netlifyHash: sha256(netlify),
-    simulationBaselineHash: sha256(simulationBaseline),
-    recRatchetHash: existsSync(recRatchetPath)
-      ? sha256(readFileSync(recRatchetPath))
-      : null,
-    recRatchetBaselineHash: existsSync(recRatchetBaselinePath)
-      ? sha256(readFileSync(recRatchetBaselinePath))
-      : null,
-    recRatchetPatchHash: existsSync(recRatchetPatchPath)
-      ? sha256(readFileSync(recRatchetPatchPath))
-      : null,
-    artR2GovernanceDocumentHashes: Object.fromEntries(
-      Object.keys(ART_R2_GOVERNANCE_DOCUMENT_SHA256)
-        .map(path => [path, sha256(read(path))])
-    ),
-    scenes41Hash: sha256(read("src/scenes-41.js")),
-    verifyScriptHash: sha256(read("scripts/verify.mjs")),
-    prBaseSimulationBaselineHash: environment.eventName === "pull_request"
-      ? gitFileSha256(environment.prBaseSha, SIMULATION_BASELINE_PATH)
-      : null,
-    pushBeforeSimulationBaselineHash: environment.eventName === "push"
-      ? gitFileSha256(environment.beforeSha, SIMULATION_BASELINE_PATH)
-      : null,
-    prBaseIsRecRatchetSuccessor: environment.eventName === "pull_request"
-      && isExactRecRatchetSuccessor(environment.prBaseSha),
-    prBaseIsArtR2GovernanceSuccessor: environment.eventName === "pull_request"
-      && isExactArtR2GovernanceSuccessor(environment.prBaseSha),
-    pushBeforeIsRecRatchetSuccessor: environment.eventName === "push"
-      && isExactRecRatchetSuccessor(environment.beforeSha),
-    pushAfterIsArtR2GovernanceSuccessor: environment.eventName === "push"
-      && isExactArtR2GovernanceSuccessor(environment.afterSha),
-    workflowNames,
-    workflowTexts,
-    workflowHashes: Object.fromEntries(
-      Object.entries(workflowTexts).map(([name, text]) => [name, sha256(text)])
-    )
-  };
-}
-
-function requirePattern(errors, text, pattern, label) {
-  if (!pattern.test(text)) errors.push(`${label} is missing or changed`);
-}
-
-function requireUniqueStatusField(errors, text, key, predicate, label) {
-  const values = [...text.matchAll(new RegExp("`" + key + ":\\s*([^`]+)`", "g"))]
-    .map(match => match[1].trim());
-  if (values.length !== 1) {
-    errors.push(`${label} must appear exactly once; found ${values.length}`);
-  } else if (!predicate(values[0])) {
-    errors.push(`${label} is missing or changed`);
-  }
-}
-
-function sameStringSet(left, right) {
-  return left.length === right.length
-    && [...left].sort().every((value, index) => value === [...right].sort()[index]);
-}
-
-function workflowSecurityErrors(workflowTexts) {
+function validateProjectionArtifacts(ref) {
   const errors = [];
-  const forbiddenTopLevelTriggers = [
-    "create",
-    "deployment",
-    "deployment_status",
-    "page_build",
-    "public",
-    "registry_package",
-    "release",
-    "repository_dispatch",
-    "schedule",
-    "workflow_call",
-    "workflow_dispatch",
-    "workflow_run"
-  ];
+  const baselineIdentity = fileIdentity(ref, INACTIVE_BASELINE_PATH);
+  const patchIdentity = fileIdentity(ref, PATCH_ARTIFACT_PATH);
+  if (!baselineIdentity || !patchIdentity) {
+    if (!baselineIdentity) errors.push("inactive REC-02 baseline is missing");
+    if (!patchIdentity) errors.push("authorized REC-02 patch artifact is missing");
+    return { errors };
+  }
+  const cacheKey = `${baselineIdentity.blob}:${patchIdentity.blob}`;
+  if (projectionCache.has(cacheKey)) return structuredClone(projectionCache.get(cacheKey));
 
-  for (const [name, text] of Object.entries(workflowTexts || {})) {
-    const onBlock = text.match(/^on:\s*\n((?:(?:[ \t]+[^\n]*)?\n)*)/m)?.[1] || "";
-    const eventNames = [...onBlock.matchAll(/^  ([a-z_]+):/gm)].map(match => match[1]).sort();
-    if (!sameStringSet(eventNames, ["pull_request", "push"])) {
-      errors.push(`${name}: trigger set must be exactly pull_request + push; found ${eventNames.join(", ") || "<none>"}`);
-    }
-    for (const trigger of forbiddenTopLevelTriggers) {
-      const pattern = new RegExp(`^  ${trigger}:`, "m");
-      if (pattern.test(text)) errors.push(`${name}: publication-capable trigger ${trigger}`);
-    }
-    if (/^  pull_request_target:/m.test(text)) errors.push(`${name}: unsafe privileged trigger pull_request_target`);
-    if (/^\s{4,}(?:tags|tags-ignore):/m.test(text)) errors.push(`${name}: tag trigger/filter is forbidden`);
-    if (/^\s{4,}(?:paths|paths-ignore):/m.test(text)) errors.push(`${name}: path filters could suppress a required check`);
-    if (/^\s*permissions:\s*(?:write-all|read-all)\s*(?:#.*)?$/m.test(text)) {
-      errors.push(`${name}: permissions must be the explicit contents: read map`);
-    }
+  if (baselineIdentity.sha256 !== INACTIVE_BASELINE_SHA256) errors.push("inactive REC-02 baseline bytes drifted");
+  if (patchIdentity.sha256 !== PATCH_ARTIFACT_SHA256) errors.push("authorized REC-02 patch artifact bytes drifted");
+  const baseline = parseJson(baselineIdentity.bytes, "inactive baseline", errors);
+  const artifact = parseJson(patchIdentity.bytes, "patch artifact", errors);
 
-    const permissionBlocks = [...text.matchAll(/^permissions:\s*\n((?:[ \t]+[^\n]*\n?)*)/gm)];
-    if (permissionBlocks.length !== 1 || !/^  contents:\s*read\s*(?:#.*)?$/m.test(permissionBlocks[0]?.[1] || "")) {
-      errors.push(`${name}: root permissions are not exactly contents: read`);
+  if (baseline) {
+    if (baseline.certification !== NO_PUBLISH_TOKEN) errors.push("inactive baseline certification token drifted");
+    if (baseline.provenance?.authorizationIssue !== 24) errors.push("inactive baseline authorization issue is not #24");
+    if (baseline.provenance?.gateABaseSha !== GATE_A_BASE_SHA) errors.push("inactive baseline Gate A base drifted");
+    if (baseline.provenance?.gateABaseTree !== GATE_A_BASE_TREE) errors.push("inactive baseline Gate A tree drifted");
+    if (baseline.evidence?.repetitions !== 2) errors.push("inactive baseline does not record two repetitions");
+    if (!sameList(baseline.evidence?.exactJsonOutputSha256 || [], [EXACT_SIMULATION_OUTPUT_SHA256, EXACT_SIMULATION_OUTPUT_SHA256])) {
+      errors.push("inactive baseline exact simulation output digests drifted");
     }
-    for (const match of text.matchAll(/^\s+([a-z-]+):\s*(read|write)\s*(?:#.*)?$/gm)) {
-      if (match[1] !== "contents" || match[2] !== "read") {
-        errors.push(`${name}: forbidden permission ${match[1]}: ${match[2]}`);
+    const expectedConfig = {
+      seed: 20260817,
+      runs: 2000,
+      startRun: 0,
+      shardSize: 500,
+      maxSteps: 600,
+      policies: ["random", "cheapest", "priciest"]
+    };
+    if (JSON.stringify(baseline.config) !== JSON.stringify(expectedConfig)) {
+      errors.push("inactive baseline locked simulation configuration drifted");
+    }
+    for (const policy of ["random", "cheapest", "priciest"]) {
+      const row = baseline.policies?.[policy];
+      if (row && !sameList(Object.keys(row), NORMALIZED_POLICY_FIELDS)) {
+        errors.push(`inactive baseline ${policy} field inventory drifted`);
+      }
+      if (!row || row.runs !== 2000 || row.endings !== 2000 || row.incomplete !== 0
+        || row.errors !== 0 || row.stepLimits !== 0 || row.invariantTotals?.V1 !== 0) {
+        errors.push(`inactive baseline ${policy} does not prove 2,000 complete V1-clean endings`);
       }
     }
+    if ((baseline.policies?.random?.invariantTotals?.V4 ?? -1) !== 191
+      || (baseline.policies?.random?.invariantTotals?.V5 ?? -1) !== 160
+      || (baseline.policies?.cheapest?.invariantTotals?.V4 ?? -1) !== 489
+      || (baseline.policies?.cheapest?.invariantTotals?.V5 ?? -1) !== 3895
+      || (baseline.policies?.priciest?.invariantTotals?.V4 ?? -1) !== 0
+      || (baseline.policies?.priciest?.invariantTotals?.V5 ?? -1) !== 0) {
+      errors.push("inactive baseline V4/V5 evidence counts drifted");
+    }
+    const normalized = normalizedSimulationEvidence(baseline);
+    if (normalized.core !== NORMALIZED_SIMULATION_SHA256
+      || baseline.evidence?.normalizedCoreSha256 !== NORMALIZED_SIMULATION_SHA256) {
+      errors.push("inactive baseline normalized simulation digest drifted");
+    }
+    for (const [policy, expected] of Object.entries(NORMALIZED_POLICY_SHA256)) {
+      if (normalized.policies[policy] !== expected
+        || baseline.evidence?.normalizedPolicySha256?.[policy] !== expected) {
+        errors.push(`inactive baseline normalized ${policy} digest drifted`);
+      }
+    }
+  }
 
-    const actions = [...text.matchAll(/^\s*-?\s*uses:\s*([^\s#]+).*$/gm)].map(match => match[1]);
-    if (!actions.includes(CHECKOUT_ACTION)) errors.push(`${name}: immutable checkout action pin is missing`);
-    if (!actions.includes(SETUP_NODE_ACTION)) errors.push(`${name}: immutable setup-node action pin is missing`);
+  let functional = null;
+  if (artifact) {
+    if (artifact.certification !== NO_PUBLISH_TOKEN) errors.push("patch artifact certification token drifted");
+    if (artifact.authority?.issue !== 24 || artifact.authority?.lock !== "L-021") {
+      errors.push("patch artifact authority drifted");
+    }
+    if (artifact.authority?.baseCommit !== GATE_A_BASE_SHA || artifact.authority?.baseTree !== GATE_A_BASE_TREE) {
+      errors.push("patch artifact base identity drifted");
+    }
+    if (artifact.authority?.targetBranch !== FUTURE_BRANCH) errors.push("patch artifact target branch drifted");
+    const governed = [
+      "cut_out", "vent", "past_leak", "vault_voice", "arc_future_1",
+      "act3_reckoning_heading", "pregnancy_check", "custody_possession", "custody_thaw"
+    ];
+    if (!sameList(artifact.authority?.governedScenes || [], governed)) errors.push("patch artifact governed-scene inventory drifted");
+    const patchBytes = Buffer.from(artifact.patch?.unifiedDiff || "", "utf8");
+    if (patchBytes.length !== artifact.patch?.byteLength || sha256(patchBytes) !== EMBEDDED_PATCH_SHA256
+      || artifact.patch?.sha256 !== EMBEDDED_PATCH_SHA256) {
+      errors.push("embedded full-index patch bytes drifted");
+    }
+    const filePaths = (artifact.files || []).map(row => row.path);
+    if (!sameList([...filePaths].sort(), FUTURE_CHANGED_PATHS.filter(path => path !== STATUS_PATH && path !== ACTIVE_BASELINE_PATH))) {
+      errors.push("patch artifact output path inventory drifted");
+    }
+
+    const replacementManifest = [];
+    for (const row of artifact.files || []) {
+      const input = fileIdentity(GATE_A_BASE_SHA, row.path);
+      const expectedInput = row.input || {};
+      if (!input || input.mode !== expectedInput.mode || input.blob !== expectedInput.blob
+        || input.sha256 !== expectedInput.sha256 || input.byteLength !== expectedInput.byteLength) {
+        errors.push(`${row.path}: recorded patch input identity drifted`);
+      }
+      replacementManifest.push(`${row.path}\0${expectedInput.mode}\0${expectedInput.blob}\0${expectedInput.sha256}\0${row.output?.mode}\0${row.output?.blob}\0${row.output?.sha256}\n`);
+    }
+    if (sha256(Buffer.from(replacementManifest.join(""))) !== artifact.patch?.replacementManifestSha256) {
+      errors.push("patch replacement manifest digest drifted");
+    }
+
+    const activeInput = fileIdentity(GATE_A_BASE_SHA, ACTIVE_BASELINE_PATH);
+    const baselineCopy = artifact.baselineCopy || {};
+    if (baselineCopy.sourcePath !== INACTIVE_BASELINE_PATH || baselineCopy.targetPath !== ACTIVE_BASELINE_PATH) {
+      errors.push("baseline-copy path contract drifted");
+    }
+    if (!activeInput || activeInput.sha256 !== ACTIVE_BASELINE_INPUT_SHA256
+      || activeInput.mode !== baselineCopy.input?.mode || activeInput.blob !== baselineCopy.input?.blob
+      || activeInput.sha256 !== baselineCopy.input?.sha256 || activeInput.byteLength !== baselineCopy.input?.byteLength) {
+      errors.push("active baseline input identity drifted");
+    }
+    if (baselineCopy.output?.sha256 !== baselineIdentity.sha256
+      || baselineCopy.output?.blob !== baselineIdentity.blob
+      || baselineCopy.output?.mode !== baselineIdentity.mode
+      || baselineCopy.output?.byteLength !== baselineIdentity.byteLength) {
+      errors.push("inactive-to-active baseline output identity drifted");
+    }
+
+    if (errors.length === 0) {
+      const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-projection-"));
+      const indexPath = join(parent, "index");
+      const env = { GIT_INDEX_FILE: indexPath };
+      runGit(["read-tree", GATE_A_BASE_SHA], { env });
+      const applied = runGit(["apply", "--cached", "--whitespace=error-all", "--verbose", "-"], {
+        env,
+        input: patchBytes,
+        allowFailure: true
+      });
+      const transcript = Buffer.concat([
+        Buffer.from(applied.stdout || ""), Buffer.from(applied.stderr || "")
+      ]).toString("utf8");
+      if (applied.status !== 0) errors.push(`strict patch reconstruction failed: ${transcript.trim()}`);
+      if (/\b(?:offset|fuzz)\b/i.test(transcript)) errors.push("strict patch reconstruction reported offset or fuzz");
+      if (applied.status === 0) {
+        for (const row of artifact.files || []) {
+          const staged = stagedIdentity(indexPath, row.path);
+          if (!staged || staged.mode !== row.output?.mode || staged.blob !== row.output?.blob
+            || staged.sha256 !== row.output?.sha256 || staged.byteLength !== row.output?.byteLength) {
+            errors.push(`${row.path}: reconstructed output identity drifted`);
+          }
+        }
+        updateIndexBytes(indexPath, ACTIVE_BASELINE_PATH, baselineIdentity.bytes, baselineIdentity.mode);
+        const tree = gitText(["write-tree"], { env });
+        if (tree !== FUNCTIONAL_TREE || tree !== artifact.functionalProjection?.tree) {
+          errors.push(`functional projection tree ${tree || "missing"} != ${FUNCTIONAL_TREE}`);
+        }
+        const manifestRows = [
+          { path: ACTIVE_BASELINE_PATH, ...stagedIdentity(indexPath, ACTIVE_BASELINE_PATH) },
+          ...(artifact.files || []).map(row => ({ path: row.path, ...stagedIdentity(indexPath, row.path) }))
+        ].sort((left, right) => left.path.localeCompare(right.path));
+        const manifest = manifestRows.map(row => `${row.mode} ${row.blob} ${row.sha256}\t${row.path}\n`).join("");
+        if (sha256(Buffer.from(manifest)) !== FUNCTIONAL_MANIFEST_SHA256
+          || artifact.functionalProjection?.canonicalManifestSha256 !== FUNCTIONAL_MANIFEST_SHA256
+          || artifact.functionalProjection?.canonicalManifest !== manifest) {
+          errors.push("functional projection canonical manifest drifted");
+        }
+        functional = { tree, transcript, manifest, records: manifestRows };
+      }
+    }
+  }
+
+  const result = { errors, baseline, artifact, functional };
+  projectionCache.set(cacheKey, structuredClone(result));
+  return result;
+}
+
+function requireUniqueStatus(errors, text, key, predicate, label) {
+  const values = [...text.matchAll(new RegExp("`" + key + ":\\s*([^`]+)`", "g"))]
+    .map(match => match[1].trim());
+  if (values.length !== 1) errors.push(`${label} must appear exactly once; found ${values.length}`);
+  else if (!predicate(values[0])) errors.push(`${label} is missing or changed`);
+}
+
+function noPublishStatusErrors(bytes) {
+  const errors = [];
+  const text = bytes?.toString("utf8") || "";
+  requireUniqueStatus(errors, text, "runtime_baseline_sha", value => value === RECOVERY_BASE_SHA, "STATUS runtime baseline");
+  requireUniqueStatus(errors, text, "release_state", value => value === "NO-PUBLISH", "STATUS NO-PUBLISH state");
+  requireUniqueStatus(errors, text, "production_url", value => value === "NOT_AUTHORIZED", "STATUS production block");
+  requireUniqueStatus(errors, text, "release_artifact", value => value === "none authorized from this base", "STATUS release-artifact block");
+  requireUniqueStatus(errors, text, "artifact_digest", value => /^none\s*[—-]\s*no release created$/i.test(value), "STATUS artifact block");
+  requireUniqueStatus(errors, text, "version_integrity", value => /^NOT_CERTIFIED\b/.test(value), "STATUS certification block");
+  return errors;
+}
+
+function replaceOnce(source, needle, replacement, label) {
+  const first = source.indexOf(needle);
+  if (first < 0 || first !== source.lastIndexOf(needle)) throw new Error(`${label} anchor count is not exactly one`);
+  return source.slice(0, first) + replacement + source.slice(first + needle.length);
+}
+
+function applyArtVerifierTransform(source) {
+  let output = source;
+  const importAnchor = "} from \"./simulate.mjs\";\n";
+  output = replaceOnce(output, importAnchor,
+    `${importAnchor}import { runArtR2SelfTest, validateArtR2 } from \"./validate-art-r2.mjs\";\n`,
+    "ART import");
+
+  const selfTestAnchor = "  check(duplicateStatus.errors.some(error => error.includes(\"expected exactly 1\")), \"duplicate contradictory STATUS field did not fail closed\");\n\n";
+  const selfTestAddition = [
+    selfTestAnchor,
+    "  const artR2 = runArtR2SelfTest(ROOT);\n",
+    "  artR2.failures.forEach(failure => failures.push(`ART-INTEGRATION-R2: ${failure}`));\n\n"
+  ].join("");
+  output = replaceOnce(output, selfTestAnchor, selfTestAddition, "ART self-test");
+
+  const mainAnchor = "  const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });\n";
+  const mainAddition = [
+    "  const artR2 = validateArtR2(ROOT, { runtime, loadRuntime: false });\n",
+    "  printCheck(\"ART-INTEGRATION-R2 exact assets + scene wiring\", artR2.errors,\n",
+    "    `${artR2.wave2Count}+${artR2.wave3Count}=${artR2.plateCount} plates; ${artR2.warnings.length} warning(s)`);\n",
+    "  failures.push(...artR2.errors.map(error => `ART-INTEGRATION-R2: ${error}`));\n\n",
+    mainAnchor
+  ].join("");
+  output = replaceOnce(output, mainAnchor, mainAddition, "ART full validation");
+
+  output = replaceOnce(
+    output,
+    "\" — injected version drift rejected\"",
+    "\" — injected version and ART-R2 drift rejected\"",
+    "ART success message"
+  );
+  return output;
+}
+
+function contentManifest(ref, paths) {
+  const unique = [...new Set(paths)].sort();
+  if (unique.length !== paths.length) throw new Error("duplicate content-manifest path");
+  const digest = createHash("sha256");
+  for (const path of unique) {
+    const item = fileIdentity(ref, path);
+    if (!item) throw new Error(`content-manifest path is missing: ${path}`);
+    digest.update(item.mode);
+    digest.update("\0");
+    digest.update("blob");
+    digest.update("\0");
+    digest.update(path);
+    digest.update("\0");
+    digest.update(item.sha256);
+    digest.update("\n");
+  }
+  return digest.digest("hex");
+}
+
+const artCompatibilityCache = new Map();
+
+function validateArtCompatibility(ref) {
+  const patchIdentity = fileIdentity(ref, PATCH_ARTIFACT_PATH);
+  const cacheKey = patchIdentity?.blob || "missing";
+  if (artCompatibilityCache.has(cacheKey)) return structuredClone(artCompatibilityCache.get(cacheKey));
+  const errors = [];
+  const held = commitHeaders(ART_R2_HEAD);
+  if (!held || held.tree !== ART_R2_TREE) errors.push("held ART-R2 head/tree is unavailable or drifted");
+  const paths = changedPaths(GATE_A_BASE_SHA, ART_R2_HEAD);
+  const imagePaths = paths.filter(path => path.startsWith("images/"));
+  if (paths.length !== 79 || new Set(paths).size !== 79) errors.push(`held ART-R2 path count ${paths.length} != 79`);
+  if (imagePaths.length !== 55) errors.push(`held ART-R2 image count ${imagePaths.length} != 55`);
+  try {
+    if (contentManifest(ART_R2_HEAD, paths) !== ART_R2_CHANGED_MANIFEST_SHA256) errors.push("held ART-R2 content manifest drifted");
+    if (contentManifest(ART_R2_HEAD, imagePaths) !== ART_R2_IMAGE_MANIFEST_SHA256) errors.push("held ART-R2 55-image manifest drifted");
+  } catch (error) {
+    errors.push(error.message);
+  }
+  const baseVerify = fileIdentity(GATE_A_BASE_SHA, "scripts/verify.mjs");
+  const heldVerify = fileIdentity(ART_R2_HEAD, "scripts/verify.mjs");
+  if (!baseVerify || baseVerify.sha256 !== "ba413f6b41d4f0278238f69feea59865e0d3e979b177c76db6b380854afec084") {
+    errors.push("protected verifier identity drifted before ART transform");
+  }
+  if (!heldVerify || heldVerify.blob !== ART_R2_VERIFY_BLOB || heldVerify.sha256 !== ART_R2_VERIFY_SHA256) {
+    errors.push("held ART-R2 verifier identity drifted");
+  }
+  if (fileIdentity(ART_R2_HEAD, "artifacts/ART-INTEGRATION-R2-55_RECORD.json")?.sha256 !== ART_R2_RECORD_SHA256) {
+    errors.push("held ART-R2 record identity drifted");
+  }
+  if (fileIdentity(ART_R2_HEAD, "scripts/validate-art-r2.mjs")?.sha256 !== ART_R2_VALIDATOR_SHA256) {
+    errors.push("held ART-R2 validator identity drifted");
+  }
+
+  let artifact = null;
+  try {
+    artifact = patchIdentity ? JSON.parse(patchIdentity.bytes.toString("utf8")) : null;
+  } catch {
+    errors.push("ART compatibility cannot parse patch artifact");
+  }
+  const verifyOutput = artifact?.files?.find(row => row.path === "scripts/verify.mjs")?.output;
+  const recResult = runGit(["cat-file", "blob", REC_02_VERIFY_BLOB], { allowFailure: true });
+  const recVerify = recResult.status === 0 ? Buffer.from(recResult.stdout) : null;
+  if (!recVerify || gitObjectOid("blob", recVerify) !== REC_02_VERIFY_BLOB || sha256(recVerify) !== REC_02_VERIFY_SHA256
+    || verifyOutput?.blob !== REC_02_VERIFY_BLOB || verifyOutput?.sha256 !== REC_02_VERIFY_SHA256) {
+    errors.push("REC-02 verifier output identity drifted before ART transform");
+  }
+  if (sha256(Buffer.from(applyArtVerifierTransform.toString())) !== ART_R2_TRANSFORM_FUNCTION_SHA256) {
+    errors.push("embedded ART transform source drifted");
+  }
+  let combinedVerify = null;
+  try {
+    if (baseVerify && heldVerify) {
+      const reproduced = Buffer.from(applyArtVerifierTransform(baseVerify.bytes.toString("utf8")), "utf8");
+      if (!reproduced.equals(heldVerify.bytes)) errors.push("embedded ART transform does not reproduce held verifier bytes");
+    }
+    if (recVerify) combinedVerify = Buffer.from(applyArtVerifierTransform(recVerify.toString("utf8")), "utf8");
+  } catch (error) {
+    errors.push(`embedded ART transform failed closed: ${error.message}`);
+  }
+  if (!combinedVerify || gitObjectOid("blob", combinedVerify) !== ART_R2_COMBINED_VERIFY_BLOB
+    || sha256(combinedVerify) !== ART_R2_COMBINED_VERIFY_SHA256) {
+    errors.push("combined REC-02 + ART-R2 verifier identity drifted");
+  }
+
+  let combinedTree = null;
+  let combinedManifest = null;
+  if (errors.length === 0) {
+    const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-art-"));
+    const indexPath = join(parent, "index");
+    const env = { GIT_INDEX_FILE: indexPath };
+    runGit(["read-tree", FUNCTIONAL_TREE], { env });
+    for (const path of paths) {
+      const item = fileIdentity(ART_R2_HEAD, path);
+      runGit(["update-index", "--add", "--cacheinfo", `${item.mode},${item.blob},${path}`], { env });
+    }
+    updateIndexBytes(indexPath, "scripts/verify.mjs", combinedVerify);
+    combinedTree = gitText(["write-tree"], { env });
+    const combinedPaths = changedPaths(GATE_A_BASE_SHA, combinedTree);
+    if (combinedPaths.length !== 87 || new Set(combinedPaths).size !== 87) errors.push(`combined ART projection path count ${combinedPaths.length} != 87`);
+    combinedManifest = contentManifest(combinedTree, combinedPaths);
+    if (combinedTree !== ART_R2_COMBINED_TREE) errors.push(`combined ART projection tree ${combinedTree} != ${ART_R2_COMBINED_TREE}`);
+    if (combinedManifest !== ART_R2_COMBINED_MANIFEST_SHA256) errors.push("combined ART projection manifest drifted");
+  }
+  const result = { errors, combinedTree, combinedManifest, transformSha256: sha256(Buffer.from(applyArtVerifierTransform.toString())) };
+  artCompatibilityCache.set(cacheKey, structuredClone(result));
+  return result;
+}
+
+function workflowSecurityErrors(ref) {
+  const errors = [];
+  const listing = gitText(["ls-tree", "-r", "--name-only", ref, "--", ".github/workflows"]);
+  const names = listing ? listing.split(/\r?\n/).filter(Boolean).sort() : [];
+  const expectedNames = [RELEASE_WORKFLOW_PATH, VERIFY_WORKFLOW_PATH].sort();
+  if (!sameList(names, expectedNames)) errors.push(`workflow allowlist mismatch: ${names.join(", ") || "<none>"}`);
+  const expectedHashes = {
+    [RELEASE_WORKFLOW_PATH]: RELEASE_WORKFLOW_SHA256,
+    [VERIFY_WORKFLOW_PATH]: VERIFY_WORKFLOW_SHA256
+  };
+  for (const path of names) {
+    const identity = fileIdentity(ref, path);
+    if (!identity) {
+      errors.push(`${path}: workflow is unreadable`);
+      continue;
+    }
+    if (identity.sha256 !== expectedHashes[path]) errors.push(`${path}: bytes differ from the authorized workflow`);
+    const text = identity.bytes.toString("utf8");
+    const onBlock = text.match(/^on:\s*\n((?:(?:[ \t]+[^\n]*)?\n)*)/m)?.[1] || "";
+    const events = [...onBlock.matchAll(/^  ([a-z_]+):/gm)].map(match => match[1]).sort();
+    if (!sameList(events, ["pull_request", "push"])) errors.push(`${path}: trigger set is not exactly pull_request + push`);
+    if (/^[ \t]*pull_request_target:/m.test(text) || /^[ \t]*(?:workflow_dispatch|repository_dispatch|release|schedule|deployment):/m.test(text)) {
+      errors.push(`${path}: privileged, manual, scheduled, release, or deployment trigger is forbidden`);
+    }
+    if (/^\s{4,}(?:tags|tags-ignore|paths|paths-ignore):/m.test(text)) errors.push(`${path}: tag or path filters are forbidden`);
+    if (/^[ \t]*permissions:[ \t]*(?:write-all|read-all)[ \t]*(?:#.*)?$/m.test(text)) {
+      errors.push(`${path}: aggregate write-all/read-all permissions are forbidden`);
+    }
+    const permissionHeaders = [...text.matchAll(/^([ \t]+)permissions:[^\n]*$/gm)];
+    if (permissionHeaders.length !== 0) {
+      errors.push(`${path}: job-level permissions are forbidden`);
+    }
+    const permissionBlocks = [...text.matchAll(/^permissions:\s*\n((?:[ \t]+[^\n]*\n?)*)/gm)];
+    if (permissionBlocks.length !== 1 || !/^  contents:\s*read\s*(?:#.*)?$/m.test(permissionBlocks[0]?.[1] || "")) {
+      errors.push(`${path}: root permissions are not exactly contents: read`);
+    }
+    for (const permission of text.matchAll(/^([ \t]+)([a-z-]+):[ \t]*(read|write)[ \t]*(?:#.*)?$/gm)) {
+      if (permission[1] !== "  " || permission[2] !== "contents" || permission[3] !== "read") {
+        errors.push(`${path}: forbidden permission ${permission[2]}: ${permission[3]}`);
+      }
+    }
+    const actions = [...text.matchAll(/^[ \t]*-?[ \t]*uses:[ \t]*([^\s#]+).*$/gm)].map(match => match[1]);
     for (const action of actions) {
-      if (!ALLOWED_ACTIONS.has(action)) errors.push(`${name}: unapproved action ${action}`);
-      const pin = action.split("@")[1] || "";
-      if (!FULL_SHA_RE.test(pin)) errors.push(`${name}: action is not pinned by full commit SHA: ${action}`);
+      if (!ALLOWED_ACTIONS.has(action) || !FULL_SHA_RE.test(action.split("@")[1] || "")) {
+        errors.push(`${path}: unapproved or mutable action ${action}`);
+      }
     }
-
-    if (!/^\s+persist-credentials:\s*false\s*(?:#.*)?$/m.test(text)) {
-      errors.push(`${name}: checkout credentials are not explicitly disabled`);
+    const lines = text.split(/\r?\n/);
+    const jobsLine = lines.findIndex(line => /^jobs:[ \t]*(?:#.*)?$/.test(line));
+    const jobStarts = jobsLine < 0 ? [] : lines.flatMap((line, index) => (
+      index > jobsLine && /^  [a-zA-Z0-9_-]+:[ \t]*(?:#.*)?$/.test(line) ? [index] : []
+    ));
+    if (jobStarts.length === 0) errors.push(`${path}: no explicit jobs were found`);
+    const jobNames = jobStarts.map(index => lines[index].trim().split(":", 1)[0]);
+    const expectedJobNames = path === RELEASE_WORKFLOW_PATH
+      ? ["release-policy"]
+      : ["simulation_gate", "simulation_ratchet", "verify"];
+    if (!sameList([...jobNames].sort(), [...expectedJobNames].sort())) {
+      errors.push(`${path}: workflow job allowlist mismatch`);
     }
-    if (!/^\s+fetch-depth:\s*0\s*(?:#.*)?$/m.test(text)) {
-      errors.push(`${name}: full history is not explicitly fetched for provenance checks`);
+    for (let jobIndex = 0; jobIndex < jobStarts.length; jobIndex += 1) {
+      const start = jobStarts[jobIndex];
+      const end = jobStarts[jobIndex + 1] ?? lines.length;
+      const jobName = jobNames[jobIndex];
+      const jobText = lines.slice(start, end).join("\n");
+      const jobActions = [...jobText.matchAll(/^[ \t]*-?[ \t]*uses:[ \t]*([^\s#]+).*$/gm)].map(match => match[1]);
+      const requiresCheckout = path === RELEASE_WORKFLOW_PATH || jobName !== "simulation_gate";
+      if (requiresCheckout && (jobActions.filter(action => action === CHECKOUT_ACTION).length !== 1
+        || jobActions.filter(action => action === SETUP_NODE_ACTION).length !== 1)) {
+        errors.push(`${path}: job ${jobName} must contain each required immutable action exactly once`);
+      } else if (!requiresCheckout && jobActions.length !== 0) {
+        errors.push(`${path}: actionless gate job ${jobName} contains an action`);
+      }
     }
-    if (/^\s+ref:/m.test(text)) errors.push(`${name}: checkout ref override would replace the exact event revision`);
-    if (/^\s+environment:/m.test(text)) errors.push(`${name}: deployment environment use is forbidden`);
-    if (/\$\{\{\s*secrets\./.test(text)) errors.push(`${name}: secret access is forbidden`);
-    if (/^\s*continue-on-error:\s*true\s*(?:#.*)?$/m.test(text)) errors.push(`${name}: continue-on-error weakens a blocking check`);
-    if (/\|\|\s*true\b/.test(text)) errors.push(`${name}: shell failure suppression is forbidden`);
-
-    const publicationCommand = /\b(?:gh\s+release|git\s+(?:push|tag)|netlify\s+(?:build|deploy)|npm\s+publish|itch(?:\.io)?\s+upload|curl\b[^\n]*(?:--upload-file|-X\s*(?:POST|PUT|PATCH))|wget\b[^\n]*--post)\b/i;
-    if (publicationCommand.test(text)) errors.push(`${name}: release/deploy/upload command is forbidden`);
+    const checkoutRows = lines.flatMap((line, index) => line.includes(`uses: ${CHECKOUT_ACTION}`) ? [index] : []);
+    for (const row of checkoutRows) {
+      let end = row + 1;
+      while (end < lines.length && !/^      -[ \t]/.test(lines[end])) end += 1;
+      const stanza = lines.slice(row, end).join("\n");
+      const credentialValues = [...stanza.matchAll(/^[ \t]+persist-credentials:[ \t]*([^\s#]+).*$/gm)].map(match => match[1]);
+      const depthValues = [...stanza.matchAll(/^[ \t]+fetch-depth:[ \t]*([^\s#]+).*$/gm)].map(match => match[1]);
+      if (!sameList(credentialValues, ["false"]) || !sameList(depthValues, ["0"]) || /^[ \t]+ref:/m.test(stanza)) {
+        errors.push(`${path}: checkout stanza is not exactly non-credentialed full-history event checkout`);
+      }
+    }
+    if (!/^\s+persist-credentials:\s*false\s*(?:#.*)?$/m.test(text)) errors.push(`${path}: checkout credentials are not disabled`);
+    if (!/^\s+fetch-depth:\s*0\s*(?:#.*)?$/m.test(text)) errors.push(`${path}: full history is not fetched`);
+    if (/^\s+ref:/m.test(text)) errors.push(`${path}: checkout ref override is forbidden`);
+    if (/^\s+environment:/m.test(text)) errors.push(`${path}: deployment environment is forbidden`);
+    if (/\$\{\{\s*secrets\./.test(text)) errors.push(`${path}: secret access is forbidden`);
+    if (/^\s*continue-on-error:\s*true/m.test(text) || /\|\|\s*true\b/.test(text)) errors.push(`${path}: failure suppression is forbidden`);
+    if (/\b(?:git\s+(?:push|tag)|gh\s+(?:release|api)|netlify\s+(?:build|deploy)|npm\s+publish|itch(?:\.io)?\s+upload|butler\s+push|curl\b[^\n]*(?:--upload-file|-X\s*(?:POST|PUT|PATCH))|wget\b[^\n]*--post)\b/i.test(text)) {
+      errors.push(`${path}: mutation, release, deploy, or upload command is forbidden`);
+    }
   }
   return errors;
 }
 
-export function evaluatePolicy(facts) {
+function candidateEvidence(ref) {
   const errors = [];
-  const notices = [
-    "External administrative state is not verified by this workflow — final adjudication must independently confirm GitHub rulesets 21051662 and 21051665 and the recorded Netlify controls.",
-    "Policy-level NO-PUBLISH and NOT_CERTIFIED remain active regardless of external administrative-control state."
-  ];
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: ["candidate is not an independently framed commit object"] };
+  if (!sameList(commit.parents, [GATE_A_BASE_SHA])) errors.push("candidate is not one direct child of the exact Gate A base");
+  if (!sameList(changedPaths(GATE_A_BASE_SHA, commit.oid), GATE_A_CHANGED_PATHS)) errors.push("candidate changed paths differ from the exact six-path Gate A scope");
+  for (const path of GATE_A_CHANGED_PATHS) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity) errors.push(`${path}: candidate path is missing`);
+    else if (identity.mode !== "100644") errors.push(`${path}: candidate mode ${identity.mode} != 100644`);
+  }
+  for (const [path, expected] of Object.entries(GATE_A_FIXED_SHA256)) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity || identity.sha256 !== expected) errors.push(`${path}: candidate SHA-256 drifted`);
+  }
+  const projection = policyProjection(commit.oid);
+  if (projection !== POLICY_PROJECTION_SHA256) errors.push(`policy projection ${projection || "missing"} != ${POLICY_PROJECTION_SHA256}`);
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  errors.push(...workflowSecurityErrors(commit.oid));
+  const projectionEvidence = validateProjectionArtifacts(commit.oid);
+  errors.push(...projectionEvidence.errors);
+  const artEvidence = validateArtCompatibility(commit.oid);
+  errors.push(...artEvidence.errors);
 
-  if (facts.repository !== EXPECTED_REPOSITORY) {
-    errors.push(`repository ${facts.repository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
+  const records = canonicalRecords(commit.tree, GATE_A_CHANGED_PATHS);
+  if (records.some(record => !record)) errors.push("candidate canonical manifest contains an unreadable path");
+  let expectedRaw = null;
+  let expectedOid = null;
+  let manifest = null;
+  if (records.every(Boolean)) {
+    manifest = canonicalManifest(records);
+    expectedRaw = canonicalRawCommit(commit.tree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, records);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("candidate raw commit payload differs from the exact canonical frame");
+    if (commit.oid !== expectedOid) errors.push(`candidate OID ${commit.oid} != independently framed ${expectedOid}`);
   }
-  if (!FULL_SHA_RE.test(facts.sha || "")) errors.push("GITHUB_SHA is not a full SHA-1");
-  if (facts.checkedOutSha !== facts.sha) {
-    errors.push(`checked-out SHA ${facts.checkedOutSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
-  }
-  if (!facts.recoveryBaseAncestor) errors.push(`audited recovery base ${RECOVERY_BASE_SHA} is not an ancestor`);
-  if (!facts.dispatchBaseAncestor) errors.push(`dispatch base ${DISPATCH_BASE_SHA} is not an ancestor`);
-
-  if (facts.gov01Hash !== GOV_01_SHA256) errors.push("GOV-01 bytes differ from the dispatch base");
-  if (facts.recoveryDecHash !== RECOVERY_DEC_SHA256) errors.push("RECOVERY-DEC bytes differ from the dispatch base");
-  if (facts.netlifyHash !== NETLIFY_NO_BUILD_SHA256) errors.push("netlify.toml differs from the frozen no-Git-build baseline");
-  if (!sameStringSet(facts.workflowNames || [], ALLOWED_WORKFLOWS)) {
-    errors.push(`workflow allowlist mismatch: ${(facts.workflowNames || []).join(", ") || "<none>"}`);
-  }
-  for (const [name, expectedHash] of Object.entries(WORKFLOW_SHA256)) {
-    if (facts.workflowHashes?.[name] !== expectedHash) {
-      errors.push(`${name}: bytes differ from the issue #15 reviewed workflow`);
-    }
-  }
-  errors.push(...workflowSecurityErrors(facts.workflowTexts));
-
-  const statusText = facts.statusText || "";
-  requireUniqueStatusField(errors, statusText, "runtime_baseline_sha", value => value === RECOVERY_BASE_SHA, "STATUS runtime baseline");
-  requireUniqueStatusField(errors, statusText, "release_state", value => value === "NO-PUBLISH", "STATUS NO-PUBLISH state");
-  requireUniqueStatusField(errors, statusText, "production_url", value => value === "NOT_AUTHORIZED", "STATUS production block");
-  requireUniqueStatusField(errors, statusText, "release_artifact", value => value.toLowerCase() === "none authorized from this base", "STATUS release-artifact block");
-  requireUniqueStatusField(errors, statusText, "artifact_digest", value => /^none\s*[—-]\s*no release created$/i.test(value), "STATUS artifact block");
-  requireUniqueStatusField(errors, statusText, "version_integrity", value => /^NOT_CERTIFIED\b/i.test(value), "STATUS certification block");
-
-  requirePattern(errors, facts.pipeBootText || "", /# PIPE-BOOT\s*[—-]\s*Governed Recovery Pipeline/, "PIPE-BOOT identity");
-  requirePattern(errors, facts.pipeBootText || "", /NO-PUBLISH/i, "PIPE-BOOT NO-PUBLISH guard");
-  requirePattern(errors, facts.pipeBootText || "", new RegExp(RECOVERY_BRANCH.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), "PIPE-BOOT recovery branch");
-  requirePattern(errors, facts.reconciliationText || "", /PIPE-BOOT-R1/i, "PIPE-BOOT-R1 reconciliation identity");
-  requirePattern(errors, facts.reconciliationText || "", /NO-PUBLISH/i, "PIPE-BOOT-R1 NO-PUBLISH guard");
-  requirePattern(errors, facts.reconciliationText || "", new RegExp(RECOVERY_BASE_SHA), "PIPE-BOOT-R1 recovery base");
-
-  let changeRoute = null;
-  if (facts.eventName === "pull_request") {
-    if (facts.baseRef === "main") errors.push("all pull requests to main are blocked while NO-PUBLISH is active");
-    if (facts.baseRef !== RECOVERY_BRANCH) {
-      errors.push(`pull-request base ${facts.baseRef || "<missing>"} != ${RECOVERY_BRANCH}`);
-    }
-    if (facts.headRef === PIPE_BOOT_HEAD) {
-      changeRoute = "pipe-boot";
-      if (facts.prBaseSha !== DISPATCH_BASE_SHA) {
-        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != dispatch base ${DISPATCH_BASE_SHA}`);
-      }
-    } else if (facts.headRef === PIPE_BOOT_CLOSEOUT_HEAD) {
-      changeRoute = "closeout";
-      if (facts.prBaseSha !== PIPE_BOOT_MERGE_SHA) {
-        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != PIPE-BOOT merge ${PIPE_BOOT_MERGE_SHA}`);
-      }
-    } else if (facts.headRef === REC_RATCHET_HEAD) {
-      changeRoute = "rec-ratchet";
-      if (facts.prBaseSha !== REC_RATCHET_BASE_SHA) {
-        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != REC-RATCHET base ${REC_RATCHET_BASE_SHA}`);
-      }
-    } else if (facts.headRef === REC_01_HEAD) {
-      changeRoute = "rec-01";
-      if (!facts.prBaseIsRecRatchetSuccessor) {
-        errors.push("REC-01 pull-request base is not the exact REC-RATCHET-01 merge-commit successor");
-      }
-      if (facts.prBaseSimulationBaselineHash !== SIMULATION_BASELINE_SHA256) {
-        errors.push("REC-01 pull-request base does not contain the pre-transition simulation baseline");
-      }
-    } else if (facts.headRef === LOCK_RECORD_HEAD) {
-      changeRoute = "lock-record";
-      if (facts.prBaseSha !== LOCK_RECORD_BASE_SHA) {
-        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != lock-record base ${LOCK_RECORD_BASE_SHA}`);
-      }
-    } else if (facts.headRef === ART_R2_GOVERNANCE_HEAD) {
-      changeRoute = "art-r2-governance";
-      if (facts.prBaseSha !== ART_R2_GOVERNANCE_BASE_SHA) {
-        errors.push(`pull-request base SHA ${facts.prBaseSha || "<missing>"} != ART-R2 governance base ${ART_R2_GOVERNANCE_BASE_SHA}`);
-      }
-    } else if (facts.headRef === ART_R2_IMPLEMENTATION_HEAD) {
-      changeRoute = "art-r2-implementation";
-      if (!facts.prBaseIsArtR2GovernanceSuccessor) {
-        errors.push("ART-R2 implementation base is not the exact protected governance merge successor");
-      }
-    } else {
-      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an authorized recovery route`);
-    }
-    if (facts.prHeadRepository !== EXPECTED_REPOSITORY) {
-      errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
-    }
-    if (!FULL_SHA_RE.test(facts.prHeadSha || "")) errors.push("pull-request head SHA is not a full SHA-1");
-    if (!facts.prBaseAncestor) errors.push("pull-request base SHA is not an ancestor of the tested merge SHA");
-    if (!facts.prHeadAncestor) errors.push("pull-request head SHA is not an ancestor of the tested merge SHA");
-  } else if (facts.eventName === "push") {
-    if (facts.refType === "tag" || String(facts.ref || "").startsWith("refs/tags/")) {
-      errors.push("tag creation is forbidden while NO-PUBLISH is active");
-    } else if (facts.refName === "main") {
-      errors.push("all pushes to main are forbidden while NO-PUBLISH is active");
-    } else if (facts.refName !== RECOVERY_BRANCH) {
-      errors.push(`push ref ${facts.refName || "<missing>"} != ${RECOVERY_BRANCH}`);
-    } else {
-      const normalizedBefore = /^0{40}$/.test(facts.beforeSha || "")
-        ? DISPATCH_BASE_SHA
-        : facts.beforeSha;
-      if (normalizedBefore === DISPATCH_BASE_SHA) {
-        changeRoute = "pipe-boot";
-      } else if (normalizedBefore === PIPE_BOOT_MERGE_SHA) {
-        changeRoute = "closeout";
-      } else if (normalizedBefore === REC_RATCHET_BASE_SHA) {
-        changeRoute = "rec-ratchet";
-      } else if (
-        facts.pushBeforeIsRecRatchetSuccessor
-        && facts.pushBeforeSimulationBaselineHash === SIMULATION_BASELINE_SHA256
-        && facts.simulationBaselineHash === REC_01_SIMULATION_BASELINE_SHA256
-      ) {
-        changeRoute = "rec-01";
-      } else if (normalizedBefore === LOCK_RECORD_BASE_SHA) {
-        changeRoute = "lock-record";
-      } else if (normalizedBefore === ART_R2_GOVERNANCE_BASE_SHA) {
-        changeRoute = "art-r2-governance";
-        if (!facts.pushAfterIsArtR2GovernanceSuccessor) {
-          errors.push("ART-R2 governance push after SHA is not the exact two-parent protected governance successor");
-        }
-      } else {
-        errors.push(`push before SHA ${normalizedBefore || "<missing>"} is not an authorized recovery base`);
-      }
-      if (facts.afterSha !== facts.sha) {
-        errors.push(`push after SHA ${facts.afterSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
-      }
-    }
-  } else {
-    errors.push(`unsupported event ${facts.eventName || "<missing>"}`);
-  }
-
-  if (!(facts.eventName === "push" && (facts.refType === "tag" || facts.refName === "main"))) {
-    const changedPaths = facts.changedPaths || [];
-    if (!changedPaths.length) errors.push("changed-path set is empty or unavailable");
-    if (changeRoute === "pipe-boot") {
-      for (const path of changedPaths) {
-        if (!ALLOWED_PATHS.has(path)) errors.push(`changed path is outside issue #15: ${path}`);
-      }
-    } else if (changeRoute === "closeout" && !sameStringSet(changedPaths, PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the one-shot close-out set: ${changedPaths.join(", ") || "<none>"}`);
-    } else if (changeRoute === "rec-ratchet" && !sameStringSet(changedPaths, REC_RATCHET_01_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the REC-RATCHET-01 set: ${changedPaths.join(", ") || "<none>"}`);
-    } else if (changeRoute === "rec-01" && !sameStringSet(changedPaths, REC_01_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the one-shot REC-01 set: ${changedPaths.join(", ") || "<none>"}`);
-    } else if (changeRoute === "lock-record" && !sameStringSet(changedPaths, LOCK_RECORD_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the one-shot lock-record set: ${changedPaths.join(", ") || "<none>"}`);
-    } else if (changeRoute === "art-r2-governance" && !sameStringSet(changedPaths, ART_R2_GOVERNANCE_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the ART-R2 governance set: ${changedPaths.join(", ") || "<none>"}`);
-    } else if (changeRoute === "art-r2-implementation" && !sameStringSet(changedPaths, ART_R2_IMPLEMENTATION_CHANGED_PATHS)) {
-      errors.push(`changed paths do not exactly match the ART-R2 implementation set: ${changedPaths.join(", ") || "<none>"}`);
-    }
-  }
-
-  const expectsRec01Tree = [
-    "rec-01",
-    "lock-record",
-    "art-r2-governance",
-    "art-r2-implementation"
-  ].includes(changeRoute);
-  const expectedSimulationBaselineHash = expectsRec01Tree
-    ? REC_01_SIMULATION_BASELINE_SHA256
-    : SIMULATION_BASELINE_SHA256;
-  if (facts.simulationBaselineHash !== expectedSimulationBaselineHash) {
-    errors.push(`${SIMULATION_BASELINE_PATH}: bytes differ from the ${expectsRec01Tree ? "REC-RATCHET-01 authorized replacement" : "issue #15 pinned fixture"}`);
-  }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
-      && facts.recRatchetHash !== REC_RATCHET_ARTIFACT_SHA256) {
-    errors.push(`${REC_RATCHET_ARTIFACT_PATH}: bytes differ from the authorized transition artifact`);
-  }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
-      && facts.recRatchetBaselineHash !== REC_01_SIMULATION_BASELINE_SHA256) {
-    errors.push(`${REC_RATCHET_BASELINE_ARTIFACT_PATH}: bytes differ from the authorized inactive baseline`);
-  }
-  if (["rec-ratchet", "rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
-      && facts.recRatchetPatchHash !== REC_RATCHET_PATCH_ARTIFACT_SHA256) {
-    errors.push(`${REC_RATCHET_PATCH_ARTIFACT_PATH}: bytes differ from the authorized implementation patch`);
-  }
-  if (["rec-01", "lock-record", "art-r2-governance", "art-r2-implementation"].includes(changeRoute)
-      && facts.scenes41Hash !== REC_01_SCENES_41_SHA256) {
-    errors.push("src/scenes-41.js: bytes differ from the authorized REC-01 target");
-  }
-  if (["rec-01", "lock-record", "art-r2-governance"].includes(changeRoute)
-      && facts.verifyScriptHash !== REC_01_VERIFY_SHA256) {
-    errors.push("scripts/verify.mjs: bytes differ from the authorized REC-01 target");
-  }
-  if (["art-r2-governance", "art-r2-implementation"].includes(changeRoute)) {
-    for (const [path, expectedHash] of Object.entries(ART_R2_GOVERNANCE_DOCUMENT_SHA256)) {
-      if (facts.artR2GovernanceDocumentHashes?.[path] !== expectedHash) {
-        errors.push(`${path}: bytes differ from the approved ART-R2 governance record`);
-      }
-    }
-  }
-
-  return { passed: errors.length === 0, errors, notices, route: changeRoute };
-}
-
-function baseSelfTestFacts() {
-  const sha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   return {
-    eventName: "pull_request",
-    repository: EXPECTED_REPOSITORY,
-    sha,
-    checkedOutSha: sha,
-    ref: "refs/pull/15/merge",
-    refName: "15/merge",
-    refType: "branch",
-    baseRef: RECOVERY_BRANCH,
-    headRef: PIPE_BOOT_HEAD,
-    prHeadRepository: EXPECTED_REPOSITORY,
-    prBaseSha: DISPATCH_BASE_SHA,
-    prHeadSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    beforeSha: "",
-    afterSha: "",
-    changedPaths: [...PIPE_BOOT_R1_CHANGED_PATHS],
-    recoveryBaseAncestor: true,
-    dispatchBaseAncestor: true,
-    prBaseAncestor: true,
-    prHeadAncestor: true,
-    statusText: [
-      `\`runtime_baseline_sha: ${RECOVERY_BASE_SHA}\``,
-      "`release_state: NO-PUBLISH`",
-      "`production_url: NOT_AUTHORIZED`",
-      "`release_artifact: none authorized from this base`",
-      "`artifact_digest: none — no release created`",
-      "`version_integrity: NOT_CERTIFIED — recovery`"
-    ].join("\n"),
-    gov01Hash: GOV_01_SHA256,
-    recoveryDecHash: RECOVERY_DEC_SHA256,
-    pipeBootText: `# PIPE-BOOT — Governed Recovery Pipeline\n${RECOVERY_BRANCH}\nNO-PUBLISH`,
-    reconciliationText: `# PIPE-BOOT-R1\n${RECOVERY_BASE_SHA}\nNO-PUBLISH`,
-    netlifyHash: NETLIFY_NO_BUILD_SHA256,
-    simulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    recRatchetHash: null,
-    recRatchetBaselineHash: null,
-    recRatchetPatchHash: null,
-    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 },
-    scenes41Hash: "0".repeat(64),
-    verifyScriptHash: "0".repeat(64),
-    prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    pushBeforeSimulationBaselineHash: null,
-    prBaseIsRecRatchetSuccessor: false,
-    prBaseIsArtR2GovernanceSuccessor: false,
-    pushBeforeIsRecRatchetSuccessor: false,
-    pushAfterIsArtR2GovernanceSuccessor: false,
-    workflowNames: [...ALLOWED_WORKFLOWS],
-    workflowTexts: Object.fromEntries(ALLOWED_WORKFLOWS.map(name => [name, [
-      "name: fixture",
-      "",
-      "on:",
-      "  pull_request:",
-      `    branches: [${RECOVERY_BRANCH}]`,
-      "  push:",
-      `    branches: [${RECOVERY_BRANCH}]`,
-      "",
-      "permissions:",
-      "  contents: read",
-      "",
-      "jobs:",
-      "  fixture:",
-      "    runs-on: ubuntu-24.04",
-      "    steps:",
-      `      - uses: ${CHECKOUT_ACTION}`,
-      "        with:",
-      "          fetch-depth: 0",
-      "          persist-credentials: false",
-      `      - uses: ${SETUP_NODE_ACTION}`
-    ].join("\n")])),
-    workflowHashes: { ...WORKFLOW_SHA256 }
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: commit.parents[0],
+    rawSha256: sha256(commit.bytes),
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null,
+    projectionEvidence,
+    artEvidence
   };
 }
 
-function expectFailure(base, mutate, needle) {
-  const facts = structuredClone(base);
-  mutate(facts);
-  const result = evaluatePolicy(facts);
-  assert.equal(result.passed, false, `expected failure containing ${needle}`);
-  assert.ok(result.errors.some(error => error.includes(needle)), `missing failure ${needle}: ${result.errors.join(" | ")}`);
+function mergeEvidence(ref, firstParent, secondEvidence) {
+  const errors = [];
+  const merge = commitHeaders(ref);
+  if (!merge) return { errors: ["merge is not an independently framed commit object"] };
+  if (!sameList(merge.parents, [firstParent, secondEvidence.oid])) errors.push("merge parents differ from the exact ordered base/head pair");
+  if (merge.tree !== secondEvidence.tree) errors.push("merge tree differs from the exact candidate tree");
+  if (secondEvidence.errors.length) errors.push(...secondEvidence.errors.map(error => `candidate: ${error}`));
+  return { errors, oid: merge.oid, tree: merge.tree, parents: merge.parents, rawSha256: sha256(merge.bytes) };
 }
 
-function selfTest() {
-  assert.deepEqual(
-    [...PIPE_BOOT_R1_CHANGED_PATHS].sort(),
-    [
-      ".github/workflows/release-policy.yml",
-      ".github/workflows/verify.yml",
-      "artifacts/PIPE-BOOT-R1_RECOVERY_PIPELINE_RECONCILIATION.md",
-      "artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md",
-      "artifacts/PROJECT_STATUS.md",
-      "scripts/fixtures/pipe-boot-r1-simulation-baseline.json",
-      "scripts/release-policy.mjs",
-      "scripts/simulate.mjs",
-      "scripts/verify.mjs"
-    ].sort()
+function gateAMergeEvidence(ref) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== GATE_A_BASE_SHA) {
+    return { errors: ["protected Gate A successor is not an exact two-parent merge from the pinned base"] };
+  }
+  const candidate = candidateEvidence(merge.parents[1]);
+  return mergeEvidence(merge.oid, GATE_A_BASE_SHA, candidate);
+}
+
+function replaceUniqueStatusField(text, key, value) {
+  const pattern = new RegExp("`" + key + ":\\s*([^`]+)`", "g");
+  const matches = [...text.matchAll(pattern)];
+  if (matches.length !== 1) throw new Error(`future STATUS source field ${key} occurs ${matches.length} time(s)`);
+  return text.replace(pattern, `\`${key}: ${value}\``);
+}
+
+function expectedFutureStatus(protectedMerge) {
+  const merge = commitHeaders(protectedMerge);
+  if (!merge) throw new Error("future STATUS base is not a commit");
+  const status = fileIdentity(protectedMerge, STATUS_PATH);
+  if (!status || status.sha256 !== GATE_A_STATUS_SHA256) throw new Error("future STATUS source is not exact Gate A STATUS");
+  let text = status.bytes.toString("utf8");
+  text = replaceUniqueStatusField(text, "updated_utc", "2026-08-24");
+  text = replaceOnce(
+    text,
+    `\`tested_runtime_sha: ${GATE_A_BASE_SHA}\` (protected ART-INTEGRATION-R2 governance successor; recovery evidence, not certification)`,
+    `\`tested_runtime_sha: ${protectedMerge}\` (exact protected REC-RATCHET-02 successor; recovery evidence, not certification)`,
+    "future STATUS tested runtime"
   );
-  assert.deepEqual(
-    [...LOCK_RECORD_CHANGED_PATHS].sort(),
-    [
-      "artifacts/LOCKS.md",
-      "artifacts/PROJECT_STATUS.md",
-      "artifacts/ROADMAP.md",
-      "scripts/release-policy.mjs"
-    ].sort()
+  text = replaceUniqueStatusField(text, "governed_recovery_successor_sha", protectedMerge);
+  text = replaceUniqueStatusField(text, "milestone", "REC-02 / L-021 — exact inactive projection activation");
+  text = replaceUniqueStatusField(text, "ticket", "REC-02 / issue #24 — governed zero-exit implementation");
+  text = replaceUniqueStatusField(text, "state", `REC-02 CANDIDATE — exact REC-RATCHET-02 successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED`);
+  text = replaceUniqueStatusField(text, "implementation_branch", FUTURE_BRANCH);
+  text = replaceUniqueStatusField(text, "dispatch_base_sha", protectedMerge);
+  text = replaceUniqueStatusField(text, "dispatch_base_tree", merge.tree);
+  text = replaceUniqueStatusField(text, "functional_projection_state", "ACTIVATED — exact pinned patch and baseline applied; full exact-head verifier and locked simulations must pass again");
+  text = replaceUniqueStatusField(text, "active_simulation_baseline_sha256", `${INACTIVE_BASELINE_SHA256} — exact REC-02 baseline activated from the Gate A artifact`);
+  text = replaceOnce(
+    text,
+    "`gate_a_scope: exactly .github/workflows/verify.yml; artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md; scripts/release-policy.mjs`",
+    "`gate_a_scope: LANDED PRECURSOR — exact six-path envelope retained as evidence`\n`rec_02_scope: exactly artifacts/PROJECT_STATUS.md; scripts/fixtures/pipe-boot-r1-simulation-baseline.json; scripts/verify.mjs; src/scenes-02.js; src/scenes-04.js; src/scenes-05.js; src/scenes-06.js; src/scenes-13.js; src/scenes-36.js; src/scenes-55.js`",
+    "future STATUS active scope"
   );
-  assert.deepEqual(
-    [...ART_R2_GOVERNANCE_CHANGED_PATHS].sort(),
-    [
-      "artifacts/ART-INTEGRATION-R2_GOVERNANCE_REPIN.md",
-      "artifacts/ART_RULES.md",
-      "artifacts/LOCKS.md",
-      "artifacts/PROJECT_STATUS.md",
-      "artifacts/ROADMAP.md",
-      "scripts/release-policy.mjs"
-    ].sort()
+  text = replaceOnce(
+    text,
+    "- REC-RATCHET-02 protected merge is not authorized. Reviewer PASS would establish eligibility only.",
+    `- REC-RATCHET-02 landed at exact protected successor \`${protectedMerge}\`; that authorization is consumed.`,
+    "future STATUS Gate A blocker"
   );
-  assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.length, 79);
-  assert.equal(new Set(ART_R2_IMPLEMENTATION_CHANGED_PATHS).size, 79);
-  assert.equal(ART_R2_IMPLEMENTATION_CHANGED_PATHS.filter(path => path.startsWith("images/")).length, 55);
-
-  const positive = baseSelfTestFacts();
-  assert.deepEqual(evaluatePolicy(positive).errors, []);
-
-  const closeout = structuredClone(positive);
-  Object.assign(closeout, {
-    headRef: PIPE_BOOT_CLOSEOUT_HEAD,
-    prBaseSha: PIPE_BOOT_MERGE_SHA,
-    changedPaths: [...PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS]
-  });
-  assert.deepEqual(evaluatePolicy(closeout).errors, []);
-  expectFailure(closeout, facts => { facts.prBaseSha = DISPATCH_BASE_SHA; }, "pull-request base SHA");
-  expectFailure(closeout, facts => { facts.changedPaths.push("artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md"); }, "one-shot close-out set");
-  expectFailure(closeout, facts => { facts.changedPaths.pop(); }, "one-shot close-out set");
-
-  const recRatchet = structuredClone(positive);
-  Object.assign(recRatchet, {
-    headRef: REC_RATCHET_HEAD,
-    prBaseSha: REC_RATCHET_BASE_SHA,
-    changedPaths: [...REC_RATCHET_01_CHANGED_PATHS],
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256
-  });
-  assert.deepEqual(evaluatePolicy(recRatchet).errors, []);
-  expectFailure(recRatchet, facts => { facts.prBaseSha = PIPE_BOOT_MERGE_SHA; }, "REC-RATCHET base");
-  expectFailure(recRatchet, facts => { facts.changedPaths.push("README.md"); }, "REC-RATCHET-01 set");
-  expectFailure(recRatchet, facts => { facts.changedPaths.pop(); }, "REC-RATCHET-01 set");
-  expectFailure(recRatchet, facts => { facts.recRatchetHash = "c".repeat(64); }, "authorized transition artifact");
-  expectFailure(recRatchet, facts => { facts.recRatchetBaselineHash = "c".repeat(64); }, "authorized inactive baseline");
-  expectFailure(recRatchet, facts => { facts.recRatchetPatchHash = "c".repeat(64); }, "authorized implementation patch");
-
-  const rec01 = structuredClone(positive);
-  Object.assign(rec01, {
-    headRef: REC_01_HEAD,
-    prBaseSha: "d".repeat(40),
-    changedPaths: [...REC_01_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256,
-    prBaseSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    prBaseIsRecRatchetSuccessor: true
-  });
-  assert.deepEqual(evaluatePolicy(rec01).errors, []);
-  expectFailure(rec01, facts => { facts.prBaseIsRecRatchetSuccessor = false; }, "exact REC-RATCHET-01 merge-commit successor");
-  expectFailure(rec01, facts => { facts.prBaseSimulationBaselineHash = REC_01_SIMULATION_BASELINE_SHA256; }, "pre-transition simulation baseline");
-  expectFailure(rec01, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
-  expectFailure(rec01, facts => { facts.recRatchetHash = "c".repeat(64); }, "authorized transition artifact");
-  expectFailure(rec01, facts => { facts.recRatchetBaselineHash = "c".repeat(64); }, "authorized inactive baseline");
-  expectFailure(rec01, facts => { facts.recRatchetPatchHash = "c".repeat(64); }, "authorized implementation patch");
-  expectFailure(rec01, facts => { facts.scenes41Hash = "c".repeat(64); }, "authorized REC-01 target");
-  expectFailure(rec01, facts => { facts.verifyScriptHash = "c".repeat(64); }, "authorized REC-01 target");
-  expectFailure(rec01, facts => { facts.changedPaths.push("README.md"); }, "one-shot REC-01 set");
-  expectFailure(rec01, facts => { facts.changedPaths.pop(); }, "one-shot REC-01 set");
-
-  const lockRecord = structuredClone(positive);
-  Object.assign(lockRecord, {
-    headRef: LOCK_RECORD_HEAD,
-    prBaseSha: LOCK_RECORD_BASE_SHA,
-    changedPaths: [...LOCK_RECORD_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256
-  });
-  assert.deepEqual(evaluatePolicy(lockRecord).errors, []);
-  expectFailure(lockRecord, facts => { facts.prBaseSha = "c".repeat(40); }, "lock-record base");
-  expectFailure(lockRecord, facts => { facts.changedPaths.push("README.md"); }, "one-shot lock-record set");
-  expectFailure(lockRecord, facts => { facts.changedPaths.pop(); }, "one-shot lock-record set");
-  expectFailure(lockRecord, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
-  expectFailure(lockRecord, facts => { facts.recRatchetHash = "c".repeat(64); }, "authorized transition artifact");
-  expectFailure(lockRecord, facts => { facts.recRatchetBaselineHash = "c".repeat(64); }, "authorized inactive baseline");
-  expectFailure(lockRecord, facts => { facts.recRatchetPatchHash = "c".repeat(64); }, "authorized implementation patch");
-  expectFailure(lockRecord, facts => { facts.scenes41Hash = "c".repeat(64); }, "authorized REC-01 target");
-  expectFailure(lockRecord, facts => { facts.verifyScriptHash = "c".repeat(64); }, "authorized REC-01 target");
-  expectFailure(lockRecord, facts => { facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED"); }, "STATUS NO-PUBLISH");
-
-  const artR2Governance = structuredClone(positive);
-  Object.assign(artR2Governance, {
-    headRef: ART_R2_GOVERNANCE_HEAD,
-    prBaseSha: ART_R2_GOVERNANCE_BASE_SHA,
-    changedPaths: [...ART_R2_GOVERNANCE_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256,
-    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 }
-  });
-  assert.deepEqual(evaluatePolicy(artR2Governance).errors, []);
-  expectFailure(artR2Governance, facts => { facts.prBaseSha = "c".repeat(40); }, "ART-R2 governance base");
-  expectFailure(artR2Governance, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 governance set");
-  expectFailure(artR2Governance, facts => { facts.changedPaths.pop(); }, "ART-R2 governance set");
-  expectFailure(artR2Governance, facts => {
-    facts.artR2GovernanceDocumentHashes[ART_R2_GOVERNANCE_RECORD_PATH] = "c".repeat(64);
-  }, "approved ART-R2 governance record");
-
-  const artR2Implementation = structuredClone(artR2Governance);
-  Object.assign(artR2Implementation, {
-    headRef: ART_R2_IMPLEMENTATION_HEAD,
-    prBaseSha: "e".repeat(40),
-    prBaseIsArtR2GovernanceSuccessor: true,
-    changedPaths: [...ART_R2_IMPLEMENTATION_CHANGED_PATHS],
-    verifyScriptHash: "c".repeat(64)
-  });
-  assert.deepEqual(evaluatePolicy(artR2Implementation).errors, []);
-  expectFailure(artR2Implementation, facts => {
-    facts.prBaseIsArtR2GovernanceSuccessor = false;
-  }, "exact protected governance merge successor");
-  expectFailure(artR2Implementation, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 implementation set");
-  expectFailure(artR2Implementation, facts => { facts.changedPaths.pop(); }, "ART-R2 implementation set");
-  expectFailure(artR2Implementation, facts => {
-    facts.artR2GovernanceDocumentHashes["artifacts/ART_RULES.md"] = "c".repeat(64);
-  }, "approved ART-R2 governance record");
-
-  expectFailure(positive, facts => { facts.repository = "other/repository"; }, "repository other/repository");
-  expectFailure(positive, facts => { facts.checkedOutSha = "c".repeat(40); }, "checked-out SHA");
-  expectFailure(positive, facts => { facts.recoveryBaseAncestor = false; }, "audited recovery base");
-  expectFailure(positive, facts => { facts.baseRef = "main"; }, "pull requests to main");
-  expectFailure(positive, facts => { facts.headRef = "ticket/0.30.1-01-quiet-tomas-rewind"; }, "pull-request head");
-  expectFailure(positive, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
-  expectFailure(positive, facts => { facts.prBaseSha = "c".repeat(40); }, "pull-request base SHA");
-  expectFailure(positive, facts => { facts.changedPaths.push("src/scenes-41.js"); }, "outside issue #15");
-  expectFailure(positive, facts => { facts.statusText = facts.statusText.replace("NO-PUBLISH", "RELEASED"); }, "STATUS NO-PUBLISH");
-  expectFailure(positive, facts => {
-    facts.statusText += "\n`release_state: PUBLISH`\n`version_integrity: CERTIFIED`";
-  }, "STATUS NO-PUBLISH state must appear exactly once");
-  expectFailure(positive, facts => { facts.workflowNames.push("deploy.yml"); }, "workflow allowlist");
-  expectFailure(positive, facts => {
-    facts.workflowTexts["verify.yml"] += "\n  release:\n    types: [published]\n";
-  }, "publication-capable trigger release");
-  expectFailure(positive, facts => {
-    facts.workflowTexts["verify.yml"] = facts.workflowTexts["verify.yml"].replace("contents: read", "contents: write");
-  }, "forbidden permission contents: write");
-  expectFailure(positive, facts => {
-    facts.workflowTexts["verify.yml"] += "\n      - uses: actions/upload-artifact@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
-  }, "unapproved action actions/upload-artifact");
-  expectFailure(positive, facts => {
-    facts.workflowTexts["verify.yml"] += "\n      - run: gh release create sun-v0.30.1\n";
-  }, "release/deploy/upload command");
-  expectFailure(positive, facts => {
-    facts.workflowTexts["verify.yml"] += "\n    tags: ['**']\n";
-  }, "tag trigger/filter");
-  expectFailure(positive, facts => {
-    facts.workflowHashes["verify.yml"] = "c".repeat(64);
-  }, "bytes differ from the issue #15 reviewed workflow");
-  expectFailure(positive, facts => { facts.netlifyHash = "c".repeat(64); }, "netlify.toml");
-  const baselineBytes = readFileSync(resolve(ROOT, SIMULATION_BASELINE_PATH));
-  assert.ok(
-    [SIMULATION_BASELINE_SHA256, REC_01_SIMULATION_BASELINE_SHA256].includes(sha256(baselineBytes)),
-    "checked-in simulation baseline does not match an authorized SHA-256"
+  text = replaceOnce(
+    text,
+    "- REC-02 source implementation remains inactive until REC-RATCHET-02 passes checks, receives independent exact-head PASS, lands through a separately authorized protected merge, and issue #24 is repinned to that exact successor.",
+    `- REC-02 is an exact candidate only. Construction requires separate readback that issue #24 was repinned to \`${protectedMerge}\`; its protected merge remains unauthorized pending exact-head checks, independent read-only PASS, fresh privileged ruleset/ref readback, and separate owner authorization.`,
+    "future STATUS REC-02 blocker"
   );
-  const inflatedBaselineBytes = Buffer.concat([baselineBytes, Buffer.from("\n")]);
-  assert.notDeepEqual(inflatedBaselineBytes, baselineBytes, "baseline inflation fixture did not alter bytes");
-  expectFailure(positive, facts => {
-    facts.simulationBaselineHash = sha256(inflatedBaselineBytes);
-  }, "simulation-baseline.json: bytes differ");
+  text = replaceOnce(
+    text,
+    "**Manraj:** After the REC-RATCHET-02 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "**Manraj:** After the REC-02 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "future STATUS next action"
+  );
+  return Buffer.from(text, "utf8");
+}
 
-  const push = structuredClone(positive);
-  Object.assign(push, {
-    eventName: "push",
-    ref: `refs/heads/${RECOVERY_BRANCH}`,
-    refName: RECOVERY_BRANCH,
-    baseRef: "",
-    headRef: "",
-    prBaseSha: "",
-    prHeadSha: "",
-    beforeSha: DISPATCH_BASE_SHA,
-    afterSha: push.sha,
-    prBaseAncestor: true,
-    prHeadAncestor: true
+const futureTreeCache = new Map();
+
+function buildFutureTree(protectedMerge) {
+  if (futureTreeCache.has(protectedMerge)) return futureTreeCache.get(protectedMerge);
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  if (!patchIdentity || !baselineIdentity) throw new Error("future projection artifacts are missing");
+  const artifact = JSON.parse(patchIdentity.bytes.toString("utf8"));
+  const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-future-"));
+  const indexPath = join(parent, "index");
+  const env = { GIT_INDEX_FILE: indexPath };
+  runGit(["read-tree", protectedMerge], { env });
+  const applied = runGit(["apply", "--cached", "--whitespace=error-all", "--verbose", "-"], {
+    env,
+    input: Buffer.from(artifact.patch.unifiedDiff, "utf8"),
+    allowFailure: true
   });
-  assert.deepEqual(evaluatePolicy(push).errors, []);
+  const transcript = Buffer.concat([Buffer.from(applied.stdout || ""), Buffer.from(applied.stderr || "")]).toString("utf8");
+  if (applied.status !== 0 || /\b(?:offset|fuzz)\b/i.test(transcript)) throw new Error(`future strict patch application failed: ${transcript.trim()}`);
+  updateIndexBytes(indexPath, ACTIVE_BASELINE_PATH, baselineIdentity.bytes);
+  updateIndexBytes(indexPath, STATUS_PATH, expectedFutureStatus(protectedMerge));
+  const tree = gitText(["write-tree"], { env });
+  const result = { tree, transcript, status: expectedFutureStatus(protectedMerge) };
+  futureTreeCache.set(protectedMerge, result);
+  return result;
+}
 
-  const closeoutPush = structuredClone(push);
-  Object.assign(closeoutPush, {
-    beforeSha: PIPE_BOOT_MERGE_SHA,
-    changedPaths: [...PIPE_BOOT_R1_CLOSEOUT_CHANGED_PATHS]
-  });
-  assert.deepEqual(evaluatePolicy(closeoutPush).errors, []);
-  expectFailure(closeoutPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot close-out set");
+function futureEvidence(ref, protectedMerge) {
+  const errors = [];
+  const baseEvidence = gateAMergeEvidence(protectedMerge);
+  if (baseEvidence.errors.length) errors.push(...baseEvidence.errors.map(error => `future base: ${error}`));
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: [...errors, "future REC-02 candidate is not an independently framed commit object"] };
+  if (!sameList(commit.parents, [protectedMerge])) errors.push("future REC-02 candidate is not one direct child of the exact protected Gate A successor");
+  if (!sameList(changedPaths(protectedMerge, commit.oid), FUTURE_CHANGED_PATHS)) errors.push("future REC-02 changed paths differ from the exact ten-path activation scope");
+  let expectedTree;
+  try {
+    expectedTree = buildFutureTree(protectedMerge);
+    if (commit.tree !== expectedTree.tree) errors.push(`future REC-02 tree ${commit.tree} != mechanically projected ${expectedTree.tree}`);
+  } catch (error) {
+    errors.push(error.message);
+  }
 
-  const recRatchetPush = structuredClone(push);
-  Object.assign(recRatchetPush, {
-    beforeSha: REC_RATCHET_BASE_SHA,
-    changedPaths: [...REC_RATCHET_01_CHANGED_PATHS],
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256
-  });
-  assert.deepEqual(evaluatePolicy(recRatchetPush).errors, []);
-  expectFailure(recRatchetPush, facts => { facts.changedPaths.push("README.md"); }, "REC-RATCHET-01 set");
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  let artifact = null;
+  try {
+    artifact = patchIdentity ? JSON.parse(patchIdentity.bytes.toString("utf8")) : null;
+  } catch {
+    errors.push("future patch artifact is not valid JSON");
+  }
+  if (artifact) {
+    for (const row of artifact.files || []) {
+      const output = fileIdentity(commit.oid, row.path);
+      if (!output || output.mode !== row.output?.mode || output.blob !== row.output?.blob
+        || output.sha256 !== row.output?.sha256 || output.byteLength !== row.output?.byteLength) {
+        errors.push(`${row.path}: future exact output identity drifted`);
+      }
+    }
+  }
+  const active = fileIdentity(commit.oid, ACTIVE_BASELINE_PATH);
+  if (!active || !baselineIdentity || active.mode !== baselineIdentity.mode || active.blob !== baselineIdentity.blob
+    || active.sha256 !== baselineIdentity.sha256 || active.byteLength !== baselineIdentity.byteLength) {
+    errors.push("future active baseline is not the exact authorized inactive baseline bytes");
+  }
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (!status || !expectedTree || !status.bytes.equals(expectedTree.status)) errors.push("future STATUS is not the exact separately authored structural transition");
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  if (policyProjection(commit.oid) !== POLICY_PROJECTION_SHA256) errors.push("future REC-02 policy projection drifted");
+  errors.push(...workflowSecurityErrors(commit.oid));
+  errors.push(...validateProjectionArtifacts(commit.oid).errors);
 
-  const rec01Push = structuredClone(push);
-  Object.assign(rec01Push, {
-    beforeSha: "d".repeat(40),
-    changedPaths: [...REC_01_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256,
-    pushBeforeSimulationBaselineHash: SIMULATION_BASELINE_SHA256,
-    pushBeforeIsRecRatchetSuccessor: true
-  });
-  assert.deepEqual(evaluatePolicy(rec01Push).errors, []);
-  expectFailure(rec01Push, facts => { facts.pushBeforeIsRecRatchetSuccessor = false; }, "push before SHA");
-  expectFailure(rec01Push, facts => { facts.pushBeforeSimulationBaselineHash = REC_01_SIMULATION_BASELINE_SHA256; }, "push before SHA");
-  expectFailure(rec01Push, facts => { facts.changedPaths.push("README.md"); }, "one-shot REC-01 set");
+  const records = canonicalRecords(commit.tree, FUTURE_CHANGED_PATHS);
+  let manifest = null;
+  let expectedRaw = null;
+  let expectedOid = null;
+  if (records.some(record => !record)) errors.push("future REC-02 canonical manifest contains an unreadable path");
+  else {
+    manifest = canonicalManifest(records);
+    expectedRaw = canonicalRawCommit(commit.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("future REC-02 raw commit payload differs from the exact canonical frame");
+    if (commit.oid !== expectedOid) errors.push(`future REC-02 OID ${commit.oid} != independently framed ${expectedOid}`);
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: protectedMerge,
+    rawSha256: sha256(commit.bytes),
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null
+  };
+}
 
-  const lockRecordPush = structuredClone(push);
-  Object.assign(lockRecordPush, {
-    beforeSha: LOCK_RECORD_BASE_SHA,
-    changedPaths: [...LOCK_RECORD_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256
-  });
-  assert.deepEqual(evaluatePolicy(lockRecordPush).errors, []);
-  expectFailure(lockRecordPush, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
-  expectFailure(lockRecordPush, facts => { facts.changedPaths.push("README.md"); }, "one-shot lock-record set");
-  expectFailure(lockRecordPush, facts => { facts.simulationBaselineHash = SIMULATION_BASELINE_SHA256; }, "authorized replacement");
+function futureMergeEvidence(ref, protectedMerge) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== protectedMerge) {
+    return { errors: ["protected REC-02 successor is not an exact two-parent merge from the Gate A successor"] };
+  }
+  const candidate = futureEvidence(merge.parents[1], protectedMerge);
+  return mergeEvidence(merge.oid, protectedMerge, candidate);
+}
 
-  const artR2GovernancePush = structuredClone(push);
-  Object.assign(artR2GovernancePush, {
-    beforeSha: ART_R2_GOVERNANCE_BASE_SHA,
-    changedPaths: [...ART_R2_GOVERNANCE_CHANGED_PATHS],
-    simulationBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetHash: REC_RATCHET_ARTIFACT_SHA256,
-    recRatchetBaselineHash: REC_01_SIMULATION_BASELINE_SHA256,
-    recRatchetPatchHash: REC_RATCHET_PATCH_ARTIFACT_SHA256,
-    scenes41Hash: REC_01_SCENES_41_SHA256,
-    verifyScriptHash: REC_01_VERIFY_SHA256,
-    pushAfterIsArtR2GovernanceSuccessor: true,
-    artR2GovernanceDocumentHashes: { ...ART_R2_GOVERNANCE_DOCUMENT_SHA256 }
-  });
-  assert.deepEqual(evaluatePolicy(artR2GovernancePush).errors, []);
-  expectFailure(artR2GovernancePush, facts => {
-    facts.pushAfterIsArtR2GovernanceSuccessor = false;
-  }, "exact two-parent protected governance successor");
-  expectFailure(artR2GovernancePush, facts => { facts.changedPaths.push("README.md"); }, "ART-R2 governance set");
-  expectFailure(artR2GovernancePush, facts => {
-    facts.artR2GovernanceDocumentHashes["artifacts/LOCKS.md"] = "c".repeat(64);
-  }, "approved ART-R2 governance record");
+function evaluatePolicy(facts) {
+  const errors = [];
+  const notices = [
+    "NO-PUBLISH / NOT CERTIFIED remains active.",
+    "Rulesets 21051662 and 21051665, explicit bypass_actors: [], Netlify controls, and merge-time ref identity require a fresh owner-authenticated read before any separately authorized protected merge.",
+    "This workflow grants no merge, ready-for-review, rerun, deployment, release, tag, publication, certification, or external-write authority."
+  ];
+  let route = null;
+  let evidence = null;
 
-  expectFailure(push, facts => {
-    facts.ref = "refs/tags/sun-v0.30.1";
-    facts.refName = "sun-v0.30.1";
-    facts.refType = "tag";
-  }, "tag creation");
-  expectFailure(push, facts => { facts.beforeSha = "c".repeat(40); }, "push before SHA");
+  if (facts.repository !== EXPECTED_REPOSITORY) errors.push(`repository ${facts.repository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
+  if (!FULL_SHA_RE.test(facts.sha || "")) errors.push("event SHA is not a full SHA-1");
+  if (facts.checkedOutSha !== facts.sha) errors.push(`checked-out SHA ${facts.checkedOutSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
+  if (facts.refType === "tag" || (facts.ref || "").startsWith("refs/tags/")) errors.push("tag creation or evaluation is forbidden");
 
-  console.log("PASS release-policy self-test (issue #15 + REC-RATCHET-01 + REC-01 + lock-record + exact two-stage ART-R2 routes)");
+  if (facts.eventName === "pull_request") {
+    if (facts.baseRef === "main") errors.push("all pull requests to main are blocked while NO-PUBLISH is active");
+    if (facts.baseRef !== RECOVERY_BRANCH) errors.push(`pull-request base ${facts.baseRef || "<missing>"} != ${RECOVERY_BRANCH}`);
+    if (facts.prHeadRepository !== EXPECTED_REPOSITORY) errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
+    if (!FULL_SHA_RE.test(facts.prBaseSha || "") || !FULL_SHA_RE.test(facts.prHeadSha || "")) errors.push("pull-request base/head SHA is not a full SHA-1 pair");
+    if (facts.headRef === GATE_A_BRANCH) {
+      route = "rec-ratchet-02";
+      if (facts.prBaseSha !== GATE_A_BASE_SHA) errors.push(`Gate A pull-request base ${facts.prBaseSha || "<missing>"} != ${GATE_A_BASE_SHA}`);
+      evidence = candidateEvidence(facts.prHeadSha);
+      const merge = mergeEvidence(facts.sha, GATE_A_BASE_SHA, evidence);
+      errors.push(...merge.errors);
+    } else if (facts.headRef === FUTURE_BRANCH) {
+      route = "rec-02";
+      evidence = futureEvidence(facts.prHeadSha, facts.prBaseSha);
+      const merge = mergeEvidence(facts.sha, facts.prBaseSha, evidence);
+      errors.push(...merge.errors);
+    } else {
+      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an armed recovery route`);
+    }
+  } else if (facts.eventName === "push") {
+    if (facts.ref !== `refs/heads/${RECOVERY_BRANCH}` || facts.refName !== RECOVERY_BRANCH || facts.refType !== "branch") {
+      errors.push("push is not an exact protected recovery-branch event");
+    }
+    if (facts.sha !== facts.afterSha) errors.push("push event SHA differs from after SHA");
+    if (facts.beforeSha === GATE_A_BASE_SHA) {
+      route = "rec-ratchet-02-merge";
+      evidence = gateAMergeEvidence(facts.afterSha);
+      errors.push(...evidence.errors);
+    } else {
+      const base = gateAMergeEvidence(facts.beforeSha);
+      if (base.errors.length === 0) {
+        route = "rec-02-merge";
+        evidence = futureMergeEvidence(facts.afterSha, facts.beforeSha);
+        errors.push(...evidence.errors);
+      } else {
+        errors.push("push before SHA is not the one unconsumed exact recovery anchor");
+      }
+    }
+  } else {
+    errors.push(`event ${facts.eventName || "<missing>"} is not authorized`);
+  }
+
+  return { passed: errors.length === 0, errors, notices, route, evidence };
 }
 
 function environmentFromProcess() {
@@ -1091,6 +1103,7 @@ function environmentFromProcess() {
     eventName: process.env.POLICY_EVENT_NAME || "",
     repository: process.env.POLICY_REPOSITORY || "",
     sha: process.env.POLICY_SHA || "",
+    checkedOutSha: gitText(["rev-parse", "HEAD"]),
     ref: process.env.POLICY_REF || "",
     refName: process.env.POLICY_REF_NAME || "",
     refType: process.env.POLICY_REF_TYPE || "",
@@ -1104,18 +1117,416 @@ function environmentFromProcess() {
   };
 }
 
+function writeBlob(bytes) {
+  return gitText(["hash-object", "-w", "--stdin"], { input: bytes });
+}
+
+function writeRawCommit(bytes) {
+  const result = runGit(["hash-object", "--literally", "-t", "commit", "-w", "--stdin"], { input: bytes });
+  const oid = Buffer.from(result.stdout).toString("utf8").trim();
+  assert.equal(oid, gitObjectOid("commit", bytes));
+  return oid;
+}
+
+function writeRawTag(bytes) {
+  const result = runGit(["hash-object", "--literally", "-t", "tag", "-w", "--stdin"], { input: bytes });
+  const oid = Buffer.from(result.stdout).toString("utf8").trim();
+  assert.equal(oid, gitObjectOid("tag", bytes));
+  return oid;
+}
+
+function treeWithOverrides(baseRef, overrides) {
+  const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-tree-"));
+  const indexPath = join(parent, "index");
+  const env = { GIT_INDEX_FILE: indexPath };
+  runGit(["read-tree", baseRef], { env });
+  for (const [path, value] of Object.entries(overrides)) {
+    if (value === null) {
+      runGit(["update-index", "--force-remove", "--", path], { env });
+      continue;
+    }
+    const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value.bytes);
+    updateIndexBytes(indexPath, path, bytes, value.mode || "100644");
+  }
+  return gitText(["write-tree"], { env });
+}
+
+function currentCandidateFixture() {
+  const overrides = Object.fromEntries(GATE_A_CHANGED_PATHS.map(path => [path, readFileSync(resolve(ROOT, path))]));
+  const tree = treeWithOverrides(GATE_A_BASE_SHA, overrides);
+  const records = canonicalRecords(tree, GATE_A_CHANGED_PATHS);
+  assert.ok(records.every(Boolean));
+  const raw = canonicalRawCommit(tree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, records);
+  const oid = writeRawCommit(raw);
+  return { oid, tree, raw, records };
+}
+
+function genericMerge(tree, parents, label) {
+  const raw = Buffer.from([
+    `tree ${tree}`,
+    ...parents.map(parent => `parent ${parent}`),
+    `author Sunsplitter Merge Fixture <noreply@openai.com> 1787616000 -0500`,
+    `committer Sunsplitter Merge Fixture <noreply@openai.com> 1787616000 -0500`,
+    "",
+    `${label}\n`
+  ].join("\n"), "utf8");
+  return { oid: writeRawCommit(raw), raw, tree, parents };
+}
+
+function futureFixture(protectedMerge) {
+  const projected = buildFutureTree(protectedMerge);
+  const records = canonicalRecords(projected.tree, FUTURE_CHANGED_PATHS);
+  assert.ok(records.every(Boolean));
+  const raw = canonicalRawCommit(projected.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+  return { oid: writeRawCommit(raw), raw, tree: projected.tree, records };
+}
+
+function prFacts({ sha, base, head, headRef }) {
+  return {
+    eventName: "pull_request",
+    repository: EXPECTED_REPOSITORY,
+    sha,
+    checkedOutSha: sha,
+    ref: "refs/pull/999/merge",
+    refName: "999/merge",
+    refType: "branch",
+    baseRef: RECOVERY_BRANCH,
+    headRef,
+    prHeadRepository: EXPECTED_REPOSITORY,
+    prBaseSha: base,
+    prHeadSha: head,
+    beforeSha: "",
+    afterSha: ""
+  };
+}
+
+function pushFacts({ before, after }) {
+  return {
+    eventName: "push",
+    repository: EXPECTED_REPOSITORY,
+    sha: after,
+    checkedOutSha: after,
+    ref: `refs/heads/${RECOVERY_BRANCH}`,
+    refName: RECOVERY_BRANCH,
+    refType: "branch",
+    baseRef: "",
+    headRef: "",
+    prHeadRepository: "",
+    prBaseSha: "",
+    prHeadSha: "",
+    beforeSha: before,
+    afterSha: after
+  };
+}
+
+function expectPolicyFailure(facts, mutate, needle) {
+  const altered = structuredClone(facts);
+  mutate(altered);
+  const result = evaluatePolicy(altered);
+  assert.equal(result.passed, false, `policy unexpectedly accepted ${needle}`);
+  assert.ok(result.errors.some(error => error.includes(needle)), `missing ${needle}: ${result.errors.join(" | ")}`);
+}
+
+function selfTest() {
+  assert.ok(FULL_SHA256_RE.test(POLICY_PROJECTION_SHA256) && !/^0+$/.test(POLICY_PROJECTION_SHA256));
+  assert.ok(FULL_SHA256_RE.test(TRANSITION_SHA256) && !/^0+$/.test(TRANSITION_SHA256));
+  assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), POLICY_PROJECTION_SHA256);
+  assert.deepEqual(GATE_A_CHANGED_PATHS, [
+    VERIFY_WORKFLOW_PATH, STATUS_PATH, INACTIVE_BASELINE_PATH, PATCH_ARTIFACT_PATH, TRANSITION_PATH, POLICY_PATH
+  ].sort());
+  assert.equal(FUTURE_CHANGED_PATHS.length, 10);
+
+  const candidate = currentCandidateFixture();
+  const candidateEvidenceResult = candidateEvidence(candidate.oid);
+  assert.deepEqual(candidateEvidenceResult.errors, []);
+  const normalized = normalizedSimulationEvidence(candidateEvidenceResult.projectionEvidence.baseline);
+  assert.equal(normalized.core, NORMALIZED_SIMULATION_SHA256);
+  assert.deepEqual(normalized.policies, NORMALIZED_POLICY_SHA256);
+  const normalizedDrift = structuredClone(candidateEvidenceResult.projectionEvidence.baseline);
+  normalizedDrift.policies.random.totalSteps += 1;
+  assert.notEqual(normalizedSimulationEvidence(normalizedDrift).core, NORMALIZED_SIMULATION_SHA256);
+  assert.deepEqual(candidateEvidenceResult.artEvidence.errors, []);
+  assert.equal(candidateEvidenceResult.artEvidence.combinedTree, ART_R2_COMBINED_TREE);
+  assert.throws(
+    () => applyArtVerifierTransform(fileIdentity(GATE_A_BASE_SHA, "scripts/verify.mjs").bytes.toString("utf8").replace("./simulate.mjs", "./simulate-drift.mjs")),
+    /ART import anchor count is not exactly one/
+  );
+  const synthetic = genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid], "Synthetic Gate A merge fixture");
+  const candidatePr = prFacts({ sha: synthetic.oid, base: GATE_A_BASE_SHA, head: candidate.oid, headRef: GATE_A_BRANCH });
+  assert.deepEqual(evaluatePolicy(candidatePr).errors, []);
+  const candidatePush = pushFacts({ before: GATE_A_BASE_SHA, after: synthetic.oid });
+  assert.deepEqual(evaluatePolicy(candidatePush).errors, []);
+
+  let rejected = 0;
+  const rejectRaw = (bytes, label) => {
+    const oid = writeRawCommit(bytes);
+    const result = candidateEvidence(oid);
+    assert.ok(result.errors.length > 0, `altered raw commit accepted: ${label}`);
+    rejected += 1;
+  };
+  const validText = candidate.raw.toString("utf8");
+  const manifestLines = canonicalManifest(candidate.records).trimEnd().split("\n");
+  const swappedManifest = [manifestLines[1], manifestLines[0], ...manifestLines.slice(2)].join("\n") + "\n";
+  const canonicalManifestText = canonicalManifest(candidate.records);
+  const namedRawMutations = [
+    [candidate.raw.subarray(0, candidate.raw.length - 1), "missing terminal LF"],
+    [Buffer.concat([candidate.raw, Buffer.from("\n")]), "extra terminal LF"],
+    [Buffer.from(validText.replaceAll("\n", "\r\n")), "CRLF frame"],
+    [Buffer.from(validText.replace(GATE_A_COMMIT_TITLE, `${GATE_A_COMMIT_TITLE}.`)), "title"],
+    [Buffer.from(validText.replace(NO_PUBLISH_TOKEN, "NO-PUBLISH / CERTIFIED")), "certification token"],
+    [Buffer.from(validText.replace("Canonical manifest", "canonical manifest")), "manifest header"],
+    [Buffer.from(validText.replace("author Sunsplitter", "author Altered")), "author identity"],
+    [Buffer.from(validText.replace("committer Sunsplitter", "committer Altered")), "committer identity"],
+    [Buffer.from(validText.replace("1787443200", "1787443201")), "author timestamp"],
+    [Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}`, `author ${GATE_A_AUTHOR.replace("-0500", "+0000")}`)), "author timezone"],
+    [Buffer.from(validText.replace(`committer ${GATE_A_AUTHOR}`, `committer ${GATE_A_AUTHOR.replace("1787443200", "1787443201")}`)), "committer timestamp"],
+    [Buffer.from(validText.replace(`committer ${GATE_A_AUTHOR}`, `committer ${GATE_A_AUTHOR.replace("-0500", "+0000")}`)), "committer timezone"],
+    [Buffer.from(validText.replaceAll("-0500", "+0000")), "timezone"],
+    [Buffer.from(validText.replace(`parent ${GATE_A_BASE_SHA}`, `parent ${RECOVERY_BASE_SHA}`)), "parent"],
+    [Buffer.from(validText.replace(`parent ${GATE_A_BASE_SHA}`, `parent ${GATE_A_BASE_SHA}\nparent ${RECOVERY_BASE_SHA}`)), "second parent"],
+    [Buffer.from(validText.replace(`tree ${candidate.tree}`, `tree ${GATE_A_BASE_TREE}`)), "tree"],
+    [Buffer.from(validText.replace("author ", "encoding UTF-8\nauthor ")), "extra header"],
+    [Buffer.from(validText.replace("author ", "x-recovery counterfeit\nauthor ")), "extra generic header"],
+    [Buffer.from(validText.replace("author ", "gpgsig counterfeit\nauthor ")), "signature header"],
+    [Buffer.from(validText.replace("author ", "gpgsig counterfeit\n continuation\nauthor ")), "multiline signature header"],
+    [Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}\ncommitter ${GATE_A_AUTHOR}`, `committer ${GATE_A_AUTHOR}\nauthor ${GATE_A_AUTHOR}`)), "header order"],
+    [Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}\n`, "")), "missing author header"],
+    [Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}\n`, `author ${GATE_A_AUTHOR}\nauthor ${GATE_A_AUTHOR}\n`)), "duplicate author header"],
+    [Buffer.from(validText.replace("100644", "100755")), "manifest mode"],
+    [Buffer.from(validText.replace(candidate.records[0].blob, "f".repeat(40))), "manifest blob"],
+    [Buffer.from(validText.replace(candidate.records[0].sha256, "f".repeat(64))), "manifest SHA-256"],
+    [Buffer.from(validText.replace(candidate.records[0].path, `${candidate.records[0].path}.bak`)), "manifest path"],
+    [Buffer.from(validText.replace(canonicalManifestText, canonicalManifestText.replace(`${manifestLines[0]}\n`, ""))), "missing manifest entry"],
+    [Buffer.from(validText.replace(canonicalManifestText, `${manifestLines[0]}\n${canonicalManifestText}`)), "duplicate manifest entry"],
+    [Buffer.from(validText.replace(canonicalManifestText, `${canonicalManifestText}100644 ${"f".repeat(40)} ${"e".repeat(64)}\tartifacts/EXTRA\n`)), "extra manifest entry"],
+    [Buffer.from(validText.replace(canonicalManifestText, swappedManifest)), "reordered manifest"],
+    [Buffer.from(validText.replace(`committer ${GATE_A_AUTHOR}\n\n${GATE_A_COMMIT_TITLE}`, `committer ${GATE_A_AUTHOR}\n${GATE_A_COMMIT_TITLE}`)), "missing header-message separator"],
+    [Buffer.from(validText.replace(`committer ${GATE_A_AUTHOR}\n\n${GATE_A_COMMIT_TITLE}`, `committer ${GATE_A_AUTHOR}\n\n\n${GATE_A_COMMIT_TITLE}`)), "additional header-message separator"],
+    [Buffer.from(validText.replace("\n\n" + NO_PUBLISH_TOKEN, "\n" + NO_PUBLISH_TOKEN)), "message boundary"]
+  ];
+  for (const [bytes, label] of namedRawMutations) rejectRaw(bytes, label);
+  const stride = Math.max(1, Math.floor(candidate.raw.length / 64));
+  for (let index = 0; index < candidate.raw.length && rejected < 84; index += stride) {
+    const altered = Buffer.from(candidate.raw);
+    altered[index] = altered[index] === 0x78 ? 0x79 : 0x78;
+    rejectRaw(altered, `byte ${index}`);
+  }
+
+  const alteredStatusBytes = Buffer.concat([fileIdentity(candidate.tree, STATUS_PATH).bytes, Buffer.from("\n`release_state: PUBLISH`\n")]);
+  const alteredStatusTree = treeWithOverrides(candidate.tree, { [STATUS_PATH]: alteredStatusBytes });
+  const alteredStatusRecords = canonicalRecords(alteredStatusTree, GATE_A_CHANGED_PATHS);
+  rejectRaw(canonicalRawCommit(alteredStatusTree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, alteredStatusRecords), "self-consistent altered STATUS");
+  const alteredWorkflow = Buffer.concat([fileIdentity(candidate.tree, VERIFY_WORKFLOW_PATH).bytes, Buffer.from("\n  workflow_dispatch:\n")]);
+  const alteredWorkflowTree = treeWithOverrides(candidate.tree, { [VERIFY_WORKFLOW_PATH]: alteredWorkflow });
+  const alteredWorkflowRecords = canonicalRecords(alteredWorkflowTree, GATE_A_CHANGED_PATHS);
+  rejectRaw(canonicalRawCommit(alteredWorkflowTree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, alteredWorkflowRecords), "self-consistent altered workflow");
+
+  let structuredRejected = 0;
+  const rejectCandidateTree = (tree, label, needle) => {
+    const records = canonicalRecords(tree, GATE_A_CHANGED_PATHS);
+    const raw = canonicalRawCommit(
+      tree,
+      GATE_A_BASE_SHA,
+      GATE_A_AUTHOR,
+      GATE_A_COMMIT_TITLE,
+      records.every(Boolean) ? records : candidate.records
+    );
+    const result = candidateEvidence(writeRawCommit(raw));
+    assert.ok(result.errors.length > 0, `self-consistent altered candidate accepted: ${label}`);
+    if (needle) assert.ok(result.errors.some(error => error.includes(needle)), `missing ${needle} for ${label}: ${result.errors.join(" | ")}`);
+    structuredRejected += 1;
+  };
+
+  rejectCandidateTree(
+    treeWithOverrides(candidate.tree, {
+      [GATE_A_CHANGED_PATHS[0]]: { bytes: fileIdentity(candidate.tree, GATE_A_CHANGED_PATHS[0]).bytes, mode: "100755" }
+    }),
+    "executable authorized path",
+    "candidate mode"
+  );
+  rejectCandidateTree(treeWithOverrides(candidate.tree, { [GATE_A_CHANGED_PATHS[0]]: null }), "missing authorized path", "candidate path is missing");
+  rejectCandidateTree(treeWithOverrides(candidate.tree, { "artifacts/UNAUTHORIZED.md": Buffer.from("unauthorized\n") }), "extra path", "six-path Gate A scope");
+
+  const preservedPaths = [
+    "AGENTS.md",
+    RELEASE_WORKFLOW_PATH,
+    "artifacts/LOCKS.md",
+    "artifacts/ROADMAP.md",
+    "artifacts/REC-RATCHET-01_BASELINE_TRANSITION.md",
+    ACTIVE_BASELINE_PATH,
+    "scripts/simulate.mjs",
+    "scripts/verify.mjs",
+    "src/scenes-01.js",
+    "images/abandoned_sealed.jpg",
+    "VERSION.md",
+    "index.html",
+    "netlify.toml"
+  ];
+  for (const path of preservedPaths) {
+    const original = fileIdentity(candidate.tree, path);
+    assert.ok(original, `missing preserved fixture path ${path}`);
+    rejectCandidateTree(
+      treeWithOverrides(candidate.tree, { [path]: Buffer.concat([original.bytes, Buffer.from("\n")]) }),
+      `preserved surface ${path}`,
+      "six-path Gate A scope"
+    );
+  }
+  const alteredPolicyTree = treeWithOverrides(candidate.tree, {
+    [POLICY_PATH]: Buffer.concat([fileIdentity(candidate.tree, POLICY_PATH).bytes, Buffer.from("\n")])
+  });
+  rejectCandidateTree(alteredPolicyTree, "self-consistent altered policy source", "policy projection");
+
+  const rejectWorkflowMutation = (mutate, needle) => {
+    const source = fileIdentity(candidate.tree, VERIFY_WORKFLOW_PATH).bytes.toString("utf8");
+    const bytes = Buffer.from(mutate(source), "utf8");
+    const tree = treeWithOverrides(candidate.tree, { [VERIFY_WORKFLOW_PATH]: bytes });
+    const records = canonicalRecords(tree, GATE_A_CHANGED_PATHS);
+    const oid = writeRawCommit(canonicalRawCommit(tree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, records));
+    const result = candidateEvidence(oid);
+    assert.ok(result.errors.some(error => error.includes(needle)), `workflow fixture missing ${needle}: ${result.errors.join(" | ")}`);
+    structuredRejected += 1;
+  };
+  rejectWorkflowMutation(text => text.replace("contents: read", "contents: read\n  actions: write"), "forbidden permission actions: write");
+  rejectWorkflowMutation(text => text.replace("contents: read", "contents: write"), "forbidden permission contents: write");
+  rejectWorkflowMutation(text => `${text}\n    permissions: write-all\n`, "aggregate write-all/read-all");
+  rejectWorkflowMutation(text => text.replace("  verify:\n", "  verify:\n    permissions: { contents: write }\n"), "job-level permissions are forbidden");
+  rejectWorkflowMutation(text => text.replace("  pull_request:\n", "  release:\n    types: [published]\n  pull_request:\n"), "privileged, manual, scheduled, release, or deployment trigger");
+  rejectWorkflowMutation(text => text.replace("  push:\n    branches:\n", "  push:\n    tags:\n      - '*'\n    branches:\n"), "tag or path filters");
+  rejectWorkflowMutation(text => `${text}\n    environment: production\n`, "deployment environment");
+  rejectWorkflowMutation(text => `${text}\n      - run: netlify deploy --prod\n`, "mutation, release, deploy, or upload command");
+  rejectWorkflowMutation(text => `${text}\n      - run: npm publish\n`, "mutation, release, deploy, or upload command");
+  rejectWorkflowMutation(text => `${text}\n      - run: git push origin main\n`, "mutation, release, deploy, or upload command");
+  rejectWorkflowMutation(text => `${text}\n      - run: gh release create sun-v0.30.1\n`, "mutation, release, deploy, or upload command");
+  rejectWorkflowMutation(text => `${text}\n      - run: itch.io upload build.zip\n`, "mutation, release, deploy, or upload command");
+  rejectWorkflowMutation(text => `${text}\n      - run: echo \"${"${{ secrets.TOKEN }}"}\"\n`, "secret access");
+  rejectWorkflowMutation(text => `${text}\n      - uses: actions/upload-artifact@${"a".repeat(40)}\n`, "unapproved or mutable action");
+  rejectWorkflowMutation(
+    text => text.replace(
+      "      - name: Use exact Node.js version\n",
+      `      - name: Duplicate checkout without safe options\n        uses: ${CHECKOUT_ACTION}\n\n      - name: Use exact Node.js version\n`
+    ),
+    "must contain each required immutable action exactly once"
+  );
+
+  const extraWorkflowTree = treeWithOverrides(candidate.tree, {
+    ".github/workflows/unauthorized.yml": Buffer.from("name: Unauthorized workflow\n", "utf8")
+  });
+  const extraWorkflowRecords = canonicalRecords(extraWorkflowTree, GATE_A_CHANGED_PATHS);
+  const extraWorkflowOid = writeRawCommit(canonicalRawCommit(
+    extraWorkflowTree,
+    GATE_A_BASE_SHA,
+    GATE_A_AUTHOR,
+    GATE_A_COMMIT_TITLE,
+    extraWorkflowRecords
+  ));
+  assert.ok(candidateEvidence(extraWorkflowOid).errors.some(error => error.includes("workflow allowlist mismatch")));
+  structuredRejected += 1;
+
+  const tagBytes = Buffer.from([
+    `object ${candidate.oid}`,
+    "type commit",
+    "tag rec-ratchet-02-counterfeit",
+    "tagger Sunsplitter Tag Fixture <noreply@openai.com> 1787616000 -0500",
+    "",
+    "Annotated tag must not peel into an accepted candidate.\n"
+  ].join("\n"), "utf8");
+  const annotatedTag = writeRawTag(tagBytes);
+  assert.ok(candidateEvidence(annotatedTag).errors.some(error => error.includes("not an independently framed commit object")));
+  structuredRejected += 1;
+
+  expectPolicyFailure(candidatePr, facts => { facts.repository = "attacker/Sunsplitter"; }, "repository attacker/Sunsplitter");
+  expectPolicyFailure(candidatePr, facts => { facts.baseRef = "main"; }, "pull requests to main");
+  expectPolicyFailure(candidatePr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route");
+  expectPolicyFailure(candidatePr, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
+  expectPolicyFailure(candidatePr, facts => { facts.checkedOutSha = candidate.oid; }, "checked-out SHA");
+  expectPolicyFailure(candidatePr, facts => { facts.ref = "refs/tags/sun-v0.30.1"; facts.refType = "tag"; }, "tag creation");
+
+  const rejectSyntheticTopology = (fixture, label) => {
+    const facts = structuredClone(candidatePr);
+    facts.sha = fixture.oid;
+    facts.checkedOutSha = fixture.oid;
+    const result = evaluatePolicy(facts);
+    assert.equal(result.passed, false, `synthetic topology accepted: ${label}`);
+    structuredRejected += 1;
+  };
+  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA], "one-parent squash fixture"), "one-parent squash");
+  rejectSyntheticTopology(genericMerge(candidate.tree, [candidate.oid, GATE_A_BASE_SHA], "swapped parents fixture"), "swapped parents");
+  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid, RECOVERY_BASE_SHA], "octopus fixture"), "octopus merge");
+  rejectSyntheticTopology(genericMerge(GATE_A_BASE_TREE, [GATE_A_BASE_SHA, candidate.oid], "wrong tree fixture"), "wrong merge tree");
+  rejectSyntheticTopology({ oid: candidate.oid }, "ticket head presented as squash checkout");
+
+  const rebasedRaw = canonicalRawCommit(candidate.tree, RECOVERY_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, candidate.records);
+  const rebasedHead = writeRawCommit(rebasedRaw);
+  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, rebasedHead], "rebased head fixture"), "rebased equivalent head");
+  const alternateRaw = Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}`, `author Alternate Build <noreply@openai.com> 1787443200 -0500`));
+  const alternateHead = writeRawCommit(alternateRaw);
+  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, alternateHead], "alternate head fixture"), "semantically equivalent alternate head");
+  const repeatedGateASuccessor = genericMerge(candidate.tree, [synthetic.oid, candidate.oid], "repeated Gate A head fixture");
+  assert.equal(evaluatePolicy(pushFacts({ before: synthetic.oid, after: repeatedGateASuccessor.oid })).passed, false);
+  structuredRejected += 1;
+
+  const protectedMerge = synthetic.oid;
+  const future = futureFixture(protectedMerge);
+  const futureSynthetic = genericMerge(future.tree, [protectedMerge, future.oid], "Synthetic REC-02 merge fixture");
+  const futurePr = prFacts({ sha: futureSynthetic.oid, base: protectedMerge, head: future.oid, headRef: FUTURE_BRANCH });
+  assert.deepEqual(evaluatePolicy(futurePr).errors, []);
+  assert.deepEqual(evaluatePolicy(pushFacts({ before: protectedMerge, after: futureSynthetic.oid })).errors, []);
+
+  const futureStatus = fileIdentity(future.tree, STATUS_PATH).bytes;
+  const futureStatusText = futureStatus.toString("utf8");
+  assert.match(futureStatusText, /`updated_utc: 2026-08-24`/);
+  assert.match(futureStatusText, new RegExp(`governed_recovery_successor_sha: ${protectedMerge}`));
+  assert.match(futureStatusText, new RegExp(`active_simulation_baseline_sha256: ${INACTIVE_BASELINE_SHA256}`));
+  assert.match(futureStatusText, /REC-RATCHET-02 landed at exact protected successor/);
+  assert.match(futureStatusText, /After the REC-02 draft PR exists/);
+  assert.doesNotMatch(futureStatusText, /REC-02 source implementation remains inactive/);
+  assert.doesNotMatch(futureStatusText, /After the REC-RATCHET-02 draft PR exists/);
+  const driftFutureTree = treeWithOverrides(future.tree, { [STATUS_PATH]: Buffer.concat([futureStatus, Buffer.from("\n")]) });
+  const driftFutureRecords = canonicalRecords(driftFutureTree, FUTURE_CHANGED_PATHS);
+  const driftFutureOid = writeRawCommit(canonicalRawCommit(driftFutureTree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, driftFutureRecords));
+  const driftEvidence = futureEvidence(driftFutureOid, protectedMerge);
+  assert.ok(driftEvidence.errors.some(error => error.includes("tree") || error.includes("STATUS")));
+  structuredRejected += 1;
+  const extraParentRaw = Buffer.from(future.raw.toString("utf8").replace(`parent ${protectedMerge}`, `parent ${protectedMerge}\nparent ${GATE_A_BASE_SHA}`));
+  assert.ok(futureEvidence(writeRawCommit(extraParentRaw), protectedMerge).errors.length > 0);
+  structuredRejected += 1;
+  const futureMergeVariants = [
+    genericMerge(future.tree, [protectedMerge], "future one-parent squash fixture"),
+    genericMerge(future.tree, [future.oid, protectedMerge], "future swapped parents fixture"),
+    genericMerge(future.tree, [protectedMerge, future.oid, GATE_A_BASE_SHA], "future octopus fixture"),
+    genericMerge(candidate.tree, [protectedMerge, future.oid], "future wrong tree fixture")
+  ];
+  for (const fixture of futureMergeVariants) {
+    const result = evaluatePolicy(pushFacts({ before: protectedMerge, after: fixture.oid }));
+    assert.equal(result.passed, false, "invalid future merge topology was accepted");
+    structuredRejected += 1;
+  }
+  const consumedPr = prFacts({ sha: futureSynthetic.oid, base: futureSynthetic.oid, head: future.oid, headRef: FUTURE_BRANCH });
+  assert.equal(evaluatePolicy(consumedPr).passed, false);
+  structuredRejected += 1;
+  const consumedPush = pushFacts({ before: futureSynthetic.oid, after: futureSynthetic.oid });
+  assert.equal(evaluatePolicy(consumedPush).passed, false);
+  structuredRejected += 1;
+  const repeatedFutureSuccessor = genericMerge(future.tree, [futureSynthetic.oid, future.oid], "repeated REC-02 head fixture");
+  assert.equal(evaluatePolicy(pushFacts({ before: futureSynthetic.oid, after: repeatedFutureSuccessor.oid })).passed, false);
+  structuredRejected += 1;
+
+  assert.ok(rejected >= 84, `only ${rejected} raw adversarial commits were rejected`);
+  assert.ok(structuredRejected >= 40, `only ${structuredRejected} structured adversarial fixtures were rejected`);
+  console.log(`PASS release-policy self-test — ${rejected} raw-frame and ${structuredRejected} structured adversarial fixtures rejected; Gate A and one self-consuming REC-02 route accepted; NO-PUBLISH remains active`);
+  console.log(`FIXTURE gate-a-head=${candidate.oid} tree=${candidate.tree} synthetic=${synthetic.oid}`);
+  console.log(`FIXTURE future-head=${future.oid} tree=${future.tree} synthetic=${futureSynthetic.oid}`);
+}
+
 function taskForRoute(route) {
-  if (route === "rec-01") return "REC-01/#13";
-  if (route === "rec-ratchet") return "REC-RATCHET-01";
-  if (route === "lock-record") return "LOCK-RECORD-R1/L-025-L-028";
-  if (route === "art-r2-governance") return "ART-INTEGRATION-R2/GOVERNANCE";
-  if (route === "art-r2-implementation") return "ART-INTEGRATION-R2/55-PLATE-DRAFT";
-  return "PIPE-BOOT-R1/#15";
+  if (route?.startsWith("rec-ratchet-02")) return "REC-RATCHET-02/#24";
+  if (route?.startsWith("rec-02")) return "REC-02/#24";
+  return "GOVERNED-RECOVERY";
 }
 
 function writeSummary(facts, result) {
+  if (!process.env.GITHUB_STEP_SUMMARY) return;
   const source = (facts.sha || "unknown").slice(0, 7);
-  const task = taskForRoute(result.route);
   const lines = [
     "## Governed recovery release policy",
     "",
@@ -1123,14 +1534,12 @@ function writeSummary(facts, result) {
     `- PR head SHA: \`${facts.prHeadSha || "n/a"}\``,
     `- PR base SHA: \`${facts.prBaseSha || facts.beforeSha || "n/a"}\``,
     `- Result: **${result.passed ? "PASS" : "FAIL"}**`,
-    `- Source declaration: \`SOURCE ${source} · RUNTIME ${source} · TASK ${task} · MODE verification\``,
-    "",
-    "### Platform controls still requiring repository administration",
+    `- Source declaration: \`SOURCE ${source} · RUNTIME ${source} · TASK ${taskForRoute(result.route)} · MODE verification\``,
     "",
     ...result.notices.map(notice => `- ${notice}`)
   ];
   if (result.errors.length) lines.push("", "### Failures", "", ...result.errors.map(error => `- ${error}`));
-  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
+  appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 }
 
 function main() {
@@ -1138,27 +1547,25 @@ function main() {
     selfTest();
     return;
   }
-  if (process.argv.length !== 2) {
-    throw new Error("Usage: node scripts/release-policy.mjs [--self-test]");
+  if (process.argv.length === 3 && process.argv[2] === "--projection") {
+    console.log(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))));
+    return;
   }
-
-  const environment = environmentFromProcess();
-  const facts = readRepositoryFacts(environment);
+  if (process.argv.length !== 2) throw new Error("Usage: node scripts/release-policy.mjs [--self-test|--projection]");
+  const facts = environmentFromProcess();
   const result = evaluatePolicy(facts);
-  const shortSha = facts.sha.slice(0, 7);
+  const shortSha = (facts.sha || "unknown").slice(0, 7);
   console.log(`SOURCE ${shortSha} · RUNTIME ${shortSha} · TASK ${taskForRoute(result.route)} · MODE verification`);
-  console.log(`exact tested SHA: ${facts.sha}`);
+  console.log(`exact tested SHA: ${facts.sha || "missing"}`);
   if (facts.prHeadSha) console.log(`pull-request head SHA: ${facts.prHeadSha}`);
   if (facts.prBaseSha) console.log(`pull-request base SHA: ${facts.prBaseSha}`);
-  console.log(`changed paths (${facts.changedPaths.length}): ${facts.changedPaths.join(", ")}`);
   result.notices.forEach(notice => console.log(`NOTICE ${notice}`));
   writeSummary(facts, result);
-
   if (!result.passed) {
     result.errors.forEach(error => console.error(`FAIL ${error}`));
     process.exitCode = 1;
   } else {
-    console.log("PASS governed recovery release policy; NO-PUBLISH remains active");
+    console.log("PASS governed recovery release policy; NO-PUBLISH / NOT CERTIFIED remains active");
   }
 }
 

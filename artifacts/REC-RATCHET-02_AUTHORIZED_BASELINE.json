@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "certification": "NO-PUBLISH / NOT CERTIFIED",
+  "purpose": "Inactive exact REC-02 simulation baseline authorized by TEMP-EXACT-HEAD-RECOVERY-GATE-R2-A. It records closure of the nine governed V1 zero-exit defects while preserving V4/V5 as known unresolved evidence, not release acceptance.",
+  "provenance": {
+    "dispatchIssue": 15,
+    "dispatchBaseSha": "d7728f7ea6f6ee3f4966d73dc6316c3c26491f6e",
+    "runtimeBaselineSha": "e4f84409759760d31fcf47b8a227802a61421f51",
+    "expectedSceneCount": 222,
+    "authorizationIssue": 24,
+    "gateABaseSha": "23951012655b0037a55e82c755b66dd4d852f20b",
+    "gateABaseTree": "96829ad0e01619f56bed2121a666645b3f9b5259",
+    "transition": "REC-02",
+    "authorizedBy": "Manraj",
+    "authorizedDate": "2026-08-22",
+    "repair": "L-021 exact nine-scene governed zero-exit closure"
+  },
+  "config": {
+    "seed": 20260817,
+    "runs": 2000,
+    "startRun": 0,
+    "shardSize": 500,
+    "maxSteps": 600,
+    "policies": [
+      "random",
+      "cheapest",
+      "priciest"
+    ]
+  },
+  "evidence": {
+    "repetitions": 2,
+    "exactJsonOutputSha256": [
+      "f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d",
+      "f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d"
+    ],
+    "normalizedCoreSha256": "c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08",
+    "normalizedPolicySha256": {
+      "random": "13c043596cd756badc06844d72e0b4575e4470fe2947e5b46a68018230c1e385",
+      "cheapest": "0eb8095881dadec2f947bf3ebe05139eb7c2b91be75151273171681bd9a6cdcd",
+      "priciest": "38b752e6b7194da98368ef1e11e9389d710e6915859eed4a53d889efd94ef05a"
+    }
+  },
+  "policies": {
+    "random": {
+      "runs": 2000,
+      "endings": 2000,
+      "incomplete": 0,
+      "errors": 0,
+      "stepLimits": 0,
+      "totalSteps": 191502,
+      "endingCounts": {
+        "Fracture": 589,
+        "The Living Ship": 561,
+        "Still Burning": 523,
+        "The Long Dark": 138,
+        "The Quiet Ship": 82,
+        "Landfall": 57,
+        "The Yellow Circle": 50
+      },
+      "invariantTotals": {
+        "V1": 0,
+        "V4": 191,
+        "V5": 160
+      },
+      "invariantRules": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared": 191
+        },
+        "V5": {
+          "landfall_without_final_hold": 47,
+          "abandoned_course_reported_locked": 113
+        }
+      },
+      "invariantScenes": {
+        "V1": {},
+        "V4": {
+          "final_choice": 191
+        },
+        "V5": {
+          "ending_check": 160
+        }
+      },
+      "invariantFingerprints": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared@final_choice": 191
+        },
+        "V5": {
+          "landfall_without_final_hold@ending_check": 47,
+          "abandoned_course_reported_locked@ending_check": 113
+        }
+      }
+    },
+    "cheapest": {
+      "runs": 2000,
+      "endings": 2000,
+      "incomplete": 0,
+      "errors": 0,
+      "stepLimits": 0,
+      "totalSteps": 191908,
+      "endingCounts": {
+        "Landfall": 1895,
+        "Still Burning": 105
+      },
+      "invariantTotals": {
+        "V1": 0,
+        "V4": 489,
+        "V5": 3895
+      },
+      "invariantRules": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared": 489
+        },
+        "V5": {
+          "landfall_without_final_hold": 1895,
+          "abandoned_course_reported_locked": 2000
+        }
+      },
+      "invariantScenes": {
+        "V1": {},
+        "V4": {
+          "final_choice": 489
+        },
+        "V5": {
+          "ending_check": 3895
+        }
+      },
+      "invariantFingerprints": {
+        "V1": {},
+        "V4": {
+          "comfort_fuel_cost_not_declared@final_choice": 489
+        },
+        "V5": {
+          "landfall_without_final_hold@ending_check": 1895,
+          "abandoned_course_reported_locked@ending_check": 2000
+        }
+      }
+    },
+    "priciest": {
+      "runs": 2000,
+      "endings": 2000,
+      "incomplete": 0,
+      "errors": 0,
+      "stepLimits": 0,
+      "totalSteps": 197168,
+      "endingCounts": {
+        "Fracture": 1999,
+        "The Living Ship": 1
+      },
+      "invariantTotals": {
+        "V1": 0,
+        "V4": 0,
+        "V5": 0
+      },
+      "invariantRules": {
+        "V1": {},
+        "V4": {},
+        "V5": {}
+      },
+      "invariantScenes": {
+        "V1": {},
+        "V4": {},
+        "V5": {}
+      },
+      "invariantFingerprints": {
+        "V1": {},
+        "V4": {},
+        "V5": {}
+      }
+    }
+  }
+}
