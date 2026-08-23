@@ -53,13 +53,15 @@ jobs:
           test -z "$(git status --porcelain)"
           task_id="GOVERNED-RECOVERY"
           case "${PR_HEAD_REF:-}" in
+            ticket/0.30.1-rec-ratchet-02) task_id="REC-RATCHET-02" ;;
+            ticket/0.30.1-rec-02-r1) task_id="REC-02/#24" ;;
             ticket/0.30.1-rec-ratchet-01) task_id="REC-RATCHET-01" ;;
             ticket/0.30.1-rec-01-r1) task_id="REC-01/#13" ;;
             "")
-              if [ "${PUSH_BEFORE_SHA:-}" = "78a64c7a180a34e786da3eefac42a06f50703bab" ]; then
+              if [ "${PUSH_BEFORE_SHA:-}" = "23951012655b0037a55e82c755b66dd4d852f20b" ]; then
+                task_id="REC-RATCHET-02"
+              elif [ "${PUSH_BEFORE_SHA:-}" = "78a64c7a180a34e786da3eefac42a06f50703bab" ]; then
                 task_id="REC-RATCHET-01"
-              else
-                task_id="REC-01/#13"
               fi
               ;;
           esac
