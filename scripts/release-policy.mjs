@@ -24,14 +24,22 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
 const GATE_A_BRANCH = "ticket/0.30.1-rec-ratchet-02";
-const FUTURE_BRANCH = "ticket/0.30.1-rec-02-r1";
+const POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r1";
+const FUTURE_BRANCH = "ticket/0.30.1-rec-02-r2";
+const AUTHORIZED_PATCH_TARGET_BRANCH = "ticket/0.30.1-rec-02-r1";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const GATE_A_BASE_SHA = "23951012655b0037a55e82c755b66dd4d852f20b";
 const GATE_A_BASE_TREE = "96829ad0e01619f56bed2121a666645b3f9b5259";
+const GATE_A_HEAD_SHA = "f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab";
+const GATE_A_HEAD_TREE = "f458b021bc9a9a36cb28c24fd7dee165c2bbaac5";
+const GATE_A_HEAD_RAW_SHA256 = "4835344d32a516c8d68df1c8d18f51313297f04c7de2ac5ce4628c356fb36376";
+const GATE_A_MERGE_SHA = "31aca17b807c4dc8edef3683e30d5fefdd47ad7a";
+const GATE_A_MERGE_TREE = "f458b021bc9a9a36cb28c24fd7dee165c2bbaac5";
 const ACTIVE_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const INACTIVE_BASELINE_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json";
 const PATCH_ARTIFACT_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json";
 const TRANSITION_PATH = "artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md";
+const POLICY_CORRECTION_RECORD_PATH = "artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md";
 const STATUS_PATH = "artifacts/PROJECT_STATUS.md";
 const POLICY_PATH = "scripts/release-policy.mjs";
 const VERIFY_WORKFLOW_PATH = ".github/workflows/verify.yml";
@@ -39,11 +47,14 @@ const RELEASE_WORKFLOW_PATH = ".github/workflows/release-policy.yml";
 
 const NO_PUBLISH_TOKEN = "NO-PUBLISH / NOT CERTIFIED";
 const GATE_A_COMMIT_TITLE = "REC-RATCHET-02: pin exact REC-02 recovery projection";
+const POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: correct Stage 2 policy self-test";
 const FUTURE_COMMIT_TITLE = "REC-02: apply authorized zero-exit projection";
 const GATE_A_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787443200 -0500";
-const FUTURE_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787529600 -0500";
+const POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787529600 -0500";
+const FUTURE_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787616000 -0500";
 
-const POLICY_PROJECTION_SHA256 = "02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5";
+const GATE_A_POLICY_PROJECTION_SHA256 = "02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5";
+const POLICY_PROJECTION_SHA256 = "123633dcc49d4bf45650a700a2d539af03a4a95f14fa24a5140f92d9caef97da";
 const TRANSITION_SHA256 = "a01180e9d5f917e47eafb9b65eea3c1c045e325b7b97690cfd8bfbef0110ba2a";
 
 const VERIFY_WORKFLOW_SHA256 = "7f0047c7de5dd862083fbbd6c7cc56d018700a536f88e2c0904a7de922184cbd";
@@ -51,6 +62,12 @@ const RELEASE_WORKFLOW_SHA256 = "2d0c146aaae977c61cbfa7c96642f99759dfacefb142f05
 const GATE_A_STATUS_SHA256 = "e84a750b32350c0a6cfecfd60c4b1a9b6e44a22f57ed5fdeb9c5afa941d56d33";
 const INACTIVE_BASELINE_SHA256 = "048ee211f4708252b8609d475b47d3b6c05e85bd1d8bd1ae9c44f9229b659c20";
 const PATCH_ARTIFACT_SHA256 = "b9d97f57ef5ab755db2509789ebee2dda129460f7ce6a7934a71e7ebc5b04eb3";
+const POLICY_CORRECTION_STATUS_SHA256 = "88cddefa8e713e816b2505cdb769dc16bd67724db4819f3510530d4f87f58c22";
+const POLICY_CORRECTION_STATUS_BLOB = "332de45148b6217119e2ca0d298ee54cbc6bb387";
+const POLICY_CORRECTION_STATUS_BYTES = 17258;
+const POLICY_CORRECTION_RECORD_SHA256 = "db434f6889dc1760c2620381fd13af42b4b9ce38c2c2c75700f43ec3d493f0f5";
+const POLICY_CORRECTION_RECORD_BLOB = "501c49536176b523450a799d17c83f58b08ef607";
+const POLICY_CORRECTION_RECORD_BYTES = 10633;
 const ACTIVE_BASELINE_INPUT_SHA256 = "0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2";
 const FUNCTIONAL_TREE = "57e1439741965bf290cd6daf305c551e2f104182";
 const FUNCTIONAL_MANIFEST_SHA256 = "3f10dbc636fadc942ee17dd6356ff7be023a34a5347c147d2c7631132b0fe48d";
@@ -79,6 +96,12 @@ const ART_R2_COMBINED_VERIFY_BLOB = "b1cbd17b732c7c3b8d72d123dbed7874791f5906";
 const ART_R2_COMBINED_TREE = "558a4d6d1fb491d6bd7cd3c07f0482ad6e35a482";
 const ART_R2_COMBINED_MANIFEST_SHA256 = "0973fcfeaab8370fd5e7e36ddef089b6f7eedaa4ed386b5e6f2bf3a83c116609";
 const ART_R2_TRANSFORM_FUNCTION_SHA256 = "aedfce193f9fe9ed3ec975b848cea82d2aac70943dad2ea2d628b63ed40c51e7";
+const FAILED_REC_02_R1_HEAD = "bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e";
+const FAILED_REC_02_R1_TREE = "34fa0adbfb027e01448a1a0771c8ff5af3997e26";
+const FAILED_POLICY_CORRECTION_C1_HEAD = "b12ff37ef9153a509827d914b825dd51ec6de0ca";
+const FAILED_POLICY_CORRECTION_C1_TREE = "14dcaa3fb6a92349b6bebf06a606d356456859e8";
+const FAILED_POLICY_CORRECTION_C2_HEAD = "5c3b526d287d888bc3e0765569e6632ec5f6e0e6";
+const FAILED_POLICY_CORRECTION_C2_TREE = "dc1e677d66c35873ac040c598e33b39c05c78e54";
 
 const CHECKOUT_ACTION = "actions/checkout@11d5960a326750d5838078e36cf38b85af677262";
 const SETUP_NODE_ACTION = "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020";
@@ -92,6 +115,12 @@ export const GATE_A_CHANGED_PATHS = Object.freeze([
   INACTIVE_BASELINE_PATH,
   PATCH_ARTIFACT_PATH,
   TRANSITION_PATH,
+  POLICY_PATH
+].sort());
+
+export const POLICY_CORRECTION_CHANGED_PATHS = Object.freeze([
+  STATUS_PATH,
+  POLICY_CORRECTION_RECORD_PATH,
   POLICY_PATH
 ].sort());
 
@@ -447,7 +476,9 @@ function validateProjectionArtifacts(ref) {
     if (artifact.authority?.baseCommit !== GATE_A_BASE_SHA || artifact.authority?.baseTree !== GATE_A_BASE_TREE) {
       errors.push("patch artifact base identity drifted");
     }
-    if (artifact.authority?.targetBranch !== FUTURE_BRANCH) errors.push("patch artifact target branch drifted");
+    if (artifact.authority?.targetBranch !== AUTHORIZED_PATCH_TARGET_BRANCH) {
+      errors.push("historical patch artifact target branch drifted");
+    }
     const governed = [
       "cut_out", "vent", "past_leak", "vault_voice", "arc_future_1",
       "act3_reckoning_heading", "pregnancy_check", "custody_possession", "custody_thaw"
@@ -823,7 +854,7 @@ function candidateEvidence(ref) {
     if (!identity || identity.sha256 !== expected) errors.push(`${path}: candidate SHA-256 drifted`);
   }
   const projection = policyProjection(commit.oid);
-  if (projection !== POLICY_PROJECTION_SHA256) errors.push(`policy projection ${projection || "missing"} != ${POLICY_PROJECTION_SHA256}`);
+  if (projection !== GATE_A_POLICY_PROJECTION_SHA256) errors.push(`historical Gate A policy projection ${projection || "missing"} != ${GATE_A_POLICY_PROJECTION_SHA256}`);
   const status = fileIdentity(commit.oid, STATUS_PATH);
   if (status) errors.push(...noPublishStatusErrors(status.bytes));
   errors.push(...workflowSecurityErrors(commit.oid));
@@ -873,8 +904,92 @@ function gateAMergeEvidence(ref) {
   if (!merge || merge.parents.length !== 2 || merge.parents[0] !== GATE_A_BASE_SHA) {
     return { errors: ["protected Gate A successor is not an exact two-parent merge from the pinned base"] };
   }
+  const exactErrors = [];
+  if (merge.oid !== GATE_A_MERGE_SHA) exactErrors.push(`protected Gate A successor ${merge.oid} != ${GATE_A_MERGE_SHA}`);
+  if (merge.tree !== GATE_A_MERGE_TREE) exactErrors.push(`protected Gate A successor tree ${merge.tree} != ${GATE_A_MERGE_TREE}`);
+  if (!sameList(merge.parents, [GATE_A_BASE_SHA, GATE_A_HEAD_SHA])) exactErrors.push("protected Gate A successor parents differ from the exact landed pair");
   const candidate = candidateEvidence(merge.parents[1]);
-  return mergeEvidence(merge.oid, GATE_A_BASE_SHA, candidate);
+  const evidence = mergeEvidence(merge.oid, GATE_A_BASE_SHA, candidate);
+  return { ...evidence, errors: [...exactErrors, ...evidence.errors] };
+}
+
+function policyCorrectionEvidence(ref) {
+  const errors = [];
+  const base = gateAMergeEvidence(GATE_A_MERGE_SHA);
+  if (base.errors.length) errors.push(...base.errors.map(error => `correction base: ${error}`));
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: [...errors, "policy correction candidate is not an independently framed commit object"] };
+  if (commit.oid === FAILED_POLICY_CORRECTION_C1_HEAD || commit.tree === FAILED_POLICY_CORRECTION_C1_TREE) {
+    errors.push("failed policy correction C1 identity is non-reusable");
+  }
+  if (commit.oid === FAILED_POLICY_CORRECTION_C2_HEAD || commit.tree === FAILED_POLICY_CORRECTION_C2_TREE) {
+    errors.push("failed policy correction C2 identity is non-reusable");
+  }
+  if (!sameList(commit.parents, [GATE_A_MERGE_SHA])) errors.push("policy correction candidate is not one direct child of the exact protected Gate A successor");
+  if (!sameList(changedPaths(GATE_A_MERGE_SHA, commit.oid), POLICY_CORRECTION_CHANGED_PATHS)) {
+    errors.push("policy correction changed paths differ from the exact three-path scope");
+  }
+  for (const path of POLICY_CORRECTION_CHANGED_PATHS) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity) errors.push(`${path}: policy correction path is missing`);
+    else if (identity.mode !== "100644") errors.push(`${path}: policy correction mode ${identity.mode} != 100644`);
+  }
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (!status || status.blob !== POLICY_CORRECTION_STATUS_BLOB || status.sha256 !== POLICY_CORRECTION_STATUS_SHA256
+    || status.byteLength !== POLICY_CORRECTION_STATUS_BYTES) {
+    errors.push(`${STATUS_PATH}: policy correction identity drifted`);
+  }
+  const record = fileIdentity(commit.oid, POLICY_CORRECTION_RECORD_PATH);
+  if (!record || record.blob !== POLICY_CORRECTION_RECORD_BLOB || record.sha256 !== POLICY_CORRECTION_RECORD_SHA256
+    || record.byteLength !== POLICY_CORRECTION_RECORD_BYTES) {
+    errors.push(`${POLICY_CORRECTION_RECORD_PATH}: policy correction identity drifted`);
+  }
+  const projection = policyProjection(commit.oid);
+  if (projection !== POLICY_PROJECTION_SHA256) {
+    errors.push(`corrected policy projection ${projection || "missing"} != ${POLICY_PROJECTION_SHA256}`);
+  }
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  errors.push(...workflowSecurityErrors(commit.oid));
+  errors.push(...validateProjectionArtifacts(commit.oid).errors);
+  errors.push(...validateArtCompatibility(commit.oid).errors);
+
+  const records = canonicalRecords(commit.tree, POLICY_CORRECTION_CHANGED_PATHS);
+  if (records.some(record => !record)) errors.push("policy correction canonical manifest contains an unreadable path");
+  let expectedRaw = null;
+  let expectedOid = null;
+  let manifest = null;
+  if (records.every(Boolean)) {
+    manifest = canonicalManifest(records);
+    expectedRaw = canonicalRawCommit(
+      commit.tree,
+      GATE_A_MERGE_SHA,
+      POLICY_CORRECTION_AUTHOR,
+      POLICY_CORRECTION_COMMIT_TITLE,
+      records
+    );
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("policy correction raw commit payload differs from the exact canonical frame");
+    if (commit.oid !== expectedOid) errors.push(`policy correction OID ${commit.oid} != independently framed ${expectedOid}`);
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: commit.parents[0],
+    rawSha256: sha256(commit.bytes),
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null
+  };
+}
+
+function policyCorrectionMergeEvidence(ref) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== GATE_A_MERGE_SHA) {
+    return { errors: ["protected policy correction successor is not an exact two-parent merge from the pinned Gate A successor"] };
+  }
+  const candidate = policyCorrectionEvidence(merge.parents[1]);
+  return mergeEvidence(merge.oid, GATE_A_MERGE_SHA, candidate);
 }
 
 function replaceUniqueStatusField(text, key, value) {
@@ -887,47 +1002,53 @@ function replaceUniqueStatusField(text, key, value) {
 function expectedFutureStatus(protectedMerge) {
   const merge = commitHeaders(protectedMerge);
   if (!merge) throw new Error("future STATUS base is not a commit");
+  const correction = policyCorrectionMergeEvidence(protectedMerge);
+  if (correction.errors.length) throw new Error(`future STATUS base is not an exact policy correction successor: ${correction.errors.join(" | ")}`);
   const status = fileIdentity(protectedMerge, STATUS_PATH);
-  if (!status || status.sha256 !== GATE_A_STATUS_SHA256) throw new Error("future STATUS source is not exact Gate A STATUS");
+  if (!status || status.blob !== POLICY_CORRECTION_STATUS_BLOB || status.sha256 !== POLICY_CORRECTION_STATUS_SHA256
+    || status.byteLength !== POLICY_CORRECTION_STATUS_BYTES) {
+    throw new Error("future STATUS source is not exact policy correction STATUS");
+  }
   let text = status.bytes.toString("utf8");
-  text = replaceUniqueStatusField(text, "updated_utc", "2026-08-24");
+  text = replaceUniqueStatusField(text, "updated_utc", "2026-08-25");
   text = replaceOnce(
     text,
-    `\`tested_runtime_sha: ${GATE_A_BASE_SHA}\` (protected ART-INTEGRATION-R2 governance successor; recovery evidence, not certification)`,
-    `\`tested_runtime_sha: ${protectedMerge}\` (exact protected REC-RATCHET-02 successor; recovery evidence, not certification)`,
+    `\`tested_runtime_sha: ${GATE_A_MERGE_SHA}\` (exact protected REC-RATCHET-02 successor; recovery evidence, not certification)`,
+    `\`tested_runtime_sha: ${protectedMerge}\` (exact protected policy-correction successor; recovery evidence, not certification)`,
     "future STATUS tested runtime"
   );
   text = replaceUniqueStatusField(text, "governed_recovery_successor_sha", protectedMerge);
   text = replaceUniqueStatusField(text, "milestone", "REC-02 / L-021 — exact inactive projection activation");
   text = replaceUniqueStatusField(text, "ticket", "REC-02 / issue #24 — governed zero-exit implementation");
-  text = replaceUniqueStatusField(text, "state", `REC-02 CANDIDATE — exact REC-RATCHET-02 successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED`);
+  text = replaceUniqueStatusField(text, "state", `REC-02 R2 CANDIDATE — exact policy-correction successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED`);
   text = replaceUniqueStatusField(text, "implementation_branch", FUTURE_BRANCH);
+  text = replaceUniqueStatusField(text, "fresh_rec_02_branch", `${FUTURE_BRANCH} — CONSTRUCTED FROM exact protected policy-correction successor ${protectedMerge}; draft-only and unmerged`);
   text = replaceUniqueStatusField(text, "dispatch_base_sha", protectedMerge);
   text = replaceUniqueStatusField(text, "dispatch_base_tree", merge.tree);
   text = replaceUniqueStatusField(text, "functional_projection_state", "ACTIVATED — exact pinned patch and baseline applied; full exact-head verifier and locked simulations must pass again");
   text = replaceUniqueStatusField(text, "active_simulation_baseline_sha256", `${INACTIVE_BASELINE_SHA256} — exact REC-02 baseline activated from the Gate A artifact`);
   text = replaceOnce(
     text,
-    "`gate_a_scope: exactly .github/workflows/verify.yml; artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md; scripts/release-policy.mjs`",
-    "`gate_a_scope: LANDED PRECURSOR — exact six-path envelope retained as evidence`\n`rec_02_scope: exactly artifacts/PROJECT_STATUS.md; scripts/fixtures/pipe-boot-r1-simulation-baseline.json; scripts/verify.mjs; src/scenes-02.js; src/scenes-04.js; src/scenes-05.js; src/scenes-06.js; src/scenes-13.js; src/scenes-36.js; src/scenes-55.js`",
+    "`policy_correction_scope: exactly artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md; scripts/release-policy.mjs`",
+    "`policy_correction_scope: LANDED PRECURSOR — exact three-path correction retained as evidence`\n`policy_correction_record: artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md — inherited immutable failure and supersession evidence`\n`rec_02_scope: exactly artifacts/PROJECT_STATUS.md; scripts/fixtures/pipe-boot-r1-simulation-baseline.json; scripts/verify.mjs; src/scenes-02.js; src/scenes-04.js; src/scenes-05.js; src/scenes-06.js; src/scenes-13.js; src/scenes-36.js; src/scenes-55.js`",
     "future STATUS active scope"
   );
   text = replaceOnce(
     text,
-    "- REC-RATCHET-02 protected merge is not authorized. Reviewer PASS would establish eligibility only.",
-    `- REC-RATCHET-02 landed at exact protected successor \`${protectedMerge}\`; that authorization is consumed.`,
-    "future STATUS Gate A blocker"
+    `- REC-RATCHET-02 landed through protected PR #29 at exact successor \`${GATE_A_MERGE_SHA}\`; that Gate A authorization is consumed.`,
+    `- REC-RATCHET-02 landed through protected PR #29 at exact successor \`${GATE_A_MERGE_SHA}\`; that Gate A authorization is consumed.\n- The policy self-test correction landed at exact protected successor \`${protectedMerge}\`; that correction authorization is consumed.`,
+    "future STATUS correction blocker"
   );
   text = replaceOnce(
     text,
-    "- REC-02 source implementation remains inactive until REC-RATCHET-02 passes checks, receives independent exact-head PASS, lands through a separately authorized protected merge, and issue #24 is repinned to that exact successor.",
-    `- REC-02 is an exact candidate only. Construction requires separate readback that issue #24 was repinned to \`${protectedMerge}\`; its protected merge remains unauthorized pending exact-head checks, independent read-only PASS, fresh privileged ruleset/ref readback, and separate owner authorization.`,
+    "- Fresh REC-02 construction is blocked. After a separately authorized correction merge, issue #24 must be repinned to that exact protected successor and all REC-02 STATUS, parent, tree, manifest, raw-payload, and OID identities must be freshly derived on `ticket/0.30.1-rec-02-r2`.",
+    `- REC-02 r2 is an exact candidate only. Construction requires separate readback that issue #24 was repinned to \`${protectedMerge}\`; its protected merge remains unauthorized pending exact-head checks, independent read-only PASS, fresh privileged ruleset/ref readback, and separate owner authorization.`,
     "future STATUS REC-02 blocker"
   );
   text = replaceOnce(
     text,
-    "**Manraj:** After the REC-RATCHET-02 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
-    "**Manraj:** After the REC-02 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "**Manraj:** Authorize the newly sealed exact local correction candidate branch to be pushed and exactly one draft pull request to be opened against `recovery/e4f8440-nopub`. This grants no ready transition, merge, REC-02 construction, deployment, release, publication, or certification authority. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "**Manraj:** After the REC-02 r2 draft PR exists, send its exact head/tree and builder receipt to Grok for independent read-only review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
     "future STATUS next action"
   );
   return Buffer.from(text, "utf8");
@@ -962,11 +1083,12 @@ function buildFutureTree(protectedMerge) {
 
 function futureEvidence(ref, protectedMerge) {
   const errors = [];
-  const baseEvidence = gateAMergeEvidence(protectedMerge);
+  const baseEvidence = policyCorrectionMergeEvidence(protectedMerge);
   if (baseEvidence.errors.length) errors.push(...baseEvidence.errors.map(error => `future base: ${error}`));
   const commit = commitHeaders(ref);
   if (!commit) return { errors: [...errors, "future REC-02 candidate is not an independently framed commit object"] };
-  if (!sameList(commit.parents, [protectedMerge])) errors.push("future REC-02 candidate is not one direct child of the exact protected Gate A successor");
+  if (commit.oid === FAILED_REC_02_R1_HEAD || commit.tree === FAILED_REC_02_R1_TREE) errors.push("failed REC-02 r1 identity is non-reusable");
+  if (!sameList(commit.parents, [protectedMerge])) errors.push("future REC-02 candidate is not one direct child of the exact protected policy correction successor");
   if (!sameList(changedPaths(protectedMerge, commit.oid), FUTURE_CHANGED_PATHS)) errors.push("future REC-02 changed paths differ from the exact ten-path activation scope");
   let expectedTree;
   try {
@@ -1032,7 +1154,7 @@ function futureEvidence(ref, protectedMerge) {
 function futureMergeEvidence(ref, protectedMerge) {
   const merge = commitHeaders(ref);
   if (!merge || merge.parents.length !== 2 || merge.parents[0] !== protectedMerge) {
-    return { errors: ["protected REC-02 successor is not an exact two-parent merge from the Gate A successor"] };
+    return { errors: ["protected REC-02 successor is not an exact two-parent merge from the policy correction successor"] };
   }
   const candidate = futureEvidence(merge.parents[1], protectedMerge);
   return mergeEvidence(merge.oid, protectedMerge, candidate);
@@ -1058,17 +1180,23 @@ function evaluatePolicy(facts) {
     if (facts.baseRef !== RECOVERY_BRANCH) errors.push(`pull-request base ${facts.baseRef || "<missing>"} != ${RECOVERY_BRANCH}`);
     if (facts.prHeadRepository !== EXPECTED_REPOSITORY) errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
     if (!FULL_SHA_RE.test(facts.prBaseSha || "") || !FULL_SHA_RE.test(facts.prHeadSha || "")) errors.push("pull-request base/head SHA is not a full SHA-1 pair");
-    if (facts.headRef === GATE_A_BRANCH) {
-      route = "rec-ratchet-02";
-      if (facts.prBaseSha !== GATE_A_BASE_SHA) errors.push(`Gate A pull-request base ${facts.prBaseSha || "<missing>"} != ${GATE_A_BASE_SHA}`);
-      evidence = candidateEvidence(facts.prHeadSha);
-      const merge = mergeEvidence(facts.sha, GATE_A_BASE_SHA, evidence);
+    if (facts.headRef === POLICY_CORRECTION_BRANCH) {
+      route = "rec-ratchet-02-policy-correction";
+      if (facts.prBaseSha !== GATE_A_MERGE_SHA) {
+        errors.push(`policy correction pull-request base ${facts.prBaseSha || "<missing>"} != ${GATE_A_MERGE_SHA}`);
+      }
+      evidence = policyCorrectionEvidence(facts.prHeadSha);
+      const merge = mergeEvidence(facts.sha, GATE_A_MERGE_SHA, evidence);
       errors.push(...merge.errors);
     } else if (facts.headRef === FUTURE_BRANCH) {
       route = "rec-02";
       evidence = futureEvidence(facts.prHeadSha, facts.prBaseSha);
       const merge = mergeEvidence(facts.sha, facts.prBaseSha, evidence);
       errors.push(...merge.errors);
+    } else if (facts.headRef === GATE_A_BRANCH) {
+      errors.push("REC-RATCHET-02 Gate A route is consumed");
+    } else if (facts.headRef === "ticket/0.30.1-rec-02-r1") {
+      errors.push("REC-02 r1 route is failed and non-reusable");
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an armed recovery route`);
     }
@@ -1077,12 +1205,12 @@ function evaluatePolicy(facts) {
       errors.push("push is not an exact protected recovery-branch event");
     }
     if (facts.sha !== facts.afterSha) errors.push("push event SHA differs from after SHA");
-    if (facts.beforeSha === GATE_A_BASE_SHA) {
-      route = "rec-ratchet-02-merge";
-      evidence = gateAMergeEvidence(facts.afterSha);
+    if (facts.beforeSha === GATE_A_MERGE_SHA) {
+      route = "rec-ratchet-02-policy-correction-merge";
+      evidence = policyCorrectionMergeEvidence(facts.afterSha);
       errors.push(...evidence.errors);
     } else {
-      const base = gateAMergeEvidence(facts.beforeSha);
+      const base = policyCorrectionMergeEvidence(facts.beforeSha);
       if (base.errors.length === 0) {
         route = "rec-02-merge";
         evidence = futureMergeEvidence(facts.afterSha, facts.beforeSha);
@@ -1151,12 +1279,43 @@ function treeWithOverrides(baseRef, overrides) {
   return gitText(["write-tree"], { env });
 }
 
-function currentCandidateFixture() {
-  const overrides = Object.fromEntries(GATE_A_CHANGED_PATHS.map(path => [path, readFileSync(resolve(ROOT, path))]));
-  const tree = treeWithOverrides(GATE_A_BASE_SHA, overrides);
-  const records = canonicalRecords(tree, GATE_A_CHANGED_PATHS);
+function historicalGateAFixture() {
+  const commit = commitHeaders(GATE_A_HEAD_SHA);
+  assert.ok(commit);
+  assert.equal(commit.oid, GATE_A_HEAD_SHA);
+  assert.equal(commit.tree, GATE_A_HEAD_TREE);
+  assert.deepEqual(commit.parents, [GATE_A_BASE_SHA]);
+  assert.equal(sha256(commit.bytes), GATE_A_HEAD_RAW_SHA256);
+  const records = canonicalRecords(commit.tree, GATE_A_CHANGED_PATHS);
   assert.ok(records.every(Boolean));
-  const raw = canonicalRawCommit(tree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, records);
+  const raw = canonicalRawCommit(commit.tree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, records);
+  assert.ok(commit.bytes.equals(raw));
+  return { oid: commit.oid, tree: commit.tree, raw: commit.bytes, records };
+}
+
+function policyCorrectionFixture() {
+  const status = gitBytes(["cat-file", "blob", POLICY_CORRECTION_STATUS_BLOB]);
+  const record = gitBytes(["cat-file", "blob", POLICY_CORRECTION_RECORD_BLOB]);
+  assert.equal(gitObjectOid("blob", status), POLICY_CORRECTION_STATUS_BLOB);
+  assert.equal(sha256(status), POLICY_CORRECTION_STATUS_SHA256);
+  assert.equal(status.length, POLICY_CORRECTION_STATUS_BYTES);
+  assert.equal(gitObjectOid("blob", record), POLICY_CORRECTION_RECORD_BLOB);
+  assert.equal(sha256(record), POLICY_CORRECTION_RECORD_SHA256);
+  assert.equal(record.length, POLICY_CORRECTION_RECORD_BYTES);
+  const tree = treeWithOverrides(GATE_A_MERGE_SHA, {
+    [STATUS_PATH]: status,
+    [POLICY_CORRECTION_RECORD_PATH]: record,
+    [POLICY_PATH]: readFileSync(resolve(ROOT, POLICY_PATH))
+  });
+  const records = canonicalRecords(tree, POLICY_CORRECTION_CHANGED_PATHS);
+  assert.ok(records.every(Boolean));
+  const raw = canonicalRawCommit(
+    tree,
+    GATE_A_MERGE_SHA,
+    POLICY_CORRECTION_AUTHOR,
+    POLICY_CORRECTION_COMMIT_TITLE,
+    records
+  );
   const oid = writeRawCommit(raw);
   return { oid, tree, raw, records };
 }
@@ -1229,16 +1388,21 @@ function expectPolicyFailure(facts, mutate, needle) {
 
 function selfTest() {
   assert.ok(FULL_SHA256_RE.test(POLICY_PROJECTION_SHA256) && !/^0+$/.test(POLICY_PROJECTION_SHA256));
+  assert.ok(FULL_SHA256_RE.test(GATE_A_POLICY_PROJECTION_SHA256) && !/^0+$/.test(GATE_A_POLICY_PROJECTION_SHA256));
   assert.ok(FULL_SHA256_RE.test(TRANSITION_SHA256) && !/^0+$/.test(TRANSITION_SHA256));
   assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), POLICY_PROJECTION_SHA256);
   assert.deepEqual(GATE_A_CHANGED_PATHS, [
     VERIFY_WORKFLOW_PATH, STATUS_PATH, INACTIVE_BASELINE_PATH, PATCH_ARTIFACT_PATH, TRANSITION_PATH, POLICY_PATH
   ].sort());
+  assert.deepEqual(POLICY_CORRECTION_CHANGED_PATHS, [STATUS_PATH, POLICY_CORRECTION_RECORD_PATH, POLICY_PATH].sort());
   assert.equal(FUTURE_CHANGED_PATHS.length, 10);
 
-  const candidate = currentCandidateFixture();
+  const candidate = historicalGateAFixture();
   const candidateEvidenceResult = candidateEvidence(candidate.oid);
   assert.deepEqual(candidateEvidenceResult.errors, []);
+  assert.equal(candidateEvidenceResult.rawSha256, GATE_A_HEAD_RAW_SHA256);
+  assert.equal(policyProjection(candidate.oid), GATE_A_POLICY_PROJECTION_SHA256);
+  assert.deepEqual(gateAMergeEvidence(GATE_A_MERGE_SHA).errors, []);
   const normalized = normalizedSimulationEvidence(candidateEvidenceResult.projectionEvidence.baseline);
   assert.equal(normalized.core, NORMALIZED_SIMULATION_SHA256);
   assert.deepEqual(normalized.policies, NORMALIZED_POLICY_SHA256);
@@ -1253,11 +1417,44 @@ function selfTest() {
   );
   const synthetic = genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid], "Synthetic Gate A merge fixture");
   const candidatePr = prFacts({ sha: synthetic.oid, base: GATE_A_BASE_SHA, head: candidate.oid, headRef: GATE_A_BRANCH });
-  assert.deepEqual(evaluatePolicy(candidatePr).errors, []);
+  assert.ok(evaluatePolicy(candidatePr).errors.some(error => error.includes("Gate A route is consumed")));
   const candidatePush = pushFacts({ before: GATE_A_BASE_SHA, after: synthetic.oid });
-  assert.deepEqual(evaluatePolicy(candidatePush).errors, []);
+  assert.equal(evaluatePolicy(candidatePush).passed, false);
+
+  const correction = policyCorrectionFixture();
+  const correctionEvidenceResult = policyCorrectionEvidence(correction.oid);
+  assert.deepEqual(correctionEvidenceResult.errors, []);
+  assert.notEqual(correction.oid, FAILED_POLICY_CORRECTION_C1_HEAD);
+  assert.notEqual(correction.tree, FAILED_POLICY_CORRECTION_C1_TREE);
+  assert.notEqual(correction.oid, FAILED_POLICY_CORRECTION_C2_HEAD);
+  assert.notEqual(correction.tree, FAILED_POLICY_CORRECTION_C2_TREE);
+  const correctionSynthetic = genericMerge(
+    correction.tree,
+    [GATE_A_MERGE_SHA, correction.oid],
+    "Synthetic policy correction merge fixture"
+  );
+  const correctionPr = prFacts({
+    sha: correctionSynthetic.oid,
+    base: GATE_A_MERGE_SHA,
+    head: correction.oid,
+    headRef: POLICY_CORRECTION_BRANCH
+  });
+  assert.deepEqual(evaluatePolicy(correctionPr).errors, []);
+  assert.deepEqual(evaluatePolicy(pushFacts({ before: GATE_A_MERGE_SHA, after: correctionSynthetic.oid })).errors, []);
 
   let rejected = 0;
+  let structuredRejected = 0;
+  const historicalMergeVariants = [
+    genericMerge(candidate.tree, [GATE_A_BASE_SHA], "historical Gate A one-parent fixture"),
+    genericMerge(candidate.tree, [candidate.oid, GATE_A_BASE_SHA], "historical Gate A swapped parents fixture"),
+    genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid, RECOVERY_BASE_SHA], "historical Gate A octopus fixture"),
+    genericMerge(GATE_A_BASE_TREE, [GATE_A_BASE_SHA, candidate.oid], "historical Gate A wrong tree fixture"),
+    genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid], "historical Gate A alternate merge identity fixture")
+  ];
+  for (const fixture of historicalMergeVariants) {
+    assert.ok(gateAMergeEvidence(fixture.oid).errors.length > 0, "invalid historical Gate A merge evidence was accepted");
+    structuredRejected += 1;
+  }
   const rejectRaw = (bytes, label) => {
     const oid = writeRawCommit(bytes);
     const result = candidateEvidence(oid);
@@ -1312,6 +1509,32 @@ function selfTest() {
     rejectRaw(altered, `byte ${index}`);
   }
 
+  const rejectCorrectionRaw = (bytes, label) => {
+    const oid = writeRawCommit(bytes);
+    const result = policyCorrectionEvidence(oid);
+    assert.ok(result.errors.length > 0, `altered policy correction raw commit accepted: ${label}`);
+    structuredRejected += 1;
+  };
+  const correctionText = correction.raw.toString("utf8");
+  const correctionManifest = canonicalManifest(correction.records);
+  const correctionManifestLines = correctionManifest.trimEnd().split("\n");
+  const correctionRawMutations = [
+    [correction.raw.subarray(0, correction.raw.length - 1), "correction missing terminal LF"],
+    [Buffer.concat([correction.raw, Buffer.from("\n")]), "correction extra terminal LF"],
+    [Buffer.from(correctionText.replaceAll("\n", "\r\n")), "correction CRLF frame"],
+    [Buffer.from(correctionText.replace(POLICY_CORRECTION_COMMIT_TITLE, `${POLICY_CORRECTION_COMMIT_TITLE}.`)), "correction title"],
+    [Buffer.from(correctionText.replace(NO_PUBLISH_TOKEN, "NO-PUBLISH / CERTIFIED")), "correction certification token"],
+    [Buffer.from(correctionText.replace(`parent ${GATE_A_MERGE_SHA}`, `parent ${GATE_A_BASE_SHA}`)), "correction parent"],
+    [Buffer.from(correctionText.replace(`parent ${GATE_A_MERGE_SHA}`, `parent ${GATE_A_MERGE_SHA}\nparent ${GATE_A_BASE_SHA}`)), "correction second parent"],
+    [Buffer.from(correctionText.replace(`author ${POLICY_CORRECTION_AUTHOR}`, `author Altered Build <noreply@openai.com> 1787529600 -0500`)), "correction author"],
+    [Buffer.from(correctionText.replace(`committer ${POLICY_CORRECTION_AUTHOR}`, `committer ${POLICY_CORRECTION_AUTHOR.replace("1787529600", "1787529601")}`)), "correction timestamp"],
+    [Buffer.from(correctionText.replace("author ", "gpgsig counterfeit\nauthor ")), "correction signature header"],
+    [Buffer.from(correctionText.replace(correctionManifest, correctionManifest.replace(`${correctionManifestLines[0]}\n`, ""))), "correction missing manifest entry"],
+    [Buffer.from(correctionText.replace(correctionManifest, `${correctionManifestLines[0]}\n${correctionManifest}`)), "correction duplicate manifest entry"],
+    [Buffer.from(correctionText.replace(correctionManifest, [correctionManifestLines[1], correctionManifestLines[0], ...correctionManifestLines.slice(2)].join("\n") + "\n")), "correction reordered manifest"]
+  ];
+  for (const [bytes, label] of correctionRawMutations) rejectCorrectionRaw(bytes, label);
+
   const alteredStatusBytes = Buffer.concat([fileIdentity(candidate.tree, STATUS_PATH).bytes, Buffer.from("\n`release_state: PUBLISH`\n")]);
   const alteredStatusTree = treeWithOverrides(candidate.tree, { [STATUS_PATH]: alteredStatusBytes });
   const alteredStatusRecords = canonicalRecords(alteredStatusTree, GATE_A_CHANGED_PATHS);
@@ -1321,7 +1544,6 @@ function selfTest() {
   const alteredWorkflowRecords = canonicalRecords(alteredWorkflowTree, GATE_A_CHANGED_PATHS);
   rejectRaw(canonicalRawCommit(alteredWorkflowTree, GATE_A_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, alteredWorkflowRecords), "self-consistent altered workflow");
 
-  let structuredRejected = 0;
   const rejectCandidateTree = (tree, label, needle) => {
     const records = canonicalRecords(tree, GATE_A_CHANGED_PATHS);
     const raw = canonicalRawCommit(
@@ -1375,6 +1597,61 @@ function selfTest() {
     [POLICY_PATH]: Buffer.concat([fileIdentity(candidate.tree, POLICY_PATH).bytes, Buffer.from("\n")])
   });
   rejectCandidateTree(alteredPolicyTree, "self-consistent altered policy source", "policy projection");
+
+  const rejectCorrectionTree = (tree, label, needle) => {
+    const records = canonicalRecords(tree, POLICY_CORRECTION_CHANGED_PATHS);
+    const raw = canonicalRawCommit(
+      tree,
+      GATE_A_MERGE_SHA,
+      POLICY_CORRECTION_AUTHOR,
+      POLICY_CORRECTION_COMMIT_TITLE,
+      records.every(Boolean) ? records : correction.records
+    );
+    const result = policyCorrectionEvidence(writeRawCommit(raw));
+    assert.ok(result.errors.length > 0, `self-consistent altered policy correction accepted: ${label}`);
+    if (needle) {
+      assert.ok(result.errors.some(error => error.includes(needle)), `missing ${needle} for ${label}: ${result.errors.join(" | ")}`);
+    }
+    structuredRejected += 1;
+  };
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, {
+      [STATUS_PATH]: { bytes: fileIdentity(correction.tree, STATUS_PATH).bytes, mode: "100755" }
+    }),
+    "executable correction STATUS",
+    "policy correction mode"
+  );
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, { [POLICY_CORRECTION_RECORD_PATH]: null }),
+    "missing correction record",
+    "policy correction path is missing"
+  );
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, { "artifacts/UNAUTHORIZED-CORRECTION.md": Buffer.from("unauthorized\n") }),
+    "extra correction path",
+    "three-path scope"
+  );
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, {
+      [STATUS_PATH]: Buffer.concat([fileIdentity(correction.tree, STATUS_PATH).bytes, Buffer.from("\n")])
+    }),
+    "altered correction STATUS",
+    "policy correction identity"
+  );
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, {
+      [POLICY_CORRECTION_RECORD_PATH]: Buffer.concat([fileIdentity(correction.tree, POLICY_CORRECTION_RECORD_PATH).bytes, Buffer.from("\n")])
+    }),
+    "altered correction record",
+    "policy correction identity"
+  );
+  rejectCorrectionTree(
+    treeWithOverrides(correction.tree, {
+      [POLICY_PATH]: Buffer.concat([fileIdentity(correction.tree, POLICY_PATH).bytes, Buffer.from("\n")])
+    }),
+    "altered corrected policy",
+    "corrected policy projection"
+  );
 
   const rejectWorkflowMutation = (mutate, needle) => {
     const source = fileIdentity(candidate.tree, VERIFY_WORKFLOW_PATH).bytes.toString("utf8");
@@ -1434,39 +1711,91 @@ function selfTest() {
   assert.ok(candidateEvidence(annotatedTag).errors.some(error => error.includes("not an independently framed commit object")));
   structuredRejected += 1;
 
-  expectPolicyFailure(candidatePr, facts => { facts.repository = "attacker/Sunsplitter"; }, "repository attacker/Sunsplitter");
-  expectPolicyFailure(candidatePr, facts => { facts.baseRef = "main"; }, "pull requests to main");
-  expectPolicyFailure(candidatePr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route");
-  expectPolicyFailure(candidatePr, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
-  expectPolicyFailure(candidatePr, facts => { facts.checkedOutSha = candidate.oid; }, "checked-out SHA");
-  expectPolicyFailure(candidatePr, facts => { facts.ref = "refs/tags/sun-v0.30.1"; facts.refType = "tag"; }, "tag creation");
+  expectPolicyFailure(correctionPr, facts => { facts.repository = "attacker/Sunsplitter"; }, "repository attacker/Sunsplitter");
+  expectPolicyFailure(correctionPr, facts => { facts.baseRef = "main"; }, "pull requests to main");
+  expectPolicyFailure(correctionPr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route");
+  expectPolicyFailure(correctionPr, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
+  expectPolicyFailure(correctionPr, facts => { facts.checkedOutSha = correction.oid; }, "checked-out SHA");
+  expectPolicyFailure(correctionPr, facts => { facts.ref = "refs/tags/sun-v0.30.1"; facts.refType = "tag"; }, "tag creation");
+  expectPolicyFailure(correctionPr, facts => { facts.prBaseSha = GATE_A_BASE_SHA; }, "policy correction pull-request base");
 
-  const rejectSyntheticTopology = (fixture, label) => {
-    const facts = structuredClone(candidatePr);
+  const rejectCorrectionTopology = (fixture, label) => {
+    const facts = structuredClone(correctionPr);
     facts.sha = fixture.oid;
     facts.checkedOutSha = fixture.oid;
     const result = evaluatePolicy(facts);
-    assert.equal(result.passed, false, `synthetic topology accepted: ${label}`);
+    assert.equal(result.passed, false, `policy correction topology accepted: ${label}`);
     structuredRejected += 1;
   };
-  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA], "one-parent squash fixture"), "one-parent squash");
-  rejectSyntheticTopology(genericMerge(candidate.tree, [candidate.oid, GATE_A_BASE_SHA], "swapped parents fixture"), "swapped parents");
-  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, candidate.oid, RECOVERY_BASE_SHA], "octopus fixture"), "octopus merge");
-  rejectSyntheticTopology(genericMerge(GATE_A_BASE_TREE, [GATE_A_BASE_SHA, candidate.oid], "wrong tree fixture"), "wrong merge tree");
-  rejectSyntheticTopology({ oid: candidate.oid }, "ticket head presented as squash checkout");
+  rejectCorrectionTopology(genericMerge(correction.tree, [GATE_A_MERGE_SHA], "correction one-parent squash fixture"), "one-parent squash");
+  rejectCorrectionTopology(genericMerge(correction.tree, [correction.oid, GATE_A_MERGE_SHA], "correction swapped parents fixture"), "swapped parents");
+  rejectCorrectionTopology(genericMerge(correction.tree, [GATE_A_MERGE_SHA, correction.oid, GATE_A_BASE_SHA], "correction octopus fixture"), "octopus merge");
+  rejectCorrectionTopology(genericMerge(GATE_A_MERGE_TREE, [GATE_A_MERGE_SHA, correction.oid], "correction wrong tree fixture"), "wrong merge tree");
+  rejectCorrectionTopology({ oid: correction.oid }, "ticket head presented as squash checkout");
 
-  const rebasedRaw = canonicalRawCommit(candidate.tree, RECOVERY_BASE_SHA, GATE_A_AUTHOR, GATE_A_COMMIT_TITLE, candidate.records);
+  const rebasedRaw = canonicalRawCommit(
+    correction.tree,
+    GATE_A_BASE_SHA,
+    POLICY_CORRECTION_AUTHOR,
+    POLICY_CORRECTION_COMMIT_TITLE,
+    correction.records
+  );
   const rebasedHead = writeRawCommit(rebasedRaw);
-  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, rebasedHead], "rebased head fixture"), "rebased equivalent head");
-  const alternateRaw = Buffer.from(validText.replace(`author ${GATE_A_AUTHOR}`, `author Alternate Build <noreply@openai.com> 1787443200 -0500`));
+  rejectCorrectionTopology(genericMerge(correction.tree, [GATE_A_MERGE_SHA, rebasedHead], "correction rebased head fixture"), "rebased equivalent head");
+  const alternateRaw = Buffer.from(correctionText.replace(`author ${POLICY_CORRECTION_AUTHOR}`, `author Alternate Build <noreply@openai.com> 1787529600 -0500`));
   const alternateHead = writeRawCommit(alternateRaw);
-  rejectSyntheticTopology(genericMerge(candidate.tree, [GATE_A_BASE_SHA, alternateHead], "alternate head fixture"), "semantically equivalent alternate head");
-  const repeatedGateASuccessor = genericMerge(candidate.tree, [synthetic.oid, candidate.oid], "repeated Gate A head fixture");
-  assert.equal(evaluatePolicy(pushFacts({ before: synthetic.oid, after: repeatedGateASuccessor.oid })).passed, false);
+  rejectCorrectionTopology(genericMerge(correction.tree, [GATE_A_MERGE_SHA, alternateHead], "correction alternate head fixture"), "semantically equivalent alternate head");
+  const repeatedCorrectionSuccessor = genericMerge(correction.tree, [correctionSynthetic.oid, correction.oid], "repeated correction head fixture");
+  assert.equal(evaluatePolicy(pushFacts({ before: correctionSynthetic.oid, after: repeatedCorrectionSuccessor.oid })).passed, false);
+  structuredRejected += 1;
+  assert.equal(evaluatePolicy(candidatePr).passed, false, "consumed Gate A route was accepted");
+  const oldR1Pr = prFacts({
+    sha: genericMerge(FAILED_REC_02_R1_TREE, [GATE_A_MERGE_SHA, FAILED_REC_02_R1_HEAD], "Failed REC-02 r1 merge fixture").oid,
+    base: GATE_A_MERGE_SHA,
+    head: FAILED_REC_02_R1_HEAD,
+    headRef: "ticket/0.30.1-rec-02-r1"
+  });
+  assert.ok(evaluatePolicy(oldR1Pr).errors.some(error => error.includes("r1 route is failed and non-reusable")));
+  structuredRejected += 1;
+  const failedCorrectionC1Pr = prFacts({
+    sha: genericMerge(
+      FAILED_POLICY_CORRECTION_C1_TREE,
+      [GATE_A_MERGE_SHA, FAILED_POLICY_CORRECTION_C1_HEAD],
+      "Failed policy correction C1 merge fixture"
+    ).oid,
+    base: GATE_A_MERGE_SHA,
+    head: FAILED_POLICY_CORRECTION_C1_HEAD,
+    headRef: POLICY_CORRECTION_BRANCH
+  });
+  assert.ok(evaluatePolicy(failedCorrectionC1Pr).errors.some(error => error.includes("failed policy correction C1 identity is non-reusable")));
+  structuredRejected += 1;
+  const failedCorrectionC2Pr = prFacts({
+    sha: genericMerge(
+      FAILED_POLICY_CORRECTION_C2_TREE,
+      [GATE_A_MERGE_SHA, FAILED_POLICY_CORRECTION_C2_HEAD],
+      "Failed policy correction C2 merge fixture"
+    ).oid,
+    base: GATE_A_MERGE_SHA,
+    head: FAILED_POLICY_CORRECTION_C2_HEAD,
+    headRef: POLICY_CORRECTION_BRANCH
+  });
+  assert.ok(evaluatePolicy(failedCorrectionC2Pr).errors.some(error => error.includes("failed policy correction C2 identity is non-reusable")));
+  structuredRejected += 1;
+  const directPFuturePr = prFacts({
+    sha: genericMerge(FAILED_REC_02_R1_TREE, [GATE_A_MERGE_SHA, FAILED_REC_02_R1_HEAD], "Direct P to REC-02 r2 fixture").oid,
+    base: GATE_A_MERGE_SHA,
+    head: FAILED_REC_02_R1_HEAD,
+    headRef: FUTURE_BRANCH
+  });
+  const directPFutureResult = evaluatePolicy(directPFuturePr);
+  assert.equal(directPFutureResult.passed, false);
+  assert.ok(directPFutureResult.errors.some(error => error.includes("future base") || error.includes("non-reusable")));
   structuredRejected += 1;
 
-  const protectedMerge = synthetic.oid;
+  const protectedMerge = correctionSynthetic.oid;
   const future = futureFixture(protectedMerge);
+  assert.notEqual(future.oid, FAILED_REC_02_R1_HEAD);
+  assert.notEqual(future.tree, FAILED_REC_02_R1_TREE);
   const futureSynthetic = genericMerge(future.tree, [protectedMerge, future.oid], "Synthetic REC-02 merge fixture");
   const futurePr = prFacts({ sha: futureSynthetic.oid, base: protectedMerge, head: future.oid, headRef: FUTURE_BRANCH });
   assert.deepEqual(evaluatePolicy(futurePr).errors, []);
@@ -1474,13 +1803,19 @@ function selfTest() {
 
   const futureStatus = fileIdentity(future.tree, STATUS_PATH).bytes;
   const futureStatusText = futureStatus.toString("utf8");
-  assert.match(futureStatusText, /`updated_utc: 2026-08-24`/);
+  assert.match(futureStatusText, /`updated_utc: 2026-08-25`/);
   assert.match(futureStatusText, new RegExp(`governed_recovery_successor_sha: ${protectedMerge}`));
   assert.match(futureStatusText, new RegExp(`active_simulation_baseline_sha256: ${INACTIVE_BASELINE_SHA256}`));
-  assert.match(futureStatusText, /REC-RATCHET-02 landed at exact protected successor/);
-  assert.match(futureStatusText, /After the REC-02 draft PR exists/);
-  assert.doesNotMatch(futureStatusText, /REC-02 source implementation remains inactive/);
-  assert.doesNotMatch(futureStatusText, /After the REC-RATCHET-02 draft PR exists/);
+  assert.match(futureStatusText, /policy self-test correction landed at exact protected successor/);
+  assert.match(futureStatusText, /After the REC-02 r2 draft PR exists/);
+  assert.match(futureStatusText, new RegExp(`fresh_rec_02_branch: ${FUTURE_BRANCH} — CONSTRUCTED FROM exact protected policy-correction successor ${protectedMerge}`));
+  assert.doesNotMatch(futureStatusText, /fresh_rec_02_branch:[^`]*BLOCKED until an exact correction successor lands/);
+  assert.match(futureStatusText, new RegExp(`failed_rec_02_r1_head: ${FAILED_REC_02_R1_HEAD}`));
+  assert.match(futureStatusText, new RegExp(`failed_policy_correction_c1_head: ${FAILED_POLICY_CORRECTION_C1_HEAD}`));
+  assert.match(futureStatusText, new RegExp(`failed_policy_correction_c2_head: ${FAILED_POLICY_CORRECTION_C2_HEAD}`));
+  assert.match(futureStatusText, /FAILED REQUIRED REVIEW \/ LOCAL ONLY \/ UNPUSHED \/ NON-REUSABLE/);
+  assert.match(futureStatusText, /FAILED REQUIRED GATE \/ LOCAL ONLY \/ UNPUSHED \/ NON-REUSABLE/);
+  assert.match(futureStatusText, new RegExp(POLICY_CORRECTION_RECORD_PATH.replaceAll("/", "\\/")));
   const driftFutureTree = treeWithOverrides(future.tree, { [STATUS_PATH]: Buffer.concat([futureStatus, Buffer.from("\n")]) });
   const driftFutureRecords = canonicalRecords(driftFutureTree, FUTURE_CHANGED_PATHS);
   const driftFutureOid = writeRawCommit(canonicalRawCommit(driftFutureTree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, driftFutureRecords));
@@ -1513,12 +1848,14 @@ function selfTest() {
 
   assert.ok(rejected >= 84, `only ${rejected} raw adversarial commits were rejected`);
   assert.ok(structuredRejected >= 40, `only ${structuredRejected} structured adversarial fixtures were rejected`);
-  console.log(`PASS release-policy self-test — ${rejected} raw-frame and ${structuredRejected} structured adversarial fixtures rejected; Gate A and one self-consuming REC-02 route accepted; NO-PUBLISH remains active`);
+  console.log(`PASS release-policy self-test — ${rejected} historical raw-frame and ${structuredRejected} structured adversarial fixtures rejected; immutable Gate A, one self-consuming policy correction, and one fresh self-consuming REC-02 r2 route accepted; NO-PUBLISH remains active`);
   console.log(`FIXTURE gate-a-head=${candidate.oid} tree=${candidate.tree} synthetic=${synthetic.oid}`);
+  console.log(`FIXTURE correction-head=${correction.oid} tree=${correction.tree} synthetic=${correctionSynthetic.oid}`);
   console.log(`FIXTURE future-head=${future.oid} tree=${future.tree} synthetic=${futureSynthetic.oid}`);
 }
 
 function taskForRoute(route) {
+  if (route?.startsWith("rec-ratchet-02-policy-correction")) return "REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R1";
   if (route?.startsWith("rec-ratchet-02")) return "REC-RATCHET-02/#24";
   if (route?.startsWith("rec-02")) return "REC-02/#24";
   return "GOVERNED-RECOVERY";
