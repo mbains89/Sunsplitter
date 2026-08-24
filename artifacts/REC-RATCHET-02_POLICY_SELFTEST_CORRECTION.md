@@ -1,27 +1,46 @@
-# REC-RATCHET-02 — C9 Receipt-Safe Policy Successor
+# REC-RATCHET-02 — C10 Immutable-Fixture Policy Successor
 
-`SOURCE main@792e202 · RUNTIME 31aca17 · TASK REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R7-C9 · MODE implementation`
+`SOURCE main@792e202 · RUNTIME 31642c3 · TASK REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R8-C10 · MODE implementation`
 
 **Acting role:** Build / GPT-Codex
 
-**Files read:** exact `main@792e202` copies of `AGENTS.md`, `artifacts/ROADMAP.md`, `artifacts/PROJECT_STATUS.md`, and `artifacts/LOCKS.md`; protected-base `artifacts/PROJECT_STATUS.md`, `artifacts/REC-RATCHET-02_BASELINE_TRANSITION.md`, both recovery workflows, and `scripts/release-policy.mjs`; the frozen C8 three-file candidate; PR #34 and attributable CI receipts; both independent C8 failure receipts; Fable 5's advisory packet; and the exact-current C9 policy, document, external-runner, and harness audits.
+**Files read:** exact `main@792e202` copies of `AGENTS.md`, `artifacts/ROADMAP.md`, `artifacts/PROJECT_STATUS.md`, and `artifacts/LOCKS.md`; exact protected successor `Q=31642c3` copies of `artifacts/PROJECT_STATUS.md`, `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`, both recovery workflows, `scripts/release-policy.mjs`, and the REC-02 projection artifacts; exact C9 head and protected-merge objects; the preserved unfrozen REC-02 r2 pre-freeze receipt; frozen PR #30/#31/#33/#34 state; Fable 5 and Grok advisory findings; and the independent C10 policy, evidence, and governance design audits.
 
-**Implementation authorization:** Manraj's active continuous goal authorizes one fresh authority-compliant successor after a terminal identity failure, including local reconstruction, repair, validation, one non-protected branch push, and one draft PR after complete local PASS. It does not authorize reuse or modification of C8, any frozen branch or PR, a ready transition, protected merge, issue repin, REC-02 activation, deployment, publication, release, tag, certification, or production activation.
+**Implementation authorization:** Manraj's active continuous goal authorizes one fresh authority-compliant C10 successor, including isolated local construction, repair before identity freeze, validation, one non-protected branch push, and one draft PR after complete local PASS. It does not authorize reuse or modification of any frozen identity, the consumed C9 route, the preserved unfrozen Q-based r2 candidate, a ready transition, protected merge, issue repin, REC-02 activation, deployment, publication, release, tag, certification, or production activation.
 
 **Certification:** `NO-PUBLISH / NOT CERTIFIED`
 
-## 1. Exact protected base
+## 1. Exact protected base and landed precursor
 
 - Protected branch: `recovery/e4f8440-nopub`
-- C9 base and sole candidate parent `P`: `31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
-- Base tree: `f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
+- C10 base and sole candidate parent `Q`: `31642c3644a58e9f5fc007bff648dc6146dabcfb`
+- Base tree: `103a4ccf5c1511d225d67870e6fb87e64b992de4`
+- Base raw payload SHA-256: `41b8269ef543b5177430ac5e9bd1aeba07f1a4b0f40bd83d96435326e67a9322`
+- Base ordered parents: `[31aca17b807c4dc8edef3683e30d5fefdd47ad7a, f6b8e050717a6b9420bd3ec2dae0d65abcc57427]`
+- Landed C9 head: `f6b8e050717a6b9420bd3ec2dae0d65abcc57427`
+- Landed C9 head tree: `103a4ccf5c1511d225d67870e6fb87e64b992de4`
+- Landed C9 sole parent: `31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+- Landed C9 raw payload length: `825` bytes
+- Landed C9 raw payload SHA-256: `1dea7f018883c68ef1368950ad7ac1ec7ac787ebbe8c53a86d71e5930ca8390b`
+- Landed C9 three-path manifest SHA-256: `ae2e4309600269afc3ef9a81ce9eec0e9b0c02e7caed6feebbf76769f98a98fd`
+- Landed C9 normalized policy projection: `6e44343fc7f892494c4477991b2a11e0f150215ae2a9bf955508a225a3014f27`
+- Gate A protected successor `P`: `31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
+- Gate A successor tree: `f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
 - Gate A head: `f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab`
 - Gate A head tree: `f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
 - Gate A raw payload SHA-256: `4835344d32a516c8d68df1c8d18f51313297f04c7de2ac5ce4628c356fb36376`
 - Gate A ordered merge parents: `[23951012655b0037a55e82c755b66dd4d852f20b, f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab]`
 - Historical Gate A policy projection: `02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5`
 
-PR #29 landed Gate A exactly. This record does not revoke, rewrite, or reinterpret that protected merge. It corrects the later self-test and clean-room route while keeping Gate A immutable.
+PR #29 landed Gate A exactly and PR #35 landed C9 exactly at `Q`. This record does not revoke, rewrite, or reinterpret either protected merge. C9's r7 route and merge authorization are consumed. C10 repairs only the later self-test's historical-fixture source and successor routing while keeping Gate A, C9, and Q immutable.
+
+Exact C9/Q closure receipt:
+
+- PR #35 synthetic merge: `a3fa43fe01910ddbc6d4b6ce6f5d84be1e9e5e57`; merged `2026-08-24T01:13:24Z`.
+- PR-attributable CI: Recovery Release Policy #52 run `32676047856` SUCCESS; Recovery Verify #62 run `32676047846` SUCCESS.
+- Protected successor `Q` raw payload: `1,262` bytes; SHA-256 `41b8269ef543b5177430ac5e9bd1aeba07f1a4b0f40bd83d96435326e67a9322`.
+- Protected-push CI: Recovery Release Policy #54 run `32679102742`, job `97292489797`, SUCCESS; Recovery Verify #64 run `32679102689`, jobs priciest `97292489624`, verify `97292489681`, random `97292489692`, cheapest `97292489761`, and simulation-gate `97292916932`, all SUCCESS. Random, cheapest, and priciest each ran 2,000 simulations at seed `20260817`, 6,000 total.
+- Issue #24 exact-Q repin: updated `2026-08-24T01:43:09Z`; title 80 bytes / SHA-256 `3b0d8db069be8f45eb44d6a1ad0bf1e443d82f66bfab50fa3bf12752a2afad1c`; body 21,564 bytes / SHA-256 `ab26a5dec4c630d9a390276b1721ad5129aa41bc68f1c2eb681974e6c7314788`; exact post-write equality PASS; zero comments.
 
 ## 2. Frozen failed identities
 
@@ -94,13 +113,23 @@ After C8 was frozen, a C9 read-only harness-audit subagent mistakenly invoked C8
 
 C8's branch, PR #34, head, tree, manifest, raw payload, policy projection, synthetic merge, bundle, CI, and later diagnostic results are frozen. Do not rerun, repair, amend, rebase, cherry-pick, copy as a candidate, synchronize, push again, edit the PR, retarget, mark ready, close, merge, or otherwise reuse that identity.
 
-## 4. C9 exact scope and topology
+## 4. Landed C9/Q evidence and C10 exact scope
 
-Retired/frozen correction branches are r1 through r6. The only newly armed branch is:
+C9 is immutable and independently bound to exact objects rather than reconstructed from the current worktree:
 
-`ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r7`
+| Path | Blob | SHA-256 | Bytes |
+|---|---|---|---:|
+| `artifacts/PROJECT_STATUS.md` | `5868e2274a5b50758427b5eaf6ef15a1a06921fa` | `de79c8c97ff7ae05480f2413e0dd31380ec2f320c2e29cb532ffdfbd2b7f7dee` | 18,976 |
+| `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md` | `0e1586df61b2af7de466b8adc8b1f2362adf47d7` | `ff08839196539a7f84a88e2c275c9e82dd9e491d01a25903350bbb5d64daf75f` | 28,306 |
+| `scripts/release-policy.mjs` | `339a829105d4b322a37983d94e0ae90974782452` | `a22481cd73bb23ac9a16b82f04b69d716d59f8a92b044cd5bf1e71d1e3ef44ab` | 160,021 |
 
-Exactly these three regular mode-`100644` files may differ from `P`:
+The historical C9 fixture must resolve the exact head, tree, sole parent `P`, raw payload, three-path manifest, file identities, and normalized projection above. The historical protected successor must resolve exact `Q`, tree, raw payload, and ordered parents `[P,C9]`. Supplying `P`, current `HEAD`, mutable worktree STATUS, an alternate equivalent tree, or any other source must fail closed.
+
+Retired/frozen correction branches are r1 through r6. The landed r7 branch is consumed and non-reusable. The only newly armed branch is:
+
+`ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r8`
+
+Exactly these three regular mode-`100644` files may differ from `Q`:
 
 1. `artifacts/PROJECT_STATUS.md`
 2. `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`
@@ -108,37 +137,61 @@ Exactly these three regular mode-`100644` files may differ from `P`:
 
 No workflow, ROADMAP, LOCKS, AGENTS, gameplay, simulator, verifier, baseline, image, art, CSS, HTML, VERSION, Netlify, ruleset, App/evaluator, deployment, tag, release, publication, or certification byte may change.
 
-The only C9 topology eligible for later recognition is:
+The only C10 topology eligible for later recognition is:
 
-`P=31aca17 -> C9=one exact three-path direct child -> Q=one exact protected merge with ordered parents [P,C9] and tree equal to C9`
+`Q=31642c3 -> C10=one exact three-path direct child -> S=one exact protected merge with ordered parents [Q,C10] and tree equal to C10`
 
-After a separately authorized exact protected merge `Q`, issue #24 must be repinned to exact `Q` under separate owner authorization before any REC-02 r2 construction. C9 neither authorizes nor satisfies that external prerequisite.
+After a separately authorized exact protected merge `S`, issue #24 must be repinned to exact `S` under separate owner authorization before any REC-02 r2 reconstruction. The preserved Q-based r2 bytes remain unfrozen, uncommitted, unpushed, and non-authoritative; they may not be committed or reused after `S` exists.
 
-No prospective C9 head, tree, three-path manifest, raw payload, bundle, synthetic merge, PR, or CI identity is embedded in C9's own files. The active normalized policy projection is intentionally bound in the policy only after both documents stabilize; the remaining identities are derived only afterward.
+No prospective C10 head, tree, three-path manifest, raw payload, bundle, synthetic merge, PR, or CI identity is embedded in C10's own files. The active normalized policy projection and exact document identities are bound only after both documents stabilize; all remaining identities are derived afterward.
+
+### Preserved REC-02 r2 pre-freeze HOLD
+
+The earlier Q-based r2 work never became a candidate identity. Its exact preserved projection receipt is:
+
+- ten-path tree: `0970dc606b63a84dd38ab46541b2a359ef95674f`;
+- STATUS blob: `742ae69f94bdac92cd4ccce8267508ef0693c62a`; SHA-256 `9cb1f4b42f9e8393f96f176fd0252682616afca09f8adfa9f9044a7575122aa6`; 18,008 bytes;
+- canonical manifest: 1,351 bytes; SHA-256 `469f6f5683acdeb8d34a81112c71d2409344032504335bef6e956dd6149680de`;
+- prospective raw frame: 1,712 bytes; SHA-256 `15f8128f63145990f0323622744f54b0c23f994b4bfb2e4aead667351c133bd9`;
+- prospective OID: `f5ab37d4845156d7b80678e4492d5fdece1c4458`, proven absent from the object store;
+- local `ticket/0.30.1-rec-02-r2` remained at `Q`; its origin ref was absent; no PR existed;
+- static fail-closed determination before invocation: the mandatory policy self-test was not invoked because the historical C9 fixture consumed mutable r2 STATUS, and its expected error was `artifacts/PROJECT_STATUS.md: policy correction identity drifted`;
+- two diagnostic-only verifier/simulation repetitions passed with exact stdout SHA-256 `f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d` and normalized core `c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08`.
+
+The static fail-closed determination supplied no candidate PASS and was not used to freeze, commit, push, or create a PR. This is an unfrozen static HOLD, not a terminal frozen identity. Once a later exact C10 successor `S` exists, these Q-based projected bytes and prospective frame are non-authoritative and may not be reused.
+
+### Prospective C10 canonical commit frame
+
+- branch: `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r8`;
+- title: `REC-RATCHET-02: seal immutable correction fixtures`;
+- sole parent: `Q=31642c3644a58e9f5fc007bff648dc6146dabcfb`;
+- author and committer: `Sunsplitter Recovery Build <noreply@openai.com> 1787965200 -0500`;
+- exactly three sorted mode-`100644` paths: `artifacts/PROJECT_STATUS.md`, `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`, and `scripts/release-policy.mjs`;
+- one terminal LF in the commit message; no signature, extra headers, extra parents, or embedded prospective OID/tree.
 
 ## 5. Repair contract
 
-C9 must:
+C10 must:
 
-1. Validate immutable Gate A from exact head `f23c4bed…` and protected merge `31aca17…`; never reconstruct historical Gate A from current STATUS.
-2. Keep historical Gate A projection `02bd44d5…` separate from the active corrected projection.
-3. Reject REC-02 r1 and C1–C8 heads as the first semantic operation after input normalization, before any Git command, object lookup, cache, base check, diff, tree, path, or blob access, through correction and future routes. Reject their registered trees immediately after commit framing and before any candidate path/blob access.
+1. Validate immutable Gate A, landed C9, and protected successor Q from their exact commit objects and exact file identities; never reconstruct historical Gate A or C9 from mutable current-worktree STATUS.
+2. Keep the historical Gate A projection `02bd44d5…`, historical C9 projection `6e44343f…`, and active C10 projection distinct.
+3. Reject REC-02 r1 and C1–C8 heads as the first semantic operation after input normalization, before any Git command, object lookup, cache, base check, diff, tree, path, or blob access, through correction and future routes. Reject their registered trees immediately after commit framing and before any candidate path/blob access. Reject the consumed r7/C9 branch and any Q-direct REC-02 route.
 4. Seal the exact ART raw frame and sorted 79-record identity manifest. Reproduce its 10,863-byte manifest SHA-256 `a3bb3dc47bf7302de03d8b057637ecdbcd852b1e2e7d2034b098a3e55358a073`, 55-image digest `1441be78e8d0d95f4cf2cfd9ace72b7e6458aa0ec230336748de6a2b96db7baa`, verifier transform, combined tree, and combined manifest without dereferencing PR #26 objects.
 5. Expose committed `--forbidden-object-inventory` and `--check-candidate-only-object-store` modes. Inventory generation makes zero Git calls and reads evaluated constants, not source parsing. The canonical inventory has exactly 103 sorted unique OIDs: 18 failed head/tree objects, 2 ART roots, 79 sealed ART blobs, and 4 derived objects; 4,664 bytes; SHA-256 `d6361bf849be1e2721c1871d84c1f8f569348edc401e08650ca6550bcc5d62d8`.
 6. Emit a schema-version-2 store receipt only after rejecting unsafe repository shape, refs/tags/remotes/pseudorefs, alternates, shallow/common/promisor/partial-clone state, unsafe Git environment and configuration, every `extensions.*` and `fsck.*` override, include directives, and any `config.worktree` file. Enumerate every stored object and every object reachable from `HEAD`, require exact sorted-set equality with no unrelated unreachable or missing reachable object, record canonical type counts and inventory digest, and require strict fsck status `0` with empty stdout and stderr. Missing controls, inventory drift, any forbidden object, or any unrelated unreachable object fails closed.
-7. Arm only one self-consuming correction route on r7 and later only one fresh self-consuming REC-02 route on `ticket/0.30.1-rec-02-r2` from an exact valid `Q`. Direct `P -> REC-02`, old r1, repeated, wrong-base, wrong-tree, wrong-topology, frozen-branch, fork, tag, and post-consumption routes fail closed.
-8. Mechanically derive future REC-02 STATUS from C9 STATUS, preserving this record and all nine frozen dispositions while changing active state from correction to REC-02 r2.
+7. Arm only one self-consuming correction route on r8 from exact `Q` and later only one fresh self-consuming REC-02 route on `ticket/0.30.1-rec-02-r2` from an exact valid `S`. Direct `Q -> REC-02`, old r1, consumed r7, repeated, wrong-base, wrong-tree, wrong-topology, frozen-branch, fork, tag, and post-consumption routes fail closed.
+8. Mechanically derive C10 STATUS from exact Q's immutable C9 STATUS, reading only the staged current correction record and policy for the C10 fixture. Mechanically derive future REC-02 STATUS from exact `S`, preserving this record and all nine frozen dispositions while changing active state from correction to REC-02 r2.
 9. Preserve workflow security, exact ten-path REC-02 projection, inactive baseline, verifier and seven scene outputs, NO-PUBLISH controls, and locked simulations.
 
-The C8→C9 structured-fixture delta is `98→101`: one new r6 frozen-branch rejection and two C8-tree framing-only rejections, one each for the correction and future routes. These are identity-ratchet fixtures. C8 receipt loss is controlled separately by status-first raw capture plus post-status and unavailable-wrapper tests; improper same-identity reinvocation is controlled by exclusive per-label receipts, fixed state order, and `EEXIST` replay rejection; accidental frozen audit execution is controlled on the authorized runner path by exact canonical-runner enforcement, frozen-manifest pre-spawn denial, and the production-session audit fence. None of those runner-layer controls is counted in the 101 policy fixtures.
+The C8→C9 structured-fixture delta remains immutable at `98→101`: one r6 frozen-branch rejection and two C8-tree framing-only rejections. The C9→C10 delta is exactly `101→104`: one compound three-path worktree-poison exclusion, wrong immutable C9/Q source rejection, and consumed r7/C9 branch rejection. The Q-direct REC-02 fixture replaces the earlier P-direct fixture and adds no count. The final self-test must therefore report 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, and 104 structured adversarial fixtures. The candidate-only store requires nine unique controls: the six historical Gate A controls plus the C9 head commit, Q commit, and shared C9/Q tree; the forbidden inventory remains 103 objects. Receipt loss, improper same-identity reinvocation, and accidental frozen audit execution remain separate runner-layer controls and are not silently counted as policy fixtures.
 
 ## 6. Receipt-capture and launcher preflight
 
-Before any C9 identity freeze, an external pinned-Node runner must be validated with disposable stubs and temporary repositories from an unrelated caller directory. The production bindings are:
+The C9 external session and launcher identities are complete and consumed. They are historical evidence only and must not be copied as a production receipt or invoked for C10. Before any C10 identity freeze, a fresh external pinned-Node runner was validated with disposable stubs and temporary repositories from an unrelated caller directory. The exact C10 bindings are:
 
-- runner: `/private/tmp/sunsplitter-c9-runner/c9-receipt-runner.mjs`;
-- disposable preflight test: `/private/tmp/sunsplitter-c9-runner/c9-receipt-runner.test.mjs`;
-- canonical post-freeze session manifest: `/private/tmp/sunsplitter-c9-runner/session/manifest.json`;
+- runner: `/private/tmp/sunsplitter-c10-runner/c10-receipt-runner.mjs`;
+- disposable preflight test: `/private/tmp/sunsplitter-c10-runner/c10-receipt-runner.test.mjs`;
+- canonical post-freeze session manifest: `/private/tmp/sunsplitter-c10-runner/session/manifest.json`;
 - pinned runtime: `/Users/manra/From the Ashes/Tools/Node 22.16.0/node-v22.16.0-darwin-arm64/bin/node`, Node.js `v22.16.0`.
 
 For every launched candidate command it must:
@@ -146,18 +199,18 @@ For every launched candidate command it must:
 - resolve the candidate clone and clone-local absolute `scripts/release-policy.mjs` path;
 - set child `cwd` to the clone's physical path and reject a symlinked or indirect `.git` entry;
 - construct a minimal environment and remove unsafe `GIT_*` variables;
-- bind immutable canonical manifest bytes, fixed absolute paths, exact runner identity, and the fixed `A01` through `B11` state order before setup or spawn;
+- bind immutable canonical manifest bytes, fixed absolute paths, exact runner identity, exact C10 topology `Q→C10→S→REC-02 r2`, and the fixed `A01` through `B11` state order before setup or spawn;
 - create exclusive stdout, stderr, and status files before spawning;
 - write and sync the numeric exit status before parsing, hashing, JSON decoding, or formatting output;
 - hash raw stored bytes using built-in Node crypto only after storage succeeds;
 - atomically emit one canonical receipt JSON that names the command, cwd, script, exit, byte counts, and SHA-256 digests;
 - prevent C7's wrong-working-directory class by deriving and validating the physical clone `cwd` and clone-local script identity; reproduce C8's unavailable-global failure in a negative control without risking a candidate result.
 
-The runner rejects a copied or alternate launcher before canonical-session writes. It rejects any of the nine frozen heads or trees in any candidate/future manifest identity position before Git access, setup, or child spawn. Its disposable test exercised all 18 frozen OIDs as candidate head/tree negatives and proved that no `started.json`, bundle, clone, state, or child output was created. Transition checks require exact clean `C→Q` before B08, exact clean `Q→T` before B10, and exact clean `T→C` restoration after B11.
+The runner must reject a copied or alternate launcher before canonical-session writes. It must reject any of the nine frozen heads or trees, the consumed C9/r7 identity in an active C10 position, and the preserved unfrozen Q-based r2 projection in any candidate/future identity position before Git access, setup, or child spawn. Its disposable test must prove that no `started.json`, bundle, clone, state, or child output is created for those negatives. Transition checks must require exact clean `C10→S` before B08, exact clean `S→REC-02 r2` before B10, and exact clean restoration to `C10` after B11.
 
 After identity freeze, the orchestration wrapper may only invoke that runner and relay its already-stored output. It must not use `TextEncoder`, orchestration-only globals, ad-hoc hashing, `store`, or JSON parsing as a prerequisite to preserving the child result.
 
-The exact pre-identity external runner receipt is complete:
+The exact C9 pre-identity external runner receipt remains preserved and consumed:
 
 - runner: 49,497 bytes; SHA-256 `adaf2e02f90a1b1d5ee1ea59472d813191a1904c39c83339682eff04af3382c5`;
 - disposable preflight test: 36,049 bytes; SHA-256 `8bdf486ab8c80165037b57d59cebd1ef3c46d8c24a8eb91377c3e2e230f156da`;
@@ -167,50 +220,72 @@ The exact pre-identity external runner receipt is complete:
 - production session absent before and after; production runner bytes unchanged; no disposable roots remained;
 - no real C9 policy mode, inventory/store gate, verifier, simulation, candidate/frozen gate, repository script, or production session ran during this preflight.
 
-Exact preflight receipt:
+Historical C9 preflight receipt:
 
 ```text
 PASS C9 session runner preflight — one absolute runner/session, frozen-identity pre-spawn denial, immutable canonical manifest paths, fixed A/B order, exact C→Q→T→C continuity, durable raw/status capture, unavailable-wrapper survival, replay/order rejection, tamper rejection, binary nonzero preservation, runner drift rejection, pinned-Node failure receipt, and production audit fence
 ```
 
-These identities bind the launcher used after C9 freeze. The runner remains external to the exact three-path candidate and proves receipt/launch behavior only; the committed policy self-test separately owns candidate-store semantics.
+Those identities bind only the already-consumed C9 session. The independently audited C10 external receipt is:
 
-The production runner fence does not make a manual direct invocation of a repository policy mode operating-system-impossible. Such bypass remains prohibited governance. Frozen audits must remain blob-only/static and may not be given a frozen worktree execution target. Fable 5 remains `ADVISORY_INCOMPLETE` because its supplied packet omitted the policy and runner/test; the missing code-level review was supplied by separate independent lanes. The advisory did not broaden scope or authorize any frozen-identity execution.
+- runner: mode `0644`; 52,696 bytes; SHA-256 `56120267169dbb18fade58d87097608dd1ab1768e4bc72369b1768e083bef7b0`;
+- disposable preflight test: mode `0644`; 52,728 bytes; SHA-256 `92135b9e2ecc96f8c067bf427fc2a79e606fd92bfe492dc7878d88a9d341c320`;
+- pinned Node.js `v22.16.0` syntax: PASS for runner and test;
+- full disposable preflight: PASS from unrelated caller directories, disposable stubs, and temporary repositories only;
+- exact 13-label state vector: nine gates at `C`, two at `S`, two at `T`, then clean restoration to `C`;
+- exact topology: `Q→C→S→R→T`, with malformed C/S/R/T parent/order/tree cases and active-commit collisions rejected;
+- durable raw stdout/stderr/status capture, post-status-fault preservation, EEXIST same-label retry denial, unavailable-wrapper survival, binary nonzero preservation, replay/order/facts tamper rejection, runner drift rejection, deterministic wrong-Node receipt, and final clean restoration: PASS;
+- all 23 role-forbidden OIDs across all six active manifest positions rejected before setup or child spawn;
+- physical protected-root, direct production/C9, and symlink-alias launch fences: PASS;
+- an existing, canonical, unprotected builder outside the per-case disposable sandbox was rejected by the general containment guard before spawn;
+- production C10 session: absent before and after;
+- consumed C9 recursive digest: `a84901d7075ccf85286c63f6aa20fe50a63953a9db445b6ef64f79abfdff1080`, unchanged across 1,272 entries; its exact runner/test/manifest/state anchors also remained unchanged;
+- independent exact-hash runner/test re-audit: PASS with no remaining runner-specific blocker.
+
+The C10 runner remains external to the exact three-path candidate and proves receipt/launch behavior only; the committed policy self-test separately owns candidate-store semantics. Its successful disposable preflight did not invoke any repository policy mode, candidate gate, frozen identity, verifier, simulator, branch, PR, or remote mutation.
+
+The production runner fence does not make a manual direct invocation of a repository policy mode operating-system-impossible. Such bypass remains prohibited governance. Frozen audits must remain blob-only/static and may not be given a frozen worktree execution target. Fable 5's C9 advisory remains document-only and Grok's C9 advisory remains governance-only; neither reviewed the C10 code or launcher bytes, broadened scope, or authorized frozen-identity execution.
 
 ## 7. Required evidence
 
 Pinned Node.js: `v22.16.0`.
+
+Pre-identity store-unit repair receipt: two isolated C10 self-test processes reproducibly blocked while the test copied a reachable blob through `git hash-object --literally -t blob -w --stdin`. Process inspection showed each Node self-test sleeping behind exactly one sleeping `git hash-object` child; neither emitted a PASS or failure line. The current invocation and the older stale invocation were terminated with SIGTERM; the current shell receipt was exit `143`. No C10 commit, tree, manifest, raw frame, bundle, branch push, PR, synthetic merge, or CI identity existed. The blocking in-memory pipe is retired. The replacement writes each already-read raw object to one mode-`0600` file in a separate disposable transfer directory, invokes `git hash-object -t <type> -w --no-filters -- <physical-file>`, deletes the file, and still requires the copied OID to equal the source OID before continuing. This is a repairable pre-freeze harness receipt, not a frozen-identity retry or PASS claim.
+
+Pre-identity three-path poison-proof repair receipt: the first post-audit self-test attempt stopped before policy assertions with sandbox-only Git errors `unable to create temporary file: Operation not permitted` and `unable to create backing store for newly created file scripts/verify.mjs`; exit was `1`, no policy result existed, and the staged/worktree bytes remained equal. The permissioned attempt then blocked while the new poison proof redundantly constructed another candidate fixture: Node PID `52182` slept behind PID `69195` running `git hash-object -w --stdin`; neither emitted PASS or failure. Both exact processes were terminated with SIGTERM and the shell receipt was exit `143`. The interrupted attempt left only its explicit poison marker appended to the correction-record worktree file; that marker was removed to restore exact staged bytes. No C10 identity, branch ref, push, PR, synthetic merge, CI run, or one-shot session existed. The replacement exercises the production immutable/index-bound three-path byte-source acquisition under each physical worktree poison without creating repeated Git objects, restores each path exactly in `finally`, and compares all acquired bytes to the clean source set. This remains repairable pre-freeze harness evidence, not a frozen-identity retry or PASS claim.
+
+Final pre-freeze static-audit repair receipt: the first re-audit of the stabilized bytes found that the historical-fixture and derived-STATUS source parameters were dereferenced before their resolved OID was compared with `Q`, so the alias `HEAD` could be accepted while the candidate branch still pointed at `Q`. No mode or gate was executed by that audit, and no identity was frozen. Both source entry points now require the supplied string to equal the literal lowercase 40-hex `Q` before any Git invocation. The existing compound immutable-source fixture now covers `HEAD`, uppercase Q, whitespace-padded Q, P, and a missing OID against both entry points, requires the exact entry-point error, and proves zero Git calls while preserving the structured-fixture total of 104. The first post-guard pre-identity self-test exited `1` because one older standalone P-source assertion still expected the retired post-dereference `fixture source OID drifted` message; the guard itself emitted the new exact pre-dereference error, no candidate PASS or frozen identity existed, and that stale assertion is now bound to the exact literal-Q error.
 
 Before identity freeze, repair is allowed and the following must pass:
 
 - exact authority/base/scope review;
 - syntax for the policy, external receipt runner, and disposable runner test under pinned Node.js `v22.16.0`;
 - full disposable external-runner preflight and exact-hash independent runner audit, without invoking a repository policy mode or candidate/frozen gate;
-- policy self-test with 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, 101 structured adversarial fixtures, schema-v2 store-closure negatives, immutable Gate A, correction/future route self-consumption, sealed ART compatibility, and NO-PUBLISH;
+- policy self-test with 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, exactly 104 structured adversarial fixtures, schema-v2 store-closure negatives, immutable Gate A and C9/Q fixtures, C10/future route self-consumption, sealed ART compatibility, three-path worktree poisoning with exact restoration, and NO-PUBLISH;
 - mechanical nine-parent reconciliation, evaluated-constant/prose inventory parity, and clean lossless UTF-8 across both documents, policy, runner, and test;
 - exact document SHA-256/blob/byte bindings and active normalized policy projection derivation after both documents stabilize.
 
-The exact-current policy and external-runner code audits pass. The final document identity binding, active projection rebind, exact-current documentation audit, and every one-shot post-freeze gate remain pending until the records stabilize. The real policy, inventory/store, verifier, and simulation commands do not run during the disposable preflight.
+The C10 policy and documents remain pre-identity and repairable. The external runner/test are stabilized at the exact identities above. The document identities, 104 structured count, active projection, syntax/self-test results, and independent code/document audits must all agree before freeze. The real policy, inventory/store, verifier, and simulation commands did not run during the disposable preflight.
 
-After identity freeze, every first required result is terminal. The fixed real sequence is `A01 inventory → A02 schema-v2 store closure → B01 policy self-test → B02 verifier self-test → B03 full verifier → B04 simulator self-test → B05/B06/B07 random/cheapest/priciest 2,000-run gates → B08/B09 cold correction PR/push at Q → B10/B11 cold REC-02 PR/push at T → exact restoration to C`. It must prove:
+After identity freeze, every first required result is terminal. Let `C` be the exact frozen C10 candidate direct child of `Q`; `S` the exact synthetic/protected-successor-shaped merge with ordered parents `[Q,C]` and tree equal to `C`; `R` the derived REC-02 r2 candidate direct child of `S`; and `T` the exact synthetic REC-02 successor with ordered parents `[S,R]` and tree equal to `R`. The fixed real sequence is `A01 inventory → A02 schema-v2 store closure → B01 policy self-test → B02 verifier self-test → B03 full verifier → B04 simulator self-test → B05/B06/B07 random/cheapest/priciest 2,000-run gates → B08/B09 cold C10 PR/push evaluator facts at S → B10/B11 cold REC-02 PR/push evaluator facts at T → exact restoration to C`. The bound state vector is nine gates at `C`, two at `S`, and two at `T`; no wording here asserts that a real PR already exists at `S` or `T`. It must prove:
 
 - exact mode/blob/SHA-256/byte identities, sorted three-path manifest, raw commit frame, framed SHA-1, sole parent, tree, and clean index/worktree;
-- candidate-only bundle and clean clone A with only candidate-reachable history, no refs/remotes/alternates/shallow/common/promisor state, all 103 forbidden objects absent, and all six protected controls present;
+- candidate-only bundle and clean clone A with only candidate-reachable history, no refs/remotes/alternates/shallow/common/promisor state, all 103 forbidden objects absent, and all nine protected controls present;
 - inventory and store checker run first in untouched clone A through the preflighted receipt runner;
-- separate clean clone B policy self-test, including 162 zero-Git failed-head checks, 86 historical raw-frame fixtures, 101 structured fixtures, immutable Gate A, correction, future REC-02, sealed ART, and NO-PUBLISH;
+- separate clean clone B policy self-test, including 162 zero-Git failed-head checks, 86 historical raw-frame fixtures, exactly 104 structured adversarial fixtures, immutable Gate A and C9/Q, C10 correction, future REC-02, sealed ART, and NO-PUBLISH;
 - verifier self-test, full verifier, and simulator self-test;
 - random, cheapest, and priciest at seed `20260817`, exactly 2,000 runs each;
 - cold correction PR/push and future REC-02 PR/push evaluators in separate processes without self-test warm-up;
 - final source and disposable clone cleanliness.
 
-After complete local PASS only, one push of the exact r7 identity and one draft PR against `recovery/e4f8440-nopub` are authorized. Attributable attempt-1 CI and independent adjudication must bind to the exact synthetic merge. Any required mismatch freezes that exact identity without retry.
+After complete local PASS only, one push of the exact r8 identity and one draft PR against `recovery/e4f8440-nopub` are authorized. Attributable attempt-1 CI and independent adjudication must bind to the exact synthetic merge. Any required mismatch freezes that exact identity without retry.
 
 ## 8. Stop state
 
-PRs #30, #31, #33, and #34 and their branches remain open/draft/unmerged/frozen at their exact recorded heads. C5 r3 and C7 r5 remain consumed and must not be created or pushed. PRs #26 and #27 remain frozen; PR #28 remains outside scope.
+PRs #30, #31, #33, and #34 and their branches remain open/draft/unmerged/frozen at their exact recorded heads. PR #35 is merged at exact Q and its r7 route is consumed. C5 r3 and C7 r5 remain consumed and must not be created or pushed. PRs #26 and #27 remain frozen; PR #28 remains outside scope. The Q-based REC-02 r2 pre-freeze projection remains uncommitted and unpushed and may not become an identity.
 
 - Protected-base ROADMAP/LOCKS/STATUS record the owner-approved dispositions at ruling commit `009fca7884e360486ddda172c389f480b62323a5`: L-025 — LOCKED: Commander identity Option B; rendered-path audit and synchronization remain pending. L-026 — LOCKED: retain zero/one branches solely as tested defensive save-recovery guards; coverage is not yet dispatched. L-027 — LOCKED: retire `vess_course_lost` and its promised downstream-course consequence; removal is not yet dispatched. L-028 — DEFERRED: default RETIRE unless mobile PX meets a pre-registered, Manraj-approved comprehension threshold; no indicator is authorized.
-- `main@792e202` has a documented authority lag: AGENTS agrees at blob `592d7428b83677ab4dfd002b7181fe7c298bc084`, but main ROADMAP/PROJECT_STATUS/LOCKS blobs `788b15255bec3c65ff433a2c299ed709a27d3fb2` / `2e5b3d38c594be429b6f723bdcf695669e943774` / `398afd1f6284b7f9223f89431017425b265a67b2` still show pre-ruling/pre-Gate-A state. At C9 dispatch, exact Gate-A protected base P had ROADMAP/PROJECT_STATUS/LOCKS blobs `4b80ef5d26fab3eda752eeb0902dc255bb127263` / `5684cf777304dcef176f115aa84ad310b28a2431` / `7b79cf7058e5bfa21f8429c405078c2364fcba44`. This lag does not downgrade protected-base dispositions. The already owner-approved post-recovery ROADMAP/LOCKS changes must later be rebuilt from the final recovery successor and land atomically with PROJECT_STATUS; C9 does not rule locks.
+- `main@792e202` has a documented authority lag: AGENTS agrees at blob `592d7428b83677ab4dfd002b7181fe7c298bc084`, but main ROADMAP/PROJECT_STATUS/LOCKS blobs `788b15255bec3c65ff433a2c299ed709a27d3fb2` / `2e5b3d38c594be429b6f723bdcf695669e943774` / `398afd1f6284b7f9223f89431017425b265a67b2` still show pre-ruling/pre-Gate-A state. Exact Q retains ROADMAP/LOCKS blobs `4b80ef5d26fab3eda752eeb0902dc255bb127263` / `7b79cf7058e5bfa21f8429c405078c2364fcba44`. This lag does not downgrade protected-base dispositions. The already owner-approved post-recovery ROADMAP/LOCKS changes must later be rebuilt from the final recovery successor and land atomically with PROJECT_STATUS; C10 does not rule locks.
 - R5–R7 source, images, receipts, builds, evaluator/App work, and cloud resources remain frozen.
 
 Rulesets, required checks, bypass actors, protected refs, and PR state remain merge-time external facts. No omitted `bypass_actors` field may be interpreted as empty.
@@ -219,4 +294,4 @@ Rulesets, required checks, bypass actors, protected refs, and PR state remain me
 
 ## 9. Next action
 
-**Build / GPT-Codex:** bind the stabilized documents and active projection, complete the exact-current pre-freeze re-audit, then freeze and run the required one-shot clean-clone and exact-head gates. Only after complete PASS, push the exact r7 identity once and open one draft PR. No ready transition or protected merge is authorized.
+**Build / GPT-Codex:** run the repaired pre-identity self-test and remaining pre-freeze static checks; only after PASS may Build freeze and enter the 13-gate one-shot. `NO-PUBLISH / NOT CERTIFIED` remains active.
