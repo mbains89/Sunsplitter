@@ -118,7 +118,7 @@ These rules survive every version unless Manraj explicitly reopens one.
 
 ### UI and save model
 
-- Mobile-first, single-column composition remains the primary layout through 0.31.
+- Mobile-first, single-column composition remains the primary layout through 0.35. Version 0.36 adds a second PC composition without changing scene data, state, saves, consequences, or content.
 - Artwork stays pinned while scene text scrolls below/alongside it according to the active composition.
 - Choices remain stacked, thumb-friendly, and legible. No mobile-only story branch.
 - Primary interface is scene text, speaker/context, choices, and minimal utility buttons—not a conventional HUD, dashboard, notification layer, or quest surface.
@@ -227,26 +227,51 @@ The detailed pre-0.28 status ledger remains in Git history at `2bb4517:artifacts
 ## 4. Locked dependency spine
 
 ```text
-AUTHORITY BOOTSTRAP (ROADMAP + STATUS synchronization)
+AUTHORITY BOOTSTRAP
   ↓
-0.28.2 — Truth Hotfix
+0.28.2 - Truth Hotfix
   ↓
-0.28.3 — Chain-of-Custody + Systemic-Truth Foundation
+0.28.3 - Chain-of-Custody + Systemic-Truth Foundation
   ↓
-PX GATE — Player Experience Baseline & Design Governance
+PX GATE - Player Experience Baseline & Design Governance
   ↓
-0.29 — What Remains + evidence-backed density
+0.29 - What Remains + evidence-backed density
   ↓
-0.30 — Packaging & Presentation
+0.30 - Packaging & Presentation
   ↓
-0.31 — Independent External Review #2 + remediation/retest
+0.30.1 - Governed Recovery Integrity (active; NO-PUBLISH)
   ↓
-0.32 — PC Readiness
+0.31 - Systemic Truth Closure
   ↓
-0.33 — Commercial Readiness
+0.32 - Save Trust & Recovery
   ↓
-1.0 — Release Candidate / launch gate
+0.33 - Player Experience & Narrative Closure
+  ↓
+0.34 - Mobile UX, Accessibility & Performance
+  ↓
+0.35 - Packaging & Private Itch Candidate
+  ↓
+0.36 - PC Readiness
+  ↓
+0.37 - External Review Pilot
+  ↓
+0.38 - Player Validation Cohort
+  ↓
+0.39 - Commercial Readiness
+  ↓
+0.40 - Launch Rehearsal / Release Candidate
+  ↓
+1.0 - Public Release
 ```
+
+### Planned version-number policy
+
+- Keep 0.30.1 unchanged because its identity is already bound into active recovery governance.
+- Planned, independently testable milestones after recovery use the next minor version: 0.31 through 0.40.
+- Patch versions are not scheduled in advance. A patch such as 0.37.1 exists only for evidence-backed remediation after a milestone closes.
+- An internal milestone may be SHIPPED on the repository without being RELEASED, DEPLOYED, publicly listed, or monetized.
+- Each version receives one consolidated owner close-out approval. One-concern ticket pull requests remain subordinate implementation units and do not create new versions.
+- Reusable Core Extraction remains post-1.0, unversioned Sunsplitter work and may not delay recovery, certification, or publication.
 
 **Milestone A = 0.28.2 + 0.28.3.** Both must ship before the PX gate closes or any 0.29 prose opens.
 
@@ -494,7 +519,7 @@ PX-4 does not reopen the A/B choice. Audit every rendered prose path, not only l
 
 ### PX-8 — Accessibility and Real-Device Performance
 
-- Audit iPhone Safari and representative Android Chrome first; include desktop browsers before 0.32.
+- Audit iPhone Safari and representative Android Chrome first; include desktop browsers before 0.36.
 - Measure text scaling, contrast, focus, touch targets, announcements, reduced motion, scrolling, memory/load time, image decode, save/resume, and orientation/resize behavior.
 - Rank measured failures P0/P1/P2 and change only what evidence supports.
 - Preserve the locked presentation model unless a measured failure requires a revision.
@@ -514,8 +539,8 @@ PX-4 does not reopen the A/B choice. Audit every rendered prose path, not only l
 
 ## 8. 0.29 — What Remains + Evidence-Backed Density
 
-**Status:** LOCKED destination; exact prose opens only after PX findings and promise semantics are resolved.
-**Entry:** Milestone A complete; PX findings closed or ranked-deferred.
+**Status:** PARTIALLY IMPLEMENTED on the recovery runtime and not certified. Preserve the existing 0.29 bytes; version 0.33 measures, gap-audits, and closes this destination rather than rebuilding it wholesale.
+**Recovery disposition:** No new 0.29 branch is opened. Evidence-backed corrections belong to 0.33.
 
 ### Locked core
 
@@ -541,8 +566,8 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 
 ## 9. 0.30 — Packaging and Presentation
 
-**Status:** LOCKED presentation milestone; three user ideas remain CANDIDATES.
-**Entry:** 0.29 complete.
+**Status:** PARTIALLY IMPLEMENTED on the recovery runtime and not certified. Preserve the existing 0.30 bytes; remaining mobile presentation work closes in 0.34 and package/distribution evidence closes in 0.35.
+**Recovery disposition:** No new 0.30 branch is opened.
 
 ### Locked baseline
 
@@ -551,160 +576,301 @@ Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy
 - Strengthen cold-open/mobile composition, type scale, line length, contrast tokens, touch targets, reduced motion, semantic headings/labels, and screen-reader announcements.
 - Provide visible focus, keyboard-safe modal dismissal, focus return, and meaningful accessible labels.
 - Keep the content notice revisitable without turning it into a settings dashboard.
-- Resolve decision briefs for title/tone merge, settings surface, alt-text policy, scene cadence, death beat, ending hierarchy, and completed-save semantics before 0.32.
+- Resolve decision briefs for title/tone merge, settings surface, alt-text policy, scene cadence, death beat, ending hierarchy, and completed-save semantics before 0.36.
 - Do not add a new surface unless clarity, accessibility, or measured first-run evidence requires it.
 
 ### Candidate presentation experiments
 
 | Candidate | Earliest placement | Gate |
 |---|---|---|
-| Initial Earth-calamity video | 0.30 | PX-1 must show the cold open needs it. Require skip/pause, captions or equivalent text, reduced-motion/static fallback, load budget, and no autoplay trap. |
-| Initial skippable tutorial | 0.30 | PX-1 must identify a first-run comprehension failure. It must be skippable, replayable, touch/keyboard safe, and must teach existing interactions only. |
-| Clickable crew portrait/details | 0.30, with desktop composition refined at 0.32 | May show existing portrait, bio, and truthful known status. No numeric/upgradable “stats,” affinity values, hidden flags, or new management system. |
+| Initial Earth-calamity video | 0.34 | 0.33 evidence must show the cold open needs it. Require skip/pause, captions or equivalent text, reduced-motion/static fallback, load budget, and no autoplay trap. |
+| Initial skippable tutorial | 0.34 | 0.33 evidence must identify a first-run comprehension failure. It must be skippable, replayable, touch/keyboard safe, and must teach existing interactions only. |
+| Clickable crew portrait/details | 0.34, with desktop composition refined at 0.36 | May show existing portrait, bio, and truthful known status. No numeric/upgradable “stats,” affinity values, hidden flags, or new management system. |
 
 The breast-cover toggle remains HELD and is not part of this milestone.
 
 ---
 
-## 10. 0.31 — Independent External Review #2
+## 10. 0.31 - Systemic Truth Closure
 
-**Status:** LOCKED definition.
-**Entry:** 0.30 candidate build; `verify.mjs` and `simulate.mjs` green.
-
-### Purpose
-
-Fresh-stranger structural and experience audit after systemic truth, PX governance, content, and packaging. Catch residual lies, save/UI trust failures, and pacing problems that project authors no longer see.
-
-### Reviewer independence
-
-- At least two reviewers who have never seen the codebase or prior internal reports.
-- At least one mobile-primary reviewer (iPhone Safari preferred) and one desktop reviewer.
-- No prior playthrough of an earlier Sunsplitter build.
-
-### Scope and artifacts
-
-- Full start-to-end runs on phone and desktop.
-- First-run clarity, save/resume trust, choice legibility, art/text composition, resource honesty, death continuity, ending specificity, adult-content discoverability/consent clarity, and replay desire.
-- P0/P1/P2 findings with exact scene ID or UI location, device/browser, reproduction steps, and evidence.
-- Short experience notes: what felt earned, opaque, memorable, or exhausting.
-- Explicit confirmation checks for dead speech, unpaid cost execution, save loss, softlock, and counterfactual ending text.
-
-### Severity and exit
-
-- **P0:** causality lie, unpaid cost execution, dead speech/presence, save loss, unrecoverable softlock, or false ending. Blocks everything later.
-- **P1:** major pacing/comprehension failure, missing gate telegraph, broken image honesty, first-run trust failure, or save-integrity risk.
-- **P2:** polish/discoverability/minor wording/non-blocking layout.
-- All P0 close and pass retest. A recorded risk acceptance does not silently erase P0 severity; it still blocks 0.32, 0.33, and 1.0 unless evidence supports formal reclassification.
-- P1 is fixed or ranked-deferred with owner/version; any P1 affecting first-run trust or save integrity blocks 1.0.
-- Reviewers can finish on phone without developer habits.
-- Fixes and mandatory retests ship as 0.31.x; new findings may not be waved through without retest evidence.
-- No “fix” introduces a new system, meter, or adult-content softening.
-
----
-
-## 11. 0.32 — PC Readiness
-
-**Status:** LOCKED amendment.
-**Entry:** 0.31 has no open P0 and blocking P1s are resolved.
-
-PC is a second composition of the same browser build, not a port.
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** The governed 0.30.1 recovery sequence is closed at one exact successor. Active recovery branches and pull requests are not renamed, widened, or invalidated by this future scope.
+**Concern:** make every surviving systemic truth rule stable enough for ordinary development.
 
 ### Scope
 
-- Widescreen layout: 784×1168 portrait plates beside the prose column instead of above it; no art regeneration merely for widescreen.
-- Desktop type scale and line-length caps.
-- Full keyboard play: number keys select choices; Enter/Space advance where unambiguous; real focus states and focus order.
-- Hover states distinct from pressed/selected states.
-- Fullscreen, window resize, zoom, and common desktop viewport sanity.
-- Mobile and PC use identical scene data, state, saves, consequences, and content.
+- Eliminate remaining unpaid-cost and false-ending classes after 0.30.1, with V1, V3, V4, V5, and V6 enforced at their approved hard thresholds.
+- Complete approved promise semantics, explicit stable cause IDs, render-time write removal, side-effect-free rendering, state-registry discipline, and fail-closed unknown-domain handling.
+- Harden validator independence and negative fixtures so tests do not merely repeat production assumptions.
+- Complete the unified economy truth record: starting values, typical spends, floors, lethal thresholds, ending requirements, resource-rich and resource-poor viability, and full-survival evidence.
+- Implement any still-pending bounded consequences of the ruled L-025 through L-027 decisions without reopening those decisions.
+- Add no new story volume, cast, visible system, meter, dashboard, or architecture rewrite.
 
-### Out
+### Exit
 
-- No Electron/Tauri/native wrapper.
-- No gamepad support, achievements, cloud saves, new gameplay systems, or PC-only narrative branch.
-- No rebuild of settings/title/cadence decisions that 0.30 already resolved.
-
-### Acceptance
-
-- Start-to-end keyboard-only run succeeds.
-- Mouse, touch, keyboard, zoom, fullscreen, and resizing preserve choice/state integrity.
-- Desktop composition does not regress phone layout.
-- Representative desktop browser/device matrix passes the PX-8 checks.
+- Full verifier and locked simulation profiles pass at one exact close-out SHA.
+- Every changed truth rule has base-negative and head-positive evidence.
+- State contracts, cause identifiers, promise lifecycle, and economy evidence agree.
+- No unresolved systemic-truth P0 advances to 0.32.
 
 ---
 
-## 12. 0.33 — Commercial Readiness
+## 11. 0.32 - Save Trust and Recovery
 
-**Status:** LOCKED direction, with submission-time policy recheck.
-**Entry:** 0.32 passes.
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.31 closes with systemic truth gates green.
+**Concern:** make starting, continuing, recovering, exporting, importing, and completing a run trustworthy.
 
-### Distribution direction
+### Scope
 
-- itch.io is the primary 1.0 commercial storefront.
-- Before submission, complete itch.io's Adult classification and built-in AI Disclosure; keep cover art non-explicit; verify content and monetization against current adult-content and payment-processor rules.
-- Re-check policies at submission because platform and processor requirements change and some review is case-by-case.
-- Retire Netlify as the canonical public/commercial game host before monetization, or retain only a private preview/non-explicit marketing mirror. This is a conservative continuity decision, not a claim that Netlify categorically bans lawful adult content.
-- Steam is a separate post-1.0 decision. If later pursued, submit the stable near-final build/store page with mature-content and generative-AI disclosures and allow extra review time.
+- Correct NEW RUN, Continue, completed-run, and replay behavior.
+- Define one authoritative save schema and version source.
+- Provide non-destructive export and import, migration rules, corruption detection, recovery fallback, downgrade refusal, and clear failure messaging.
+- Preserve the original save until replacement data validates.
+- Test malformed data, interrupted import, stale saves, version upgrades, rejected downgrades, empty saves, completed saves, and resume at every write-sensitive boundary.
+- Keep saves local and account-free. No backend, telemetry, account system, or cloud saves.
 
-Official policy references to re-check:
+### Exit
 
-- [itch.io adult-content FAQ](https://itch.io/docs/creators/faq#is-adult-content-allowed)
-- [itch.io adult classification](https://itch.io/docs/creators/quality-guidelines#adult-content)
-- [itch.io AI disclosure](https://itch.io/docs/creators/quality-guidelines#ai-disclosure)
-- [itch.io payment terms](https://itch.io/docs/legal/terms#7-acceptable-payment-forms)
-- [Netlify Acceptable Use Policy](https://www.netlify.com/legal/acceptable-use-policy/)
-- [Netlify Website Terms of Use](https://www.netlify.com/legal/terms-of-use/)
-- [Netlify Self-Serve Subscription Agreement](https://www.netlify.com/legal/self-serve-subscription-agreement/)
-- [Steam rules/onboarding](https://partner.steamgames.com/doc/gettingstarted/onboarding#5)
-- [Steam content survey](https://partner.steamgames.com/doc/gettingstarted/contentsurvey)
-- [Steam review process](https://partner.steamgames.com/doc/store/review_process)
-
-### Commercial checklist
-
-- Audit and bundle fonts; confirm licenses such as OFL where applicable.
-- Enumerate third-party code/assets and preserve license notices.
-- Manraj decides price.
-- Prepare honest store copy, screenshots, adult/content descriptors, AI disclosure, trailer/press kit as justified, support contact, and known-bugs list.
-- Verify before claiming: localStorage-only saves, zero analytics, no account/backend, and the exact privacy posture stated on the page.
-- Run the full release gate: `verify.mjs` green; V1–V6 at their locked hard thresholds; mobile/desktop playtest sign-off; policy/content review; artifact digest.
-- Business-entity and tax setup remains owner-handled and outside the game roadmap.
+- The save torture matrix passes on phone and desktop.
+- NEW RUN always produces a fresh legal state through an explicit user action.
+- Continue never restores an unrecoverable or falsely advanced state.
+- Failed import or migration cannot destroy the last valid save.
+- Save behavior and user-facing messaging agree at one exact close-out SHA.
 
 ---
 
-## 13. 1.0 — Release Candidate / Launch Gate
+## 12. 0.33 - Player Experience and Narrative Closure
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.32 save trust passes.
+**Concern:** measure the real experience before making the final bounded narrative corrections.
+
+### Stage A - evidence
+
+- Measure first-run and replay duration, major-beat spacing, comprehension, choice difficulty, outcome distribution, survivor attachment, fatigue, save trust, and replay intent.
+- Close the Commander presentation, command-authority and sexual-power, and private voyage chronology audits.
+- Compare human behavior with locked simulations and define the approved pacing and outcome envelope.
+
+### Stage B - bounded closure
+
+- Gap-audit the existing What Remains and Cascade Allusive implementation rather than rebuilding it.
+- Repair only evidenced gaps in consequence chains, aftermath, cross-route awareness, ending specificity, and post-intimacy operational continuity.
+- Decide whether the opening video, tutorial, or descriptive crew-detail surface has earned implementation in 0.34.
+- Evidence-gated residual pair, debt, pregnancy, or death texture may proceed only through a bounded ticket.
+- Add no new system, cast member, route family, meter, or speculative content volume.
+
+### Exit
+
+- Every implemented narrative correction cites a measured finding.
+- What Remains uses only current-run facts and approved promise states.
+- Pacing, chronology, Commander identity, power, and outcome-envelope decisions are recorded.
+- The 0.34 candidate decisions are explicitly approved, rejected, or deferred.
+
+---
+
+## 13. 0.34 - Mobile UX, Accessibility and Performance
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.33 closes with its evidence and presentation decisions.
+**Concern:** make the primary phone experience legible, accessible, fast, and trustworthy.
+
+### Scope
+
+- Finalize mobile composition, typography, line length, contrast, touch targets, focus, semantic labels, screen-reader announcements, reduced motion, scrolling, orientation, resize behavior, image decode, memory, and load performance.
+- Remove raw production chrome and preserve one authoritative visible version.
+- Finalize the content notice and completed-save presentation without creating a settings dashboard.
+- Implement only those opening video, tutorial, or crew-detail candidates approved by 0.33 evidence.
+- Test iPhone Safari and representative Android Chrome first.
+- Preserve identical story, state, consequences, and content across devices.
+
+### Exit
+
+- The mobile accessibility and performance matrix passes.
+- A first-time player can start, understand, save, resume, and finish without developer instructions.
+- No mobile correction creates a new gameplay system or hidden state surface.
+- The exact 0.34 package is ready for deterministic packaging.
+
+---
+
+## 14. 0.35 - Packaging and Private Itch Candidate
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.34 passes its mobile and accessibility matrix.
+**Concern:** prove that exact repository bytes become one truthful private distribution candidate.
+
+### Scope
+
+- Build the deterministic runtime ZIP, manifest, checksums, version table, image allowlist, license inventory, and release evidence from one exact SHA.
+- Prepare the private itch page, truthful content descriptors, AI-disclosure draft, accessibility statement, support path, screenshots, and known-bugs list.
+- Verify cold load, iframe and fullscreen behavior, save and resume, completed-run behavior, page-to-game return, and package identity on iPhone and Android.
+- Keep the page private or restricted. No public launch, pricing, payment, monetization, or release claim.
+
+### Exit
+
+- ZIP, manifest, repository revision, uploaded bytes, and recorded digests agree.
+- Private-package smoke tests pass on the required mobile devices.
+- Rights, licenses, content notices, privacy claims, and support information are internally complete.
+- The exact candidate is ready for the PC composition pass.
+
+---
+
+## 15. 0.36 - PC Readiness
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.35 produces an exact private candidate.
+**Concern:** deliver a second composition of the same browser game before desktop reviewers evaluate it.
+
+### Scope
+
+- Place the existing portrait plates beside the prose column at suitable widescreen viewports without regenerating art merely for desktop.
+- Finalize desktop type scale, line-length caps, keyboard choice selection, focus order, hover states, fullscreen, zoom, resize, and common desktop viewport behavior.
+- Preserve the same scene data, state, saves, consequences, content, and package.
+- Add no native wrapper, gamepad support, achievements, cloud saves, or PC-only narrative branch.
+
+### Exit
+
+- Start-to-end keyboard-only and mouse runs succeed.
+- Zoom, fullscreen, resizing, focus, and save integrity pass on representative desktop browsers.
+- Desktop work does not regress the phone layout.
+- Phone and desktop reviewers can now evaluate the intended compositions.
+
+---
+
+## 16. 0.37 - External Review Pilot
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.36 passes mobile and PC composition checks.
+**Concern:** find obvious independent-user blockers before spending the full validation cohort.
+
+### Cohort
+
+- Two formal independent reviewers who have not seen the codebase or prior reports.
+- Three additional representative first-time players.
+- Include mobile-primary, desktop-primary, narrative or horror, mobile-first, and interactive-fiction perspectives across the five participants.
+
+### Scope and exit
+
+- Capture full runs, devices, browsers, reproduction steps, P0, P1, and P2 findings, and short experience notes.
+- Explicitly test softlock, unpaid cost, dead presence, false ending, save loss, first-run comprehension, choice legibility, art honesty, adult-content clarity, and replay desire.
+- Repair and retest every P0 and major P1 before 0.38.
+- Do not spend the remaining cohort on a candidate with known pilot blockers.
+- No pilot repair may add a new system or silently soften canonical adult content.
+
+---
+
+## 17. 0.38 - Player Validation Cohort
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.37 has no open P0 and no major unresolved P1.
+**Concern:** validate comprehension, attachment, decision quality, completion, and replay intent on the repaired candidate.
+
+### Cohort and targets
+
+Add ten new first-time participants so the pilot and validation stages total fifteen:
+
+- Five itch narrative or horror players.
+- Five mobile-first players.
+- Five interactive-fiction or choice-game players.
+- Count each participant in only one cohort.
+
+Targets:
+
+- At least 80 percent accurately explain the premise after the opening.
+- At least 70 percent complete without developer assistance and within the approved pacing range.
+- At least 60 percent remember two or more survivors without prompting.
+- At least 60 percent identify a genuinely difficult decision and its trade-off.
+- At least 50 percent express genuine replay or recommendation intent.
+
+### Exit
+
+- Missed targets become explicit findings rather than being hidden by averages.
+- All P0 findings close and pass retest.
+- Blocking first-run, save-trust, or comprehension P1 findings close before 0.39.
+- Only evidence-backed remediation is allowed; new feature development is closed.
+
+---
+
+## 18. 0.39 - Commercial Readiness
+
+**Status:** LOCKED by Manraj on 2026-08-22, with current-policy decision gates retained.
+**Entry:** 0.38 passes its validation and blocker thresholds.
+**Concern:** make the validated game commercially and operationally ready.
+
+### Scope
+
+- Recheck current itch adult-content, AI-disclosure, payment, and distribution requirements.
+- Resolve L-029 monetization posture and L-030 key-art production method.
+- Finalize store copy, screenshots, non-explicit capsule and banner assets, content descriptors, AI disclosure, accessibility statement, privacy posture, known bugs, support contact, and price when applicable.
+- Confirm font, code, and asset licenses and preserve required notices.
+- Decide the final role of Netlify before public or monetized distribution.
+- Steam remains a separate post-1.0 decision.
+
+### Exit
+
+- Commercial decisions and current policy evidence are recorded.
+- Store claims match the exact build.
+- Distribution, rights, privacy, support, and monetization posture are complete.
+- The release package is ready for one final rehearsal.
+
+---
+
+## 19. 0.40 - Launch Rehearsal and Release Candidate
+
+**Status:** LOCKED by Manraj on 2026-08-22.
+**Entry:** 0.39 passes and all commercial decision gates are ruled.
+**Concern:** rehearse the exact intended launch without changing the game.
+
+### Scope
+
+- Freeze story, scene topology, state schema, and art inventory except for evidence-backed P0 or blocking P1 remediation.
+- Build the deterministic candidate ZIP, manifest, license bundle, release notes, privacy statement, known-bugs list, support path, and artifact digest from one exact SHA.
+- Upload the private or restricted candidate using the intended page layout, content classification, AI disclosure, embed or fullscreen settings, and distribution posture.
+- Run clean-account, iPhone Safari, representative Android Chrome, and desktop browser launch-to-ending tests.
+- Verify rollback, page-to-game return, start, save, resume, completion, What Remains, and replay.
+- Any correction ships as an evidence-backed 0.40.x patch and repeats the affected rehearsal.
+
+### Exit
+
+- Uploaded bytes match the recorded artifact and exact SHA.
+- No P0 or blocking P1 remains.
+- Store page, build, manifest, version surfaces, disclosures, privacy, support, and known bugs agree.
+- The final owner go or no-go packet is complete.
+
+---
+
+## 20. 1.0 - Public Release
 
 **Status:** LOCKED definition.
 
 1.0 may release only when:
 
-- the authored arc is complete;
-- a stranger can start, save/resume, and finish on phone or desktop without developer habits;
-- all permanent causality, adult-content, art, architecture, and outcome locks still hold;
-- no P0 remains; blocking first-run/save P1s are closed and retested;
-- `verify.mjs` and the locked V1–V6 simulation gates pass at the exact release revision;
-- save compatibility/recovery, accessibility, and device matrices pass;
-- the adult-tagged, AI-disclosed build is purchasable on itch.io;
-- store copy, known bugs, privacy posture, support path, release artifact, digest, tag, and deployment record agree;
-- Manraj gives the final go/no-go.
+- 0.40 closes at one exact release-candidate SHA;
+- the authored arc is complete and a stranger can start, save, resume, and finish on phone or desktop without developer habits;
+- all permanent causality, adult-content, art, architecture, state, and outcome locks still hold;
+- verifier, simulation, save, accessibility, device, package, rights, and storefront gates pass;
+- no P0 or blocking first-run, save, or comprehension P1 remains;
+- store copy, known bugs, privacy, support, artifact digest, tag, release, and deployment records agree;
+- Manraj gives the final go or no-go.
 
 Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirements for 1.0.
 
 ---
 
-## 14. Proposal, deferred, held, and rejected register
+## 21. Proposal, deferred, held, and rejected register
 
 | Item | Disposition |
 |---|---|
-| Earth-calamity opening video | CANDIDATE at 0.30 after PX evidence |
-| Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
-| Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
+| Earth-calamity opening video | CANDIDATE at 0.34 after 0.33 evidence |
+| Skippable first-run tutorial | CANDIDATE at 0.34 after 0.33 evidence |
+| Clickable crew portrait/details | CANDIDATE at 0.34/0.36; descriptive only, no hidden/numeric stats |
 | “PM-like” quick roadmap updater | CANDIDATE 0.28.3 governance helper. It may fetch `main`, draft a patch/draft PR, validate, and return a copy-ready summary. It may never write directly to `main` or self-lock. |
 | Ticket 2 new-crew indicator | DEFERRED — default RETIRE. Reconsider only if mobile PX evidence meets a pre-registered, Manraj-approved comprehension threshold in the dispatched PX protocol; absent qualifying evidence at PX closure, retire. No implementation now. |
 | Four-state promise domain | DECISION GATE before 0.28.3 promise implementation and all 0.29 prose |
 | Commander identity A/B | LOCKED — Option B; player-shaped second-person Commander; rendered-path audit still required. |
 | Last Off-Shift zero/one branches | LOCKED — retain zero/one routes solely as tested defensive save-recovery guards; preserve `junctionChoice` behavior. |
 | `vess_course_lost` | LOCKED — retire `vess_course_lost` and its promised downstream-course consequence; no consumer. |
-| Pair residual textures/debt/pregnancy texture | DEFERRED to evidence-gated 0.29 scope |
+| Pair residual textures/debt/pregnancy texture | DEFERRED to evidence-gated 0.33 scope |
 | Breast-cover/explicit-content toggle | HELD/UNSCHEDULED |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
 | Engine/state mechanical split | DEFERRED until after 1.0 or a separately approved architectural need |
@@ -718,7 +884,7 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 15. Agent operating rules
+## 22. Agent operating rules
 
 ### Grok / program office
 
@@ -759,19 +925,21 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 
 ---
 
-## 16. Quick reference
+## 23. Quick reference
 
 | Stage | Exit summary |
 |---|---|
-| Authority bootstrap | ROADMAP exists on `main`; STATUS/README point to it; retired API rules visibly superseded |
-| 0.28.2 | Ten truth defects close; V1/V5 zero; verifier green |
-| 0.28.3 | Chain-of-custody enforced; promise/economy/state foundation truthful; V6 hard |
-| PX Gate | Measured baseline, pacing/outcome standards, identity/power/chronology/save/a11y/distribution decisions |
-| 0.29 | Truthful What Remains + evidence-backed density |
-| 0.30 | Stranger-ready presentation; user ideas only if evidence-backed |
-| 0.31 | Independent mobile/desktop review; blockers fixed and retested |
-| 0.32 | Same browser game works cleanly on PC |
-| 0.33 | itch.io commercial package, disclosures, rights/privacy/release checks |
-| 1.0 | Phone-or-desktop, adult-tagged, AI-disclosed, purchasable, verified |
+| 0.30.1 | Governed recovery closes without publication drift |
+| 0.31 | Systemic truth, state, promise, economy, and validator gates close |
+| 0.32 | Save start, continue, migration, export, import, and recovery are trustworthy |
+| 0.33 | Measured player experience drives bounded narrative closure |
+| 0.34 | Mobile UX, accessibility, and performance pass |
+| 0.35 | One deterministic private itch candidate is proven |
+| 0.36 | Intended PC composition and keyboard play pass |
+| 0.37 | Five-person independent pilot closes obvious blockers |
+| 0.38 | Fifteen-player total cohort validates the repaired game |
+| 0.39 | Commercial, policy, rights, privacy, and storefront work closes |
+| 0.40 | Exact launch rehearsal and release candidate pass |
+| 1.0 | Owner-approved public release |
 
-**Do not start 0.29 or any new story/art volume until both 0.28.2 and 0.28.3 are complete and the PX gate exits.**
+No post-0.30.1 version may begin before its predecessor closes. Reusable Core Extraction remains post-1.0 and may not delay Sunsplitter.
