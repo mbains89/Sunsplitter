@@ -22,6 +22,9 @@ registerScenes({
     ]
   },
 
+  // PRE: arc_fork future-work route | WRITES: paid choices affect resources/affinity/trust/lean; governed floor writes nothing
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Elias text is living-gated
+  // IMAGE: REUSE existing resolver images/power_stress_2.jpg; ART-R2 overlay remains separate
   arc_future_1: {
     get text() {
       let t = `Engineering smells of ozone and overheated insulation.\n\n`;
@@ -39,7 +42,8 @@ registerScenes({
     choices: [
       { text: "Cannibalize habitation relays. Get the drive to answer, even partially.", next: "arc_future_2", effects: { integrity: 6, cohesion: -6, supplies: -3 }, lean: { future: 3 }, affinity: { mira: 6, elias: 6, lena: -4 }, trust: { mira: 4, elias: 5, lena: -4 } },
       { text: "Leave habitation alone. Find another path that does not steal breath.", next: "arc_future_2", effects: { cohesion: 4, integrity: -2, supplies: -5 }, lean: { living: 2 }, affinity: { lena: 5, mira: 2 }, requires: { supplies: { min: 10 } } },
-      { text: "Order a limited pull — enough for diagnostics, not a full restart.", next: "arc_future_2", effects: { integrity: 2, supplies: -4, cohesion: -1 }, lean: { future: 1 }, affinity: { mira: 4 } }
+      { text: "Order a limited pull — enough for diagnostics, not a full restart.", next: "arc_future_2", effects: { integrity: 2, supplies: -4, cohesion: -1 }, lean: { future: 1 }, affinity: { mira: 4 } },
+      { text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2" }
     ]
   },
 

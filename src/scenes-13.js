@@ -48,6 +48,9 @@ registerScenes({
     ]
   },
 
+  // PRE: reckoning rescue route | WRITES: paid choices affect resources/lean; governed floor writes nothing
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Elias and recovered-Tomas text/options are living-gated
+  // IMAGE: REUSE images/observation_bridge.jpg; no new art request
   act3_reckoning_heading: {
     image: "images/observation_bridge.jpg",
     onEnter: () => {},
@@ -76,6 +79,7 @@ Worse: the heading has to be committed now, publicly, logged — before Jiro's h
       if (isAlive("tomas") && state.recovered.tomas) {
         opts.push({ text: "One full cycle. We argue it properly, then we go.", next: "act3_reckoning_delay", effects: { supplies: -4, cohesion: -1 } });
       }
+      opts.push({ text: "Make the minimum burn. Accept the wider intercept.", next: "act3_reckoning_burn_stale" });
       return opts;
     }
   },
