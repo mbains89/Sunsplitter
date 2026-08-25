@@ -1,12 +1,12 @@
-# REC-RATCHET-02 — C10 Immutable-Fixture Policy Successor
+# REC-RATCHET-02 — C14 Trusted GitHub Actions Git-Environment Successor
 
-`SOURCE main@792e202 · RUNTIME 31642c3 · TASK REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R8-C10 · MODE implementation`
+`SOURCE main@792e202 · RUNTIME 5995e34 · TASK REC-RATCHET-02-C14-R12 · MODE implementation`
 
 **Acting role:** Build / GPT-Codex
 
-**Files read:** exact `main@792e202` copies of `AGENTS.md`, `artifacts/ROADMAP.md`, `artifacts/PROJECT_STATUS.md`, and `artifacts/LOCKS.md`; exact protected successor `Q=31642c3` copies of `artifacts/PROJECT_STATUS.md`, `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`, both recovery workflows, `scripts/release-policy.mjs`, and the REC-02 projection artifacts; exact C9 head and protected-merge objects; the preserved unfrozen REC-02 r2 pre-freeze receipt; frozen PR #30/#31/#33/#34 state; Fable 5 and Grok advisory findings; and the independent C10 policy, evidence, and governance design audits.
+**Files read:** exact `main@792e202` authority; exact protected `S=5995e34` authority, policy, workflows, and REC-02 projection artifacts; complete sealed C11/r9, C12/r10, and C13/r11 custody; C13 setup, 13-gate, push, draft-PR, attempt-1 workflow/job/check, and failed raw-log evidence; issue #24; PR #37; required checks; and ruleset `21051662` with explicit empty bypass actors.
 
-**Implementation authorization:** Manraj's active continuous goal authorizes one fresh authority-compliant C10 successor, including isolated local construction, repair before identity freeze, validation, one non-protected branch push, and one draft PR after complete local PASS. It does not authorize reuse or modification of any frozen identity, the consumed C9 route, the preserved unfrozen Q-based r2 candidate, a ready transition, protected merge, issue repin, REC-02 activation, deployment, publication, release, tag, certification, or production activation.
+**Implementation authorization:** Manraj explicitly authorizes one fresh exact-S C14/r12 successor, bounded pre-freeze repair, one freeze, one setup, one ordered 13-gate runner, and—only after reconciled 13/13 PASS—one literal r12 branch push, one draft PR, and read-only attempt-1 CI monitoring. No C11/C12/C13 reuse, merge, ready transition, issue repin, REC-02 activation, deployment, publication, release, tag, certification, ruleset change, or bypass change is authorized.
 
 **Certification:** `NO-PUBLISH / NOT CERTIFIED`
 
@@ -295,3 +295,81 @@ Rulesets, required checks, bypass actors, protected refs, and PR state remain me
 ## 9. Next action
 
 **Build / GPT-Codex:** run the repaired pre-identity self-test and remaining pre-freeze static checks; only after PASS may Build freeze and enter the 13-gate one-shot. `NO-PUBLISH / NOT CERTIFIED` remains active.
+
+## 10. C14/r12 successor supplement
+
+Sections 1–9 above are the immutable exact-S C10 ledger. They remain historical source evidence and do not authorize their old r8 route, runner, counts, or next action. This supplement is the active C14 authority within the five-path ticket.
+
+### Exact identity and bounded scope
+
+- Exact main: `792e202297111d59050e2ea00da0b959c9d1ca75`.
+- Exact base and sole parent S: `5995e344dbdbc18ce83186359ba9838fcf69c37e`.
+- Exact S tree: `ea2c992bbb083eecf32404b21a11afc436a5f3c3`.
+- Branch: `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12`.
+- Exact subject-only commit message: `REC-RATCHET-02: bind trusted GitHub Actions Git environment` plus one terminal LF.
+- Exact author and committer: `Sunsplitter Recovery Build <noreply@openai.com> 1788656400 -0500`.
+- Exact repository scope: `.github/workflows/release-policy.yml`; `artifacts/PROJECT_STATUS.md`; `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`; `artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json`; `scripts/release-policy.mjs`—all mode `100644`. Every other path remains byte-identical to S.
+
+The active REC-02 artifact was independently reconstructed from the exact-S authorized r1 artifact and the bounded save-resume repair. Its final identity is exactly 37,735 bytes / SHA-256 `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551`. Its embedded full-index patch is 28,637 bytes / SHA-256 `cee97660f7e472aeefee119c9e3679a6f10a7614541e283a80d70a47377665fb`; the functional tree is `b0f2be69ef549e4ccf65005b8298056294c14716`; and the 1,210-byte functional manifest SHA-256 is `cf8510273f64c63f8c423c5049b0b3d7b724d11ddc9b5c0ed5eebacb5402cebb`.
+
+### Immutable terminal predecessors
+
+- C11/r9: head `8a6dcc0fd99e7ace4cd3cea2e6d2030179f681e5`; tree `78021c8d4a766bb4928226494dcbaab9c978e32c`; A02 terminal failure; B01–B11 unrun; no push or PR.
+- C12/r10: head `9612d4bbbcdbf91344b0852ee512a93c7ea5d1ae`; tree `95438204b89cfcf9bc53d899dd40fc34836ce332`; one setup and one runner; 13/13 PASS; final chain `389fb08d8c8eccd851a7c98f69253c6132e55c61192d23c72ca04ac915e7de3b`; one malformed refspec failed before remote contact; no PR.
+- C13/r11: head `1dc0f80519db4b42add7010c5b3a6749b059019c`; tree `f11bd7bf46099f9579af3fb031361f3b4105405f`; W `abcf29245e387a744a7b3810b956fa7164ac7f39`; future R `aedb8526ab0de685a037fc22c341e8f0b6f041d3`; R tree `10bc158a1c8f66cfea0f1937149d20f7a32dfa54`; T `d5628b1f4e9c5e642c5922070e4e6e10bcbd8b5e`; one setup and one runner; 13/13 PASS; final chain `1efb58b6644a88a7e018c56adaf26cc8de961b80272c08dc4fc174305b6900e3`; one branch push; draft PR #37; Recovery Verify attempt 1 PASS; Release Policy attempt 1 FAIL.
+
+C13 failed because its workflow did not declare the four exact values on the repository policy steps. The policy correctly rejected that missing-or-non-exact trust boundary before repository Git. The failure does not authorize weakening the validator, accepting a GitHub marker, or repairing C13. C11, C12, C13, r9, r10, r11, and PR #37 remain terminal and non-reusable.
+
+### Trusted GitHub Actions Git boundary
+
+Exactly two post-checkout/post-setup policy `run` steps receive these literal step-local pairs:
+
+```text
+GIT_CONFIG_GLOBAL=/dev/null
+GIT_CONFIG_NOSYSTEM=1
+GIT_OPTIONAL_LOCKS=0
+GIT_TERMINAL_PROMPT=0
+```
+
+The first step runs `node scripts/release-policy.mjs --github-actions-git-environment-fixture` and then `node scripts/release-policy.mjs --self-test`. The second retains the exact enforcement command and all existing `POLICY_*` mappings. The values are absent from workflow/job scope, so checkout and setup remain untouched. Pinned action SHAs, triggers, concurrency, `contents: read`, Ubuntu runner, timeout, and Node `22.16.0` remain unchanged.
+
+The ambient validator accepts only those four exact pairs, optionally plus exact `GIT_PAGER=cat`. It rejects missing, empty, alternate, or normalized values and every other ambient `GIT_*` name before any Git invocation. Negatives include `GIT_CEILING_DIRECTORIES`; config count/key/value injection; Git directory, worktree, object, and alternate-object redirection; external diff; SSH; askpass; replacement objects; pager drift; and sampled controls. One coherent negative binds `GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=core.fsmonitor`, and `GIT_CONFIG_VALUE_0=!attacker-command`. Errors list deterministic names only, never attacker values or the full environment. `GITHUB_ACTIONS`, `CI`, runner metadata, and path shape are never trust grants.
+
+After ambient validation, policy-owned `/usr/bin/git` children reassert the exact four pairs and add only the fixed `GIT_CONFIG_SYSTEM=/dev/null` and `GIT_NO_LAZY_FETCH=1` controls. Projection construction uses index-free tree-object assembly and isolated temporary working files, never an added Git environment variable. Non-Git process variables remain intact. All child launches use Node `spawnSync`, `shell:false`, and fixed argument arrays, and every invocation asserts the complete six-name Git environment inventory before spawn.
+
+The focused fixture is Git-free. It emits one bounded canonical JSON receipt naming only the allowed variable names and expected non-secret values, policy mode, positive/negative case counts, zero-Git count, and PASS/FAIL. Its final evaluated contract is 2 positive cases, 41 negative cases, 41 zero-Git rejections, and zero sentinel Git calls.
+
+The complete C14 self-test retains the immutable historical suite of 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, and 104 structured adversarial fixtures. The active C14 layer separately derives and asserts 36 zero-Git terminal-route rejections and 54 structured adversarial rejections. Those active 54 comprise 15 C14 raw-frame mutations, 8 C14 tree/path/mode mutations, 4 invalid X topologies, 6 future raw-frame mutations, 4 invalid T topologies, 15 event-fact mutations, and 2 replay mutations. These counts are distinct from the focused environment layer's 2 positives and 41 zero-Git negatives.
+
+The exact release-policy workflow is 2,402 bytes, blob `830c93e93aac72d555b163931f141839cf452422`, SHA-256 `2107c374e43e42fb808908d770439fe15803f9ee1dd55c162a41779d764ef7e1`. The final normalized C14 policy projection is `b36b21a9be35969ca6b1f06a8b0ff2745b2329cfd444d5b589cd8abc9961772c`.
+
+### Forbidden objects and route consumption
+
+Both inventories retain 18 failed head/tree objects, 2 ART roots, 79 sealed ART blobs, 6 C11 objects, 6 C12 objects, and 6 C13 objects. The C14 candidate route retains eight historical/active derived objects for 125 unique objects total: 5,693 canonical bytes, SHA-256 `1c76ef4f8ddb6c79b818ac140836d6494620934c620d97e27c2c3374d815cd02`. The future route omits the active verifier output that becomes reachable and therefore retains seven derived objects for 124 unique objects total: 5,653 canonical bytes, SHA-256 `96fba426ad3f5a72a4689ae0ab70d76573c9114eaea9544a4f23b796016d295f`.
+
+The candidate-only store requires 12 unique controls: recovery base; Gate A base/tree/head/merge/tree; C9 head/Q/tree; C10 head/S/tree. All 125 candidate-forbidden objects must be absent. r9, r10, and r11 branches and all registered terminal heads are rejected before candidate/OID dereference. Only exact r12 from S is active; only fresh REC-02 r2 from exact X may become active after separate issue #24 repin authorization.
+
+### Freeze, runner, remote, and CI law
+
+The fresh external component manifest is `/private/tmp/sunsplitter-c14-r12-runner/COMPONENT-MANIFEST.v1.json`: 1,125 canonical bytes, SHA-256 `2266eb2f8e1d2fb00f0df1fbc611b50aaddfd77b662c6e7f6da54d3b2cbce8cd`. It binds exactly six regular mode-`0644` C14-only components:
+
+- production setup: 20,365 bytes, SHA-256 `e9dd30d1791f2cbe69953bce260e60a39cfea5074c8540df5e34293e8e310f7a`;
+- 13-gate runner: 18,963 bytes, SHA-256 `7063fe1fd0b3f9865b30078d6e0706001e8f35486ebf809377dec81aa67d7436`;
+- disposable full-chain component test: 12,405 bytes, SHA-256 `2e70b149967860f39c016796bac263c081eedaef882ce2ef018b6362a1a364f9`;
+- literal-refspec push launcher: 19,979 bytes, SHA-256 `4b2bd59632a744d6573ea5e9164e61bf02fccc73613762c878ef235ea2935938`;
+- draft-PR request and transport launcher: 22,044 bytes, SHA-256 `8efbb904db81b4c0e74826dfc89fefb06e46111e45688b56c3e516dcaa3d65d4`;
+- terminal receipt builder: 52,497 bytes, SHA-256 `69a6c542640bc3ec7e84806b62cb0b8b2da39ccce48671f04d436467abec8208`.
+
+The disposable full-chain test must create its own prospective exact candidate, run fresh setup, execute A01/A02/B01-B11 with status-first durable receipts, exercise copy/symlink/wrong-node and replay fences, preflight the literal refspec against a new local bare remote, test status-first push and runner wrappers, test PR prepare/create failure custody plus a complete mock POST/readback transport sequence, test terminal aggregation success/failure/replay, and leave every production path absent. Its final result is stored outside the repository as `C14-R12-COMPONENT-PREFLIGHT.v1.json`; its prospective candidate identity is intentionally not embedded in candidate bytes.
+
+Before freeze, all source, workflow, environment, exact-object, patch, ART, verifier, simulator, locked 2,000-run, component, bare-remote refspec, and independent-review gates must pass. External C14 setup, runner, push, PR, and terminal-receipt components live only under fresh C14 namespaces and are bound by their final manifest before freeze.
+
+After one exact freeze, production setup may run once and the ordered runner may run once: A01 inventory; A02 candidate-store closure; B01 policy self-test; B02 verifier self-test; B03 verifier; B04 simulator self-test; B05/B06/B07 random/cheapest/priciest at seed `20260817`, 2,000 runs each; B08/B09 cold C14 PR/push evaluation; B10/B11 cold future REC-02 PR/push evaluation and restoration. Any non-PASS, capture fault, interruption, ambiguity, or missing receipt permanently retires C14 without amend, retry, replay, resume, rerun, or reuse.
+
+Only reconciled 13/13 PASS permits one shell-free `/usr/bin/git` push with literal refspec `refs/heads/ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12:refs/heads/ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12`, followed by one draft-PR create request and read-only attempt-1 CI monitoring. No merge, ready transition, issue repin, downstream REC-02 construction, release, publication, deployment, tag, certification, ruleset change, or bypass change is authorized.
+
+`NO-PUBLISH / NOT CERTIFIED` remains active.
+
+## 11. C14 next action
+
+**Build / GPT-Codex:** finish the bounded pre-freeze repair and exact-byte component validation, obtain one independent review, then freeze only on total PASS. `NO-PUBLISH / NOT CERTIFIED` remains active.
