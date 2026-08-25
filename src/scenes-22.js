@@ -48,7 +48,7 @@ Tomas reads the new fracture line, then the green strip.
   choices: [
     { text: "Keep the cost on the board. Continue.", next: "act3_lethal_elias_order" }
   ],
-  image: "images/quiet_tomas.jpg"
+  image: "images/act3_lethal_tomas_structure.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -139,6 +139,6 @@ Tomas's suit tag remains beyond the hatch after the collar reports seated.`;
 // DEATH EXPOSURE: can kill elias via the final choice
 // DEAD-SPEECH CHECK: Elias dialogue/action and lethal choice are guarded by
 //   isAlive('elias'); dead entry redirects before image/text/choices
-// IMAGE: images/bond_elias.jpg [REUSE live Elias portrait; EXISTS; NO BAKED TEXT]
+// IMAGE: images/act3_lethal_elias_end.jpg [LOCKED ART-INTEGRATION-R2 living pre-commitment plate]
 // ═════════════════════════════════════════════════════════════════
 });

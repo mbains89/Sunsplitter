@@ -21,7 +21,7 @@ She checks the cradle count first, then her own pulse.
   choices: [
     { text: "Keep both numbers visible. Continue.", next: "act3_vault_face" }
   ],
-  image: "images/medbay_dim.jpg"
+  image: "images/act3_lethal_lena_power.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -105,6 +105,6 @@ Medical is now a room with records and no doctor.`;
 // DEATH EXPOSURE: can kill tomas via the final choice
 // DEAD-SPEECH CHECK: Tomas dialogue/action guarded by isAlive('tomas'); the
 //   stranded named character is chosen through isAlive() and does not speak
-// IMAGE: images/tomas_break.jpg [REUSE tomas_break; EXISTS]
+// IMAGE: images/act3_lethal_tomas_end.jpg [LOCKED ART-INTEGRATION-R2 living pre-commitment plate]
 // ═════════════════════════════════════════════════════════════════
 });

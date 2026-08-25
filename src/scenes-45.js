@@ -4,7 +4,7 @@
 registerScenes({
 
   prom_vent: {
-    image: "images/corridor_variant.jpg",
+    image: "images/prom_vent.jpg",
     onEnter: () => {
       if (state.crisisPath !== "breath" || state.promises.amara !== "made" || !isAlive("amara")) return "prom_deck4";
       const v = ["jiro", "vess"].find(k => isAlive(k));
@@ -43,7 +43,7 @@ Amara is at the panel with her hand flat beside the vent control, not on it. "Th
 
   // PRE: from prom_vent choice 1 | WRITES: onEnter promises.amara="kept" (idempotent) | DEATH: none | IMG: reuse
   prom_vent_keep: {
-    image: "images/corridor_variant.jpg",
+    image: "images/prom_vent_keep.jpg",
     onEnter: () => {
       if (state.promises.amara === "made") state.promises.amara = "kept";
     },
@@ -63,7 +63,7 @@ The pocket re-fouls the margin it was going to buy. The boards show it without c
 
   // PRE: from prom_vent choice 2 | WRITES: onEnter kill(victim) + promises.amara="broken" (idempotent) | DEATH: victim dies onEnter | IMG: reuse
   prom_vent_break: {
-    image: "images/corridor_variant.jpg",
+    image: "images/prom_vent_break.jpg",
     onEnter: () => {
       if (state.promises.amara === "made") {
         state.promises.amara = "broken";

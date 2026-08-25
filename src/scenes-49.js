@@ -34,7 +34,7 @@ registerScenes({
   },
 
   offshift_tomas: {
-    image: "images/quiet_tomas.jpg",
+    image: "images/offshift_tomas.jpg",
     onEnter: () => {
       state.flags.junctionChoice = "tomas";
     },
@@ -89,7 +89,7 @@ registerScenes({
   },
 
   offshift_tomas_r: {
-    image: "images/quiet_tomas.jpg",
+    image: "images/offshift_tomas_r.jpg",
     onEnter: () => {
       // 0.28.1: never leave an untestable "made" from Off-Shift.
       // Accept = pure Off-Shift vow → "kept" immediately; refuse → "declined".

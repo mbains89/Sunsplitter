@@ -4,7 +4,7 @@
 registerScenes({
 
   prom_make_tomas: {
-    image: "images/quiet_tomas.jpg",
+    image: "images/prom_make_tomas.jpg",
     onEnter: () => {
       if (!isAlive("tomas") || state.promises.tomas) {
         return state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
@@ -32,7 +32,7 @@ registerScenes({
 
   // PRE: entered from prom_make_tomas only | WRITES: onEnter promises.tomas (idempotent) | DEATH: none | IMG: reuse
   prom_r_tomas: {
-    image: "images/quiet_tomas.jpg",
+    image: "images/prom_r_tomas.jpg",
     onEnter: () => {
       if (!state.promises.tomas) state.promises.tomas = state.flags.prom_tomas ? "made" : "declined";
     },
@@ -52,7 +52,7 @@ registerScenes({
 
   // PRE: isAlive(elias) && !promises.elias | WRITES: choice flag + remember | DEATH: none | IMG: reuse
   prom_make_elias: {
-    image: "images/elias.jpg",
+    image: "images/prom_make_elias.jpg",
     onEnter: () => {
       if (!isAlive("elias") || state.promises.elias) return "vault_voice";
     },
@@ -79,7 +79,7 @@ He looks at you once. That is the whole request.`;
 
   // PRE: entered from prom_make_elias only | WRITES: onEnter promises.elias (idempotent) | DEATH: none | IMG: reuse
   prom_r_elias: {
-    image: "images/elias.jpg",
+    image: "images/prom_r_elias.jpg",
     onEnter: () => {
       if (!state.promises.elias) state.promises.elias = state.flags.prom_elias ? "made" : "declined";
     },

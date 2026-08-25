@@ -4,7 +4,7 @@
 registerScenes({
 
   act2_tether_manifest: {
-    image: "images/medbay_dim.jpg",
+    image: "images/act2_tether_manifest.jpg",
     onEnter: () => {},
     text: () => {
       let t = `Medbay, after. `;
@@ -69,7 +69,7 @@ registerScenes({
   },
 
   act2_tether_lie: {
-    image: "images/observation_bridge.jpg",
+    image: "images/act2_tether_lie.jpg",
     onEnter: () => {
       state.flags.manifest_lie = true;
       remember("Logged the germplasm shortfall as breach loss.");

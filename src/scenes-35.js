@@ -64,7 +64,7 @@ She finally meets your eyes.
         flag: { coolant: "split" }
       }
     ],
-    image: "images/corridor_variant.jpg"
+    image: "images/coolant_trade.jpg"
   },
 
   seal_or_food: {
@@ -111,7 +111,7 @@ She finally meets your eyes.
         remember: "Deck 4 is a jury-rig. It will ask to be paid later."
       }
     ],
-    image: "images/corridor_variant.jpg"
+    image: "images/seal_or_food.jpg"
   },
 
 });

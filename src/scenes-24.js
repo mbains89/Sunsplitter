@@ -78,7 +78,7 @@ The sealed reserve can flood the bay and force the contactor open. The transfer 
       }
     ];
   },
-  image: "images/quiet_mira.jpg"
+  image: "images/act3_lethal_mira_end.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════

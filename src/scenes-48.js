@@ -89,7 +89,7 @@ registerScenes({
 
   // LOCK 4: only Mira-dead branch ships
   offshift_elias: {
-    image: "images/elias.jpg",
+    image: "images/offshift_elias.jpg",
     onEnter: () => {
       state.flags.junctionChoice = "elias";
       remember("Elias surrendered his off-log contingency");

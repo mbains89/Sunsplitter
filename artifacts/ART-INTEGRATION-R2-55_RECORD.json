@@ -1,0 +1,1516 @@
+{
+  "schemaVersion": 1,
+  "taskId": "ART-INTEGRATION-R2",
+  "status": "NO-PUBLISH / NOT CERTIFIED",
+  "base": {
+    "commit": "23951012655b0037a55e82c755b66dd4d852f20b",
+    "tree": "96829ad0e01619f56bed2121a666645b3f9b5259"
+  },
+  "mappingAuthority": {
+    "auditSha256": "7858fb79fc559318d12155353f86fbc70915ff9dfc4d80d9b819d7b840de3b05",
+    "lethalRemaps": {
+      "act3_lethal_elias_end": "act3_lethal_elias_order",
+      "act3_lethal_mira_end": "act3_lethal_mira_board",
+      "act3_lethal_tomas_end": "act3_lethal_tomas_cost"
+    }
+  },
+  "plateManifestSha256": "269ea586683a89ed163ca558599f7bd776c26dbc3b32e1377787afaba9e68355",
+  "archives": [
+    {
+      "wave": 2,
+      "libraryPath": "/Sunsplitter/Sunsplitter-all-art-replacements-for-Grok.zip",
+      "libraryVersion": 26,
+      "sha256": "1d1b23afbaeafda3b4f865302ab9f605e8e38780bf94abafa0c5c68ab52bd485",
+      "runtimeSourceFolder": "07-unique-event-expansion/",
+      "checksumAuthority": "PACKET_FILE_SHA256.txt",
+      "outerHashValidation": "PASS",
+      "internalChecksumValidation": {
+        "passed": 129,
+        "total": 129,
+        "result": "PASS"
+      },
+      "runtimePlateCount": 34
+    },
+    {
+      "wave": 3,
+      "libraryPath": "/Sunsplitter/Sunsplitter-Wave3-21-approved-event-art.zip",
+      "sha256": "6f1f40886a112fe6b2e0e543690cecce36a522b5daf408b784a21f67821e633f",
+      "runtimeSourceFolder": "02-runtime-jpg/",
+      "mappingAuthority": "INTEGRATION_MAP.tsv",
+      "approvalAuthority": "APPROVAL_RECORD.md",
+      "checksumAuthority": "MANIFEST.sha256",
+      "outerHashValidation": "PASS",
+      "internalChecksumValidation": {
+        "passed": 45,
+        "total": 45,
+        "result": "PASS"
+      },
+      "approvedSourceCount": 21,
+      "runtimePlateCount": 21
+    }
+  ],
+  "summary": {
+    "wave2RuntimePlates": 34,
+    "wave3RuntimePlates": 21,
+    "totalRuntimePlates": 55,
+    "newPaths": 53,
+    "approvedByteReplacements": 2
+  },
+  "validation": {
+    "archiveHashes": "PASS",
+    "internalChecksums": "PASS",
+    "exactApprovedBytes": "PASS",
+    "jpegProfile": "55/55 JPG; 784x1168; 8-bit; three-component RGB interpreted as sRGB; no embedded ICC profile",
+    "uniqueRuntimeFilenames": "55/55",
+    "sceneMapping": "PASS",
+    "orphanedPlates": 0
+  },
+  "plates": [
+    {
+      "wave": 2,
+      "approvedSceneId": "act2_tether_manifest",
+      "wiredSceneIds": [
+        "act2_tether_manifest"
+      ],
+      "runtimeFilename": "act2_tether_manifest.jpg",
+      "runtimePath": "images/act2_tether_manifest.jpg",
+      "sha256": "a6d0dab281c86c5b4ede2439bf1d620aa5fea0f06303b1424012d9904e524663",
+      "bytes": 278421,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act2_tether_manifest.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act2_tether_manifest.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act2_tether_vent",
+      "wiredSceneIds": [
+        "act2_tether_vent"
+      ],
+      "runtimeFilename": "act2_tether_vent.jpg",
+      "runtimePath": "images/act2_tether_vent.jpg",
+      "sha256": "624351cbbf7723fff565e4517a8e450fed3b0c07c5635ad874fc72cc6a8c1054",
+      "bytes": 265700,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act2_tether_vent.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act2_tether_vent.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_elias_end",
+      "wiredSceneIds": [
+        "act3_lethal_elias_order"
+      ],
+      "runtimeFilename": "act3_lethal_elias_end.jpg",
+      "runtimePath": "images/act3_lethal_elias_end.jpg",
+      "sha256": "864e0bf6000f82214d24a959875ba21985c9d46cd73e5c3c14e484b306c298e7",
+      "bytes": 308829,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_elias_end.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_elias_end.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_lena_clock",
+      "wiredSceneIds": [
+        "act3_lethal_lena_clock"
+      ],
+      "runtimeFilename": "act3_lethal_lena_clock.jpg",
+      "runtimePath": "images/act3_lethal_lena_clock.jpg",
+      "sha256": "c379c466708b2364d8cf22e8d8b58f9e09a6968e5deb38baa568f48609d0449c",
+      "bytes": 322133,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_clock.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_clock.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_lena_power",
+      "wiredSceneIds": [
+        "act3_lethal_lena_power"
+      ],
+      "runtimeFilename": "act3_lethal_lena_power.jpg",
+      "runtimePath": "images/act3_lethal_lena_power.jpg",
+      "sha256": "e19ae66dc3697e5a1e42159194de711bc2a47e51a0e15cd75e06a3abc5389ad0",
+      "bytes": 322074,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_power.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_power.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_lena_sterile",
+      "wiredSceneIds": [
+        "act3_lethal_lena_sterile"
+      ],
+      "runtimeFilename": "act3_lethal_lena_sterile.jpg",
+      "runtimePath": "images/act3_lethal_lena_sterile.jpg",
+      "sha256": "ddfda50e3b8f101b4f48bb308676c31378d63b5cbcd61b8934b2255448e7b14d",
+      "bytes": 346726,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_sterile.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_lena_sterile.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_mira_end",
+      "wiredSceneIds": [
+        "act3_lethal_mira_board"
+      ],
+      "runtimeFilename": "act3_lethal_mira_end.jpg",
+      "runtimePath": "images/act3_lethal_mira_end.jpg",
+      "sha256": "6c6797b2db032089ee10a42ba5820ee5400ba2ed45b30ad43646cb2276649a97",
+      "bytes": 330457,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_mira_end.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_mira_end.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_tomas_end",
+      "wiredSceneIds": [
+        "act3_lethal_tomas_cost"
+      ],
+      "runtimeFilename": "act3_lethal_tomas_end.jpg",
+      "runtimePath": "images/act3_lethal_tomas_end.jpg",
+      "sha256": "7ff84dcb7b867743d00699564b84adf9c68da543269be15099918f65d1ff3ef8",
+      "bytes": 251378,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_end.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_end.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_tomas_stores",
+      "wiredSceneIds": [
+        "act3_lethal_tomas_stores"
+      ],
+      "runtimeFilename": "act3_lethal_tomas_stores.jpg",
+      "runtimePath": "images/act3_lethal_tomas_stores.jpg",
+      "sha256": "416e493febea1b8bda80510b0bd02fb39ebbe08a0910cc279f80dade0a9b2502",
+      "bytes": 311027,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_stores.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_stores.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_lethal_tomas_structure",
+      "wiredSceneIds": [
+        "act3_lethal_tomas_structure"
+      ],
+      "runtimeFilename": "act3_lethal_tomas_structure.jpg",
+      "runtimePath": "images/act3_lethal_tomas_structure.jpg",
+      "sha256": "a591262882d4a0cb53d5ca4f5d1bc531aba6857591b68546cb34fdb24a5c56b0",
+      "bytes": 306228,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_structure.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_lethal_tomas_structure.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_reckoning_burn_stale",
+      "wiredSceneIds": [
+        "act3_reckoning_burn_stale"
+      ],
+      "runtimeFilename": "act3_reckoning_burn_stale.jpg",
+      "runtimePath": "images/act3_reckoning_burn_stale.jpg",
+      "sha256": "4824aff8e5591387953d9d91d7b2f940cf666c73ea4d5cb666726d20b440cf67",
+      "bytes": 307722,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_reckoning_burn_stale.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_reckoning_burn_stale.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "act3_reckoning_burn_verified",
+      "wiredSceneIds": [
+        "act3_reckoning_burn_verified"
+      ],
+      "runtimeFilename": "act3_reckoning_burn_verified.jpg",
+      "runtimePath": "images/act3_reckoning_burn_verified.jpg",
+      "sha256": "11acbd494c2699c3419bd44dfa8c96021a920899ab9f7717ea1135d38af7c8b2",
+      "bytes": 268582,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_reckoning_burn_verified.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/act3_reckoning_burn_verified.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "coolant_trade",
+      "wiredSceneIds": [
+        "coolant_trade"
+      ],
+      "runtimeFilename": "coolant_trade.jpg",
+      "runtimePath": "images/coolant_trade.jpg",
+      "sha256": "c0c924f5621b2bbcfcb1201b20509bf1b6bf57c81ddbb68a0dd80d09f2946b86",
+      "bytes": 381877,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/coolant_trade.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/coolant_trade.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "faction_split",
+      "wiredSceneIds": [
+        "faction_split"
+      ],
+      "runtimeFilename": "faction_split.jpg",
+      "runtimePath": "images/faction_split.jpg",
+      "sha256": "36731fb7abd2ba237fa554510d5f50421f99264e58339663e475b3bbf8f4d485",
+      "bytes": 272250,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/faction_split.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/faction_split.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "approved-byte-replacement",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "all eight named crew available",
+      "fallback": "images/corridor_variant.jpg"
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "history_elias",
+      "wiredSceneIds": [
+        "history_elias"
+      ],
+      "runtimeFilename": "history_elias.jpg",
+      "runtimePath": "images/history_elias.jpg",
+      "sha256": "d87ae02770dd75e81f77ea1577e6a9753585223ee0ee6de86c1eab174f25679f",
+      "bytes": 250420,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/history_elias.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/history_elias.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "offshift_elias",
+      "wiredSceneIds": [
+        "offshift_elias"
+      ],
+      "runtimeFilename": "offshift_elias.jpg",
+      "runtimePath": "images/offshift_elias.jpg",
+      "sha256": "cb305abe5e2a5501ac2898f9cba0cd87ddf40f2603b07de156ed59f8faeb5ab4",
+      "bytes": 244867,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_elias.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_elias.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "offshift_tomas",
+      "wiredSceneIds": [
+        "offshift_tomas"
+      ],
+      "runtimeFilename": "offshift_tomas.jpg",
+      "runtimePath": "images/offshift_tomas.jpg",
+      "sha256": "ceabe48aa56974ee7a037f4e7feea031b1d56bb4f837f61a2913e105de8f0706",
+      "bytes": 222981,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_tomas.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_tomas.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "offshift_tomas_r",
+      "wiredSceneIds": [
+        "offshift_tomas_r"
+      ],
+      "runtimeFilename": "offshift_tomas_r.jpg",
+      "runtimePath": "images/offshift_tomas_r.jpg",
+      "sha256": "2d6b88d746be8a9e31f8bf679d02fe3eb3a360991632927a1011d29693fc2c94",
+      "bytes": 227132,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_tomas_r.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/offshift_tomas_r.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "pair_shield_cold",
+      "wiredSceneIds": [
+        "pair_shield_cold"
+      ],
+      "runtimeFilename": "pair_shield_cold.jpg",
+      "runtimePath": "images/pair_shield_cold.jpg",
+      "sha256": "0c06dd37a65c7dedab262f83b7d517d1d61559338176ca78c118e5d75cad099f",
+      "bytes": 234654,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/pair_shield_cold.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/pair_shield_cold.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "past_leak",
+      "wiredSceneIds": [
+        "past_leak"
+      ],
+      "runtimeFilename": "past_leak.jpg",
+      "runtimePath": "images/past_leak.jpg",
+      "sha256": "3614bebfde234a23bf34a84acd7fbada09fd880fa5b6a912ee49c4339c6890e9",
+      "bytes": 253948,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/past_leak.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/past_leak.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_direct",
+      "wiredSceneIds": [
+        "prom_direct"
+      ],
+      "runtimeFilename": "prom_direct.jpg",
+      "runtimePath": "images/prom_direct.jpg",
+      "sha256": "207738c26775bd47e7e4854545b575cdd5da72ce4eb7125474dc7f00a339c8f1",
+      "bytes": 293539,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_direct_break",
+      "wiredSceneIds": [
+        "prom_direct_break"
+      ],
+      "runtimeFilename": "prom_direct_break.jpg",
+      "runtimePath": "images/prom_direct_break.jpg",
+      "sha256": "0764333a228fa4ed090bddb2f559520658b013a0e531c4f3f32a5ea0defa9eb7",
+      "bytes": 213867,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct_break.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct_break.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_direct_keep",
+      "wiredSceneIds": [
+        "prom_direct_keep"
+      ],
+      "runtimeFilename": "prom_direct_keep.jpg",
+      "runtimePath": "images/prom_direct_keep.jpg",
+      "sha256": "37f941c081b1b55a8c10c4706eaf14f0da416d5786b7312978664f69b22959e4",
+      "bytes": 235441,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct_keep.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_direct_keep.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_line_keep",
+      "wiredSceneIds": [
+        "prom_line_keep"
+      ],
+      "runtimeFilename": "prom_line_keep.jpg",
+      "runtimePath": "images/prom_line_keep.jpg",
+      "sha256": "13c9a48eab36da4b64801c11ef62f8267e4855d67d7dfa93e87fa51de0d2e671",
+      "bytes": 323857,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_line_keep.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_line_keep.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_make_elias",
+      "wiredSceneIds": [
+        "prom_make_elias"
+      ],
+      "runtimeFilename": "prom_make_elias.jpg",
+      "runtimePath": "images/prom_make_elias.jpg",
+      "sha256": "cf88b2d94d58e717e310770a2b90b57fa94d5a6ec7324d3d413e00a0e14e82db",
+      "bytes": 235751,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_elias.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_elias.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_make_lena",
+      "wiredSceneIds": [
+        "prom_make_lena"
+      ],
+      "runtimeFilename": "prom_make_lena.jpg",
+      "runtimePath": "images/prom_make_lena.jpg",
+      "sha256": "16151327e971339e0040807978e865a605094105e2ebb108fcdd5d09300671b9",
+      "bytes": 238558,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_lena.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_lena.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_make_tomas",
+      "wiredSceneIds": [
+        "prom_make_tomas"
+      ],
+      "runtimeFilename": "prom_make_tomas.jpg",
+      "runtimePath": "images/prom_make_tomas.jpg",
+      "sha256": "fd286a8477648b34ef9cbd7017e984660410b5c66c98c88e0752f190d8e67ac4",
+      "bytes": 255871,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_tomas.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_make_tomas.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_r_elias",
+      "wiredSceneIds": [
+        "prom_r_elias"
+      ],
+      "runtimeFilename": "prom_r_elias.jpg",
+      "runtimePath": "images/prom_r_elias.jpg",
+      "sha256": "852f5bf706427f8724349647c7a5978d1a3d092f6342c828700bd701469a0e9a",
+      "bytes": 227295,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_elias.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_elias.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_r_lena",
+      "wiredSceneIds": [
+        "prom_r_lena"
+      ],
+      "runtimeFilename": "prom_r_lena.jpg",
+      "runtimePath": "images/prom_r_lena.jpg",
+      "sha256": "1224b9c482beec6bcbccfacbe818228a07003a6b730b35ff85d801254e1b5ef5",
+      "bytes": 221109,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_lena.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_lena.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_r_tomas",
+      "wiredSceneIds": [
+        "prom_r_tomas"
+      ],
+      "runtimeFilename": "prom_r_tomas.jpg",
+      "runtimePath": "images/prom_r_tomas.jpg",
+      "sha256": "9d7bb1cfe5ef0d7b9ee83e670bae7cb69fc7f1b7e28d9c6d3110d300b0b3cc3b",
+      "bytes": 238328,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_tomas.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_r_tomas.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_vent",
+      "wiredSceneIds": [
+        "prom_vent"
+      ],
+      "runtimeFilename": "prom_vent.jpg",
+      "runtimePath": "images/prom_vent.jpg",
+      "sha256": "34fd54d0021a97d136a3e11c92df8b42f80944821b96ff775cc492fb6eb006f4",
+      "bytes": 350281,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_vent_break",
+      "wiredSceneIds": [
+        "prom_vent_break"
+      ],
+      "runtimeFilename": "prom_vent_break.jpg",
+      "runtimePath": "images/prom_vent_break.jpg",
+      "sha256": "8af6d4eaf509a3adb62fe371d2c614fe1605d0b672c9f5643998742bf26e7c09",
+      "bytes": 333118,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent_break.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent_break.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "prom_vent_keep",
+      "wiredSceneIds": [
+        "prom_vent_keep"
+      ],
+      "runtimeFilename": "prom_vent_keep.jpg",
+      "runtimePath": "images/prom_vent_keep.jpg",
+      "sha256": "2482355106ae3459cdee108307902496bcff7be641f389550f1f833ebc9cfee0",
+      "bytes": 352948,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent_keep.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/prom_vent_keep.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": "Amara alive and fail-closed available-roster count >= 7",
+      "fallback": "images/corridor_variant.jpg"
+    },
+    {
+      "wave": 2,
+      "approvedSceneId": "seal_or_food",
+      "wiredSceneIds": [
+        "seal_or_food"
+      ],
+      "runtimeFilename": "seal_or_food.jpg",
+      "runtimePath": "images/seal_or_food.jpg",
+      "sha256": "43e9851016cb310e620e8d4d927594617167409567f8291667683aeeba540254",
+      "bytes": 415620,
+      "approvedSourceMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/seal_or_food.jpg",
+      "approvedRuntimeMember": "Sunsplitter-all-art-replacements-for-Grok/07-unique-event-expansion/seal_or_food.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_dock",
+      "wiredSceneIds": [
+        "act2_tether_dock"
+      ],
+      "runtimeFilename": "act2_tether_dock.jpg",
+      "runtimePath": "images/act2_tether_dock.jpg",
+      "sha256": "aef2f5bfa39b24a4e7b34fcd638bb0c9f17cd3d7f70152c2a13b84c890e4fb38",
+      "bytes": 284047,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_dock_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_dock.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_hand_elias",
+      "wiredSceneIds": [
+        "act2_tether_hand_elias"
+      ],
+      "runtimeFilename": "act2_tether_hand_elias.jpg",
+      "runtimePath": "images/act2_tether_hand_elias.jpg",
+      "sha256": "452c9f5b271ea959322c9bc73c1dd76b6ac929e206fc1e21c438a3bfa6db778e",
+      "bytes": 235971,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_hand_elias_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_hand_elias.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_hand_mira",
+      "wiredSceneIds": [
+        "act2_tether_hand_mira"
+      ],
+      "runtimeFilename": "act2_tether_hand_mira.jpg",
+      "runtimePath": "images/act2_tether_hand_mira.jpg",
+      "sha256": "363f91591b737c56836d6213130f3ebf507a79c3b62d6f86ec9ebc1f5153967b",
+      "bytes": 278346,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_hand_mira_candidate_v3.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_hand_mira.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_hand_sela",
+      "wiredSceneIds": [
+        "act2_tether_hand_sela"
+      ],
+      "runtimeFilename": "act2_tether_hand_sela.jpg",
+      "runtimePath": "images/act2_tether_hand_sela.jpg",
+      "sha256": "6d8a7e3b5cf515d2c889c9512177894d4f7f82d0e473f9ab5c7209f285be9bbf",
+      "bytes": 261729,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_hand_sela_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_hand_sela.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_lie",
+      "wiredSceneIds": [
+        "act2_tether_lie"
+      ],
+      "runtimeFilename": "act2_tether_lie.jpg",
+      "runtimePath": "images/act2_tether_lie.jpg",
+      "sha256": "f52776846b20f9c605349397db573ae443c9896d74a9cfceb1fd003ba88cf8f5",
+      "bytes": 203107,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_lie_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_lie.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "act2_tether_rush",
+      "wiredSceneIds": [
+        "act2_tether_rush"
+      ],
+      "runtimeFilename": "act2_tether_rush.jpg",
+      "runtimePath": "images/act2_tether_rush.jpg",
+      "sha256": "e69fb6e9fdf03b6920b8b598a4ada07733d3d40fd48c5ff3693cc11457c70b37",
+      "bytes": 315544,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/act2_tether_rush_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/act2_tether_rush.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image",
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "arc_fork",
+      "wiredSceneIds": [
+        "arc_fork"
+      ],
+      "runtimeFilename": "arc_fork.jpg",
+      "runtimePath": "images/arc_fork.jpg",
+      "sha256": "243a32b065f6cd796fe1484856c11d66435b37d14f7f50641a49ec7a211ef974",
+      "bytes": 294401,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/arc_fork_candidate_v3.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/arc_fork.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "roster-neutral; obsolete Tomas/Jiro guard removed",
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "arc_future_1",
+      "wiredSceneIds": [
+        "arc_future_1"
+      ],
+      "runtimeFilename": "arc_future_1.jpg",
+      "runtimePath": "images/arc_future_1.jpg",
+      "sha256": "dc7861e861a7bd73da299fcd94e9b23333292763821db9e0c945eeb7ffd2e8fd",
+      "bytes": 272428,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/arc_future_1_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/arc_future_1.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "arc_living_1",
+      "wiredSceneIds": [
+        "arc_living_1"
+      ],
+      "runtimeFilename": "arc_living_1.jpg",
+      "runtimePath": "images/arc_living_1.jpg",
+      "sha256": "148e144c54c6cf6311c107e07427aeaefd6fbaf38d21748f84d2d976866766b9",
+      "bytes": 281943,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/arc_living_1_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/arc_living_1.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "crew_walk",
+      "wiredSceneIds": [
+        "crew_walk"
+      ],
+      "runtimeFilename": "crew_walk.jpg",
+      "runtimePath": "images/crew_walk.jpg",
+      "sha256": "de95ae8cee252084b52dc282ce14810b0c0ba8b3648ca040c75b98db34410778",
+      "bytes": 323368,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/crew_walk_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/crew_walk.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "survivors > 5",
+      "fallback": "images/corridor.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "dying",
+      "wiredSceneIds": [
+        "dying"
+      ],
+      "runtimeFilename": "dying.jpg",
+      "runtimePath": "images/dying.jpg",
+      "sha256": "c7ffdcbe1d04468fb728cd4f920c0c7e8d4749b3f8c94fa97106785e84b35269",
+      "bytes": 233232,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/dying_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/dying.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "prom_price",
+      "wiredSceneIds": [
+        "prom_price"
+      ],
+      "runtimeFilename": "prom_price.jpg",
+      "runtimePath": "images/prom_price.jpg",
+      "sha256": "e886ff5920a5080caf29126e80160647f202b6201808b48e052e7ee05b0f1df4",
+      "bytes": 261916,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/prom_price_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/prom_price.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": "Sela alive and fail-closed available-roster count = 9",
+      "fallback": "images/vault_reveal.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "prom_price_break",
+      "wiredSceneIds": [
+        "prom_price_break"
+      ],
+      "runtimeFilename": "prom_price_break.jpg",
+      "runtimePath": "images/prom_price_break.jpg",
+      "sha256": "209d7ecd3feda9fa40fa2f4a1bbbfedcf0e07abf751357dd6911c5d6fd3e5ea2",
+      "bytes": 264137,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/prom_price_break_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/prom_price_break.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "prom_price_keep",
+      "wiredSceneIds": [
+        "prom_price_keep"
+      ],
+      "runtimeFilename": "prom_price_keep.jpg",
+      "runtimePath": "images/prom_price_keep.jpg",
+      "sha256": "7002f53afdeb485b8b6fd312314dc1ff2ec84407d6f76cca2d73d62baa328e45",
+      "bytes": 180379,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/prom_price_keep_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/prom_price_keep.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "scene.image"
+      ],
+      "guard": "Sela alive and fail-closed available-roster count >= 6",
+      "fallback": "images/vault_reveal.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "reckon_memory",
+      "wiredSceneIds": [
+        "reckon_memory"
+      ],
+      "runtimeFilename": "reckon_memory.jpg",
+      "runtimePath": "images/reckon_memory.jpg",
+      "sha256": "78c8cf016f6c1d4b315815c7451709721b6ab18a76a1a74596ee26356c69fc28",
+      "bytes": 183469,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/reckon_memory_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/reckon_memory.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "reckon_public",
+      "wiredSceneIds": [
+        "reckon_public"
+      ],
+      "runtimeFilename": "reckon_public.jpg",
+      "runtimePath": "images/reckon_public.jpg",
+      "sha256": "62869057b1ff9b3460d66c6a9a81a30d6bf29a346b96df63977977b916a7ff87",
+      "bytes": 253206,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/reckon_public_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/reckon_public.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "approved-byte-replacement",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "all eight named crew available",
+      "fallback": "images/observation.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "reckon_suppress",
+      "wiredSceneIds": [
+        "reckon_suppress"
+      ],
+      "runtimeFilename": "reckon_suppress.jpg",
+      "runtimePath": "images/reckon_suppress.jpg",
+      "sha256": "00489a94b60e7ef9fd73c12312d2c119f1e7dd0879c64c6c5f60254d548eb74a",
+      "bytes": 269208,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/reckon_suppress_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/reckon_suppress.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "Elias, recovered Tomas, and Amara alive",
+      "fallback": "images/observation_reckon.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "reckon_truth",
+      "wiredSceneIds": [
+        "reckon_truth"
+      ],
+      "runtimeFilename": "reckon_truth.jpg",
+      "runtimePath": "images/reckon_truth.jpg",
+      "sha256": "0ad80b60cd514675f3c4e41545904d78a5cde745a1d632a540209a2813d1f734",
+      "bytes": 216435,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/reckon_truth_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/reckon_truth.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "recovered Tomas and Jiro plus Lena and Sela alive",
+      "fallback": "images/observation.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "status",
+      "wiredSceneIds": [
+        "status"
+      ],
+      "runtimeFilename": "status.jpg",
+      "runtimePath": "images/status.jpg",
+      "sha256": "e10ccd1c59bbc6a5c4cd581270803657e4403e6ea949f5e0c863a66397784dfc",
+      "bytes": 263622,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/status_candidate_v2.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/status.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": "survivors > 5 and Elias, Mira, Lena, and Sela alive",
+      "fallback": "images/corridor.jpg when survivors <= 5; otherwise images/observation.jpg"
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "time_pass",
+      "wiredSceneIds": [
+        "time_pass"
+      ],
+      "runtimeFilename": "time_pass.jpg",
+      "runtimePath": "images/time_pass.jpg",
+      "sha256": "8b21fa65ccbdda39e13ab51ed76c4e07537688171669d94571952b2ce8693bee",
+      "bytes": 320124,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/time_pass_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/time_pass.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    },
+    {
+      "wave": 3,
+      "approvedSceneId": "wake",
+      "wiredSceneIds": [
+        "wake"
+      ],
+      "runtimeFilename": "wake.jpg",
+      "runtimePath": "images/wake.jpg",
+      "sha256": "e04bbac4de28877a872c12a752b6f7c04ce782ab993c0697a81036260c65baad",
+      "bytes": 240273,
+      "approvedSourceMember": "Sunsplitter-Wave3-21-approved-event-art/01-approved-png-sources/wake_candidate_v1.png",
+      "approvedRuntimeMember": "Sunsplitter-Wave3-21-approved-event-art/02-runtime-jpg/wake.jpg",
+      "image": {
+        "width": 784,
+        "height": 1168,
+        "mode": "RGB",
+        "colorSpaceInterpretation": "sRGB",
+        "iccProfileEmbedded": false
+      },
+      "pathDisposition": "new",
+      "binding": [
+        "sceneImages"
+      ],
+      "guard": null,
+      "fallback": null
+    }
+  ]
+}
