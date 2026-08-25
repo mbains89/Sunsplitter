@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-// REC-RATCHET-02 trusted GitHub Actions Git-environment successor R12 / C14
+// REC-RATCHET-02 immutable landed-C14 fixture successor R13
 //
 // Immutable Gate A/C9/C10/S evidence, permanently consumed C11/C12/C13
-// topology, one exact C14 correction route, one structurally exact protected
-// correction merge, one exact REC-02 r2 activation route, and one structurally
-// exact closure merge. Each active route consumes itself. The policy never
+// topology, exact landed C14/X custody, one exact r13 correction route, one
+// structurally exact protected correction merge, one exact REC-02 r3 activation
+// route, and one structurally exact closure merge. Each active route consumes
+// itself. The policy never
 // publishes, deploys, tags, releases, certifies, changes rulesets, or supplies
 // credentials.
 
@@ -53,7 +54,9 @@ const C11_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selfte
 const C12_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r10";
 const C13_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r11";
 const C14_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12";
+const R13_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r13";
 const FUTURE_BRANCH = "ticket/0.30.1-rec-02-r2";
+const R13_FUTURE_BRANCH = "ticket/0.30.1-rec-02-r3";
 const AUTHORIZED_PATCH_TARGET_BRANCH = "ticket/0.30.1-rec-02-r1";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const GATE_A_BASE_SHA = "23951012655b0037a55e82c755b66dd4d852f20b";
@@ -96,6 +99,22 @@ const C13_REVIEW_MERGE_SHA = "abcf29245e387a744a7b3810b956fa7164ac7f39";
 const C13_FUTURE_SHA = "aedb8526ab0de685a037fc22c341e8f0b6f041d3";
 const C13_FUTURE_TREE = "10bc158a1c8f66cfea0f1937149d20f7a32dfa54";
 const C13_TRANSITION_SHA = "d5628b1f4e9c5e642c5922070e4e6e10bcbd8b5e";
+const C14_HEAD_SHA = "a42fcf9da045e34f456652dfa13e5a890cd216f4";
+const C14_HEAD_TREE = "35388f974a6175a9a8b791879989f3a33a69c1fe";
+const C14_HEAD_RAW_SHA256 = "b87ef55e4cfff85892ff78c4d6ed58591454f46579d536e7eb4fbc16375d4b4f";
+const C14_HEAD_RAW_BYTES = 302;
+const C14_MANIFEST_SHA256 = "86e88012deca29100b43dea8b8fc57f6e4f05aaa1d1ac6009ff329aadc809982";
+const C14_MANIFEST_BYTES = 766;
+const C14_MERGE_SHA = "d78c453004100894fc523866b8010b40987752f6";
+const C14_MERGE_TREE = C14_HEAD_TREE;
+const C14_MERGE_RAW_SHA256 = "636c443f63215d29bc9dd09ebfccc8c6b3cbe4987125e8e54c1270d8c67ce1c1";
+const C14_MERGE_RAW_BYTES = 1262;
+const FAILED_REC_02_R2_HEAD = "caf42d891cd3e19b9977ffdc40cfa30c992e5042";
+const FAILED_REC_02_R2_TREE = "c012e16cc411656036df1adb13fc32a4d6c8a072";
+const FAILED_REC_02_R2_SYNTHETIC_MERGE = "4d1d56b6b2d32bcfd54c524d3e01c040e4267e33";
+const FAILED_REC_02_R2_STATUS_BLOB = "1c0b1691b73dd2973704e5ca5231a480e03ba9b0";
+const FAILED_REC_02_R2_STATUS_SHA256 = "e71925adb826079388548bc89890626c8b06952c9bc9779113da8441913911ca";
+const FAILED_REC_02_R2_STATUS_BYTES = 26981;
 const ACTIVE_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const INACTIVE_BASELINE_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json";
 const PATCH_ARTIFACT_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json";
@@ -111,15 +130,24 @@ const GATE_A_COMMIT_TITLE = "REC-RATCHET-02: pin exact REC-02 recovery projectio
 const C9_POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: retire C8 with receipt-safe verifier handoff";
 const POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: seal immutable correction fixtures";
 const C14_POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: bind trusted GitHub Actions Git environment";
+const R13_POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: bind immutable landed-C14 fixtures";
 const FUTURE_COMMIT_TITLE = "REC-02: apply authorized zero-exit projection";
 const GATE_A_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787443200 -0500";
 const C9_POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787792400 -0500";
 const POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787965200 -0500";
 const C14_POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1788656400 -0500";
+const R13_POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1788742800 -0500";
 const FUTURE_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1788051600 -0500";
 
 const C14_CHANGED_PATHS = Object.freeze([
   RELEASE_WORKFLOW_PATH,
+  STATUS_PATH,
+  POLICY_CORRECTION_RECORD_PATH,
+  PATCH_ARTIFACT_PATH,
+  POLICY_PATH
+].sort());
+
+const R13_CHANGED_PATHS = Object.freeze([
   STATUS_PATH,
   POLICY_CORRECTION_RECORD_PATH,
   PATCH_ARTIFACT_PATH,
@@ -133,10 +161,28 @@ const C14_RELEASE_WORKFLOW_SHA256 = "2107c374e43e42fb808908d770439fe15803f9ee1dd
 const C14_RELEASE_WORKFLOW_BLOB = "830c93e93aac72d555b163931f141839cf452422";
 const C14_RELEASE_WORKFLOW_BYTES = 2402;
 const C14_STATUS_SHA256 = "d948c3259f037393ca7b76cc0c5f932b96d950d69ba9169ec01cd8f2f5aef0b3";
+const C14_STATUS_BLOB = "3ef6b8fc994aee5e9e8a5520d09355c2bf8723c1";
+const C14_STATUS_BYTES = 26522;
 const C14_RECORD_SHA256 = "e0c6bb7ff53e930e3f73b618764d15d6797f3dc69c1efc643ea0cf93f31c75f1";
+const C14_RECORD_BLOB = "e12fa624d31fd63c9e31a442bb9b3095dc4e638b";
+const C14_RECORD_BYTES = 51162;
 const C14_PATCH_SHA256 = "9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551";
 const C14_PATCH_BLOB = "00f53e6fe2dc3787ccde36cb9e85f63d24c02950";
 const C14_PATCH_BYTES = 37735;
+const C14_POLICY_SHA256 = "f3ca30f5ee40d9c63bd84b9e6bac238a1bad475fe9defe3f842b2d3612d75ae4";
+const C14_POLICY_BLOB = "66bb3b608005b468e2222b29bebe4e07d5074780";
+const C14_POLICY_BYTES = 260343;
+
+const R13_POLICY_PROJECTION_SHA256 = "0b8a602116b010b96d8299bcf689900aa116e8a96e40a54e1e2a259dd6188957";
+const R13_CANDIDATE_INVENTORY_SHA256 = "d5782849d72e70ed9ce8b47eab5739764590d4da63e2fec8fc7e9e302654403a";
+const R13_FUTURE_INVENTORY_SHA256 = "c0857eccc3b84d44dca02e39a5650bc542c3144b2ac68709766ad74e89d902bc";
+const R13_STATUS_SHA256 = "aa24575edd2aef31e41ed4781bf379e39bd8f7907ceab95e64b7cbc5bcaa3a1e";
+const R13_RECORD_SHA256 = "ca58adf7a758b75ee00659bfcd6892116c215ea9480f7fd99f960dc2e4c367b2";
+const R13_STATUS_PROJECTION_SHA256 = "fbaa4808c99d399c067f2df5ee2b2dd73bf3c2018dc621961f2c819d4bd73dd4";
+const R13_RECORD_PROJECTION_SHA256 = "20447d8e93ce8f416841435d9a33e1ac39dffc33ba04686439c2ffd39c70de40";
+const R13_PATCH_SHA256 = "74bd104be7fbb46dc15a4242f03b8402e7267bad19c3de430f4e10aa403027b7";
+const R13_PATCH_BLOB = "5d7315495fa220fed362bf7d580c69c1141385c0";
+const R13_PATCH_BYTES = 37735;
 
 const GATE_A_POLICY_PROJECTION_SHA256 = "02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5";
 const C9_POLICY_PROJECTION_SHA256 = "6e44343fc7f892494c4477991b2a11e0f150215ae2a9bf955508a225a3014f27";
@@ -212,7 +258,7 @@ const HISTORICAL_REC02_SEAL = Object.freeze({
 });
 
 const ACTIVE_REC02_SEAL = Object.freeze({
-  id: "c14-r12-active",
+  id: "c14-r12-historical",
   targetBranch: FUTURE_BRANCH,
   patchArtifactSha256: C14_PATCH_SHA256,
   embeddedPatchSha256: "cee97660f7e472aeefee119c9e3679a6f10a7614541e283a80d70a47377665fb",
@@ -224,6 +270,13 @@ const ACTIVE_REC02_SEAL = Object.freeze({
   combinedVerifyBlob: "595c3f018716d244735adb39084ed0a9623a4db5",
   combinedTree: "1ed5bffeebc01b6cbdacd886c26044db34ba1000",
   combinedManifestSha256: "07498803ed5d2a41bbfd557d57e3b88e6a6f73f195a7cbda0d6969557a8973c2"
+});
+
+const R13_REC02_SEAL = Object.freeze({
+  ...ACTIVE_REC02_SEAL,
+  id: "r13-active",
+  targetBranch: R13_FUTURE_BRANCH,
+  patchArtifactSha256: R13_PATCH_SHA256
 });
 
 const FAILED_REC_02_R1_HEAD = "bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e";
@@ -318,6 +371,20 @@ const FAILED_IDENTITIES = Object.freeze([
     disposition: "FAILED REQUIRED INDEPENDENT RECEIPT CAPTURE / REMOTE BRANCH FROZEN / DRAFT PR #34 FROZEN / UNMERGED / PERMANENTLY FROZEN / NON-REUSABLE",
     error: "failed policy correction C8 identity is non-reusable"
   })
+]);
+
+const FAILED_REC_02_R2_IDENTITY = Object.freeze({
+  label: "REC-02 r2",
+  statusStem: "failed_rec_02_r2",
+  head: FAILED_REC_02_R2_HEAD,
+  tree: FAILED_REC_02_R2_TREE,
+  syntheticMerge: FAILED_REC_02_R2_SYNTHETIC_MERGE,
+  disposition: "FAILED REQUIRED CI / REMOTE BRANCH FROZEN / DRAFT PR #39 FROZEN / UNMERGED / NON-REUSABLE",
+  error: "failed REC-02 r2 identity is non-reusable"
+});
+const ACTIVE_TERMINAL_IDENTITIES = Object.freeze([
+  ...FAILED_IDENTITIES,
+  FAILED_REC_02_R2_IDENTITY
 ]);
 
 const ART_R2_SEALED_MANIFEST_BYTES = 10863;
@@ -494,6 +561,15 @@ const PROJECTION_CONSTANT_NAMES = Object.freeze([
   "C14_FUTURE_INVENTORY_SHA256",
   "C14_STATUS_SHA256",
   "C14_RECORD_SHA256",
+  "POLICY_PROJECTION_SHA256",
+  "TRANSITION_SHA256"
+]);
+const R13_PROJECTION_CONSTANT_NAMES = Object.freeze([
+  "R13_POLICY_PROJECTION_SHA256",
+  "R13_CANDIDATE_INVENTORY_SHA256",
+  "R13_FUTURE_INVENTORY_SHA256",
+  "R13_STATUS_SHA256",
+  "R13_RECORD_SHA256",
   "POLICY_PROJECTION_SHA256",
   "TRANSITION_SHA256"
 ]);
@@ -837,15 +913,65 @@ function canonicalRawCommit(tree, parent, author, title, records) {
 function normalizedPolicyBytes(bytes) {
   let text = bytes.toString("utf8");
   if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("policy source is not lossless UTF-8");
-  const names = text.includes("const C14_POLICY_PROJECTION_SHA256 =")
-    ? PROJECTION_CONSTANT_NAMES
-    : LEGACY_PROJECTION_CONSTANT_NAMES;
+  const names = text.includes("const R13_POLICY_PROJECTION_SHA256 =")
+    ? R13_PROJECTION_CONSTANT_NAMES
+    : text.includes("const C14_POLICY_PROJECTION_SHA256 =")
+      ? PROJECTION_CONSTANT_NAMES
+      : LEGACY_PROJECTION_CONSTANT_NAMES;
   for (const name of names) {
     const pattern = new RegExp(`(const ${name} = \")[0-9a-f]{64}(\";)`, "g");
     const matches = [...text.matchAll(pattern)];
     if (matches.length !== 1) throw new Error(`${name} must occur exactly once`);
     text = text.replace(pattern, `$1${"0".repeat(64)}$2`);
   }
+  return Buffer.from(text, "utf8");
+}
+
+function replaceOneDocumentDigest(text, pattern, label) {
+  const matches = [...text.matchAll(pattern)];
+  if (matches.length !== 1) throw new Error(`${label} must occur exactly once`);
+  return text.replace(pattern, `$1${"0".repeat(64)}$2`);
+}
+
+function normalizedR13StatusBytes(bytes) {
+  let text = bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("r13 STATUS is not lossless UTF-8");
+  text = replaceOneDocumentDigest(
+    text,
+    /(r13_policy_projection: )[0-9a-f]{64}( — mechanically frozen)/g,
+    "r13 STATUS policy projection"
+  );
+  text = replaceOneDocumentDigest(
+    text,
+    /(r13_forbidden_inventory_contract: candidate route 128 unique objects \/ SHA-256 )[0-9a-f]{64}(; future r3 route)/g,
+    "r13 STATUS candidate inventory"
+  );
+  text = replaceOneDocumentDigest(
+    text,
+    /(r13_forbidden_inventory_contract:[^\n]+future r3 route 127 unique objects \/ SHA-256 )[0-9a-f]{64}(; historical C14)/g,
+    "r13 STATUS future inventory"
+  );
+  return Buffer.from(text, "utf8");
+}
+
+function normalizedR13RecordBytes(bytes) {
+  let text = bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("r13 correction record is not lossless UTF-8");
+  text = replaceOneDocumentDigest(
+    text,
+    /(The r13 normalized policy projection is `)[0-9a-f]{64}(`\.)/g,
+    "r13 record policy projection"
+  );
+  text = replaceOneDocumentDigest(
+    text,
+    /(The active candidate inventory is 128 unique objects \/ SHA-256 `)[0-9a-f]{64}(`; the future r3 inventory)/g,
+    "r13 record candidate inventory"
+  );
+  text = replaceOneDocumentDigest(
+    text,
+    /(the future r3 inventory is 127 unique objects \/ SHA-256 `)[0-9a-f]{64}(`\.)/g,
+    "r13 record future inventory"
+  );
   return Buffer.from(text, "utf8");
 }
 
@@ -1211,6 +1337,40 @@ export function forbiddenObjectInventories(source = ART_R2_SEALED_MANIFEST) {
   };
 }
 
+export function r13ForbiddenObjectInventory(route = "r13", source = ART_R2_SEALED_MANIFEST) {
+  assert.ok(route === "r13" || route === "rec-02-r3", `unsupported r13 forbidden-object route ${route}`);
+  const historicalRoute = route === "r13" ? "c14" : "rec-02";
+  const historical = forbiddenObjectInventory(historicalRoute, source);
+  const terminalR2Objects = [
+    FAILED_REC_02_R2_IDENTITY.head,
+    FAILED_REC_02_R2_IDENTITY.tree,
+    FAILED_REC_02_R2_IDENTITY.syntheticMerge
+  ];
+  assert.equal(terminalR2Objects.length, 3, "terminal REC-02 r2 object count drifted");
+  assert.ok(terminalR2Objects.every(oid => FULL_SHA_RE.test(oid)), "terminal REC-02 r2 inventory has an invalid SHA-1");
+  const objects = [...historical.objects, ...terminalR2Objects].sort();
+  assert.equal(new Set(objects).size, objects.length, "r13 forbidden-object inventory has duplicate OIDs");
+  assert.equal(objects.length, route === "r13" ? 128 : 127, "r13 forbidden-object inventory count drifted");
+  return {
+    counts: {
+      ...historical.counts,
+      terminalR2Objects: terminalR2Objects.length,
+      total: objects.length
+    },
+    objects,
+    route,
+    sealedManifest: historical.sealedManifest,
+    schemaVersion: 3
+  };
+}
+
+export function r13ForbiddenObjectInventories(source = ART_R2_SEALED_MANIFEST) {
+  return {
+    r13: r13ForbiddenObjectInventory("r13", source),
+    "rec-02-r3": r13ForbiddenObjectInventory("rec-02-r3", source)
+  };
+}
+
 function legacyAssertForbiddenObjectInventoryIdentity(actual) {
   if (actual !== FORBIDDEN_OBJECT_INVENTORY_SHA256) {
     throw new Error(`forbidden-object inventory ${actual} != ${FORBIDDEN_OBJECT_INVENTORY_SHA256}`);
@@ -1220,6 +1380,11 @@ function legacyAssertForbiddenObjectInventoryIdentity(actual) {
 function assertForbiddenObjectInventoryIdentity(route, actual) {
   const expected = route === "c14" ? C14_CANDIDATE_INVENTORY_SHA256 : C14_FUTURE_INVENTORY_SHA256;
   if (actual !== expected) throw new Error(`forbidden-object inventory ${route} ${actual} != ${expected}`);
+}
+
+function assertR13ForbiddenObjectInventoryIdentity(route, actual) {
+  const expected = route === "r13" ? R13_CANDIDATE_INVENTORY_SHA256 : R13_FUTURE_INVENTORY_SHA256;
+  if (actual !== expected) throw new Error(`r13 forbidden-object inventory ${route} ${actual} != ${expected}`);
 }
 
 function objectTypes(oids, repoRoot = ROOT) {
@@ -1558,11 +1723,16 @@ export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment =
 
   const head = commitHeaders("HEAD", requestedRoot);
   if (!head) throw new Error("candidate-only HEAD is not an independently framed commit");
-  if (!sameList(head.parents, [C10_MERGE_SHA])) throw new Error("candidate-only HEAD is not a direct child of exact S");
-  if (!sameList(changedPaths(C10_MERGE_SHA, head.oid, requestedRoot), C14_CHANGED_PATHS)) {
-    throw new Error("candidate-only HEAD does not have the exact five-path C14 scope");
+  const route = sameList(head.parents, [C10_MERGE_SHA]) ? "c14"
+    : sameList(head.parents, [C14_MERGE_SHA]) ? "r13"
+      : null;
+  if (!route) throw new Error("candidate-only HEAD is not a direct child of exact S or exact X");
+  const base = route === "c14" ? C10_MERGE_SHA : C14_MERGE_SHA;
+  const scope = route === "c14" ? C14_CHANGED_PATHS : R13_CHANGED_PATHS;
+  if (!sameList(changedPaths(base, head.oid, requestedRoot), scope)) {
+    throw new Error(`candidate-only HEAD does not have the exact ${route === "c14" ? "five-path C14" : "four-path r13"} scope`);
   }
-  for (const path of C14_CHANGED_PATHS) {
+  for (const path of scope) {
     const identity = fileIdentity(head.oid, path, requestedRoot);
     if (!identity || identity.mode !== "100644") throw new Error(`candidate-only ${path} is missing or not mode 100644`);
   }
@@ -1579,7 +1749,12 @@ export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment =
     [C9_MERGE_TREE, "tree"],
     [C10_HEAD_SHA, "commit"],
     [C10_MERGE_SHA, "commit"],
-    [C10_MERGE_TREE, "tree"]
+    [C10_MERGE_TREE, "tree"],
+    ...(route === "r13" ? [
+      [C14_HEAD_SHA, "commit"],
+      [C14_MERGE_SHA, "commit"],
+      [C14_MERGE_TREE, "tree"]
+    ] : [])
   ];
   const controlRows = objectTypes(controls.map(([oid]) => oid), requestedRoot);
   for (let index = 0; index < controls.length; index += 1) {
@@ -1588,9 +1763,12 @@ export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment =
     }
   }
 
-  const inventory = forbiddenObjectInventory("c14");
+  const inventory = route === "c14"
+    ? forbiddenObjectInventory("c14")
+    : r13ForbiddenObjectInventory("r13");
   const inventorySha256 = sha256(canonicalJsonBytes(inventory));
-  assertForbiddenObjectInventoryIdentity("c14", inventorySha256);
+  if (route === "c14") assertForbiddenObjectInventoryIdentity("c14", inventorySha256);
+  else assertR13ForbiddenObjectInventoryIdentity("r13", inventorySha256);
   const forbiddenRows = objectTypes(inventory.objects, requestedRoot);
   const present = forbiddenRows.filter(row => row.type !== "missing");
   if (present.length) throw new Error(`forbidden objects present: ${present.map(row => `${row.oid}:${row.type}`).join(", ")}`);
@@ -1603,8 +1781,8 @@ export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment =
     inventorySha256,
     objectInventory,
     result: "PASS",
-    route: "c14",
-    schemaVersion: 3
+    route,
+    schemaVersion: route === "c14" ? 3 : 4
   };
 }
 
@@ -4303,6 +4481,283 @@ function c14FutureMergeEvidence(ref, protectedMerge) {
   return mergeEvidence(merge.oid, protectedMerge, c14FutureEvidence(merge.parents[1], protectedMerge));
 }
 
+function r13RawCommit(tree) {
+  return Buffer.from([
+    `tree ${tree}`,
+    `parent ${C14_MERGE_SHA}`,
+    `author ${R13_POLICY_CORRECTION_AUTHOR}`,
+    `committer ${R13_POLICY_CORRECTION_AUTHOR}`,
+    "",
+    R13_POLICY_CORRECTION_COMMIT_TITLE
+  ].join("\n") + "\n", "utf8");
+}
+
+function r13CandidateEvidence(ref) {
+  const errors = [];
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: ["r13 candidate is not an independently framed commit object"] };
+  if (!sameList(commit.parents, [C14_MERGE_SHA])) errors.push("r13 candidate is not one direct child of exact X");
+  if (!sameList(changedPaths(C14_MERGE_SHA, commit.oid), R13_CHANGED_PATHS)) {
+    errors.push("r13 changed paths differ from the exact four-path scope");
+  }
+  for (const path of R13_CHANGED_PATHS) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity) errors.push(`${path}: r13 path is missing`);
+    else if (identity.mode !== "100644") errors.push(`${path}: r13 mode ${identity.mode} != 100644`);
+  }
+
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  const record = fileIdentity(commit.oid, POLICY_CORRECTION_RECORD_PATH);
+  const patch = fileIdentity(commit.oid, PATCH_ARTIFACT_PATH);
+  if (!status || status.sha256 !== R13_STATUS_SHA256) errors.push(`${STATUS_PATH}: r13 exact identity drifted`);
+  if (!record || record.sha256 !== R13_RECORD_SHA256) errors.push(`${POLICY_CORRECTION_RECORD_PATH}: r13 exact identity drifted`);
+  if (!patch || patch.blob !== R13_PATCH_BLOB || patch.sha256 !== R13_PATCH_SHA256
+    || patch.byteLength !== R13_PATCH_BYTES) {
+    errors.push(`${PATCH_ARTIFACT_PATH}: r13 exact identity drifted`);
+  }
+  try {
+    if (!status || sha256(normalizedR13StatusBytes(status.bytes)) !== R13_STATUS_PROJECTION_SHA256) {
+      errors.push("r13 STATUS normalized projection drifted");
+    }
+  } catch (error) {
+    errors.push(error.message);
+  }
+  try {
+    if (!record || sha256(normalizedR13RecordBytes(record.bytes)) !== R13_RECORD_PROJECTION_SHA256) {
+      errors.push("r13 correction-record normalized projection drifted");
+    }
+  } catch (error) {
+    errors.push(error.message);
+  }
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  if (policyProjection(commit.oid) !== R13_POLICY_PROJECTION_SHA256) {
+    errors.push("r13 policy normalized projection drifted");
+  }
+  errors.push(...workflowSecurityErrors(commit.oid, C14_RELEASE_WORKFLOW_SHA256));
+  errors.push(...c14WorkflowContractErrors(commit.oid));
+  errors.push(...validateProjectionArtifacts(commit.oid, R13_REC02_SEAL).errors);
+  errors.push(...validateArtCompatibility(commit.oid, R13_REC02_SEAL).errors);
+
+  const records = canonicalRecords(commit.tree, R13_CHANGED_PATHS);
+  let manifest = null;
+  let expectedRaw = null;
+  let expectedOid = null;
+  if (records.some(row => !row)) {
+    errors.push("r13 canonical manifest contains an unreadable path");
+  } else {
+    manifest = canonicalManifest(records);
+    expectedRaw = r13RawCommit(commit.tree);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("r13 raw commit payload differs from the exact subject-only frame");
+    if (commit.oid !== expectedOid) errors.push(`r13 OID ${commit.oid} != independently framed ${expectedOid}`);
+    if (!sameList(commit.headerLines, [
+      `tree ${commit.tree}`,
+      `parent ${C14_MERGE_SHA}`,
+      `author ${R13_POLICY_CORRECTION_AUTHOR}`,
+      `committer ${R13_POLICY_CORRECTION_AUTHOR}`
+    ])) errors.push("r13 raw header order or inventory drifted");
+    if (commit.message !== `${R13_POLICY_CORRECTION_COMMIT_TITLE}\n`) errors.push("r13 commit message bytes drifted");
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: commit.parents[0],
+    rawSha256: sha256(commit.bytes),
+    rawByteLength: commit.bytes.length,
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null
+  };
+}
+
+function r13MergeEvidence(ref) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== C14_MERGE_SHA) {
+    return { errors: ["protected r13 successor is not an exact two-parent merge from X"] };
+  }
+  return mergeEvidence(merge.oid, C14_MERGE_SHA, r13CandidateEvidence(merge.parents[1]));
+}
+
+function expectedR13FutureStatus(protectedMerge) {
+  const merge = commitHeaders(protectedMerge);
+  if (!merge) throw new Error("r3 STATUS base is not a commit");
+  const base = r13MergeEvidence(protectedMerge);
+  if (base.errors.length) throw new Error(`r3 STATUS base is not an exact r13 successor: ${base.errors.join(" | ")}`);
+  const candidate = r13CandidateEvidence(merge.parents[1]);
+  const status = fileIdentity(merge.parents[1], STATUS_PATH);
+  if (candidate.errors.length || !status || status.sha256 !== R13_STATUS_SHA256) {
+    throw new Error("r3 STATUS source is not the exact r13 STATUS");
+  }
+  let text = status.bytes.toString("utf8");
+  text = replaceUniqueStatusField(text, "governed_recovery_successor_sha", protectedMerge);
+  text = replaceUniqueStatusField(
+    text,
+    "tested_runtime_sha",
+    `${protectedMerge} — exact protected r13 policy successor; recovery evidence, not certification`
+  );
+  text = replaceUniqueStatusField(text, "milestone", "REC-02-R3 — exact active projection from protected r13 successor");
+  text = replaceUniqueStatusField(text, "ticket", "REC-02 / issue #24 — governed zero-exit implementation r3");
+  text = replaceUniqueStatusField(
+    text,
+    "state",
+    `REC-02 R3 CANDIDATE — exact protected r13 successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED`
+  );
+  text = replaceUniqueStatusField(text, "implementation_branch", R13_FUTURE_BRANCH);
+  text = replaceUniqueStatusField(text, "dispatch_base_sha", protectedMerge);
+  text = replaceUniqueStatusField(text, "dispatch_base_tree", merge.tree);
+  text = replaceUniqueStatusField(
+    text,
+    "rec_ratchet_02_control_state",
+    `GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 CLOSED/LANDED/CONSUMED at X; REC-02 r2 / PR #39 TERMINAL/NON-REUSABLE; r13 CLOSED/LANDED/CONSUMED at exact protected successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED remains active`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "r13_candidate_identity",
+    `LANDED PRECURSOR — protected successor ${protectedMerge}; correction head ${merge.parents[1]}; tree ${merge.tree}; ordered parents [${merge.parents.join(",")}]`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "fresh_rec_02_branch",
+    `${R13_FUTURE_BRANCH} — CONSTRUCTED FROM exact protected r13 successor ${protectedMerge}`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "issue_24_repin_requirement",
+    `REQUIRED EXTERNAL PRECONDITION / NOT VERIFIED BY REPOSITORY POLICY — owner-authenticated readback must show issue #24 freshly repinned to exact ${protectedMerge}; external receipt must accompany candidate`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "active_simulation_baseline_sha256",
+    `${INACTIVE_BASELINE_SHA256} — exact REC-02 baseline activated from the landed Gate A artifact`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "functional_projection_state",
+    "ACTIVATED — exact pinned patch and baseline applied; full exact-head verifier and locked simulations must pass again"
+  );
+  text = replaceOnce(
+    text,
+    "- r13 is authorized only through a fully validated local candidate and independent review. No push, PR, ready transition, merge, workflow rerun, deployment, publication, tag, release, or certification is authorized.",
+    `- r13 landed at exact protected successor \`${protectedMerge}\`; that route and its protected-merge authorization are consumed.`,
+    "r3 STATUS r13 blocker transition"
+  );
+  text = replaceOnce(
+    text,
+    "- REC-02 r3 remains UNFROZEN and blocked until an exact r13 successor lands under separate authorization and issue #24 is separately repinned to that exact successor.",
+    `- REC-02 r3 is a synthetic exact candidate from \`${protectedMerge}\`; any real construction, push, PR, ready transition, or merge still requires separate authorization and external Issue #24 evidence.`,
+    "r3 STATUS REC-02 blocker transition"
+  );
+  text = replaceOnce(
+    text,
+    "**Build / GPT-Codex:** complete the exact four-path r13 local validation and independent review, freeze one local candidate identity only on total PASS, report its evidence, and stop before any push or PR. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "**Owner / Manraj:** decide whether to authorize a separately executed REC-02 r3 Build candidate after exact Issue #24 repin evidence. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "r3 STATUS next action"
+  );
+  return Buffer.from(text, "utf8");
+}
+
+const r13FutureTreeCache = new Map();
+
+function buildR13FutureTree(protectedMerge) {
+  if (r13FutureTreeCache.has(protectedMerge)) return r13FutureTreeCache.get(protectedMerge);
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  if (!patchIdentity || !baselineIdentity) throw new Error("r3 projection artifacts are missing");
+  if (patchIdentity.sha256 !== R13_PATCH_SHA256 || patchIdentity.byteLength !== R13_PATCH_BYTES) {
+    throw new Error("r3 projection patch identity drifted");
+  }
+  const artifact = JSON.parse(patchIdentity.bytes.toString("utf8"));
+  const futureStatus = expectedR13FutureStatus(protectedMerge);
+  const reconstructed = reconstructPatchTree(protectedMerge, artifact, {
+    [ACTIVE_BASELINE_PATH]: { bytes: baselineIdentity.bytes, mode: baselineIdentity.mode },
+    [STATUS_PATH]: { bytes: futureStatus, mode: "100644" }
+  });
+  const result = { tree: reconstructed.tree, transcript: reconstructed.transcript, status: futureStatus };
+  r13FutureTreeCache.set(protectedMerge, result);
+  return result;
+}
+
+function r13FutureEvidence(ref, protectedMerge) {
+  const errors = [];
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: ["future REC-02 r3 candidate is not an independently framed commit object"] };
+  const base = r13MergeEvidence(protectedMerge);
+  if (base.errors.length) errors.push(...base.errors.map(error => `r3 base: ${error}`));
+  if (!sameList(commit.parents, [protectedMerge])) errors.push("future REC-02 r3 candidate is not one direct child of exact r13 successor");
+  if (!sameList(changedPaths(protectedMerge, commit.oid), FUTURE_CHANGED_PATHS)) {
+    errors.push("future REC-02 r3 changed paths differ from the exact ten-path activation scope");
+  }
+  let projected = null;
+  try {
+    projected = buildR13FutureTree(protectedMerge);
+    if (commit.tree !== projected.tree) errors.push(`future REC-02 r3 tree ${commit.tree} != mechanically projected ${projected.tree}`);
+  } catch (error) {
+    errors.push(error.message);
+  }
+
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  let artifact = null;
+  try {
+    artifact = patchIdentity ? JSON.parse(patchIdentity.bytes.toString("utf8")) : null;
+  } catch {
+    errors.push("r3 patch artifact is not valid JSON");
+  }
+  for (const row of artifact?.files || []) {
+    const output = fileIdentity(commit.oid, row.path);
+    if (!output || output.mode !== row.output?.mode || output.blob !== row.output?.blob
+      || output.sha256 !== row.output?.sha256 || output.byteLength !== row.output?.byteLength) {
+      errors.push(`${row.path}: future r3 exact output identity drifted`);
+    }
+  }
+  const active = fileIdentity(commit.oid, ACTIVE_BASELINE_PATH);
+  if (!active || !baselineIdentity || active.mode !== baselineIdentity.mode || active.blob !== baselineIdentity.blob
+    || active.sha256 !== baselineIdentity.sha256 || active.byteLength !== baselineIdentity.byteLength) {
+    errors.push("future r3 active baseline is not the exact authorized inactive baseline bytes");
+  }
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (!status || !projected || !status.bytes.equals(projected.status)) errors.push("future r3 STATUS is not the exact mechanically derived transition");
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  if (policyProjection(commit.oid) !== R13_POLICY_PROJECTION_SHA256) errors.push("future REC-02 r3 policy projection drifted");
+  errors.push(...workflowSecurityErrors(commit.oid, C14_RELEASE_WORKFLOW_SHA256));
+  errors.push(...c14WorkflowContractErrors(commit.oid));
+  errors.push(...validateProjectionArtifacts(commit.oid, R13_REC02_SEAL).errors);
+  errors.push(...validateArtCompatibility(commit.oid, R13_REC02_SEAL).errors);
+
+  const records = canonicalRecords(commit.tree, FUTURE_CHANGED_PATHS);
+  let manifest = null;
+  let expectedRaw = null;
+  let expectedOid = null;
+  if (records.some(row => !row)) {
+    errors.push("future REC-02 r3 canonical manifest contains an unreadable path");
+  } else {
+    manifest = canonicalManifest(records);
+    expectedRaw = canonicalRawCommit(commit.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("future REC-02 r3 raw commit payload differs from the exact canonical frame");
+    if (commit.oid !== expectedOid) errors.push(`future REC-02 r3 OID ${commit.oid} != independently framed ${expectedOid}`);
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: protectedMerge,
+    rawSha256: sha256(commit.bytes),
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null
+  };
+}
+
+function r13FutureMergeEvidence(ref, protectedMerge) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== protectedMerge) {
+    return { errors: ["protected REC-02 r3 successor is not an exact two-parent merge from the r13 successor"] };
+  }
+  return mergeEvidence(merge.oid, protectedMerge, r13FutureEvidence(merge.parents[1], protectedMerge));
+}
+
 const TERMINAL_CORRECTION_BRANCHES = Object.freeze([
   ...FAILED_POLICY_CORRECTION_BRANCHES,
   C9_POLICY_CORRECTION_BRANCH,
@@ -4310,8 +4765,10 @@ const TERMINAL_CORRECTION_BRANCHES = Object.freeze([
   C11_POLICY_CORRECTION_BRANCH,
   C12_POLICY_CORRECTION_BRANCH,
   C13_POLICY_CORRECTION_BRANCH,
+  C14_POLICY_CORRECTION_BRANCH,
   GATE_A_BRANCH,
-  AUTHORIZED_PATCH_TARGET_BRANCH
+  AUTHORIZED_PATCH_TARGET_BRANCH,
+  FUTURE_BRANCH
 ]);
 const TERMINAL_SUCCESSOR_OBJECTS = Object.freeze(new Map([
   [C9_HEAD_SHA, "C9/r7 is landed, consumed, and non-reusable"],
@@ -4327,13 +4784,23 @@ const TERMINAL_SUCCESSOR_OBJECTS = Object.freeze(new Map([
   [C12_TRANSITION_SHA, "C12 terminal topology is non-reusable"],
   [C13_REVIEW_MERGE_SHA, "C13 terminal topology is non-reusable"],
   [C13_FUTURE_SHA, "C13 terminal topology is non-reusable"],
-  [C13_TRANSITION_SHA, "C13 terminal topology is non-reusable"]
+  [C13_TRANSITION_SHA, "C13 terminal topology is non-reusable"],
+  [C14_HEAD_SHA, "C14/r12 is landed, consumed, and non-reusable"],
+  [FAILED_REC_02_R2_HEAD, "REC-02 r2 / PR #39 is terminal and non-reusable"],
+  [FAILED_REC_02_R2_TREE, "REC-02 r2 tree is terminal and non-reusable"],
+  [FAILED_REC_02_R2_SYNTHETIC_MERGE, "REC-02 r2 synthetic merge is terminal and non-reusable"]
 ]));
 
 function terminalC14RouteError(facts) {
-  const head = presentedCandidateHead(facts);
+  const normalizeOid = value => {
+    if (typeof value !== "string") return null;
+    const normalized = value.trim().toLowerCase();
+    return FULL_SHA_RE.test(normalized) ? normalized : null;
+  };
+  const head = normalizeOid(presentedCandidateHead(facts));
   if (TERMINAL_SUCCESSOR_OBJECTS.has(head)) return TERMINAL_SUCCESSOR_OBJECTS.get(head);
-  if (TERMINAL_SUCCESSOR_OBJECTS.has(facts.beforeSha)) return TERMINAL_SUCCESSOR_OBJECTS.get(facts.beforeSha);
+  const before = normalizeOid(facts.beforeSha);
+  if (TERMINAL_SUCCESSOR_OBJECTS.has(before)) return TERMINAL_SUCCESSOR_OBJECTS.get(before);
   if (facts.eventName === "pull_request" && TERMINAL_CORRECTION_BRANCHES.includes(facts.headRef)) {
     return `correction branch ${facts.headRef} is consumed or terminal and non-reusable`;
   }
@@ -4377,16 +4844,16 @@ export function evaluatePolicy(facts) {
     if (!FULL_SHA_RE.test(facts.prBaseSha || "") || !FULL_SHA_RE.test(facts.prHeadSha || "")) {
       errors.push("pull-request base/head SHA is not a full SHA-1 pair");
     }
-    if (facts.headRef === C14_POLICY_CORRECTION_BRANCH) {
-      route = "rec-ratchet-02-c14";
-      if (facts.prBaseSha !== C10_MERGE_SHA) {
-        errors.push(`C14 pull-request base ${facts.prBaseSha || "<missing>"} != exact S ${C10_MERGE_SHA}`);
+    if (facts.headRef === R13_POLICY_CORRECTION_BRANCH) {
+      route = "rec-ratchet-02-r13";
+      if (facts.prBaseSha !== C14_MERGE_SHA) {
+        errors.push(`r13 pull-request base ${facts.prBaseSha || "<missing>"} != exact X ${C14_MERGE_SHA}`);
       }
-      evidence = c14CandidateEvidence(facts.prHeadSha);
-      errors.push(...mergeEvidence(facts.sha, C10_MERGE_SHA, evidence).errors);
-    } else if (facts.headRef === FUTURE_BRANCH) {
-      route = "rec-02";
-      evidence = c14FutureEvidence(facts.prHeadSha, facts.prBaseSha);
+      evidence = r13CandidateEvidence(facts.prHeadSha);
+      errors.push(...mergeEvidence(facts.sha, C14_MERGE_SHA, evidence).errors);
+    } else if (facts.headRef === R13_FUTURE_BRANCH) {
+      route = "rec-02-r3";
+      evidence = r13FutureEvidence(facts.prHeadSha, facts.prBaseSha);
       errors.push(...mergeEvidence(facts.sha, facts.prBaseSha, evidence).errors);
     } else {
       errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an armed recovery route`);
@@ -4398,18 +4865,18 @@ export function evaluatePolicy(facts) {
       errors.push("push is not an exact protected recovery-branch event");
     }
     if (facts.sha !== facts.afterSha) errors.push("push event SHA differs from after SHA");
-    if (facts.beforeSha === C10_MERGE_SHA) {
-      route = "rec-ratchet-02-c14-merge";
-      evidence = c14MergeEvidence(facts.afterSha);
+    if (facts.beforeSha === C14_MERGE_SHA) {
+      route = "rec-ratchet-02-r13-merge";
+      evidence = r13MergeEvidence(facts.afterSha);
       errors.push(...evidence.errors);
     } else {
-      const base = c14MergeEvidence(facts.beforeSha);
+      const base = r13MergeEvidence(facts.beforeSha);
       if (base.errors.length === 0) {
-        route = "rec-02-merge";
-        evidence = c14FutureMergeEvidence(facts.afterSha, facts.beforeSha);
+        route = "rec-02-r3-merge";
+        evidence = r13FutureMergeEvidence(facts.afterSha, facts.beforeSha);
         errors.push(...evidence.errors);
       } else {
-        errors.push("push before SHA is not exact S or the one unconsumed exact C14 successor X");
+        errors.push("push before SHA is not exact X or the one unconsumed exact r13 successor");
       }
     }
   } else {
@@ -4556,26 +5023,209 @@ export function githubActionsGitEnvironmentFixture() {
   return runGithubActionsGitEnvironmentFixture();
 }
 
-function currentC14Inputs() {
+function currentC14Inputs(source = C14_MERGE_SHA) {
+  if (source !== C14_MERGE_SHA) {
+    throw new Error(`historical C14 fixture source must be literal exact X ${C14_MERGE_SHA}`);
+  }
+  const protectedMerge = commitHeaders(source);
+  if (!protectedMerge
+    || protectedMerge.oid !== C14_MERGE_SHA
+    || protectedMerge.tree !== C14_MERGE_TREE
+    || !sameList(protectedMerge.parents, [C10_MERGE_SHA, C14_HEAD_SHA])
+    || protectedMerge.bytes.length !== C14_MERGE_RAW_BYTES
+    || sha256(protectedMerge.bytes) !== C14_MERGE_RAW_SHA256) {
+    throw new Error("historical exact X identity, tree, topology, or raw payload drifted");
+  }
+  const candidate = commitHeaders(C14_HEAD_SHA);
+  if (!candidate
+    || candidate.oid !== C14_HEAD_SHA
+    || candidate.tree !== C14_HEAD_TREE
+    || !sameList(candidate.parents, [C10_MERGE_SHA])
+    || candidate.bytes.length !== C14_HEAD_RAW_BYTES
+    || sha256(candidate.bytes) !== C14_HEAD_RAW_SHA256) {
+    throw new Error("historical exact C14 identity, tree, topology, or raw payload drifted");
+  }
+  if (candidate.tree !== protectedMerge.tree) throw new Error("historical C14 and X trees differ");
+  if (!sameList(changedPaths(C10_MERGE_SHA, candidate.oid), C14_CHANGED_PATHS)) {
+    throw new Error("historical C14 changed-path scope drifted");
+  }
+
+  const exact = Object.freeze({
+    [RELEASE_WORKFLOW_PATH]: [C14_RELEASE_WORKFLOW_BLOB, C14_RELEASE_WORKFLOW_SHA256, C14_RELEASE_WORKFLOW_BYTES],
+    [STATUS_PATH]: [C14_STATUS_BLOB, C14_STATUS_SHA256, C14_STATUS_BYTES],
+    [POLICY_CORRECTION_RECORD_PATH]: [C14_RECORD_BLOB, C14_RECORD_SHA256, C14_RECORD_BYTES],
+    [PATCH_ARTIFACT_PATH]: [C14_PATCH_BLOB, C14_PATCH_SHA256, C14_PATCH_BYTES],
+    [POLICY_PATH]: [C14_POLICY_BLOB, C14_POLICY_SHA256, C14_POLICY_BYTES]
+  });
   const inputs = {};
-  for (const path of C14_CHANGED_PATHS) {
+  const records = canonicalRecords(candidate.tree, C14_CHANGED_PATHS);
+  if (records.some(record => !record)) throw new Error("historical C14 manifest contains a missing record");
+  const manifest = Buffer.from(canonicalManifest(records), "utf8");
+  if (manifest.length !== C14_MANIFEST_BYTES || sha256(manifest) !== C14_MANIFEST_SHA256) {
+    throw new Error("historical C14 five-path manifest drifted");
+  }
+  for (const record of records) {
+    const [blob, digest, byteLength] = exact[record.path] || [];
+    if (record.mode !== "100644" || record.blob !== blob || record.sha256 !== digest || record.byteLength !== byteLength) {
+      throw new Error(`historical C14 ${record.path} exact identity drifted`);
+    }
+    inputs[record.path] = record.bytes;
+  }
+  const parsedPatch = JSON.parse(inputs[PATCH_ARTIFACT_PATH].toString("utf8"));
+  const formattedPatch = Buffer.from(`${JSON.stringify(parsedPatch, null, 2)}\n`, "utf8");
+  if (!formattedPatch.equals(inputs[PATCH_ARTIFACT_PATH])) {
+    throw new Error("historical C14 patch artifact is not canonical two-space JSON with one terminal LF");
+  }
+  return inputs;
+}
+
+function expectedR13PatchBytes(source = C14_MERGE_SHA) {
+  if (source !== C14_MERGE_SHA) {
+    throw new Error(`r13 patch source must be literal exact X ${C14_MERGE_SHA}`);
+  }
+  currentC14Inputs(source);
+  const historical = fileIdentity(source, PATCH_ARTIFACT_PATH);
+  if (!historical || historical.blob !== C14_PATCH_BLOB || historical.sha256 !== C14_PATCH_SHA256) {
+    throw new Error("r13 patch source is not the exact landed C14 artifact");
+  }
+  const artifact = JSON.parse(historical.bytes.toString("utf8"));
+  if (artifact.authority?.targetBranch !== FUTURE_BRANCH) {
+    throw new Error("historical C14 patch target is not exact REC-02 r2");
+  }
+  artifact.authority.targetBranch = R13_FUTURE_BRANCH;
+  const bytes = Buffer.from(`${JSON.stringify(artifact, null, 2)}\n`, "utf8");
+  if (bytes.length !== R13_PATCH_BYTES || sha256(bytes) !== R13_PATCH_SHA256
+    || gitObjectOid("blob", bytes) !== R13_PATCH_BLOB) {
+    throw new Error("mechanically derived r13 patch identity drifted");
+  }
+  return bytes;
+}
+
+function r13EnvelopeAt(ref) {
+  const inputs = {};
+  for (const path of R13_CHANGED_PATHS) {
+    const identity = fileIdentity(ref, path);
+    if (!identity || identity.mode !== "100644") {
+      throw new Error(`${path}: r13 envelope exact identity drifted`);
+    }
+    inputs[path] = identity.bytes;
+  }
+  return inputs;
+}
+
+function readCurrentR13Envelope() {
+  const inputs = {};
+  for (const path of R13_CHANGED_PATHS) {
     const physicalPath = resolve(ROOT, path);
     const metadata = lstatSync(physicalPath);
-    if (!metadata.isFile() || metadata.isSymbolicLink()) throw new Error(`self-test ${path} is not one regular file`);
+    if (!metadata.isFile() || metadata.isSymbolicLink()) throw new Error(`r13 self-test ${path} is not one regular file`);
     const worktree = readFileSync(physicalPath);
     const index = gitBytes(["show", `:${path}`]);
-    if (!worktree.equals(index)) throw new Error(`self-test ${path} has unstaged worktree drift`);
+    if (!worktree.equals(index)) throw new Error(`r13 self-test ${path} has unstaged worktree drift`);
     const text = worktree.toString("utf8");
-    if (!Buffer.from(text, "utf8").equals(worktree)) throw new Error(`self-test ${path} is not lossless UTF-8`);
-    if (text.includes("\r")) throw new Error(`self-test ${path} contains CR bytes`);
-    if (!text.endsWith("\n") || text.endsWith("\n\n")) throw new Error(`self-test ${path} does not have exactly one terminal LF`);
+    if (!Buffer.from(text, "utf8").equals(worktree)) throw new Error(`r13 self-test ${path} is not lossless UTF-8`);
+    if (text.includes("\r") || text.includes("\0")) throw new Error(`r13 self-test ${path} contains forbidden bytes`);
+    if (!text.endsWith("\n") || text.endsWith("\n\n")) {
+      throw new Error(`r13 self-test ${path} does not have exactly one terminal LF`);
+    }
     inputs[path] = worktree;
   }
-  const patchBytes = inputs[PATCH_ARTIFACT_PATH];
-  const parsedPatch = JSON.parse(patchBytes.toString("utf8"));
-  const formattedPatch = Buffer.from(`${JSON.stringify(parsedPatch, null, 2)}\n`, "utf8");
-  if (!formattedPatch.equals(patchBytes)) throw new Error("active patch artifact is not canonical two-space JSON with one terminal LF");
   return inputs;
+}
+
+function validateR13CandidateInputs(inputs) {
+  currentC14Inputs(C14_MERGE_SHA);
+  if (sha256(inputs[STATUS_PATH]) !== R13_STATUS_SHA256) {
+    throw new Error("current r13 STATUS exact identity drifted");
+  }
+  if (sha256(inputs[POLICY_CORRECTION_RECORD_PATH]) !== R13_RECORD_SHA256) {
+    throw new Error("current r13 correction-record exact identity drifted");
+  }
+  if (!inputs[PATCH_ARTIFACT_PATH].equals(expectedR13PatchBytes(C14_MERGE_SHA))) {
+    throw new Error("current r13 patch is not the exact one-field X-derived transition");
+  }
+  const historicalRecord = fileIdentity(C14_MERGE_SHA, POLICY_CORRECTION_RECORD_PATH);
+  if (!historicalRecord || !inputs[POLICY_CORRECTION_RECORD_PATH].subarray(0, historicalRecord.bytes.length).equals(historicalRecord.bytes)
+    || inputs[POLICY_CORRECTION_RECORD_PATH].subarray(historicalRecord.bytes.length).toString("utf8")
+      .startsWith("\n## 12. r13 immutable landed-C14 fixture-source supplement\n") === false) {
+    throw new Error("r13 correction record is not exact X plus one r13 supplement");
+  }
+  if (sha256(normalizedR13StatusBytes(inputs[STATUS_PATH])) !== R13_STATUS_PROJECTION_SHA256) {
+    throw new Error("r13 STATUS normalized projection drifted");
+  }
+  if (sha256(normalizedR13RecordBytes(inputs[POLICY_CORRECTION_RECORD_PATH])) !== R13_RECORD_PROJECTION_SHA256) {
+    throw new Error("r13 correction-record normalized projection drifted");
+  }
+  if (sha256(normalizedPolicyBytes(inputs[POLICY_PATH])) !== R13_POLICY_PROJECTION_SHA256) {
+    throw new Error("r13 policy normalized projection drifted");
+  }
+  const statusErrors = noPublishStatusErrors(inputs[STATUS_PATH]);
+  if (statusErrors.length) throw new Error(`r13 STATUS publication boundary drifted: ${statusErrors.join(" | ")}`);
+  return inputs;
+}
+
+function immutableR13Inputs(protectedMerge) {
+  const merge = commitHeaders(protectedMerge);
+  const base = r13MergeEvidence(protectedMerge);
+  if (!merge || base.errors.length) {
+    throw new Error(`immutable r13 source is not an exact protected successor: ${base.errors.join(" | ")}`);
+  }
+  const candidateOid = merge.parents[1];
+  const candidate = r13CandidateEvidence(candidateOid);
+  if (candidate.errors.length) {
+    throw new Error(`immutable r13 candidate source drifted: ${candidate.errors.join(" | ")}`);
+  }
+  const inputs = r13EnvelopeAt(candidateOid);
+  const records = canonicalRecords(commitHeaders(candidateOid).tree, R13_CHANGED_PATHS);
+  if (records.some(record => !record || record.mode !== "100644")
+    || canonicalManifest(records) !== candidate.manifest) {
+    throw new Error("immutable r13 four-path manifest drifted");
+  }
+  return inputs;
+}
+
+function r13EnvelopeMatchesRef(envelope, ref) {
+  return R13_CHANGED_PATHS.every(path => {
+    const identity = fileIdentity(ref, path);
+    return identity?.mode === "100644" && envelope[path]?.equals(identity.bytes);
+  });
+}
+
+function currentR13Inputs(checkoutRef = "HEAD", currentEnvelope = null) {
+  const checkout = commitHeaders(checkoutRef);
+  if (!checkout) throw new Error("r13 self-test checkout is not a commit");
+  const envelope = currentEnvelope || readCurrentR13Envelope();
+  const checkoutProtectedEvidence = r13MergeEvidence(checkout.oid);
+  if (checkoutProtectedEvidence.errors.length === 0) {
+    if (r13EnvelopeMatchesRef(envelope, checkout.oid)) {
+      return immutableR13Inputs(checkout.oid);
+    }
+    const projected = buildR13FutureTree(checkout.oid);
+    if (r13EnvelopeMatchesRef(envelope, projected.tree)) {
+      return immutableR13Inputs(checkout.oid);
+    }
+    throw new Error("r13 protected-successor checkout envelope is neither exact r13 nor exact staged r3");
+  }
+  const protectedMerge = checkout.parents[0];
+  const protectedEvidence = protectedMerge ? r13MergeEvidence(protectedMerge) : { errors: ["missing first parent"] };
+  if (protectedEvidence.errors.length === 0) {
+    let routeErrors;
+    if (sameList(checkout.parents, [protectedMerge])) {
+      routeErrors = r13FutureEvidence(checkout.oid, protectedMerge).errors;
+    } else if (checkout.parents.length === 2 && checkout.parents[0] === protectedMerge) {
+      routeErrors = r13FutureMergeEvidence(checkout.oid, protectedMerge).errors;
+    } else {
+      routeErrors = ["future r3 checkout has unsupported topology"];
+    }
+    if (routeErrors.length) {
+      throw new Error(`future r3 checkout evidence drifted: ${routeErrors.join(" | ")}`);
+    }
+    if (!r13EnvelopeMatchesRef(envelope, checkout.oid)) {
+      throw new Error("future r3 checkout envelope drifted");
+    }
+    return immutableR13Inputs(protectedMerge);
+  }
+  return validateR13CandidateInputs(envelope);
 }
 
 function c14Fixture(inputs = currentC14Inputs()) {
@@ -4586,6 +5236,9 @@ function c14Fixture(inputs = currentC14Inputs()) {
   assert.ok(records.every(Boolean), "C14 fixture manifest contains a missing record");
   const raw = c14RawCommit(tree);
   const oid = writeRawCommit(raw);
+  if (inputs[POLICY_PATH]?.equals(currentC14Inputs()[POLICY_PATH])) {
+    assert.equal(oid, C14_HEAD_SHA, "immutable historical C14 fixture did not resolve to the landed head");
+  }
   return { oid, tree, raw, records, inputs };
 }
 
@@ -4593,6 +5246,24 @@ function c14FutureFixture(protectedMerge) {
   const projected = buildC14FutureTree(protectedMerge);
   const records = canonicalRecords(projected.tree, FUTURE_CHANGED_PATHS);
   assert.ok(records.every(Boolean), "future C14 fixture manifest contains a missing record");
+  const raw = canonicalRawCommit(projected.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+  return { oid: writeRawCommit(raw), raw, tree: projected.tree, records };
+}
+
+function r13Fixture(inputs = currentR13Inputs()) {
+  const tree = treeWithOverrides(C14_MERGE_SHA, Object.fromEntries(
+    R13_CHANGED_PATHS.map(path => [path, inputs[path]])
+  ));
+  const records = canonicalRecords(tree, R13_CHANGED_PATHS);
+  assert.ok(records.every(Boolean), "r13 fixture manifest contains a missing record");
+  const raw = r13RawCommit(tree);
+  return { oid: writeRawCommit(raw), tree, raw, records, inputs };
+}
+
+function r13FutureFixture(protectedMerge) {
+  const projected = buildR13FutureTree(protectedMerge);
+  const records = canonicalRecords(projected.tree, FUTURE_CHANGED_PATHS);
+  assert.ok(records.every(Boolean), "future r3 fixture manifest contains a missing record");
   const raw = canonicalRawCommit(projected.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
   return { oid: writeRawCommit(raw), raw, tree: projected.tree, records };
 }
@@ -4607,10 +5278,26 @@ function expectC14PolicyFailure(facts, mutate, needle) {
 
 function selfTest() {
   assertSafeGitEnvironment(process.env);
+  assert.ok(FULL_SHA256_RE.test(R13_POLICY_PROJECTION_SHA256) && !/^0+$/.test(R13_POLICY_PROJECTION_SHA256));
+  assert.ok(FULL_SHA256_RE.test(R13_CANDIDATE_INVENTORY_SHA256) && !/^0+$/.test(R13_CANDIDATE_INVENTORY_SHA256));
+  assert.ok(FULL_SHA256_RE.test(R13_FUTURE_INVENTORY_SHA256) && !/^0+$/.test(R13_FUTURE_INVENTORY_SHA256));
+  assert.ok(FULL_SHA256_RE.test(R13_STATUS_SHA256) && !/^0+$/.test(R13_STATUS_SHA256));
+  assert.ok(FULL_SHA256_RE.test(R13_RECORD_SHA256) && !/^0+$/.test(R13_RECORD_SHA256));
   assert.ok(FULL_SHA256_RE.test(C14_POLICY_PROJECTION_SHA256) && !/^0+$/.test(C14_POLICY_PROJECTION_SHA256));
   assert.ok(FULL_SHA256_RE.test(C14_CANDIDATE_INVENTORY_SHA256) && !/^0+$/.test(C14_CANDIDATE_INVENTORY_SHA256));
   assert.ok(FULL_SHA256_RE.test(C14_FUTURE_INVENTORY_SHA256) && !/^0+$/.test(C14_FUTURE_INVENTORY_SHA256));
-  assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), C14_POLICY_PROJECTION_SHA256);
+  assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), R13_POLICY_PROJECTION_SHA256);
+  assert.equal(policyProjection(C14_HEAD_SHA), C14_POLICY_PROJECTION_SHA256, "historical C14 policy projection drifted");
+  const immutableC14Inputs = currentC14Inputs();
+  assert.equal(sha256(immutableC14Inputs[STATUS_PATH]), C14_STATUS_SHA256);
+  assert.notEqual(sha256(readFileSync(resolve(ROOT, STATUS_PATH))), C14_STATUS_SHA256, "current r13 STATUS unexpectedly equals historical C14 STATUS");
+  for (const alias of ["HEAD", C14_MERGE_SHA.toUpperCase(), ` ${C14_MERGE_SHA}`, C10_MERGE_SHA, "0".repeat(40)]) {
+    const aliasAudit = withGitInvocationAudit(() => assert.throws(
+      () => currentC14Inputs(alias),
+      /historical C14 fixture source must be literal exact X/
+    ));
+    assert.equal(aliasAudit.calls.length, 0, `historical C14 alias ${alias} invoked Git`);
+  }
 
   const environmentReceipt = runGithubActionsGitEnvironmentFixture();
   assert.equal(environmentReceipt.result, "PASS");
@@ -4633,6 +5320,8 @@ function selfTest() {
 
   const candidateInventory = forbiddenObjectInventory("c14");
   const futureInventory = forbiddenObjectInventory("rec-02");
+  const r13CandidateInventory = r13ForbiddenObjectInventory("r13");
+  const r13FutureInventory = r13ForbiddenObjectInventory("rec-02-r3");
   assert.deepEqual(candidateInventory.counts, {
     artBlobs: 79,
     artRoots: 2,
@@ -4655,6 +5344,30 @@ function selfTest() {
   });
   assertForbiddenObjectInventoryIdentity("c14", sha256(canonicalJsonBytes(candidateInventory)));
   assertForbiddenObjectInventoryIdentity("rec-02", sha256(canonicalJsonBytes(futureInventory)));
+  assert.deepEqual(r13CandidateInventory.counts, {
+    artBlobs: 79,
+    artRoots: 2,
+    consumedC11Objects: 6,
+    consumedC12Objects: 6,
+    consumedC13Objects: 6,
+    derived: 8,
+    failedIdentityObjects: 18,
+    total: 128,
+    terminalR2Objects: 3
+  });
+  assert.deepEqual(r13FutureInventory.counts, {
+    artBlobs: 79,
+    artRoots: 2,
+    consumedC11Objects: 6,
+    consumedC12Objects: 6,
+    consumedC13Objects: 6,
+    derived: 7,
+    failedIdentityObjects: 18,
+    total: 127,
+    terminalR2Objects: 3
+  });
+  assertR13ForbiddenObjectInventoryIdentity("r13", sha256(canonicalJsonBytes(r13CandidateInventory)));
+  assertR13ForbiddenObjectInventoryIdentity("rec-02-r3", sha256(canonicalJsonBytes(r13FutureInventory)));
   for (const [label, objects] of [
     ["C11", CONSUMED_C11_OBJECTS],
     ["C12", CONSUMED_C12_OBJECTS],
@@ -4766,73 +5479,148 @@ function selfTest() {
     genericMerge(candidate.tree, [x.oid, future.oid], "future wrong-tree T fixture")
   ]) countC14Rejection(c14FutureMergeEvidence(fixture.oid, x.oid).errors.length > 0, "invalid future T topology accepted");
 
-  const c14Pr = prFacts({
-    sha: x.oid,
-    base: C10_MERGE_SHA,
-    head: candidate.oid,
-    headRef: C14_POLICY_CORRECTION_BRANCH
+  const landedX = commitHeaders(C14_MERGE_SHA);
+  assert.ok(landedX, "exact X is missing");
+  assert.equal(landedX.tree, C14_MERGE_TREE);
+  assert.deepEqual(landedX.parents, [C10_MERGE_SHA, C14_HEAD_SHA]);
+  assert.equal(landedX.bytes.length, C14_MERGE_RAW_BYTES);
+  assert.equal(sha256(landedX.bytes), C14_MERGE_RAW_SHA256);
+  assert.deepEqual(c14MergeEvidence(C14_MERGE_SHA).errors, [], "landed exact X evidence drifted");
+
+  const pr39MutableStatus = expectedC14FutureStatus(C14_MERGE_SHA);
+  assert.equal(pr39MutableStatus.length, FAILED_REC_02_R2_STATUS_BYTES, "PR #39 STATUS byte length drifted");
+  assert.equal(sha256(pr39MutableStatus), FAILED_REC_02_R2_STATUS_SHA256, "PR #39 STATUS SHA-256 drifted");
+  assert.equal(gitObjectOid("blob", pr39MutableStatus), FAILED_REC_02_R2_STATUS_BLOB, "PR #39 STATUS blob drifted");
+  const pr39MutableInputs = { ...immutableC14Inputs, [STATUS_PATH]: pr39MutableStatus };
+  const pr39MutableTree = treeWithOverrides(C10_MERGE_SHA, Object.fromEntries(
+    C14_CHANGED_PATHS.map(path => [path, pr39MutableInputs[path]])
+  ));
+  const pr39MutableHead = writeRawCommit(c14RawCommit(pr39MutableTree));
+  assert.notEqual(pr39MutableHead, FAILED_REC_02_R2_HEAD, "PR #39 reproduction reused frozen r2 head");
+  assert.notEqual(pr39MutableTree, FAILED_REC_02_R2_TREE, "PR #39 reproduction reused frozen r2 tree");
+  const pr39MutableErrors = c14CandidateEvidence(pr39MutableHead).errors;
+  assert.deepEqual(
+    pr39MutableErrors,
+    [`${STATUS_PATH}: C14 exact identity drifted`],
+    `PR #39 mutable-source failure changed: ${pr39MutableErrors.join(" | ")}`
+  );
+  assert.equal(
+    sha256(currentC14Inputs()[STATUS_PATH]),
+    C14_STATUS_SHA256,
+    "PR #39 reproduction poisoned immutable C14 source"
+  );
+
+  const r13 = r13Fixture();
+  const r13Evidence = r13CandidateEvidence(r13.oid);
+  assert.deepEqual(r13Evidence.errors, [], `r13 fixture failed: ${r13Evidence.errors.join(" | ")}`);
+  const y = genericMerge(r13.tree, [C14_MERGE_SHA, r13.oid], "r13 protected successor fixture");
+  assert.deepEqual(r13MergeEvidence(y.oid).errors, [], "r13 successor fixture failed");
+  const futureR3 = r13FutureFixture(y.oid);
+  const futureR3Evidence = r13FutureEvidence(futureR3.oid, y.oid);
+  assert.deepEqual(futureR3Evidence.errors, [], `future r3 fixture failed: ${futureR3Evidence.errors.join(" | ")}`);
+  const futureR3Status = fileIdentity(futureR3.oid, STATUS_PATH);
+  assert.ok(futureR3Status && futureR3Status.sha256 !== R13_STATUS_SHA256, "future r3 STATUS did not differ from r13 STATUS");
+  assert.equal(sha256(currentC14Inputs()[STATUS_PATH]), C14_STATUS_SHA256, "future r3 construction poisoned historical C14 STATUS");
+  const u = genericMerge(futureR3.tree, [y.oid, futureR3.oid], "REC-02 r3 protected successor fixture");
+  assert.deepEqual(r13FutureMergeEvidence(u.oid, y.oid).errors, [], "future r3 successor fixture failed");
+  const protectedR13Inputs = currentR13Inputs(y.oid, r13EnvelopeAt(y.oid));
+  assert.equal(sha256(protectedR13Inputs[STATUS_PATH]), R13_STATUS_SHA256, "exact r13 successor lost immutable STATUS");
+  for (const [label, checkoutRef, envelopeRef] of [
+    ["staged pre-freeze future r3", y.oid, futureR3.oid],
+    ["direct future r3", futureR3.oid, futureR3.oid],
+    ["future r3 successor", u.oid, u.oid]
+  ]) {
+    const transitionedEnvelope = r13EnvelopeAt(envelopeRef);
+    assert.notEqual(
+      sha256(transitionedEnvelope[STATUS_PATH]),
+      R13_STATUS_SHA256,
+      `${label} did not carry transitioned STATUS`
+    );
+    const futureCheckoutR13Inputs = currentR13Inputs(checkoutRef, transitionedEnvelope);
+    assert.equal(
+      sha256(futureCheckoutR13Inputs[STATUS_PATH]),
+      R13_STATUS_SHA256,
+      `${label} poisoned immutable r13 STATUS`
+    );
+    assert.notEqual(
+      sha256(futureCheckoutR13Inputs[STATUS_PATH]),
+      sha256(transitionedEnvelope[STATUS_PATH]),
+      `${label} reused transitioned STATUS as the historical r13 fixture`
+    );
+    const replayedR13 = r13Fixture(futureCheckoutR13Inputs);
+    assert.equal(replayedR13.oid, r13.oid, `${label} did not reconstruct the exact r13 fixture`);
+    assert.equal(replayedR13.tree, r13.tree, `${label} changed the immutable r13 fixture tree`);
+    assert.deepEqual(r13CandidateEvidence(replayedR13.oid).errors, [], `${label} rejected the exact r13 fixture`);
+  }
+
+  const r13Pr = prFacts({
+    sha: y.oid,
+    base: C14_MERGE_SHA,
+    head: r13.oid,
+    headRef: R13_POLICY_CORRECTION_BRANCH
   });
-  const c14Push = pushFacts({ before: C10_MERGE_SHA, after: x.oid });
-  const futurePr = prFacts({ sha: t.oid, base: x.oid, head: future.oid, headRef: FUTURE_BRANCH });
-  const futurePush = pushFacts({ before: x.oid, after: t.oid });
+  const r13Push = pushFacts({ before: C14_MERGE_SHA, after: y.oid });
+  const futurePr = prFacts({ sha: u.oid, base: y.oid, head: futureR3.oid, headRef: R13_FUTURE_BRANCH });
+  const futurePush = pushFacts({ before: y.oid, after: u.oid });
   for (const [label, facts] of [
-    ["C14 PR", c14Pr],
-    ["C14 push", c14Push],
-    ["future PR", futurePr],
-    ["future push", futurePush]
+    ["r13 PR", r13Pr],
+    ["r13 push", r13Push],
+    ["future r3 PR", futurePr],
+    ["future r3 push", futurePush]
   ]) {
     const result = evaluatePolicy(facts);
     assert.equal(result.passed, true, `${label} failed: ${result.errors.join(" | ")}`);
   }
 
   const structuredCases = [
-    [c14Pr, facts => { facts.repository = "attacker/repository"; }, "repository"],
-    [c14Pr, facts => { facts.checkedOutSha = C10_MERGE_SHA; }, "checked-out SHA"],
-    [c14Pr, facts => { facts.refType = "tag"; }, "tag creation"],
-    [c14Pr, facts => { facts.baseRef = "main"; }, "pull requests to main"],
-    [c14Pr, facts => { facts.prHeadRepository = "fork/repository"; }, "pull-request head repository"],
-    [c14Pr, facts => { facts.prBaseSha = GATE_A_MERGE_SHA; }, "C14 pull-request base"],
-    [c14Pr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route"],
-    [c14Pr, facts => { facts.eventName = "workflow_dispatch"; }, "event workflow_dispatch"],
-    [c14Push, facts => { facts.ref = "refs/heads/main"; }, "not an exact protected recovery-branch event"],
-    [c14Push, facts => { facts.refName = "main"; }, "not an exact protected recovery-branch event"],
-    [c14Push, facts => { facts.refType = "tag"; }, "tag creation"],
-    [c14Push, facts => { facts.sha = candidate.oid; }, "push event SHA differs"],
-    [c14Push, facts => { facts.beforeSha = GATE_A_MERGE_SHA; }, "push before SHA"],
-    [futurePr, facts => { facts.prBaseSha = C10_MERGE_SHA; }, "future base"],
-    [futurePush, facts => { facts.afterSha = future.oid; facts.sha = future.oid; }, "protected REC-02 successor"]
+    [r13Pr, facts => { facts.repository = "attacker/repository"; }, "repository"],
+    [r13Pr, facts => { facts.checkedOutSha = C14_MERGE_SHA; }, "checked-out SHA"],
+    [r13Pr, facts => { facts.refType = "tag"; }, "tag creation"],
+    [r13Pr, facts => { facts.baseRef = "main"; }, "pull requests to main"],
+    [r13Pr, facts => { facts.prHeadRepository = "fork/repository"; }, "pull-request head repository"],
+    [r13Pr, facts => { facts.prBaseSha = C10_MERGE_SHA; }, "r13 pull-request base"],
+    [r13Pr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route"],
+    [r13Pr, facts => { facts.eventName = "workflow_dispatch"; }, "event workflow_dispatch"],
+    [r13Push, facts => { facts.ref = "refs/heads/main"; }, "not an exact protected recovery-branch event"],
+    [r13Push, facts => { facts.refName = "main"; }, "not an exact protected recovery-branch event"],
+    [r13Push, facts => { facts.refType = "tag"; }, "tag creation"],
+    [r13Push, facts => { facts.sha = r13.oid; }, "push event SHA differs"],
+    [r13Push, facts => { facts.beforeSha = C10_MERGE_SHA; }, "push before SHA"],
+    [futurePr, facts => { facts.prBaseSha = C14_MERGE_SHA; }, "r3 base"],
+    [futurePush, facts => { facts.afterSha = futureR3.oid; facts.sha = futureR3.oid; }, "protected REC-02 r3 successor"]
   ];
   for (const [facts, mutate, needle] of structuredCases) {
     expectC14PolicyFailure(facts, mutate, needle);
     structuredRejected += 1;
   }
   countC14Rejection(
-    evaluatePolicy(prFacts({ sha: x.oid, base: x.oid, head: candidate.oid, headRef: C14_POLICY_CORRECTION_BRANCH })).passed === false,
-    "replayed C14 pull request route accepted"
+    evaluatePolicy(prFacts({ sha: y.oid, base: y.oid, head: r13.oid, headRef: R13_POLICY_CORRECTION_BRANCH })).passed === false,
+    "replayed r13 pull request route accepted"
   );
   countC14Rejection(
-    evaluatePolicy(pushFacts({ before: x.oid, after: x.oid })).passed === false,
-    "replayed protected successor accepted"
+    evaluatePolicy(pushFacts({ before: y.oid, after: y.oid })).passed === false,
+    "replayed r13 protected successor accepted"
   );
 
   let zeroGitRejected = 0;
+  assert.equal(ACTIVE_TERMINAL_IDENTITIES.length, 10, "active terminal identity count drifted");
   const terminalFacts = [
     ...FAILED_IDENTITIES.map(identity => prFacts({
       sha: identity.head,
-      base: C10_MERGE_SHA,
+      base: C14_MERGE_SHA,
       head: identity.head,
-      headRef: C14_POLICY_CORRECTION_BRANCH
+      headRef: R13_POLICY_CORRECTION_BRANCH
     })),
-    ...[...TERMINAL_SUCCESSOR_OBJECTS.keys()].map(oid => prFacts({
+    ...[...TERMINAL_SUCCESSOR_OBJECTS.keys()].filter(oid => oid !== C14_HEAD_SHA).map(oid => prFacts({
       sha: oid,
-      base: C10_MERGE_SHA,
+      base: C14_MERGE_SHA,
       head: oid,
-      headRef: C14_POLICY_CORRECTION_BRANCH
+      headRef: R13_POLICY_CORRECTION_BRANCH
     })),
     ...TERMINAL_CORRECTION_BRANCHES.map(headRef => prFacts({
-      sha: candidate.oid,
-      base: C10_MERGE_SHA,
-      head: candidate.oid,
+      sha: r13.oid,
+      base: C14_MERGE_SHA,
+      head: r13.oid,
       headRef
     }))
   ];
@@ -4842,25 +5630,87 @@ function selfTest() {
     assert.equal(audit.calls.length, 0, "terminal route was rejected after repository Git");
     zeroGitRejected += 1;
   }
-  assert.equal(zeroGitRejected, 36, "active C14 zero-Git terminal-route count drifted");
-  assert.equal(structuredRejected, 54, "active C14 structured adversarial count drifted");
+  assert.equal(zeroGitRejected, 41, "active r13 zero-Git terminal-route count drifted");
+  let terminalSpellingRejected = 0;
+  for (const oid of [FAILED_REC_02_R2_HEAD, FAILED_REC_02_R2_TREE, FAILED_REC_02_R2_SYNTHETIC_MERGE]) {
+    for (const presented of [oid.toUpperCase(), ` ${oid} `]) {
+      for (const facts of [
+        prFacts({ sha: y.oid, base: C14_MERGE_SHA, head: presented, headRef: R13_POLICY_CORRECTION_BRANCH }),
+        pushFacts({ before: presented, after: y.oid })
+      ]) {
+        const audit = withGitInvocationAudit(() => evaluatePolicy(facts));
+        assert.equal(audit.result.passed, false, "terminal r2 spelling variant unexpectedly passed");
+        assert.equal(audit.calls.length, 0, "terminal r2 spelling variant was rejected after repository Git");
+        terminalSpellingRejected += 1;
+      }
+    }
+  }
+  assert.equal(terminalSpellingRejected, 12, "terminal r2 spelling rejection count drifted");
+  const landedC14Audit = withGitInvocationAudit(() => evaluatePolicy(prFacts({
+    sha: C14_HEAD_SHA,
+    base: C14_MERGE_SHA,
+    head: C14_HEAD_SHA,
+    headRef: R13_POLICY_CORRECTION_BRANCH
+  })));
+  assert.equal(landedC14Audit.result.passed, false, "landed C14 head was reusable");
+  assert.equal(landedC14Audit.calls.length, 0, "landed C14 head was rejected after repository Git");
+  assert.equal(structuredRejected, 54, "historical C14 plus active r13 structured adversarial count drifted");
   assert.equal(environmentReceipt.positiveCases, 2, "focused environment positive count drifted");
   assert.equal(environmentReceipt.negativeCases, 41, "focused environment negative count drifted");
   assert.equal(environmentReceipt.zeroGitRejections, 41, "focused environment zero-Git count drifted");
 
+  const r13StoreRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-r13-store-unit-")));
+  const r13TransferRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-r13-object-transfer-")));
+  try {
+    runGit(["init", "--quiet"], { cwd: r13StoreRoot });
+    const reachableOids = gitText([
+      "rev-list", "--objects", "--no-object-names", r13.oid
+    ]).split("\n").filter(Boolean);
+    assert.equal(new Set(reachableOids).size, reachableOids.length, "r13 store reachable inventory contains duplicates");
+    for (const oid of reachableOids) {
+      const type = gitText(["cat-file", "-t", oid]);
+      assert.match(type, /^(?:blob|commit|tree)$/, `r13 store object ${oid} has unsupported type ${type}`);
+      const transferPath = join(r13TransferRoot, oid);
+      writeFileSync(transferPath, gitBytes(["cat-file", type, oid]), { flag: "wx", mode: 0o600 });
+      const copied = gitText(["hash-object", "-t", type, "-w", "--no-filters", "--", transferPath], { cwd: r13StoreRoot });
+      unlinkSync(transferPath);
+      assert.equal(copied, oid, `r13 store object ${oid} changed while copying`);
+    }
+    runGit(["update-ref", "--no-deref", "HEAD", r13.oid], { cwd: r13StoreRoot });
+    const receipt = candidateOnlyObjectStoreReceipt({
+      repoRoot: r13StoreRoot,
+      environment: { ...REQUIRED_REPOSITORY_GIT_ENVIRONMENT }
+    });
+    assert.equal(receipt.absent, 128);
+    assert.equal(receipt.controlsPresent, 15);
+    assert.equal(receipt.head, r13.oid);
+    assert.equal(receipt.inventorySha256, R13_CANDIDATE_INVENTORY_SHA256);
+    assert.equal(receipt.result, "PASS");
+    assert.equal(receipt.route, "r13");
+    assert.equal(receipt.schemaVersion, 4);
+  } finally {
+    rmSync(r13StoreRoot, { recursive: true, force: true });
+    rmSync(r13TransferRoot, { recursive: true, force: true });
+  }
+
   console.log(
     `PASS release-policy self-test — ${zeroGitRejected} zero-Git terminal-route rejections; `
-    + `${structuredRejected} structured adversarial rejections; ${environmentReceipt.negativeCases} environment negatives; `
-    + `immutable Gate A/C9/C10/S, one self-consuming C14 route, and one self-consuming REC-02 r2 route accepted; NO-PUBLISH remains active`
+    + `${terminalSpellingRejected} terminal-spelling rejections; ${structuredRejected} structured adversarial rejections; `
+    + `${environmentReceipt.negativeCases} environment negatives; `
+    + `immutable Gate A/C9/C10/S/C14/X, one self-consuming r13 route, and one self-consuming REC-02 r3 route accepted; NO-PUBLISH remains active`
   );
   console.log(`FIXTURE gate-a-head=${gateA.oid} tree=${gateA.tree}`);
   console.log(`FIXTURE c9-head=${c9.oid} tree=${c9.tree}`);
-  console.log(`FIXTURE c14-head=${candidate.oid} tree=${candidate.tree} x=${x.oid}`);
-  console.log(`FIXTURE future-head=${future.oid} tree=${future.tree} t=${t.oid}`);
-  console.log(`INVENTORY c14=${candidateInventory.objects.length}/${C14_CANDIDATE_INVENTORY_SHA256} future=${futureInventory.objects.length}/${C14_FUTURE_INVENTORY_SHA256}`);
+  console.log(`FIXTURE c14-head=${candidate.oid} tree=${candidate.tree} x=${C14_MERGE_SHA}`);
+  console.log(`FIXTURE r13-head=${r13.oid} tree=${r13.tree} y=${y.oid}`);
+  console.log(`FIXTURE future-r3-head=${futureR3.oid} tree=${futureR3.tree} u=${u.oid}`);
+  console.log(`INVENTORY historical-c14=${candidateInventory.objects.length}/${C14_CANDIDATE_INVENTORY_SHA256} historical-future=${futureInventory.objects.length}/${C14_FUTURE_INVENTORY_SHA256}`);
+  console.log(`INVENTORY r13=${r13CandidateInventory.objects.length}/${R13_CANDIDATE_INVENTORY_SHA256} future-r3=${r13FutureInventory.objects.length}/${R13_FUTURE_INVENTORY_SHA256}`);
 }
 
 function taskForRoute(route) {
+  if (route?.startsWith("rec-ratchet-02-r13")) return "REC-RATCHET-02-R13";
+  if (route?.startsWith("rec-02-r3")) return "REC-02-R3/#24";
   if (route?.startsWith("rec-ratchet-02-c14")) return "REC-RATCHET-02-C14-R12";
   if (route?.startsWith("rec-ratchet-02")) return "REC-RATCHET-02/#24";
   if (route?.startsWith("rec-02")) return "REC-02/#24";
@@ -4931,7 +5781,7 @@ function main() {
     return;
   }
   if (process.argv.length === 3 && process.argv[2] === "--forbidden-object-inventory") {
-    process.stdout.write(canonicalJsonBytes(forbiddenObjectInventories()));
+    process.stdout.write(canonicalJsonBytes(r13ForbiddenObjectInventories()));
     return;
   }
   if (process.argv.length === 3 && process.argv[2] === "--check-candidate-only-object-store") {
