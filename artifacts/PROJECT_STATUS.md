@@ -31,9 +31,9 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `rec_ratchet_02_gate_a_head_sha: f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab`
 `rec_ratchet_02_gate_a_head_tree: f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
 `rec_ratchet_02_gate_a_merge_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
-`rec_ratchet_02_control_state: GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 CLOSED/LANDED/CONSUMED at X; REC-02 r2 / PR #39 TERMINAL/NON-REUSABLE; r13 PRE-IDENTITY; NO-PUBLISH / NOT CERTIFIED remains active`
-`governed_recovery_successor_sha: d78c453004100894fc523866b8010b40987752f6`
-`tested_runtime_sha: d78c453004100894fc523866b8010b40987752f6 — exact protected C14/X recovery successor; recovery evidence, not certification`
+`rec_ratchet_02_control_state: GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 CLOSED/LANDED/CONSUMED at X; REC-02 r2 / PR #39 TERMINAL/NON-REUSABLE; r13 CLOSED/LANDED/CONSUMED at exact protected successor 6339da827220908c6c5b352853932776c6c90133; NO-PUBLISH / NOT CERTIFIED remains active`
+`governed_recovery_successor_sha: 6339da827220908c6c5b352853932776c6c90133`
+`tested_runtime_sha: 6339da827220908c6c5b352853932776c6c90133 — exact protected r13 policy successor; recovery evidence, not certification`
 `verify_mjs: present on tree`
 `simulate_mjs: present on tree`
 `recovery_required_checks: ACTIVE — ruleset 21051662 requires release-policy, verify, and simulation-gate with the branch up to date`
@@ -46,14 +46,14 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: REC-RATCHET-02-R13 — immutable landed-C14 fixture-source correction`
-`ticket: GitHub issue #40 scope + Manraj's separate Build authorization — local r13 candidate`
+`milestone: REC-02-R3 — exact active projection from protected r13 successor`
+`ticket: REC-02 / issue #24 — governed zero-exit implementation r3`
 `owner: Build / GPT-Codex; independent verification is separate; every protected merge requires a fresh exact owner authorization`
-`state: POLICY CORRECTION R13 PRE-IDENTITY — exact-X local reconstruction in bounded repair; no r13 identity, push, pull request, ready transition, or protected merge exists`
+`state: REC-02 R3 CANDIDATE — exact protected r13 successor 6339da827220908c6c5b352853932776c6c90133; NO-PUBLISH / NOT CERTIFIED`
 `governed_branch: recovery/e4f8440-nopub`
-`implementation_branch: ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r13`
-`dispatch_base_sha: d78c453004100894fc523866b8010b40987752f6`
-`dispatch_base_tree: 35388f974a6175a9a8b791879989f3a33a69c1fe`
+`implementation_branch: ticket/0.30.1-rec-02-r3`
+`dispatch_base_sha: 6339da827220908c6c5b352853932776c6c90133`
+`dispatch_base_tree: bcd30eb046905463f708a7c82cd0929ba0cb01cf`
 `gate_a_scope: LANDED PRECURSOR — exact six-path Gate A envelope retained as immutable evidence`
 `policy_correction_scope: exactly artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; scripts/release-policy.mjs`
 `policy_correction_record: artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`
@@ -99,7 +99,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `r2_prefreeze_diagnostic_receipt: two diagnostic verifier/simulation repetitions passed with stdout SHA-256 f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d and normalized core c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08; no candidate PASS was claimed and no identity was frozen, committed, pushed, or opened as a PR`
 `rec_02_r2_terminal_identity: TERMINAL / NON-REUSABLE — branch ticket/0.30.1-rec-02-r2; head caf42d891cd3e19b9977ffdc40cfa30c992e5042; tree c012e16cc411656036df1adb13fc32a4d6c8a072; sole parent d78c453004100894fc523866b8010b40987752f6; synthetic merge 4d1d56b6b2d32bcfd54c524d3e01c040e4267e33; draft PR #39 remains open/unmerged/frozen`
 `rec_02_r2_attempt_1_receipt: Recovery Release Policy run 32889720839 / job 97938526648 FAILURE — artifacts/PROJECT_STATUS.md: C14 exact identity drifted; Recovery Verify run 32889720781 SUCCESS; no rerun, amend, ready transition, or merge is authorized`
-`r13_candidate_identity: UNFROZEN — no head, tree, raw payload, manifest, bundle, branch push, PR, synthetic merge, or CI identity is embedded here`
+`r13_candidate_identity: LANDED PRECURSOR — protected successor 6339da827220908c6c5b352853932776c6c90133; correction head 2219c8c3bbce14a91383413bbfeceab6aa74b5ca; tree bcd30eb046905463f708a7c82cd0929ba0cb01cf; ordered parents [d78c453004100894fc523866b8010b40987752f6,2219c8c3bbce14a91383413bbfeceab6aa74b5ca]`
 `r13_commit_contract: sole parent d78c453004100894fc523866b8010b40987752f6; subject-only message REC-RATCHET-02: bind immutable landed-C14 fixtures; author and committer Sunsplitter Recovery Build <noreply@openai.com> 1788742800 -0500`
 `r13_fixture_source_contract: historical C14 bytes resolve only from literal exact X d78c453004100894fc523866b8010b40987752f6 and exact head a42fcf9da045e34f456652dfa13e5a890cd216f4; future r3 self-test accepts only an exact direct or two-parent r3 route, requires its worktree/index envelope to equal the checkout, and resolves historical r13 bytes from the exact protected successor rather than transitioned STATUS`
 `r13_patch_identity: 37,735 bytes; blob 5d7315495fa220fed362bf7d580c69c1141385c0; SHA-256 74bd104be7fbb46dc15a4242f03b8402e7267bad19c3de430f4e10aa403027b7; semantic delta from X is only authority.targetBranch r2 to r3`
@@ -107,10 +107,10 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `r13_forbidden_inventory_contract: candidate route 128 unique objects / SHA-256 d5782849d72e70ed9ce8b47eab5739764590d4da63e2fec8fc7e9e302654403a; future r3 route 127 unique objects / SHA-256 c0857eccc3b84d44dca02e39a5650bc542c3144b2ac68709766ad74e89d902bc; historical C14 125/124 inventories remain unchanged`
 `r13_expected_policy_fixture_counts: historical 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, and 104 structured adversarial fixtures preserved; active terminal-route set 41 zero-Git rejections plus 12 uppercase/padded r2 spelling rejections; focused environment layer 2 positives and 41 zero-Git negatives; one exact PR #39 mutable-source regression and staged/direct/successor r3 non-poisoning replays`
 `r13_candidate_store_controls: 15 unique protected controls — prior 12 plus exact C14 head, X, and their shared tree; all 128 active candidate-forbidden objects absent`
-`fresh_rec_02_branch: ticket/0.30.1-rec-02-r3 — RESERVED / UNFROZEN / BLOCKED until an exact r13 protected successor lands under separate authorization and issue #24 is separately repinned to that exact successor`
-`issue_24_repin_requirement: REQUIRED EXTERNAL PRECONDITION — issue #24 must remain unchanged during r13 Build; after a separately authorized r13 protected merge, owner-approved exact readback must freshly bind it to that successor before any r3 construction`
-`active_simulation_baseline_sha256: 0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2 — unchanged Gate A input`
-`functional_projection_state: EVIDENCE ONLY — exact inactive REC-02 baseline, verifier, and seven source outputs; later exact-head verification must rerun`
+`fresh_rec_02_branch: ticket/0.30.1-rec-02-r3 — CONSTRUCTED FROM exact protected r13 successor 6339da827220908c6c5b352853932776c6c90133`
+`issue_24_repin_requirement: REQUIRED EXTERNAL PRECONDITION / NOT VERIFIED BY REPOSITORY POLICY — owner-authenticated readback must show issue #24 freshly repinned to exact 6339da827220908c6c5b352853932776c6c90133; external receipt must accompany candidate`
+`active_simulation_baseline_sha256: 048ee211f4708252b8609d475b47d3b6c05e85bd1d8bd1ae9c44f9229b659c20 — exact REC-02 baseline activated from the landed Gate A artifact`
+`functional_projection_state: ACTIVATED — exact pinned patch and baseline applied; full exact-head verifier and locked simulations must pass again`
 `rec_02_governed_scenes: cut_out; vent; past_leak; vault_voice; arc_future_1; act3_reckoning_heading; pregnancy_check; custody_possession; custody_thaw`
 `art_r2_held_digest: 1441be78e8d0d95f4cf2cfd9ace72b7e6458aa0ec230336748de6a2b96db7baa — sealed 55-image compatibility evidence`
 
@@ -199,8 +199,8 @@ Ruleset, bypass-actor, required-check, PR-state, and protected-ref facts are mer
 - C11, C12, and C13 are immutable terminal evidence. Their branches, objects, runners, receipts, and PR #37 may not be retried, repaired, resumed, edited, or reused.
 - C14 landed at exact protected successor `d78c453004100894fc523866b8010b40987752f6`; its r12 route and protected-merge authorization are consumed.
 - REC-02 r2, `caf42d891cd3e19b9977ffdc40cfa30c992e5042`, synthetic merge `4d1d56b6b2d32bcfd54c524d3e01c040e4267e33`, branch, attempt-1 runs, and PR #39 are terminal/non-reusable and may not be retried, repaired, rerun, edited, synchronized, marked ready, or merged.
-- r13 is authorized only through a fully validated local candidate and independent review. No push, PR, ready transition, merge, workflow rerun, deployment, publication, tag, release, or certification is authorized.
-- REC-02 r3 remains UNFROZEN and blocked until an exact r13 successor lands under separate authorization and issue #24 is separately repinned to that exact successor.
+- r13 landed at exact protected successor `6339da827220908c6c5b352853932776c6c90133`; that route and its protected-merge authorization are consumed.
+- REC-02 r3 is a synthetic exact candidate from `6339da827220908c6c5b352853932776c6c90133`; any real construction, push, PR, ready transition, or merge still requires separate authorization and external Issue #24 evidence.
 - Protected-base ROADMAP/LOCKS/STATUS record the owner-approved dispositions at ruling commit `009fca7884e360486ddda172c389f480b62323a5`: L-025 — LOCKED: Commander identity Option B; rendered-path audit and synchronization remain pending. L-026 — LOCKED: retain zero/one branches solely as tested defensive save-recovery guards; coverage is not yet dispatched. L-027 — LOCKED: retire `vess_course_lost` and its promised downstream-course consequence; removal is not yet dispatched. L-028 — DEFERRED: default RETIRE unless mobile PX meets a pre-registered, Manraj-approved comprehension threshold; no indicator is authorized.
 - `main@792e202` has a documented authority lag: AGENTS agrees at blob `592d7428b83677ab4dfd002b7181fe7c298bc084`, but main ROADMAP/PROJECT_STATUS/LOCKS blobs `788b15255bec3c65ff433a2c299ed709a27d3fb2` / `2e5b3d38c594be429b6f723bdcf695669e943774` / `398afd1f6284b7f9223f89431017425b265a67b2` still show pre-ruling/pre-Gate-A state. At C9 dispatch, exact Gate-A protected base P had ROADMAP/PROJECT_STATUS/LOCKS blobs `4b80ef5d26fab3eda752eeb0902dc255bb127263` / `5684cf777304dcef176f115aa84ad310b28a2431` / `7b79cf7058e5bfa21f8429c405078c2364fcba44`. This lag does not downgrade protected-base dispositions. The already owner-approved post-recovery ROADMAP/LOCKS changes must later be rebuilt from the final recovery successor and land atomically with PROJECT_STATUS; C10 does not rule locks.
 - R5–R7 source, images, receipts, builds, evaluator/App work, and cloud resources remain frozen.
@@ -208,6 +208,6 @@ Ruleset, bypass-actor, required-check, PR-state, and protected-ref facts are mer
 
 ## Next action
 
-**Build / GPT-Codex:** complete the exact four-path r13 local validation and independent review, freeze one local candidate identity only on total PASS, report its evidence, and stop before any push or PR. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Owner / Manraj:** decide whether to authorize a separately executed REC-02 r3 Build candidate after exact Issue #24 repin evidence. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->
