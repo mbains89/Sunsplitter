@@ -40,6 +40,17 @@ const EXPECTED_SCRIPTS = [
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
 const EXPECTED_SCENE_IDS_SHA256 = "df38e92826aeb58f7d945c7c0f22c1b41e0bfdfc50a1cdb8232f46d5601350ec";
 
+const GOVERNED_ZERO_EXIT_FLOORS = Object.freeze([
+  { scene: "cut_out", text: "Send them to triage. Spend nothing more here.", next: "aftermath" },
+  { scene: "vent", text: "Leave the order on the record. Move on.", next: "aftermath" },
+  { scene: "past_leak", text: "End the conversation. Give him nothing else tonight.", next: "transmission" },
+  { scene: "vault_voice", text: "Leave the panel untouched. Move on.", next: "arc_fork" },
+  { scene: "arc_future_1", text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2" },
+  { scene: "act3_reckoning_heading", text: "Make the minimum burn. Accept the wider intercept.", next: "act3_reckoning_burn_stale" },
+  { scene: "pregnancy_check", text: "End the discussion. There is nothing left to spend.", next: "act3_lethal_elias_order", flag: { pregnancy_risk: "unknown" } },
+  { scene: "custody_possession", text: "Seal the scorched ring. Spend nothing more here.", next: "custody_after" }
+]);
+
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
@@ -128,6 +139,244 @@ function identitySurfaceChecks({
     errors.push(`VERSION.md candidate label is not a supported version token: ${candidateVersion || "missing"}`);
   }
   return { errors, rows, recoveryMode };
+}
+
+function exactJson(value) {
+  return JSON.stringify(value);
+}
+
+function governedZeroExitFixtureChecks(fixture) {
+  const errors = [];
+  for (const expected of GOVERNED_ZERO_EXIT_FLOORS) {
+    const matches = (fixture.sceneChoices[expected.scene] || []).filter(choice => choice.text === expected.text);
+    if (matches.length !== 1) {
+      errors.push(`${expected.scene} governed floor occurs ${matches.length} time(s); expected exactly 1`);
+      continue;
+    }
+    const choice = matches[0];
+    const expectedKeys = expected.flag
+      ? ["flag", "next", "text"]
+      : ["next", "text"];
+    if (choice.next !== expected.next) errors.push(`${expected.scene} governed floor routes to ${choice.next || "missing"}; expected ${expected.next}`);
+    if (!choice.enabled) errors.push(`${expected.scene} governed floor is not enabled at zero resources`);
+    if (exactJson(choice.keys) !== exactJson(expectedKeys)) {
+      errors.push(`${expected.scene} governed floor keys ${choice.keys.join(",")} != ${expectedKeys.join(",")}`);
+    }
+    if (exactJson(choice.flag) !== exactJson(expected.flag || null)) {
+      errors.push(`${expected.scene} governed floor flag ${exactJson(choice.flag)} != ${exactJson(expected.flag || null)}`);
+    }
+  }
+
+  const recoveredPregnancy = (fixture.pregnancyRecovered || []).filter(
+    choice => choice.text === "End the discussion. There is nothing left to spend."
+  );
+  if (recoveredPregnancy.length !== 1) {
+    errors.push(`pregnancy_check recovered-Tomas floor occurs ${recoveredPregnancy.length} time(s); expected exactly 1`);
+  } else {
+    const choice = recoveredPregnancy[0];
+    if (choice.next !== "tomas_break") {
+      errors.push(`pregnancy_check recovered-Tomas floor routes to ${choice.next || "missing"}; expected tomas_break`);
+    }
+    if (!choice.enabled) errors.push("pregnancy_check recovered-Tomas floor is not enabled at zero resources");
+    if (exactJson(choice.keys) !== exactJson(["flag", "next", "text"])) {
+      errors.push(`pregnancy_check recovered-Tomas floor keys ${choice.keys.join(",")} != flag,next,text`);
+    }
+    if (exactJson(choice.flag) !== exactJson({ pregnancy_risk: "unknown" })) {
+      errors.push(`pregnancy_check recovered-Tomas floor flag ${exactJson(choice.flag)} != {\"pregnancy_risk\":\"unknown\"}`);
+    }
+  }
+
+  const hub = fixture.sceneChoices.custody_hub || [];
+  const possession = hub.filter(choice => choice.text === "Dump the heat through the inhabited ring. Vault remains possession.");
+  const thaw = hub.filter(choice => choice.text === "Thaw outer embryo racks to absorb the heat.");
+  if (possession.length !== 1) errors.push(`custody_possession hub route occurs ${possession.length} time(s); expected exactly 1`);
+  else {
+    if (possession[0].next !== "custody_possession") errors.push(`custody_possession hub route targets ${possession[0].next || "missing"}`);
+    if (exactJson(possession[0].keys) !== exactJson(["next", "text"])) errors.push(`custody_possession hub route is not the exact ungated floor`);
+  }
+  if (thaw.length !== 1) errors.push(`custody_thaw hub route occurs ${thaw.length} time(s); expected exactly 1`);
+  else {
+    const expectedRequires = { embryos: { min: 14 }, cohesion: { min: 1 } };
+    if (thaw[0].next !== "custody_thaw") errors.push(`custody_thaw hub route targets ${thaw[0].next || "missing"}`);
+    if (exactJson(thaw[0].requires) !== exactJson(expectedRequires)) {
+      errors.push(`custody_thaw hub requirements ${exactJson(thaw[0].requires)} != ${exactJson(expectedRequires)}`);
+    }
+    if (exactJson(thaw[0].keys) !== exactJson(["next", "requires", "text"])) errors.push(`custody_thaw hub route contains unexpected fields`);
+  }
+
+  const thawExit = (fixture.sceneChoices.custody_thaw || []).find(choice => choice.text === "Accept the reduced count.");
+  const expectedThawEffects = { embryos: -14, cohesion: -1 };
+  if (!thawExit) errors.push("custody_thaw authored payment exit is missing");
+  else if (exactJson(thawExit.effects) !== exactJson(expectedThawEffects)) {
+    errors.push(`custody_thaw payment ${exactJson(thawExit.effects)} != ${exactJson(expectedThawEffects)}`);
+  }
+
+  const expectedEnabled = {
+    zero: ["Dump the heat through the inhabited ring. Vault remains possession."],
+    threshold: [
+      "Dump the heat through the inhabited ring. Vault remains possession.",
+      "Thaw outer embryo racks to absorb the heat."
+    ],
+    embryosBelow: ["Dump the heat through the inhabited ring. Vault remains possession."],
+    cohesionBelow: ["Dump the heat through the inhabited ring. Vault remains possession."]
+  };
+  for (const [name, expected] of Object.entries(expectedEnabled)) {
+    const actual = fixture.custodyEnabled[name] || [];
+    if (exactJson(actual) !== exactJson(expected)) {
+      errors.push(`custody ${name} enabled exits ${exactJson(actual)} != ${exactJson(expected)}`);
+    }
+  }
+
+  const expectedDirectResume = {
+    embryosBelow: { embryos: 13, cohesion: 1 },
+    cohesionBelow: { embryos: 14, cohesion: 0 }
+  };
+  for (const [name, expected] of Object.entries(expectedDirectResume)) {
+    const actual = fixture.directThawResume?.[name];
+    if (!actual) {
+      errors.push(`custody_thaw ${name} direct-resume fixture is missing`);
+      continue;
+    }
+    if (actual.entry.scene !== "custody_hub") {
+      errors.push(`custody_thaw ${name} direct resume ended at ${actual.entry.scene || "missing"}; expected custody_hub`);
+    }
+    if (actual.entry.embryos !== expected.embryos || actual.entry.cohesion !== expected.cohesion) {
+      errors.push(`custody_thaw ${name} direct resume resources ${actual.entry.embryos}/${actual.entry.cohesion} != ${expected.embryos}/${expected.cohesion}`);
+    }
+    if (actual.entry.enabledCount !== 1) {
+      errors.push(`custody_thaw ${name} direct resume exposed ${actual.entry.enabledCount} enabled exits; expected 1`);
+    }
+    if (actual.entry.hasCustodyAnswer || actual.entry.hasCustodyRoll) {
+      errors.push(`custody_thaw ${name} direct resume wrote custody flags before redirect`);
+    }
+  }
+
+  const threshold = fixture.directThawResume?.threshold;
+  if (!threshold) {
+    errors.push("custody_thaw threshold direct-resume fixture is missing");
+  } else {
+    if (threshold.entry.scene !== "custody_thaw") errors.push(`custody_thaw threshold direct resume entered ${threshold.entry.scene || "missing"}`);
+    if (threshold.entry.embryos !== 14 || threshold.entry.cohesion !== 1) errors.push(`custody_thaw threshold entry resources ${threshold.entry.embryos}/${threshold.entry.cohesion} != 14/1`);
+    if (threshold.entry.enabledCount !== 1) errors.push(`custody_thaw threshold entry exposed ${threshold.entry.enabledCount} enabled exits; expected 1`);
+    if (!threshold.entry.hasCustodyAnswer || threshold.entry.custodyAnswer !== "thawed"
+      || !threshold.entry.hasCustodyRoll || threshold.entry.custodyRoll !== true) {
+      errors.push("custody_thaw threshold entry did not write the exact existing custody flags");
+    }
+    if (threshold.final?.scene !== "custody_after") errors.push(`custody_thaw threshold paid exit ended at ${threshold.final?.scene || "missing"}`);
+    if (threshold.final?.embryos !== 0 || threshold.final?.cohesion !== 0) errors.push(`custody_thaw threshold paid exit resources ${threshold.final?.embryos}/${threshold.final?.cohesion} != 0/0`);
+    if (threshold.final?.custodyAnswer !== "thawed" || threshold.final?.custodyRoll !== true) {
+      errors.push("custody_thaw threshold paid exit did not preserve the exact existing custody flags");
+    }
+  }
+  return errors;
+}
+
+function governedZeroExitFixture(runtime) {
+  return runtime.evaluate(`(() => {
+    const describe = sceneId => {
+      const scene = scenes[sceneId];
+      const value = scene && scene.choices;
+      const choices = typeof value === "function" ? value() : (value || []);
+      return choices.map(choice => {
+        const visible = (!choice.alive || isAlive(choice.alive))
+          && (!choice.aliveAll || choice.aliveAll.every(key => isAlive(key)))
+          && (!choice.aliveAny || choice.aliveAny.some(key => isAlive(key)));
+        const requirementsMet = !choice.requires || meetsRequirements(choice.requires);
+        const affordable = !choice.effects || canAffordEffects(choice.effects);
+        return {
+          text: String(choice.text || ""),
+          next: choice.next || null,
+          effects: choice.effects || null,
+          requires: choice.requires || null,
+          flag: choice.flag || null,
+          keys: Object.keys(choice).sort(),
+          enabled: visible && requirementsMet && affordable
+        };
+      });
+    };
+    const resetAt = (embryos, cohesion) => {
+      resetRunState();
+      kill("mira", "REC-02 fixture");
+      kill("sela", "REC-02 fixture");
+      state.promises.sela = "broken";
+      state.supplies = 0;
+      state.integrity = 0;
+      state.embryos = embryos;
+      state.cohesion = cohesion;
+      return describe("custody_hub").filter(choice => choice.enabled).map(choice => choice.text);
+    };
+    const directThawResume = (embryos, cohesion, takeExit = false) => {
+      resetRunState();
+      kill("mira", "REC-02 fixture");
+      kill("sela", "REC-02 fixture");
+      state.promises.sela = "broken";
+      state.supplies = 0;
+      state.integrity = 0;
+      state.embryos = embryos;
+      state.cohesion = cohesion;
+      const choices = document.getElementById("choices");
+      choices.children = [];
+      showScene("custody_thaw");
+      const enabled = choices.children.filter(button => !button.disabled && typeof button.onclick === "function");
+      const entry = {
+        scene: state.scene,
+        embryos: state.embryos,
+        cohesion: state.cohesion,
+        enabledCount: enabled.length,
+        hasCustodyAnswer: Object.prototype.hasOwnProperty.call(state.flags, "custody_answer"),
+        custodyAnswer: state.flags.custody_answer ?? null,
+        hasCustodyRoll: Object.prototype.hasOwnProperty.call(state.flags, "custody_roll"),
+        custodyRoll: state.flags.custody_roll ?? null
+      };
+      let final = null;
+      if (takeExit && enabled.length === 1) {
+        enabled[0].onclick();
+        final = {
+          scene: state.scene,
+          embryos: state.embryos,
+          cohesion: state.cohesion,
+          custodyAnswer: state.flags.custody_answer ?? null,
+          custodyRoll: state.flags.custody_roll ?? null
+        };
+      }
+      return { entry, final };
+    };
+    resetRunState();
+    state.supplies = 0;
+    state.integrity = 0;
+    state.cohesion = 0;
+    state.embryos = 0;
+    const sceneChoices = Object.fromEntries(${JSON.stringify([
+      "cut_out", "vent", "past_leak", "vault_voice", "arc_future_1",
+      "act3_reckoning_heading", "pregnancy_check", "custody_possession", "custody_hub", "custody_thaw"
+    ])}.map(sceneId => [sceneId, describe(sceneId)]));
+    resetRunState();
+    state.supplies = 0;
+    state.integrity = 0;
+    state.cohesion = 0;
+    state.embryos = 0;
+    state.recovered.tomas = true;
+    const pregnancyRecovered = describe("pregnancy_check");
+    return {
+      sceneChoices,
+      pregnancyRecovered,
+      custodyEnabled: {
+        zero: resetAt(0, 0),
+        threshold: resetAt(14, 1),
+        embryosBelow: resetAt(13, 1),
+        cohesionBelow: resetAt(14, 0)
+      },
+      directThawResume: {
+        embryosBelow: directThawResume(13, 1),
+        cohesionBelow: directThawResume(14, 0),
+        threshold: directThawResume(14, 1, true)
+      }
+    };
+  })()`);
+}
+
+function governedZeroExitChecks(runtime) {
+  return governedZeroExitFixtureChecks(governedZeroExitFixture(runtime));
 }
 
 function recoveryIdentityChecks(runtime) {
@@ -251,6 +500,22 @@ export function runSelfTest() {
     "`release_state: PUBLISH`"
   ].join("\n"), ["release_state"]);
   check(duplicateStatus.errors.some(error => error.includes("expected exactly 1")), "duplicate contradictory STATUS field did not fail closed");
+
+  try {
+    const governedFixture = governedZeroExitFixture(loadGame(ROOT));
+    check(governedZeroExitFixtureChecks(governedFixture).length === 0, "valid governed zero-exit fixture failed");
+    const injected = JSON.parse(JSON.stringify(governedFixture));
+    const cutOut = injected.sceneChoices.cut_out.find(choice => choice.text === GOVERNED_ZERO_EXIT_FLOORS[0].text);
+    if (cutOut) cutOut.keys.push("effects");
+    check(governedZeroExitFixtureChecks(injected).some(error => error.startsWith("cut_out governed floor keys")), "injected governed floor cost did not fail closed");
+    const recoveredFloor = injected.pregnancyRecovered.find(choice => choice.text === "End the discussion. There is nothing left to spend.");
+    if (recoveredFloor) recoveredFloor.next = "act3_lethal_elias_order";
+    check(governedZeroExitFixtureChecks(injected).some(error => error.startsWith("pregnancy_check recovered-Tomas floor routes")), "injected recovered-Tomas pregnancy route did not fail closed");
+    injected.directThawResume.embryosBelow.entry.scene = "custody_thaw";
+    check(governedZeroExitFixtureChecks(injected).some(error => error.startsWith("custody_thaw embryosBelow direct resume ended")), "injected underfunded custody_thaw direct resume did not fail closed");
+  } catch (error) {
+    failures.push(`governed zero-exit self-test crashed: ${error.message}`);
+  }
 
   return { passed: failures.length === 0, failures };
 }
@@ -687,6 +952,10 @@ function main() {
     const quietTomasErrors = quietTomasRewindChecks(runtime);
     printCheck("quiet_tomas late-path rewind regression", quietTomasErrors, "both exits");
     failures.push(...quietTomasErrors);
+
+    const governedZeroExitErrors = governedZeroExitChecks(runtime);
+    printCheck("REC-02 governed zero-exit repairs", governedZeroExitErrors, "nine exact scenes; zero-resource floors and custody thresholds");
+    failures.push(...governedZeroExitErrors);
   } else {
     const identity = recoveryIdentityChecks(null);
     printIdentityTable(identity);

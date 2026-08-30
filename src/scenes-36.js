@@ -23,6 +23,9 @@ He does not open a tablet. He does not need to.
     }
   },
 
+  // PRE: medical route with an existing dead-Lena exit | WRITES: paid choices affect resources/pregnancy_risk/lean; governed floor writes pregnancy_risk="unknown"
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Lena text and recovered-Tomas routing are guarded
+  // IMAGE: REUSE images/medbay_dim_alt.jpg; no new art request
   pregnancy_check: {
     get text() {
       if (!isAlive("lena")) {
@@ -45,7 +48,8 @@ She waits.
       return [
         { text: "There is a possibility. Prepare for both outcomes.", next: after, effects: { cohesion: -2, supplies: -6, embryos: -3 }, flag: { pregnancy_risk: true }, requires: { supplies: { min: 12 }, trust: { lena: 40 } }, lean: { living: 3 } },
         { text: "It will not become a problem. Handle prevention.", next: after, effects: { supplies: -3, cohesion: 1 }, flag: { pregnancy_risk: false } },
-        { text: "That is private. Do your job when asked.", next: after, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" } }
+        { text: "That is private. Do your job when asked.", next: after, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" } },
+        { text: "End the discussion. There is nothing left to spend.", next: after, flag: { pregnancy_risk: "unknown" } }
       ];
     }
   },
