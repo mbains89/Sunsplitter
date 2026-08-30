@@ -147,8 +147,9 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
       { text: "Say nothing. Let the quiet stand.", next: "lead_prompt", affinity: { mira: 4 } }
     ]
   },
-
-
+  // PRE: entry choices in crew_walk / act3_spine_next require isAlive("tomas")
+  // WRITES: onEnter flags.quiet_tomas_done=true; choices write only their declared affinity/trust/cohesion/lean effects
+  // DEATH: none | DEAD SPEECH: entry gates require living, recovered Tomas | IMAGE: REUSE quiet_tomas.jpg
   quiet_tomas: {
     onEnter: () => { state.flags.quiet_tomas_done = true; },
     text: `Brother Tomas sits where the common area still has a shadow that feels intentional.
@@ -159,8 +160,8 @@ He has no rank and no console. He was a hospital chaplain before the pads. On th
 
 He does not ask for a promise. He waits to see whether you can sit without filling the silence with orders.`,
     choices: [
-      { text: "Tell him you heard him.", next: "lead_prompt", affinity: { tomas: 10 }, trust: { tomas: 8 }, effects: { cohesion: 2 }, lean: { living: 1 } },
-      { text: "Leave the silence unbroken.", next: "lead_prompt", affinity: { tomas: 5 }, trust: { tomas: 3 } }
+      { text: "Tell him you heard him.", next: "act3_spine_next", affinity: { tomas: 10 }, trust: { tomas: 8 }, effects: { cohesion: 2 }, lean: { living: 1 } },
+      { text: "Leave the silence unbroken.", next: "act3_spine_next", affinity: { tomas: 5 }, trust: { tomas: 3 } }
     ]
   },
 
