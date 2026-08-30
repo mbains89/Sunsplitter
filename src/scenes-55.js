@@ -18,6 +18,9 @@ registerScenes({
     ]
   },
 
+  // PRE: custody question route; supports only the two governed custody repairs | WRITES: none; routes only
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Sela options are living-gated
+  // IMAGE: REUSE images/vault.jpg; no new art request
   custody_hub: {
     image: "images/vault.jpg",
     text: () => {
@@ -29,12 +32,12 @@ registerScenes({
       const opts = [
         {
           text: "Dump the heat through the inhabited ring. Vault remains possession.",
-          next: "custody_possession",
-          requires: { integrity: { min: 4 } }
+          next: "custody_possession"
         },
         {
           text: "Thaw outer embryo racks to absorb the heat.",
-          next: "custody_thaw"
+          next: "custody_thaw",
+          requires: { embryos: { min: 14 }, cohesion: { min: 1 } }
         },
         {
           text: "Mira severs the fused thermal junction in the unpressurized skin.",
@@ -54,6 +57,9 @@ registerScenes({
     }
   },
 
+  // PRE: custody_hub ungated possession route | WRITES: onEnter custody_answer/custody_roll; paid choice affects resources; governed floor writes nothing
+  // DEATH: none | DEAD SPEECH/APPEARANCE: no named character speaks or appears
+  // IMAGE: REUSE images/bulkhead.jpg; no new art request
   custody_possession: {
     image: "images/bulkhead.jpg",
     onEnter: () => {
@@ -70,13 +76,21 @@ registerScenes({
         text: "Log the exposure. Keep moving.",
         next: "custody_after",
         effects: { supplies: -3, integrity: -3, cohesion: -6 }
+      },
+      {
+        text: "Seal the scorched ring. Spend nothing more here.",
+        next: "custody_after"
       }
     ]
   },
 
+  // PRE: custody_hub threshold or legacy direct resume; underfunded resume redirects before writes | WRITES: valid entry writes custody_answer/custody_roll; exit spends embryos 14 and cohesion 1
+  // DEATH: none | DEAD SPEECH/APPEARANCE: no named character speaks or appears
+  // IMAGE: REUSE images/vault_interior_alt.jpg; no new art request
   custody_thaw: {
     image: "images/vault_interior_alt.jpg",
     onEnter: () => {
+      if (state.embryos < 14 || state.cohesion < 1) return "custody_hub";
       state.flags.custody_answer = "thawed";
       state.flags.custody_roll = true;
     },
