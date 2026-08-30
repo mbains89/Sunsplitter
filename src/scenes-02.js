@@ -3,6 +3,9 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: lower-ring crisis cut route | WRITES: paid choices affect resources/affinity/lean; governed floor writes nothing
+  // DEATH: none here | DEAD SPEECH/APPEARANCE: Jiro text is isAlive-gated; Amara/Sela are survivors on this route
+  // IMAGE: REUSE images/cut_out.jpg; no new art request
   cut_out: {
     get text() {
       let t = `You order the cut.
@@ -29,9 +32,13 @@ Mira works like someone who has already accepted she might die today. Sparks. Sc
     },
     choices: [
       { text: "Check on Amara and Sela yourself.", next: "aftermath", effects: { cohesion: 3, supplies: -1 }, affinity: { amara: 8, sela: 6 }, lean: { living: 2 } },
-      { text: "Send Lena. You need to account for the cascade.", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } }
+      { text: "Send Lena. You need to account for the cascade.", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } },
+      { text: "Send them to triage. Spend nothing more here.", next: "aftermath" }
     ]
   },
+  // PRE: lower-ring crisis vent route | WRITES: onEnter kills Amara/Sela and present-or-recovered Jiro, writes marks/memory; paid choices affect cohesion/affinity; governed floor writes nothing
+  // DEATH: Amara/Sela and present-or-recovered Jiro die on entry | DEAD SPEECH/APPEARANCE: names are the authored memorial list for those killed here
+  // IMAGE: REUSE images/vent.jpg; no new art request
   vent: {
     get text() {
       // 0.22.0: only name those present / killed here
@@ -55,7 +62,8 @@ Sela's last yellow circle remains fixed above the sealed bulkhead. No one has as
     },
     choices: [
       { text: "Stand at the sealed bulkhead. Let them see you there.", next: "aftermath", effects: { cohesion: -4 } },
-      { text: "Do not linger. The ship still needs orders.", next: "aftermath", effects: { cohesion: -6 }, affinity: { elias: 5 } }
+      { text: "Do not linger. The ship still needs orders.", next: "aftermath", effects: { cohesion: -6 }, affinity: { elias: 5 } },
+      { text: "Leave the order on the record. Move on.", next: "aftermath" }
     ],
     onEnter: () => {
       kill("amara", "vented with the lower ring");
