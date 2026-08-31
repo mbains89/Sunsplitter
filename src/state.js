@@ -645,17 +645,17 @@ function hasOpenRomanceGates() {
 
 
 function renderStatus() {
-  const set = (id, val) => {
+  const set = (id, value, display, classify) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.textContent = val;
-    el.className = "stat-value " + (val < 30 ? "low" : val < 60 ? "mid" : "high");
+    el.textContent = display;
+    el.className = "stat-value" + (classify ? " " + (value < 30 ? "low" : value < 60 ? "mid" : "high") : "");
   };
-  set("stat-survivors", state.survivors);
-  set("stat-integrity", state.integrity + "%");
-  set("stat-cohesion", state.cohesion + "%");
-  set("stat-supplies", state.supplies + "%");
-  set("stat-embryos", state.embryos + "%");
+  set("stat-survivors", state.survivors, state.survivors, false);
+  set("stat-integrity", state.integrity, state.integrity + "%", true);
+  set("stat-cohesion", state.cohesion, state.cohesion + "%", true);
+  set("stat-supplies", state.supplies, state.supplies + "%", true);
+  set("stat-embryos", state.embryos, state.embryos + "%", true);
   if (typeof renderCrewPanel === "function") renderCrewPanel();
 }
 
