@@ -211,6 +211,32 @@ function whatRemainsChecks(runtime) {
     errors.push("death-causing promise did not win the promise slot");
   }
 
+  const tomasCrisisGate = runtime.evaluate(`(() => {
+    resetRunState();
+    state.promises.tomas = "kept";
+    state.crisisPath = "breath";
+    state.flags.breath_answer = "garden";
+    const breathFacts = whatRemainsFacts();
+    const afterBreath = state.promises.tomas;
+
+    resetRunState();
+    state.promises.tomas = "kept";
+    state.crisisPath = "custody";
+    state.flags.custody_answer = "shared";
+    const custodyFacts = whatRemainsFacts();
+    const afterCustody = state.promises.tomas;
+    return { breathFacts, custodyFacts, afterBreath, afterCustody };
+  })()`);
+  if (tomasCrisisGate.breathFacts.some(line => /custody test/i.test(line))) {
+    errors.push("Tomas custody-test reflection surfaced on the Breath crisis path");
+  }
+  if (!tomasCrisisGate.custodyFacts.includes("At the custody test, the living received the shared mercy promised to Tomas.")) {
+    errors.push("Tomas kept-promise reflection missing on the Custody crisis path");
+  }
+  if (tomasCrisisGate.afterBreath !== "kept" || tomasCrisisGate.afterCustody !== "kept") {
+    errors.push("What Remains Tomas path gate mutated promise lifecycle state");
+  }
+
   const survival = runtime.evaluate(`(() => {
     resetRunState();
     state.flags.vault_sacrifice = "split";

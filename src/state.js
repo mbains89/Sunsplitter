@@ -542,6 +542,7 @@ function whatRemainsPromiseCausedDeath(owner) {
 function whatRemainsPromiseLine(owner) {
   const result = state.promises[owner];
   if (result !== "kept" && result !== "broken") return null;
+  if (owner === "tomas" && state.crisisPath !== "custody") return null;
   const lines = {
     amara: {
       kept: "At the service-pocket test, the vent stayed shut until the reader came out breathing.",
