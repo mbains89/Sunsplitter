@@ -66,6 +66,23 @@ registerScenes({
     image: "images/vent.jpg"
   },
 
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: final_choice
+  // VERSION:  0.30.1        TICKET: SUN-LOCK-V4-V5-SIM-01
+  // SPINE:    on-spine after ship_memory_payoff (also reachable from patch_fails abort)
+  //
+  // PRECONDITIONS:
+  //   reached from ship_memory_payoff or patch_fails abort; no extra live-crew gate
+  // STATE WRITES:
+  //   choice hold: flag.final = "hold"; optional integrity/cohesion effects on the no-buy-in hold
+  //   choice comfort: flag.final = "comfort"; supplies paid equal to advertised min (15 or 18);
+  //                   optional cohesion -4 on the debted comfort path
+  //   choice transmission: flag.final = "transmission"
+  //   choice endure: flag.final = "endure"
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: none (crew names in debt list are living debtors)
+  // IMAGE: images/final_choice.jpg via sceneImages map [EXISTS]
+  // ═════════════════════════════════════════════════════════════════
   final_choice: {
     get text() {
       let t = `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
@@ -93,11 +110,11 @@ registerScenes({
       } else {
         opts.push({ text: "Hold course anyway. Navigation will be rougher without full crew buy-in.", next: holdNext, flag: { final: "hold" }, effects: { integrity: -4, cohesion: -3 }, requires: { integrity: { min: 35 }, supplies: { min: 12 } }, lean: { future: 2 } });
       }
-      // Comfort path needs living-side trust
+      // Comfort path needs living-side trust. Advertised supplies min is an immediate paid fuel cost.
       if (!debt.includes("amara") && !debt.includes("tomas")) {
-        opts.push({ text: "Abandon the destination. Spend the remaining fuel on speed and comfort.", next: "ending_check", flag: { final: "comfort" }, requires: { supplies: { min: 15 } }, lean: { living: 3 } });
+        opts.push({ text: "Abandon the destination. Spend the remaining fuel on speed and comfort.", next: "ending_check", flag: { final: "comfort" }, effects: { supplies: -15 }, requires: { supplies: { min: 15 } }, lean: { living: 3 } });
       } else {
-        opts.push({ text: "Push for comfort anyway — even if some of the living will not thank you.", next: "ending_check", flag: { final: "comfort" }, effects: { cohesion: -4 }, requires: { supplies: { min: 18 } }, lean: { living: 2 } });
+        opts.push({ text: "Push for comfort anyway — even if some of the living will not thank you.", next: "ending_check", flag: { final: "comfort" }, effects: { cohesion: -4, supplies: -18 }, requires: { supplies: { min: 18 } }, lean: { living: 2 } });
       }
       opts.push({ text: "Turn the ship. Send a final transmission into the dark and then go quiet.", next: "ending_check", flag: { final: "transmission" }, requires: { integrity: { min: 20 } } });
       opts.push({ text: "Keep them alive one day at a time. No speeches. No grand purpose.", next: "ending_check", flag: { final: "endure" }, lean: { living: 2 } });
