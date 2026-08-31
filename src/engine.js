@@ -166,16 +166,18 @@ function showScene(id) {
     if (c.aliveAll && !c.aliveAll.every(k => isAlive(k))) return;
     if (c.aliveAny && !c.aliveAny.some(k => isAlive(k))) return;
 
+    const requirementsMet = !c.requires || meetsRequirements(c.requires);
     const unpaid = c.effects && !canAffordEffects(c.effects);
-    const gated = (c.requires && !meetsRequirements(c.requires)) || unpaid;
+    const gated = !requirementsMet || unpaid;
     const btn = document.createElement("button");
     btn.className = "choice-btn" + (gated ? " disabled" : "");
     btn.type = "button";
     const tagHtml = formatTagHtml(c.tag);
     if (gated) {
       btn.disabled = true;
-      let reason = formatRequiresReason(c.requires);
-      if (!reason && unpaid) reason = "Cannot pay the full cost";
+      let reason = requirementsMet ? "" : formatRequiresReason(c.requires);
+      if (!reason && unpaid) reason = formatUnpaidEffectsReason(c.effects);
+      if (!reason) reason = "Requirements not met";
       btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>` +
         (reason ? `<span class="choice-reason">${escapeHtml(reason)}</span>` : "");
     } else {
@@ -200,31 +202,39 @@ function canAffordEffects(effects) {
   return true;
 }
 
+function formatUnpaidEffectsReason(effects) {
+  if (!effects || typeof effects !== "object") return "";
+  const labels = { integrity: "Hull", cohesion: "Cohesion", supplies: "Supplies", embryos: "Embryos", survivors: "Survivors" };
+  for (const key of ["integrity", "cohesion", "supplies", "embryos", "survivors"]) {
+    const delta = effects[key];
+    if (typeof delta !== "number" || delta >= 0) continue;
+    const have = typeof state[key] === "number" ? state[key] : 0;
+    const need = -delta;
+    if (have < need) return `Needs ${need} ${labels[key]}; ${have} available`;
+  }
+  return "";
+}
+
 function formatRequiresReason(req) {
   if (!req || typeof req !== "object") return "";
-  const parts = [];
-  for (const [k, rule] of Object.entries(req)) {
-    if (k === "trust") {
-      if (!rule || typeof rule !== "object") continue;
-      for (const [who, tRule] of Object.entries(rule)) {
-        const need = typeof tRule === "number" ? tRule : (tRule && tRule.min);
-        if (need == null) continue;
-        const name = crewFirstName(who);
-        const have = (state.trust && state.trust[who]) || 0;
-        if (have < need) parts.push(`Needs ${name} trust ${need} (${have})`);
-      }
-      continue;
-    }
-    const labels = { supplies: "Supplies", integrity: "Hull", cohesion: "Cohesion", embryos: "Embryos", survivors: "Survivors" };
-    const label = labels[k] || k;
-    const have = state[k];
-    if (typeof rule === "number") {
-      if (typeof have === "number" && have < rule) parts.push(`Requires ${rule} ${label}; ${have} available`);
-    } else if (rule && typeof rule === "object" && rule.min !== undefined) {
-      if (typeof have === "number" && have < rule.min) parts.push(`Requires ${rule.min} ${label}; ${have} available`);
+  const labels = { integrity: "Hull", cohesion: "Cohesion", supplies: "Supplies", embryos: "Embryos", survivors: "Survivors" };
+  for (const key of ["integrity", "cohesion", "supplies", "embryos", "survivors"]) {
+    const rule = req[key];
+    const need = typeof rule === "number" ? rule : (rule && rule.min);
+    const have = state[key];
+    if (need !== undefined && typeof have === "number" && have < need) {
+      return `Needs ${need} ${labels[key]}; ${have} available`;
     }
   }
-  return parts[0] || "Requirements not met";
+  const trust = req.trust;
+  if (trust && typeof trust === "object") {
+    for (const [who, rule] of Object.entries(trust)) {
+      const need = typeof rule === "number" ? rule : (rule && rule.min);
+      const have = (state.trust && state.trust[who]) || 0;
+      if (need !== undefined && have < need) return `Needs more trust from ${crewFirstName(who)}`;
+    }
+  }
+  return "";
 }
 
 function crewFirstName(key) {

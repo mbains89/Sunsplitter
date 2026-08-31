@@ -514,6 +514,105 @@ function renderPurityChecks(runtime) {
   return errors;
 }
 
+function resourceFeedbackChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const reasonForChoice = (sceneId, choiceText) => {
+      document.getElementById("choices").children = [];
+      showScene(sceneId);
+      const button = document.getElementById("choices").children.find(child => child.innerHTML.includes(choiceText));
+      if (!button) return { found: false, disabled: null, reason: "" };
+      const match = button.innerHTML.match(/<span class="choice-reason">([^<]*)<\\/span>/);
+      return { found: true, disabled: button.disabled, reason: match ? match[1] : "" };
+    };
+
+    const statusCases = [];
+    for (const value of [0, 29, 30, 59, 60, 100]) {
+      resetRunState();
+      state.integrity = value;
+      state.cohesion = value;
+      state.supplies = value;
+      state.embryos = value;
+      renderStatus();
+      statusCases.push({
+        value,
+        integrity: { text: document.getElementById("stat-integrity").textContent, className: document.getElementById("stat-integrity").className },
+        cohesion: { text: document.getElementById("stat-cohesion").textContent, className: document.getElementById("stat-cohesion").className },
+        supplies: { text: document.getElementById("stat-supplies").textContent, className: document.getElementById("stat-supplies").className },
+        embryos: { text: document.getElementById("stat-embryos").textContent, className: document.getElementById("stat-embryos").className }
+      });
+    }
+
+    resetRunState();
+    state.survivors = 2;
+    renderStatus();
+    const survivors = {
+      text: String(document.getElementById("stat-survivors").textContent),
+      className: document.getElementById("stat-survivors").className
+    };
+
+    resetRunState();
+    state.trust.mira = 40;
+    state.cohesion = 0;
+    const vaultUnpaid = reasonForChoice("vault_voice", "Restrict access.");
+
+    resetRunState();
+    state.trust.mira = 40;
+    state.cohesion = 1;
+    const vaultExact = reasonForChoice("vault_voice", "Restrict access.");
+
+    resetRunState();
+    state.trust.mira = 39;
+    state.cohesion = 10;
+    const vaultTrust = reasonForChoice("vault_voice", "Restrict access.");
+
+    resetRunState();
+    state.embryos = 55;
+    state.integrity = 3;
+    state.cohesion = 8;
+    state.supplies = 2;
+    const conservation = reasonForChoice("arc_future_2", "Lock conservation mode.");
+
+    resetRunState();
+    state.cohesion = 98;
+    const clampedPositive = formatEffectsHtml({ cohesion: 5 });
+
+    return { statusCases, survivors, vaultUnpaid, vaultExact, vaultTrust, conservation, clampedPositive };
+  })()`);
+
+  for (const statusCase of fixture.statusCases) {
+    const expectedClass = statusCase.value < 30 ? "low" : statusCase.value < 60 ? "mid" : "high";
+    for (const key of ["integrity", "cohesion", "supplies", "embryos"]) {
+      const rendered = statusCase[key];
+      if (rendered.text !== `${statusCase.value}%`) {
+        errors.push(`${key} status text ${JSON.stringify(rendered.text)} != ${statusCase.value}%`);
+      }
+      if (rendered.className !== `stat-value ${expectedClass}`) {
+        errors.push(`${key} status class ${JSON.stringify(rendered.className)} != stat-value ${expectedClass}`);
+      }
+    }
+  }
+  if (fixture.survivors.text !== "2" || fixture.survivors.className !== "stat-value") {
+    errors.push(`Survivors status is not neutral: text=${JSON.stringify(fixture.survivors.text)} class=${JSON.stringify(fixture.survivors.className)}`);
+  }
+  if (!fixture.vaultUnpaid.found || !fixture.vaultUnpaid.disabled || fixture.vaultUnpaid.reason !== "Needs 1 Cohesion; 0 available") {
+    errors.push(`vault_voice unpaid reason mismatch: ${JSON.stringify(fixture.vaultUnpaid)}`);
+  }
+  if (!fixture.vaultExact.found || fixture.vaultExact.disabled || fixture.vaultExact.reason) {
+    errors.push(`vault_voice exact-cost boundary mismatch: ${JSON.stringify(fixture.vaultExact)}`);
+  }
+  if (!fixture.vaultTrust.disabled || fixture.vaultTrust.reason !== "Needs more trust from Mira") {
+    errors.push(`vault_voice hidden-trust reason mismatch: ${JSON.stringify(fixture.vaultTrust)}`);
+  }
+  if (!fixture.conservation.disabled || fixture.conservation.reason !== "Needs 4 Hull; 3 available") {
+    errors.push(`arc_future_2 deterministic public-resource reason mismatch: ${JSON.stringify(fixture.conservation)}`);
+  }
+  if (!fixture.clampedPositive.includes("+2 Cohesion (clamped)")) {
+    errors.push(`clamped positive effect display changed: ${JSON.stringify(fixture.clampedPositive)}`);
+  }
+  return errors;
+}
+
 function lastTransmissionChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -857,6 +956,10 @@ function main() {
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
     failures.push(...renderPurityErrors);
+
+    const resourceFeedbackErrors = resourceFeedbackChecks(runtime);
+    printCheck("truthful public-resource status + blocker feedback", resourceFeedbackErrors);
+    failures.push(...resourceFeedbackErrors);
 
     const lastTransmissionErrors = lastTransmissionChecks(runtime);
     printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
