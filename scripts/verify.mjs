@@ -348,6 +348,29 @@ function playAgainChecks(runtime) {
   return errors;
 }
 
+function warmthLaughterChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.recovered.vess = true;
+    const livingVessText = scenes.warmth_laughter.text;
+    kill("vess", "fixture");
+    const deadVessText = scenes.warmth_laughter.text;
+    return { livingVessText, deadVessText };
+  })()`);
+
+  if (!fixture.livingVessText.includes("Vess is one — and Vess is telling a joke")) {
+    errors.push("living Vess no longer participates in warmth_laughter");
+  }
+  if (fixture.deadVessText.includes("Vess")) {
+    errors.push("dead Vess is still named or speaking in warmth_laughter");
+  }
+  if (!fixture.deadVessText.includes("one of them is telling a joke")) {
+    errors.push("dead-Vess warmth_laughter no longer preserves the crew joke");
+  }
+  return errors;
+}
+
 function cascadeAndMirrorChecks(runtime) {
   const errors = [];
   const bindings = runtime.evaluate(`(() => {
@@ -634,6 +657,10 @@ function main() {
     const playAgainErrors = playAgainChecks(runtime);
     printCheck("Play Again fresh campaign without consuming completed save", playAgainErrors);
     failures.push(...playAgainErrors);
+
+    const warmthLaughterErrors = warmthLaughterChecks(runtime);
+    printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
+    failures.push(...warmthLaughterErrors);
   }
 
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
