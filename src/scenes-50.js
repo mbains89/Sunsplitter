@@ -3,10 +3,16 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: Last Off-Shift selects living Amara | WRITES: junction choice and one deduplicated absolution memory on entry
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Amara is eligibility-gated by offshift_open | IMAGE: existing quiet-Amara plate
   offshift_amara: {
     image: "images/quiet_amara.jpg",
     onEnter: () => {
       state.flags.junctionChoice = "amara";
+      const first = firstAttributableDeath();
+      const whoName = first ? first.name : "the dead";
+      const granted = stillFavoring("amara") || (state.affinity.amara || 0) >= 20;
+      remember(`Amara ${granted ? "offered" : "withheld"} absolution for ${whoName}`);
     },
     get text() {
       const first = firstAttributableDeath();
@@ -18,10 +24,8 @@ registerScenes({
       const granted = stillFavoring("amara") || (state.affinity.amara || 0) >= 20;
       if (granted) {
         t += `"And I'll say the name with you at yellow. Every yellow, for as long as I'm here to stand at one. That's absolution as I keep it, love. It doesn't wash anything. It just means you don't carry it in a room by yourself. Take it or leave it, but it's offered the once."`;
-        remember("Amara offered absolution for " + whoName);
       } else {
         t += `"The rest, you haven't earned back. The garden's had no hour from you since, the crew's had no face at meals. Absolution isn't a thing I pour, it's a thing you grow. Mind I said back, not never."`;
-        remember("Amara withheld absolution for " + whoName);
       }
       const close = closingPartnerLine();
       if (close) t += `\n\n` + close;

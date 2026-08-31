@@ -1,13 +1,20 @@
 // Sunsplitter — scenes-16.js
 // 0.28.1c size hygiene. Pure mechanical. crises: spine_next + vess_signal + cost
 // Strict scene shape only: text | choices | onEnter | image
+let act3SpineTomasAllusionOnEntry = false;
+
 registerScenes({
 
+  // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: consumes Tomas allusion flag on entry
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: existing corridor plate
   act3_spine_next: {
     image: "images/corridor.jpg",
     onEnter: () => {
+      act3SpineTomasAllusionOnEntry = false;
       // 0.24: Vess arrival window opens once after vault face; guaranteed, no refuse-contact
       if (!state.recovered || !state.recovered.vess) return "vess_signal";
+      act3SpineTomasAllusionOnEntry = state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded;
+      if (act3SpineTomasAllusionOnEntry) state.flags.prom_tomas_alluded = true;
     },
     text: () => {
       let t = `The vault light stays on behind you. The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
@@ -16,9 +23,8 @@ registerScenes({
       }
       t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
-      if (state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded) {
+      if (state.promises.tomas === "made" && isAlive("tomas") && act3SpineTomasAllusionOnEntry) {
         t += `\n\nTomas finds you in the corridor on the way past. "Names first, then numbers. You put the order of mercy on record once. I count easier since."`;
-        state.flags.prom_tomas_alluded = true;
       }
       return t;
     },
