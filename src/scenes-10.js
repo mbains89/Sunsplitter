@@ -1,11 +1,22 @@
 // Sunsplitter — scenes-10.js
 // 0.28.1c size hygiene. Pure mechanical. crises: tether sighting + vent + rush
 // Strict scene shape only: text | choices | onEnter | image
+let act2TetherAllusionsOnEntry = { elias: false, amara: false };
+
 registerScenes({
 
+  // PRE: tether sighting, living speaker, made unalluded promise | WRITES: consumes Elias/Amara allusion flags on entry
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Elias/Amara prose is living-gated | IMAGE: existing debris-field plate
   act2_tether_sighting: {
     image: "images/debris_field.jpg",
-    onEnter: () => {},
+    onEnter: () => {
+      act2TetherAllusionsOnEntry = {
+        elias: isAlive("elias") && state.promises.elias === "made" && !state.flags.prom_elias_alluded,
+        amara: isAlive("amara") && state.promises.amara === "made" && !state.flags.prom_amara_alluded
+      };
+      if (act2TetherAllusionsOnEntry.elias) state.flags.prom_elias_alluded = true;
+      if (act2TetherAllusionsOnEntry.amara) state.flags.prom_amara_alluded = true;
+    },
     text: () => {
       let t = `The contact resolves on the third scope pass: the agri-annex, whole, trailing four kilometers back on nothing but its own dying momentum. The observation strip still glows green. Someone is keeping the grow-lamps fed.
 
@@ -18,18 +29,16 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       if (isAlive("elias")) {
         t += `\n\n"Nine hours," Elias says. "Suit prep takes one. Decide in eight."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.elias === "made" && !state.flags.prom_elias_alluded) {
+        if (state.promises.elias === "made" && act2TetherAllusionsOnEntry.elias) {
           t += `\n\n"Deck Four pushed back another fragment last night. When it finishes, I hold you to the order of operations."`;
-          state.flags.prom_elias_alluded = true;
         }
       }
       if (isAlive("lena")) t += `\n\n"If Tomas is alive in there, he's been living on sprouted seed stock and reclaimed water," Lena says. "Malnourished, half-blind from the lamps, and treatable. Dead isn't. Factor that."`;
       if (isAlive("amara")) {
         t += `\n\nAmara doesn't look away from the green light. "That's Tomas and every growing thing we own, on one bad rope. You'll not be offered a cheaper miracle than eleven hundred liters. You'll also never drink a miracle."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.amara === "made" && !state.flags.prom_amara_alluded) {
+        if (state.promises.amara === "made" && act2TetherAllusionsOnEntry.amara) {
           t += `\n\n"The beds are holding. So is your line in my book. I reread it when the air runs thin."`;
-          state.flags.prom_amara_alluded = true;
         }
       }
       if (isAlive("sela")) t += `\n\n"The annex was built to carry seeds through the death of a world," Sela says. "It may have carried a man instead. I would like to know which."`;
