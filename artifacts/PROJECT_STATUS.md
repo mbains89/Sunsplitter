@@ -9,7 +9,7 @@
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
 
-This is the compact rolling handoff for GitHub `main`. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. The containing ticket branch proposes authority and CI reconciliation; nothing in this file describes unmerged ticket bytes as present on `main`.
+This is the compact rolling handoff for GitHub `main`. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. MAIN-RECONCILE-CI-SUCCESSOR-01 / PR 44 is already merge-committed into `version/0.30.1-main-reconcile-ci.1` at `06a30b6fe59203a064a92b05e2d8d01ba4806357`. Those ticket bytes are not present on `main`.
 
 ## Release and authority state
 
@@ -41,19 +41,19 @@ L-020 through L-024 remain ruled. This reconciliation does not reopen L-004, art
 
 Main currently contains dependency-free `scripts/verify.mjs` and `scripts/simulate.mjs`, but no main/version Actions workflows or compact main/version release-policy script. The existing verifier covers current structural/runtime fixtures. The existing simulator's smoke routes are useful diagnostics, not the locked random/cheapest/priciest 6,000-run candidate gate.
 
-This ticket is authorized to add non-certifying version smoke and a strict close-out gate without changing runtime, art, release, or deployment bytes. Until the ticket merges through the governed lane, its green results are candidate evidence only. Known V4/V5 findings must remain attributable and may not be accepted, weakened, or ratcheted into certification.
+MAIN-RECONCILE-CI-SUCCESSOR-01 / PR 44 added non-certifying version smoke and a strict close-out gate without changing runtime, art, release, or deployment bytes. That work sits on the version lane at `06a30b6fe59203a064a92b05e2d8d01ba4806357`; it is not on `main`. Green CI remains candidate evidence only and is not merge, close-out, tag, release, or deploy authority. Known V4/V5 findings must remain attributable and may not be accepted, weakened, or ratcheted into certification.
 
-Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` and requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`; `21894561` covers `main` and requires `main-release-policy`, `main-verify`, and `main-simulation-gate`; `21051662` covers only `recovery/e4f8440-nopub` and still requires legacy `release-policy`, `verify`, and `simulation-gate`. This ticket has no ruleset-mutation authority and does not change those rulesets.
+Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` and requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`; `21894561` covers `main` and requires `main-release-policy`, `main-verify`, and `main-simulation-gate`; `21051662` covers only `recovery/e4f8440-nopub` and still requires legacy `release-policy`, `verify`, and `simulation-gate`. This STATUS record has no ruleset-mutation authority and does not change those rulesets.
 
 ## Blockers
 
 - `NO-PUBLISH / NOT_CERTIFIED` remains controlling; no release artifact or deployment authority exists.
-- L-025–L-027 gameplay/coverage work is not implemented by this governance-and-CI ticket; L-028 remains deferred.
+- L-025–L-027 gameplay/coverage work is not implemented by MAIN-RECONCILE-CI-SUCCESSOR-01; L-028 remains deferred.
 - Strict candidate simulation must reach zero at its locked thresholds; current known failures remain blockers, not an accepted baseline.
-- This ticket has no ruleset-mutation, merge, close-out, tag, release, or deploy authority. Recording the live split is not a ruleset write.
+- This STATUS record has no ruleset-mutation, merge, close-out, tag, release, or deploy authority. Recording the live split is not a ruleset write.
 
 ## Next action
 
-**Manraj:** merge-commit this ticket into `version/0.30.1-main-reconcile-ci.1`. Green CI is not merge authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, or deploy.
+**Manraj:** hold. Wait for Manraj. Green CI is not merge authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, or deploy.
 
 <!-- STATUS_COMPLETE -->
