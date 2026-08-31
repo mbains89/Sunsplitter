@@ -243,6 +243,111 @@ function whatRemainsChecks(runtime) {
   return errors;
 }
 
+function playAgainChecks(runtime) {
+  const errors = [];
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  if (indexSource.includes('onclick="location.reload()"')) {
+    errors.push("Play Again still reloads the page instead of starting a fresh campaign");
+  }
+  const playAgainWires = (indexSource.match(/onclick="playAgain\(\)"/g) || []).length;
+  if (playAgainWires !== 2) errors.push(`Play Again wiring count ${playAgainWires} != 2`);
+
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.scene = "ending_check";
+    state.cohesion = 18;
+    state.flags.crisis = "vent";
+    state.flags.final = "endure";
+    kill("rourke", "died with company");
+    state.survivors = 4;
+    persistSave({ silent: true });
+    const completedRaw = localStorage.getItem("sunsplitter_save_v3");
+    const completed = JSON.parse(completedRaw);
+    resolveEnding();
+    playAgain();
+    const afterPlayAgainRaw = localStorage.getItem("sunsplitter_save_v3");
+    const afterPlayAgain = JSON.parse(afterPlayAgainRaw);
+    const gameVisible = !document.getElementById("game-screen").classList.contains("hidden");
+    const endingHidden = document.getElementById("ending-screen").classList.contains("hidden");
+    const remainsHidden = document.getElementById("what-remains-screen").classList.contains("hidden");
+    const live = {
+      scene: state.scene,
+      survivors: state.survivors,
+      cohesion: state.cohesion,
+      dead: (state.dead || []).slice(),
+      crisis: state.flags.crisis || null,
+      final: state.flags.final || null
+    };
+    const continueOk = resumeGame();
+    const continuedRaw = localStorage.getItem("sunsplitter_save_v3");
+    const continued = {
+      scene: state.scene,
+      survivors: state.survivors,
+      cohesion: state.cohesion,
+      dead: (state.dead || []).slice(),
+      crisis: state.flags.crisis || null,
+      final: state.flags.final || null
+    };
+    resetRunState();
+    state.scene = "ending_check";
+    persistSave({ silent: true });
+    const remainsCompletedRaw = localStorage.getItem("sunsplitter_save_v3");
+    resolveEnding();
+    showWhatRemains();
+    playAgain();
+    const remainsAfterRaw = localStorage.getItem("sunsplitter_save_v3");
+    const remainsLiveScene = state.scene;
+    const remainsContinueOk = resumeGame();
+    return {
+      completedScene: completed.scene,
+      completedSurvivors: completed.survivors,
+      completedDead: completed.dead.slice(),
+      afterPlayAgainEqualsCompleted: afterPlayAgainRaw === completedRaw,
+      afterScene: afterPlayAgain.scene,
+      afterSurvivors: afterPlayAgain.survivors,
+      gameVisible,
+      endingHidden,
+      remainsHidden,
+      live,
+      continueOk,
+      continuedRawEqualsCompleted: continuedRaw === completedRaw,
+      continued,
+      remainsAfterEqualsCompleted: remainsAfterRaw === remainsCompletedRaw,
+      remainsLiveScene,
+      remainsContinueOk,
+      remainsContinuedScene: state.scene
+    };
+  })()`);
+
+  if (fixture.completedScene !== "ending_check") errors.push(`fixture completed scene ${fixture.completedScene} != ending_check`);
+  if (!fixture.afterPlayAgainEqualsCompleted) errors.push("Play Again mutated or replaced the completed save blob");
+  if (fixture.afterScene !== "ending_check" || fixture.afterSurvivors !== 4) {
+    errors.push("completed save on disk did not keep ending_check / distinctive survivors after Play Again");
+  }
+  if (!fixture.gameVisible || !fixture.endingHidden || !fixture.remainsHidden) {
+    errors.push("Play Again did not boot the game screen as a fresh campaign");
+  }
+  if (fixture.live.scene !== "wake") errors.push(`Play Again live scene ${fixture.live.scene} != wake`);
+  if (fixture.live.survivors !== 9) errors.push(`Play Again live survivors ${fixture.live.survivors} != fresh 9`);
+  if (fixture.live.cohesion !== 48) errors.push(`Play Again live cohesion ${fixture.live.cohesion} != fresh 48`);
+  if (fixture.live.dead.length) errors.push("Play Again applied completed deaths into the new run");
+  if (fixture.live.crisis || fixture.live.final) errors.push("Play Again applied completed ending flags into the new run");
+  if (!fixture.continueOk) errors.push("Continue failed after Play Again");
+  if (!fixture.continuedRawEqualsCompleted) errors.push("Continue mutated the completed save blob");
+  if (fixture.continued.scene !== "ending_check") errors.push(`Continue scene ${fixture.continued.scene} != ending_check`);
+  if (fixture.continued.survivors !== 4) errors.push(`Continue survivors ${fixture.continued.survivors} != completed 4`);
+  if (!fixture.continued.dead.includes("rourke")) errors.push("Continue did not restore the completed death list");
+  if (fixture.continued.crisis !== "vent" || fixture.continued.final !== "endure") {
+    errors.push("Continue did not restore the completed ending flags");
+  }
+  if (!fixture.remainsAfterEqualsCompleted) errors.push("Play Again from What Remains mutated the completed save blob");
+  if (fixture.remainsLiveScene !== "wake") errors.push(`What Remains Play Again live scene ${fixture.remainsLiveScene} != wake`);
+  if (!fixture.remainsContinueOk || fixture.remainsContinuedScene !== "ending_check") {
+    errors.push("Continue after What Remains Play Again did not restore the completed blob");
+  }
+  return errors;
+}
+
 function cascadeAndMirrorChecks(runtime) {
   const errors = [];
   const bindings = runtime.evaluate(`(() => {
@@ -525,6 +630,10 @@ function main() {
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
     failures.push(...cascadeErrors);
+
+    const playAgainErrors = playAgainChecks(runtime);
+    printCheck("Play Again fresh campaign without consuming completed save", playAgainErrors);
+    failures.push(...playAgainErrors);
   }
 
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
