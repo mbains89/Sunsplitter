@@ -371,6 +371,55 @@ function warmthLaughterChecks(runtime) {
   return errors;
 }
 
+function lastTransmissionChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const transmissionText = "Turn the ship. Send a final transmission into the dark and then go quiet.";
+    const finalTransmission = () => scenes.final_choice.choices.find(choice => choice.text === transmissionText);
+    const hasOffshiftAnswer = () => scenes.offshift_vess.choices.some(choice => choice.text === "Answer it.");
+
+    resetRunState();
+    state.integrity = 20;
+    const unspentChoice = finalTransmission();
+    const unspentAllowedAt20 = unspentChoice ? meetsRequirements(unspentChoice.requires) : false;
+    state.integrity = 19;
+    const unspentAllowedAt19 = unspentChoice ? meetsRequirements(unspentChoice.requires) : true;
+
+    state.integrity = 20;
+    state.flags.last_tx_spent = true;
+    const spentChoice = finalTransmission();
+
+    state.flags.last_tx_spent = false;
+    const offshiftUnspentHasAnswer = hasOffshiftAnswer();
+    state.flags.last_tx_spent = true;
+    const offshiftSpentHasAnswer = hasOffshiftAnswer();
+
+    return {
+      unspentChoice: unspentChoice ? {
+        final: unspentChoice.flag && unspentChoice.flag.final,
+        integrityMin: unspentChoice.requires && unspentChoice.requires.integrity && unspentChoice.requires.integrity.min
+      } : null,
+      unspentAllowedAt20,
+      unspentAllowedAt19,
+      spentChoicePresent: Boolean(spentChoice),
+      offshiftUnspentHasAnswer,
+      offshiftSpentHasAnswer
+    };
+  })()`);
+
+  if (!fixture.unspentChoice) errors.push("unspent final_choice lost the final transmission option");
+  if (fixture.unspentChoice?.final !== "transmission") errors.push("unspent final transmission no longer writes final=transmission");
+  if (fixture.unspentChoice?.integrityMin !== 20) errors.push(`final transmission integrity minimum ${fixture.unspentChoice?.integrityMin} != 20`);
+  if (!fixture.unspentAllowedAt20 || fixture.unspentAllowedAt19) {
+    errors.push("final transmission integrity threshold is not enforced at 20");
+  }
+  if (fixture.spentChoicePresent) errors.push("spent last_tx still offers the final transmission option");
+  if (!fixture.offshiftUnspentHasAnswer || fixture.offshiftSpentHasAnswer) {
+    errors.push("offshift_vess no longer honors the last_tx_spent Answer-it guard");
+  }
+  return errors;
+}
+
 function cascadeAndMirrorChecks(runtime) {
   const errors = [];
   const bindings = runtime.evaluate(`(() => {
@@ -661,6 +710,10 @@ function main() {
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
     failures.push(...warmthLaughterErrors);
+
+    const lastTransmissionErrors = lastTransmissionChecks(runtime);
+    printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
+    failures.push(...lastTransmissionErrors);
   }
 
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
