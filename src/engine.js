@@ -59,6 +59,15 @@ function resetRunState() {
   }
 }
 
+function beginFreshCampaign(opts) {
+  opts = opts || {};
+  resetRunState();
+  showScreen("game");
+  renderStatus();
+  showScene("wake");
+  if (opts.persist) persistSave({ silent: true });
+}
+
 function startGame() {
   // New run overwrites the slot — warn if a save exists
   if (hasSave() && !window.__ssForceNew) {
@@ -66,12 +75,13 @@ function startGame() {
     if (!ok) return;
   }
   window.__ssForceNew = false;
-  resetRunState();
-  showScreen("game");
-  renderStatus();
-  showScene("wake");
-  // First beat written so a refresh still has a slot
-  persistSave({ silent: true });
+  beginFreshCampaign({ persist: true });
+}
+
+function playAgain() {
+  // Ending / What Remains: start a fresh campaign in memory.
+  // Leave the completed slot on disk so Continue can still load it.
+  beginFreshCampaign({ persist: false });
 }
 
 function showTitleScreen() {
