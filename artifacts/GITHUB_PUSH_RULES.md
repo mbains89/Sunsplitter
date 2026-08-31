@@ -55,12 +55,15 @@ Evidence may be reused only for the same tested commit and unchanged invalidatio
 - Concurrency cancels superseded runs.
 - Secrets, write-capable tokens, deploys, uploads, releases, tags, Pages, Netlify, publication, and production commands are forbidden.
 
-## Later ruleset design — specification only; not applied by this change
+## Live observed rulesets (read-only GET)
 
-1. Keep recovery protection separate. Narrow ruleset `21051662` later to `recovery/e4f8440-nopub` only, preserving its recovery contexts.
-2. Create separate active strict rulesets for `main` and `version/*`. Both are merge-only, block deletion and non-fast-forward updates, include administrators, and use literal owner-authenticated `bypass_actors=[]`.
-3. Bind `main` to `main-release-policy`, `main-verify`, and `main-simulation-gate` with GitHub Actions integration `15368`.
-4. Bind `version/*` to `version-release-policy`, `version-verify`, and `version-simulation-smoke` with GitHub Actions integration `15368`.
-5. Leave tag ruleset `21051665` unchanged.
+The branch split is a live repository observation. This ticket records it; it does not apply, edit, or bypass any GitHub ruleset. Public ruleset JSON does not include `bypass_actors`; this file does not invent that field.
 
-At the 2026-08-30 readback, ruleset `21051662` still actively covered `main`, `recovery/e4f8440-nopub`, and `version/*`; allowed merge, squash, and rebase; and required legacy contexts `release-policy`, `verify`, and `simulation-gate`. That truthful mismatch blocks protected-lane merge after this PR unless a separately authorized ruleset update resolves it. It does not authorize mutation or bypass here.
+Read-only GET `/repos/mbains89/Sunsplitter/rulesets/{id}` on 2026-08-31 observed:
+
+- `21051662` **PIPE-BOOT protected branches** covers only `refs/heads/recovery/e4f8440-nopub`. It still requires `release-policy`, `verify`, and `simulation-gate`. It still allows merge, squash, and rebase. Last observed `updated_at`: `2026-08-31T02:46:21Z`.
+- `21894580` **Sunsplitter version protected branches** covers `refs/heads/version/*`. Merge-only. Requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`. `do_not_enforce_on_create`: `true`. Created `2026-08-31T02:45:07Z`.
+- `21894561` **Sunsplitter main protected branch** covers `refs/heads/main`. Merge-only. Requires `main-release-policy`, `main-verify`, and `main-simulation-gate`. Created `2026-08-31T02:44:23Z`.
+- Tag ruleset `21051665` **PIPE-BOOT block tag creation** is unchanged.
+
+This ticket still has no ruleset-mutation authority.

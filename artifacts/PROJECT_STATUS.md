@@ -1,7 +1,7 @@
 # Sunsplitter — Current Status
 
 `schema_version: 2`
-`updated_utc: 2026-08-30`
+`updated_utc: 2026-08-31`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
 `runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
@@ -41,19 +41,19 @@ L-020 through L-024 remain ruled. This reconciliation does not reopen L-004, art
 
 Main currently contains dependency-free `scripts/verify.mjs` and `scripts/simulate.mjs`, but no main/version Actions workflows or compact main/version release-policy script. The existing verifier covers current structural/runtime fixtures. The existing simulator's smoke routes are useful diagnostics, not the locked random/cheapest/priciest 6,000-run candidate gate.
 
-This ticket is authorized to add non-certifying version smoke and a strict close-out gate without changing runtime, art, release, or deployment bytes. Until the ticket merges through the governed lane and required contexts/rulesets are separately aligned, its green results are candidate evidence only. Known V4/V5 findings must remain attributable and may not be accepted, weakened, or ratcheted into certification.
+This ticket is authorized to add non-certifying version smoke and a strict close-out gate without changing runtime, art, release, or deployment bytes. Until the ticket merges through the governed lane, its green results are candidate evidence only. Known V4/V5 findings must remain attributable and may not be accepted, weakened, or ratcheted into certification.
 
-Current live ruleset `21051662` still requires legacy contexts (`release-policy`, `verify`, `simulation-gate`) on `version/*`. The approved later ruleset split is specified in `GITHUB_PUSH_RULES.md` but is not applied by this ticket.
+Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` and requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`; `21894561` covers `main` and requires `main-release-policy`, `main-verify`, and `main-simulation-gate`; `21051662` covers only `recovery/e4f8440-nopub` and still requires legacy `release-policy`, `verify`, and `simulation-gate`. This ticket has no ruleset-mutation authority and does not change those rulesets.
 
 ## Blockers
 
 - `NO-PUBLISH / NOT_CERTIFIED` remains controlling; no release artifact or deployment authority exists.
 - L-025–L-027 gameplay/coverage work is not implemented by this governance-and-CI ticket; L-028 remains deferred.
 - Strict candidate simulation must reach zero at its locked thresholds; current known failures remain blockers, not an accepted baseline.
-- Required GitHub contexts cannot be changed by this ticket. Any mismatch between legacy protection and the new canonical names blocks merge without authorizing a bypass or ruleset mutation.
+- This ticket has no ruleset-mutation, merge, close-out, tag, release, or deploy authority. Recording the live split is not a ruleset write.
 
 ## Next action
 
-**Manraj:** after the ticket PR reports its exact-head local and available CI evidence, review the bounded authority/CI reconciliation and decide whether to authorize the separate ruleset update; do not merge this ticket under legacy-context ambiguity.
+**Manraj:** merge-commit this ticket into `version/0.30.1-main-reconcile-ci.1`. Green CI is not merge authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, or deploy.
 
 <!-- STATUS_COMPLETE -->
