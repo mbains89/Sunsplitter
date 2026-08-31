@@ -1,0 +1,87 @@
+name: Main and Version Release Policy
+
+on:
+  pull_request:
+    branches:
+      - main
+      - "version/**"
+    types: [opened, reopened, synchronize, ready_for_review, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-version-policy-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  version_release_policy:
+    name: version-release-policy
+    if: ${{ startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Enforce version route and workflow safety
+        env:
+          POLICY_MODE: version
+          POLICY_EVENT_NAME: ${{ github.event_name }}
+          POLICY_ACTION: ${{ github.event.action }}
+          POLICY_REPOSITORY: ${{ github.repository }}
+          POLICY_BASE_REF: ${{ github.base_ref }}
+          POLICY_HEAD_REF: ${{ github.head_ref }}
+          POLICY_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          POLICY_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          POLICY_PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/release-policy.mjs --self-test
+          node scripts/release-policy.mjs
+
+  main_release_policy:
+    name: main-release-policy
+    if: ${{ github.base_ref == 'main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Enforce consolidated version route and workflow safety
+        env:
+          POLICY_MODE: main
+          POLICY_EVENT_NAME: ${{ github.event_name }}
+          POLICY_ACTION: ${{ github.event.action }}
+          POLICY_REPOSITORY: ${{ github.repository }}
+          POLICY_BASE_REF: ${{ github.base_ref }}
+          POLICY_HEAD_REF: ${{ github.head_ref }}
+          POLICY_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          POLICY_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          POLICY_PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/release-policy.mjs --self-test
+          node scripts/release-policy.mjs
