@@ -77,7 +77,7 @@ registerScenes({
   //   choice hold: flag.final = "hold"; optional integrity/cohesion effects on the no-buy-in hold
   //   choice comfort: flag.final = "comfort"; supplies paid equal to advertised min (15 or 18);
   //                   optional cohesion -4 on the debted comfort path
-  //   choice transmission: flag.final = "transmission"
+  //   choice transmission: flag.final = "transmission" when last_tx_spent is not set
   //   choice endure: flag.final = "endure"
   // DEATH EXPOSURE: none
   // DEAD-SPEECH CHECK: none (crew names in debt list are living debtors)
@@ -116,7 +116,9 @@ registerScenes({
       } else {
         opts.push({ text: "Push for comfort anyway — even if some of the living will not thank you.", next: "ending_check", flag: { final: "comfort" }, effects: { cohesion: -4, supplies: -18 }, requires: { supplies: { min: 18 } }, lean: { living: 2 } });
       }
-      opts.push({ text: "Turn the ship. Send a final transmission into the dark and then go quiet.", next: "ending_check", flag: { final: "transmission" }, requires: { integrity: { min: 20 } } });
+      if (!state.flags.last_tx_spent) {
+        opts.push({ text: "Turn the ship. Send a final transmission into the dark and then go quiet.", next: "ending_check", flag: { final: "transmission" }, requires: { integrity: { min: 20 } } });
+      }
       opts.push({ text: "Keep them alive one day at a time. No speeches. No grand purpose.", next: "ending_check", flag: { final: "endure" }, lean: { living: 2 } });
       return opts;
     }
