@@ -9,6 +9,9 @@
 // - What Remains fixtures: 3–6 current-run facts, significance order, exact causes,
 //   tested-promise selection, relational tense, and separate-surface rendering.
 
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,7 +28,10 @@ import {
 } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EXPECTED_VERSION = "0.29";
+const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
+const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
+const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
+const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
@@ -71,9 +77,9 @@ function versionSurfaceChecks() {
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const stateMatch = stateSource.match(/const\s+VERSION\s*=\s*["']([^"']+)["']/);
   const subtitleMatch = indexSource.match(/id=["']game-subtitle["'][^>]*>v([^<]+)</);
-  if (versionFile !== EXPECTED_VERSION) errors.push(`VERSION.md=${versionFile}; expected ${EXPECTED_VERSION}`);
-  if (stateMatch?.[1] !== EXPECTED_VERSION) errors.push(`src/state.js VERSION=${stateMatch?.[1] || "missing"}; expected ${EXPECTED_VERSION}`);
-  if (subtitleMatch?.[1] !== EXPECTED_VERSION) errors.push(`index subtitle=${subtitleMatch?.[1] || "missing"}; expected ${EXPECTED_VERSION}`);
+  if (!/^\d+\.\d+(?:\.\d+)?(?:[-.][0-9A-Za-z.-]+)?$/.test(versionFile)) errors.push(`VERSION.md=${versionFile}; malformed version`);
+  if (stateMatch?.[1] !== versionFile) errors.push(`src/state.js VERSION=${stateMatch?.[1] || "missing"}; expected ${versionFile}`);
+  if (subtitleMatch?.[1] !== versionFile) errors.push(`index subtitle=${subtitleMatch?.[1] || "missing"}; expected ${versionFile}`);
   for (const requiredId of ["what-remains-screen", "what-remains-image", "what-remains-text"]) {
     if (!indexSource.includes(`id="${requiredId}"`)) errors.push(`index missing ${requiredId}`);
   }
@@ -385,6 +391,84 @@ function cascadeAndMirrorChecks(runtime) {
   return errors;
 }
 
+function git(args) {
+  const result = spawnSync("git", args, { cwd: ROOT, encoding: "utf8", env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" } });
+  if (result.status !== 0) throw new Error(`git ${args.join(" ")} failed: ${(result.stderr || result.stdout).trim()}`);
+  return result.stdout.trim();
+}
+
+function sha256(text) {
+  return createHash("sha256").update(text).digest("hex");
+}
+
+function identityAndAuthorityChecks() {
+  const errors = [];
+  const head = git(["rev-parse", "HEAD"]);
+  const testedSha = process.env.VERIFY_EXPECTED_SHA || head;
+  if (head !== testedSha) errors.push(`HEAD ${head} != expected tested SHA ${testedSha}`);
+  if (git(["rev-parse", `${SOURCE_MAIN_SHA}^{tree}`]) !== SOURCE_MAIN_TREE) errors.push("bound source-main tree drifted");
+  const ancestry = spawnSync("git", ["merge-base", "--is-ancestor", AUDITED_RECOVERY_BASE_SHA, "HEAD"], { cwd: ROOT, encoding: "utf8", env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" } });
+  if (ancestry.status !== 0) errors.push("audited recovery base is not an ancestor of HEAD");
+
+  const status = readFileSync(resolve(ROOT, "artifacts/PROJECT_STATUS.md"), "utf8");
+  const roadmap = readFileSync(resolve(ROOT, "artifacts/ROADMAP.md"), "utf8");
+  const locks = readFileSync(resolve(ROOT, "artifacts/LOCKS.md"), "utf8");
+  const fixture = JSON.parse(readFileSync(resolve(ROOT, "scripts/fixtures/main-reconcile-ci-pr-baseline.json"), "utf8"));
+  const testedRef = process.env.VERIFY_HEAD_REF || "";
+  const currentReconciliationRoute = !testedRef || testedRef === fixture.branches.ticket || testedRef === fixture.branches.version;
+  if (currentReconciliationRoute && git(["rev-parse", "HEAD:src"]) !== REQUIRED_SRC_TREE) errors.push("main-reconcile HEAD:src changed from the authorized runtime tree");
+  if (!status.includes("`release_state: NO-PUBLISH`")) errors.push("STATUS release state is not NO-PUBLISH");
+  if (!status.includes("`version_integrity: NOT_CERTIFIED`")) errors.push("STATUS integrity state is not NOT_CERTIFIED");
+  if (!status.includes("PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT")) errors.push("STATUS art posture missing");
+  for (const token of ["L-025 — LOCKED", "L-026 — LOCKED", "L-027 — LOCKED", "L-028 — DEFERRED"]) if (!status.includes(token)) errors.push(`STATUS missing ${token}`);
+  const digest = sha256(roadmap);
+  if (!locks.includes(`**Roadmap source SHA-256:** \`${digest}\``)) errors.push(`LOCKS roadmap digest does not match ${digest}`);
+  if (fixture.sourceMainSha !== SOURCE_MAIN_SHA || fixture.sourceMainTree !== SOURCE_MAIN_TREE || fixture.requiredSrcTree !== REQUIRED_SRC_TREE) errors.push("main-reconcile fixture identity drifted");
+  if (fixture.certification !== "NO-PUBLISH / NOT_CERTIFIED") errors.push("fixture certification posture drifted");
+  return errors;
+}
+
+function negativeFixtureErrors(fixture) {
+  const errors = [];
+  if (!fixture.manifestPresent) errors.push("missing manifest");
+  if (fixture.script.includes("&quot;")) errors.push("historical entity corruption");
+  try { new vm.Script(fixture.script); } catch { errors.push("JavaScript truncation or syntax corruption"); }
+  if (!Buffer.isBuffer(fixture.image) || fixture.image.length < 1024 || fixture.image[0] !== 0xff || fixture.image[1] !== 0xd8 || fixture.image.at(-2) !== 0xff || fixture.image.at(-1) !== 0xd9) errors.push("bad image magic or size");
+  if (fixture.versionFile !== fixture.stateVersion || fixture.versionFile !== fixture.subtitleVersion) errors.push("version drift");
+  if (!fixture.registrationPresent) errors.push("missing registration/load-order entry");
+  if (fixture.validatorErrors.length) errors.push("validator failure");
+  return errors;
+}
+
+function runSelfTest() {
+  const good = {
+    manifestPresent: true,
+    script: "const fixture = 'ok';",
+    image: Buffer.concat([Buffer.from([0xff, 0xd8]), Buffer.alloc(1020), Buffer.from([0xff, 0xd9])]),
+    versionFile: "0.30",
+    stateVersion: "0.30",
+    subtitleVersion: "0.30",
+    registrationPresent: true,
+    validatorErrors: []
+  };
+  assert.deepEqual(negativeFixtureErrors(good), []);
+  const cases = [
+    value => { value.manifestPresent = false; },
+    value => { value.script = "const broken = &quot;fixture&quot;;"; },
+    value => { value.script = "function truncated("; },
+    value => { value.image = Buffer.from("not-a-jpeg"); },
+    value => { value.stateVersion = "0.28.1d"; },
+    value => { value.registrationPresent = false; },
+    value => { value.validatorErrors = ["injected"]; }
+  ];
+  for (const mutate of cases) {
+    const value = { ...good, image: Buffer.from(good.image), validatorErrors: [...good.validatorErrors] };
+    mutate(value);
+    assert.ok(negativeFixtureErrors(value).length, "negative fixture passed");
+  }
+  console.log(`PASS verify self-test — ${cases.length} corruption, manifest, load-order, validator, and version-drift negatives rejected`);
+}
+
 function printCheck(label, errors, detail = "") {
   if (errors.length) {
     console.error(`FAIL ${label}${detail ? ` (${detail})` : ""}`);
@@ -398,12 +482,17 @@ function main() {
   const failures = [];
   const { scripts } = readScriptManifest(ROOT);
 
+  const identityErrors = identityAndAuthorityChecks();
+  printCheck("main identity + authority posture", identityErrors, `base=${SOURCE_MAIN_SHA.slice(0, 7)} src=${REQUIRED_SRC_TREE.slice(0, 7)}`);
+  failures.push(...identityErrors);
+
   const manifestErrors = manifestChecks(scripts);
   printCheck("script manifest", manifestErrors, `${scripts.length} files`);
   failures.push(...manifestErrors);
 
   const versionErrors = versionSurfaceChecks();
-  printCheck("version + What Remains HTML surfaces", versionErrors, `v${EXPECTED_VERSION}`);
+  const observedVersion = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
+  printCheck("version + What Remains HTML surfaces", versionErrors, `v${observedVersion}`);
   failures.push(...versionErrors);
 
   const syntaxErrors = syntaxChecks(scripts);
@@ -461,7 +550,9 @@ function main() {
 }
 
 try {
-  main();
+  if (process.argv.length === 3 && process.argv[2] === "--self-test") runSelfTest();
+  else if (process.argv.length === 2) main();
+  else throw new Error("Usage: node scripts/verify.mjs [--self-test]");
 } catch (error) {
   console.error(`RELEASE GATE CRASH\n${error.stack || error.message}`);
   process.exitCode = 1;

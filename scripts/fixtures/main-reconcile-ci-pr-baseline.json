@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "repository": "mbains89/Sunsplitter",
+  "sourceMainSha": "8d23109b63b844e0703fb36643f14b91b8800c90",
+  "sourceMainTree": "a6b96e0907de586f6cdd31cf15db09bc1341ddaf",
+  "requiredSrcTree": "992f7c57e18709acc08c8ee3cddcfdea816a6acf",
+  "auditedRecoveryBaseSha": "e4f84409759760d31fcf47b8a227802a61421f51",
+  "certification": "NO-PUBLISH / NOT_CERTIFIED",
+  "branches": {
+    "version": "version/0.30.1-main-reconcile-ci.1",
+    "ticket": "ticket/0.30.1-main-reconcile-ci-successor-01"
+  },
+  "allowedPaths": [
+    ".github/workflows/release-policy.yml",
+    ".github/workflows/verify.yml",
+    "artifacts/GITHUB_PUSH_RULES.md",
+    "artifacts/LOCKS.md",
+    "artifacts/PROJECT_STATUS.md",
+    "artifacts/ROADMAP.md",
+    "scripts/fixtures/main-reconcile-ci-pr-baseline.json",
+    "scripts/release-policy.mjs",
+    "scripts/simulate.mjs",
+    "scripts/verify.mjs"
+  ],
+  "runtime": {
+    "node": "22.16.0",
+    "runner": "ubuntu-24.04",
+    "checkoutAction": "11d5960a326750d5838078e36cf38b85af677262",
+    "setupNodeAction": "49933ea5288caeca8642d1e84afbd3f7d6820020"
+  },
+  "simulation": {
+    "seed": 20260817,
+    "policies": ["random", "cheapest", "priciest"],
+    "smokeRunsPerPolicy": 64,
+    "strictRunsPerPolicy": 2000,
+    "strictShardSize": 500,
+    "workerHeapMb": 384,
+    "smokeBaseline": {
+      "normalizedHash": "0354c5e99cccc866024762a7ddad2f194d5d7d21336aa4dd40b41e8eb30ee718",
+      "certification": "NO-PUBLISH / NOT_CERTIFIED",
+      "runsPerPolicy": 64,
+      "observed": {
+        "random": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 4, "V5": 3 },
+        "cheapest": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 18, "V5": 128 },
+        "priciest": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 }
+      },
+      "witnessFingerprints": [
+        "comfort_fuel_cost_not_declared@final_choice",
+        "landfall_without_final_hold@ending_check",
+        "abandoned_course_reported_locked@ending_check"
+      ],
+      "meaning": "Exact-main smoke observation only. Nonzero V4/V5 remain strict-gate blockers and are not accepted thresholds."
+    },
+    "strictObservation": {
+      "certification": "NO-PUBLISH / NOT_CERTIFIED",
+      "runsPerPolicy": 2000,
+      "seed": 20260817,
+      "shardSize": 500,
+      "workerHeapMb": 384,
+      "policies": {
+        "random": { "normalizedHash": "d0a627da9f16de205c1ae5c759e1ca540e3b1a149bcfecee686f4265f6e8ec35", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 191, "V5": 160 },
+        "cheapest": { "normalizedHash": "4c05ccdfb68d5ac9f2559acc5c0b9b70a7a346c845c0b36b93047cd1bebd377e", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 489, "V5": 3895 },
+        "priciest": { "normalizedHash": "4d69bb0bcbc28d3c71677e916b19001c126904c58cf7e670eb28125db1f6eb5b", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 }
+      },
+      "witnessFingerprints": [
+        "comfort_fuel_cost_not_declared@final_choice",
+        "landfall_without_final_hold@ending_check",
+        "abandoned_course_reported_locked@ending_check"
+      ],
+      "meaning": "Observed blocker evidence only. Random and cheapest fail the strict gate; priciest passes. These counts are never accepted or ratcheted into certification."
+    },
+    "note": "Observational counts and hashes are bound to exact main bytes. Matching them is non-certifying and never accepts V1, V4, or V5 for a strict gate."
+  }
+}

@@ -1,0 +1,150 @@
+name: Main and Version Verification
+
+on:
+  pull_request:
+    branches:
+      - main
+      - "version/**"
+    types: [opened, reopened, synchronize, ready_for_review, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-version-verify-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}-${{ github.event.action }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  version_verify:
+    name: version-verify
+    if: ${{ github.event.action != 'closed' && startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Run exact-head verifier
+        env:
+          VERIFY_EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+          VERIFY_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$VERIFY_EXPECTED_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/verify.mjs --self-test
+          node scripts/verify.mjs
+
+  version_simulation_smoke:
+    name: version-simulation-smoke
+    if: ${{ github.event.action != 'closed' && startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Run bounded non-certifying smoke
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/simulate.mjs --self-test
+          node scripts/simulate.mjs --profile smoke --policy all --runs 64 --seed 20260817 --shard-size 32 --gate smoke
+
+  main_verify:
+    name: main-verify
+    if: ${{ github.base_ref == 'main' && (github.event.action != 'closed' || github.event.pull_request.merged == true) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact close-out head or merged main revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Run strict exact-revision verifier
+        env:
+          VERIFY_EXPECTED_SHA: ${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}
+          VERIFY_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          test -n "$VERIFY_EXPECTED_SHA"
+          test "$(git rev-parse HEAD)" = "$VERIFY_EXPECTED_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/verify.mjs --self-test
+          node scripts/verify.mjs
+
+  main_simulation:
+    name: main-simulation (${{ matrix.policy }})
+    if: ${{ github.base_ref == 'main' && (github.event.action != 'closed' || github.event.pull_request.merged == true) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        policy: [random, cheapest, priciest]
+    steps:
+      - name: Check out exact close-out head or merged main revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Run process-sharded strict policy gate
+        env:
+          TESTED_SHA: ${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$TESTED_SHA"
+          test "$(git rev-parse HEAD)" = "$TESTED_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/simulate.mjs --self-test
+          node scripts/simulate.mjs --profile strict --policy "${{ matrix.policy }}" --runs 2000 --seed 20260817 --shard-size 500 --worker-heap-mb 384 --gate strict
+
+  main_simulation_gate:
+    name: main-simulation-gate
+    if: ${{ always() && github.base_ref == 'main' && (github.event.action != 'closed' || github.event.pull_request.merged == true) }}
+    needs: main_simulation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require all three strict policy jobs
+        env:
+          MATRIX_RESULT: ${{ needs.main_simulation.result }}
+          TESTED_SHA: ${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$MATRIX_RESULT" = "success"
+          test -n "$TESTED_SHA"
+          printf 'PASS strict random + cheapest + priciest aggregation for exact tested revision %s\n' "$TESTED_SHA"

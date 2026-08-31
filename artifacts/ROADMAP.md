@@ -23,7 +23,7 @@ The copy of this file committed on GitHub `main` is authoritative. Pasted copies
 | What version was released or deployed? | Signed/annotated release tag, GitHub Release, deployment record, and artifact digest |
 | What is character/canon/voice truth? | `CHARACTER_BIBLE.md`, `VOICE_CARDS.md`, `FABLE_BRIEF.md`, and explicitly locked cascade/minted-phrase documents |
 | What is art truth? | `ART_RULES.md`, `ART_REQUESTS.md`, the CURRENT portrait manifest, and the shipped `images/` bytes |
-| How is work executed? | `GITHUB_PUSH_RULES.md` after its 0.28.3 rewrite; until then this roadmap's branch/PR rules supersede its retired API-push workflow |
+| How is work executed? | `GITHUB_PUSH_RULES.md`, subordinate to this roadmap's branch/PR and release-gate law |
 
 When documents disagree:
 
@@ -78,7 +78,7 @@ These rules survive every version unless Manraj explicitly reopens one.
 - Sunsplitter is a short, grim narrative-survival browser game. The player is the Commander of a damaged colonization ark after Earth's sudden cascade.
 - The ship is a full O'Neill cylinder. Interior art uses rectangular rooms, bays, and straight corridors only; no curved-ring interior architecture.
 - Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. The Commander is not an additional named NPC. No permanent character may be added beyond Vess.
-- The Commander remains faceless and has no official portrait.
+- **Commander identity (L-025, Option B):** the Commander is a player-shaped second-person protagonist. The Commander remains faceless, has no official portrait, and gains no identity system. Remove accidental gendering from every rendered prose path and handle reproductive facts deliberately.
 - Permanent constants do not drift: `04:19:07`, Tube 3, 214 berths, change orders 4417/4491, 61/19/42 systems, manifest tiers 1–4, nine through the hatch, and the ship name `Sunsplitter`.
 - Earth departure remains a colonization mission overtaken by a sudden cascade measured in hours to roughly two days. The official account appears first; contested truths arrive later.
 - Fixed event order is an accepted pre-1.0 design limitation, not an open replayability defect.
@@ -258,7 +258,7 @@ The authority bootstrap is a one-time documentation-only migration PR explicitly
 
 ## 5. 0.28.2 — Truth Hotfix
 
-**Status:** LOCKED batch shape; four implementation decisions remain gated below.
+**Status:** LOCKED batch shape; L-020 through L-028 dispositions are recorded in `LOCKS.md`. Their implementation remains separately gated by the dependency spine and dispatched scope.
 **Concern:** the current game stops lying about this run.
 **Scope:** ten tickets, no new story content.
 
@@ -290,7 +290,7 @@ Before the first hotfix ticket, the certified verifier/simulator copies, minimal
 
 - All ten tickets have a source citation and regression fixture.
 - `verify.mjs` Mode A is green at the candidate revision.
-- `simulate.mjs` runs random, cheapest, and priciest policies at seed `20260817` with the pinned run count (currently 2,000/policy); V1 softlocks = 0 and V5 ending lies = 0. Changing seed, policies, or run count requires a recorded lock.
+- The consolidated version-to-`main` close-out runs `simulate.mjs` under random, cheapest, and priciest policies at seed `20260817` with 2,000 runs per policy; V1 softlocks = 0 and V5 ending lies = 0. Ticket PR smoke is non-certifying and cannot close this gate. Changing seed, policies, or strict run count requires a recorded lock.
 - JavaScript parses; all expected scene modules load exactly once; validator reports 0 errors.
 - No placeholder or stale asset reference survives in the release artifact.
 - Version surfaces agree. The 0.28.2 preflight verifier must publish its authoritative 11-surface table; until then the minimum known surfaces are `VERSION.md`, `src/state.js VERSION`/save stamp, visible subtitle, and numbered-scene consensus.
@@ -312,7 +312,7 @@ Before the first hotfix ticket, the certified verifier/simulator copies, minimal
 
 ## 6. 0.28.3 — Chain-of-Custody + Systemic-Truth Foundation
 
-**Status:** LOCKED scope; promise semantics and several small dispositions remain decision gates.
+**Status:** LOCKED scope; unresolved promise work remains gated. L-026 and L-027 are ruled below.
 **Concern:** make truth repeatable, auditable, and safe to ship.
 **Entry:** 0.28.2 green.
 
@@ -336,9 +336,9 @@ Before the first hotfix ticket, the certified verifier/simulator copies, minimal
 - Move render-time state writes in numbered scene modules and `offshift_amara` into `onEnter`; rendering becomes side-effect-free.
 - Harden `validate.js`: real reachability, Vess in romance IDs, fail-closed unknown requirements, invalid-name `isAlive` guard, no accidental global `scenes`, and negative fixtures.
 - Change intimacy-window first-offer gates to `romanceOpen`.
-- Give `vess_course_lost` a tested downstream consumer or retire the flag and its promise.
+- Retire `vess_course_lost` and its promised downstream-course consequence. Do not add a consumer or broaden this ruling to other Vess flags or effects.
 - Close the solo-Amara first-offer after `amara_tomas` and add the group relationship to current-run facts.
-- Keep or retire Last Off-Shift zero/one branches explicitly; validator/docs must not misreport structurally unreachable defensive code as playable content.
+- Retain the Last Off-Shift zero-eligible bypass and one-eligible auto-route solely as tested defensive save-recovery guards. Preserve existing `junctionChoice` behavior. Validator and documentation coverage must classify them as defensive recovery paths, not ordinary playable content.
 - Adopt the coverage-proof rule: future external audits are rejected if they do not declare scanned files/scenes, classifications, and unresolved rows.
 - Refresh the stale README layout to the numbered scene modules and add only verified simulator usage; do not reuse the rejected retired-layout README.
 - Produce the unified economy close-out: starting values, typical spends, hard floors, lethal thresholds, ending requirements, resource-rich/poor viable paths, and full-survival evidence. PX-3 later judges dominance/feel; 0.28.3 proves honesty and viability.
@@ -364,9 +364,13 @@ An untested dead holder can never become `broken`. A broken promise must corresp
 - Create `version/<semver>` from an exact `main` baseline.
 - Each one-concern ticket uses its own branch and PR targeting the protected version branch, not `main`.
 - PRs open as drafts and become mergeable only after the local transcript, evidence, and required CI are present.
-- Ticket PRs run all checks and need no separate Manraj review when they remain inside the approved version scope. Merge is performed by a named human maintainer or configured GitHub auto-merge after Grok records scope compliance. An AI may enable/trigger auto-merge only under standing authorization recorded in `GITHUB_PUSH_RULES.md`; drafting or updating a PR alone does not grant merge authority.
+- Ticket PRs into `version/*` run the inexpensive `version-release-policy`, `version-verify`, and bounded `version-simulation-smoke` contexts. They do not run or claim the strict candidate matrix unless a high-risk ticket explicitly escalates earlier under its dispatch.
+- Ticket PRs merge with merge commits. They need no separate Manraj review when they remain inside the approved version scope; merge is performed only under separately recorded merge authority. Drafting, updating, or obtaining green CI does not grant merge authority.
 - The only route from a version branch to `main` is one consolidated close-out PR. That is Manraj's single manual review/approval point for the version.
-- New commits dismiss that approval and rerun the complete gate.
+- Consolidated `version/*` to `main` close-out PRs require `main-release-policy`, `main-verify`, and `main-simulation-gate`. The simulation gate aggregates random, cheapest, and priciest at seed `20260817`, 2,000 runs per policy, with process sharding and bounded memory.
+- After a close-out merge, rerun the same strict suite against the exact resulting `main` SHA before any release, tag, publication, or deployment claim. A pre-merge synthetic result is not exact-`main` evidence.
+- Evidence reuse is permitted only for the exact tested SHA and an unchanged invalidation class. Documentation-only evidence cannot substitute for runtime, art, release, or deployment evidence; any relevant byte, workflow, toolchain, seed, policy, threshold, or manifest change invalidates the affected evidence.
+- New commits dismiss any prior approval and rerun the affected gate. Main approval mechanics remain identity-dependent: one Manraj approval when a distinct Build identity opens the close-out PR; otherwise there is no formal self-review and Manraj's manual merge is the approval point.
 - Protect `main` and version branches, including administrators: no direct/force push, no deletion, no required-check bypass.
 - Prefer a merge commit for the close-out so squashed ticket commits remain traceable while `main` changes atomically. If close-out is squashed, the release manifest must preserve the ticket PR/SHA map.
 - Tag the exact resulting `main` revision as `sun-vX.Y.Z` from 0.28.2 onward. Do not rewrite historical tags.
@@ -377,7 +381,7 @@ An untested dead holder can never become `broken`. A broken promise must corresp
 
 - Direct push to `main` is mechanically rejected for every actor, including admins.
 - The required `release-policy` check rejects ordinary ticket/feature PRs targeting `main` and incomplete version manifests.
-- Required CI is green on every ticket PR and the consolidated close-out PR.
+- Required tiered CI is green at its exact revision: the three version contexts on every ticket PR and the three strict main contexts on the consolidated close-out PR.
 - `verify.mjs` is green; V1, V3, V4, and V5 are zero under locked simulation policies.
 - V6 is hard and matches the approved promise domain. V2 remains a spike detector/report, not a literal zero gate.
 - Thresholds are ratchet-only. Updating an audit pin may not silently update the expected-failure pin or weaken a gate.
@@ -400,7 +404,7 @@ No story or economy change is justified merely because an internal reviewer pred
 
 1. PX-1 baseline.
 2. PX-2 pacing target and PX-3 outcome envelope.
-3. PX-4 Commander identity decision and PX-5 command-authority/sexual-power audit.
+3. PX-4 Commander identity implementation audit and PX-5 command-authority/sexual-power audit.
 4. PX-6 private voyage chronology.
 5. Only evidence-backed narrative/economy changes.
 6. PX-7 save portability and PX-8 accessibility/performance.
@@ -441,16 +445,11 @@ The compact playtest receipt belongs here. Full save export/import belongs to PX
 
 **Exit:** approved outcome-envelope definitions plus reproducible simulation evidence.
 
-### PX-4 — Commander Identity Decision
+### PX-4 — Commander Identity Implementation Audit
 
-Choose and record one canon:
+**Locked canon (L-025, Option B):** the Commander is a player-shaped second-person protagonist. The Commander remains faceless, has no official portrait, and gains no identity system. Accidental gendering must be removed and reproductive facts handled deliberately.
 
-- **A:** defined male protagonist, communicated early and consistently; or
-- **B:** player-shaped second-person Commander, with accidental gendering removed and reproductive facts handled deliberately.
-
-**Recommendation:** B, because the game already relies on a faceless second-person Commander.
-
-**Exit:** Manraj approves A or B; Grok records it; every rendered prose path—not only literal source lines—is audited; relevant Bible/voice/status notes are synchronized.
+PX-4 does not reopen the A/B choice. Audit every rendered prose path, not only literal source lines, then synchronize the relevant Bible, voice, and status notes.
 
 ### PX-5 — Command Authority and Sexual Power
 
@@ -685,11 +684,11 @@ Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirem
 | Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
 | Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
 | “PM-like” quick roadmap updater | CANDIDATE 0.28.3 governance helper. It may fetch `main`, draft a patch/draft PR, validate, and return a copy-ready summary. It may never write directly to `main` or self-lock. |
-| Ticket 2 new-crew indicator | DECISION GATE; no implementation before PX evidence and Grok lock |
+| Ticket 2 new-crew indicator | DEFERRED — default RETIRE. Reconsider only if mobile PX evidence meets a pre-registered, Manraj-approved comprehension threshold in the dispatched PX protocol; absent qualifying evidence at PX closure, retire. No implementation now. |
 | Four-state promise domain | DECISION GATE before 0.28.3 promise implementation and all 0.29 prose |
-| Commander identity A/B | DECISION GATE at PX-4; B recommended |
-| Last Off-Shift zero/one branches | DECISION GATE in 0.28.3: document defensive code or retire it |
-| `vess_course_lost` | DECISION GATE in 0.28.3: tested consumer or retire |
+| Commander identity A/B | LOCKED — Option B; player-shaped second-person Commander; rendered-path audit still required. |
+| Last Off-Shift zero/one branches | LOCKED — retain zero/one routes solely as tested defensive save-recovery guards; preserve `junctionChoice` behavior. |
+| `vess_course_lost` | LOCKED — retire `vess_course_lost` and its promised downstream-course consequence; no consumer. |
 | Pair residual textures/debt/pregnancy texture | DEFERRED to evidence-gated 0.29 scope |
 | Breast-cover/explicit-content toggle | HELD/UNSCHEDULED |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
