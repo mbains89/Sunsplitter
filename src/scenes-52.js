@@ -95,8 +95,12 @@ registerScenes({
     get text() {
       const living = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"].filter(isAlive);
       let t = `You stop short of the bend and don't round it. Two of them`;
-      if (isAlive("vess")) t += ` — and Vess is one`;
-      t += ` — and Vess is telling a joke a half-beat behind her own timing, like reading music at sight. The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.\n\n`;
+      if (isAlive("vess")) {
+        t += ` — and Vess is one — and Vess is telling a joke a half-beat behind her own timing, like reading music at sight.`;
+      } else {
+        t += ` — and one of them is telling a joke, timing it by the other voice.`;
+      }
+      t += ` The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.\n\n`;
       if (living.length <= 3) {
         t += `It's two voices where there used to be a mess hall of them, and it is quieter, and it still counts. It counts more.`;
       }
