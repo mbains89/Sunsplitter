@@ -74,13 +74,17 @@ registerScenes({
     image: "images/corridor.jpg"
   },
 
+  // PRE: post-vault private window; each individual offer must satisfy romanceOpen()
+  // WRITES: none on entry; outgoing choices route only and preserve existing effects
+  // DEATH: romanceOpen() excludes dead partners | DEAD SPEECH/APPEARANCE: same gate controls text and choices
+  // IMAGE: REUSE images/observation_bridge_alt.jpg; no new art request
   intimacy_window: {
     get text() {
       const avail = [];
-      if (isAlive("mira") && !state.romance.mira && !hasMark("mira", "declined")) avail.push("Mira");
-      if (isAlive("amara") && !state.romance.amara && !hasMark("amara", "declined")) avail.push("Amara");
-      if (isAlive("sela") && !state.romance.sela && !hasMark("sela", "declined")) avail.push("Sela");
-      if (isAlive("lena") && !state.romance.lena && !hasMark("lena", "declined")) avail.push("Lena");
+      if (romanceOpen("mira")) avail.push("Mira");
+      if (romanceOpen("amara")) avail.push("Amara");
+      if (romanceOpen("sela")) avail.push("Sela");
+      if (romanceOpen("lena")) avail.push("Lena");
       let t = `Between the vault decision and the next fracture, there is a narrow stretch of private time.\n\n`;
       t += `People notice who you seek out. Favoritism is not invisible on a ship this empty.\n\n`;
       if (avail.length) {
@@ -94,16 +98,16 @@ registerScenes({
     },
     get choices() {
       const opts = [];
-      if (isAlive("mira") && !state.romance.mira && !hasMark("mira", "declined")) {
+      if (romanceOpen("mira")) {
         opts.push({ text: "Find Mira in engineering.", next: "bond_mira", alive: "mira", tag: "private" });
       }
-      if (isAlive("amara") && !state.romance.amara && !hasMark("amara", "declined")) {
+      if (romanceOpen("amara")) {
         opts.push({ text: "Find Amara alone among the trays.", next: "bond_amara", alive: "amara", tag: "private" });
       }
-      if (isAlive("sela") && !state.romance.sela && !hasMark("sela", "declined")) {
+      if (romanceOpen("sela")) {
         opts.push({ text: "Sit with Sela at the bulkhead without an agenda.", next: "bond_sela", alive: "sela", tag: "private" });
       }
-      if (isAlive("lena") && !state.romance.lena && !hasMark("lena", "declined")) {
+      if (romanceOpen("lena")) {
         opts.push({ text: "Return to Lena while there is still time.", next: "bond_lena", alive: "lena", tag: "private" });
       }
       if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && state.flags.hydro === "full") {
