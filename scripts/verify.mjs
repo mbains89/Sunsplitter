@@ -613,6 +613,45 @@ function resourceFeedbackChecks(runtime) {
   return errors;
 }
 
+function romanceOpenGateChecks(runtime) {
+  const errors = [];
+  const fixtures = runtime.evaluate(`(() => {
+    const keys = ["mira", "amara", "sela", "lena"];
+    const result = {};
+    for (const who of keys) {
+      resetRunState();
+      for (const other of keys) if (other !== who) mark(other, "declined");
+      state.promises[who] = "broken";
+      result[who] = {
+        brokenOpen: romanceOpen(who),
+        brokenText: scenes.intimacy_window.text,
+        brokenRoutes: scenes.intimacy_window.choices.map(choice => choice.next)
+      };
+
+      resetRunState();
+      for (const other of keys) if (other !== who) mark(other, "declined");
+      state.promises[who] = "made";
+      result[who].madeOpen = romanceOpen(who);
+      result[who].madeText = scenes.intimacy_window.text;
+      result[who].madeRoutes = scenes.intimacy_window.choices.map(choice => choice.next);
+      result[who].firstName = crew[who].first;
+    }
+    return result;
+  })()`);
+
+  for (const who of ["mira", "amara", "sela", "lena"]) {
+    const fixture = fixtures[who];
+    const expectedRoute = `bond_${who}`;
+    if (fixture.brokenOpen) errors.push(`${who} romanceOpen stayed true after a broken promise`);
+    if (fixture.brokenText.includes(fixture.firstName)) errors.push(`${who} remains advertised in intimacy_window after a broken promise`);
+    if (fixture.brokenRoutes.includes(expectedRoute)) errors.push(`${who} remains selectable in intimacy_window after a broken promise`);
+    if (!fixture.madeOpen) errors.push(`${who} romanceOpen rejected the made-promise control`);
+    if (!fixture.madeText.includes(fixture.firstName)) errors.push(`${who} disappeared from intimacy_window made-promise control text`);
+    if (!fixture.madeRoutes.includes(expectedRoute)) errors.push(`${who} disappeared from intimacy_window made-promise control choices`);
+  }
+  return errors;
+}
+
 function lastTransmissionChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -960,6 +999,10 @@ function main() {
     const resourceFeedbackErrors = resourceFeedbackChecks(runtime);
     printCheck("truthful public-resource status + blocker feedback", resourceFeedbackErrors);
     failures.push(...resourceFeedbackErrors);
+
+    const romanceGateErrors = romanceOpenGateChecks(runtime);
+    printCheck("intimacy_window authoritative romance-open gate", romanceGateErrors);
+    failures.push(...romanceGateErrors);
 
     const lastTransmissionErrors = lastTransmissionChecks(runtime);
     printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
