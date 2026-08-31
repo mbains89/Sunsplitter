@@ -366,7 +366,7 @@ function resolveEnding() {
     art = "images/sela.jpg";
     text = buildYellowCircleText(vaultSac);
   }
-  // Landfall — high bar, action-driven
+  // Landfall — high bar, action-driven. Early planet commitment is not a substitute for the final hold order.
   else if (
     s >= 6 &&
     c >= 50 &&
@@ -374,7 +374,7 @@ function resolveEnding() {
     integ >= 35 &&
     crisis !== "vent" &&
     vaultSac !== "living" &&
-    (final === "hold" || planet === "committed") &&
+    final === "hold" &&
     (leadership === "together" || reckon === "public" || reckon === "memory" || shape === "future")
   ) {
     title = "Landfall";
@@ -464,7 +464,7 @@ function buildYellowCircleText(vaultSac) {
   }
   text += `\n\n`;
   if (vaultSac === "living") text += `When the grids failed, you chose the living. The embryo counts remember. So do the people who are still warm.\n\n`;
-  if (state.flags.planet === "committed" || state.flags.final === "hold") {
+  if (state.flags.final === "hold") {
     text += `The rogue planet may still be ahead. The course is a fact on the board. The yellow circles are a fact on the bulkheads.\n\n`;
   } else if (state.flags.final === "comfort") {
     text += `You spent what was left on warmth. The drawings stayed up anyway.\n\n`;
@@ -484,7 +484,7 @@ function buildLandfallText(shape, planet, final) {
   } else if (final === "hold") {
     text += `You ordered the course held when it mattered. The planet stopped being a file and became a direction.\n\n`;
   } else {
-    text += `The commitment made earlier was enough. Arrival was never guaranteed — only possible.\n\n`;
+    text += `Arrival was never guaranteed — only possible.\n\n`;
   }
   text += `The vault is still viable. The living are still breathing. That combination was never guaranteed.\n\n`;
   if (shape === "future") text += `You kept the future intact when it cost you. The numbers people will remember that the package arrived.\n\n`;
@@ -519,7 +519,7 @@ function buildStillBurningText(crisis, shape, final, planet) {
   if (shape === "future") text += `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
   else if (shape === "living") text += `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
   else text += `You refused to let either side of the argument own the ship completely.\n\n`;
-  if (final === "hold" || planet === "committed") text += `The course remains locked on the rogue planet. Fourteen months. No guarantee.\n\n`;
+  if (final === "hold") text += `The course remains locked on the rogue planet. Fourteen months. No guarantee.\n\n`;
   else if (final === "comfort") text += `You abandoned the destination for warmth and slightly less hunger.\n\n`;
   else if (final === "transmission") text += `A final transmission went out. The ship went quieter afterward.\n\n`;
   else text += `There is no grand destination. Only the work of the next cycle.\n\n`;

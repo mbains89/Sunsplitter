@@ -36,20 +36,21 @@
     "strictShardSize": 500,
     "workerHeapMb": 384,
     "smokeBaseline": {
-      "normalizedHash": "0354c5e99cccc866024762a7ddad2f194d5d7d21336aa4dd40b41e8eb30ee718",
+      "normalizedHash": "f6cee1c8d900df2bd851c8ec17adf3d654cfdfc85a47bf29bd6b3df767980e36",
       "certification": "NO-PUBLISH / NOT_CERTIFIED",
       "runsPerPolicy": 64,
       "observed": {
-        "random": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 4, "V5": 3 },
-        "cheapest": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 18, "V5": 128 },
+        "random": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 },
+        "cheapest": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 },
         "priciest": { "endings": 64, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 }
       },
-      "witnessFingerprints": [
+      "witnessFingerprints": [],
+      "repairedWitnesses": [
         "comfort_fuel_cost_not_declared@final_choice",
         "landfall_without_final_hold@ending_check",
         "abandoned_course_reported_locked@ending_check"
       ],
-      "meaning": "Exact-main smoke observation only. Nonzero V4/V5 remain strict-gate blockers and are not accepted thresholds."
+      "meaning": "SUN-LOCK-V4-V5-SIM-01 ticket-head smoke observation after witness repair. Zeros are not certification and are not a ratchet of remaining V4/V5."
     },
     "strictObservation": {
       "certification": "NO-PUBLISH / NOT_CERTIFIED",
@@ -57,18 +58,20 @@
       "seed": 20260817,
       "shardSize": 500,
       "workerHeapMb": 384,
+      "combinedNormalizedHash": "66439ac02ef9089d2215312ee7dc53070344da867141a83da1a4a16bcbfbdf18",
       "policies": {
-        "random": { "normalizedHash": "d0a627da9f16de205c1ae5c759e1ca540e3b1a149bcfecee686f4265f6e8ec35", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 191, "V5": 160 },
-        "cheapest": { "normalizedHash": "4c05ccdfb68d5ac9f2559acc5c0b9b70a7a346c845c0b36b93047cd1bebd377e", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 489, "V5": 3895 },
-        "priciest": { "normalizedHash": "4d69bb0bcbc28d3c71677e916b19001c126904c58cf7e670eb28125db1f6eb5b", "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 }
+        "random": { "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 },
+        "cheapest": { "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 },
+        "priciest": { "endings": 2000, "incomplete": 0, "errors": 0, "V1": 0, "V4": 0, "V5": 0 }
       },
-      "witnessFingerprints": [
+      "witnessFingerprints": [],
+      "repairedWitnesses": [
         "comfort_fuel_cost_not_declared@final_choice",
         "landfall_without_final_hold@ending_check",
         "abandoned_course_reported_locked@ending_check"
       ],
-      "meaning": "Observed blocker evidence only. Random and cheapest fail the strict gate; priciest passes. These counts are never accepted or ratcheted into certification."
+      "meaning": "SUN-LOCK-V4-V5-SIM-01 ticket-head strict observation after witness repair. Random, cheapest, and priciest report V1=0 V4=0 V5=0. Zeros are not certification."
     },
-    "note": "Observational counts and hashes are bound to exact main bytes. Matching them is non-certifying and never accepts V1, V4, or V5 for a strict gate."
+    "note": "requiredSrcTree remains the CI-reconcile pin and applies only to that ticket route. Simulation observations here are this ticket's repaired bytes, non-certifying, and never a ratchet of remaining V4/V5."
   }
 }
