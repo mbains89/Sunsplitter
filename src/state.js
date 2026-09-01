@@ -636,6 +636,7 @@ function whatRemainsFacts() {
 function romanceOpen(who) {
   // Default-offer gate for one woman: alive && !romanced && marks !== declined && promise not broken
   if (!who || !ROMANCEABLE.includes(who)) return false;
+  if (who === "amara" && state.romance.amara_tomas) return false;
   return isAlive(who) && !state.romance[who] && !hasMark(who, "declined") && state.promises[who] !== "broken";
 }
 
