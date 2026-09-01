@@ -146,10 +146,14 @@ registerScenes({
     ]
   },
 
+  // PRE: a custody answer is committed; legacy recovery may resume with a dead Tomas and an untested made promise
+  // WRITES: resolves Tomas's made promise only while he is alive to witness the authored custody test
+  // DEATH: none | DEAD SPEECH/APPEARANCE: dead Tomas neither speaks nor receives a kept/broken result
+  // IMAGE: REUSE images/corridor_pressure_1.jpg; no new art request
   custody_after: {
     image: "images/corridor_pressure_1.jpg",
     onEnter: () => {
-      if (state.promises.tomas === "made") {
+      if (state.promises.tomas === "made" && isAlive("tomas")) {
         if (state.flags.custody_answer === "possession") {
           state.promises.tomas = "broken";
           remember("You broke the promise to Tomas. The living paid for the vault.");
