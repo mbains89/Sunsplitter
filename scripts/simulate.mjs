@@ -21,6 +21,7 @@ const DEFAULT_ROOT = resolve(dirname(SCRIPT_PATH), "..");
 const DEFAULT_BASELINE = "scripts/fixtures/main-reconcile-ci-pr-baseline.json";
 const SCRIPT_TAG_RE = /<script\b[^>]*\bsrc\s*=\s*(["'])([^"']+)\1[^>]*><\/script>/gi;
 const RESOURCE_KEYS = ["survivors", "integrity", "cohesion", "supplies", "embryos"];
+const ECONOMY_KEYS = ["integrity", "cohesion", "supplies", "embryos"];
 const CREW_KEYS = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess", "rourke"];
 const PROMISE_STATES = new Set(["made", "declined", "kept", "broken"]);
 const POLICY_ALIASES = new Map([
@@ -31,6 +32,23 @@ const POLICY_ALIASES = new Map([
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function economyVector(value = {}) {
+  return Object.fromEntries(ECONOMY_KEYS.map(key => [key, Number(value[key] || 0)]));
+}
+
+function economyDelta(before, after) {
+  return Object.fromEntries(ECONOMY_KEYS.map(key => [key, Number(after[key]) - Number(before[key])]));
+}
+
+function addEconomyVector(target, source) {
+  for (const key of ECONOMY_KEYS) target[key] += Number(source[key] || 0);
+  return target;
+}
+
+function sameEconomyVector(left, right) {
+  return ECONOMY_KEYS.every(key => Number(left[key]) === Number(right[key]));
 }
 
 function mulberry32(seed) {
@@ -199,6 +217,10 @@ function stateSnapshot(runtime) {
   })`));
 }
 
+function economySnapshot(runtime) {
+  return clone(runtime.evaluate(`Object.fromEntries(${JSON.stringify(ECONOMY_KEYS)}.map(key => [key, state[key]]))`));
+}
+
 function choiceInventory(runtime) {
   return runtime.evaluate(`(() => {
     const scene = scenes[state.scene];
@@ -304,6 +326,98 @@ function v4Violations(entry, payments, sceneId) {
   return violations;
 }
 
+function economyChoiceRecord(entry, payments, before, after, sceneId) {
+  const choice = entry.choice;
+  const transactions = payments.map((payment, sequence) => {
+    const transactionBefore = economyVector(payment.before);
+    const transactionAfter = economyVector(payment.after);
+    return {
+      sequence,
+      declared: economyVector(payment.changes),
+      actual: economyDelta(transactionBefore, transactionAfter),
+      before: transactionBefore,
+      after: transactionAfter
+    };
+  });
+  return {
+    scene: sceneId,
+    choiceIndex: entry.index,
+    choiceText: String(choice.text || ""),
+    declared: economyVector(choice.effects),
+    observed: economyDelta(before, after),
+    before: economyVector(before),
+    after: economyVector(after),
+    transactions
+  };
+}
+
+function economyChoiceViolations(record) {
+  const violations = [];
+  const transactionDeclared = economyVector();
+  const transactionActual = economyVector();
+  let expectedBefore = record.before;
+  for (const transaction of record.transactions) {
+    if (!sameEconomyVector(transaction.before, expectedBefore)) {
+      violations.push({ rule: "economy_transaction_chain_gap", scene: record.scene, choice: record.choiceText, sequence: transaction.sequence });
+    }
+    addEconomyVector(transactionDeclared, transaction.declared);
+    addEconomyVector(transactionActual, transaction.actual);
+    expectedBefore = transaction.after;
+  }
+  if (!sameEconomyVector(expectedBefore, record.after)) {
+    violations.push({ rule: "economy_transaction_chain_gap", scene: record.scene, choice: record.choiceText, sequence: record.transactions.length });
+  }
+  for (const key of ECONOMY_KEYS) {
+    if (transactionDeclared[key] !== record.declared[key]) {
+      violations.push({
+        rule: "economy_transaction_not_declared_by_choice",
+        scene: record.scene,
+        choice: record.choiceText,
+        resource: key,
+        expected: record.declared[key],
+        actual: transactionDeclared[key]
+      });
+    }
+    const unrecorded = record.observed[key] - transactionActual[key];
+    if (unrecorded < 0) {
+      violations.push({ rule: "unrecorded_resource_spend", scene: record.scene, choice: record.choiceText, resource: key, amount: unrecorded });
+    } else if (unrecorded > 0) {
+      violations.push({ rule: "phantom_resource_credit", scene: record.scene, choice: record.choiceText, resource: key, amount: unrecorded });
+    }
+  }
+  return violations;
+}
+
+function buildEconomyRecord(initial, final, choices) {
+  const declaredTotals = economyVector();
+  const actualTotals = economyVector();
+  const transactions = [];
+  for (const choice of choices) {
+    addEconomyVector(declaredTotals, choice.declared);
+    for (const transaction of choice.transactions) {
+      addEconomyVector(actualTotals, transaction.actual);
+      transactions.push({
+        scene: choice.scene,
+        choiceIndex: choice.choiceIndex,
+        choiceText: choice.choiceText,
+        ...transaction
+      });
+    }
+  }
+  const observedTotals = economyDelta(initial, final);
+  return {
+    keys: [...ECONOMY_KEYS],
+    initial: economyVector(initial),
+    final: economyVector(final),
+    choicesAudited: choices.length,
+    transactions,
+    declaredTotals,
+    actualTotals,
+    observedTotals,
+    reconciled: sameEconomyVector(actualTotals, observedTotals)
+  };
+}
+
 function v5Violations(state, ending, facts) {
   const violations = [];
   const final = state.flags?.final;
@@ -319,8 +433,17 @@ function v5Violations(state, ending, facts) {
   return violations;
 }
 
-function summarize(runtime, policy, seed, path, chosen, failure, invariants) {
+function summarize(runtime, policy, seed, path, chosen, failure, invariants, economyInitial, economyChoices) {
   const state = stateSnapshot(runtime);
+  const economy = buildEconomyRecord(economyInitial, economyVector(state), economyChoices);
+  if (!economy.reconciled) {
+    invariants.V4.push({
+      rule: "economy_record_does_not_reconcile",
+      scene: "economy_record",
+      expected: economy.observedTotals,
+      actual: economy.actualTotals
+    });
+  }
   const ending = { title: runtime.browser.document.getElementById("ending-title").textContent, text: runtime.browser.document.getElementById("ending-text").textContent };
   const facts = clone(runtime.evaluate(`typeof whatRemainsFacts === "function" ? whatRemainsFacts() : []`));
   if (!failure && ending.title) invariants.V5.push(...v5Violations(state, ending, facts));
@@ -330,7 +453,7 @@ function summarize(runtime, policy, seed, path, chosen, failure, invariants) {
     alive: CREW_KEYS.filter(key => runtime.evaluate(`isAlive(${JSON.stringify(key)})`)),
     recovered: Object.entries(state.recovered).filter(([, value]) => value).map(([key]) => key),
     dead: state.dead.map(key => ({ key, cause: state.deathCause[key] || null })),
-    promises: state.promises, ideology: state.ideology, flags: state.flags, facts, path, choices: chosen, invariants
+    promises: state.promises, ideology: state.ideology, flags: state.flags, facts, path, choices: chosen, economy, invariants
   };
 }
 
@@ -338,6 +461,8 @@ function simulateRuntime(runtime, { policy = "pragmatic", seed = LOCKED_SEED, ma
   if (![...POLICY_NAMES, ...LOCKED_POLICY_NAMES].includes(policy)) throw new Error(`Unknown policy ${policy}`);
   installPaymentProbe(runtime);
   resetRuntime(runtime);
+  const economyInitial = economySnapshot(runtime);
+  const economyChoices = [];
   const path = [];
   const chosen = [];
   const visits = new Map();
@@ -346,23 +471,28 @@ function simulateRuntime(runtime, { policy = "pragmatic", seed = LOCKED_SEED, ma
   for (let step = 0; step < maxSteps; step += 1) {
     const sceneId = runtime.evaluate("state.scene");
     path.push(sceneId);
-    if (runtime.browser.document.getElementById("ending-title").textContent) return summarize(runtime, policy, seed, path, chosen, null, invariants);
-    if (!runtime.scenes[sceneId]) return summarize(runtime, policy, seed, path, chosen, `missing scene: ${sceneId}`, invariants);
+    if (runtime.browser.document.getElementById("ending-title").textContent) return summarize(runtime, policy, seed, path, chosen, null, invariants, economyInitial, economyChoices);
+    if (!runtime.scenes[sceneId]) return summarize(runtime, policy, seed, path, chosen, `missing scene: ${sceneId}`, invariants, economyInitial, economyChoices);
     const inventory = choiceInventory(runtime);
     const candidates = inventory.filter(entry => entry.requirementsMet && entry.affordable);
     if (!candidates.length) {
       invariants.V1.push(v1Violation(sceneId, stateSnapshot(runtime), inventory));
-      return summarize(runtime, policy, seed, path, chosen, `no affordable/enabled exit at ${sceneId}`, invariants);
+      return summarize(runtime, policy, seed, path, chosen, `no affordable/enabled exit at ${sceneId}`, invariants, economyInitial, economyChoices);
     }
     const selected = choose(runtime, candidates, policy, seed, visits, random);
     chosen.push({ scene: sceneId, index: selected.index, text: String(selected.choice.text || "") });
     runtime.context.__simChoice = selected.choice;
     runtime.evaluate("globalThis.__simulationPayments = [];");
+    const economyBefore = economySnapshot(runtime);
     runtime.evaluate("makeChoice(globalThis.__simChoice);");
-    invariants.V4.push(...v4Violations(selected, clone(runtime.context.__simulationPayments || []), sceneId));
+    const payments = clone(runtime.context.__simulationPayments || []);
+    const economyAfter = economySnapshot(runtime);
+    const economyChoice = economyChoiceRecord(selected, payments, economyBefore, economyAfter, sceneId);
+    economyChoices.push(economyChoice);
+    invariants.V4.push(...v4Violations(selected, payments, sceneId), ...economyChoiceViolations(economyChoice));
     delete runtime.context.__simChoice;
   }
-  return summarize(runtime, policy, seed, path, chosen, `step limit exceeded (${maxSteps})`, invariants);
+  return summarize(runtime, policy, seed, path, chosen, `step limit exceeded (${maxSteps})`, invariants, economyInitial, economyChoices);
 }
 
 export function simulateRun(rootDir, options = {}) {
@@ -380,6 +510,8 @@ export function simulationAssertions(result) {
   }
   for (const [holder, promiseState] of Object.entries(result.promises)) if (!PROMISE_STATES.has(promiseState)) errors.push(`invalid promise state ${holder}=${promiseState}`);
   if (new Set(result.dead.map(item => item.key)).size !== result.dead.length) errors.push("duplicate dead crew entry");
+  if (!result.economy || !result.economy.reconciled) errors.push("economy record does not reconcile recorded transactions with observed resources");
+  if (result.economy && result.economy.choicesAudited !== result.choices.length) errors.push(`economy record audited ${result.economy.choicesAudited} choices; expected ${result.choices.length}`);
   return errors;
 }
 
@@ -389,10 +521,36 @@ export function runPolicySet(rootDir, { policies = POLICY_NAMES, runs = 1, seed 
   return results;
 }
 
+function emptyEconomySummary() {
+  return {
+    runsReconciled: 0,
+    transactions: 0,
+    declaredTotals: economyVector(),
+    actualTotals: economyVector(),
+    observedTotals: economyVector(),
+    endingRanges: Object.fromEntries(ECONOMY_KEYS.map(key => [key, { min: null, max: null }]))
+  };
+}
+
+function addEconomyRun(summary, economy) {
+  if (!economy) return;
+  if (economy.reconciled) summary.runsReconciled += 1;
+  summary.transactions += economy.transactions.length;
+  addEconomyVector(summary.declaredTotals, economy.declaredTotals);
+  addEconomyVector(summary.actualTotals, economy.actualTotals);
+  addEconomyVector(summary.observedTotals, economy.observedTotals);
+  for (const key of ECONOMY_KEYS) {
+    const value = economy.final[key];
+    const range = summary.endingRanges[key];
+    range.min = range.min == null ? value : Math.min(range.min, value);
+    range.max = range.max == null ? value : Math.max(range.max, value);
+  }
+}
+
 function emptySummary(policy, startRun, runs) {
   return {
     policy, startRun, endRun: startRun + runs, runs, endings: 0, incomplete: 0, errors: 0, stepLimits: 0, totalSteps: 0,
-    endingCounts: {}, invariantTotals: { V1: 0, V4: 0, V5: 0 },
+    endingCounts: {}, economy: emptyEconomySummary(), invariantTotals: { V1: 0, V4: 0, V5: 0 },
     invariantRules: { V1: {}, V4: {}, V5: {} }, invariantScenes: { V1: {}, V4: {}, V5: {} },
     invariantFingerprints: { V1: {}, V4: {}, V5: {} }, witnesses: { V1: {}, V4: {}, V5: {} }, errorWitness: null
   };
@@ -431,6 +589,7 @@ function runWorkerShard(rootDir, { policy, runs, startRun, seed, maxSteps }) {
       summary.totalSteps += result.steps;
       if (result.completed) { summary.endings += 1; increment(summary.endingCounts, result.ending.title || "(empty)"); }
       else { summary.incomplete += 1; if (String(result.failure || "").startsWith("step limit")) summary.stepLimits += 1; }
+      addEconomyRun(summary.economy, result.economy);
       for (const invariant of ["V1", "V4", "V5"]) for (const violation of result.invariants[invariant]) recordInvariant(summary, invariant, violation, result, runIndex);
     } catch (error) {
       summary.errors += 1; summary.incomplete += 1; summary.errorWitness ||= `${policy}/${runSeed}: ${error.stack || error.message}`;
@@ -452,6 +611,17 @@ function mergeShards(policy, shards, expectedRuns) {
     if (shard.policy !== policy || shard.endRun - shard.startRun !== shard.runs) throw new Error(`${policy}: malformed shard metadata`);
     for (const key of ["endings", "incomplete", "errors", "stepLimits", "totalSteps"]) merged[key] += shard[key];
     mergeMaps(merged.endingCounts, shard.endingCounts);
+    merged.economy.runsReconciled += shard.economy.runsReconciled;
+    merged.economy.transactions += shard.economy.transactions;
+    addEconomyVector(merged.economy.declaredTotals, shard.economy.declaredTotals);
+    addEconomyVector(merged.economy.actualTotals, shard.economy.actualTotals);
+    addEconomyVector(merged.economy.observedTotals, shard.economy.observedTotals);
+    for (const key of ECONOMY_KEYS) {
+      const source = shard.economy.endingRanges[key];
+      const target = merged.economy.endingRanges[key];
+      if (source.min != null) target.min = target.min == null ? source.min : Math.min(target.min, source.min);
+      if (source.max != null) target.max = target.max == null ? source.max : Math.max(target.max, source.max);
+    }
     for (const invariant of ["V1", "V4", "V5"]) {
       merged.invariantTotals[invariant] += shard.invariantTotals[invariant];
       mergeMaps(merged.invariantRules[invariant], shard.invariantRules[invariant]);
@@ -519,7 +689,7 @@ export function runProcessProfile(rootDir, { profile, policies, runs, seed, shar
     certification: "NO-PUBLISH / NOT_CERTIFIED",
     provenance: { ...identity, baselineMainSha: "8d23109b63b844e0703fb36643f14b91b8800c90", expectedSceneCount: EXPECTED_SCENE_COUNT },
     config: { policies: [...policies], runs, seed, shardSize, maxSteps, workerHeapMb },
-    coverage: { V1: "legally reached render has no enabled exit", V4: "declared payment and audited immediate comfort fuel cost", V5: ["landfall_without_final_hold", "abandoned_course_reported_locked", "what_remains_ideology_disagrees_with_totals"] },
+    coverage: { V1: "legally reached render has no enabled exit", V4: "declared payment plus a reconciled economy record with no unrecorded spend or phantom credit", V5: ["landfall_without_final_hold", "abandoned_course_reported_locked", "what_remains_ideology_disagrees_with_totals"] },
     summaries
   };
   return { ...report, normalizedHash: normalizedHash(reportNormalizationInput(report)) };
@@ -531,6 +701,7 @@ function strictErrors(report) {
     if (summary.errors) errors.push(`${summary.policy}: runtime errors=${summary.errors}`);
     if (summary.incomplete) errors.push(`${summary.policy}: incomplete=${summary.incomplete}`);
     if (summary.endings !== summary.runs) errors.push(`${summary.policy}: endings=${summary.endings}/${summary.runs}`);
+    if (summary.economy.runsReconciled !== summary.runs) errors.push(`${summary.policy}: economy records reconciled=${summary.economy.runsReconciled}/${summary.runs}`);
     for (const invariant of ["V1", "V4", "V5"]) if (summary.invariantTotals[invariant]) errors.push(`${summary.policy}/${invariant}: violations=${summary.invariantTotals[invariant]}`);
   }
   return errors;
@@ -547,6 +718,7 @@ function smokeErrors(report, repeatReport, fixture) {
   for (const summary of report.summaries) {
     if (summary.errors) errors.push(`${summary.policy}: smoke runtime errors=${summary.errors}`);
     if (summary.incomplete || summary.endings !== summary.runs) errors.push(`${summary.policy}: smoke incomplete=${summary.incomplete}`);
+    if (summary.economy.runsReconciled !== summary.runs) errors.push(`${summary.policy}: smoke economy records reconciled=${summary.economy.runsReconciled}/${summary.runs}`);
   }
   return errors;
 }
@@ -590,9 +762,38 @@ function runSelfTest() {
   assert.equal(injectedV1.rule, "legally_reached_render_has_zero_enabled_exits");
   const injectedV4 = v4Violations({ choice: { text: "comfort", flag: { final: "comfort" }, requires: { supplies: { min: 15 } } }, index: 0, affordable: true }, [], "fixture_v4");
   assert.ok(injectedV4.some(item => item.rule === "comfort_fuel_cost_not_declared"));
+  const economyBefore = { integrity: 50, cohesion: 50, supplies: 10, embryos: 80 };
+  const economyAfterSpend = { ...economyBefore, supplies: 7 };
+  const recordedSpend = economyChoiceRecord(
+    { choice: { text: "Spend", effects: { supplies: -3 } }, index: 0 },
+    [{ changes: { supplies: -3 }, before: economyBefore, after: economyAfterSpend, affordable: true }],
+    economyBefore,
+    economyAfterSpend,
+    "fixture_economy"
+  );
+  assert.deepEqual(economyChoiceViolations(recordedSpend), []);
+  assert.equal(buildEconomyRecord(economyBefore, economyAfterSpend, [recordedSpend]).reconciled, true);
+  const unrecordedSpend = economyChoiceRecord(
+    { choice: { text: "Hidden spend" }, index: 0 },
+    [],
+    economyBefore,
+    economyAfterSpend,
+    "fixture_economy"
+  );
+  assert.ok(economyChoiceViolations(unrecordedSpend).some(item => item.rule === "unrecorded_resource_spend"));
+  assert.equal(buildEconomyRecord(economyBefore, economyAfterSpend, [unrecordedSpend]).reconciled, false);
+  const phantomCreditAfter = { ...economyBefore, supplies: 12 };
+  const phantomCredit = economyChoiceRecord(
+    { choice: { text: "Phantom credit" }, index: 0 },
+    [],
+    economyBefore,
+    phantomCreditAfter,
+    "fixture_economy"
+  );
+  assert.ok(economyChoiceViolations(phantomCredit).some(item => item.rule === "phantom_resource_credit"));
   const injectedV5 = v5Violations({ flags: { final: "comfort", planet: "committed", vault_sacrifice: "split" }, ideology: { future: 0, living: 0 } }, { title: "Landfall", text: "The course remains locked." }, ["The recorded orders remained split between Future and Living."]);
   assert.ok(injectedV5.some(item => item.rule === "landfall_without_final_hold"));
-  const nonzero = { summaries: [{ policy: "random", runs: 1, endings: 1, incomplete: 0, errors: 0, invariantTotals: { V1: 0, V4: 1, V5: 0 } }] };
+  const nonzero = { summaries: [{ policy: "random", runs: 1, endings: 1, incomplete: 0, errors: 0, economy: { runsReconciled: 1 }, invariantTotals: { V1: 0, V4: 1, V5: 0 } }] };
   assert.ok(strictErrors(nonzero).some(error => error.includes("V4")), "strict gate accepted nonzero V4");
   assert.equal(derivedSeed(LOCKED_SEED, "random", 63), derivedSeed(LOCKED_SEED, "random", 63), "seed derivation changed across shard layouts");
   assert.equal(normalizedHash({ b: 2, a: 1 }), normalizedHash({ a: 1, b: 2 }), "canonical hash depends on key order");
@@ -608,7 +809,7 @@ function runSelfTest() {
   assert.ok(smokeErrors(smokeReport, { normalizedHash: "b" }, smokeFixture).some(error => error.includes("repeat hash mismatch")));
   assert.ok(gatePreflightErrors({ gate: "strict", profile: "strict", seed: LOCKED_SEED, runs: STRICT_RUNS_PER_POLICY, shardSize: STRICT_SHARD_SIZE, workerHeapMb: WORKER_HEAP_MB + 1 }).some(error => error.includes("heap 384 MB")));
   assert.ok(gatePreflightErrors(parseCli(["--profile", "strict", "--policy", "living", "--gate", "strict"])).some(error => error.includes("diagnostic-only")));
-  console.log("PASS simulator self-test — injected V1/V4/V5, strict rejection, process-shard coverage, canonical hashing, and baseline negatives verified");
+  console.log("PASS simulator self-test — injected V1/V4/V5, reconciled economy plus hidden-spend/phantom-credit negatives, strict rejection, process-shard coverage, canonical hashing, and baseline negatives verified");
 }
 
 function parseCli(argv) {
@@ -652,6 +853,7 @@ function printReport(report, errors) {
   if (report.repeatNormalizedHash) console.log(`[simulate] repeat_normalized_sha256=${report.repeatNormalizedHash}`);
   for (const summary of report.summaries) {
     console.log(`[simulate] ${summary.policy}: endings=${summary.endings}/${summary.runs} incomplete=${summary.incomplete} errors=${summary.errors} V1=${summary.invariantTotals.V1} V4=${summary.invariantTotals.V4} V5=${summary.invariantTotals.V5}`);
+    console.log(`[simulate] ${summary.policy} economy: reconciled=${summary.economy.runsReconciled}/${summary.runs} transactions=${summary.economy.transactions} declared=${JSON.stringify(summary.economy.declaredTotals)} actual=${JSON.stringify(summary.economy.actualTotals)} observed=${JSON.stringify(summary.economy.observedTotals)} ending_ranges=${JSON.stringify(summary.economy.endingRanges)}`);
     for (const invariant of ["V1", "V4", "V5"]) for (const [fingerprint, witness] of Object.entries(summary.witnesses[invariant])) console.log(`[simulate] witness ${summary.policy}/${invariant}/${fingerprint} seed=${witness.seed} scene=${witness.violation.scene}`);
   }
   if (errors.length) errors.forEach(error => console.error(`[simulate] FAIL ${error}`));

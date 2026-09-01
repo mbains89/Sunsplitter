@@ -1946,7 +1946,10 @@ function main() {
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
   for (const result of simulations) {
     const errors = simulationAssertions(result);
-    printCheck(`simulation ${result.policy}`, errors, result.completed ? `${result.ending.title}; ${result.steps} steps` : result.failure);
+    const detail = result.completed
+      ? `${result.ending.title}; ${result.steps} steps; economy=${result.economy?.transactions?.length || 0} tx reconciled`
+      : result.failure;
+    printCheck(`simulation ${result.policy}`, errors, detail);
     failures.push(...errors.map(error => `${result.policy}: ${error}`));
   }
 
