@@ -408,6 +408,48 @@ function warmthLaughterChecks(runtime) {
   return errors;
 }
 
+function warmthMealPresenceChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const inspect = setup => {
+      resetRunState();
+      setup();
+      const redirect = scenes.warmth_meal.onEnter();
+      return {
+        redirect: redirect || null,
+        consumed: !!state.flags.warmth_meal,
+        text: scenes.warmth_meal.text,
+        choices: scenes.warmth_meal.choices.map(choice => choice.next)
+      };
+    };
+    return {
+      missing: inspect(() => {}),
+      dead: inspect(() => {
+        state.recovered.tomas = true;
+        kill("tomas", "fixture");
+      }),
+      living: inspect(() => {
+        state.recovered.tomas = true;
+      })
+    };
+  })()`);
+
+  for (const [label, result] of [["unrecovered", fixture.missing], ["dead", fixture.dead]]) {
+    if (result.redirect !== "act3_spine_next") errors.push(`${label} Tomas does not redirect warmth_meal`);
+    if (result.consumed) errors.push(`${label} Tomas consumes the warmth_meal one-shot`);
+  }
+  if (fixture.living.redirect !== null || !fixture.living.consumed) {
+    errors.push("living recovered Tomas no longer enters and consumes warmth_meal");
+  }
+  if (!fixture.living.text.includes("Tomas serves everyone") || !fixture.living.text.includes("One for the soil")) {
+    errors.push("living Tomas warmth_meal prose changed or disappeared");
+  }
+  if (fixture.living.choices.length !== 2 || fixture.living.choices.some(next => next !== "act3_spine_next")) {
+    errors.push("warmth_meal no longer preserves both exits to act3_spine_next");
+  }
+  return errors;
+}
+
 function cutOutPresenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1255,6 +1297,10 @@ function main() {
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
     failures.push(...warmthLaughterErrors);
+
+    const warmthMealPresenceErrors = warmthMealPresenceChecks(runtime);
+    printCheck("warmth_meal living Tomas entry guard", warmthMealPresenceErrors);
+    failures.push(...warmthMealPresenceErrors);
 
     const cutOutPresenceErrors = cutOutPresenceChecks(runtime);
     printCheck("cut_out unrecovered-Jiro presence guard", cutOutPresenceErrors);

@@ -60,6 +60,7 @@ registerScenes({
   warmth_meal: {
     image: "images/hydroponics.jpg",
     onEnter: () => {
+      if (!isAlive("tomas")) return "act3_spine_next";
       state.flags.warmth_meal = true;
     },
     get text() {
