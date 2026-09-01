@@ -123,8 +123,6 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
     onEnter: () => {
       state.flags.busDowngraded = true;
       state.flags.reaction_mass_spent = true;
-      // Distinct from Jiro burn course_option_lost (0.24.2)
-      state.flags.vess_course_lost = true;
       remember("Spent the last clean reaction-mass reserve to recover Vess from Dawnbreak.");
       remember("Environmental bus runs degraded for her relay core.");
     },
