@@ -222,7 +222,6 @@
       "sela_vault_vow", "lena_regen", "mira_memory_public", "amara_vent_delayed",
       "pursuit_mira_cost", "pursuit_amara_cost", "pursuit_sela_cost", "pursuit_lena_cost",
       "busDowngraded", "reaction_mass_spent", "last_tx_spent", "vess_intimate",
-      "vess_course_lost",
       // 0.26 exclusive crises (onEnter-only writes; read later in What Remains)
       "breath_word", "breath_answer", "custody_roll", "custody_answer",
       // 0.27 spoken promises
