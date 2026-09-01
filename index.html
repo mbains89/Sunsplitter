@@ -78,6 +78,12 @@
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
+        <div class="save-transfer-actions" aria-label="Save transfer">
+          <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
+          <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
+        </div>
+        <input id="save-import-file" class="hidden" type="file" accept="application/json,.json" onchange="handleSaveImportSelection(this)" />
+        <p id="title-save-status" class="title-save-status" aria-live="polite"></p>
       </div>
     </div>
 
