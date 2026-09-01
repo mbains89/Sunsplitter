@@ -9,6 +9,7 @@ const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 
 // 0.25: track loaded save gameVersion for in-flight skip of new Elias/Mira lethals
 let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
+let renderingSavedScene = false;
 
 function hasAcknowledgedTone() {
   try {
@@ -102,7 +103,8 @@ function showTitleScreen() {
   }
 })();
 
-function showScene(id) {
+function showScene(id, opts) {
+  opts = opts || {};
   state.scene = id;
   document.getElementById("scene-id").textContent = id;
 
@@ -118,7 +120,7 @@ function showScene(id) {
   }
 
   // onEnter may return a redirect scene id (avoids recursive showScene overwrite bug)
-  if (scene.onEnter) {
+  if (scene.onEnter && !opts.skipOnEnter) {
     const redirect = scene.onEnter();
     if (typeof redirect === "string" && redirect && redirect !== id) {
       showScene(redirect);
@@ -148,7 +150,13 @@ function showScene(id) {
   const mainEl = document.getElementById("main");
   if (mainEl) mainEl.scrollTop = 0;
 
-  const raw = typeof scene.text === "function" ? scene.text() : (scene.text || "");
+  let raw;
+  renderingSavedScene = !!opts.resume;
+  try {
+    raw = typeof scene.text === "function" ? scene.text() : (scene.text || "");
+  } finally {
+    renderingSavedScene = false;
+  }
   const html = String(raw)
     .split(/\n\n+/)
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
@@ -773,6 +781,7 @@ function snapshotState() {
     v: 3,
     gameVersion: (typeof VERSION !== "undefined" ? VERSION : "0.19"),
     savedAt: Date.now(),
+    sceneEntered: true,
     survivors: state.survivors,
     integrity: state.integrity,
     cohesion: state.cohesion,
@@ -824,6 +833,7 @@ function validSnapshotShape(data) {
   if (data.crisisPath != null && typeof data.crisisPath !== "string") return false;
   if (data.gameVersion != null && typeof data.gameVersion !== "string") return false;
   if (data.savedAt != null && (typeof data.savedAt !== "number" || !Number.isFinite(data.savedAt))) return false;
+  if (data.sceneEntered != null && typeof data.sceneEntered !== "boolean") return false;
   return true;
 }
 
@@ -973,7 +983,11 @@ function loadGame() {
   }
   showScreen("game");
   renderStatus();
-  showScene(state.scene);
+  const sceneEntered = data.sceneEntered === true;
+  showScene(state.scene, { skipOnEnter: sceneEntered, resume: true });
+  // Older snapshots predate the scene-entry marker. Preserve their one-time
+  // compatibility entry, then adopt the marker so later resumes stay pure.
+  if (!sceneEntered) persistSave({ silent: true });
   updateMetaSaveHint();
   flashSaveStatus("Resumed");
   return true;

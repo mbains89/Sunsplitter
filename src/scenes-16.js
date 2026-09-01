@@ -23,7 +23,8 @@ registerScenes({
       }
       t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
-      if (state.promises.tomas === "made" && isAlive("tomas") && act3SpineTomasAllusionOnEntry) {
+      if (state.promises.tomas === "made" && isAlive("tomas") &&
+          (act3SpineTomasAllusionOnEntry || (renderingSavedScene && state.flags.prom_tomas_alluded))) {
         t += `\n\nTomas finds you in the corridor on the way past. "Names first, then numbers. You put the order of mercy on record once. I count easier since."`;
       }
       return t;
