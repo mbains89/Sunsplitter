@@ -25,7 +25,8 @@ registerScenes({
 
 "The ring's been micro-correcting for nineteen days. I logged it as sensor drift. It isn't. Four adjustments, a pause, four more — repeating every six hours to within a second. Drift doesn't keep a schedule. Somebody in the severed blister is flying it by hand."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.mira === "made" && act3ReckoningAllusionsOnEntry.mira) {
+        if (state.promises.mira === "made" &&
+            (act3ReckoningAllusionsOnEntry.mira || (renderingSavedScene && state.flags.prom_mira_alluded))) {
           t += `\n\n"Junction eleven quoted the dead at me again. I quoted you back. It complied. Precedent noted."`;
         }
       } else if (isAlive("elias")) {
@@ -40,14 +41,16 @@ registerScenes({
       if (isAlive("lena")) {
         t += `\n\n"Nineteen days on a closed air loop," Lena says. "He'll be hypercapnic, dehydrated, and right about everything. Bring him in before the first two finish the job the breach started."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.lena === "made" && act3ReckoningAllusionsOnEntry.lena) {
+        if (state.promises.lena === "made" &&
+            (act3ReckoningAllusionsOnEntry.lena || (renderingSavedScene && state.flags.prom_lena_alluded))) {
           t += `\n\n"Inventory: one promise, stable. I check its vitals more often than yours."`;
         }
       }
       if (isAlive("sela")) {
         t += `\n\n"He kept correcting our course," Sela says. "For nineteen days, with no reason to believe anyone would notice. That is either faith or arithmetic. With Jiro I am not certain there is a difference."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.sela === "made" && act3ReckoningAllusionsOnEntry.sela) {
+        if (state.promises.sela === "made" &&
+            (act3ReckoningAllusionsOnEntry.sela || (renderingSavedScene && state.flags.prom_sela_alluded))) {
           t += `\n\n"I have inventoried what you have given me. One sentence about fear. It is rationed correctly."`;
         }
       }

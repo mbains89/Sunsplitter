@@ -29,7 +29,8 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       if (isAlive("elias")) {
         t += `\n\n"Nine hours," Elias says. "Suit prep takes one. Decide in eight."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.elias === "made" && act2TetherAllusionsOnEntry.elias) {
+        if (state.promises.elias === "made" &&
+            (act2TetherAllusionsOnEntry.elias || (renderingSavedScene && state.flags.prom_elias_alluded))) {
           t += `\n\n"Deck Four pushed back another fragment last night. When it finishes, I hold you to the order of operations."`;
         }
       }
@@ -37,7 +38,8 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       if (isAlive("amara")) {
         t += `\n\nAmara doesn't look away from the green light. "That's Tomas and every growing thing we own, on one bad rope. You'll not be offered a cheaper miracle than eleven hundred liters. You'll also never drink a miracle."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.amara === "made" && act2TetherAllusionsOnEntry.amara) {
+        if (state.promises.amara === "made" &&
+            (act2TetherAllusionsOnEntry.amara || (renderingSavedScene && state.flags.prom_amara_alluded))) {
           t += `\n\n"The beds are holding. So is your line in my book. I reread it when the air runs thin."`;
         }
       }

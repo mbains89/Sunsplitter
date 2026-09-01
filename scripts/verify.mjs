@@ -463,6 +463,67 @@ function malformedSnapshotShapeChecks(runtime) {
   return errors;
 }
 
+function resumeEntryIdempotenceChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.promises.elias = "made";
+    const originalOnEnter = scenes.act2_tether_sighting.onEnter;
+    let entryCalls = 0;
+    scenes.act2_tether_sighting.onEnter = () => {
+      entryCalls += 1;
+      return originalOnEnter();
+    };
+
+    showScene("act2_tether_sighting");
+    const firstText = document.getElementById("story").innerHTML;
+    persistSave({ silent: true });
+    const currentRaw = localStorage.getItem("sunsplitter_save_v3");
+    const currentSnapshot = JSON.parse(currentRaw);
+
+    // A browser reload resets module-local presentation state before Continue.
+    act2TetherAllusionsOnEntry = { elias: false, amara: false };
+    resetRunState();
+    entryCalls = 0;
+    const currentOk = loadGame();
+    const resumedText = document.getElementById("story").innerHTML;
+    const currentEntryCalls = entryCalls;
+
+    const legacySnapshot = Object.assign({}, currentSnapshot);
+    delete legacySnapshot.sceneEntered;
+    localStorage.setItem("sunsplitter_save_v3", JSON.stringify(legacySnapshot));
+    act2TetherAllusionsOnEntry = { elias: false, amara: false };
+    resetRunState();
+    entryCalls = 0;
+    const legacyOk = loadGame();
+    const upgradedLegacy = JSON.parse(localStorage.getItem("sunsplitter_save_v3"));
+
+    scenes.act2_tether_sighting.onEnter = originalOnEnter;
+    return {
+      currentOk,
+      currentMarker: currentSnapshot.sceneEntered,
+      currentEntryCalls,
+      firstHasAllusion: firstText.includes("Deck Four pushed back another fragment"),
+      resumedHasAllusion: resumedText.includes("Deck Four pushed back another fragment"),
+      legacyOk,
+      legacyEntryCalls: entryCalls,
+      legacyUpgraded: upgradedLegacy.sceneEntered === true
+    };
+  })()`);
+
+  if (!fixture.currentOk) errors.push("current save failed to resume");
+  if (fixture.currentMarker !== true) errors.push("current snapshot does not record completed scene entry");
+  if (fixture.currentEntryCalls !== 0) errors.push(`current resume re-ran onEnter ${fixture.currentEntryCalls} time(s)`);
+  if (!fixture.firstHasAllusion || !fixture.resumedHasAllusion) {
+    errors.push("resume did not preserve the current scene's consumed promise allusion");
+  }
+  if (!fixture.legacyOk || fixture.legacyEntryCalls !== 1) {
+    errors.push(`markerless legacy save did not run one compatibility entry (calls=${fixture.legacyEntryCalls})`);
+  }
+  if (!fixture.legacyUpgraded) errors.push("markerless legacy save was not upgraded after compatibility entry");
+  return errors;
+}
+
 function warmthLaughterChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1446,6 +1507,10 @@ function main() {
     const malformedSnapshotShapeErrors = malformedSnapshotShapeChecks(runtime);
     printCheck("malformed save snapshot shape fails atomically", malformedSnapshotShapeErrors);
     failures.push(...malformedSnapshotShapeErrors);
+
+    const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
+    printCheck("resume preserves completed scene entry", resumeEntryErrors);
+    failures.push(...resumeEntryErrors);
 
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
