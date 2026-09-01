@@ -995,6 +995,138 @@ function resourceFeedbackChecks(runtime) {
   return errors;
 }
 
+function sameTapPaymentChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const statKeys = ["integrity", "cohesion", "supplies", "embryos"];
+    const ideologyKeys = ["future", "living"];
+    const snapshot = () => ({
+      stats: statKeys.map(key => state[key]),
+      ideology: ideologyKeys.map(key => state.ideology[key] || 0)
+    });
+    const delta = (before, after) => ({
+      stats: after.stats.map((value, index) => value - before.stats[index]),
+      ideology: after.ideology.map((value, index) => value - before.ideology[index])
+    });
+    const choicesFor = sceneId => {
+      const raw = scenes[sceneId].choices;
+      return typeof raw === "function" ? raw.call(scenes[sceneId]) : raw;
+    };
+    const routes = [
+      { id: "racks", hub: "breath_hub", child: "breath_racks", effects: { embryos: -12, cohesion: -2 }, lean: null, answer: "racks" },
+      { id: "garden", hub: "breath_hub", child: "breath_garden", effects: { supplies: -6, cohesion: -1 }, lean: { living: 1 }, answer: "garden" },
+      { id: "blacksleep", hub: "breath_hub", child: "breath_blacksleep", effects: { supplies: -4, cohesion: 1 }, lean: { living: 1 }, answer: "blacksleep" },
+      { id: "thaw", hub: "custody_hub", child: "custody_thaw", effects: { embryos: -14, cohesion: -1 }, lean: null, answer: "thawed" },
+      { id: "severed", hub: "custody_hub", child: "custody_severed", effects: { integrity: -2, cohesion: 1 }, lean: { future: 1 }, answer: "severed" }
+    ];
+
+    const fresh = routes.map(route => {
+      localStorage.clear();
+      resetRunState();
+      showScene(route.hub);
+      const hubChoice = choicesFor(route.hub).find(choice => choice.next === route.child);
+      const childChoice = choicesFor(route.child)[0];
+      const before = snapshot();
+      makeChoice(hubChoice);
+      const afterTap = snapshot();
+      const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+      const liveSceneAfterTap = state.scene;
+      const answer = route.hub === "breath_hub" ? state.flags.breath_answer : state.flags.custody_answer;
+      const roll = route.hub === "custody_hub" ? state.flags.custody_roll : null;
+      makeChoice(childChoice);
+      const afterAck = snapshot();
+      return {
+        id: route.id,
+        sceneAfterTap: saved.scene,
+        liveSceneAfterTap,
+        answer,
+        roll,
+        hubEffects: hubChoice.effects || null,
+        hubLean: hubChoice.lean || null,
+        childEffects: childChoice.effects || null,
+        childLean: childChoice.lean || null,
+        tapDelta: delta(before, afterTap),
+        ackDelta: delta(afterTap, afterAck),
+        savedStats: statKeys.map(key => saved[key]),
+        savedIdeology: ideologyKeys.map(key => saved.ideology[key] || 0),
+        afterTap
+      };
+    });
+
+    const legacy = routes.map(route => {
+      localStorage.clear();
+      resetRunState();
+      showScene(route.child);
+      const parked = snapshotState();
+      localStorage.setItem(SAVE_KEY, JSON.stringify(parked));
+      resetRunState();
+      const loaded = loadGame();
+      const before = snapshot();
+      makeChoice(choicesFor(route.child)[0]);
+      const after = snapshot();
+      return { id: route.id, loaded, delta: delta(before, after), destination: state.scene };
+    });
+
+    localStorage.clear();
+    resetRunState();
+    state.embryos = 14;
+    state.cohesion = 1;
+    showScene("custody_hub");
+    makeChoice(choicesFor("custody_hub").find(choice => choice.next === "custody_thaw"));
+    const exactThreshold = {
+      scene: state.scene,
+      embryos: state.embryos,
+      cohesion: state.cohesion,
+      answer: state.flags.custody_answer,
+      roll: state.flags.custody_roll
+    };
+
+    return { fresh, legacy, exactThreshold };
+  })()`);
+
+  const expected = {
+    racks: { stats: [0, -2, 0, -12], ideology: [0, 0], effects: { embryos: -12, cohesion: -2 }, lean: null, answer: "racks" },
+    garden: { stats: [0, -1, -6, 0], ideology: [0, 1], effects: { supplies: -6, cohesion: -1 }, lean: { living: 1 }, answer: "garden" },
+    blacksleep: { stats: [0, 1, -4, 0], ideology: [0, 1], effects: { supplies: -4, cohesion: 1 }, lean: { living: 1 }, answer: "blacksleep" },
+    thaw: { stats: [0, -1, 0, -14], ideology: [0, 0], effects: { embryos: -14, cohesion: -1 }, lean: null, answer: "thawed", roll: true },
+    severed: { stats: [-2, 1, 0, 0], ideology: [1, 0], effects: { integrity: -2, cohesion: 1 }, lean: { future: 1 }, answer: "severed", roll: true }
+  };
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  for (const route of fixture.fresh) {
+    const want = expected[route.id];
+    if (!same(route.hubEffects, want.effects) || !same(route.hubLean, want.lean)) {
+      errors.push(`${route.id} committing choice does not own its exact effects/lean`);
+    }
+    if (route.childEffects !== null || route.childLean !== null) {
+      errors.push(`${route.id} forced acknowledgement still carries delayed effects/lean`);
+    }
+    if (!same(route.tapDelta, { stats: want.stats, ideology: want.ideology })) {
+      errors.push(`${route.id} did not apply the exact consequence on the committing tap`);
+    }
+    if (!same(route.ackDelta, { stats: [0, 0, 0, 0], ideology: [0, 0] })) {
+      errors.push(`${route.id} acknowledgement applied a second consequence`);
+    }
+    if (route.sceneAfterTap !== route.liveSceneAfterTap || route.answer !== want.answer || route.roll !== (want.roll || null)) {
+      errors.push(`${route.id} post-tap scene/answer custody drifted`);
+    }
+    if (!same(route.savedStats, route.afterTap.stats) || !same(route.savedIdeology, route.afterTap.ideology)) {
+      errors.push(`${route.id} autosave did not preserve the paid post-tap state`);
+    }
+  }
+  for (const route of fixture.legacy) {
+    if (!route.loaded || route.destination !== (route.id === "racks" || route.id === "garden" || route.id === "blacksleep" ? "breath_after" : "custody_after")) {
+      errors.push(`${route.id} parked legacy save did not resume through its acknowledgement`);
+    }
+    if (!same(route.delta, { stats: [0, 0, 0, 0], ideology: [0, 0] })) {
+      errors.push(`${route.id} parked legacy save was retroactively charged`);
+    }
+  }
+  if (!same(fixture.exactThreshold, { scene: "custody_thaw", embryos: 0, cohesion: 0, answer: "thawed", roll: true })) {
+    errors.push("custody_thaw exact-threshold payment redirected after a valid committing tap");
+  }
+  return errors;
+}
+
 function romanceOpenGateChecks(runtime) {
   const errors = [];
   const fixtures = runtime.evaluate(`(() => {
@@ -1597,6 +1729,10 @@ function main() {
     const resourceFeedbackErrors = resourceFeedbackChecks(runtime);
     printCheck("truthful public-resource status + blocker feedback", resourceFeedbackErrors);
     failures.push(...resourceFeedbackErrors);
+
+    const sameTapPaymentErrors = sameTapPaymentChecks(runtime);
+    printCheck("FH-01B same-tap payment + parked-save compatibility", sameTapPaymentErrors);
+    failures.push(...sameTapPaymentErrors);
 
     const romanceGateErrors = romanceOpenGateChecks(runtime);
     printCheck("intimacy_window authoritative romance-open gate", romanceGateErrors);

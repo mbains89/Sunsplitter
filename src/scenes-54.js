@@ -3,6 +3,10 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: Breath crisis route; Amara/Lena options remain living-gated and resource-gated
+  // WRITES: the selected choice pays its declared resource effects immediately; garden/blacksleep also write Living lean
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Amara/Lena choices are hidden unless alive
+  // IMAGE: REUSE images/power_stress_1.jpg; no new art request
   breath_hub: {
     image: "images/power_stress_1.jpg",
     text: () => {
@@ -14,7 +18,8 @@ registerScenes({
       {
         text: "Cannibalize sterile filters and outer embryo racks.",
         next: "breath_racks",
-        requires: { embryos: { min: 12 }, cohesion: { min: 2 } }
+        requires: { embryos: { min: 12 }, cohesion: { min: 2 } },
+        effects: { embryos: -12, cohesion: -2 }
       },
       {
         text: "Send crew into the contaminated scrubber trunks by hand.",
@@ -24,17 +29,25 @@ registerScenes({
         text: "Convert the hydroponics garden into a disposable biological scrubber.",
         next: "breath_garden",
         alive: "amara",
-        requires: { supplies: { min: 6 }, cohesion: { min: 1 } }
+        requires: { supplies: { min: 6 }, cohesion: { min: 1 } },
+        effects: { supplies: -6, cohesion: -1 },
+        lean: { living: 1 }
       },
       {
         text: "Put the vulnerable into controlled black sleep. Lena stays awake to manage.",
         next: "breath_blacksleep",
         alive: "lena",
-        requires: { supplies: { min: 4 } }
+        requires: { supplies: { min: 4 } },
+        effects: { supplies: -4, cohesion: 1 },
+        lean: { living: 1 }
       }
     ]
   },
 
+  // PRE: newly committed racks choice, or a pre-FH-01B save already parked here
+  // WRITES: entry records breath_answer; acknowledgement writes nothing and never charges a parked legacy save
+  // DEATH: none | DEAD SPEECH/APPEARANCE: no named character speaks or appears
+  // IMAGE: REUSE images/vault_interior_alt.jpg; no new art request
   breath_racks: {
     image: "images/vault_interior_alt.jpg",
     onEnter: () => {
@@ -45,13 +58,7 @@ registerScenes({
       t += `Fourteen thousand and six becomes a smaller number. The uncompromised-vault claim is closed.`;
       return t;
     },
-    choices: [
-      {
-        text: "Accept the count and move on.",
-        next: "breath_after",
-        effects: { embryos: -12, cohesion: -2 }
-      }
-    ]
+    choices: [ { text: "Accept the count and move on.", next: "breath_after" } ]
   },
 
   breath_trunks: {
@@ -77,6 +84,10 @@ registerScenes({
     ]
   },
 
+  // PRE: newly committed garden choice with living Amara, or a pre-FH-01B save already parked here
+  // WRITES: entry records breath_answer; acknowledgement writes nothing and never charges a parked legacy save
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Amara's line is historical to this committed scene
+  // IMAGE: REUSE images/hydroponics_amara.jpg; no new art request
   breath_garden: {
     image: "images/hydroponics_amara.jpg",
     onEnter: () => {
@@ -88,16 +99,13 @@ registerScenes({
       t += `The garden becomes disposable biology. The air improves. The later ration boards will not.`;
       return t;
     },
-    choices: [
-      {
-        text: "Let her finish the work.",
-        next: "breath_after",
-        effects: { supplies: -6, cohesion: -1 },
-        lean: { living: 1 }
-      }
-    ]
+    choices: [ { text: "Let her finish the work.", next: "breath_after" } ]
   },
 
+  // PRE: newly committed black-sleep choice with living Lena, or a pre-FH-01B save already parked here
+  // WRITES: entry records breath_answer; acknowledgement writes nothing and never charges a parked legacy save
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Lena's line is historical to this committed scene
+  // IMAGE: REUSE images/medbay_dim_alt.jpg; no new art request
   breath_blacksleep: {
     image: "images/medbay_dim_alt.jpg",
     onEnter: () => {
@@ -108,14 +116,7 @@ registerScenes({
       t += `"I will not sleep until the loop is stable," she says. "If the numbers drift, I correct. That is the scar I am accepting."`;
       return t;
     },
-    choices: [
-      {
-        text: "Accept her terms.",
-        next: "breath_after",
-        effects: { supplies: -4, cohesion: 1 },
-        lean: { living: 1 }
-      }
-    ]
+    choices: [ { text: "Accept her terms.", next: "breath_after" } ]
   },
 
   breath_after: {
