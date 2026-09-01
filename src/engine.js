@@ -812,6 +812,8 @@ function applySnapshot(data) {
   state.embryos = typeof data.embryos === "number" ? data.embryos : state.embryos;
   // Causality-critical
   state.flags = Object.assign({}, data.flags || {});
+  // L-027: retire the unused Vess course consequence from legacy saves.
+  delete state.flags.vess_course_lost;
   state.dead = Array.isArray(data.dead) ? data.dead.slice() : [];
   state.deathCause = Object.assign({}, data.deathCause || {});
   state.scene = typeof data.scene === "string" && data.scene ? data.scene : "wake";
