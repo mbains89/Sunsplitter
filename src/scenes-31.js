@@ -29,6 +29,10 @@ She does not soften the prognosis. She softens nothing. The offer is presence â€
     }
   },
 
+  // PRE: Amara and recovered Tomas alive; hydroponics full; offered once from intimacy_window
+  // WRITES: privacy exit applies its existing +3 cohesion and affinity once, then closes private hours
+  // DEATH: no death writes | DEAD SPEECH/APPEARANCE: empty-bay fallback requires both alive
+  // IMAGE: REUSE images/romance_amara_tomas.jpg; no new art request
   romance_amara_tomas: {
     get text() {
       if (!isAlive("amara") || !isAlive("tomas")) return `The bay is empty. Whatever might have been shared here is gone.`;
@@ -41,7 +45,7 @@ Amara looks over Tomas's shoulder and does not look away. There is an invitation
     get choices() {
       if (!isAlive("amara") || !isAlive("tomas")) return [{ text: "Move on.", next: "intimacy_window" }];
       return [
-        { text: "Leave them the privacy they have claimed.", next: "intimacy_window", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 } },
+        { text: "Leave them the privacy they have claimed.", next: "debt_notice", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 } },
         { text: "Stay. Join what they are offering.", next: "romance_amara_tomas_sex", effects: { cohesion: 4 } },
         { text: "Ask them to stop. This is a complication the ship cannot afford.", next: "intimacy_window", effects: { cohesion: -3 }, affinity: { amara: -4, tomas: -4 }, mark: { amara: "interrupted" } }
       ];
