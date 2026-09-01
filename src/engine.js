@@ -182,6 +182,8 @@ function showScene(id, opts) {
     const btn = document.createElement("button");
     btn.className = "choice-btn" + (gated ? " disabled" : "");
     btn.type = "button";
+    const renderedChoiceNumber = choicesEl.children.length + 1;
+    if (renderedChoiceNumber <= 9) btn.setAttribute("aria-keyshortcuts", String(renderedChoiceNumber));
     const tagHtml = formatTagHtml(c.tag);
     if (gated) {
       btn.disabled = true;
@@ -198,8 +200,66 @@ function showScene(id, opts) {
     choicesEl.appendChild(btn);
   });
 
+  const enabledChoices = gameplayChoiceButtons().filter(btn => !btn.disabled);
+  if (enabledChoices.length === 1) {
+    const shortcuts = enabledChoices[0].getAttribute("aria-keyshortcuts");
+    enabledChoices[0].setAttribute("aria-keyshortcuts", `${shortcuts ? `${shortcuts} ` : ""}Enter Space`);
+  }
+
   renderStatus();
 }
+
+function gameplayChoiceButtons() {
+  const choices = document.getElementById("choices");
+  if (!choices || !choices.children) return [];
+  return Array.from(choices.children).filter(btn => {
+    const classes = String(btn.className || "").split(/\s+/);
+    return classes.includes("choice-btn");
+  });
+}
+
+function keyboardTargetIsInteractive(target) {
+  if (!target) return false;
+  const tag = String(target.tagName || target.nodeName || "").toUpperCase();
+  if (["BUTTON", "A", "INPUT", "SELECT", "TEXTAREA"].includes(tag)) return true;
+  if (target.isContentEditable) return true;
+  if (typeof target.closest === "function") {
+    return !!target.closest("button, a, input, select, textarea, [contenteditable='true']");
+  }
+  return false;
+}
+
+function activateGameplayChoice(btn, event) {
+  if (!btn || btn.disabled) return false;
+  if (event && typeof event.preventDefault === "function") event.preventDefault();
+  if (typeof btn.click === "function") btn.click();
+  else if (typeof btn.onclick === "function") btn.onclick();
+  return true;
+}
+
+function handleGameplayKeydown(event) {
+  if (!event || event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
+  if (keyboardTargetIsInteractive(event.target)) return false;
+
+  const game = document.getElementById("game-screen");
+  if (!game || game.classList.contains("hidden")) return false;
+
+  const buttons = gameplayChoiceButtons();
+  if (/^[1-9]$/.test(event.key || "")) {
+    return activateGameplayChoice(buttons[Number(event.key) - 1], event);
+  }
+
+  if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+    const enabled = buttons.filter(btn => !btn.disabled);
+    if (enabled.length === 1) return activateGameplayChoice(enabled[0], event);
+  }
+  return false;
+}
+
+(function wireGameplayKeyboard() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", handleGameplayKeydown);
+})();
 
 function canAffordEffects(effects) {
   if (!effects || typeof effects !== "object") return true;

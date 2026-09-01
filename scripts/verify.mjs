@@ -705,6 +705,140 @@ function saveWriteFailureChecks(runtime) {
   return errors;
 }
 
+function keyboardChoiceChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const originalChoices = scenes.wake.choices;
+    const choicesEl = document.getElementById("choices");
+    const game = document.getElementById("game-screen");
+    const renderFixture = choices => {
+      scenes.wake.choices = choices;
+      choicesEl.children = [];
+      state.scene = "wake";
+      showScene("wake");
+      return choicesEl.children.slice();
+    };
+    const keyEvent = (key, extra = {}) => Object.assign({
+      key,
+      target: { tagName: "DIV" },
+      defaultPrevented: false,
+      repeat: false,
+      altKey: false,
+      ctrlKey: false,
+      metaKey: false,
+      prevented: false,
+      preventDefault() { this.prevented = true; }
+    }, extra);
+
+    resetRunState();
+    game.classList.remove("hidden");
+    let buttons = renderFixture([
+      { text: "First", next: "dying" },
+      { text: "Locked", next: "dying", effects: { supplies: -999 } },
+      { text: "Third", next: "silence" }
+    ]);
+    const shortcuts = buttons.map(btn => btn.getAttribute("aria-keyshortcuts"));
+
+    const disabledEvent = keyEvent("2");
+    const disabledHandled = handleGameplayKeydown(disabledEvent);
+    const disabledScene = state.scene;
+
+    const numberEvent = keyEvent("3");
+    const numberHandled = handleGameplayKeydown(numberEvent);
+    const numberScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "Only", next: "dying" }
+    ]);
+    const singleShortcut = buttons[0].getAttribute("aria-keyshortcuts");
+    const enterEvent = keyEvent("Enter");
+    const enterHandled = handleGameplayKeydown(enterEvent);
+    const enterScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "Only", next: "silence" }
+    ]);
+    const spaceEvent = keyEvent(" ");
+    const spaceHandled = handleGameplayKeydown(spaceEvent);
+    const spaceScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "First", next: "dying" },
+      { text: "Second", next: "silence" }
+    ]);
+    buttons[0].tagName = "BUTTON";
+    const focusedEvent = keyEvent("1", { target: buttons[0] });
+    const focusedHandled = handleGameplayKeydown(focusedEvent);
+    const focusedScene = state.scene;
+
+    const modifiedEvent = keyEvent("2", { ctrlKey: true });
+    const modifiedHandled = handleGameplayKeydown(modifiedEvent);
+    const modifiedScene = state.scene;
+
+    game.classList.add("hidden");
+    const hiddenEvent = keyEvent("1");
+    const hiddenHandled = handleGameplayKeydown(hiddenEvent);
+    const hiddenScene = state.scene;
+    game.classList.remove("hidden");
+
+    scenes.wake.choices = originalChoices;
+    return {
+      shortcuts,
+      disabledHandled,
+      disabledPrevented: disabledEvent.prevented,
+      disabledScene,
+      numberHandled,
+      numberPrevented: numberEvent.prevented,
+      numberScene,
+      singleShortcut,
+      enterHandled,
+      enterPrevented: enterEvent.prevented,
+      enterScene,
+      spaceHandled,
+      spacePrevented: spaceEvent.prevented,
+      spaceScene,
+      focusedHandled,
+      focusedPrevented: focusedEvent.prevented,
+      focusedScene,
+      modifiedHandled,
+      modifiedPrevented: modifiedEvent.prevented,
+      modifiedScene,
+      hiddenHandled,
+      hiddenPrevented: hiddenEvent.prevented,
+      hiddenScene
+    };
+  })()`);
+
+  if (JSON.stringify(fixture.shortcuts) !== JSON.stringify(["1", "2", "3"])) {
+    errors.push(`rendered choices do not expose stable number shortcuts: ${JSON.stringify(fixture.shortcuts)}`);
+  }
+  if (fixture.disabledHandled || fixture.disabledPrevented || fixture.disabledScene !== "wake") {
+    errors.push("number key activated or consumed a disabled rendered choice");
+  }
+  if (!fixture.numberHandled || !fixture.numberPrevented || fixture.numberScene !== "silence") {
+    errors.push("number key did not activate its rendered enabled choice");
+  }
+  if (fixture.singleShortcut !== "1 Enter Space") {
+    errors.push(`single enabled choice shortcut metadata ${JSON.stringify(fixture.singleShortcut)} is incomplete`);
+  }
+  if (!fixture.enterHandled || !fixture.enterPrevented || fixture.enterScene !== "dying") {
+    errors.push("Enter did not advance the single unambiguous choice");
+  }
+  if (!fixture.spaceHandled || !fixture.spacePrevented || fixture.spaceScene !== "silence") {
+    errors.push("Space did not advance the single unambiguous choice");
+  }
+  if (fixture.focusedHandled || fixture.focusedPrevented || fixture.focusedScene !== "wake") {
+    errors.push("global shortcut intercepted native button focus handling");
+  }
+  if (fixture.modifiedHandled || fixture.modifiedPrevented || fixture.modifiedScene !== "wake") {
+    errors.push("global shortcut intercepted a modified key chord");
+  }
+  if (fixture.hiddenHandled || fixture.hiddenPrevented || fixture.hiddenScene !== "wake") {
+    errors.push("gameplay shortcut remained active outside the game screen");
+  }
+  return errors;
+}
+
 function resumeEntryIdempotenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -2096,6 +2230,10 @@ function main() {
     const saveWriteFailureErrors = saveWriteFailureChecks(runtime);
     printCheck("autosave write failure custody + player warning", saveWriteFailureErrors);
     failures.push(...saveWriteFailureErrors);
+
+    const keyboardChoiceErrors = keyboardChoiceChecks(runtime);
+    printCheck("0.32 keyboard choice controls", keyboardChoiceErrors);
+    failures.push(...keyboardChoiceErrors);
 
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
