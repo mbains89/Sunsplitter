@@ -690,9 +690,9 @@ function resolveSceneImage(id, scene) {
     }
   }
 
-  // Living-arc conflict plate shows Tomas.
+  // Living-arc conflict plate shows Tomas, Mira, and Amara.
   if (id === "arc_living_3") {
-    if (!isAlive("tomas")) {
+    if (!isAlive("tomas") || !isAlive("mira") || !isAlive("amara")) {
       return "images/corridor.jpg";
     }
   }
