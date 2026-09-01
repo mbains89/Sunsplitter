@@ -386,6 +386,39 @@ function playAgainChecks(runtime) {
   return errors;
 }
 
+function unknownSaveSceneChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.scene = "wake";
+    persistSave({ silent: true });
+    const malformed = JSON.parse(localStorage.getItem("sunsplitter_save_v3"));
+    malformed.scene = "missing_scene";
+    malformed.cohesion = 17;
+    const raw = JSON.stringify(malformed);
+    localStorage.setItem("sunsplitter_save_v3", raw);
+
+    resetRunState();
+    const before = { scene: state.scene, cohesion: state.cohesion };
+    const ok = loadGame();
+    return {
+      ok,
+      before,
+      after: { scene: state.scene, cohesion: state.cohesion },
+      story: document.getElementById("story").innerHTML,
+      savePreserved: localStorage.getItem("sunsplitter_save_v3") === raw
+    };
+  })()`);
+
+  if (fixture.ok) errors.push("unknown-scene save reported a successful resume");
+  if (fixture.after.scene !== fixture.before.scene || fixture.after.cohesion !== fixture.before.cohesion) {
+    errors.push(`unknown-scene save mutated live state: ${JSON.stringify(fixture.after)}`);
+  }
+  if (fixture.story.includes("Scene missing:")) errors.push("unknown-scene save rendered the zero-choice missing-scene trap");
+  if (!fixture.savePreserved) errors.push("failed unknown-scene load replaced or removed the original save blob");
+  return errors;
+}
+
 function warmthLaughterChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1361,6 +1394,10 @@ function main() {
     const playAgainErrors = playAgainChecks(runtime);
     printCheck("Play Again fresh campaign without consuming completed save", playAgainErrors);
     failures.push(...playAgainErrors);
+
+    const unknownSaveSceneErrors = unknownSaveSceneChecks(runtime);
+    printCheck("unknown save scene fails closed without mutating live state", unknownSaveSceneErrors);
+    failures.push(...unknownSaveSceneErrors);
 
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);

@@ -801,9 +801,11 @@ function snapshotState() {
 }
 
 function applySnapshot(data) {
-  if (data && typeof data.gameVersion === "string") loadedGameVersion = data.gameVersion;
-  else loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
   if (!data || typeof data !== "object") return false;
+  const sceneId = typeof data.scene === "string" && data.scene ? data.scene : "";
+  if (!sceneId || !Object.prototype.hasOwnProperty.call(scenes, sceneId)) return false;
+  if (typeof data.gameVersion === "string") loadedGameVersion = data.gameVersion;
+  else loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
   // Resources
   state.survivors = typeof data.survivors === "number" ? data.survivors : state.survivors;
   state.integrity = typeof data.integrity === "number" ? data.integrity : state.integrity;
@@ -816,7 +818,7 @@ function applySnapshot(data) {
   delete state.flags.vess_course_lost;
   state.dead = Array.isArray(data.dead) ? data.dead.slice() : [];
   state.deathCause = Object.assign({}, data.deathCause || {});
-  state.scene = typeof data.scene === "string" && data.scene ? data.scene : "wake";
+  state.scene = sceneId;
   state.affinity = Object.assign({ lena: 0, elias: 0, mira: 0, tomas: 0, amara: 0, jiro: 0, sela: 0, vess: 0 }, data.affinity || {});
   state.trust = Object.assign({ lena: 40, elias: 35, mira: 45, tomas: 50, amara: 40, jiro: 40, sela: 30, vess: 35 }, data.trust || {});
   state.romance = Object.assign({}, data.romance || {});
