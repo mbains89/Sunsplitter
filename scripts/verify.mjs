@@ -1986,6 +1986,105 @@ function arcForkCostChecks(runtime) {
   return errors;
 }
 
+function custodyPossessionTradeoffChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const statKeys = ["integrity", "cohesion", "supplies", "embryos"];
+    const snapshot = () => statKeys.map(key => state[key]);
+    const delta = (before, after) => after.map((value, index) => value - before[index]);
+    const inspectRoute = pattern => {
+      resetRunState();
+      showScene("custody_possession");
+      const choice = scenes.custody_possession.choices.find(item => pattern.test(item.text));
+      const before = snapshot();
+      makeChoice(choice);
+      return {
+        effects: choice.effects || null,
+        delta: delta(before, snapshot()),
+        scene: state.scene,
+        answer: state.flags.custody_answer,
+        roll: state.flags.custody_roll
+      };
+    };
+
+    resetRunState();
+    document.getElementById("choices").children = [];
+    showScene("custody_possession");
+    const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+
+    resetRunState();
+    state.integrity = 3;
+    state.supplies = 3;
+    state.cohesion = 0;
+    const singlePaidChoiceCount = scenes.custody_possession.choices.length;
+
+    resetRunState();
+    state.integrity = 0;
+    state.supplies = 0;
+    state.cohesion = 0;
+    document.getElementById("choices").children = [];
+    showScene("custody_possession");
+    const depletedChoices = scenes.custody_possession.choices;
+    const depletedButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+    const fallback = depletedChoices.find(item => !item.effects);
+    const beforeFallback = snapshot();
+    makeChoice(fallback);
+    const afterFallback = snapshot();
+    const fallbackScene = state.scene;
+
+    return {
+      treatment: inspectRoute(/Treat the exposed crew/),
+      sealing: inspectRoute(/let cohesion carry/),
+      defaultButtons,
+      singlePaidChoiceCount,
+      depleted: {
+        choiceCount: depletedChoices.length,
+        enabledCount: depletedButtons.filter(button => !button.disabled).length,
+        fallbackText: fallback && fallback.text,
+        fallbackNext: fallback && fallback.next,
+        fallbackDelta: delta(beforeFallback, afterFallback),
+        scene: fallbackScene
+      }
+    };
+  })()`);
+
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  if (!same(fixture.treatment.effects, { supplies: -3, integrity: -3 }) ||
+      !same(fixture.treatment.delta, [-3, 0, -3, 0]) || fixture.treatment.scene !== "custody_after" ||
+      fixture.treatment.answer !== "possession" || fixture.treatment.roll !== true) {
+    errors.push(`custody_possession treatment route mismatch: ${JSON.stringify(fixture.treatment)}`);
+  }
+  if (!same(fixture.sealing.effects, { cohesion: -6 }) ||
+      !same(fixture.sealing.delta, [0, -6, 0, 0]) || fixture.sealing.scene !== "custody_after" ||
+      fixture.sealing.answer !== "possession" || fixture.sealing.roll !== true) {
+    errors.push(`custody_possession sealing route mismatch: ${JSON.stringify(fixture.sealing)}`);
+  }
+  if (fixture.defaultButtons.length !== 2 || fixture.defaultButtons.some(button => button.disabled)) {
+    errors.push("custody_possession default state no longer renders both paid tradeoffs as enabled");
+  }
+  for (const label of ["-3 Supplies", "-3 Hull", "-6 Cohesion"]) {
+    if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
+      errors.push(`custody_possession does not render immediate tradeoff label ${label}`);
+    }
+  }
+  if (fixture.singlePaidChoiceCount !== 2) {
+    errors.push("custody_possession exposed the degraded floor while a paid route remained affordable");
+  }
+  if (fixture.depleted.choiceCount !== 3 || fixture.depleted.enabledCount !== 1 ||
+      !/No reserve remains/i.test(fixture.depleted.fallbackText || "") ||
+      fixture.depleted.fallbackNext !== "custody_after" ||
+      !same(fixture.depleted.fallbackDelta, [0, 0, 0, 0]) || fixture.depleted.scene !== "custody_after") {
+    errors.push(`custody_possession depleted-state L-021 fallback mismatch: ${JSON.stringify(fixture.depleted)}`);
+  }
+  return errors;
+}
+
 function pairShieldReachabilityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -3293,6 +3392,10 @@ async function main() {
     const arcForkCostErrors = arcForkCostChecks(runtime);
     printCheck("0.33 arc_fork visible costs + L-021 floor", arcForkCostErrors);
     failures.push(...arcForkCostErrors);
+
+    const custodyPossessionTradeoffErrors = custodyPossessionTradeoffChecks(runtime);
+    printCheck("0.33 custody_possession visible tradeoff + L-021 floor", custodyPossessionTradeoffErrors);
+    failures.push(...custodyPossessionTradeoffErrors);
 
     const pairShieldErrors = pairShieldReachabilityChecks(runtime);
     printCheck("L-020 pair_shield_cold one-shot reachability", pairShieldErrors);

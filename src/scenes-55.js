@@ -61,7 +61,7 @@ registerScenes({
     }
   },
 
-  // PRE: custody_hub ungated possession route | WRITES: onEnter custody_answer/custody_roll; paid choice affects resources; governed floor writes nothing
+  // PRE: custody_hub ungated possession route | WRITES: onEnter custody_answer/custody_roll; paid choices affect resources; governed floor writes nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: no named character speaks or appears
   // IMAGE: REUSE images/bulkhead.jpg; no new art request
   custody_possession: {
@@ -72,20 +72,30 @@ registerScenes({
     },
     text: () => {
       let t = `Heat dumps into the inhabited ring. The vault stays sealed and whole.\n\n`;
-      t += `Crew take the thermal exposure. Cohesion takes the lesson: the future was treated as the Commander's possession.`;
+      t += `Crew take the thermal exposure. You can spend stores and hull margin to treat them and keep the ring habitable, or seal it and let cohesion carry the abandonment. The future was treated as the Commander's possession; only the reserve that absorbs the aftermath is still yours to choose.`;
       return t;
     },
-    choices: [
-      {
-        text: "Log the exposure. Keep moving.",
-        next: "custody_after",
-        effects: { supplies: -3, integrity: -3, cohesion: -6 }
-      },
-      {
-        text: "Seal the scorched ring. Spend nothing more here.",
-        next: "custody_after"
+    get choices() {
+      const routes = [
+        {
+          text: "Treat the exposed crew and brace the ring. Spend stores and hull to keep it habitable.",
+          next: "custody_after",
+          effects: { supplies: -3, integrity: -3 }
+        },
+        {
+          text: "Seal the scorched ring. Preserve stores and hull; let cohesion carry the abandonment.",
+          next: "custody_after",
+          effects: { cohesion: -6 }
+        }
+      ];
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({
+          text: "No reserve remains. Seal the ring without treatment and record the abandonment.",
+          next: "custody_after"
+        });
       }
-    ]
+      return routes;
+    }
   },
 
   // PRE: newly committed thaw choice, or a pre-FH-01B save already parked here
