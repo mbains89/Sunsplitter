@@ -669,6 +669,29 @@ function vessHairCanonChecks(runtime) {
   return errors;
 }
 
+function arcLivingImageTruthChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    return {
+      mapped: sceneImages.arc_living_2,
+      resolved: resolveSceneImage("arc_living_2", scenes.arc_living_2),
+      text: String(scenes.arc_living_2.text)
+    };
+  })()`);
+
+  if (fixture.mapped !== "images/sela_ritual.jpg") {
+    errors.push(`arc_living_2 maps to ${fixture.mapped || "no image"} instead of the locked yellow-mark plate`);
+  }
+  if (fixture.resolved !== "images/sela_ritual.jpg") {
+    errors.push(`arc_living_2 resolves to ${fixture.resolved || "no image"} instead of the locked yellow-mark plate`);
+  }
+  if (!fixture.text.includes("yellow circle") || !fixture.text.includes("plate")) {
+    errors.push("arc_living_2 no longer contains the authored yellow-mark action matched by its plate");
+  }
+  return errors;
+}
+
 function warmthMealPresenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1785,6 +1808,10 @@ function main() {
     const vessHairCanonErrors = vessHairCanonChecks(runtime);
     printCheck("Vess boarding hair canon", vessHairCanonErrors);
     failures.push(...vessHairCanonErrors);
+
+    const arcLivingImageTruthErrors = arcLivingImageTruthChecks(runtime);
+    printCheck("arc_living_2 yellow-mark image truth", arcLivingImageTruthErrors);
+    failures.push(...arcLivingImageTruthErrors);
 
     const warmthMealPresenceErrors = warmthMealPresenceChecks(runtime);
     printCheck("warmth_meal living Tomas entry guard", warmthMealPresenceErrors);
