@@ -216,13 +216,13 @@ const sceneImages = {
   bond_amara:       "images/amara.jpg",
   bond_sela:        "images/sela.jpg",
   bond_lena:        "images/lena.jpg",
-  romance_lena_sex: "images/romance_lena_1.jpg",
+  romance_lena_sex: "images/shower_lena.jpg",
   romance_amara_1:  "images/shower_amara.jpg",
   romance_sela_1:   "images/shower_sela.jpg",
   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
   romance_mira_1:      "images/shower_mira.jpg",
   romance_amara_tomas: "images/romance_amara_tomas.jpg",
-  romance_lena_1:      "images/romance_lena_1.jpg",
+  romance_lena_1:      "images/shower_lena.jpg",
 
   // 0.22.1 explicit art utilization (one-shot aftermath variants)
   lena_shower:     "images/shower_lena.jpg",
