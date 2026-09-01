@@ -281,6 +281,51 @@ function whatRemainsChecks(runtime) {
   return errors;
 }
 
+function tomasDeadHolderPromiseChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const run = (answer, alive) => {
+      resetRunState();
+      state.recovered.tomas = true;
+      state.crisisPath = "custody";
+      state.flags.custody_answer = answer;
+      state.flags.custody_roll = true;
+      state.promises.tomas = "made";
+      if (!alive) kill("tomas", "legacy death before the custody test");
+      const memoriesBefore = state.memories.length;
+      showScene("custody_after");
+      return {
+        promise: state.promises.tomas,
+        addedMemories: state.memories.slice(memoriesBefore),
+        text: document.getElementById("story").textContent,
+        facts: whatRemainsFacts()
+      };
+    };
+    return {
+      deadPossession: run("possession", false),
+      deadShared: run("shared", false),
+      livingPossession: run("possession", true),
+      livingShared: run("shared", true)
+    };
+  })()`);
+
+  for (const [label, result] of [["possession", fixture.deadPossession], ["shared", fixture.deadShared]]) {
+    if (result.promise !== "made") errors.push(`dead Tomas ${label} path invented promise result ${result.promise}`);
+    if (result.addedMemories.length) errors.push(`dead Tomas ${label} path invented promise memory`);
+    if (/Tomas reads|Tomas counts/i.test(result.text)) errors.push(`dead Tomas ${label} path emitted present-tense speech`);
+    if (result.facts.some(line => /custody test|promised to Tomas|promise to Tomas/i.test(line))) {
+      errors.push(`dead Tomas ${label} path surfaced an untested promise in What Remains`);
+    }
+  }
+  if (fixture.livingPossession.promise !== "broken" || fixture.livingPossession.addedMemories.length !== 1) {
+    errors.push("living Tomas possession test no longer resolves the authored promise as broken");
+  }
+  if (fixture.livingShared.promise !== "kept" || fixture.livingShared.addedMemories.length !== 1) {
+    errors.push("living Tomas shared-custody test no longer resolves the authored promise as kept");
+  }
+  return errors;
+}
+
 function finalOrderEndingChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1669,6 +1714,10 @@ function main() {
     const whatRemainsErrors = whatRemainsChecks(runtime);
     printCheck("What Remains selector + separate surface", whatRemainsErrors);
     failures.push(...whatRemainsErrors);
+
+    const tomasDeadHolderPromiseErrors = tomasDeadHolderPromiseChecks(runtime);
+    printCheck("L-024 dead-holder Tomas promise preservation", tomasDeadHolderPromiseErrors);
+    failures.push(...tomasDeadHolderPromiseErrors);
 
     const finalOrderErrors = finalOrderEndingChecks(runtime);
     printCheck("final-order consequence in all ending families", finalOrderErrors);
