@@ -16,7 +16,7 @@ Mira works like someone who has already accepted she might die today. Sparks. Sc
       if (isAlive("jiro")) {
         t += `All three come out alive. Sela is silent with shock. Amara is shaking. Jiro will not release Sela.\n\n`;
       } else {
-        t += `Amara and Sela come out alive. Sela is silent with shock. Amara is shaking. The space where a third body should have been stays empty.\n\n`;
+        t += `Amara and Sela come out alive. Sela is silent with shock. Amara is shaking.\n\n`;
       }
       if (state.flags.priority === "repairs") {
         t += `The cascade Mira feared is smaller than it could have been. Hull still drops, but the ship holds.

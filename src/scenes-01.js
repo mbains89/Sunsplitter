@@ -115,7 +115,7 @@ Lena: "Sela is in there."
       return t;
     },
     choices: [
-      { text: "Cut them out. We do not leave people behind a wall.", next: "cut_out", effects: { integrity: -14, cohesion: 12 }, flag: { crisis: "cut" }, lean: { living: 5 }, affinity: { amara: 10, jiro: 8, sela: 10, elias: -6 } },
+      { text: "Cut them out. We do not leave people behind a wall.", next: "cut_out", effects: { integrity: -14, cohesion: 12 }, flag: { crisis: "cut" }, lean: { living: 5 }, affinity: { amara: 10, sela: 10, elias: -6 } },
       { text: "Vent the section. Protect the ship and the majority.", next: "vent", effects: { integrity: 5, cohesion: -18 }, flag: { crisis: "vent" }, lean: { future: 5 }, affinity: { elias: 10, lena: -15, tomas: -12 } },
       { text: "Go yourself. Buy time with your own body.", next: "self_risk", effects: { integrity: -7, cohesion: 8, supplies: -4 }, flag: { crisis: "self" }, lean: { living: 3 }, affinity: { mira: 6, lena: 8 } }
     ]

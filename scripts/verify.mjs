@@ -397,6 +397,46 @@ function warmthLaughterChecks(runtime) {
   return errors;
 }
 
+function cutOutPresenceChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.affinity.elias = 20;
+    const before = {
+      recovered: isRecovered("jiro"),
+      alive: isAlive("jiro"),
+      affinity: state.affinity.jiro,
+      text: scenes.cut_out.text
+    };
+    const choice = scenes.crisis.choices.find(item => item.next === "cut_out");
+    makeChoice(choice);
+    return {
+      before,
+      after: {
+        scene: state.scene,
+        jiroAffinity: state.affinity.jiro,
+        amaraAffinity: state.affinity.amara,
+        selaAffinity: state.affinity.sela,
+        eliasAffinity: state.affinity.elias
+      }
+    };
+  })()`);
+
+  if (fixture.before.recovered || fixture.before.alive) {
+    errors.push("early-crisis ET-02 fixture unexpectedly has Jiro present");
+  }
+  if (/third body|Jiro/i.test(fixture.before.text)) {
+    errors.push("cut_out prose implies unrecovered Jiro was present in the lower ring");
+  }
+  if (fixture.after.jiroAffinity !== fixture.before.affinity) {
+    errors.push(`cut_out choice changed unrecovered Jiro affinity ${fixture.before.affinity} -> ${fixture.after.jiroAffinity}`);
+  }
+  if (fixture.after.scene !== "cut_out" || fixture.after.amaraAffinity !== 10 || fixture.after.selaAffinity !== 10 || fixture.after.eliasAffinity !== 14) {
+    errors.push("cut_out presence repair changed the authored route or present-crew affinity effects");
+  }
+  return errors;
+}
+
 function renderPurityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1017,6 +1057,10 @@ function main() {
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
     failures.push(...warmthLaughterErrors);
+
+    const cutOutPresenceErrors = cutOutPresenceChecks(runtime);
+    printCheck("cut_out unrecovered-Jiro presence guard", cutOutPresenceErrors);
+    failures.push(...cutOutPresenceErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
