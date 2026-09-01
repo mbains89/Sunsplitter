@@ -800,10 +800,36 @@ function snapshotState() {
   };
 }
 
-function applySnapshot(data) {
-  if (!data || typeof data !== "object") return false;
+function validSnapshotShape(data) {
+  const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
+  if (!isRecord(data)) return false;
+
   const sceneId = typeof data.scene === "string" && data.scene ? data.scene : "";
   if (!sceneId || !Object.prototype.hasOwnProperty.call(scenes, sceneId)) return false;
+
+  for (const key of ["survivors", "integrity", "cohesion", "supplies", "embryos"]) {
+    const value = data[key];
+    const cap = STAT_CAPS[key];
+    if (typeof value !== "number" || !Number.isFinite(value) || value < cap.min || value > cap.max) return false;
+  }
+
+  for (const key of ["flags", "deathCause", "affinity", "trust", "romance", "pursuit", "favors", "past_known_by", "marks", "ideology", "recovered", "promises"]) {
+    if (data[key] != null && !isRecord(data[key])) return false;
+  }
+  for (const key of ["dead", "memories"]) {
+    if (data[key] != null && !Array.isArray(data[key])) return false;
+  }
+  if (data.dying != null && typeof data.dying !== "string" && !isRecord(data.dying)) return false;
+  if (data.past_known != null && typeof data.past_known !== "boolean") return false;
+  if (data.crisisPath != null && typeof data.crisisPath !== "string") return false;
+  if (data.gameVersion != null && typeof data.gameVersion !== "string") return false;
+  if (data.savedAt != null && (typeof data.savedAt !== "number" || !Number.isFinite(data.savedAt))) return false;
+  return true;
+}
+
+function applySnapshot(data) {
+  if (!validSnapshotShape(data)) return false;
+  const sceneId = data.scene;
   if (typeof data.gameVersion === "string") loadedGameVersion = data.gameVersion;
   else loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
   // Resources
