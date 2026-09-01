@@ -84,7 +84,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
   },
 
   act2_tether_rush: {
-    image: "images/debris_field.jpg",
+    image: "images/tether_ride.jpg",
     onEnter: () => {
       state.flags.tether_rushed = true;
       remember("Ordered a hard intercept of the agri-annex to preserve the water reserve.");

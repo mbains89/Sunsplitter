@@ -180,7 +180,7 @@ const sceneImages = {
   // 0.23 recoveries + vault face (reuse closest plates; dedicated art later)
   act2_tether_sighting: "images/debris_field.jpg",
   act2_tether_vent:     "images/power_crisis.jpg",
-  act2_tether_rush:     "images/debris_field.jpg",
+  act2_tether_rush:     "images/tether_ride.jpg",
   act2_tether_hand_elias: "images/self_risk.jpg",
   act2_tether_hand_mira:  "images/self_risk.jpg",
   act2_tether_hand_sela:  "images/self_risk.jpg",
