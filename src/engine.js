@@ -413,13 +413,13 @@ function resolveEnding() {
   else if (vaultSac === "living" && s >= 5 && c >= 30) {
     title = "The Living Ship";
     art = "images/ending_ship.jpg";
-    text = buildLivingShipText(futureVoices, livingVoices, preg, emb);
+    text = buildLivingShipText(futureVoices, livingVoices, preg, emb, final);
   }
   // Quiet Ship — collapse
   else if (s <= 4 || (emb < 25 && c < 30) || (integ < 15 && s <= 5)) {
     title = "The Quiet Ship";
     art = "images/ending_ship.jpg";
-    text = buildQuietShipText(deadNames, shape);
+    text = buildQuietShipText(deadNames, shape, final);
   }
   // Still Burning — held together
   else if (c >= 48 && s >= 5 && integ >= 22 && (leadership === "together" || reckon === "public" || reckon === "memory" || state.flags.mid_arc === "living")) {
@@ -431,7 +431,7 @@ function resolveEnding() {
   else if (c < 30 || leadership === "watch" || reckon === "suppress" || (vaultSac === "future" && c < 40)) {
     title = "Fracture";
     art = "images/ending_fracture.jpg";
-    text = buildFractureText(shape, leadership, reckon, deadNames, futureVoices, livingVoices);
+    text = buildFractureText(shape, leadership, reckon, deadNames, futureVoices, livingVoices, final);
   }
   // Default long dark
   else {
@@ -521,22 +521,40 @@ function buildLandfallText(shape, planet, final) {
   return text;
 }
 
-function buildLivingShipText(futureVoices, livingVoices, preg, emb) {
+function buildFinalOrderText(final) {
+  if (final === "hold") {
+    return `The rogue-planet course remains on the board. You ordered it held when the final choice was yours.\n\n`;
+  }
+  if (final === "comfort") {
+    return `You traded the destination for speed and comfort. The remaining margin went to the people already aboard.\n\n`;
+  }
+  if (final === "transmission") {
+    return `You sent a final transmission into the dark. The ship went quiet afterward.\n\n`;
+  }
+  if (final === "endure") {
+    return `You refused a grand purpose. The order was the next day, then the next.\n\n`;
+  }
+  return "";
+}
+
+function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
   text += `But the habitation ring is warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
+  text += buildFinalOrderText(final);
   text += `You did not deliver the future intact. You delivered a smaller, warmer present.\n\nWhether that is enough is no longer a command decision.`;
   return text;
 }
 
-function buildQuietShipText(deadNames, shape) {
+function buildQuietShipText(deadNames, shape, final) {
   let text = `Only a few of you remain — or what remains of the restart package is too thin to matter.\n\n`;
   if (deadNames.length) text += `The dead: ${deadNames.join("; ")}.\n\n`;
   if (shape === "future") text += `You protected the vault when you could. It did not save the room.\n\n`;
   if (shape === "living") text += `You protected the living when you could. There were not enough left to matter.\n\n`;
+  text += buildFinalOrderText(final);
   text += `The Sunsplitter drifts. Systems fail one by one. There is no longer any pretense of a future.\n\nYou sit with the last of them in the observation blister and watch the stars that do not care.\n\nWhen the final systems go dark, no one speaks.\n\nThis is how the last light goes out.`;
   return text;
 }
@@ -555,7 +573,7 @@ function buildStillBurningText(crisis, shape, final, planet) {
   return text;
 }
 
-function buildFractureText(shape, leadership, reckon, deadNames, futureVoices, livingVoices) {
+function buildFractureText(shape, leadership, reckon, deadNames, futureVoices, livingVoices, final) {
   let text = `The people under your command no longer move as one.\n\n`;
   if (shape === "future") text += `Protecting the vault cost you the room. The living side of the crew will not forgive the cold.\n\n`;
   if (shape === "living") text += `Protecting the living cost you the mission faction. The numbers people have gone quiet or hard.\n\n`;
@@ -564,6 +582,7 @@ function buildFractureText(shape, leadership, reckon, deadNames, futureVoices, l
   if (futureVoices.length && livingVoices.length) {
     text += `Future still speaks through ${futureVoices[0]}. Living still speaks through ${livingVoices[0]}. They no longer share a language.\n\n`;
   }
+  text += buildFinalOrderText(final);
   text += `You remain Commander in name. In practice the Sunsplitter is a collection of isolated survivors sharing a dying hull.\n\nThe void does not need to kill you. You are doing it yourselves.`;
   return text;
 }
