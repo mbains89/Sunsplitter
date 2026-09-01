@@ -27,7 +27,17 @@ registerScenes({
         t += `Lena has treated a wound with stock you did not approve. She does not apologize.\n\n`;
         t += `"I will not wait for signatures while someone bleeds. You wanted control. This is what control costs in trust."\n\n`;
       } else {
-        t += `Mira and Elias argue in the open about a parts allocation. The crew stops working to listen.\n\n`;
+        const miraPresent = isAlive("mira");
+        const eliasPresent = isAlive("elias");
+        if (miraPresent && eliasPresent) {
+          t += `Mira and Elias argue in the open about a parts allocation. The crew stops working to listen.\n\n`;
+        } else if (miraPresent) {
+          t += `Mira argues in the open about a parts allocation. The crew stops working to listen.\n\n`;
+        } else if (eliasPresent) {
+          t += `Elias argues in the open about a parts allocation. The crew stops working to listen.\n\n`;
+        } else {
+          t += `A parts allocation dispute breaks into the open. The crew stops working to listen.\n\n`;
+        }
         t += `This is what soft fractures look like before they become factions.`;
       }
       if (state.flags.past === "owned" && isAlive("elias")) {

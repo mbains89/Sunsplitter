@@ -692,6 +692,79 @@ function arcLivingImageTruthChecks(runtime) {
   return errors;
 }
 
+function remainingArcLivingTruthChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const inspect = ({ dead = [], recoverTomas = true, conflictMark = null } = {}) => {
+      resetRunState();
+      state.recovered.tomas = recoverTomas;
+      state.recovered.jiro = true;
+      for (const who of dead) kill(who, "fixture");
+      if (conflictMark) mark("conflict", conflictMark);
+      return {
+        arc1Image: resolveSceneImage("arc_living_1", scenes.arc_living_1),
+        arc1Text: String(scenes.arc_living_1.text),
+        arc3Image: resolveSceneImage("arc_living_3", scenes.arc_living_3),
+        arc3Text: String(scenes.arc_living_3.text),
+        arc4Image: resolveSceneImage("arc_living_4", scenes.arc_living_4),
+        arc4Text: String(scenes.arc_living_4.text)
+      };
+    };
+    return {
+      living: inspect(),
+      unrecoveredTomas: inspect({ recoverTomas: false }),
+      deadTomas: inspect({ dead: ["tomas"] }),
+      deadAmara: inspect({ dead: ["amara"] }),
+      deadMira: inspect({ dead: ["mira"] }),
+      deadElias: inspect({ dead: ["elias"] }),
+      deadMiraAndElias: inspect({ dead: ["mira", "elias"] }),
+      heldDeadTomas: inspect({ dead: ["tomas"], conflictMark: "held" }),
+      backedDeadElias: inspect({ dead: ["elias"], conflictMark: "backed" })
+    };
+  })()`);
+
+  if (fixture.living.arc1Image !== "images/hydroponics.jpg" || fixture.deadAmara.arc1Image !== "images/hydroponics.jpg") {
+    errors.push("arc_living_1 no longer resolves to its roster-ambiguous hydroponics plate");
+  }
+  if (!fixture.living.arc1Text.includes("Amara Vale") || fixture.deadAmara.arc1Text.includes("Amara Vale")) {
+    errors.push("arc_living_1 text does not follow Amara living/dead state");
+  }
+
+  if (fixture.living.arc3Image !== "images/arc_living_conflict.jpg") {
+    errors.push(`arc_living_3 living roster resolves to ${fixture.living.arc3Image || "no image"} instead of its locked conflict plate`);
+  }
+  for (const [label, row] of Object.entries({
+    unrecoveredTomas: fixture.unrecoveredTomas,
+    deadTomas: fixture.deadTomas,
+    deadAmara: fixture.deadAmara,
+    deadMira: fixture.deadMira
+  })) {
+    if (row.arc3Image !== "images/corridor.jpg") {
+      errors.push(`arc_living_3 ${label} state resolves to ${row.arc3Image || "no image"} instead of the roster-safe corridor plate`);
+    }
+  }
+  if (!fixture.living.arc3Text.includes("Mira and Elias argue")) {
+    errors.push("arc_living_3 living default dispute lost Mira/Elias presence");
+  }
+  if (fixture.deadMira.arc3Text.includes("Mira") || !fixture.deadMira.arc3Text.includes("Elias argues")) {
+    errors.push("arc_living_3 dead-Mira dispute text is not roster-truthful");
+  }
+  if (fixture.deadElias.arc3Text.includes("Elias") || !fixture.deadElias.arc3Text.includes("Mira argues")) {
+    errors.push("arc_living_3 dead-Elias dispute text is not roster-truthful");
+  }
+  if (/\b(?:Mira|Elias)\b/.test(fixture.deadMiraAndElias.arc3Text)) {
+    errors.push("arc_living_3 names Mira or Elias when both are dead");
+  }
+
+  if (fixture.living.arc4Image !== "images/corridor_pressure_2.jpg" || fixture.heldDeadTomas.arc4Image !== "images/corridor_pressure_2.jpg") {
+    errors.push("arc_living_4 no longer resolves to its roster-ambiguous corridor plate");
+  }
+  if (fixture.heldDeadTomas.arc4Text.includes("Tomas") || fixture.backedDeadElias.arc4Text.includes("Elias")) {
+    errors.push("arc_living_4 conflict callbacks do not follow living/dead state");
+  }
+  return errors;
+}
+
 function warmthMealPresenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1812,6 +1885,10 @@ function main() {
     const arcLivingImageTruthErrors = arcLivingImageTruthChecks(runtime);
     printCheck("arc_living_2 yellow-mark image truth", arcLivingImageTruthErrors);
     failures.push(...arcLivingImageTruthErrors);
+
+    const remainingArcLivingTruthErrors = remainingArcLivingTruthChecks(runtime);
+    printCheck("remaining arc_living image + living/dead state truth", remainingArcLivingTruthErrors);
+    failures.push(...remainingArcLivingTruthErrors);
 
     const warmthMealPresenceErrors = warmthMealPresenceChecks(runtime);
     printCheck("warmth_meal living Tomas entry guard", warmthMealPresenceErrors);
