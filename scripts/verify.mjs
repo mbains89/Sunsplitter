@@ -2458,6 +2458,24 @@ function romanceOpenGateChecks(runtime) {
       affinityDelta: state.affinity.mira - miraHeldOnlyBefore.affinity,
       trustDelta: state.trust.mira - miraHeldOnlyBefore.trust
     };
+
+    resetRunState();
+    for (const who of keys) if (who !== "mira") mark(who, "declined");
+    const miraDeclineChoice = scenes.bond_mira.choices.find(choice => choice.mark && choice.mark.mira === "declined");
+    const miraDeclineBefore = {
+      affinity: state.affinity.mira,
+      trust: state.trust.mira
+    };
+    if (miraDeclineChoice) makeChoice(miraDeclineChoice);
+    result.miraDeclined = {
+      choicePresent: !!miraDeclineChoice,
+      scene: state.scene,
+      mark: state.marks.mira,
+      open: romanceOpen("mira"),
+      routes: scenes.intimacy_window.choices.map(choice => choice.next),
+      affinityDelta: state.affinity.mira - miraDeclineBefore.affinity,
+      trustDelta: state.trust.mira - miraDeclineBefore.trust
+    };
     return result;
   })()`);
 
@@ -2494,6 +2512,15 @@ function romanceOpenGateChecks(runtime) {
   }
   if (fixtures.miraHeldOnly.cohesionDelta !== 2 || fixtures.miraHeldOnly.affinityDelta !== 8 || fixtures.miraHeldOnly.trustDelta !== 8) {
     errors.push("Mira held-only choice no longer applies its one-time authored payoff");
+  }
+  if (!fixtures.miraDeclined.choicePresent || fixtures.miraDeclined.scene !== "intimacy_window" || fixtures.miraDeclined.mark !== "declined") {
+    errors.push("Mira explicit rejection no longer records a durable decline and returns to intimacy_window");
+  }
+  if (fixtures.miraDeclined.open || fixtures.miraDeclined.routes.includes("bond_mira")) {
+    errors.push("Mira explicit rejection still leaves bond_mira open in intimacy_window");
+  }
+  if (fixtures.miraDeclined.affinityDelta !== 0 || fixtures.miraDeclined.trustDelta !== 0) {
+    errors.push("Mira explicit rejection applies a mechanical affinity or trust penalty");
   }
   return errors;
 }
