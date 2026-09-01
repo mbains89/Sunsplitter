@@ -6,6 +6,8 @@
 const TONE_ACK_KEY = "sunsplitter_tone_ack_v1";
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
+const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
+const SAVE_BACKUP_KEY = "sunsplitter_save_v3_backup";
 
 // 0.25: track loaded save gameVersion for in-flight skip of new Elias/Mira lethals
 let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
@@ -907,9 +909,20 @@ function applySnapshot(data) {
   return true;
 }
 
+function validRawSnapshot(raw) {
+  if (!raw) return false;
+  try {
+    return validSnapshotShape(JSON.parse(raw));
+  } catch (e) {
+    return false;
+  }
+}
+
 function readRawSave() {
   try {
     let raw = localStorage.getItem(SAVE_KEY);
+    const backup = localStorage.getItem(SAVE_BACKUP_KEY);
+    if (!validRawSnapshot(raw) && validRawSnapshot(backup)) raw = backup;
     if (!raw) {
       // Migrate legacy v2 (raw state dump)
       const legacy = localStorage.getItem(SAVE_KEY_LEGACY);
@@ -960,28 +973,73 @@ function persistSave(opts) {
   opts = opts || {};
   const silent = !!opts.silent;
   const snap = snapshotState();
+  let previousRaw = null;
+  let previousValid = false;
   let json;
+  try {
+    const liveRaw = localStorage.getItem(SAVE_KEY);
+    const recoveryRaw = localStorage.getItem(SAVE_BACKUP_KEY);
+    previousRaw = validRawSnapshot(liveRaw)
+      ? liveRaw
+      : (validRawSnapshot(recoveryRaw) ? recoveryRaw : liveRaw);
+    previousValid = validRawSnapshot(previousRaw);
+  } catch (e) { /* storage access or malformed prior slot */ }
   try {
     json = JSON.stringify(snap);
   } catch (e) {
-    if (!silent) flashSaveStatus("Save failed", true);
+    reportSaveWriteFailure(silent, previousValid);
     return false;
   }
   try {
-    localStorage.setItem(SAVE_KEY, json);
-    // Verify write (Safari private / quota)
-    const check = localStorage.getItem(SAVE_KEY);
-    if (!check || check.length < 10) {
-      if (!silent) flashSaveStatus("Save failed", true);
-      return false;
+    // Stage and verify before touching the live slot. If a prior slot exists,
+    // preserve its exact bytes until the replacement has also verified.
+    localStorage.setItem(SAVE_STAGING_KEY, json);
+    if (localStorage.getItem(SAVE_STAGING_KEY) !== json) throw new Error("staging verification failed");
+    if (previousRaw !== null) {
+      localStorage.setItem(SAVE_BACKUP_KEY, previousRaw);
+      if (localStorage.getItem(SAVE_BACKUP_KEY) !== previousRaw) throw new Error("backup verification failed");
+    } else {
+      localStorage.removeItem(SAVE_BACKUP_KEY);
     }
+    localStorage.setItem(SAVE_KEY, json);
+    if (localStorage.getItem(SAVE_KEY) !== json) throw new Error("save verification failed");
   } catch (e) {
-    if (!silent) flashSaveStatus("Storage blocked", true);
+    let priorRecoverable = false;
+    try {
+      if (previousRaw !== null && localStorage.getItem(SAVE_KEY) !== previousRaw) {
+        localStorage.setItem(SAVE_KEY, previousRaw);
+      } else if (previousRaw === null) {
+        localStorage.removeItem(SAVE_KEY);
+      }
+    } catch (restoreError) { /* verified backup remains recovery authority */ }
+    try {
+      priorRecoverable = previousValid && (
+        localStorage.getItem(SAVE_KEY) === previousRaw ||
+        localStorage.getItem(SAVE_BACKUP_KEY) === previousRaw
+      );
+    } catch (readError) { /* status fails closed when custody cannot be read */ }
+    try {
+      localStorage.removeItem(SAVE_STAGING_KEY);
+      if (localStorage.getItem(SAVE_KEY) === previousRaw) localStorage.removeItem(SAVE_BACKUP_KEY);
+    } catch (cleanupError) { /* keep any verified backup for readRawSave recovery */ }
+    reportSaveWriteFailure(silent, priorRecoverable);
+    updateMetaSaveHint();
     return false;
   }
+  try {
+    localStorage.removeItem(SAVE_STAGING_KEY);
+    localStorage.removeItem(SAVE_BACKUP_KEY);
+  } catch (e) { /* committed live slot already verified */ }
   if (!silent) flashSaveStatus("Saved");
+  else clearSaveWriteFailure();
   updateMetaSaveHint();
   return true;
+}
+
+function reportSaveWriteFailure(silent, priorRecoverable) {
+  const action = silent ? "Autosave failed" : "Save failed";
+  const custody = priorRecoverable ? "prior slot kept" : "progress not saved";
+  flashSaveStatus(`${action} · ${custody}`, true, true);
 }
 
 function saveGame() {
@@ -1028,12 +1086,14 @@ function clearSave() {
   try {
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem(SAVE_KEY_LEGACY);
+    localStorage.removeItem(SAVE_STAGING_KEY);
+    localStorage.removeItem(SAVE_BACKUP_KEY);
   } catch (e) { /* ignore */ }
   updateMetaSaveHint();
   refreshTitleResumeUI();
 }
 
-function flashSaveStatus(msg, isError) {
+function flashSaveStatus(msg, isError, sticky) {
   let el = document.getElementById("save-status");
   if (!el) {
     // Fallback if meta not in DOM yet
@@ -1044,9 +1104,19 @@ function flashSaveStatus(msg, isError) {
   el.classList.toggle("error", !!isError);
   el.classList.add("visible");
   clearTimeout(window.__ssSaveFlash);
+  if (sticky) return;
   window.__ssSaveFlash = setTimeout(() => {
     el.classList.remove("visible");
   }, 1800);
+}
+
+function clearSaveWriteFailure() {
+  const el = document.getElementById("save-status");
+  if (!el || !el.classList.contains("error")) return;
+  clearTimeout(window.__ssSaveFlash);
+  el.textContent = "";
+  el.classList.remove("error");
+  el.classList.remove("visible");
 }
 
 function updateMetaSaveHint() {
