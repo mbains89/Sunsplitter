@@ -15,7 +15,7 @@ registerScenes({
       }
     },
     text: () => {
-      let t = `The fragment docks ugly — no working attitude thrusters, only a hard magnetic grab and a pressure equalize that makes the whole ring complain. The hatch opens on a tall, wiry figure in a suit patched by the same hands for six years. Long dark hair cut with a knife at the jawline. She looks at you too long, then not at all.
+      let t = `The fragment docks ugly — no working attitude thrusters, only a hard magnetic grab and a pressure equalize that makes the whole ring complain. The hatch opens on a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair still held back from six years of solo work. She looks at you too long, then not at all.
 
 "Commander. Your hull ID has been in my night log for eleven months. I said the names of the Dawnbreak dead every night so somebody did. Yours I already knew."
 

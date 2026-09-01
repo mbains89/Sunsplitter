@@ -638,6 +638,19 @@ function rourkeDyingImageHonestyChecks(runtime) {
   return errors;
 }
 
+function vessHairCanonChecks(runtime) {
+  const errors = [];
+  const boardingText = runtime.evaluate(`String(scenes.vess_boarding.text())`);
+
+  if (!boardingText.includes("Long white-silver hair")) {
+    errors.push("Vess boarding prose does not preserve the locked white-silver hair identity");
+  }
+  if (/long dark hair|knife at the jawline/i.test(boardingText)) {
+    errors.push("Vess boarding prose still renders the retired dark knife-cut hair description");
+  }
+  return errors;
+}
+
 function warmthMealPresenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1750,6 +1763,10 @@ function main() {
     const rourkeDyingImageErrors = rourkeDyingImageHonestyChecks(runtime);
     printCheck("dying Rourke image honesty", rourkeDyingImageErrors);
     failures.push(...rourkeDyingImageErrors);
+
+    const vessHairCanonErrors = vessHairCanonChecks(runtime);
+    printCheck("Vess boarding hair canon", vessHairCanonErrors);
+    failures.push(...vessHairCanonErrors);
 
     const warmthMealPresenceErrors = warmthMealPresenceChecks(runtime);
     printCheck("warmth_meal living Tomas entry guard", warmthMealPresenceErrors);
