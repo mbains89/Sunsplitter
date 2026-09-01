@@ -419,6 +419,50 @@ function unknownSaveSceneChecks(runtime) {
   return errors;
 }
 
+function malformedSnapshotShapeChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.scene = "wake";
+    const valid = snapshotState();
+    const malformed = Object.assign({}, valid, { cohesion: 17, flags: "not-an-object" });
+    const raw = JSON.stringify(malformed);
+    localStorage.setItem("sunsplitter_save_v3", raw);
+
+    resetRunState();
+    const before = { scene: state.scene, cohesion: state.cohesion, flags: Object.assign({}, state.flags) };
+    const ok = loadGame();
+    const after = { scene: state.scene, cohesion: state.cohesion, flags: Object.assign({}, state.flags) };
+
+    const legacy = Object.assign({}, valid, { v: 2, cohesion: 23 });
+    delete legacy.recovered;
+    delete legacy.promises;
+    delete legacy.crisisPath;
+    resetRunState();
+    const legacyOk = applySnapshot(legacy);
+    return {
+      ok,
+      before,
+      after,
+      savePreserved: localStorage.getItem("sunsplitter_save_v3") === raw,
+      legacyOk,
+      legacyCohesion: state.cohesion,
+      legacyRecovered: Object.assign({}, state.recovered)
+    };
+  })()`);
+
+  if (fixture.ok) errors.push("malformed snapshot shape reported a successful resume");
+  if (JSON.stringify(fixture.after) !== JSON.stringify(fixture.before)) {
+    errors.push(`malformed snapshot shape partially mutated live state: ${JSON.stringify(fixture.after)}`);
+  }
+  if (!fixture.savePreserved) errors.push("failed malformed snapshot load replaced or removed the original save blob");
+  if (!fixture.legacyOk || fixture.legacyCohesion !== 23) errors.push("valid legacy v2 snapshot no longer loads");
+  if (fixture.legacyRecovered.tomas || fixture.legacyRecovered.jiro || fixture.legacyRecovered.vess) {
+    errors.push("valid legacy v2 snapshot lost missing-recovery defaults");
+  }
+  return errors;
+}
+
 function warmthLaughterChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1398,6 +1442,10 @@ function main() {
     const unknownSaveSceneErrors = unknownSaveSceneChecks(runtime);
     printCheck("unknown save scene fails closed without mutating live state", unknownSaveSceneErrors);
     failures.push(...unknownSaveSceneErrors);
+
+    const malformedSnapshotShapeErrors = malformedSnapshotShapeChecks(runtime);
+    printCheck("malformed save snapshot shape fails atomically", malformedSnapshotShapeErrors);
+    failures.push(...malformedSnapshotShapeErrors);
 
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
