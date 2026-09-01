@@ -856,6 +856,68 @@ function lastTransmissionChecks(runtime) {
   return errors;
 }
 
+function vessCourseRetirementChecks(runtime) {
+  const errors = [];
+  const scenesSource = readFileSync(resolve(ROOT, "src/scenes-16.js"), "utf8");
+  const validatorSource = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  const fixture = runtime.evaluate(`(() => {
+    const renderText = id => typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+
+    resetRunState();
+    kill("mira", "L-027 fixture");
+    const signalWithoutMira = renderText("vess_signal");
+
+    resetRunState();
+    const redirect = scenes.vess_cost.onEnter();
+    const cost = {
+      redirect: redirect || null,
+      text: renderText("vess_cost"),
+      busDowngraded: state.flags.busDowngraded,
+      reactionMassSpent: state.flags.reaction_mass_spent,
+      hasRetiredFlag: Object.prototype.hasOwnProperty.call(state.flags, "vess_course_lost"),
+      memories: state.memories.slice(),
+      choices: scenes.vess_cost.choices.map(choice => ({
+        next: choice.next,
+        effects: choice.effects || null
+      }))
+    };
+
+    const legacy = snapshotState();
+    legacy.flags.vess_course_lost = true;
+    resetRunState();
+    const loaded = applySnapshot(legacy);
+    const hasLegacyAfterLoad = Object.prototype.hasOwnProperty.call(state.flags, "vess_course_lost");
+    const hasLegacyAfterResave = Object.prototype.hasOwnProperty.call(snapshotState().flags, "vess_course_lost");
+
+    return { signalWithoutMira, cost, loaded, hasLegacyAfterLoad, hasLegacyAfterResave };
+  })()`);
+
+  if (scenesSource.includes("vess_course_lost")) errors.push("vess scenes still write the retired vess_course_lost flag");
+  if (validatorSource.includes('"vess_course_lost"')) errors.push("validator still exempts retired vess_course_lost as an engine flag");
+  if (/late course|held back for a late/i.test(`${fixture.signalWithoutMira}\n${fixture.cost.text}`)) {
+    errors.push("Vess recovery copy still promises an unavailable downstream course option");
+  }
+  if (fixture.cost.hasRetiredFlag) errors.push("vess_cost still creates vess_course_lost");
+  if (!fixture.cost.busDowngraded || !fixture.cost.reactionMassSpent) {
+    errors.push("Vess recovery no longer preserves busDowngraded and reaction_mass_spent");
+  }
+  if (fixture.cost.redirect !== null) errors.push(`vess_cost unexpectedly redirects to ${fixture.cost.redirect}`);
+  if (fixture.cost.choices.length !== 2 || fixture.cost.choices.some(choice => choice.next !== "vess_boarding")) {
+    errors.push("vess_cost no longer preserves both boarding routes");
+  }
+  const paidEffects = fixture.cost.choices[0]?.effects;
+  if (paidEffects?.supplies !== -3 || paidEffects?.integrity !== -1 || fixture.cost.choices[1]?.effects !== null) {
+    errors.push("vess_cost no longer preserves its paid and rough-seal costs");
+  }
+  if (!fixture.cost.memories.some(memory => memory.includes("recover Vess from Dawnbreak"))) {
+    errors.push("Vess recovery memory was lost");
+  }
+  if (!fixture.loaded || fixture.hasLegacyAfterLoad || fixture.hasLegacyAfterResave) {
+    errors.push("legacy vess_course_lost survives load or resave");
+  }
+  return errors;
+}
+
 function commanderIdentityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1221,6 +1283,10 @@ function main() {
     const lastTransmissionErrors = lastTransmissionChecks(runtime);
     printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
     failures.push(...lastTransmissionErrors);
+
+    const vessCourseRetirementErrors = vessCourseRetirementChecks(runtime);
+    printCheck("L-027 retired Vess course promise and legacy flag", vessCourseRetirementErrors);
+    failures.push(...vessCourseRetirementErrors);
 
     const commanderIdentityErrors = commanderIdentityChecks(runtime);
     printCheck("L-025 player-shaped Commander rendered paths", commanderIdentityErrors);

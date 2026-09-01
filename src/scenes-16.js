@@ -106,7 +106,7 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
       if (isAlive("mira")) {
         t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
       } else {
-        t += `\n\nThe geometry is clear from the boards: matchable, but the reaction-mass reserve held for a late course option will be spent, and the environmental bus will run degraded to power her relay core. No second window.`;
+        t += `\n\nThe geometry is clear from the boards: matchable, but the docking burn will spend reaction mass now, and the environmental bus will run degraded to power her relay core. No second window.`;
       }
       if (isAlive("elias")) {
         t += `\n\n"Eleven months of listening," Elias says. "She already knows our hull ID. Decide whether that is a gift or a problem after she is aboard."`;
@@ -123,12 +123,10 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
     onEnter: () => {
       state.flags.busDowngraded = true;
       state.flags.reaction_mass_spent = true;
-      // Distinct from Jiro burn course_option_lost (0.24.2)
-      state.flags.vess_course_lost = true;
-      remember("Spent the last clean reaction-mass reserve to recover Vess from Dawnbreak.");
+      remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
       remember("Environmental bus runs degraded for her relay core.");
     },
-    text: () => `Matching the fragment costs the last clean reaction-mass reserve that was held back for a late course correction. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.
+    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.
 
 The window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.
 
