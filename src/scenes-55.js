@@ -18,7 +18,8 @@ registerScenes({
     ]
   },
 
-  // PRE: custody question route; supports only the two governed custody repairs | WRITES: none; routes only
+  // PRE: custody question route; supports only the two governed custody repairs
+  // WRITES: thaw/sever choices pay their declared effects immediately; sever also writes Future lean
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Sela options are living-gated
   // IMAGE: REUSE images/vault.jpg; no new art request
   custody_hub: {
@@ -37,13 +38,16 @@ registerScenes({
         {
           text: "Thaw outer embryo racks to absorb the heat.",
           next: "custody_thaw",
-          requires: { embryos: { min: 14 }, cohesion: { min: 1 } }
+          requires: { embryos: { min: 14 }, cohesion: { min: 1 } },
+          effects: { embryos: -14, cohesion: -1 }
         },
         {
           text: "Mira severs the fused thermal junction in the unpressurized skin.",
           next: "custody_severed",
           alive: "mira",
-          requires: { integrity: { min: 3 } }
+          requires: { integrity: { min: 3 } },
+          effects: { integrity: -2, cohesion: 1 },
+          lean: { future: 1 }
         }
       ];
       if (state.promises.sela !== "broken") {
@@ -84,13 +88,13 @@ registerScenes({
     ]
   },
 
-  // PRE: custody_hub threshold or legacy direct resume; underfunded resume redirects before writes | WRITES: valid entry writes custody_answer/custody_roll; exit spends embryos 14 and cohesion 1
+  // PRE: newly committed thaw choice, or a pre-FH-01B save already parked here
+  // WRITES: entry records custody_answer/custody_roll; acknowledgement writes nothing and never charges a parked legacy save
   // DEATH: none | DEAD SPEECH/APPEARANCE: no named character speaks or appears
   // IMAGE: REUSE images/vault_interior_alt.jpg; no new art request
   custody_thaw: {
     image: "images/vault_interior_alt.jpg",
     onEnter: () => {
-      if (state.embryos < 14 || state.cohesion < 1) return "custody_hub";
       state.flags.custody_answer = "thawed";
       state.flags.custody_roll = true;
     },
@@ -99,15 +103,13 @@ registerScenes({
       t += `The thawed embryos become an explicit fact the endings will have to name.`;
       return t;
     },
-    choices: [
-      {
-        text: "Accept the reduced count.",
-        next: "custody_after",
-        effects: { embryos: -14, cohesion: -1 }
-      }
-    ]
+    choices: [ { text: "Accept the reduced count.", next: "custody_after" } ]
   },
 
+  // PRE: newly committed sever choice with living Mira, or a pre-FH-01B save already parked here
+  // WRITES: entry records custody_answer/custody_roll; acknowledgement writes nothing and never charges a parked legacy save
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira's line is historical to this committed scene
+  // IMAGE: REUSE images/mira_thermal_cut.jpg; no new art request
   custody_severed: {
     image: "images/mira_thermal_cut.jpg",
     onEnter: () => {
@@ -119,14 +121,7 @@ registerScenes({
       t += `She comes back with cold-radiation injury she will carry for the rest of the voyage. She does not ask for thanks.`;
       return t;
     },
-    choices: [
-      {
-        text: "Get her to medical. Log the cut.",
-        next: "custody_after",
-        effects: { integrity: -2, cohesion: 1 },
-        lean: { future: 1 }
-      }
-    ]
+    choices: [ { text: "Get her to medical. Log the cut.", next: "custody_after" } ]
   },
 
   custody_shared: {
