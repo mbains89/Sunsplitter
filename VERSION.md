@@ -1,4 +1,4 @@
-0.30
+0.33
 
-Packaging pass after What Remains + Cascade Allusive.
-Safe meta (description, theme-color). Version surfaces aligned.
+Player Experience and Narrative Closure playtest candidate.
+NO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.
