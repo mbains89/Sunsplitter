@@ -26,6 +26,7 @@ import {
   sceneIdDigest,
   simulationAssertions
 } from "./simulate.mjs";
+import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -1361,6 +1362,10 @@ function main() {
     const pairShieldErrors = pairShieldReachabilityChecks(runtime);
     printCheck("L-020 pair_shield_cold one-shot reachability", pairShieldErrors);
     failures.push(...pairShieldErrors);
+
+    const offshiftGuardErrors = offshiftDefensiveGuardChecks(runtime);
+    printCheck("L-026 Off-Shift defensive save-recovery guards", offshiftGuardErrors);
+    failures.push(...offshiftGuardErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
