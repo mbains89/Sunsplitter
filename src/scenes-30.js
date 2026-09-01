@@ -20,7 +20,7 @@ registerScenes({
       return [
         { text: "Stay. Give her the honest hour.", next: "romance_mira_1", affinity: { mira: 10 }, trust: { mira: 6 } },
         { text: "Tell her you care — and that sex would complicate the chain of command tonight.", next: "intimacy_window", affinity: { mira: 8 }, trust: { mira: 8 }, mark: { mira: "held_only" }, effects: { cohesion: 2 } },
-        { text: "Step back. Not her. Not like this.", next: "intimacy_window", affinity: { mira: -2 }, trust: { mira: -4 }, mark: { mira: "declined" } }
+        { text: "Step back. Not her. Not like this.", next: "intimacy_window", mark: { mira: "declined" } }
       ];
     }
   },
