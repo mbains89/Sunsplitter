@@ -1897,6 +1897,95 @@ function vaultPriorityChecks(runtime) {
   return errors;
 }
 
+function arcForkCostChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const statKeys = ["integrity", "cohesion", "supplies", "embryos"];
+    const snapshot = () => statKeys.map(key => state[key]);
+    const delta = (before, after) => after.map((value, index) => value - before[index]);
+    const inspectRoute = next => {
+      resetRunState();
+      const choice = scenes.arc_fork.choices.find(item => item.next === next);
+      const before = snapshot();
+      makeChoice(choice);
+      return {
+        effects: choice.effects || null,
+        delta: delta(before, snapshot()),
+        scene: state.scene,
+        midArc: state.flags.mid_arc,
+        futureLean: state.ideology.future,
+        livingLean: state.ideology.living
+      };
+    };
+
+    resetRunState();
+    document.getElementById("choices").children = [];
+    showScene("arc_fork");
+    const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+
+    resetRunState();
+    state.integrity = 0;
+    state.cohesion = 0;
+    state.embryos = 0;
+    document.getElementById("choices").children = [];
+    showScene("arc_fork");
+    const depletedChoices = scenes.arc_fork.choices;
+    const depletedButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+    const fallback = depletedChoices.find(item => !item.effects);
+    const beforeFallback = snapshot();
+    makeChoice(fallback);
+    const afterFallback = snapshot();
+    const fallbackScene = state.scene;
+
+    return {
+      future: inspectRoute("arc_future_1"),
+      living: inspectRoute("arc_living_1"),
+      defaultButtons,
+      depleted: {
+        choiceCount: depletedChoices.length,
+        enabledCount: depletedButtons.filter(button => !button.disabled).length,
+        fallbackText: fallback && fallback.text,
+        fallbackNext: fallback && fallback.next,
+        fallbackDelta: delta(beforeFallback, afterFallback),
+        scene: fallbackScene
+      }
+    };
+  })()`);
+
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  if (!same(fixture.future.effects, { integrity: -3, cohesion: -3 }) ||
+      !same(fixture.future.delta, [-3, -3, 0, 0]) ||
+      fixture.future.scene !== "arc_future_1" || fixture.future.midArc !== "future" || fixture.future.futureLean !== 4) {
+    errors.push(`arc_fork future route did not charge its visible Hull/Cohesion cost: ${JSON.stringify(fixture.future)}`);
+  }
+  if (!same(fixture.living.effects, { embryos: -5 }) ||
+      !same(fixture.living.delta, [0, 0, 0, -5]) ||
+      fixture.living.scene !== "arc_living_1" || fixture.living.midArc !== "living" || fixture.living.livingLean !== 4) {
+    errors.push(`arc_fork living route did not charge its visible Embryos cost: ${JSON.stringify(fixture.living)}`);
+  }
+  if (fixture.defaultButtons.length !== 2 || fixture.defaultButtons.some(button => button.disabled)) {
+    errors.push("arc_fork default state no longer renders both paid routes as enabled");
+  }
+  for (const label of ["-3 Hull", "-3 Cohesion", "-5 Embryos"]) {
+    if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
+      errors.push(`arc_fork does not render immediate cost label ${label}`);
+    }
+  }
+  if (fixture.depleted.choiceCount !== 3 || fixture.depleted.enabledCount !== 1 ||
+      !/no margin left to spend/i.test(fixture.depleted.fallbackText || "") ||
+      fixture.depleted.fallbackNext !== "arc_future_1" ||
+      !same(fixture.depleted.fallbackDelta, [0, 0, 0, 0]) || fixture.depleted.scene !== "arc_future_1") {
+    errors.push(`arc_fork depleted-state L-021 fallback mismatch: ${JSON.stringify(fixture.depleted)}`);
+  }
+  return errors;
+}
+
 function pairShieldReachabilityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -3200,6 +3289,10 @@ async function main() {
     const vaultPriorityErrors = vaultPriorityChecks(runtime);
     printCheck("L-022 early vault_priority preservation", vaultPriorityErrors);
     failures.push(...vaultPriorityErrors);
+
+    const arcForkCostErrors = arcForkCostChecks(runtime);
+    printCheck("0.33 arc_fork visible costs + L-021 floor", arcForkCostErrors);
+    failures.push(...arcForkCostErrors);
 
     const pairShieldErrors = pairShieldReachabilityChecks(runtime);
     printCheck("L-020 pair_shield_cold one-shot reachability", pairShieldErrors);

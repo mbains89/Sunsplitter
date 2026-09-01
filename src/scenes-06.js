@@ -3,6 +3,9 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: vault_voice exit | WRITES: mid_arc, immediate resource cost, lean, affinity; degraded floor preserves L-021
+  // DEATH: none | DEAD SPEECH/APPEARANCE: none
+  // IMAGE: REUSE observation_reckon.jpg; ART-R2 remains separate
   arc_fork: {
     get text() {
       const shape = ideologyShape();
@@ -16,10 +19,16 @@ registerScenes({
       t += `Where do you put your weight?`;
       return t;
     },
-    choices: [
-      { text: "The future work. Drive, vault, trajectory — keep the restart package honest.", next: "arc_future_1", flag: { mid_arc: "future" }, lean: { future: 4 }, affinity: { elias: 4, jiro: 4, mira: 3 } },
-      { text: "The living work. Habitation, food, the people who still have names.", next: "arc_living_1", flag: { mid_arc: "living" }, lean: { living: 4 }, affinity: { lena: 4, tomas: 4, amara: 3, sela: 3 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "The future work. Strip hull reserve for drive and vault, and spend crew trust to do it.", next: "arc_future_1", effects: { integrity: -3, cohesion: -3 }, flag: { mid_arc: "future" }, lean: { future: 4 }, affinity: { elias: 4, jiro: 4, mira: 3 } },
+        { text: "The living work. Divert vault power to habitation, even though embryo viability falls.", next: "arc_living_1", effects: { embryos: -5 }, flag: { mid_arc: "living" }, lean: { living: 4 }, affinity: { lena: 4, tomas: 4, amara: 3, sela: 3 } }
+      ];
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({ text: "There is no margin left to spend. Send engineering a work order without pulling resources.", next: "arc_future_1", flag: { mid_arc: "future" }, lean: { future: 1 } });
+      }
+      return routes;
+    }
   },
 
   // PRE: arc_fork future-work route | WRITES: paid choices affect resources/affinity/trust/lean; governed floor writes nothing
