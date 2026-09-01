@@ -8,10 +8,14 @@ const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
 const SAVE_BACKUP_KEY = "sunsplitter_save_v3_backup";
+const SAVE_SCHEMA_VERSION = 3;
+const MIN_IMPORT_SCHEMA_VERSION = 2;
+const MAX_IMPORT_BYTES = 1_048_576;
 
 // 0.25: track loaded save gameVersion for in-flight skip of new Elias/Mira lethals
 let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
 let renderingSavedScene = false;
+let pendingLegacyResume = null;
 
 function hasAcknowledgedTone() {
   try {
@@ -886,7 +890,7 @@ function renderCrewPanel(selectedKey) {
 function snapshotState() {
   // Explicit allowlist — full run state 0.17.1+ relies on
   return {
-    v: 3,
+    v: SAVE_SCHEMA_VERSION,
     gameVersion: (typeof VERSION !== "undefined" ? VERSION : "0.19"),
     savedAt: Date.now(),
     sceneEntered: true,
@@ -997,11 +1001,282 @@ function validRawSnapshot(raw) {
   }
 }
 
+function safeImportTree(value, depth, budget) {
+  if (depth > 8 || budget.count > 2_000) return false;
+  if (value === null || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "string") return value.length <= 4_096;
+  if (Array.isArray(value)) {
+    if (value.length > 512) return false;
+    budget.count += value.length;
+    return value.every(item => safeImportTree(item, depth + 1, budget));
+  }
+  if (typeof value !== "object") return false;
+  const keys = Object.keys(value);
+  if (keys.length > 512) return false;
+  budget.count += keys.length;
+  for (const key of keys) {
+    if (key === "__proto__" || key === "prototype" || key === "constructor" || key.length > 128) return false;
+    if (!safeImportTree(value[key], depth + 1, budget)) return false;
+  }
+  return true;
+}
+
+function validImportedSnapshot(data) {
+  if (!safeImportTree(data, 0, { count: 0 }) || !validSnapshotShape(data)) return false;
+  const schema = data.v == null ? MIN_IMPORT_SCHEMA_VERSION : data.v;
+  if (!Number.isInteger(schema) || schema < MIN_IMPORT_SCHEMA_VERSION || schema > SAVE_SCHEMA_VERSION) return false;
+  const allowedTopLevel = new Set([
+    "v", "gameVersion", "savedAt", "sceneEntered", "survivors", "integrity", "cohesion", "supplies", "embryos",
+    "flags", "dead", "deathCause", "scene", "affinity", "trust", "romance", "pursuit", "favors",
+    "past_known_by", "dying", "past_known", "marks", "memories", "ideology", "recovered", "promises", "crisisPath"
+  ]);
+  if (Object.keys(data).some(key => !allowedTopLevel.has(key))) return false;
+  if (data.gameVersion != null && (!data.gameVersion.trim() || data.gameVersion.length > 32)) return false;
+  const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
+  const isCrewKey = key => Object.prototype.hasOwnProperty.call(crew, key);
+  const validMap = (map, validKey, validValue) => map == null ||
+    Object.entries(map).every(([key, value]) => validKey(key) && validValue(value));
+  const isBoolean = value => typeof value === "boolean";
+  const isCause = value => typeof value === "string" && value.length > 0;
+  const isBoundedScore = value => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+  const isFlagValue = value => value === null || typeof value === "boolean" || typeof value === "string" ||
+    (typeof value === "number" && Number.isFinite(value));
+  const isMarkValue = value => typeof value === "string" ||
+    (isRecord(value) && Object.values(value).every(isBoolean));
+  const promiseStates = new Set(["made", "declined", "kept", "broken"]);
+
+  const dead = data.dead || [];
+  if (dead.some(key => typeof key !== "string" || !isCrewKey(key)) || new Set(dead).size !== dead.length) return false;
+  if ((data.memories || []).length > 12 || (data.memories || []).some(memory => typeof memory !== "string")) return false;
+  if (!validMap(data.flags, () => true, isFlagValue)) return false;
+  if (!validMap(data.deathCause, isCrewKey, isCause)) return false;
+  if (!validMap(data.affinity, isCrewKey, isBoundedScore) || !validMap(data.trust, isCrewKey, isBoundedScore)) return false;
+  if (!validMap(data.romance, key => isCrewKey(key) || key === "amara_tomas", isBoolean)) return false;
+  for (const map of [data.pursuit, data.favors, data.past_known_by, data.recovered]) {
+    if (!validMap(map, isCrewKey, isBoolean)) return false;
+  }
+  if (typeof data.dying === "string") {
+    if (!isCrewKey(data.dying)) return false;
+  } else if (!validMap(data.dying, isCrewKey, isCause)) return false;
+  if (!validMap(data.marks, () => true, isMarkValue)) return false;
+  if (!validMap(data.promises, isCrewKey, value => promiseStates.has(value))) return false;
+  if (!validMap(data.ideology, key => key === "future" || key === "living",
+    value => typeof value === "number" && Number.isFinite(value))) return false;
+  return true;
+}
+
+function inspectSaveImportText(text) {
+  if (typeof text !== "string" || !text.trim()) return { ok: false, error: "empty file" };
+  const normalizedText = text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text;
+  const byteLength = typeof TextEncoder === "function"
+    ? new TextEncoder().encode(normalizedText).length
+    : normalizedText.length;
+  if (byteLength > MAX_IMPORT_BYTES) return { ok: false, error: "file is too large" };
+  let parsed;
+  try {
+    parsed = JSON.parse(normalizedText);
+  } catch (e) {
+    return { ok: false, error: "file is not valid JSON" };
+  }
+  const schema = parsed && parsed.v == null ? MIN_IMPORT_SCHEMA_VERSION : parsed && parsed.v;
+  if (!Number.isInteger(schema) || schema < MIN_IMPORT_SCHEMA_VERSION) {
+    return { ok: false, error: "unsupported save format" };
+  }
+  if (schema > SAVE_SCHEMA_VERSION) return { ok: false, error: "save format is newer than this game" };
+  if (!validImportedSnapshot(parsed)) return { ok: false, error: "save data is unsupported or unsafe" };
+  const legacyFile = parsed.v == null || parsed.v === 2;
+  // Some later v2 saves already carry the one-time scene-entry marker.
+  if (legacyFile && parsed.sceneEntered !== true) delete parsed.sceneEntered;
+  return { ok: true, raw: JSON.stringify(parsed), snapshot: parsed, legacyFile };
+}
+
+function buildSaveExport() {
+  const raw = readRawSave();
+  if (!validRawSnapshot(raw)) return null;
+  const save = JSON.parse(raw);
+  const exportedAt = Date.now();
+  const version = String(save.gameVersion || "legacy").replace(/[^0-9A-Za-z.-]+/g, "-").slice(0, 32) || "legacy";
+  const stamp = new Date(exportedAt).toISOString().slice(0, 10);
+  return {
+    filename: `sunsplitter-save-v${version}-${stamp}.json`,
+    text: raw
+  };
+}
+
+function exportSaveFile() {
+  const prepared = buildSaveExport();
+  if (!prepared) {
+    flashSaveStatus("No valid save to export", true, true);
+    return false;
+  }
+  let url = null;
+  let link = null;
+  try {
+    const blob = new Blob([prepared.text], { type: "application/json" });
+    url = URL.createObjectURL(blob);
+    link = document.createElement("a");
+    link.href = url;
+    link.download = prepared.filename;
+    link.hidden = true;
+    document.body.appendChild(link);
+    link.click();
+    flashSaveStatus("Export prepared");
+    return true;
+  } catch (e) {
+    flashSaveStatus("Export failed", true, true);
+    return false;
+  } finally {
+    if (link && link.parentNode) link.parentNode.removeChild(link);
+    // Give mobile Safari time to consume the blob after the synthetic click.
+    if (url) setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+}
+
+function restoreStorageValue(key, value) {
+  if (value === null) localStorage.removeItem(key);
+  else localStorage.setItem(key, value);
+  return localStorage.getItem(key) === value;
+}
+
+function commitImportedSave(raw) {
+  const keys = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY];
+  let originals;
+  try {
+    originals = Object.fromEntries(keys.map(key => [key, localStorage.getItem(key)]));
+  } catch (e) {
+    flashSaveStatus("Import failed · storage unavailable", true, true);
+    return false;
+  }
+  const hadOriginal = keys.some(key => originals[key] !== null);
+  let priorRaw = null;
+  try {
+    priorRaw = readRawSave();
+    localStorage.setItem(SAVE_STAGING_KEY, raw);
+    if (localStorage.getItem(SAVE_STAGING_KEY) !== raw || !validRawSnapshot(raw)) throw new Error("staging verification failed");
+    if (validRawSnapshot(priorRaw)) {
+      localStorage.setItem(SAVE_BACKUP_KEY, priorRaw);
+      if (localStorage.getItem(SAVE_BACKUP_KEY) !== priorRaw) throw new Error("backup verification failed");
+    } else {
+      localStorage.removeItem(SAVE_BACKUP_KEY);
+    }
+    localStorage.setItem(SAVE_KEY, raw);
+    if (localStorage.getItem(SAVE_KEY) !== raw || !validRawSnapshot(localStorage.getItem(SAVE_KEY))) {
+      throw new Error("import verification failed");
+    }
+    localStorage.removeItem(SAVE_KEY_LEGACY);
+    if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
+    localStorage.removeItem(SAVE_BACKUP_KEY);
+    localStorage.removeItem(SAVE_STAGING_KEY);
+    if (localStorage.getItem(SAVE_BACKUP_KEY) !== null || localStorage.getItem(SAVE_STAGING_KEY) !== null) {
+      throw new Error("transaction cleanup failed");
+    }
+  } catch (e) {
+    let liveRestored = false;
+    try { liveRestored = restoreStorageValue(SAVE_KEY, originals[SAVE_KEY]); } catch (restoreError) { /* recover below */ }
+    try { restoreStorageValue(SAVE_KEY_LEGACY, originals[SAVE_KEY_LEGACY]); } catch (restoreError) { /* recover below */ }
+    if (liveRestored) {
+      try { restoreStorageValue(SAVE_STAGING_KEY, originals[SAVE_STAGING_KEY]); } catch (restoreError) { /* checked below */ }
+      try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
+    } else {
+      // Keep a durable interrupted-transaction marker. readRawSave() treats
+      // the matching live candidate as uncommitted and selects this backup.
+      try { restoreStorageValue(SAVE_STAGING_KEY, raw); } catch (restoreError) { /* checked below */ }
+      if (validRawSnapshot(priorRaw)) {
+        try { restoreStorageValue(SAVE_BACKUP_KEY, priorRaw); } catch (restoreError) { /* checked below */ }
+      } else {
+        try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
+      }
+    }
+    let priorRecoverable = false;
+    try {
+      const effective = readRawSave();
+      priorRecoverable = priorRaw === null ? effective === null : effective === priorRaw;
+    } catch (readError) { /* fail closed below */ }
+    const message = priorRecoverable
+      ? "Import failed · original slot kept"
+      : (hadOriginal ? "Import failed · storage recovery required" : "Import failed · no replacement written");
+    flashSaveStatus(message, true, true);
+    updateMetaSaveHint();
+    refreshTitleResumeUI();
+    return false;
+  }
+  pendingLegacyResume = null;
+  updateMetaSaveHint();
+  refreshTitleResumeUI();
+  flashSaveStatus("Imported · Continue to load");
+  return true;
+}
+
+function importSaveText(text) {
+  const inspected = inspectSaveImportText(text);
+  if (!inspected.ok) {
+    flashSaveStatus(`Import rejected · ${inspected.error}`, true, true);
+    return false;
+  }
+  let hasStoredBytes = false;
+  try {
+    hasStoredBytes = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY]
+      .some(key => localStorage.getItem(key) !== null);
+  } catch (e) {
+    flashSaveStatus("Import failed · storage unavailable", true, true);
+    return false;
+  }
+  const prompt = hasStoredBytes
+    ? "Import this save? This will replace the saved run on this device."
+    : "Import this save onto this device?";
+  if (!window.confirm(prompt)) {
+    flashSaveStatus("Import cancelled");
+    return false;
+  }
+  return commitImportedSave(inspected.raw);
+}
+
+function requestSaveImport() {
+  const input = document.getElementById("save-import-file");
+  if (!input) return false;
+  input.value = "";
+  input.click();
+  return true;
+}
+
+function readSaveImportFile(file) {
+  if (file && typeof file.text === "function") return file.text();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("read failed"));
+    reader.readAsText(file);
+  });
+}
+
+async function handleSaveImportSelection(input) {
+  const file = input && input.files ? input.files[0] : null;
+  if (!file) return false;
+  try {
+    if (typeof file.size === "number" && file.size > MAX_IMPORT_BYTES) {
+      flashSaveStatus("Import rejected · file is too large", true, true);
+      return false;
+    }
+    return importSaveText(await readSaveImportFile(file));
+  } catch (e) {
+    flashSaveStatus("Import failed · file could not be read", true, true);
+    return false;
+  } finally {
+    input.value = "";
+  }
+}
+
 function readRawSave() {
   try {
     let raw = localStorage.getItem(SAVE_KEY);
+    const staging = localStorage.getItem(SAVE_STAGING_KEY);
     const backup = localStorage.getItem(SAVE_BACKUP_KEY);
-    if (!validRawSnapshot(raw) && validRawSnapshot(backup)) raw = backup;
+    if (validRawSnapshot(staging) && raw === staging) {
+      // A live value that still matches staging never completed its
+      // transaction. Prefer the preserved prior slot, or fail closed.
+      raw = validRawSnapshot(backup) ? backup : null;
+    } else if (!validRawSnapshot(raw) && validRawSnapshot(backup)) raw = backup;
     if (!raw) {
       // Read legacy v2 without mutating storage. A successful explicit load
       // adopts it through the ordinary verified v3 save transaction.
@@ -1151,6 +1426,26 @@ function loadGame() {
     flashSaveStatus("Save corrupt", true);
     return false;
   }
+  if (pendingLegacyResume && pendingLegacyResume.raw === raw) {
+    if (!applySnapshot(pendingLegacyResume.snapshot)) {
+      pendingLegacyResume = null;
+      flashSaveStatus("Load failed", true, true);
+      return false;
+    }
+    loadedGameVersion = pendingLegacyResume.loadedGameVersion;
+    if (!persistSave({ silent: true })) {
+      showTitleScreen();
+      return false;
+    }
+    pendingLegacyResume = null;
+    showScreen("game");
+    renderStatus();
+    showScene(state.scene, { skipOnEnter: true, resume: true });
+    updateMetaSaveHint();
+    flashSaveStatus("Resumed");
+    return true;
+  }
+  pendingLegacyResume = null;
   // Do not wipe existing storage if apply fails
   const ok = applySnapshot(data);
   if (!ok) {
@@ -1163,7 +1458,15 @@ function loadGame() {
   showScene(state.scene, { skipOnEnter: sceneEntered, resume: true });
   // Older snapshots predate the scene-entry marker. Preserve their one-time
   // compatibility entry, then adopt the marker so later resumes stay pure.
-  if (!sceneEntered) persistSave({ silent: true });
+  if (!sceneEntered && !persistSave({ silent: true })) {
+    pendingLegacyResume = {
+      raw,
+      snapshot: snapshotState(),
+      loadedGameVersion
+    };
+    showTitleScreen();
+    return false;
+  }
   updateMetaSaveHint();
   flashSaveStatus("Resumed");
   return true;
@@ -1185,29 +1488,37 @@ function clearSave() {
 }
 
 function flashSaveStatus(msg, isError, sticky) {
-  let el = document.getElementById("save-status");
-  if (!el) {
+  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")].filter(Boolean);
+  if (!targets.length) {
     // Fallback if meta not in DOM yet
     if (isError) try { window.alert(msg); } catch (e) {}
     return;
   }
-  el.textContent = msg;
-  el.classList.toggle("error", !!isError);
-  el.classList.add("visible");
+  targets.forEach(el => {
+    el.textContent = msg;
+    el.classList.toggle("error", !!isError);
+    el.classList.add("visible");
+  });
   clearTimeout(window.__ssSaveFlash);
   if (sticky) return;
   window.__ssSaveFlash = setTimeout(() => {
-    el.classList.remove("visible");
+    targets.forEach(el => {
+      el.classList.remove("visible");
+      if (el.id === "title-save-status") el.textContent = "";
+    });
   }, 1800);
 }
 
 function clearSaveWriteFailure() {
-  const el = document.getElementById("save-status");
-  if (!el || !el.classList.contains("error")) return;
+  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")]
+    .filter(el => el && el.classList.contains("error"));
+  if (!targets.length) return;
   clearTimeout(window.__ssSaveFlash);
-  el.textContent = "";
-  el.classList.remove("error");
-  el.classList.remove("visible");
+  targets.forEach(el => {
+    el.textContent = "";
+    el.classList.remove("error");
+    el.classList.remove("visible");
+  });
 }
 
 function updateMetaSaveHint() {
@@ -1227,6 +1538,7 @@ function refreshTitleResumeUI() {
   const resumeBtn = document.getElementById("btn-resume");
   const resumeMeta = document.getElementById("resume-meta");
   const beginBtn = document.getElementById("btn-begin");
+  const exportBtn = document.getElementById("btn-export-save");
   const has = hasSave();
   if (resumeBtn) {
     if (has) resumeBtn.classList.remove("hidden");
@@ -1247,6 +1559,11 @@ function refreshTitleResumeUI() {
   }
   if (beginBtn) {
     beginBtn.textContent = has ? "New run" : "Begin";
+  }
+  if (exportBtn) {
+    let exportable = false;
+    try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
+    exportBtn.classList.toggle("hidden", !exportable);
   }
 }
 

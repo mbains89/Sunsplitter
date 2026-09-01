@@ -573,6 +573,458 @@ function newRunChecks(runtime) {
   return errors;
 }
 
+async function saveTransferChecks(runtime) {
+  const errors = [];
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  for (const required of [
+    'id="btn-export-save"',
+    'onclick="exportSaveFile()"',
+    'id="btn-import-save"',
+    'onclick="requestSaveImport()"',
+    'id="save-import-file"',
+    'accept="application/json,.json"',
+    'onchange="handleSaveImportSelection(this)"',
+    'id="title-save-status"',
+    'aria-live="polite"'
+  ]) {
+    if (!indexSource.includes(required)) errors.push(`save transfer UI missing ${required}`);
+  }
+  if (/file\.name[^\n]+\\\.json/.test(engineSource)) errors.push("save import incorrectly treats a filename extension as authority");
+
+  const fixture = runtime.evaluate(`(() => {
+    const stateDigest = () => JSON.stringify(state);
+    const storageDigest = () => JSON.stringify({
+      live: localStorage.getItem(SAVE_KEY),
+      legacy: localStorage.getItem(SAVE_KEY_LEGACY),
+      staging: localStorage.getItem(SAVE_STAGING_KEY),
+      backup: localStorage.getItem(SAVE_BACKUP_KEY)
+    });
+    const titleStatus = () => {
+      const el = document.getElementById("title-save-status");
+      return { text: el.textContent, error: el.classList.contains("error") };
+    };
+    const makeSnapshot = (scene, cohesion, marker = true) => {
+      resetRunState();
+      state.scene = scene;
+      state.cohesion = cohesion;
+      state.flags.transfer_fixture = cohesion;
+      const snap = snapshotState();
+      if (!marker) delete snap.sceneEntered;
+      return snap;
+    };
+
+    localStorage.clear();
+    const noSaveExport = buildSaveExport();
+    const noSlotCandidate = makeSnapshot("wake", 33);
+    const noSlotRaw = JSON.stringify(noSlotCandidate);
+    let noSlotConfirmCalls = 0;
+    window.confirm = () => { noSlotConfirmCalls += 1; return false; };
+    const noSlotImportOk = importSaveText(noSlotRaw);
+    const noSlotImport = {
+      ok: noSlotImportOk,
+      confirmCalls: noSlotConfirmCalls,
+      noStorageCreated: storageDigest() === JSON.stringify({ live: null, legacy: null, staging: null, backup: null })
+    };
+
+    const priorSnapshot = makeSnapshot("wake", 19);
+    const priorRaw = JSON.stringify(priorSnapshot);
+    localStorage.setItem(SAVE_KEY, priorRaw);
+    resetRunState();
+    state.scene = "priority_repairs";
+    state.cohesion = 27;
+    const priorLive = stateDigest();
+    const priorStorage = storageDigest();
+    const exported = buildSaveExport();
+    const exportCurrent = {
+      exact: exported && exported.text === priorRaw,
+      filename: exported && exported.filename,
+      storagePreserved: storageDigest() === priorStorage,
+      livePreserved: stateDigest() === priorLive
+    };
+
+    localStorage.setItem(SAVE_BACKUP_KEY, priorRaw);
+    localStorage.setItem(SAVE_KEY, '{"scene":"wake","broken":');
+    const backupExport = buildSaveExport();
+    const exportBackupExact = backupExport && backupExport.text === priorRaw;
+
+    localStorage.clear();
+    localStorage.setItem(SAVE_KEY, priorRaw);
+    const candidate = makeSnapshot("act2_spine_next", 31);
+    candidate.gameVersion = "0.29";
+    const candidateRaw = JSON.stringify(candidate);
+    resetRunState();
+    state.scene = "priority_repairs";
+    state.cohesion = 27;
+    const cancelStorageBefore = storageDigest();
+    const cancelLiveBefore = stateDigest();
+    let confirmCalls = 0;
+    window.confirm = () => { confirmCalls += 1; return false; };
+    const cancelOk = importSaveText(candidateRaw);
+    const cancelled = {
+      ok: cancelOk,
+      confirmCalls,
+      storagePreserved: storageDigest() === cancelStorageBefore,
+      livePreserved: stateDigest() === cancelLiveBefore,
+      status: titleStatus()
+    };
+
+    const rejected = {};
+    const rejectCase = (name, raw) => {
+      const beforeStorage = storageDigest();
+      const beforeLive = stateDigest();
+      confirmCalls = 0;
+      window.confirm = () => { confirmCalls += 1; return true; };
+      const ok = importSaveText(raw);
+      rejected[name] = {
+        ok,
+        confirmCalls,
+        storagePreserved: storageDigest() === beforeStorage,
+        livePreserved: stateDigest() === beforeLive,
+        status: titleStatus()
+      };
+    };
+    rejectCase("empty", "");
+    rejectCase("malformed", '{"v":3');
+    const unknown = Object.assign({}, candidate, { scene: "missing_transfer_scene" });
+    rejectCase("unknown", JSON.stringify(unknown));
+    const future = Object.assign({}, candidate, { v: SAVE_SCHEMA_VERSION + 1 });
+    rejectCase("future", JSON.stringify(future));
+    const poison = Object.assign({}, candidate, { constructor: { prototype: "fixture" } });
+    rejectCase("poison", JSON.stringify(poison));
+    const corruptAffinity = Object.assign({}, candidate, { affinity: Object.assign({}, candidate.affinity, { lena: { score: 12 } }) });
+    rejectCase("corruptAffinity", JSON.stringify(corruptAffinity));
+    const corruptRecovery = Object.assign({}, candidate, { recovered: Object.assign({}, candidate.recovered, { vess: "yes" }) });
+    rejectCase("corruptRecovery", JSON.stringify(corruptRecovery));
+    const corruptIdeology = Object.assign({}, candidate, { ideology: { future: { score: 3 }, living: 1 } });
+    rejectCase("corruptIdeology", JSON.stringify(corruptIdeology));
+    rejectCase("oversized", " ".repeat(MAX_IMPORT_BYTES + 1));
+    const bomAccepted = inspectSaveImportText("\\uFEFF" + candidateRaw).ok;
+
+    const pairSnapshot = Object.assign({}, candidate, {
+      romance: Object.assign({}, candidate.romance, { amara_tomas: true }),
+      marks: Object.assign({}, candidate.marks, { conflict: "backed", sela: { spoken: true } })
+    });
+    const validPairAndNonCrewMark = inspectSaveImportText(JSON.stringify(pairSnapshot)).ok;
+
+    localStorage.setItem(SAVE_KEY_LEGACY, JSON.stringify(makeSnapshot("wake", 44, false)));
+    resetRunState();
+    state.scene = "priority_repairs";
+    state.cohesion = 27;
+    const successLiveBefore = stateDigest();
+    confirmCalls = 0;
+    window.confirm = () => { confirmCalls += 1; return true; };
+    const successOk = importSaveText(candidateRaw);
+    const successful = {
+      ok: successOk,
+      confirmCalls,
+      exact: localStorage.getItem(SAVE_KEY) === candidateRaw,
+      legacyRetired: localStorage.getItem(SAVE_KEY_LEGACY) === null,
+      transactionCleared: localStorage.getItem(SAVE_STAGING_KEY) === null && localStorage.getItem(SAVE_BACKUP_KEY) === null,
+      livePreserved: stateDigest() === successLiveBefore,
+      resumeVisible: !document.getElementById("btn-resume").classList.contains("hidden"),
+      exportVisible: !document.getElementById("btn-export-save").classList.contains("hidden"),
+      status: titleStatus()
+    };
+    successful.resumeOk = resumeGame();
+    successful.resumedScene = state.scene;
+    successful.resumedCohesion = state.cohesion;
+
+    localStorage.clear();
+    localStorage.setItem(SAVE_KEY, priorRaw);
+    resetRunState();
+    state.scene = "priority_repairs";
+    state.cohesion = 27;
+    const interruptedStorageBefore = storageDigest();
+    const interruptedLiveBefore = stateDigest();
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_KEY && value === candidateRaw) throw new Error("injected import commit failure");
+      return originalSetItem(key, value);
+    };
+    window.confirm = () => true;
+    const interruptedOk = importSaveText(candidateRaw);
+    localStorage.setItem = originalSetItem;
+    const interrupted = {
+      ok: interruptedOk,
+      storagePreserved: storageDigest() === interruptedStorageBefore,
+      livePreserved: stateDigest() === interruptedLiveBefore,
+      status: titleStatus()
+    };
+
+    localStorage.clear();
+    localStorage.setItem(SAVE_KEY, priorRaw);
+    resetRunState();
+    const destructiveOriginalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_KEY && value === candidateRaw) {
+        destructiveOriginalSetItem(key, value);
+        throw new Error("injected failure after destructive candidate write");
+      }
+      if (key === SAVE_KEY && value === priorRaw) throw new Error("injected live restore failure");
+      return destructiveOriginalSetItem(key, value);
+    };
+    window.confirm = () => true;
+    const destructiveInterruptedOk = importSaveText(candidateRaw);
+    localStorage.setItem = destructiveOriginalSetItem;
+    const destructiveInterrupted = {
+      ok: destructiveInterruptedOk,
+      liveStillCandidate: localStorage.getItem(SAVE_KEY) === candidateRaw,
+      effectiveOriginal: readRawSave() === priorRaw,
+      backupOriginal: localStorage.getItem(SAVE_BACKUP_KEY) === priorRaw,
+      stagedCandidate: localStorage.getItem(SAVE_STAGING_KEY) === candidateRaw,
+      status: titleStatus()
+    };
+
+    localStorage.clear();
+    const legacy = makeSnapshot("act2_tether_sighting", 36, false);
+    delete legacy.v;
+    delete legacy.gameVersion;
+    const legacyRaw = JSON.stringify(legacy);
+    resetRunState();
+    window.confirm = () => true;
+    const legacyImportOk = importSaveText(legacyRaw);
+    const legacyStoredExact = localStorage.getItem(SAVE_KEY) === legacyRaw;
+    const legacyResumeOk = resumeGame();
+    const upgradedLegacy = JSON.parse(localStorage.getItem(SAVE_KEY));
+
+    localStorage.clear();
+    pendingLegacyResume = null;
+    globalThis.__legacyEntryCalls = 0;
+    scenes.transfer_legacy_probe = {
+      text: "Migration probe",
+      onEnter: () => { globalThis.__legacyEntryCalls += 1; state.cohesion += 1; },
+      choices: []
+    };
+    const markerless = makeSnapshot("transfer_legacy_probe", 30, false);
+    markerless.v = 2;
+    const markerlessRaw = JSON.stringify(markerless);
+    window.confirm = () => true;
+    const markerlessImportOk = importSaveText(markerlessRaw);
+    const migrationOriginalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_KEY && value.includes('"sceneEntered":true')) throw new Error("injected legacy marker write failure");
+      return migrationOriginalSetItem(key, value);
+    };
+    const firstMigrationResume = resumeGame();
+    const firstMigrationCalls = globalThis.__legacyEntryCalls;
+    const firstMigrationStatus = titleStatus();
+    localStorage.setItem = migrationOriginalSetItem;
+    const secondMigrationResume = resumeGame();
+    const migrationRetry = {
+      importOk: markerlessImportOk,
+      firstOk: firstMigrationResume,
+      firstCalls: firstMigrationCalls,
+      firstStatus: firstMigrationStatus,
+      secondOk: secondMigrationResume,
+      finalCalls: globalThis.__legacyEntryCalls,
+      cohesion: state.cohesion,
+      marker: JSON.parse(localStorage.getItem(SAVE_KEY)).sceneEntered
+    };
+    delete scenes.transfer_legacy_probe;
+
+    localStorage.clear();
+    const completed = makeSnapshot("ending_check", 22);
+    completed.flags.ending = "The Quiet Ship";
+    const completedRaw = JSON.stringify(completed);
+    resetRunState();
+    window.confirm = () => true;
+    const completedImportOk = importSaveText(completedRaw);
+    const completedResumeOk = resumeGame();
+    const completedScene = state.scene;
+    playAgain();
+    const completedPreservedAfterPlayAgain = localStorage.getItem(SAVE_KEY) === completedRaw;
+
+    return {
+      noSaveExport,
+      noSlotImport,
+      exportCurrent,
+      exportBackupExact,
+      cancelled,
+      rejected,
+      bomAccepted,
+      validPairAndNonCrewMark,
+      successful,
+      interrupted,
+      destructiveInterrupted,
+      legacy: {
+        importOk: legacyImportOk,
+        storedExact: legacyStoredExact,
+        resumeOk: legacyResumeOk,
+        scene: state.scene,
+        upgraded: upgradedLegacy.v === SAVE_SCHEMA_VERSION && upgradedLegacy.sceneEntered === true
+      },
+      migrationRetry,
+      completed: {
+        importOk: completedImportOk,
+        resumeOk: completedResumeOk,
+        scene: completedScene,
+        preservedAfterPlayAgain: completedPreservedAfterPlayAgain
+      }
+    };
+  })()`);
+
+  if (fixture.noSaveExport !== null) errors.push("export prepared a file without a valid save");
+  if (fixture.noSlotImport.ok || fixture.noSlotImport.confirmCalls !== 1 || !fixture.noSlotImport.noStorageCreated) {
+    errors.push("import without a current slot did not confirm before writing");
+  }
+  if (!fixture.exportCurrent.exact || !fixture.exportCurrent.storagePreserved || !fixture.exportCurrent.livePreserved) {
+    errors.push("export did not preserve and return the exact effective save bytes");
+  }
+  if (!/^sunsplitter-save-v[^/]+-\d{4}-\d{2}-\d{2}\.json$/.test(fixture.exportCurrent.filename || "")) {
+    errors.push(`export filename is not bounded/versioned: ${JSON.stringify(fixture.exportCurrent.filename)}`);
+  }
+  if (!fixture.exportBackupExact) errors.push("export did not select the verified backup when the live slot was corrupt");
+  if (fixture.cancelled.ok || fixture.cancelled.confirmCalls !== 1 ||
+      !fixture.cancelled.storagePreserved || !fixture.cancelled.livePreserved || fixture.cancelled.status.text !== "Import cancelled") {
+    errors.push("cancelled import changed state/storage or lacked clear title feedback");
+  }
+  for (const [name, result] of Object.entries(fixture.rejected)) {
+    if (result.ok || result.confirmCalls !== 0 || !result.storagePreserved || !result.livePreserved ||
+        !result.status.error || !result.status.text.startsWith("Import rejected ·")) {
+      errors.push(`${name} import did not reject before confirmation and mutation`);
+    }
+  }
+  if (!fixture.bomAccepted) errors.push("valid JSON with one UTF-8 BOM was rejected");
+  if (!fixture.validPairAndNonCrewMark) errors.push("valid pair romance or authored non-crew mark was rejected");
+  if (!fixture.successful.ok || fixture.successful.confirmCalls !== 1 || !fixture.successful.exact ||
+      !fixture.successful.legacyRetired || !fixture.successful.transactionCleared || !fixture.successful.livePreserved ||
+      !fixture.successful.resumeVisible || !fixture.successful.exportVisible) {
+    errors.push("valid import did not commit exactly, retire legacy, preserve live state, and refresh title controls");
+  }
+  if (fixture.successful.status.text !== "Imported · Continue to load" || fixture.successful.status.error) {
+    errors.push(`successful import title feedback mismatch: ${JSON.stringify(fixture.successful.status)}`);
+  }
+  if (!fixture.successful.resumeOk || fixture.successful.resumedScene !== "act2_spine_next" || fixture.successful.resumedCohesion !== 31) {
+    errors.push("Continue did not load the successfully imported run");
+  }
+  if (fixture.interrupted.ok || !fixture.interrupted.storagePreserved || !fixture.interrupted.livePreserved ||
+      fixture.interrupted.status.text !== "Import failed · original slot kept" || !fixture.interrupted.status.error) {
+    errors.push("interrupted import did not restore the original slot and live state");
+  }
+  if (fixture.destructiveInterrupted.ok || !fixture.destructiveInterrupted.liveStillCandidate ||
+      !fixture.destructiveInterrupted.effectiveOriginal || !fixture.destructiveInterrupted.backupOriginal ||
+      !fixture.destructiveInterrupted.stagedCandidate || fixture.destructiveInterrupted.status.text !== "Import failed · original slot kept") {
+    errors.push("destructive import failure did not keep the original slot authoritative through the backup");
+  }
+  if (!fixture.legacy.importOk || !fixture.legacy.storedExact || !fixture.legacy.resumeOk || !fixture.legacy.upgraded) {
+    errors.push("legacy import did not remain exact until Continue and then upgrade once");
+  }
+  if (!fixture.migrationRetry.importOk || fixture.migrationRetry.firstOk || fixture.migrationRetry.firstCalls !== 1 ||
+      !fixture.migrationRetry.firstStatus.error || fixture.migrationRetry.firstStatus.text === "Resumed" ||
+      !fixture.migrationRetry.secondOk || fixture.migrationRetry.finalCalls !== 1 ||
+      fixture.migrationRetry.cohesion !== 31 || fixture.migrationRetry.marker !== true) {
+    errors.push(`interrupted legacy marker upgrade replayed scene entry or reported success: ${JSON.stringify(fixture.migrationRetry)}`);
+  }
+  if (!fixture.completed.importOk || !fixture.completed.resumeOk || fixture.completed.scene !== "ending_check" ||
+      !fixture.completed.preservedAfterPlayAgain) {
+    errors.push("completed-run import did not resume and survive Play Again unchanged");
+  }
+
+  const browserFixture = await runtime.evaluate(`(async () => {
+    localStorage.clear();
+    resetRunState();
+    state.scene = "wake";
+    const raw = JSON.stringify(snapshotState());
+    localStorage.setItem(SAVE_KEY, raw);
+
+    const input = document.getElementById("save-import-file");
+    let pickerClicks = 0;
+    input.value = "stale-selection";
+    input.click = () => { pickerClicks += 1; };
+    const pickerOk = requestSaveImport();
+    const pickerReset = input.value === "";
+
+    const originalBody = document.body;
+    const originalCreateElement = document.createElement;
+    const originalBlob = globalThis.Blob;
+    const originalCreateObjectURL = URL.createObjectURL;
+    const originalRevokeObjectURL = URL.revokeObjectURL;
+    const originalSetTimeout = globalThis.setTimeout;
+    let clicked = 0;
+    let removed = 0;
+    let revoked = null;
+    let revokeDelay = null;
+    let createdBlob = null;
+    let createdLink = null;
+    try {
+      document.body = {
+        appendChild(link) { link.parentNode = this; createdLink = link; return link; },
+        removeChild(link) { if (link === createdLink) removed += 1; link.parentNode = null; }
+      };
+      document.createElement = tag => ({ tag, hidden: false, href: "", download: "", parentNode: null, click() { clicked += 1; } });
+      globalThis.Blob = class BlobProbe {
+        constructor(parts, options) { this.parts = parts; this.options = options; createdBlob = this; }
+      };
+      URL.createObjectURL = blob => blob === createdBlob ? "blob:save-transfer-probe" : "blob:unexpected";
+      URL.revokeObjectURL = url => { revoked = url; };
+      globalThis.setTimeout = (fn, delay) => {
+        if (delay >= 60_000) { revokeDelay = delay; fn(); }
+        return 1;
+      };
+      const exportOk = exportSaveFile();
+      var exportResult = {
+        ok: exportOk,
+        clicked,
+        removed,
+        exactBytes: createdBlob && createdBlob.parts.length === 1 && createdBlob.parts[0] === raw,
+        mime: createdBlob && createdBlob.options && createdBlob.options.type,
+        filename: createdLink && createdLink.download,
+        revoked,
+        revokeDelay,
+        status: document.getElementById("title-save-status").textContent
+      };
+    } finally {
+      document.body = originalBody;
+      document.createElement = originalCreateElement;
+      globalThis.Blob = originalBlob;
+      URL.createObjectURL = originalCreateObjectURL;
+      URL.revokeObjectURL = originalRevokeObjectURL;
+      globalThis.setTimeout = originalSetTimeout;
+    }
+
+    const candidate = JSON.parse(raw);
+    candidate.cohesion = 37;
+    const candidateRaw = JSON.stringify(candidate);
+    let confirmCalls = 0;
+    window.confirm = () => { confirmCalls += 1; return true; };
+    input.files = [{ name: "renamed-save-without-extension", size: candidateRaw.length, text: async () => candidateRaw }];
+    input.value = "selected";
+    const selectedOk = await handleSaveImportSelection(input);
+
+    globalThis.FileReader = class FileReaderProbe {
+      readAsText(file) { this.result = file.contents; this.onload(); }
+    };
+    const fallbackText = await readSaveImportFile({ contents: candidateRaw });
+
+    return {
+      pickerOk,
+      pickerClicks,
+      pickerReset,
+      exportResult,
+      selectedOk,
+      confirmCalls,
+      selectedExact: localStorage.getItem(SAVE_KEY) === candidateRaw,
+      inputReset: input.value === "",
+      fallbackExact: fallbackText === candidateRaw
+    };
+  })()`);
+  if (!browserFixture.pickerOk || browserFixture.pickerClicks !== 1 || !browserFixture.pickerReset) {
+    errors.push("title import control did not reset and open the file picker");
+  }
+  const exported = browserFixture.exportResult;
+  if (!exported.ok || exported.clicked !== 1 || exported.removed !== 1 || !exported.exactBytes ||
+      exported.mime !== "application/json" || !exported.filename?.endsWith(".json") ||
+      exported.revoked !== "blob:save-transfer-probe" || exported.revokeDelay < 1_000 || exported.status !== "Export prepared") {
+    errors.push(`browser export path did not preserve bytes/click/cleanup/feedback: ${JSON.stringify(exported)}`);
+  }
+  if (!browserFixture.selectedOk || browserFixture.confirmCalls !== 1 || !browserFixture.selectedExact ||
+      !browserFixture.inputReset || !browserFixture.fallbackExact) {
+    errors.push("browser import path rejected renamed content, skipped fallback read, or failed to reset selection");
+  }
+  return errors;
+}
+
 function playAgainChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -2354,7 +2806,7 @@ function printCheck(label, errors, detail = "") {
   }
 }
 
-function main() {
+async function main() {
   const failures = [];
   const { scripts } = readScriptManifest(ROOT);
 
@@ -2421,6 +2873,10 @@ function main() {
     const newRunErrors = newRunChecks(runtime);
     printCheck("0.32 New Run confirmation + atomic replacement", newRunErrors);
     failures.push(...newRunErrors);
+
+    const saveTransferErrors = await saveTransferChecks(runtime);
+    printCheck("0.32 local save export/import custody", saveTransferErrors);
+    failures.push(...saveTransferErrors);
 
     const playAgainErrors = playAgainChecks(runtime);
     printCheck("Play Again fresh campaign without consuming completed save", playAgainErrors);
@@ -2546,7 +3002,7 @@ function main() {
 
 try {
   if (process.argv.length === 3 && process.argv[2] === "--self-test") runSelfTest();
-  else if (process.argv.length === 2) main();
+  else if (process.argv.length === 2) await main();
   else throw new Error("Usage: node scripts/verify.mjs [--self-test]");
 } catch (error) {
   console.error(`RELEASE GATE CRASH\n${error.stack || error.message}`);
