@@ -79,7 +79,7 @@ const LIVING_CREW_KEYS = CREW_ORDER.filter(k => k !== "rourke"); // starting liv
 const sceneImages = {
   // Opening / medical
   wake:            "images/medical_bay.jpg",
-  dying:           "images/rourke.jpg",
+  dying:           "images/medical_bay.jpg",
   rourke_end:      "images/covered_body.jpg",
   rourke_stop:     "images/covered_body.jpg",
   rourke_try:      "images/covered_body.jpg",
