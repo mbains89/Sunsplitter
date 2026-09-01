@@ -281,6 +281,36 @@ function whatRemainsChecks(runtime) {
   return errors;
 }
 
+function finalOrderEndingChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const finals = ["hold", "comfort", "transmission", "endure"];
+    return {
+      living: Object.fromEntries(finals.map(final => [final, buildLivingShipText([], [], false, 52, final)])),
+      quiet: Object.fromEntries(finals.map(final => [final, buildQuietShipText([], "split", final)])),
+      fracture: Object.fromEntries(finals.map(final => [final, buildFractureText("split", "watch", "suppress", [], [], [], final)]))
+    };
+  })()`);
+
+  const needles = {
+    hold: "rogue-planet course",
+    comfort: "destination for speed and comfort",
+    transmission: "final transmission",
+    endure: "next day, then the next"
+  };
+  for (const [ending, variants] of Object.entries(fixture)) {
+    if (new Set(Object.values(variants)).size !== 4) {
+      errors.push(`${ending} ending does not distinguish all four final orders`);
+    }
+    for (const [final, needle] of Object.entries(needles)) {
+      if (!variants[final].includes(needle)) {
+        errors.push(`${ending} ending omits ${final} final-order consequence`);
+      }
+    }
+  }
+  return errors;
+}
+
 function playAgainChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -1507,6 +1537,10 @@ function main() {
     const whatRemainsErrors = whatRemainsChecks(runtime);
     printCheck("What Remains selector + separate surface", whatRemainsErrors);
     failures.push(...whatRemainsErrors);
+
+    const finalOrderErrors = finalOrderEndingChecks(runtime);
+    printCheck("final-order consequence in all ending families", finalOrderErrors);
+    failures.push(...finalOrderErrors);
 
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
