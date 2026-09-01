@@ -55,7 +55,7 @@ registerScenes({
         }
       }
     },
-    image: "images/afterglow_lena.jpg"
+    image: "images/pursuit_lena.jpg"
   },
 
   // ═══ SCENE INSERTION DECLARATION ═════════════════════════════════

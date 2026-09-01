@@ -1677,6 +1677,44 @@ function rourkeDyingImageHonestyChecks(runtime) {
   return errors;
 }
 
+function lenaIntimacyImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = {
+    romance_lena_sex: "images/afterglow_lena.jpg",
+    pursuit_lena_sex: "images/pursuit_lena.jpg",
+    lena_shower: "images/shower_lena.jpg",
+    lena_rear: "images/rear_lena.jpg"
+  };
+  const expectedHashes = {
+    "images/afterglow_lena.jpg": "96f8c6a1ad9164d3765c2be922d40322e80546fbcbe015284c2a1c30b162f841",
+    "images/pursuit_lena.jpg": "f334ebe2a5f8a653033d702eb52c34dfaa546398cfb96b9b9bf3d2db97ce0ec5",
+    "images/shower_lena.jpg": "cd0981c0d0e8b31f589658a77591aa73996547707567016d0f6a2a4f119cd097",
+    "images/rear_lena.jpg": "b93c42a63fcdb1988000142c39a0a5d0f690989818462e858c39d745e1567fff"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    const ids = ["romance_lena_sex", "pursuit_lena_sex", "lena_shower", "lena_rear"];
+    return Object.fromEntries(ids.map(id => [id, {
+      mapped: sceneImages[id],
+      declared: scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id])
+    }]));
+  })()`);
+
+  for (const [id, image] of Object.entries(expected)) {
+    const row = fixture[id];
+    for (const field of ["mapped", "declared", "resolved"]) {
+      if (row?.[field] !== image) {
+        errors.push(`${id} ${field} image is ${row?.[field] || "missing"}; expected ${image}`);
+      }
+    }
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Lena plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function vessHairCanonChecks(runtime) {
   const errors = [];
   const boardingText = runtime.evaluate(`String(scenes.vess_boarding.text())`);
@@ -3470,6 +3508,10 @@ async function main() {
     const rourkeDyingImageErrors = rourkeDyingImageHonestyChecks(runtime);
     printCheck("dying Rourke image honesty", rourkeDyingImageErrors);
     failures.push(...rourkeDyingImageErrors);
+
+    const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
+    printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
+    failures.push(...lenaIntimacyImageTruthErrors);
 
     const vessHairCanonErrors = vessHairCanonChecks(runtime);
     printCheck("Vess boarding hair canon", vessHairCanonErrors);
