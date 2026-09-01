@@ -556,6 +556,155 @@ function malformedSnapshotShapeChecks(runtime) {
   return errors;
 }
 
+function saveWriteFailureChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const statusSnapshot = () => {
+      const el = document.getElementById("save-status");
+      return {
+        text: el.textContent,
+        error: el.classList.contains("error"),
+        visible: el.classList.contains("visible")
+      };
+    };
+    const originalSetItem = localStorage.setItem;
+
+    localStorage.clear();
+    resetRunState();
+    state.scene = "wake";
+    state.cohesion = 31;
+    persistSave({ silent: true });
+    const priorRaw = localStorage.getItem(SAVE_KEY);
+
+    state.scene = "breath_hub";
+    state.cohesion = 17;
+    let commitCalls = 0;
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_KEY && commitCalls++ === 0) {
+        originalSetItem(key, '{"truncated":');
+        throw new Error("injected commit failure");
+      }
+      return originalSetItem(key, value);
+    };
+    const failedOk = persistSave({ silent: true });
+    localStorage.setItem = originalSetItem;
+    const failed = {
+      ok: failedOk,
+      priorPreserved: localStorage.getItem(SAVE_KEY) === priorRaw,
+      stagingCleared: localStorage.getItem(SAVE_STAGING_KEY) === null,
+      backupCleared: localStorage.getItem(SAVE_BACKUP_KEY) === null,
+      liveScene: state.scene,
+      liveCohesion: state.cohesion,
+      status: statusSnapshot()
+    };
+
+    const retryOk = persistSave({ silent: true });
+    const retry = {
+      ok: retryOk,
+      scene: JSON.parse(localStorage.getItem(SAVE_KEY)).scene,
+      cohesion: JSON.parse(localStorage.getItem(SAVE_KEY)).cohesion,
+      stagingCleared: localStorage.getItem(SAVE_STAGING_KEY) === null,
+      backupCleared: localStorage.getItem(SAVE_BACKUP_KEY) === null,
+      status: statusSnapshot()
+    };
+
+    localStorage.clear();
+    resetRunState();
+    state.scene = "wake";
+    state.cohesion = 29;
+    persistSave({ silent: true });
+    const fallbackPriorRaw = localStorage.getItem(SAVE_KEY);
+    state.scene = "breath_hub";
+    state.cohesion = 11;
+    let destructiveCalls = 0;
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_KEY) {
+        destructiveCalls += 1;
+        if (destructiveCalls === 1) originalSetItem(key, '{"truncated":');
+        throw new Error("injected destructive commit/restore failure");
+      }
+      return originalSetItem(key, value);
+    };
+    const fallbackOk = persistSave({ silent: true });
+    const fallback = {
+      ok: fallbackOk,
+      liveCorrupt: localStorage.getItem(SAVE_KEY) !== fallbackPriorRaw,
+      backupPreserved: localStorage.getItem(SAVE_BACKUP_KEY) === fallbackPriorRaw,
+      readUsesBackup: readRawSave() === fallbackPriorRaw,
+      status: statusSnapshot()
+    };
+    localStorage.setItem = originalSetItem;
+    resetRunState();
+    fallback.loadOk = loadGame();
+    fallback.loadedScene = state.scene;
+    fallback.loadedCohesion = state.cohesion;
+    state.scene = "breath_hub";
+    state.cohesion = 9;
+    fallback.retryOk = persistSave({ silent: true });
+    fallback.retryScene = JSON.parse(localStorage.getItem(SAVE_KEY)).scene;
+    fallback.retryCohesion = JSON.parse(localStorage.getItem(SAVE_KEY)).cohesion;
+    fallback.transactionCleared = localStorage.getItem(SAVE_STAGING_KEY) === null && localStorage.getItem(SAVE_BACKUP_KEY) === null;
+
+    localStorage.clear();
+    resetRunState();
+    state.scene = "breath_hub";
+    localStorage.setItem = (key, value) => {
+      if (key === SAVE_STAGING_KEY) throw new Error("injected staging failure");
+      return originalSetItem(key, value);
+    };
+    const firstOk = persistSave({ silent: true });
+    localStorage.setItem = originalSetItem;
+    const first = {
+      ok: firstOk,
+      noLiveSlot: localStorage.getItem(SAVE_KEY) === null,
+      status: statusSnapshot()
+    };
+
+    return { failed, retry, fallback, first };
+  })()`);
+
+  if (fixture.failed.ok) errors.push("injected autosave commit failure reported success");
+  if (!fixture.failed.priorPreserved) errors.push("failed autosave did not restore the prior live slot bytes");
+  if (!fixture.failed.stagingCleared || !fixture.failed.backupCleared) {
+    errors.push("restored autosave failure left transaction keys behind");
+  }
+  if (fixture.failed.liveScene !== "breath_hub" || fixture.failed.liveCohesion !== 17) {
+    errors.push("failed autosave mutated the current in-memory run");
+  }
+  if (fixture.failed.status.text !== "Autosave failed · prior slot kept" || !fixture.failed.status.error || !fixture.failed.status.visible) {
+    errors.push(`failed autosave was not exposed persistently: ${JSON.stringify(fixture.failed.status)}`);
+  }
+
+  if (!fixture.retry.ok || fixture.retry.scene !== "breath_hub" || fixture.retry.cohesion !== 17) {
+    errors.push("successful autosave retry did not commit the current run");
+  }
+  if (!fixture.retry.stagingCleared || !fixture.retry.backupCleared) {
+    errors.push("successful autosave retry left transaction keys behind");
+  }
+  if (fixture.retry.status.error || fixture.retry.status.visible || fixture.retry.status.text) {
+    errors.push(`successful autosave retry did not clear the sticky failure: ${JSON.stringify(fixture.retry.status)}`);
+  }
+
+  if (fixture.fallback.ok || !fixture.fallback.liveCorrupt || !fixture.fallback.backupPreserved || !fixture.fallback.readUsesBackup) {
+    errors.push("failed commit/restore did not preserve a readable prior backup");
+  }
+  if (fixture.fallback.status.text !== "Autosave failed · prior slot kept" || !fixture.fallback.status.error || !fixture.fallback.status.visible) {
+    errors.push(`backup-recovered autosave failure was not exposed: ${JSON.stringify(fixture.fallback.status)}`);
+  }
+  if (!fixture.fallback.loadOk || fixture.fallback.loadedScene !== "wake" || fixture.fallback.loadedCohesion !== 29) {
+    errors.push("Continue did not recover the prior valid slot from the verified backup");
+  }
+  if (!fixture.fallback.retryOk || fixture.fallback.retryScene !== "breath_hub" || fixture.fallback.retryCohesion !== 9 || !fixture.fallback.transactionCleared) {
+    errors.push("save after backup recovery did not commit and retire transaction keys");
+  }
+
+  if (fixture.first.ok || !fixture.first.noLiveSlot) errors.push("first-save staging failure created a live slot");
+  if (fixture.first.status.text !== "Autosave failed · progress not saved" || !fixture.first.status.error || !fixture.first.status.visible) {
+    errors.push(`first autosave failure was not exposed: ${JSON.stringify(fixture.first.status)}`);
+  }
+  return errors;
+}
+
 function resumeEntryIdempotenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1943,6 +2092,10 @@ function main() {
     const malformedSnapshotShapeErrors = malformedSnapshotShapeChecks(runtime);
     printCheck("malformed save snapshot shape fails atomically", malformedSnapshotShapeErrors);
     failures.push(...malformedSnapshotShapeErrors);
+
+    const saveWriteFailureErrors = saveWriteFailureChecks(runtime);
+    printCheck("autosave write failure custody + player warning", saveWriteFailureErrors);
+    failures.push(...saveWriteFailureErrors);
 
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
