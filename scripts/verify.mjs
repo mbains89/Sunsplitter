@@ -879,6 +879,31 @@ function vaultPriorityChecks(runtime) {
 function pairShieldReachabilityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
+    const inspectFreshEntry = setup => {
+      resetRunState();
+      setup();
+      const memoriesBefore = state.memories.length;
+      showScene("pair_shield_cold");
+      return {
+        scene: state.scene,
+        pairSpent: state.flags.pair_shield === true,
+        memoriesAdded: state.memories.length - memoriesBefore
+      };
+    };
+    const inspectSavedEntry = setup => {
+      resetRunState();
+      setup();
+      const memoriesBefore = state.memories.length;
+      showScene("pair_shield_cold", { skipOnEnter: true, resume: true });
+      return {
+        scene: state.scene,
+        text: String(scenes.pair_shield_cold.text),
+        image: resolveSceneImage("pair_shield_cold", scenes.pair_shield_cold),
+        next: scenes.pair_shield_cold.choices[0].next,
+        memoriesAdded: state.memories.length - memoriesBefore
+      };
+    };
+
     resetRunState();
     state.crisisPath = "breath";
     state.flags.junctionChoice = "lena";
@@ -906,7 +931,35 @@ function pairShieldReachabilityChecks(runtime) {
     kill("elias", "held the line");
     showScene("act3_lethal_mira_end");
     const noEliasNext = scenes.act3_lethal_mira_end.choices[0].next;
-    return { lethalNext, pairScene, pairSpent, pairNext, finalScene, offeredAgain, resumedScene, noEliasNext };
+
+    const freshMiraAlive = inspectFreshEntry(() => {});
+    const freshEliasDead = inspectFreshEntry(() => {
+      kill("mira", "finished the repair");
+      kill("elias", "held the line");
+    });
+    const freshUnattributable = inspectFreshEntry(() => kill("mira", "illness"));
+    const freshSpent = inspectFreshEntry(() => {
+      kill("mira", "finished the repair");
+      state.flags.pair_shield = true;
+    });
+
+    const savedMiraAlive = inspectSavedEntry(() => {});
+    const savedEliasDead = inspectSavedEntry(() => {
+      kill("mira", "finished the repair");
+      kill("elias", "held the line");
+    });
+    const savedUnattributable = inspectSavedEntry(() => kill("mira", "illness"));
+    const savedEligible = inspectSavedEntry(() => {
+      kill("mira", "finished the repair");
+      state.flags.pair_shield = true;
+      remember("Elias said she was what the job was for");
+    });
+
+    return {
+      lethalNext, pairScene, pairSpent, pairNext, finalScene, offeredAgain, resumedScene, noEliasNext,
+      freshMiraAlive, freshEliasDead, freshUnattributable, freshSpent,
+      savedMiraAlive, savedEliasDead, savedUnattributable, savedEligible
+    };
   })()`);
 
   if (fixture.lethalNext !== "pair_shield_cold" || fixture.pairScene !== "pair_shield_cold" || !fixture.pairSpent) {
@@ -921,6 +974,31 @@ function pairShieldReachabilityChecks(runtime) {
   }
   if (fixture.noEliasNext !== "faction_split") {
     errors.push("Mira's lethal path routes to pair_shield_cold without a living Elias");
+  }
+  for (const [label, row] of Object.entries({
+    miraAlive: fixture.freshMiraAlive,
+    eliasDead: fixture.freshEliasDead,
+    unattributableMiraDeath: fixture.freshUnattributable,
+    alreadySpent: fixture.freshSpent
+  })) {
+    if (row.scene === "pair_shield_cold" || row.memoriesAdded !== 0) {
+      errors.push(`pair_shield_cold fresh ${label} entry did not redirect without consuming the consequence`);
+    }
+  }
+  if (fixture.freshMiraAlive.pairSpent || fixture.freshEliasDead.pairSpent || fixture.freshUnattributable.pairSpent) {
+    errors.push("invalid pair_shield_cold fresh entry spent the one-shot flag");
+  }
+  for (const [label, row] of Object.entries({
+    miraAlive: fixture.savedMiraAlive,
+    eliasDead: fixture.savedEliasDead,
+    unattributableMiraDeath: fixture.savedUnattributable
+  })) {
+    if (row.scene !== "pair_shield_cold" || row.next !== "faction_split" || row.image !== "images/corridor_variant.jpg" || /\bElias\b|\bMira\b|\"/.test(row.text) || row.memoriesAdded !== 0) {
+      errors.push(`pair_shield_cold saved ${label} entry rendered an ineligible speaker, image, write, or exit`);
+    }
+  }
+  if (fixture.savedEligible.scene !== "pair_shield_cold" || fixture.savedEligible.image !== "images/elias.jpg" || !fixture.savedEligible.text.includes("Elias gives the watch report") || fixture.savedEligible.memoriesAdded !== 0) {
+    errors.push("eligible completed pair_shield_cold save did not resume without repeating entry writes");
   }
   return errors;
 }

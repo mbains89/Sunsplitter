@@ -697,6 +697,14 @@ function resolveSceneImage(id, scene) {
     }
   }
 
+  // Elias's private Mira-loss plate requires the same living/death predicate
+  // as the scene. Saved invalid state must never render a dead speaker's face.
+  if (id === "pair_shield_cold") {
+    if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
+      return "images/corridor_variant.jpg";
+    }
+  }
+
   // Group / observation_crew family — never show while Tomas or Jiro unrecovered
   // (map already parked most of these on observation.jpg; keep runtime guard).
   if (id === "status" || id === "lead_together" || id === "arc_fork" ||
