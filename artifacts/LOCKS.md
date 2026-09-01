@@ -53,8 +53,8 @@ Documentation-only. These rows record identity law. They do not authorize image 
 
 | ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
 |---|---|---|---|---|---|---|
-| L-029 | LOCKED | Vess portrait identity | ROADMAP §2 art; ART_RULES identity honesty; ART_REQUESTS 2026-08-15 `vess.jpg` lock | 2026-08-31 | Manraj | pending this ticket commit |
-| L-030 | LOCKED | Mira iris identity | ROADMAP §2 art; ART_RULES identity honesty | 2026-08-31 | Manraj | pending this ticket commit |
+| L-029 | LOCKED | Vess portrait identity | ROADMAP §2 art; ART_RULES identity honesty; ART_REQUESTS 2026-08-15 `vess.jpg` lock | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
+| L-030 | LOCKED | Mira iris identity | ROADMAP §2 art; ART_RULES identity honesty | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
 
 ### L-029 approved language
 
