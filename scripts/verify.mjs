@@ -437,6 +437,35 @@ function cutOutPresenceChecks(runtime) {
   return errors;
 }
 
+function vaultPriorityChecks(runtime) {
+  const errors = [];
+  const fixtures = runtime.evaluate(`(() => {
+    return ["living", "both", "future"].map(priority => {
+      resetRunState();
+      state.flags.vault_priority = priority;
+      const choice = scenes.lena_dying.choices.find(item => /vault should outrank/i.test(item.text));
+      makeChoice(choice);
+      return {
+        priority,
+        after: state.flags.vault_priority,
+        scene: state.scene,
+        cohesion: state.cohesion,
+        futureLean: state.ideology.future
+      };
+    });
+  })()`);
+
+  for (const fixture of fixtures) {
+    if (fixture.after !== fixture.priority) {
+      errors.push(`late Lena choice clobbered vault_priority ${fixture.priority} -> ${fixture.after}`);
+    }
+    if (fixture.scene !== "prom_make_lena" || fixture.cohesion !== 46 || fixture.futureLean !== 2) {
+      errors.push(`L-022 repair changed Lena choice behavior for vault_priority=${fixture.priority}`);
+    }
+  }
+  return errors;
+}
+
 function renderPurityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1061,6 +1090,10 @@ function main() {
     const cutOutPresenceErrors = cutOutPresenceChecks(runtime);
     printCheck("cut_out unrecovered-Jiro presence guard", cutOutPresenceErrors);
     failures.push(...cutOutPresenceErrors);
+
+    const vaultPriorityErrors = vaultPriorityChecks(runtime);
+    printCheck("L-022 early vault_priority preservation", vaultPriorityErrors);
+    failures.push(...vaultPriorityErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);

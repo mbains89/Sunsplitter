@@ -105,7 +105,7 @@ Her hand is close to yours. The ship is quiet around you.`;
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
       const opts = [
         { text: "Promise her the work will matter. Then go deal with the crew.", next: "prom_make_lena", effects: { cohesion: 2 }, affinity: { lena: 6 }, trust: { lena: 4 } },
-        { text: "Ask her whether the vault should outrank her own remaining time.", next: "prom_make_lena", effects: { cohesion: -2 }, flag: { vault_priority: "future" }, lean: { future: 2 } }
+        { text: "Ask her whether the vault should outrank her own remaining time.", next: "prom_make_lena", effects: { cohesion: -2 }, lean: { future: 2 } }
       ];
       // Intimate path: needs some trust and not already completed
       if (!state.romance.lena && !hasMark("lena", "declined")) {
