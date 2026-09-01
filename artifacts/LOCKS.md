@@ -47,6 +47,35 @@ The owner-approved 2026-08-30 tiered-CI amendment is recorded under existing sta
 | L-027 | LOCKED | `vess_course_lost` and downstream-course promise retirement | ROADMAP §§6, 14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
 | L-028 | DEFERRED | Ticket 2 new-crew indicator, default-retire evidence gate | ROADMAP §14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
 
+## Ruled (art identity; 2026-08-31)
+
+Documentation-only. These rows record identity law. They do not authorize image deletion, unwire, regen, wiring, publication, or a new art batch. Spine order in ROADMAP §4 still controls when art bytes may change.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-029 | LOCKED | Vess portrait identity | ROADMAP §2 art; ART_RULES identity honesty; ART_REQUESTS 2026-08-15 `vess.jpg` lock | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
+| L-030 | LOCKED | Mira iris identity | ROADMAP §2 art; ART_RULES identity honesty | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
+
+### L-029 approved language
+
+`images/vess.jpg` is the sole official Vess face. `images/bodysuit_vess.jpg` is the only approved bodysuit twin. Downstream Vess plates inherit that tank lock only.
+
+The porcelain / younger / paler / lock-over-RIGHT set is discarded as Vess identity. Keep the files on disk as rejected reference until a later authorized art ticket unwires or replaces them. Do not treat them as locked. Do not wire them as Vess.
+
+Discarded as Vess:
+`vess_boarding.jpg`, `vess_intimate.jpg`, `vess_offer.jpg`, `vess_signal.jpg`, `vess_signal_2.jpg`, `vess_signal_3.jpg`, `offshift_vess.jpg`, `romance_vess_1.jpg`.
+
+Identity-valid Vess plates at the ruling audit:
+`vess.jpg`, `bodysuit_vess.jpg`, `afterglow_vess.jpg`, `lingerie_vess.jpg`, `shower_vess.jpg`, `pursuit_vess.jpg`, `rear_vess.jpg`.
+
+`romance_vess_1.jpg` is discarded on two counts: porcelain face and invented Commander face (L-025).
+
+### L-030 approved language
+
+Mira’s irises are ice-blue. Green-eyed Mira is drift. Hair remains dark brown in a messy bun. Skin remains olive/tan and clean. Heavy freckles remain Amara’s mark, not Mira’s.
+
+Official lock bytes remain `images/mira.jpg` and `images/bodysuit_mira.jpg`. Green-eye / freckled Mira plates are not identity-valid. This row does not authorize regen.
+
 ## Held, deferred, rejected, and limited
 
 | ID | Disposition | Subject | Authority |
