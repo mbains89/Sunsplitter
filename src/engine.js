@@ -1317,11 +1317,14 @@ function readRawSave() {
       // A live value that still matches staging never completed its
       // transaction. Prefer the preserved prior slot, or fail closed.
       raw = validRawSnapshot(backup) ? backup : null;
-    } else if (!validRawSnapshot(raw) && validRawSnapshot(backup)) raw = backup;
-    if (!raw) {
+    } else if (!validRawSnapshot(raw)) {
+      raw = validRawSnapshot(backup) ? backup : null;
+    }
+    if (!validRawSnapshot(raw)) {
       // Read legacy v2 without mutating storage. A successful explicit load
       // adopts it through the ordinary verified v3 save transaction.
-      raw = localStorage.getItem(SAVE_KEY_LEGACY);
+      const legacy = localStorage.getItem(SAVE_KEY_LEGACY);
+      raw = validRawSnapshot(legacy) ? legacy : null;
     }
     return raw;
   } catch (e) {
@@ -1330,14 +1333,7 @@ function readRawSave() {
 }
 
 function hasSave() {
-  const raw = readRawSave();
-  if (!raw) return false;
-  try {
-    const data = JSON.parse(raw);
-    return !!(data && data.scene);
-  } catch (e) {
-    return false;
-  }
+  return validRawSnapshot(readRawSave());
 }
 
 function getSaveMeta() {
