@@ -98,6 +98,24 @@ function versionSurfaceChecks() {
   return errors;
 }
 
+function desktopCompositionChecks() {
+  const errors = [];
+  const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const requiredRules = [
+    ["@media (min-width: 1024px) and (min-height: 640px)", "widescreen breakpoint"],
+    ["grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr)", "two-column app grid"],
+    ["#scene-image-wrap.visible + #main", "image-present prose selector"],
+    ["grid-column: 2", "prose placement beside scene art"],
+    ["width: min(calc(100% - 32px), 48dvh, 430px)", "portrait plate desktop sizing"],
+    ["max-width: 68ch", "desktop prose line-length cap"],
+    ["font-size: 1.08rem", "desktop prose type scale"]
+  ];
+  for (const [rule, label] of requiredRules) {
+    if (!cssSource.includes(rule)) errors.push(`0.32 desktop composition missing ${label}`);
+  }
+  return errors;
+}
+
 function registrationChecks(runtime) {
   const errors = [];
   const counts = new Map();
@@ -2175,6 +2193,10 @@ function main() {
   const observedVersion = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
   printCheck("version + What Remains HTML surfaces", versionErrors, `v${observedVersion}`);
   failures.push(...versionErrors);
+
+  const desktopCompositionErrors = desktopCompositionChecks();
+  printCheck("0.32 widescreen scene composition", desktopCompositionErrors);
+  failures.push(...desktopCompositionErrors);
 
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
