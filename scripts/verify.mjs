@@ -2659,8 +2659,83 @@ function vessCourseRetirementChecks(runtime) {
 
 function commanderIdentityChecks(runtime) {
   const errors = [];
+  const runtimeSource = EXPECTED_SCRIPTS
+    .map(relativePath => readFileSync(resolve(ROOT, relativePath), "utf8"))
+    .join("\n");
+  const forbiddenCommanderFaceImages = [
+    "images/romance_lena_1.jpg",
+    "images/romance_mira_1.jpg",
+    "images/romance_amara_1.jpg",
+    "images/romance_sela_1.jpg",
+    "images/romance_vess_1.jpg"
+  ];
+  const approvedCommanderImageHashes = {
+    "images/self_risk.jpg": "427fb4c5a72239451d213dcf7d6e80bef15da646a4b5e6000ddb54ffeb9de8a7",
+    "images/lead_prompt.jpg": "63dc3d2eff8c14eae2ea0cd8d68c9a973a55489debdd90d73cfd19813c2a3744",
+    "images/final_choice.jpg": "685c3c21c05c660aa43ac252329bbe7c145d9afa5182ae79d76393487954a547",
+    "images/shower_lena.jpg": "cd0981c0d0e8b31f589658a77591aa73996547707567016d0f6a2a4f119cd097"
+  };
+
+  for (const image of forbiddenCommanderFaceImages) {
+    if (runtimeSource.includes(image)) errors.push(`runtime references face-revealing Commander plate ${image}`);
+  }
+  for (const [image, expected] of Object.entries(approvedCommanderImageHashes)) {
+    const actual = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actual !== expected) errors.push(`audited Commander-safe plate drifted: ${image} sha256=${actual}`);
+  }
+
+  const forbiddenLanguage = [
+    ["direct gender assignment", /\byou(?: are|'re| were| have been| become| became)\s+(?:a |an |the )?(?:man|woman|boy|girl|male|female)\b/i],
+    ["gendered self-description", /\bkind of (?:man|woman)\b/i],
+    ["gendered Commander possessive", /\bcommander who\b[^.!?\n]{0,100}\b(?:his|her)\b/i],
+    ["sex-specific body assignment", /\byour\s+(?:beard|breasts?|penis|vagina|womb|uterus|ovaries|testicles|sperm)\b/i],
+    ["assigned gestational role", /\b(?:you(?: are|'re| were)\s+pregnant|impregnat(?:e|ed|ing)\s+you)\b/i],
+    ["legacy Amara gendering", /\bmen make speeches\b/i],
+    ["legacy Tomas gendering", /\b(?:man who shares my books|man who won't answer and a man who hasn't yet)\b/i]
+  ];
+  for (const [label, pattern] of forbiddenLanguage) {
+    if (pattern.test(runtimeSource)) errors.push(`${label} remains in runtime source`);
+  }
+
   const fixture = runtime.evaluate(`(() => {
     const renderText = id => typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+    const profiles = {
+      fresh: () => {},
+      recovered: () => {
+        state.recovered = { tomas: true, jiro: true, vess: true };
+      },
+      romanced: () => {
+        state.recovered = { tomas: true, jiro: true, vess: true };
+        for (const key of ["lena", "mira", "amara", "sela", "vess"]) state.romance[key] = true;
+        for (const key of Object.keys(state.affinity)) state.affinity[key] = 100;
+        for (const key of Object.keys(state.trust)) state.trust[key] = 100;
+        state.supplies = 100;
+        state.integrity = 100;
+        state.embryos = 100;
+      },
+      depleted: () => {
+        state.recovered = { tomas: true, jiro: true, vess: true };
+        for (const key of ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"]) {
+          if (isAlive(key)) kill(key, "Commander identity audit fixture");
+        }
+      }
+    };
+    const rendered = [];
+    for (const [profile, setup] of Object.entries(profiles)) {
+      for (const id of Object.keys(scenes)) {
+        resetRunState();
+        setup();
+        const scene = scenes[id];
+        let text = "";
+        let choices = [];
+        try { text = renderText(id) || ""; } catch (error) { text = "AUDIT_ERROR: " + error.message; }
+        try {
+          const rawChoices = typeof scene.choices === "function" ? scene.choices() : scene.choices;
+          choices = Array.isArray(rawChoices) ? rawChoices.map(choice => choice.text || "") : [];
+        } catch (error) { choices = ["AUDIT_ERROR: " + error.message]; }
+        rendered.push({ profile, id, text, choices, image: resolveSceneImage(id, scene) });
+      }
+    }
 
     resetRunState();
     state.romance.amara = true;
@@ -2683,8 +2758,33 @@ function commanderIdentityChecks(runtime) {
     state.affinity.lena = 40;
     const debtNotice = renderText("debt_notice");
 
-    return { amaraAfterglow, lenaPromise, tomasManifest, tomasDeclined, debtNotice };
+    resetRunState();
+    const pregnancyText = renderText("pregnancy_check");
+    const pregnancyChoices = scenes.pregnancy_check.choices.map(choice => choice.text);
+
+    return { rendered, amaraAfterglow, lenaPromise, tomasManifest, tomasDeclined, debtNotice, pregnancyText, pregnancyChoices };
   })()`);
+
+  if (fixture.rendered.length !== EXPECTED_SCENE_COUNT * 4) {
+    errors.push(`Commander audit rendered ${fixture.rendered.length} paths; expected ${EXPECTED_SCENE_COUNT * 4}`);
+  }
+  for (const row of fixture.rendered) {
+    if (row.text.startsWith("AUDIT_ERROR:") || row.choices.some(text => text.startsWith("AUDIT_ERROR:"))) {
+      errors.push(`Commander audit could not render ${row.profile}/${row.id}`);
+    }
+    if (forbiddenCommanderFaceImages.includes(row.image)) {
+      errors.push(`rendered path ${row.profile}/${row.id} exposes face-revealing Commander plate ${row.image}`);
+    }
+  }
+  const reproductiveSurface = `${fixture.pregnancyText}\n${fixture.pregnancyChoices.join("\n")}`;
+  for (const [label, pattern] of forbiddenLanguage.slice(0, 5)) {
+    if (pattern.test(reproductiveSurface)) errors.push(`pregnancy_check ${label}`);
+  }
+  if (!fixture.pregnancyText.includes("If you have been with anyone") ||
+      !fixture.pregnancyText.includes("A living pregnancy competes") ||
+      fixture.pregnancyChoices.length !== 4) {
+    errors.push("pregnancy_check no longer preserves role-neutral reproductive facts and choices");
+  }
 
   const cases = [
     ["Amara afterglow", fixture.amaraAfterglow, "men make speeches", "you're meant to make a speech"],

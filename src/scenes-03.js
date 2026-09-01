@@ -114,6 +114,10 @@ Her hand is close to yours. The ship is quiet around you.`;
       return opts;
     }
   },
+  // PRE: Lena living; reached from lena_dying before the intimacy decision
+  // WRITES: choices only; scene entry writes nothing
+  // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena gets the empty-blister exit
+  // IMAGE: REUSE images/shower_lena.jpg via sceneImages; solo Lena, Commander absent; L-025 audited
   romance_lena_1: {
     get text() {
       if (!isAlive("lena")) return `The blister is empty. Whatever might have happened here has nowhere to land.`;
