@@ -6,7 +6,7 @@ registerScenes({
   // PRE: Lena living; reached only after the explicit romance_lena_1 consent choice
   // WRITES: first entry sets romance.lena, affinity/trust, mark.lena=dying_held, and one memory
   // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena redirects before text/image/choices
-  // IMAGE: REUSE images/shower_lena.jpg; solo Lena, Commander absent; L-025 audited
+  // IMAGE: REUSE images/afterglow_lena.jpg; earned aftermath, Commander absent; L-025 audited
   romance_lena_sex: {
     text: `What happens next is not gentle and not slow. Clothes are pushed aside against the cold bulkhead of the observation blister. Her mouth is hungry, almost angry. Your hands find the places she has kept armored.
 
@@ -37,7 +37,7 @@ She is explicit in what she wants and does not ask you to be careful. The sex is
         remember("You and Lena crossed a line in the observation blister. The crew will notice who you keep close.");
       }
     },
-    image: "images/shower_lena.jpg"
+    image: "images/afterglow_lena.jpg"
   },
 
 
