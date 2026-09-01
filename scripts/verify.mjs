@@ -129,6 +129,24 @@ function validatorChecks(runtime) {
   if (result && result.count !== EXPECTED_SCENE_COUNT) {
     errors.push(`validator count ${result.count} != expected ${EXPECTED_SCENE_COUNT}`);
   }
+  const vessGateWarnings = runtime.evaluate(`(() => {
+    const original = scenes.intimacy_window;
+    scenes.intimacy_window = {
+      get text() { return original.text; },
+      get choices() {
+        if ((state.affinity.vess || 0) >= 99 || (state.trust.vess || 0) >= 99) return original.choices;
+        return original.choices;
+      }
+    };
+    const injected = window.validateSunsplitter();
+    scenes.intimacy_window = original;
+    return injected.warnings.filter(warning => warning.startsWith("romance: intimacy_window"));
+  })()`);
+  for (const expected of ["numeric affinity gates", "numeric trust gates"]) {
+    if (!vessGateWarnings.some(warning => warning.includes(expected))) {
+      errors.push(`validator missed injected Vess ${expected}`);
+    }
+  }
   return { errors, result };
 }
 

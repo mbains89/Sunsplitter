@@ -12,7 +12,8 @@
     "text", "next", "effects", "affinity", "flag", "lean", "requires",
     "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag"
   ]);
-  const ROMANCE_IDS = ["lena", "mira", "amara", "sela"];
+  const ROMANCE_IDS = ["lena", "mira", "amara", "sela", "vess"];
+  const ROMANCE_ID_PATTERN = ROMANCE_IDS.join("|");
   const LOCKED_FLAG_VALUES = {
     manifest: new Set(["read", "declined"]),
     changeorders: new Set(["logged", "buried"])
@@ -43,9 +44,24 @@
     return choiceList;
   }
 
+  function propertySource(object, key) {
+    const descriptor = Object.getOwnPropertyDescriptor(object, key);
+    if (descriptor && descriptor.get) return descriptor.get.toString();
+    const value = object[key];
+    return value && value.toString ? value.toString() : "";
+  }
+
   function validate() {
     const errors = [];
     const warnings = [];
+
+    if (typeof ROMANCEABLE !== "undefined") {
+      const runtimeIds = [...ROMANCEABLE].sort();
+      const validatorIds = [...ROMANCE_IDS].sort();
+      if (JSON.stringify(runtimeIds) !== JSON.stringify(validatorIds)) {
+        errors.push(`romance validator IDs ${validatorIds.join(",")} != runtime IDs ${runtimeIds.join(",")}`);
+      }
+    }
 
     if (typeof scenes === "undefined" || !scenes || typeof scenes !== "object") {
       console.error("[Sunsplitter validate] scenes object missing");
@@ -191,13 +207,15 @@
     if (scenes.intimacy_window) {
       try {
         const src = [
-          scenes.intimacy_window.choices && scenes.intimacy_window.choices.toString(),
-          scenes.intimacy_window.text && scenes.intimacy_window.text.toString()
+          propertySource(scenes.intimacy_window, "choices"),
+          propertySource(scenes.intimacy_window, "text")
         ].filter(Boolean).join("\n");
-        if (/affinity\.(mira|amara|sela|lena)\s*\|\|\s*0\)\s*>=\s*\d+/.test(src)) {
+        const affinityGate = new RegExp(`affinity\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
+        const trustGate = new RegExp(`trust\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
+        if (affinityGate.test(src)) {
           warnings.push("romance: intimacy_window still has numeric affinity gates (expected default-offer)");
         }
-        if (/trust\.(mira|amara|sela|lena)\s*\|\|\s*0\)\s*>=\s*\d+/.test(src)) {
+        if (trustGate.test(src)) {
           warnings.push("romance: intimacy_window still has numeric trust gates (expected default-offer)");
         }
         // declined mark should appear (string or hasMark)
