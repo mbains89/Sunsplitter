@@ -634,10 +634,10 @@ function whatRemainsFacts() {
 }
 
 function romanceOpen(who) {
-  // Default-offer gate for one woman: alive && !romanced && marks !== declined && promise not broken
+  // Default-offer gate: held-only and declined both complete the first offer.
   if (!who || !ROMANCEABLE.includes(who)) return false;
   if (who === "amara" && state.romance.amara_tomas) return false;
-  return isAlive(who) && !state.romance[who] && !hasMark(who, "declined") && state.promises[who] !== "broken";
+  return isAlive(who) && !state.romance[who] && !hasMark(who, "declined") && !hasMark(who, "held_only") && state.promises[who] !== "broken";
 }
 
 function hasOpenRomanceGates() {

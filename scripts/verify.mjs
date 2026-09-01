@@ -2363,6 +2363,25 @@ function romanceOpenGateChecks(runtime) {
       amaraAffinity: state.affinity.amara,
       tomasAffinity: state.affinity.tomas
     };
+
+    resetRunState();
+    for (const who of keys) if (who !== "mira") mark(who, "declined");
+    const miraHeldOnlyChoice = scenes.bond_mira.choices.find(choice => choice.mark && choice.mark.mira === "held_only");
+    const miraHeldOnlyBefore = {
+      cohesion: state.cohesion,
+      affinity: state.affinity.mira,
+      trust: state.trust.mira
+    };
+    if (miraHeldOnlyChoice) makeChoice(miraHeldOnlyChoice);
+    result.miraHeldOnly = {
+      choicePresent: !!miraHeldOnlyChoice,
+      scene: state.scene,
+      open: romanceOpen("mira"),
+      routes: scenes.intimacy_window.choices.map(choice => choice.next),
+      cohesionDelta: state.cohesion - miraHeldOnlyBefore.cohesion,
+      affinityDelta: state.affinity.mira - miraHeldOnlyBefore.affinity,
+      trustDelta: state.trust.mira - miraHeldOnlyBefore.trust
+    };
     return result;
   })()`);
 
@@ -2390,6 +2409,15 @@ function romanceOpenGateChecks(runtime) {
   }
   if (fixtures.amaraTomasPrivacy.cohesionDelta !== 3 || fixtures.amaraTomasPrivacy.amaraAffinity !== 4 || fixtures.amaraTomasPrivacy.tomasAffinity !== 4) {
     errors.push("Amara-Tomas privacy exit no longer applies its one-time authored payoff");
+  }
+  if (!fixtures.miraHeldOnly.choicePresent || fixtures.miraHeldOnly.scene !== "intimacy_window") {
+    errors.push("Mira held-only choice no longer returns to the authored intimacy window");
+  }
+  if (fixtures.miraHeldOnly.open || fixtures.miraHeldOnly.routes.includes("bond_mira")) {
+    errors.push("Mira held-only choice still reopens bond_mira in intimacy_window");
+  }
+  if (fixtures.miraHeldOnly.cohesionDelta !== 2 || fixtures.miraHeldOnly.affinityDelta !== 8 || fixtures.miraHeldOnly.trustDelta !== 8) {
+    errors.push("Mira held-only choice no longer applies its one-time authored payoff");
   }
   return errors;
 }
