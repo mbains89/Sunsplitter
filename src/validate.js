@@ -233,7 +233,7 @@
       "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
       // 0.28 Off-Shift + pairs + warmth
       "junctionChoice", "lena_notes", "mira_fault_known", "course_briefed",
-      "pair_shield", "pair_grudge", "pair_favor", "pair_turn",
+      "pair_shield", "pair_grudge", "pair_favor",
       "warmth_meal", "warmth_laughter", "warmth_music",
       // 0.29 Cascade Allusive
       "manifest", "changeorders"

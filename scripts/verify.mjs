@@ -70,6 +70,17 @@ function manifestChecks(scripts) {
   return errors;
 }
 
+function retiredRuntimeFlagChecks(scripts) {
+  const errors = [];
+  const runtimeSource = scripts
+    .map(relativePath => readFileSync(resolve(ROOT, relativePath), "utf8"))
+    .join("\n");
+  if (/\bpair_turn\b/.test(runtimeSource)) {
+    errors.push("L-023 retired pair_turn is still present in runtime source");
+  }
+  return errors;
+}
+
 function versionSurfaceChecks() {
   const errors = [];
   const versionFile = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
@@ -1091,6 +1102,10 @@ function main() {
   const manifestErrors = manifestChecks(scripts);
   printCheck("script manifest", manifestErrors, `${scripts.length} files`);
   failures.push(...manifestErrors);
+
+  const retiredFlagErrors = retiredRuntimeFlagChecks(scripts);
+  printCheck("L-023 retired pair_turn runtime state", retiredFlagErrors);
+  failures.push(...retiredFlagErrors);
 
   const versionErrors = versionSurfaceChecks();
   const observedVersion = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
