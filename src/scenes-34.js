@@ -120,7 +120,7 @@ registerScenes({
         if (debt.includes("amara") && !state.romance.amara) t += `Amara works the trays with her back to the hatch.\n`;
         if (debt.includes("lena") && !state.romance.lena) t += `Lena's medical updates arrive as text only.\n`;
         if (debt.includes("sela") && !state.romance.sela) t += `Sela's yellow circles continue. She does not look up when you pass.\n`;
-        t += `\nThis is not a mutiny. It is people rationing what they give a commander who has already rationed his attention.`;
+        t += `\nThis is not a mutiny. It is people rationing what they give you after you have already rationed your attention.`;
       } else {
         t += `No one makes a speech about who you kept close. That does not mean no one measured it.`;
       }

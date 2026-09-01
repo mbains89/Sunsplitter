@@ -15,7 +15,7 @@ registerScenes({
 
 "I did the arithmetic in the annex every day," he says. "Vault on one side, me on the other. I know exactly what I decided, because I'm standing here and a third of the germplasm isn't."`;
       if (state.flags.manifest_lie) {
-        t += `\n\n"You logged my hunger as breach loss. I carry that with you now. So this is me asking the man who shares my books, not the Commander who keeps them."`;
+        t += `\n\n"You logged my hunger as breach loss. I carry that with you now. So this is me asking the one who shares my books, not the Commander who keeps them."`;
       }
       t += `\n\nHe sets the tin down. "One day the ship puts that sum in front of you with people in it. I'd like to know now what kind of answer you are."`;
       return t;
@@ -42,7 +42,7 @@ registerScenes({
         ? `He takes the sprouts up again, slower, like the work got lighter and he doesn't trust it.
 
 "Then I'll hold the vault to it too. It's outlived every promise anyone made near it. Not this one. I'll see to that."`
-        : `He nods at the tin, not at you. "Fair. The annex taught me the difference between a man who won't answer and a man who hasn't yet. I'll wait. The vault's patient. Hunger isn't."`;
+        : `He nods at the tin, not at you. "Fair. The annex taught me the difference between refusing an answer and not having one yet. I'll wait. The vault's patient. Hunger isn't."`;
     },
     get choices() {
       const back = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";

@@ -1,5 +1,7 @@
 # VOICE_CARDS.md — Sunsplitter, one card per character. Paste only the cards a session needs.
 
+**Global addressee rule (L-025):** the Commander is player-shaped and second-person. Preserve each speaker's rank/name habits without gendering, depicting, or otherwise defining the Commander.
+
 ## Lena — medic, dying clock
 Diction: mid-length sentences, verdict first, medical vocabulary applied casually to non-medical things ("that's presenting as guilt"); prognoses as numbers with error, never rounded toward hope or mercy. Gallows chart-note humor.
 Taboos: never "everything will be fine"; no euphemisms for death — people die, she says die; never self-pity; first name for the Commander only in private, only before saying something true.
