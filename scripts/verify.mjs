@@ -547,6 +547,22 @@ function warmthLaughterChecks(runtime) {
   return errors;
 }
 
+function rourkeDyingImageHonestyChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => ({
+    dying: resolveSceneImage("dying", scenes.dying),
+    outcomes: ["rourke_end", "rourke_stop", "rourke_try"].map(id => resolveSceneImage(id, scenes[id]))
+  }))()`);
+
+  if (fixture.dying !== "images/medical_bay.jpg") {
+    errors.push(`dying Rourke scene resolves to ${fixture.dying || "no image"} instead of the injury-honest medical plate`);
+  }
+  if (fixture.outcomes.some(image => image !== "images/covered_body.jpg")) {
+    errors.push(`Rourke outcome image wiring changed: ${fixture.outcomes.join(" | ")}`);
+  }
+  return errors;
+}
+
 function warmthMealPresenceChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1515,6 +1531,10 @@ function main() {
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);
     failures.push(...warmthLaughterErrors);
+
+    const rourkeDyingImageErrors = rourkeDyingImageHonestyChecks(runtime);
+    printCheck("dying Rourke image honesty", rourkeDyingImageErrors);
+    failures.push(...rourkeDyingImageErrors);
 
     const warmthMealPresenceErrors = warmthMealPresenceChecks(runtime);
     printCheck("warmth_meal living Tomas entry guard", warmthMealPresenceErrors);
