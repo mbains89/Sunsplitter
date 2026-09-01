@@ -2348,6 +2348,21 @@ function romanceOpenGateChecks(runtime) {
       routes: scenes.intimacy_window.choices.map(choice => choice.next),
       summary: scenes.reckon_summary.text
     };
+
+    resetRunState();
+    state.recovered.tomas = true;
+    state.flags.hydro = "full";
+    const privacyChoice = scenes.romance_amara_tomas.choices.find(choice => choice.text === "Leave them the privacy they have claimed.");
+    const cohesionBeforePrivacy = state.cohesion;
+    if (privacyChoice) makeChoice(privacyChoice);
+    result.amaraTomasPrivacy = {
+      choicePresent: !!privacyChoice,
+      route: privacyChoice && privacyChoice.next,
+      scene: state.scene,
+      cohesionDelta: state.cohesion - cohesionBeforePrivacy,
+      amaraAffinity: state.affinity.amara,
+      tomasAffinity: state.affinity.tomas
+    };
     return result;
   })()`);
 
@@ -2369,6 +2384,12 @@ function romanceOpenGateChecks(runtime) {
   }
   if (!fixtures.amaraTomasGroup.summary.includes("Amara and Tomas claimed something private")) {
     errors.push("reckon_summary omits the current-run Amara-Tomas group relationship fact");
+  }
+  if (!fixtures.amaraTomasPrivacy.choicePresent || fixtures.amaraTomasPrivacy.route !== "debt_notice" || fixtures.amaraTomasPrivacy.scene !== "debt_notice") {
+    errors.push("Amara-Tomas privacy exit does not close the private hours at debt_notice");
+  }
+  if (fixtures.amaraTomasPrivacy.cohesionDelta !== 3 || fixtures.amaraTomasPrivacy.amaraAffinity !== 4 || fixtures.amaraTomasPrivacy.tomasAffinity !== 4) {
+    errors.push("Amara-Tomas privacy exit no longer applies its one-time authored payoff");
   }
   return errors;
 }
