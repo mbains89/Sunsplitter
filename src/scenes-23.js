@@ -6,7 +6,7 @@ registerScenes({
 act3_lethal_elias_order: {
   onEnter: () => {
     // Lock 5: in-flight saves from <0.25 skip Elias + Mira lethals (new plants)
-    if (typeof loadedGameVersion === "string" && loadedGameVersion < "0.25") {
+    if (isGameVersionBefore(loadedGameVersion, "0.25")) {
       return "faction_split";
     }
     if (!isAlive("elias")) return "act3_lethal_mira_board";
