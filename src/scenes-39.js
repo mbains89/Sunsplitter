@@ -43,6 +43,9 @@ He studies you.
 
 
 
+  // PRE: intro_elias exit | WRITES: vault_priority, immediate resource allocation, ideology lean, affinity, trust; degraded floor preserves L-021
+  // DEATH: none | DEAD SPEECH/APPEARANCE: all named speakers are present at this early fixed-roster beat
+  // IMAGE: REUSE images/vault_reveal.jpg; ART-R2 remains separate
   vault_reveal: {
     text: `Mira stops you in the corridor outside the sealed cargo section.
 
@@ -58,12 +61,20 @@ Elias stands in the doorway, arms folded. "Now you know what the real cargo is. 
 
 Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."
 
-The argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.`,
-    choices: [
-      { text: "The living come first. We protect the people who are already breathing.", next: "status", effects: { cohesion: 4 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 } },
-      { text: "This is the only future that matters. Everything else is temporary.", next: "status", effects: { cohesion: -3 }, flag: { vault_priority: "future" }, lean: { future: 6 }, affinity: { elias: 10, jiro: 8, lena: -6, tomas: -8 }, trust: { elias: 12, jiro: 10, lena: -6, tomas: -10 } },
-      { text: "We protect both until the ship forces a choice.", next: "status", effects: { cohesion: 1 }, flag: { vault_priority: "both" }, lean: { future: 2, living: 2 }, affinity: { mira: 6 } }
-    ]
+The argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.
+
+The order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`,
+    get choices() {
+      const mandates = [
+        { text: "Living priority — divert vault power to habitation now. Cohesion rises; embryo viability takes the first loss.", next: "status", effects: { cohesion: 4, embryos: -5 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 } },
+        { text: "Future priority — ring-fence vault power and the restart package. Preserve the full embryo ceiling; cohesion takes the first loss.", next: "status", effects: { cohesion: -3 }, flag: { vault_priority: "future" }, lean: { future: 6 }, affinity: { elias: 10, jiro: 8, lena: -6, tomas: -8 }, trust: { elias: 12, jiro: 10, lena: -6, tomas: -10 } },
+        { text: "Dual mandate — keep both grids funded for now. Spend active stores to carry the overlap.", next: "status", effects: { cohesion: 1, supplies: -3 }, flag: { vault_priority: "both" }, lean: { future: 2, living: 2 }, affinity: { mira: 6 } }
+      ];
+      if (!mandates.some(choice => canAffordEffects(choice.effects))) {
+        mandates.push({ text: "No reserve can move. Record a dual mandate without reallocating power.", next: "status", flag: { vault_priority: "both" }, lean: { future: 1, living: 1 } });
+      }
+      return mandates;
+    }
   },
   status: {
     get text() {

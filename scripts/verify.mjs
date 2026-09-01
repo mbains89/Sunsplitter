@@ -2085,6 +2085,112 @@ function custodyPossessionTradeoffChecks(runtime) {
   return errors;
 }
 
+function vaultRevealTradeoffChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const statKeys = ["integrity", "cohesion", "supplies", "embryos"];
+    const snapshot = () => statKeys.map(key => state[key]);
+    const delta = (before, after) => after.map((value, index) => value - before[index]);
+    const inspectMandate = priority => {
+      resetRunState();
+      showScene("vault_reveal");
+      const choice = scenes.vault_reveal.choices.find(item => item.flag && item.flag.vault_priority === priority);
+      const before = snapshot();
+      makeChoice(choice);
+      return {
+        text: choice.text,
+        effects: choice.effects || null,
+        delta: delta(before, snapshot()),
+        scene: state.scene,
+        priority: state.flags.vault_priority,
+        futureLean: state.ideology.future,
+        livingLean: state.ideology.living
+      };
+    };
+
+    resetRunState();
+    document.getElementById("choices").children = [];
+    showScene("vault_reveal");
+    const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+    const sceneText = scenes.vault_reveal.text;
+
+    resetRunState();
+    state.integrity = 0;
+    state.cohesion = 0;
+    state.supplies = 0;
+    state.embryos = 0;
+    document.getElementById("choices").children = [];
+    showScene("vault_reveal");
+    const depletedChoices = scenes.vault_reveal.choices;
+    const depletedButtons = Array.from(document.getElementById("choices").children).map(button => ({
+      disabled: button.disabled,
+      html: button.innerHTML
+    }));
+    const fallback = depletedChoices.find(item => !item.effects);
+    const beforeFallback = snapshot();
+    makeChoice(fallback);
+    const afterFallback = snapshot();
+    const fallbackScene = state.scene;
+    const fallbackPriority = state.flags.vault_priority;
+
+    return {
+      living: inspectMandate("living"),
+      future: inspectMandate("future"),
+      both: inspectMandate("both"),
+      defaultButtons,
+      sceneText,
+      depleted: {
+        choiceCount: depletedChoices.length,
+        enabledCount: depletedButtons.filter(button => !button.disabled).length,
+        fallbackText: fallback && fallback.text,
+        fallbackNext: fallback && fallback.next,
+        fallbackDelta: delta(beforeFallback, afterFallback),
+        scene: fallbackScene,
+        priority: fallbackPriority
+      }
+    };
+  })()`);
+
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const expected = {
+    living: { effects: { cohesion: 4, embryos: -5 }, delta: [0, 4, 0, -5], futureLean: 0, livingLean: 6 },
+    future: { effects: { cohesion: -3 }, delta: [0, -3, 0, 0], futureLean: 6, livingLean: 0 },
+    both: { effects: { cohesion: 1, supplies: -3 }, delta: [0, 1, -3, 0], futureLean: 2, livingLean: 2 }
+  };
+  for (const priority of Object.keys(expected)) {
+    const actual = fixture[priority];
+    const want = expected[priority];
+    if (!same(actual.effects, want.effects) || !same(actual.delta, want.delta) || actual.scene !== "status" ||
+        actual.priority !== priority || actual.futureLean !== want.futureLean || actual.livingLean !== want.livingLean) {
+      errors.push(`vault_reveal ${priority} mandate mismatch: ${JSON.stringify(actual)}`);
+    }
+  }
+  if (fixture.defaultButtons.length !== 3 || fixture.defaultButtons.some(button => button.disabled)) {
+    errors.push("vault_reveal default state no longer renders all three mandates as enabled");
+  }
+  for (const label of ["+4 Cohesion", "-5 Embryos", "-3 Cohesion", "+1 Cohesion", "-3 Supplies"]) {
+    if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
+      errors.push(`vault_reveal does not render immediate tradeoff label ${label}`);
+    }
+  }
+  for (const phrase of ["Living priority", "Future priority", "Dual mandate", "not a virtue test", "which reserve takes the first loss"]) {
+    const source = phrase.includes("priority") || phrase === "Dual mandate"
+      ? [fixture.living.text, fixture.future.text, fixture.both.text].join(" ")
+      : fixture.sceneText;
+    if (!source.includes(phrase)) errors.push(`vault_reveal tradeoff framing missing: ${phrase}`);
+  }
+  if (fixture.depleted.choiceCount !== 4 || fixture.depleted.enabledCount !== 1 ||
+      !/No reserve can move/i.test(fixture.depleted.fallbackText || "") ||
+      fixture.depleted.fallbackNext !== "status" || !same(fixture.depleted.fallbackDelta, [0, 0, 0, 0]) ||
+      fixture.depleted.scene !== "status" || fixture.depleted.priority !== "both") {
+    errors.push(`vault_reveal depleted-state L-021 fallback mismatch: ${JSON.stringify(fixture.depleted)}`);
+  }
+  return errors;
+}
+
 function pairShieldReachabilityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -3396,6 +3502,10 @@ async function main() {
     const custodyPossessionTradeoffErrors = custodyPossessionTradeoffChecks(runtime);
     printCheck("0.33 custody_possession visible tradeoff + L-021 floor", custodyPossessionTradeoffErrors);
     failures.push(...custodyPossessionTradeoffErrors);
+
+    const vaultRevealTradeoffErrors = vaultRevealTradeoffChecks(runtime);
+    printCheck("0.33 vault_reveal legible mandates + L-021 floor", vaultRevealTradeoffErrors);
+    failures.push(...vaultRevealTradeoffErrors);
 
     const pairShieldErrors = pairShieldReachabilityChecks(runtime);
     printCheck("L-020 pair_shield_cold one-shot reachability", pairShieldErrors);
