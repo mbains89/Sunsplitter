@@ -1145,16 +1145,49 @@ function unknownSaveSceneChecks(runtime) {
     malformed.cohesion = 17;
     const raw = JSON.stringify(malformed);
     localStorage.setItem("sunsplitter_save_v3", raw);
+    localStorage.removeItem("sunsplitter_save_v2");
+    localStorage.removeItem("sunsplitter_save_v3_staging");
+    localStorage.removeItem("sunsplitter_save_v3_backup");
 
     resetRunState();
+    refreshTitleResumeUI();
     const before = { scene: state.scene, cohesion: state.cohesion };
+    const hasBeforeLoad = hasSave();
+    const effectiveBeforeLoad = readRawSave();
+    const resumeVisible = !document.getElementById("btn-resume").classList.contains("hidden");
+    const beginText = document.getElementById("btn-begin").textContent;
+    const exportVisible = !document.getElementById("btn-export-save").classList.contains("hidden");
     const ok = loadGame();
+    const after = { scene: state.scene, cohesion: state.cohesion };
+
+    const legacy = snapshotState();
+    legacy.cohesion = 23;
+    legacy.sceneEntered = true;
+    const legacyRaw = JSON.stringify(legacy);
+    localStorage.setItem("sunsplitter_save_v3", raw);
+    localStorage.setItem("sunsplitter_save_v2", legacyRaw);
+    resetRunState();
+    const fallbackEffective = readRawSave();
+    const fallbackHasSave = hasSave();
+    const fallbackOk = loadGame();
     return {
       ok,
       before,
-      after: { scene: state.scene, cohesion: state.cohesion },
+      after,
+      hasBeforeLoad,
+      effectiveBeforeLoad,
+      resumeVisible,
+      beginText,
+      exportVisible,
       story: document.getElementById("story").innerHTML,
-      savePreserved: localStorage.getItem("sunsplitter_save_v3") === raw
+      savePreserved: localStorage.getItem("sunsplitter_save_v3") === raw,
+      fallbackEffectiveIsLegacy: fallbackEffective === legacyRaw,
+      fallbackHasSave,
+      fallbackOk,
+      fallbackScene: state.scene,
+      fallbackCohesion: state.cohesion,
+      corruptV3Preserved: localStorage.getItem("sunsplitter_save_v3") === raw,
+      legacyPreserved: localStorage.getItem("sunsplitter_save_v2") === legacyRaw
     };
   })()`);
 
@@ -1164,6 +1197,18 @@ function unknownSaveSceneChecks(runtime) {
   }
   if (fixture.story.includes("Scene missing:")) errors.push("unknown-scene save rendered the zero-choice missing-scene trap");
   if (!fixture.savePreserved) errors.push("failed unknown-scene load replaced or removed the original save blob");
+  if (fixture.hasBeforeLoad || fixture.effectiveBeforeLoad !== null) {
+    errors.push("unknown-scene save still counts as a resumable slot");
+  }
+  if (fixture.resumeVisible || fixture.beginText !== "Begin" || fixture.exportVisible) {
+    errors.push("unknown-scene save still traps the title UI behind Continue/New run controls");
+  }
+  if (!fixture.fallbackEffectiveIsLegacy || !fixture.fallbackHasSave || !fixture.fallbackOk || fixture.fallbackScene !== "wake" || fixture.fallbackCohesion !== 23) {
+    errors.push("corrupt v3 slot masks the valid legacy fallback");
+  }
+  if (!fixture.corruptV3Preserved || !fixture.legacyPreserved) {
+    errors.push("legacy fallback mutated stored save bytes");
+  }
   return errors;
 }
 
@@ -1176,6 +1221,9 @@ function malformedSnapshotShapeChecks(runtime) {
     const malformed = Object.assign({}, valid, { cohesion: 17, flags: "not-an-object" });
     const raw = JSON.stringify(malformed);
     localStorage.setItem("sunsplitter_save_v3", raw);
+    localStorage.removeItem("sunsplitter_save_v2");
+    localStorage.removeItem("sunsplitter_save_v3_staging");
+    localStorage.removeItem("sunsplitter_save_v3_backup");
 
     resetRunState();
     const before = { scene: state.scene, cohesion: state.cohesion, flags: Object.assign({}, state.flags) };
