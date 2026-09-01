@@ -5,6 +5,8 @@
 
 Tone: grimdark × cyberpunk. Humor is dry, black, procedural, or deadpan — never slapstick. Dead characters never speak. Intelligence shows in method under pressure.
 
+**Commander framing (L-025).** The Commander is a player-shaped second-person protagonist. Character voice may use rank or an earned private name, but never assigns the Commander a gender, face, portrait, or identity system.
+
 ---
 
 ## 1. Lena — Medic

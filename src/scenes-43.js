@@ -53,7 +53,7 @@ She goes back to the trays. The misters tick.`
     },
     text: () => `She's tracing the old burn on your forearm like she's reading soil depth.
 
-"This is the part where men make speeches," she says. "Don't. I've heard the speeches. They compost badly."
+"This is the part where you're meant to make a speech," she says. "Don't. I've heard the speeches. They compost badly."
 
 She props herself on an elbow, all attention, nothing soft about it. "But if you've something true that fits in one line, I'll bank it. One line. I'll hold you to the interest."`,
     choices: [
@@ -93,7 +93,7 @@ She settles back against you. Neither of you performs sleep.`
 
 "Teaching moment. This is the only line that can hold a crashing patient longer than an hour. Singular. The ship was built with four."
 
-She kills the display. "Notice we're alone and I'm not calling you Commander. That's the dosage information for what comes next. Someday I crash with somebody else on that line. And you are the kind of man who reaches for the scalpel that saves what he loves. I've watched you do the math with your face."`,
+She kills the display. "Notice we're alone and I'm not calling you Commander. That's the dosage information for what comes next. Someday I crash with somebody else on that line. And you reach for the scalpel that saves what you love. I've watched you do the math with your face."`,
     choices: [
       { text: `"I will never kill one of them to keep you."`,
         flag: { prom_lena: true },

@@ -856,6 +856,49 @@ function lastTransmissionChecks(runtime) {
   return errors;
 }
 
+function commanderIdentityChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const renderText = id => typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+
+    resetRunState();
+    state.romance.amara = true;
+    const amaraAfterglow = renderText("prom_make_amara_ag");
+
+    resetRunState();
+    const lenaPromise = renderText("prom_make_lena");
+
+    resetRunState();
+    state.flags.manifest_lie = true;
+    const tomasManifest = renderText("prom_make_tomas");
+
+    resetRunState();
+    state.recovered.tomas = true;
+    state.promises.tomas = "declined";
+    const tomasDeclined = renderText("prom_r_tomas");
+
+    resetRunState();
+    state.romance.lena = true;
+    state.affinity.lena = 40;
+    const debtNotice = renderText("debt_notice");
+
+    return { amaraAfterglow, lenaPromise, tomasManifest, tomasDeclined, debtNotice };
+  })()`);
+
+  const cases = [
+    ["Amara afterglow", fixture.amaraAfterglow, "men make speeches", "you're meant to make a speech"],
+    ["Lena promise", fixture.lenaPromise, "kind of man who reaches", "you reach for the scalpel that saves what you love"],
+    ["Tomas manifest", fixture.tomasManifest, "asking the man who shares my books", "asking the one who shares my books"],
+    ["Tomas declined", fixture.tomasDeclined, "difference between a man who won't answer and a man who hasn't yet", "difference between refusing an answer and not having one yet"],
+    ["Debt notice", fixture.debtNotice, "commander who has already rationed his attention", "what they give you after you have already rationed your attention"]
+  ];
+  for (const [label, text, forbidden, required] of cases) {
+    if (text.includes(forbidden)) errors.push(`${label} still genders the Commander: ${forbidden}`);
+    if (!text.includes(required)) errors.push(`${label} missing player-shaped replacement: ${required}`);
+  }
+  return errors;
+}
+
 function cascadeAndMirrorChecks(runtime) {
   const errors = [];
   const bindings = runtime.evaluate(`(() => {
@@ -1178,6 +1221,10 @@ function main() {
     const lastTransmissionErrors = lastTransmissionChecks(runtime);
     printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
     failures.push(...lastTransmissionErrors);
+
+    const commanderIdentityErrors = commanderIdentityChecks(runtime);
+    printCheck("L-025 player-shaped Commander rendered paths", commanderIdentityErrors);
+    failures.push(...commanderIdentityErrors);
   }
 
   const simulations = runPolicySet(ROOT, { policies: POLICY_NAMES, runs: 1, seed: 20260817 });
