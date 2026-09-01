@@ -132,7 +132,7 @@ const sceneImages = {
   arc_future_3:     "images/cascade_records.jpg",
   arc_future_4:     "images/abandoned_section.jpg",
   arc_living_1:     "images/hydroponics.jpg",
-  arc_living_2:     "images/sela.jpg",
+  arc_living_2:     "images/sela_ritual.jpg",
   arc_living_3:     "images/arc_living_conflict.jpg",
   arc_living_4:     "images/corridor_pressure_2.jpg",
   vault_voice:     "images/vault_voice.jpg",
