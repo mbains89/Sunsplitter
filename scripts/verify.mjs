@@ -898,6 +898,54 @@ function lastTransmissionChecks(runtime) {
   return errors;
 }
 
+function vessTransmissionReplayChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.recovered.vess = true;
+    state.flags.last_tx_spent = true;
+    showScene("vess_transmission");
+    const spent = {
+      scene: state.scene,
+      romance: !!state.romance.vess,
+      cohesion: state.cohesion,
+      affinity: state.affinity.vess,
+      memories: state.memories.slice()
+    };
+
+    resetRunState();
+    state.recovered.vess = true;
+    showScene("vess_transmission");
+    const choice = scenes.vess_transmission.choices.find(item => item.text === "Give her the window. Last outward voice.");
+    const unspentEntry = {
+      scene: state.scene,
+      romance: !!state.romance.vess,
+      choicePresent: !!choice
+    };
+    if (choice) makeChoice(choice);
+    const unspentChoice = {
+      scene: state.scene,
+      spent: !!state.flags.last_tx_spent,
+      cohesion: state.cohesion,
+      affinity: state.affinity.vess,
+      memoryPresent: state.memories.includes("Shared the last long-range window and a private hour with Vess.")
+    };
+    return { spent, unspentEntry, unspentChoice };
+  })()`);
+
+  if (fixture.spent.scene !== "act3_spine_next") errors.push("spent last_tx re-enters vess_transmission");
+  if (fixture.spent.romance || fixture.spent.cohesion !== 48 || fixture.spent.affinity !== 0 || fixture.spent.memories.length) {
+    errors.push("spent last_tx mutates Vess romance, rewards, or memories on replay");
+  }
+  if (fixture.unspentEntry.scene !== "vess_transmission" || !fixture.unspentEntry.romance || !fixture.unspentEntry.choicePresent) {
+    errors.push("unspent living-Vess transmission route no longer enters normally");
+  }
+  if (fixture.unspentChoice.scene !== "vess_intimate" || !fixture.unspentChoice.spent || fixture.unspentChoice.cohesion !== 49 || fixture.unspentChoice.affinity !== 4 || !fixture.unspentChoice.memoryPresent) {
+    errors.push("unspent Vess transmission choice no longer spends the window and preserves its authored payoff");
+  }
+  return errors;
+}
+
 function vessCourseRetirementChecks(runtime) {
   const errors = [];
   const scenesSource = readFileSync(resolve(ROOT, "src/scenes-16.js"), "utf8");
@@ -1329,6 +1377,10 @@ function main() {
     const lastTransmissionErrors = lastTransmissionChecks(runtime);
     printCheck("last_tx final transmission spent/unspent guard", lastTransmissionErrors);
     failures.push(...lastTransmissionErrors);
+
+    const vessTransmissionReplayErrors = vessTransmissionReplayChecks(runtime);
+    printCheck("vess_transmission spent-window replay guard", vessTransmissionReplayErrors);
+    failures.push(...vessTransmissionReplayErrors);
 
     const vessCourseRetirementErrors = vessCourseRetirementChecks(runtime);
     printCheck("L-027 retired Vess course promise and legacy flag", vessCourseRetirementErrors);

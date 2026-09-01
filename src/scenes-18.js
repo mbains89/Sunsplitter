@@ -6,7 +6,7 @@ registerScenes({
   vess_transmission: {
     image: "images/vess_signal.jpg",
     onEnter: () => {
-      if (!isAlive("vess")) return "act3_spine_next";
+      if (!isAlive("vess") || state.flags.last_tx_spent) return "act3_spine_next";
       state.romance.vess = true;
     },
     text: () => {
