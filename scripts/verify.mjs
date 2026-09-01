@@ -834,6 +834,16 @@ function romanceOpenGateChecks(runtime) {
       result[who].madeRoutes = scenes.intimacy_window.choices.map(choice => choice.next);
       result[who].firstName = crew[who].first;
     }
+    resetRunState();
+    state.recovered.tomas = true;
+    state.flags.hydro = "full";
+    for (const who of keys) if (who !== "amara") mark(who, "declined");
+    state.romance.amara_tomas = true;
+    result.amaraTomasGroup = {
+      amaraOpen: romanceOpen("amara"),
+      routes: scenes.intimacy_window.choices.map(choice => choice.next),
+      summary: scenes.reckon_summary.text
+    };
     return result;
   })()`);
 
@@ -846,6 +856,15 @@ function romanceOpenGateChecks(runtime) {
     if (!fixture.madeOpen) errors.push(`${who} romanceOpen rejected the made-promise control`);
     if (!fixture.madeText.includes(fixture.firstName)) errors.push(`${who} disappeared from intimacy_window made-promise control text`);
     if (!fixture.madeRoutes.includes(expectedRoute)) errors.push(`${who} disappeared from intimacy_window made-promise control choices`);
+  }
+  if (fixtures.amaraTomasGroup.amaraOpen) {
+    errors.push("Amara solo first-offer remains open after the Amara-Tomas group relationship");
+  }
+  if (fixtures.amaraTomasGroup.routes.includes("bond_amara")) {
+    errors.push("intimacy_window still offers bond_amara after the Amara-Tomas group relationship");
+  }
+  if (!fixtures.amaraTomasGroup.summary.includes("Amara and Tomas claimed something private")) {
+    errors.push("reckon_summary omits the current-run Amara-Tomas group relationship fact");
   }
   return errors;
 }
