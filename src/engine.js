@@ -62,23 +62,42 @@ function resetRunState() {
   }
 }
 
+function replaceRunState(next) {
+  Object.keys(state).forEach(k => { delete state[k]; });
+  Object.assign(state, next);
+}
+
 function beginFreshCampaign(opts) {
   opts = opts || {};
+  let previousState = null;
+  const previousGameVersion = loadedGameVersion;
+  if (opts.persist) {
+    try {
+      previousState = JSON.parse(JSON.stringify(state));
+    } catch (e) {
+      flashSaveStatus("New run failed · current run kept", true, true);
+      return false;
+    }
+  }
   resetRunState();
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true })) {
+    replaceRunState(previousState);
+    loadedGameVersion = previousGameVersion;
+    return false;
+  }
   showScreen("game");
   renderStatus();
   showScene("wake");
-  if (opts.persist) persistSave({ silent: true });
+  return true;
 }
 
 function startGame() {
   // New run overwrites the slot — warn if a save exists
-  if (hasSave() && !window.__ssForceNew) {
+  if (hasSave()) {
     const ok = window.confirm("Start a new run? This will replace your saved progress.");
-    if (!ok) return;
+    if (!ok) return false;
   }
-  window.__ssForceNew = false;
-  beginFreshCampaign({ persist: true });
+  return beginFreshCampaign({ persist: true });
 }
 
 function playAgain() {
@@ -984,16 +1003,9 @@ function readRawSave() {
     const backup = localStorage.getItem(SAVE_BACKUP_KEY);
     if (!validRawSnapshot(raw) && validRawSnapshot(backup)) raw = backup;
     if (!raw) {
-      // Migrate legacy v2 (raw state dump)
-      const legacy = localStorage.getItem(SAVE_KEY_LEGACY);
-      if (legacy) {
-        try {
-          const old = JSON.parse(legacy);
-          const migrated = Object.assign({ v: 2, savedAt: Date.now() }, old);
-          localStorage.setItem(SAVE_KEY, JSON.stringify(migrated));
-          raw = localStorage.getItem(SAVE_KEY);
-        } catch (e) { /* leave legacy alone */ }
-      }
+      // Read legacy v2 without mutating storage. A successful explicit load
+      // adopts it through the ordinary verified v3 save transaction.
+      raw = localStorage.getItem(SAVE_KEY_LEGACY);
     }
     return raw;
   } catch (e) {
@@ -1032,10 +1044,22 @@ function getSaveMeta() {
 function persistSave(opts) {
   opts = opts || {};
   const silent = !!opts.silent;
+  const retireLegacy = !!opts.retireLegacy;
   const snap = snapshotState();
   let previousRaw = null;
   let previousValid = false;
+  let previousLegacyRaw = null;
+  let previousLegacyValid = false;
   let json;
+  if (retireLegacy) {
+    try {
+      previousLegacyRaw = localStorage.getItem(SAVE_KEY_LEGACY);
+      previousLegacyValid = validRawSnapshot(previousLegacyRaw);
+    } catch (e) {
+      reportSaveWriteFailure(silent, false);
+      return false;
+    }
+  }
   try {
     const liveRaw = localStorage.getItem(SAVE_KEY);
     const recoveryRaw = localStorage.getItem(SAVE_BACKUP_KEY);
@@ -1063,6 +1087,10 @@ function persistSave(opts) {
     }
     localStorage.setItem(SAVE_KEY, json);
     if (localStorage.getItem(SAVE_KEY) !== json) throw new Error("save verification failed");
+    if (retireLegacy && previousLegacyRaw !== null) {
+      localStorage.removeItem(SAVE_KEY_LEGACY);
+      if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
+    }
   } catch (e) {
     let priorRecoverable = false;
     try {
@@ -1071,12 +1099,15 @@ function persistSave(opts) {
       } else if (previousRaw === null) {
         localStorage.removeItem(SAVE_KEY);
       }
+      if (retireLegacy && previousLegacyRaw !== null && localStorage.getItem(SAVE_KEY_LEGACY) !== previousLegacyRaw) {
+        localStorage.setItem(SAVE_KEY_LEGACY, previousLegacyRaw);
+      }
     } catch (restoreError) { /* verified backup remains recovery authority */ }
     try {
-      priorRecoverable = previousValid && (
-        localStorage.getItem(SAVE_KEY) === previousRaw ||
-        localStorage.getItem(SAVE_BACKUP_KEY) === previousRaw
-      );
+      priorRecoverable = (previousValid && (
+          localStorage.getItem(SAVE_KEY) === previousRaw ||
+          localStorage.getItem(SAVE_BACKUP_KEY) === previousRaw
+        )) || (previousLegacyValid && localStorage.getItem(SAVE_KEY_LEGACY) === previousLegacyRaw);
     } catch (readError) { /* status fails closed when custody cannot be read */ }
     try {
       localStorage.removeItem(SAVE_STAGING_KEY);
