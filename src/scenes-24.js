@@ -165,7 +165,8 @@ Mira reads the limit twice.
 // SCENE_ID: act3_lethal_mira_end
 // VERSION:  0.25.0        TICKET: Lethal opportunities
 // PACKAGE:  Mira — The Cross-Feed
-// SPINE:    off-spine, reached via act3_lethal_mira_board final choice
+// SPINE:    off-spine, reached via act3_lethal_mira_board final choice;
+//   routes through the one-shot Elias pair consequence when eligible
 //
 // PRECONDITIONS (live predicates, evaluated at render — never baked
 // at author time; must remain true if later versions add death vectors):
@@ -186,7 +187,11 @@ Mira reads the limit twice.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_mira_end: {
   onEnter: () => {
-    if (!isAlive("mira")) return "faction_split";
+    if (!isAlive("mira")) {
+      return isAlive("elias") && attributableDeath("mira") && !state.flags.pair_shield
+        ? "pair_shield_cold"
+        : "faction_split";
+    }
     state.dying.mira = state.romance.mira && state.pursuit.mira
       ? "would not leave the board"
       : "finished the repair";
@@ -206,9 +211,14 @@ The access door remains above safe-open temperature longer than the suit feed la
     }
     return t;
   },
-  choices: [
-    { text: "Leave the completed trace on the board. Continue.", next: "faction_split" }
-  ],
+  get choices() {
+    const next = isAlive("elias") && attributableDeath("mira") && !state.flags.pair_shield
+      ? "pair_shield_cold"
+      : "faction_split";
+    return [
+      { text: "Leave the completed trace on the board. Continue.", next }
+    ];
+  },
   image: "images/corridor_variant.jpg"
 },
 

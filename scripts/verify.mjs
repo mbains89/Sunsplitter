@@ -466,6 +466,55 @@ function vaultPriorityChecks(runtime) {
   return errors;
 }
 
+function pairShieldReachabilityChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    state.crisisPath = "breath";
+    state.flags.junctionChoice = "lena";
+    state.recovered.vess = true;
+    showScene("act3_lethal_mira_end");
+    const lethalNext = scenes.act3_lethal_mira_end.choices[0].next;
+    makeChoice(scenes.act3_lethal_mira_end.choices[0]);
+    const pairScene = state.scene;
+    const pairSpent = state.flags.pair_shield === true;
+    const pairNext = scenes.pair_shield_cold.choices[0].next;
+    makeChoice(scenes.pair_shield_cold.choices[0]);
+    const finalScene = state.scene;
+    const offeredAgain = scenes.act3_spine_next.choices.some(choice => choice.next === "pair_shield_cold");
+
+    resetRunState();
+    state.crisisPath = "breath";
+    state.flags.junctionChoice = "lena";
+    kill("mira", "finished the repair");
+    showScene("act3_lethal_mira_end");
+    const resumedScene = state.scene;
+
+    resetRunState();
+    state.crisisPath = "breath";
+    state.flags.junctionChoice = "lena";
+    kill("elias", "held the line");
+    showScene("act3_lethal_mira_end");
+    const noEliasNext = scenes.act3_lethal_mira_end.choices[0].next;
+    return { lethalNext, pairScene, pairSpent, pairNext, finalScene, offeredAgain, resumedScene, noEliasNext };
+  })()`);
+
+  if (fixture.lethalNext !== "pair_shield_cold" || fixture.pairScene !== "pair_shield_cold" || !fixture.pairSpent) {
+    errors.push("L-020 consequence is not reached immediately after Mira's attributable lethal path");
+  }
+  if (fixture.pairNext !== "faction_split" || fixture.finalScene !== "faction_split") {
+    errors.push("pair_shield_cold does not return to faction_split after the one-shot consequence");
+  }
+  if (fixture.offeredAgain) errors.push("pair_shield_cold remained eligible after its one-shot flag was spent");
+  if (fixture.resumedScene !== "pair_shield_cold") {
+    errors.push("resuming the saved Mira-lethal scene skipped the unspent L-020 consequence");
+  }
+  if (fixture.noEliasNext !== "faction_split") {
+    errors.push("Mira's lethal path routes to pair_shield_cold without a living Elias");
+  }
+  return errors;
+}
+
 function renderPurityChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -1094,6 +1143,10 @@ function main() {
     const vaultPriorityErrors = vaultPriorityChecks(runtime);
     printCheck("L-022 early vault_priority preservation", vaultPriorityErrors);
     failures.push(...vaultPriorityErrors);
+
+    const pairShieldErrors = pairShieldReachabilityChecks(runtime);
+    printCheck("L-020 pair_shield_cold one-shot reachability", pairShieldErrors);
+    failures.push(...pairShieldErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
