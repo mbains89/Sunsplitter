@@ -1036,12 +1036,53 @@ function validImportedSnapshot(data) {
   const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
   const isCrewKey = key => Object.prototype.hasOwnProperty.call(crew, key);
   const validMap = (map, validKey, validValue) => map == null ||
-    Object.entries(map).every(([key, value]) => validKey(key) && validValue(value));
+    Object.entries(map).every(([key, value]) => validKey(key) && validValue(value, key));
   const isBoolean = value => typeof value === "boolean";
   const isCause = value => typeof value === "string" && value.length > 0;
   const isBoundedScore = value => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
-  const isFlagValue = value => value === null || typeof value === "boolean" || typeof value === "string" ||
-    (typeof value === "number" && Number.isFinite(value));
+  const booleanFlags = new Set([
+    "amara_rear_done", "amara_vent_delayed", "burn_unverified", "busDowngraded", "clock_known", "course_briefed",
+    "course_option_lost", "custody_roll", "last_tx_spent", "lena_authority", "lena_notes", "lena_rear_done",
+    "lena_regen", "lena_shower_done", "manifest_exposed", "manifest_lie", "margin_committed", "margin_spent_extra",
+    "mira_fault_known", "mira_favor", "mira_memory_public", "mira_rear_done", "mira_shower_done", "pair_favor",
+    "pair_grudge", "pair_shield", "position_certain", "prom_amara", "prom_amara_alluded", "prom_deck4_buried",
+    "prom_deck4_edited", "prom_elias", "prom_elias_alluded", "prom_lena", "prom_lena_alluded", "prom_line_held",
+    "prom_mira", "prom_mira_alluded", "prom_sela", "prom_sela_alluded", "prom_tomas", "prom_tomas_alluded",
+    "quiet_tomas_done", "reaction_mass_spent", "sela_rear_done", "ship_interrupt_fired", "tether_hand_elias",
+    "tether_hand_mira", "tether_hand_sela", "tether_rushed", "tomas_scapegoated", "trays_dead", "vault_face",
+    "vault_face_read", "vess_intimate", "warmth_laughter", "warmth_meal", "warmth_music", "water_vented"
+  ]);
+  const flagDomains = Object.fromEntries(Object.entries({
+    abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
+    breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
+    coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
+    custody_answer: ["severed", "possession", "thawed", "shared"],
+    departure_truth: ["plural", "records", "living_only"], elias_power: ["high", "limited", "low"],
+    embryo_ceiling: ["lowered"], feedstock: ["seal", "food", "thin"],
+    final: ["endure", "hold", "comfort", "transmission"], hydro: ["full", "minimal", "rebuild"],
+    interrupt_return: ["bond_mira", "bond_amara", "bond_sela", "bond_lena", null],
+    junctionChoice: ["none", "lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"],
+    leadership: ["together", "hard", "watch"], leadership_style: ["hard", "balanced", "soft"],
+    manifest: ["read", "declined"], mid_arc: ["living", "future"],
+    past: ["owned", "denied", "deal", "lena_only", "threatened", "deflected"], patch: ["failed", "aborted"],
+    planet: ["committed", "deferred"], power: ["cut", "burn", "risk"], priority: ["repairs", "ration", "planet"],
+    prom_line_other: ["mira", "jiro", "vess"], pursuit_amara_cost: ["vent_delay", "half"],
+    pursuit_lena_cost: ["regen", "honest_regen"], pursuit_mira_cost: ["disclosed", "partial"],
+    pursuit_sela_cost: ["vow", "private_vow"], reckon: ["public", "suppress", "memory", "truth"],
+    rourke: ["stopped", "stayed", "tried", "ignored"], sela_attention: ["ignored", "present"],
+    sela_vault_vow: ["accepted", "refused"], ship_interrupt: ["answered", "deferred", "remote"],
+    ship_memory: ["open_wound", "jury_rig", "proper_seal"], signal: ["chase", "ignore", "study"],
+    stores: ["seize", "ignore", "vote"], sun_doctrine: ["scrubbed", "doctrine", "silent"],
+    tomas: ["future", "living", "hold"], vault_priority: ["future", "living", "both"],
+    vault_sacrifice: ["future", "living", "split"], vault_voice: ["off", "on", "restricted"]
+  }).map(([key, values]) => [key, new Set(values)]));
+  const isFlagValue = (value, key) => {
+    if (booleanFlags.has(key)) return typeof value === "boolean";
+    if (key === "pregnancy_risk") return typeof value === "boolean" || value === "unknown";
+    if (flagDomains[key]) return flagDomains[key].has(value);
+    return value === null || typeof value === "boolean" || typeof value === "string" ||
+      (typeof value === "number" && Number.isFinite(value));
+  };
   const isMarkValue = value => typeof value === "string" ||
     (isRecord(value) && Object.values(value).every(isBoolean));
   const promiseStates = new Set(["made", "declined", "kept", "broken"]);

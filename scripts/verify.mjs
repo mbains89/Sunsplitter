@@ -698,6 +698,10 @@ async function saveTransferChecks(runtime) {
     rejectCase("corruptRecovery", JSON.stringify(corruptRecovery));
     const corruptIdeology = Object.assign({}, candidate, { ideology: { future: { score: 3 }, living: 1 } });
     rejectCase("corruptIdeology", JSON.stringify(corruptIdeology));
+    const typeConfusedFlag = Object.assign({}, candidate, {
+      flags: Object.assign({}, candidate.flags, { last_tx_spent: "false" })
+    });
+    rejectCase("typeConfusedFlag", JSON.stringify(typeConfusedFlag));
     rejectCase("oversized", " ".repeat(MAX_IMPORT_BYTES + 1));
     const bomAccepted = inspectSaveImportText("\\uFEFF" + candidateRaw).ok;
 
