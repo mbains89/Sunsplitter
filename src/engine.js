@@ -17,6 +17,48 @@ let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
 let renderingSavedScene = false;
 let pendingLegacyResume = null;
 
+function parseSemanticVersion(value) {
+  if (typeof value !== "string") return null;
+  const match = value.trim().match(/^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
+  if (!match) return null;
+  const prerelease = match[4] ? match[4].split(".") : [];
+  if (prerelease.some(part => /^\d+$/.test(part) && part.length > 1 && part.startsWith("0"))) return null;
+  return {
+    core: [Number(match[1]), Number(match[2]), Number(match[3] || 0)],
+    prerelease
+  };
+}
+
+function compareSemanticVersions(left, right) {
+  const a = parseSemanticVersion(left);
+  const b = parseSemanticVersion(right);
+  if (!a || !b) return null;
+  for (let i = 0; i < a.core.length; i += 1) {
+    if (a.core[i] !== b.core[i]) return a.core[i] < b.core[i] ? -1 : 1;
+  }
+  if (!a.prerelease.length && !b.prerelease.length) return 0;
+  if (!a.prerelease.length) return 1;
+  if (!b.prerelease.length) return -1;
+  const length = Math.max(a.prerelease.length, b.prerelease.length);
+  for (let i = 0; i < length; i += 1) {
+    if (a.prerelease[i] == null) return -1;
+    if (b.prerelease[i] == null) return 1;
+    if (a.prerelease[i] === b.prerelease[i]) continue;
+    const aNumeric = /^\d+$/.test(a.prerelease[i]);
+    const bNumeric = /^\d+$/.test(b.prerelease[i]);
+    if (aNumeric && bNumeric) return Number(a.prerelease[i]) < Number(b.prerelease[i]) ? -1 : 1;
+    if (aNumeric !== bNumeric) return aNumeric ? -1 : 1;
+    return a.prerelease[i] < b.prerelease[i] ? -1 : 1;
+  }
+  return 0;
+}
+
+function isGameVersionBefore(version, minimum) {
+  const comparison = compareSemanticVersions(version, minimum);
+  // Unknown version syntax fails closed into the older-save compatibility path.
+  return comparison == null || comparison < 0;
+}
+
 function hasAcknowledgedTone() {
   try {
     return localStorage.getItem(TONE_ACK_KEY) === "1";

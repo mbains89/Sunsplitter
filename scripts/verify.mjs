@@ -1603,6 +1603,34 @@ function resumeEntryIdempotenceChecks(runtime) {
   return errors;
 }
 
+function saveVersionSemanticChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const check = (version, sceneId) => {
+      resetRunState();
+      loadedGameVersion = version;
+      return scenes[sceneId].onEnter() || null;
+    };
+    const versions = ["0.9", "0.10", "0.24.9", "0.25.0-rc.1", "0.25", "0.25.0", "0.100", "1.0", "not-a-version"];
+    return Object.fromEntries(versions.map(version => [version, {
+      elias: check(version, "act3_lethal_elias_order"),
+      mira: check(version, "act3_lethal_mira_board")
+    }]));
+  })()`);
+
+  for (const version of ["0.9", "0.10", "0.24.9", "0.25.0-rc.1", "not-a-version"]) {
+    if (fixture[version].elias !== "faction_split" || fixture[version].mira !== "faction_split") {
+      errors.push(`save version ${version} did not fail closed before the 0.25 lethal-scene threshold`);
+    }
+  }
+  for (const version of ["0.25", "0.25.0", "0.100", "1.0"]) {
+    if (fixture[version].elias !== null || fixture[version].mira !== null) {
+      errors.push(`save version ${version} was incorrectly treated as older than 0.25`);
+    }
+  }
+  return errors;
+}
+
 function warmthLaughterChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -3002,6 +3030,10 @@ async function main() {
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
     failures.push(...resumeEntryErrors);
+
+    const saveVersionSemanticErrors = saveVersionSemanticChecks(runtime);
+    printCheck("0.32 semantic save-version compatibility", saveVersionSemanticErrors);
+    failures.push(...saveVersionSemanticErrors);
 
     const warmthLaughterErrors = warmthLaughterChecks(runtime);
     printCheck("warmth_laughter living/dead Vess guard", warmthLaughterErrors);

@@ -5,7 +5,7 @@ registerScenes({
 
 act3_lethal_mira_board: {
   onEnter: () => {
-    if (typeof loadedGameVersion === "string" && loadedGameVersion < "0.25") {
+    if (isGameVersionBefore(loadedGameVersion, "0.25")) {
       return "faction_split";
     }
     if (!isAlive("mira")) return "faction_split";
