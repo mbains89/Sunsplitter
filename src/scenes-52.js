@@ -39,16 +39,32 @@ registerScenes({
     ]
   },
 
-  // Pair 1 cold (micro, reachable when Mira dead + Elias alive + attributable)
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: pair_shield_cold
+  // PRECONDITIONS: Elias alive; Mira dead from an attributable cause;
+  //   pair_shield not already spent on fresh entry
+  // STATE WRITES: eligible fresh entry sets pair_shield and records one memory;
+  //   invalid or spent fresh entry redirects to faction_split
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: Elias speech is predicate-guarded; a saved invalid
+  //   scene-entry marker renders neutral fallback text instead of dead speech
+  // IMAGE: images/elias.jpg only while the same roster/cause predicate holds;
+  //   engine resolves invalid saved state to a roster-neutral corridor plate
+  // ═════════════════════════════════════════════════════════════════
   pair_shield_cold: {
     image: "images/elias.jpg",
     onEnter: () => {
+      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira") || state.flags.pair_shield) {
+        return "faction_split";
+      }
       state.flags.pair_shield = true;
       remember("Elias said she was what the job was for");
     },
     get text() {
-      let t = `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
-      return t;
+      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
+        return `The watch report remains in the command log. There is no private accounting to add. The ship moves on.`;
+      }
+      return `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
     },
     choices: [ { text: "Continue.", next: "faction_split" } ]
   },
