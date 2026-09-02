@@ -101,14 +101,30 @@ class ElementStub {
 function createBrowserStubs() {
   const elements = new Map();
   const storage = new Map();
+  const eventTarget = () => {
+    const listeners = new Map();
+    return {
+      addEventListener(type, handler) {
+        if (!listeners.has(type)) listeners.set(type, new Set());
+        listeners.get(type).add(handler);
+      },
+      removeEventListener(type, handler) { listeners.get(type)?.delete(handler); },
+      dispatchEvent(event) {
+        for (const handler of listeners.get(event?.type) || []) handler.call(this, event);
+        return true;
+      }
+    };
+  };
+  const documentEvents = eventTarget();
+  const windowEvents = eventTarget();
   const getElementById = id => {
     if (!elements.has(id)) elements.set(id, new ElementStub(id));
     return elements.get(id);
   };
   const document = {
+    ...documentEvents,
     readyState: "complete",
     visibilityState: "visible",
-    addEventListener() {},
     createElement: tag => new ElementStub(tag),
     getElementById,
     querySelector() { return null; },
@@ -120,7 +136,7 @@ function createBrowserStubs() {
     removeItem: key => storage.delete(key),
     clear: () => storage.clear()
   };
-  const window = { document, localStorage, location: { search: "", href: "http://localhost/" }, confirm: () => true, addEventListener() {}, removeEventListener() {} };
+  const window = { ...windowEvents, document, localStorage, location: { search: "", href: "http://localhost/" }, confirm: () => true };
   return { document, elements, localStorage, window };
 }
 
