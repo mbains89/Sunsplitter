@@ -11,42 +11,43 @@
 <body>
 <div id="app">
 
-  <div id="status" class="hidden">
-    <div class="stat">
-      <div class="stat-label" title="Survivors">Surv</div>
+  <section id="status" class="hidden" role="region" aria-label="Ship status">
+    <div class="stat" role="group" aria-label="Survivors">
+      <div class="stat-label" aria-hidden="true">Surv</div>
       <div class="stat-value" id="stat-survivors">—</div>
     </div>
-    <div class="stat">
-      <div class="stat-label" title="Integrity">Hull</div>
+    <div class="stat" role="group" aria-label="Hull integrity">
+      <div class="stat-label" aria-hidden="true">Hull</div>
       <div class="stat-value" id="stat-integrity">—</div>
     </div>
-    <div class="stat">
-      <div class="stat-label" title="Cohesion">Coh</div>
+    <div class="stat" role="group" aria-label="Cohesion">
+      <div class="stat-label" aria-hidden="true">Coh</div>
       <div class="stat-value" id="stat-cohesion">—</div>
     </div>
-    <div class="stat">
-      <div class="stat-label" title="Supplies">Sup</div>
+    <div class="stat" role="group" aria-label="Supplies">
+      <div class="stat-label" aria-hidden="true">Sup</div>
       <div class="stat-value" id="stat-supplies">—</div>
     </div>
-    <div class="stat">
-      <div class="stat-label" title="Embryos">Emb</div>
+    <div class="stat" role="group" aria-label="Embryos">
+      <div class="stat-label" aria-hidden="true">Emb</div>
       <div class="stat-value" id="stat-embryos">—</div>
     </div>
-  </div>
+    <span id="stat-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></span>
+  </section>
 
-  <div id="crew-panel" class="hidden" aria-label="Crew status"></div>
+  <section id="crew-panel" class="hidden" role="region" aria-labelledby="btn-crew"></section>
 
   <div id="scene-image-wrap">
-    <img id="scene-image" alt="Scene" />
+    <img id="scene-image" alt="" />
   </div>
 
-  <div id="main">
+  <main id="main">
 
     <div id="tone-screen" class="hidden">
       <div class="tone-bg" aria-hidden="true"></div>
       <div class="tone-panel">
         <div class="tone-kicker">Content notice</div>
-        <h1 class="tone-title">Sunsplitter</h1>
+        <h1 class="tone-title" id="tone-heading" tabindex="-1">Sunsplitter</h1>
         <p class="tone-body">
           Grim narrative survival. You are the Commander of the last ship out.
         </p>
@@ -64,7 +65,7 @@
     </div>
 
     <div id="title-screen" class="hidden">
-      <div class="game-title">Sunsplitter</div>
+      <h1 class="game-title" id="title-heading" tabindex="-1">Sunsplitter</h1>
       <div class="game-subtitle" id="game-subtitle">v0.33</div>
       <div class="prologue">
         Earth failed in a cascade measured in hours.<br><br>
@@ -78,25 +79,26 @@
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
-        <div class="save-transfer-actions" aria-label="Save transfer">
+        <div class="save-transfer-actions" role="group" aria-label="Save transfer">
           <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
           <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
         </div>
-        <input id="save-import-file" class="hidden" type="file" accept="application/json,.json" onchange="handleSaveImportSelection(this)" />
+        <input id="save-import-file" class="hidden" type="file" accept="application/json,.json" aria-label="Import save file" onchange="handleSaveImportSelection(this)" />
         <p id="title-save-status" class="title-save-status" aria-live="polite"></p>
       </div>
     </div>
 
-    <div id="game-screen" class="hidden">
-      <div id="story"></div>
-      <div id="choices"></div>
+    <div id="game-screen" class="hidden" aria-labelledby="scene-heading">
+      <h1 id="scene-heading" class="sr-only">Current scene</h1>
+      <div id="story" role="region" aria-labelledby="scene-heading" tabindex="-1"></div>
+      <div id="choices" role="group" aria-label="Choices"></div>
     </div>
 
     <div id="ending-screen" class="hidden">
       <div id="ending-image-wrap">
-        <img id="ending-image" alt="Ending" />
+        <img id="ending-image" alt="" />
       </div>
-      <div class="ending-title" id="ending-title"></div>
+      <h1 class="ending-title" id="ending-title" tabindex="-1"></h1>
       <div class="ending-text" id="ending-text"></div>
       <button class="btn btn-primary" type="button" onclick="showWhatRemains()">What remains</button>
       <button class="btn" type="button" onclick="playAgain()">Play Again</button>
@@ -104,22 +106,22 @@
 
     <div id="what-remains-screen" class="hidden">
       <div id="what-remains-image-wrap">
-        <img id="what-remains-image" alt="Ending" />
+        <img id="what-remains-image" alt="" />
       </div>
-      <div class="ending-title">What remains</div>
+      <h1 class="ending-title" id="what-remains-heading" tabindex="-1">What remains</h1>
       <div class="ending-text" id="what-remains-text"></div>
       <button class="btn" type="button" onclick="showScreen('ending')">Return to ending</button>
       <button class="btn" type="button" onclick="playAgain()">Play Again</button>
     </div>
 
-  </div>
+  </main>
 
   <div id="meta" class="hidden">
-    <span id="scene-id"></span>
+    <span id="scene-id" aria-hidden="true"></span>
     <span id="save-hint" class="save-hint" aria-live="polite"></span>
     <span id="save-status" class="save-status" aria-live="polite"></span>
     <div class="meta-actions">
-      <button type="button" onclick="toggleCrewPanel()" title="Crew">Crew</button>
+      <button id="btn-crew" type="button" onclick="toggleCrewPanel()" title="Crew" aria-controls="crew-panel" aria-expanded="false">Crew</button>
       <button type="button" onclick="saveGame()" title="Save now">Save</button>
       <button type="button" onclick="loadGame()" title="Load saved run">Load</button>
     </div>

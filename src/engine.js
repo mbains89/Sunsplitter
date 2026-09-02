@@ -157,6 +157,24 @@ function showTitleScreen() {
   refreshTitleResumeUI();
 }
 
+function imageAlternative(src) {
+  if (!src || typeof src !== "string") return "";
+  const filename = src.split("/").pop().replace(/\.[^.]+$/, "");
+  const crewNames = {
+    lena: "Lena", elias: "Elias", mira: "Mira", tomas: "Tomas",
+    amara: "Amara", jiro: "Jiro", sela: "Sela", vess: "Vess", rourke: "Rourke"
+  };
+  if (crewNames[filename]) return `Portrait of ${crewNames[filename]}.`;
+  const words = filename
+    .replace(/_(?:alt|\d+)$/, "")
+    .split("_")
+    .filter(Boolean)
+    .map(word => crewNames[word] || word)
+    .join(" ");
+  const label = words ? words.charAt(0).toUpperCase() + words.slice(1) : "the ship";
+  return `Scene illustration: ${label}.`;
+}
+
 // Boot: tone once → title (with Continue if save exists)
 (function bootScreens() {
   function go() {
@@ -205,12 +223,13 @@ function showScene(id, opts) {
   window.__ssImagePinned = false; // 0.24.92: clear manual pin
   if (imgSrc) {
     img.src = imgSrc;
-    img.alt = id;
+    img.alt = imageAlternative(imgSrc);
     imgWrap.classList.add("visible");
     if (isIntimateScene(id, scene)) imgWrap.classList.add("intimate");
   } else {
     imgWrap.classList.remove("visible");
     img.removeAttribute("src");
+    img.alt = "";
   }
 
   // Reset text scroll so image starts expanded
@@ -272,6 +291,14 @@ function showScene(id, opts) {
   }
 
   renderStatus();
+
+  // A choice replaces the focused button. Move the reading cursor to the new
+  // passage without disturbing the explicit scroll reset above.
+  const storyEl = document.getElementById("story");
+  if (storyEl && typeof storyEl.focus === "function") {
+    try { storyEl.focus({ preventScroll: true }); }
+    catch (e) { storyEl.focus(); }
+  }
 }
 
 function gameplayChoiceButtons() {
@@ -768,9 +795,14 @@ function setEndingArt(src) {
     if (!wrap || !img) continue;
     if (src) {
       img.src = src;
+      const endingTitle = document.getElementById("ending-title");
+      const title = endingTitle && endingTitle.textContent ? endingTitle.textContent.trim() : "Ending";
+      img.alt = `${title} ending illustration.`;
       wrap.classList.add("visible");
     } else {
       wrap.classList.remove("visible");
+      img.removeAttribute("src");
+      img.alt = "";
     }
   }
 }
@@ -870,7 +902,10 @@ function toggleCrewPanel() {
   if (!el) return;
   el.classList.toggle("hidden");
   el.classList.toggle("visible");
-  if (el.classList.contains("visible")) {
+  const opening = el.classList.contains("visible");
+  const toggle = document.getElementById("btn-crew");
+  if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
+  if (opening) {
     renderCrewPanel();
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
@@ -878,8 +913,30 @@ function toggleCrewPanel() {
       wrap.classList.add("minimized");
       window.__ssImagePinned = false;
     }
+    if (typeof el.querySelector === "function") {
+      const firstChip = el.querySelector(".crew-chip");
+      if (firstChip && typeof firstChip.focus === "function") firstChip.focus();
+    }
+  } else if (toggle && typeof toggle.focus === "function") {
+    toggle.focus();
   }
 }
+
+(function wireCrewDisclosureKeyboard() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", event => {
+    if (!event || event.key !== "Escape") return;
+    const panel = document.getElementById("crew-panel");
+    if (!panel || !panel.classList.contains("visible")) return;
+    panel.classList.add("hidden");
+    panel.classList.remove("visible");
+    const toggle = document.getElementById("btn-crew");
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", "false");
+      if (typeof toggle.focus === "function") toggle.focus();
+    }
+  });
+})();
 
 function renderCrewPanel(selectedKey) {
   const el = document.getElementById("crew-panel");
@@ -911,16 +968,16 @@ function renderCrewPanel(selectedKey) {
       const cause = state.deathCause && state.deathCause[selectedKey]
         ? state.deathCause[selectedKey]
         : "gone";
-      detail = `<div class="crew-detail"><strong>${c.name}</strong> · <span class="dim">${role}</span><br>Dead — ${escapeHtml(cause)}</div>`;
+      detail = `<div class="crew-detail" role="status"><strong>${c.name}</strong> · <span class="dim">${role}</span><br>Dead — ${escapeHtml(cause)}</div>`;
     } else {
       const bits = [role];
       if (favored === selectedKey) bits.push("favored");
       if (state.romance && state.romance[selectedKey]) bits.push("private line");
       if (state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
-      detail = `<div class="crew-detail"><strong>${c.name}</strong> · ${bits.map(escapeHtml).join(" · ")}</div>`;
+      detail = `<div class="crew-detail" role="status"><strong>${c.name}</strong> · ${bits.map(escapeHtml).join(" · ")}</div>`;
     }
   } else {
-    detail = `<div class="crew-detail dim">Tap a name for status.</div>`;
+    detail = `<div class="crew-detail dim" role="status">Tap a name for status.</div>`;
   }
 
   el.innerHTML = `<div class="crew-chips">${chips}</div>${detail}`;
@@ -928,6 +985,10 @@ function renderCrewPanel(selectedKey) {
     btn.onclick = () => {
       const key = btn.getAttribute("data-crew");
       renderCrewPanel(selectedKey === key ? null : key);
+      if (typeof el.querySelector === "function") {
+        const replacement = el.querySelector(`[data-crew="${key}"]`);
+        if (replacement && typeof replacement.focus === "function") replacement.focus();
+      }
     };
   });
 }

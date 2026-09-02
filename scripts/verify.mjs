@@ -171,6 +171,123 @@ function mobileUsabilityContractChecks() {
   return errors;
 }
 
+function cssHexVariable(cssSource, name) {
+  const match = cssSource.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,6})\\s*;`));
+  return match ? match[1] : null;
+}
+
+function relativeLuminance(hex) {
+  let raw = String(hex || "").replace(/^#/, "");
+  if (raw.length === 3) raw = raw.split("").map(char => char + char).join("");
+  if (!/^[0-9a-fA-F]{6}$/.test(raw)) return null;
+  const channels = raw.match(/.{2}/g).map(pair => parseInt(pair, 16) / 255).map(value =>
+    value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4)
+  );
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(foreground, background) {
+  const left = relativeLuminance(foreground);
+  const right = relativeLuminance(background);
+  if (left == null || right == null) return null;
+  return (Math.max(left, right) + 0.05) / (Math.min(left, right) + 0.05);
+}
+
+function accessibilitySourceChecks() {
+  const errors = [];
+  const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const requiredHtml = [
+    ['<main id="main">', "main landmark"],
+    ['id="scene-heading" class="sr-only"', "scene heading"],
+    ['id="story" role="region" aria-labelledby="scene-heading" tabindex="-1"', "focusable labelled story region"],
+    ['id="choices" role="group" aria-label="Choices"', "labelled choices group"],
+    ['id="status" class="hidden" role="region" aria-label="Ship status"', "labelled ship-status region"],
+    ['id="stat-announcer" class="sr-only" role="status" aria-live="polite"', "deduplicated ship-status announcement"],
+    ['id="btn-crew" type="button"', "stable Crew disclosure control"],
+    ['aria-controls="crew-panel" aria-expanded="false"', "Crew disclosure state"],
+    ['id="scene-id" aria-hidden="true"', "technical scene id hidden from assistive technology"]
+  ];
+  for (const [fragment, label] of requiredHtml) {
+    if (!indexSource.includes(fragment)) errors.push(`0.34 accessibility contract missing ${label}`);
+  }
+  if ((indexSource.match(/class="stat" role="group" aria-label=/g) || []).length !== 5) {
+    errors.push("0.34 ship-status values are not grouped with five full accessible labels");
+  }
+  for (const id of ["tone-heading", "title-heading", "ending-title", "what-remains-heading"]) {
+    if (!new RegExp(`<h1[^>]+id=["']${id}["']`).test(indexSource)) {
+      errors.push(`0.34 accessibility contract missing h1 ${id}`);
+    }
+  }
+  const readingOrder = ["scene-heading", 'id="story"', 'id="choices"'].map(fragment => indexSource.indexOf(fragment));
+  if (readingOrder.some(index => index < 0) || !(readingOrder[0] < readingOrder[1] && readingOrder[1] < readingOrder[2])) {
+    errors.push("0.34 story heading, passage, and choices lost semantic reading order");
+  }
+  if (/img\.alt\s*=\s*id\b/.test(engineSource)) errors.push("0.34 scene image still exposes raw scene id as alt text");
+  if (!engineSource.includes("imageAlternative(imgSrc)")) errors.push("0.34 scene image lacks human-readable alternative resolver");
+  if (!cssSource.includes("@media (prefers-reduced-motion: reduce)")) errors.push("0.34 reduced-motion preference is not honored");
+  if (!cssSource.includes(':where(button, input, [role="button"]):focus-visible')) {
+    errors.push("0.34 shared keyboard focus indicator is missing");
+  }
+  const panel = cssHexVariable(cssSource, "panel-2");
+  for (const token of ["dim", "accent", "danger", "ok", "pro", "con"]) {
+    const value = cssHexVariable(cssSource, token);
+    const ratio = contrastRatio(value, panel);
+    if (ratio == null || ratio < 4.5) {
+      errors.push(`0.34 ${token} contrast ${ratio == null ? "unavailable" : ratio.toFixed(2)}:1 < 4.5:1 on panel-2`);
+    }
+  }
+  const focusRatio = contrastRatio(cssHexVariable(cssSource, "focus"), panel);
+  if (focusRatio == null || focusRatio < 3) {
+    errors.push(`0.34 focus contrast ${focusRatio == null ? "unavailable" : focusRatio.toFixed(2)}:1 < 3:1 on panel-2`);
+  }
+  return errors;
+}
+
+function accessibilityRuntimeChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const crewPanel = document.getElementById("crew-panel");
+    crewPanel.classList.add("hidden");
+    crewPanel.classList.remove("visible");
+    const crewToggle = document.getElementById("btn-crew");
+    crewToggle.setAttribute("aria-expanded", "false");
+    showScene("wake");
+    const alternatives = Object.entries(scenes).map(([id, scene]) => {
+      const src = resolveSceneImage(id, scene);
+      return src ? { id, alt: imageAlternative(src) } : null;
+    }).filter(Boolean);
+    toggleCrewPanel();
+    document.getElementById("ending-title").textContent = "Landfall";
+    setEndingArt("images/ending_landfall.jpg");
+    return {
+      scene: state.scene,
+      sceneAlt: document.getElementById("scene-image").alt,
+      invalidAlternatives: alternatives.filter(row => !row.alt || row.alt === row.id || row.alt.includes("_")),
+      statusAnnouncement: document.getElementById("stat-announcer").textContent,
+      crewExpanded: crewToggle.getAttribute("aria-expanded"),
+      endingAlt: document.getElementById("ending-image").alt,
+      remainsAlt: document.getElementById("what-remains-image").alt
+    };
+  })()`);
+  if (!fixture.sceneAlt || fixture.sceneAlt === fixture.scene || fixture.sceneAlt.includes("_")) {
+    errors.push(`scene image alternative is not human-readable: ${fixture.sceneAlt || "missing"}`);
+  }
+  if (fixture.invalidAlternatives.length) {
+    errors.push(`scene image alternative failures: ${JSON.stringify(fixture.invalidAlternatives.slice(0, 5))}`);
+  }
+  if (fixture.statusAnnouncement !== "Ship status: 9 survivors, hull integrity 62%, cohesion 48%, supplies 41%, embryos 100%.") {
+    errors.push(`status announcement drifted: ${JSON.stringify(fixture)}`);
+  }
+  if (fixture.crewExpanded !== "true") errors.push("Crew disclosure did not announce expanded state");
+  if (fixture.endingAlt !== "Landfall ending illustration." || fixture.remainsAlt !== "Landfall ending illustration.") {
+    errors.push(`ending alternatives are not tied to the player-facing ending: ${JSON.stringify(fixture)}`);
+  }
+  return errors;
+}
+
 function screenTransitionScrollChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -3610,6 +3727,10 @@ async function main() {
   printCheck("0.34 real-phone layout + gesture contract", mobileUsabilityErrors);
   failures.push(...mobileUsabilityErrors);
 
+  const accessibilitySourceErrors = accessibilitySourceChecks();
+  printCheck("0.34 accessibility source contract", accessibilitySourceErrors);
+  failures.push(...accessibilitySourceErrors);
+
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
   failures.push(...syntaxErrors);
@@ -3680,6 +3801,10 @@ async function main() {
     const screenTransitionScrollErrors = screenTransitionScrollChecks(runtime);
     printCheck("0.34 phone surface scroll reset", screenTransitionScrollErrors);
     failures.push(...screenTransitionScrollErrors);
+
+    const accessibilityRuntimeErrors = accessibilityRuntimeChecks(runtime);
+    printCheck("0.34 accessibility runtime labels + alternatives", accessibilityRuntimeErrors);
+    failures.push(...accessibilityRuntimeErrors);
 
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
