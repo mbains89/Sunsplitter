@@ -870,7 +870,15 @@ function toggleCrewPanel() {
   if (!el) return;
   el.classList.toggle("hidden");
   el.classList.toggle("visible");
-  if (el.classList.contains("visible")) renderCrewPanel();
+  if (el.classList.contains("visible")) {
+    renderCrewPanel();
+    // Opening Crew must not squeeze the story out of a short phone viewport.
+    const wrap = document.getElementById("scene-image-wrap");
+    if (wrap && wrap.classList.contains("visible")) {
+      wrap.classList.add("minimized");
+      window.__ssImagePinned = false;
+    }
+  }
 }
 
 function renderCrewPanel(selectedKey) {
@@ -1692,7 +1700,8 @@ function makeChoice(choice) {
   window.addEventListener("freeze", saveIfPlaying);
 })();
 
-// 0.24.93: scroll minimizes; double-tap toggles; pin + cooldown; image forwards scroll to #main
+// 0.34: scroll minimizes; desktop double-click toggles; one-finger image drags
+// forward to #main without consuming phone pinch/zoom gestures.
 (function wireImageCollapseOnScroll() {
   window.__ssImagePinned = false;
   function bind() {
@@ -1702,10 +1711,10 @@ function makeChoice(choice) {
     const MINIMIZE_AT = 36;
     const DRAG_SLOP = 10; // px — below this, treat as tap not drag
     let lastToggleAt = 0;
-    let lastTap = 0;
     let touchMode = false;
     let touchStartY = 0;
     let touchDragging = false;
+    let touchHasMultiplePointers = false;
 
     function toggleImageSize() {
       if (!wrap.classList.contains("visible")) return;
@@ -1733,15 +1742,25 @@ function makeChoice(choice) {
 
     // Touch: drag on image scrolls #main
     wrap.addEventListener("touchstart", (e) => {
-      if (!e.touches || !e.touches[0]) return;
       touchMode = true;
+      if (!e.touches || e.touches.length !== 1) {
+        touchHasMultiplePointers = true;
+        touchDragging = false;
+        return;
+      }
+      touchHasMultiplePointers = false;
       touchStartY = e.touches[0].clientY;
       touchDragging = false;
     }, { passive: true });
 
     wrap.addEventListener("touchmove", (e) => {
-      if (!e.touches || !e.touches[0]) return;
       if (!wrap.classList.contains("visible")) return;
+      if (!e.touches || e.touches.length !== 1) {
+        touchHasMultiplePointers = true;
+        touchDragging = false;
+        return;
+      }
+      if (touchHasMultiplePointers) return;
       const y = e.touches[0].clientY;
       const dy = touchStartY - y;
       if (!touchDragging && Math.abs(dy) < DRAG_SLOP) return;
@@ -1758,23 +1777,17 @@ function makeChoice(choice) {
       toggleImageSize();
     });
 
-    // Touch path (iOS): double-tap only when not a drag; mark touchMode so dblclick is ignored
+    // Never consume touchend: browser double-tap/pinch zoom remains available.
     wrap.addEventListener("touchend", (e) => {
       touchMode = true;
-      if (touchDragging) {
-        touchDragging = false;
-        lastTap = 0; // drag is not a tap
-        return;
-      }
-      const now = Date.now();
-      if (now - lastTap < 320) {
-        e.preventDefault();
-        toggleImageSize();
-        lastTap = 0;
-      } else {
-        lastTap = now;
-      }
-    }, { passive: false });
+      touchDragging = false;
+      if (!e.touches || e.touches.length === 0) touchHasMultiplePointers = false;
+    }, { passive: true });
+
+    wrap.addEventListener("touchcancel", () => {
+      touchDragging = false;
+      touchHasMultiplePointers = false;
+    }, { passive: true });
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bind);
