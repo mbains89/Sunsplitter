@@ -289,6 +289,9 @@ async function runDeviceProof({ browser, playwright, deviceName, url, alternateU
     assert.equal(saved.scene, "intro_lena");
     assert.equal(saved.cohesion, 51);
     assert.equal(JSON.parse(saved.raw).scene, "intro_lena");
+    // The source-pinned package may predate an opening-reserve rebalance.
+    // This first choice spends no Supplies; compare with that package's saved balance.
+    assert.equal(JSON.parse(saved.raw).supplies, started.save.supplies);
     assert.equal(saved.staging, null);
     assert.equal(saved.backup, null);
 
@@ -330,7 +333,7 @@ async function runDeviceProof({ browser, playwright, deviceName, url, alternateU
     assert.equal(resumed.gameVisible, true);
     assert.match(resumed.story, /Dr\. Lena Voss does not waste words\./);
     assert.doesNotMatch(resumed.story, /Scene missing:/);
-    assert.deepEqual(resumed.status, { survivors: "8", integrity: "62%", cohesion: "51%", supplies: "41%", embryos: "100%" });
+    assert.deepEqual(resumed.status, { survivors: "8", integrity: "62%", cohesion: "51%", supplies: `${JSON.parse(saved.raw).supplies}%`, embryos: "100%" });
     assert.ok(resumed.scrollWidth <= resumed.width, `resumed horizontal overflow ${resumed.scrollWidth} > ${resumed.width}`);
     const sizes = await reopened.locator(".choice-btn:not(:disabled)").evaluateAll(buttons => buttons.map(button => {
       const box = button.getBoundingClientRect();

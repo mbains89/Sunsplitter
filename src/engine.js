@@ -88,7 +88,7 @@ function resetRunState() {
     state.survivors = 9;
     state.integrity = 62;
     state.cohesion = 48;
-    state.supplies = 41;
+    state.supplies = 61;
     state.embryos = 100;
     state.flags = {};
     state.dead = [];
