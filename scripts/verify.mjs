@@ -35,9 +35,9 @@ const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
 const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
-const PRIVATE_PACKAGE_SOURCE_SHA = "11ea6550ad14bb8384d592b10b52baecd73fa693";
-const PRIVATE_PACKAGE_SOURCE_TREE = "db5a84471cc6ef91c88bf0e5d69e99f276a577d0";
-const PRIVATE_PACKAGE_SHA256 = "2f07e57a2b2dd9e15c591c6af4057962e71c0fdc5d6676d32202c532a867f20a";
+const PRIVATE_PACKAGE_SOURCE_SHA = "8040b0791715e34fe285649f5be24d9d10cc9953";
+const PRIVATE_PACKAGE_SOURCE_TREE = "b60f67f974e615609c4c0ec240403176c1fea951";
+const PRIVATE_PACKAGE_SHA256 = "c348307f61a44ff0194ca5d1b24052329bffaffc706c1b02ffbda576154e27f3";
 const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "76d3856cbae5b50d612ddcc71a52b648b2ee65a31d9064e1056cae8b1fbc868d";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
@@ -3826,6 +3826,11 @@ function gitBuffer(args) {
 
 function privatePackageChecks() {
   const errors = [];
+  const exactKeys = (value, expected, label) => {
+    const actual = Object.keys(value || {}).sort();
+    const wanted = [...expected].sort();
+    if (!sameArray(actual, wanted)) errors.push(`${label} keys drifted: ${actual.join(",")}`);
+  };
   const temporaryRoot = mkdtempSync(resolve(tmpdir(), "sunsplitter-private-package-"));
   try {
     const archiveName = `sunsplitter-private-${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)}.zip`;
@@ -3848,7 +3853,8 @@ function privatePackageChecks() {
     if (first.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || second.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE) {
       errors.push(`private-package source tree drifted from ${PRIVATE_PACKAGE_SOURCE_TREE}`);
     }
-    if (first.archiveBytes !== 28737243 || first.archiveEntries !== 151 || first.runtimeFiles !== 149 ||
+    if (first.archiveBytes !== 28748299 || first.archiveEntries !== 152 || first.runtimeFiles !== 149 ||
+        first.contentNoticeBytes !== 1336 || first.adultClassificationDescriptors !== 8 ||
         first.packagedAssets !== 88 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
         first.licenseFilesBundled !== 0 || first.externalFontStylesheets !== 1) {
       errors.push(`private-package summary drifted: ${JSON.stringify(first)}`);
@@ -3869,14 +3875,15 @@ function privatePackageChecks() {
     const byPath = new Map(entries.map(entry => [entry.path, entry]));
     const manifestEntry = byPath.get("PRIVATE_PACKAGE_MANIFEST.json");
     const inventoryEntry = byPath.get("PRIVATE_PACKAGE_INVENTORY.md");
-    if (!manifestEntry || !inventoryEntry || !byPath.has("index.html") || !byPath.has("VERSION.md")) {
-      errors.push("private package is missing root entry point, version, manifest, or inventory");
+    const contentNoticeEntry = byPath.get("PRIVATE_CONTENT_NOTICE.md");
+    if (!manifestEntry || !inventoryEntry || !contentNoticeEntry || !byPath.has("index.html") || !byPath.has("VERSION.md")) {
+      errors.push("private package is missing root entry point, version, manifest, inventory, or content notice");
       return errors;
     }
     const manifest = JSON.parse(manifestEntry.data.toString("utf8"));
-    if (manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
+    if (manifest.schemaVersion !== 2 || manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
         manifest.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || manifest.posture !== "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED") {
-      errors.push("embedded manifest source identity or release posture drifted");
+      errors.push("embedded manifest schema, source identity, or release posture drifted");
     }
     const canonicalZip = manifest.canonicalZip || {};
     if (canonicalZip.compression !== "store" || canonicalZip.pathOrder !== "UTF-8 bytewise ascending" ||
@@ -3892,7 +3899,12 @@ function privatePackageChecks() {
     if (payloadFiles.length !== 149 || payloadPathDigest !== PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256) {
       errors.push(`runtime closure drifted: files=${payloadFiles.length} sha256=${payloadPathDigest}`);
     }
-    const expectedEntryPaths = new Set([...payloadFiles.map(file => file.packagePath), "PRIVATE_PACKAGE_INVENTORY.md", "PRIVATE_PACKAGE_MANIFEST.json"]);
+    const expectedEntryPaths = new Set([
+      ...payloadFiles.map(file => file.packagePath),
+      "PRIVATE_CONTENT_NOTICE.md",
+      "PRIVATE_PACKAGE_INVENTORY.md",
+      "PRIVATE_PACKAGE_MANIFEST.json"
+    ]);
     if (expectedEntryPaths.size !== entries.length || paths.some(path => !expectedEntryPaths.has(path))) {
       errors.push("ZIP contains an entry outside the manifest-bound runtime closure");
     }
@@ -3907,6 +3919,138 @@ function privatePackageChecks() {
       if (!entry.data.equals(sourceBlob) || entry.data.length !== file.bytes || sha256(entry.data) !== file.sha256) {
         errors.push(`payload differs from exact Git blob: ${file.sourcePath}`);
       }
+    }
+
+    const contentNotice = manifest.contentNotice || {};
+    exactKeys(contentNotice, [
+      "path", "bytes", "sha256", "playerFacing", "openingNoticeEvidencePath",
+      "existingInGameSurface", "generatedFromEvidencePaths"
+    ], "content-notice manifest");
+    if (contentNotice.path !== "PRIVATE_CONTENT_NOTICE.md" || contentNotice.bytes !== contentNoticeEntry.data.length ||
+        contentNotice.sha256 !== sha256(contentNoticeEntry.data) || contentNotice.playerFacing !== true ||
+        contentNotice.openingNoticeEvidencePath !== "index.html" || contentNotice.existingInGameSurface !== "index.html#tone-screen") {
+      errors.push("private content-notice manifest binding drifted");
+    }
+    const noticeText = contentNoticeEntry.data.toString("utf8");
+    for (const marker of [
+      `SOURCE \`mbains89/Sunsplitter@${PRIVATE_PACKAGE_SOURCE_SHA}\``,
+      "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED",
+      "Optional and refusable explicit sexual text, sexualized imagery, and full nudity",
+      "Sexual relationships within a commander/crew hierarchy",
+      "Intimate recording, disclosure, and loss-of-privacy themes.",
+      "Pregnancy risk, post-coital prevention, embryos, and reproductive-resource triage.",
+      "Blood, serious injury, medical trauma, suffocation/decompression, and named-character death.",
+      "Brief use of an unspecified non-regulation drink.",
+      "not a platform age rating, storefront submission, publication authorization, or commercial claim"
+    ]) {
+      if (!noticeText.includes(marker)) errors.push(`private content notice missing: ${marker}`);
+    }
+
+    const classification = manifest.adultClassificationDraft || {};
+    const expectedClassificationFields = {
+      status: "DRAFT_PRIVATE_METADATA_ONLY",
+      scope: "PRIVATE_PACKAGE_ONLY",
+      sourceCommit: PRIVATE_PACKAGE_SOURCE_SHA,
+      sourceTree: PRIVATE_PACKAGE_SOURCE_TREE,
+      platform: null,
+      officialRating: null,
+      ratingAuthority: null,
+      submitted: false,
+      adultContent: true,
+      sexualContentStatus: "PRESENT_AND_PERMANENT_IN_BUILD",
+      explicitSexualText: true,
+      fullNudity: true,
+      sexualizedImagery: true,
+      multiPartnerSexualContent: true,
+      commanderCrewSexualPowerDynamics: true,
+      intimateRecordingAndDisclosure: true,
+      bloodAndMedicalTrauma: true,
+      namedCharacterDeath: true,
+      decompressionAndSuffocation: true,
+      massCasualtyDisasterAndGrief: true,
+      pregnancyAndReproductiveThemes: true,
+      briefUnspecifiedDrinkUse: true,
+      reducedContentModeAvailable: false
+    };
+    exactKeys(classification, [
+      ...Object.keys(expectedClassificationFields),
+      "descriptors", "sourceEvidence", "claimLimits"
+    ], "adult-classification draft");
+    for (const [field, expected] of Object.entries(expectedClassificationFields)) {
+      if (classification[field] !== expected) errors.push(`adult-classification draft field ${field}=${JSON.stringify(classification[field])}; expected ${JSON.stringify(expected)}`);
+    }
+    const descriptors = classification.descriptors || [];
+    const descriptorIds = descriptors.map(descriptor => descriptor.id);
+    const expectedDescriptorIds = [
+      "explicit-sexual-content-nudity-and-sexualized-imagery",
+      "command-hierarchy-consent-and-favoritism",
+      "intimate-recording-disclosure-and-privacy",
+      "pregnancy-and-reproductive-survival",
+      "blood-medical-trauma-death-and-decompression",
+      "mass-death-grief-isolation-and-moral-distress",
+      "resource-scarcity-and-lethal-decisions",
+      "brief-unspecified-drink-use"
+    ];
+    if (!sameArray(descriptorIds, expectedDescriptorIds)) errors.push(`adult-classification descriptor set drifted: ${descriptorIds.join(",")}`);
+    for (const descriptor of descriptors) {
+      exactKeys(descriptor, ["id", "runExposure", "playerFacingText"], `adult descriptor ${descriptor.id || "missing"}`);
+      if (!descriptor.playerFacingText || !noticeText.includes(descriptor.playerFacingText)) {
+        errors.push(`adult descriptor is absent from player-facing notice: ${descriptor.id}`);
+      }
+    }
+    const sourceEvidence = classification.sourceEvidence || [];
+    const supportedDescriptorIds = new Set();
+    const expectedEvidencePaths = [
+      "index.html",
+      "src/scenes-30.js",
+      "src/scenes-31.js",
+      "src/scenes-32.js",
+      "src/scenes-36.js",
+      "src/scenes-38.js",
+      "src/scenes-02.js",
+      "src/scenes-42.js",
+      "artifacts/ART_REQUESTS.md",
+      "images/shower_mira.jpg",
+      "images/lingerie_mira.jpg",
+      "images/afterglow_mira.jpg",
+      "images/romance_amara_tomas.jpg"
+    ];
+    const evidencePaths = sourceEvidence.map(evidence => evidence.path);
+    if (!sameArray(evidencePaths, expectedEvidencePaths) || new Set(evidencePaths).size !== evidencePaths.length) {
+      errors.push(`adult-classification exact-source evidence paths drifted: ${evidencePaths.join(",")}`);
+    }
+    if (!sameArray(contentNotice.generatedFromEvidencePaths || [], expectedEvidencePaths)) {
+      errors.push("content-notice generated-source provenance drifted");
+    }
+    for (const evidence of sourceEvidence) {
+      exactKeys(evidence, ["path", "gitBlob", "bytes", "sha256", "supports", "observedStatements"], `adult evidence ${evidence.path || "missing"}`);
+      const sourceBlob = gitBuffer(["cat-file", "blob", `${PRIVATE_PACKAGE_SOURCE_SHA}:${evidence.path}`]);
+      const sourceText = evidence.observedStatements?.length ? sourceBlob.toString("utf8") : "";
+      if (sourceBlob.length !== evidence.bytes || sha256(sourceBlob) !== evidence.sha256 ||
+          git(["rev-parse", `${PRIVATE_PACKAGE_SOURCE_SHA}:${evidence.path}`]) !== evidence.gitBlob) {
+        errors.push(`adult-classification evidence identity drifted: ${evidence.path}`);
+      }
+      for (const statement of evidence.observedStatements || []) {
+        if (!sourceText.includes(statement)) errors.push(`adult-classification evidence statement is absent: ${evidence.path} :: ${statement}`);
+      }
+      for (const descriptorId of evidence.supports || []) supportedDescriptorIds.add(descriptorId);
+    }
+    for (const descriptorId of descriptorIds) {
+      if (!supportedDescriptorIds.has(descriptorId)) errors.push(`adult descriptor lacks exact-source evidence: ${descriptorId}`);
+    }
+    const expectedClaimLimits = [
+      "NO_PLATFORM_AGE_RATING_ASSIGNED",
+      "NO_STOREFRONT_CLASSIFICATION_SUBMITTED",
+      "NO_PUBLICATION_AUTHORIZED"
+    ];
+    if (!sameArray(classification.claimLimits || [], expectedClaimLimits)) errors.push("adult-classification claim limits drifted");
+    const claimText = `${noticeText}\n${JSON.stringify(classification)}`;
+    for (const [pattern, label] of [
+      [/\b(?:itch\.io|steam|esrb|pegi|iarc|gog|epic games)\b/i, "named platform or ratings authority"],
+      [/\b(?:price|pricing|paid|free-to-play)\b/i, "price or payment claim"],
+      [/\b(?:18\+|adults only|mature 17\+)\b/i, "invented age classification"]
+    ]) {
+      if (pattern.test(claimText)) errors.push(`private adult metadata contains ${label}`);
     }
 
     const inventory = manifest.inventory || {};
@@ -3927,8 +4071,9 @@ function privatePackageChecks() {
     for (const marker of ["NOT_EVIDENCED_IN_REPOSITORY", "PROJECT_LOCK_NOT_RIGHTS_EVIDENCE", "No font binaries are tracked or bundled", "No LICENSE, LICENCE, COPYING, or NOTICE file is tracked"]) {
       if (!inventoryText.includes(marker)) errors.push(`inventory disclosure missing: ${marker}`);
     }
-    if (!readFileSync(first.manifestPath).equals(manifestEntry.data) || !readFileSync(first.inventoryPath).equals(inventoryEntry.data)) {
-      errors.push("embedded manifest/inventory differs from its sidecar");
+    if (!readFileSync(first.manifestPath).equals(manifestEntry.data) || !readFileSync(first.inventoryPath).equals(inventoryEntry.data) ||
+        !readFileSync(first.contentNoticePath).equals(contentNoticeEntry.data)) {
+      errors.push("embedded manifest, inventory, or content notice differs from its sidecar");
     }
     const checksumText = readFileSync(first.checksumPath, "utf8");
     if (checksumText !== `${PRIVATE_PACKAGE_SHA256}  ${archiveName}\n`) errors.push("archive checksum sidecar drifted");
@@ -4058,7 +4203,7 @@ async function main() {
   failures.push(...performanceSourceErrors);
 
   const privatePackageErrors = privatePackageChecks();
-  printCheck("0.35 exact-source deterministic private package + inventory", privatePackageErrors,
+  printCheck("0.35 exact-source private package + content notice + draft adult metadata", privatePackageErrors,
     `source=${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)} archive=${PRIVATE_PACKAGE_SHA256.slice(0, 12)}`);
   failures.push(...privatePackageErrors);
 
