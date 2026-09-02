@@ -415,3 +415,38 @@ or a new portrait lock. L-029 supersedes the older Vess-set approval above.
 No other scene binding, image bytes, story, cost, or romance gate changes.
 NO-PUBLISH / NOT_CERTIFIED; last certified remains 0.28.1d. ART-R2/L-004 stays held.
 Next action: Manraj reviews the named PR; merge-commit in the browser, not squash.
+
+## SUN-V035-PLAYTEST-ART-REPEAT-01 — one hub alias (2026-09-02)
+
+SOURCE main@8d23109 · RUNTIME baseline d18b34d · TASK SUN-V035-PLAYTEST-ART-REPEAT-01 · MODE implementation
+
+Build / $ Con V9; owner-authorized by `1618CT-V9-ART-REPEAT-01.md`.
+Read AGENTS, ROADMAP, PROJECT_STATUS, LOCKS, ART_RULES, this manifest,
+SCENE_SKELETON, and GITHUB_PUSH_RULES. This is one existing-plate alias,
+not a new art lock or a deep art-to-event audit.
+
+- **Confirmed repeat:** legal policy replay renders `act3_spine_next` →
+  `warmth_music` → hub → `warmth_laughter` → hub with `corridor.jpg` on all
+  five frames. Both the explicit scene image and map bind the same old plate.
+- **Alias:** only `act3_spine_next` → existing `images/corridor_variant_2.jpg`
+  in both bindings. Music/laughter and all other scene images remain untouched.
+- **Visual review:** empty rectangular ship corridor, cyan side lights and
+  sparse red lamps, exposed dark service runs; no visible person or identifiable
+  crew, no Commander face, no legible text observed. Location/mood substitute,
+  not a literal depiction of the vault board or Tomas's optional conversation.
+- **Palette/tier:** Future-cold / Solid reused location; existing 784×1168 JPEG.
+- **Render range:** post-vault hub entry, optional-event returns, and saved hub
+  resume. Existing unrecovered-Vess redirect runs before the hub paints.
+  The empty plate makes no living/dead/recovery assertion and needs no new guard.
+- **Immediate-neighbor safety:** distinct from music/laughter's `corridor.jpg`
+  and debt return's `corridor_pressure_4.jpg` / `corridor_variant.jpg` fallback.
+- **Image SHA-256:** `b1320c8eb2445272fa49599169f18a506a69e7b755dcdd88ba33c8db106d401e`.
+- **Proof:** regression covers both warmth-event orders and returns, living/dead
+  roster, map/declaration/render, nine saved-scene fixtures, unchanged saved state,
+  debt return and unrecovered-Vess entry redirect. The new check rejects baseline
+  bindings. Exact-head browser/CI evidence accompanies the PR and V9 receipt.
+
+No image bytes, story, choices, state writes, costs, romance gates, or resolver
+changes. No offshift_vess remint; vess.jpg untouched. ART-R2/L-004 stays held.
+NO-PUBLISH / NOT_CERTIFIED; last certified remains 0.28.1d.
+Next action: Manraj reviews the named PR; merge-commit in the browser, not squash.
