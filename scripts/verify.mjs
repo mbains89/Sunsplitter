@@ -3246,11 +3246,17 @@ function cascadeAndMirrorChecks(runtime) {
     });
     resetRunState();
     state.flags.changeorders = "logged";
-    showScene("records_changeorders_after");
+    showScene("records_changeorders_after", { skipOnEnter: true, resume: true });
+    const legacyBefore = {
+      scene: state.scene,
+      flag: state.flags.changeorders,
+      choices: scenes.records_changeorders_after.choices.length
+    };
     makeChoice(scenes.records_changeorders_after.choices[0]);
     return {
       current,
-      legacy: { scene: state.scene, flag: state.flags.changeorders }
+      legacyBefore,
+      legacyAfter: { scene: state.scene, flag: state.flags.changeorders }
     };
   })()`);
   const expectedCurrentFlow = [
@@ -3260,8 +3266,15 @@ function cascadeAndMirrorChecks(runtime) {
   if (JSON.stringify(changeorderFlow.current) !== JSON.stringify(expectedCurrentFlow)) {
     errors.push(`records_changeorders runtime flow mismatch: ${JSON.stringify(changeorderFlow.current)}`);
   }
-  if (changeorderFlow.legacy.scene !== "arc_future_4" || changeorderFlow.legacy.flag !== "logged") {
-    errors.push(`records_changeorders_after legacy resume mismatch: ${JSON.stringify(changeorderFlow.legacy)}`);
+  if (changeorderFlow.legacyBefore.scene !== "records_changeorders_after" ||
+      changeorderFlow.legacyBefore.flag !== "logged" ||
+      changeorderFlow.legacyBefore.choices !== 1 ||
+      changeorderFlow.legacyAfter.scene !== "arc_future_4" ||
+      changeorderFlow.legacyAfter.flag !== "logged") {
+    errors.push(`records_changeorders_after legacy resume mismatch: ${JSON.stringify({
+      before: changeorderFlow.legacyBefore,
+      after: changeorderFlow.legacyAfter
+    })}`);
   }
   if (bindings.briefing.length !== 1 || bindings.briefing[0] !== "observation_nightshift") {
     errors.push(`reckoning briefing route mismatch: ${bindings.briefing.join(",")}`);
