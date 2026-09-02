@@ -119,6 +119,96 @@ function desktopCompositionChecks() {
   return errors;
 }
 
+function mobileUsabilityContractChecks() {
+  const errors = [];
+  const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const requiredRules = [
+    ["viewport-fit=cover", "safe-area viewport opt-in"],
+    ["--touch: 48px", "48px phone touch contract"],
+    ["min-width: var(--touch)", "two-dimensional compact-control touch target"],
+    ["#crew-panel", "bounded crew panel"],
+    ["max-height: min(36dvh, 260px)", "crew-panel height boundary"],
+    ["overflow-y: auto", "independent phone scrolling"],
+    ["@media (max-width: 360px)", "compact phone footer"],
+    ["@media (max-width: 480px) and (max-height: 700px)", "short-phone layout"],
+    ["max-height: min(48dvh, 320px)", "short-phone scene-art cap"]
+  ];
+  if (!indexSource.includes(requiredRules[0][0])) errors.push(`0.34 mobile contract missing ${requiredRules[0][1]}`);
+  for (const [rule, label] of requiredRules.slice(1)) {
+    if (!cssSource.includes(rule)) errors.push(`0.34 mobile contract missing ${label}`);
+  }
+  const controlBlock = selector => {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return cssSource.match(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([^}]*)\\}`, "m"))?.[1] || "";
+  };
+  for (const selector of [".choice-btn", ".btn", ".crew-chip", "#meta button"]) {
+    if (!/min-height:\s*var\(--touch\)/.test(controlBlock(selector))) {
+      errors.push(`0.34 ${selector} lost the 48px minimum touch height`);
+    }
+  }
+  for (const selector of [".crew-chip", "#meta button"]) {
+    if (!/min-width:\s*var\(--touch\)/.test(controlBlock(selector))) {
+      errors.push(`0.34 ${selector} lost the 48px minimum touch width`);
+    }
+  }
+  const appBlock = cssSource.match(/#app\s*\{([\s\S]*?)\}/)?.[1] || "";
+  if (!/height:\s*100%/.test(appBlock) || !/max-height:\s*100%/.test(appBlock) || /100dvh/.test(appBlock)) {
+    errors.push("0.34 #app no longer sizes inside the body-owned safe-area content box");
+  }
+  const directSafeAreaConsumers = cssSource.match(/env\(safe-area-inset-(?:top|bottom)[^)]*\)/g) || [];
+  if (directSafeAreaConsumers.length !== 2) {
+    errors.push(`0.34 safe-area custody expected two root tokens; found ${directSafeAreaConsumers.length} direct env() consumers`);
+  }
+  if (!engineSource.includes("e.touches.length !== 1") || !engineSource.includes("touchHasMultiplePointers")) {
+    errors.push("0.34 scene-image drag does not preserve multi-touch browser gestures");
+  }
+  const touchEndBlock = engineSource.match(/wrap\.addEventListener\("touchend"[\s\S]*?\}, \{ passive: true \}\);/)?.[0] || "";
+  if (!touchEndBlock || touchEndBlock.includes("preventDefault")) {
+    errors.push("0.34 scene-image touchend still consumes browser zoom behavior");
+  }
+  return errors;
+}
+
+function screenTransitionScrollChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const main = document.getElementById("main");
+    main.scrollTop = 231;
+    showScreen("title");
+    const titleTop = main.scrollTop;
+    main.scrollTop = 177;
+    showScreen("ending");
+    const endingTop = main.scrollTop;
+    main.scrollTop = 93;
+    showScreen("what-remains");
+    const whatRemainsTop = main.scrollTop;
+    const crew = document.getElementById("crew-panel");
+    const wrap = document.getElementById("scene-image-wrap");
+    crew.classList.add("hidden");
+    wrap.classList.add("visible");
+    wrap.classList.remove("minimized");
+    window.__ssImagePinned = true;
+    toggleCrewPanel();
+    return {
+      titleTop,
+      endingTop,
+      whatRemainsTop,
+      crewVisible: crew.classList.contains("visible"),
+      imageMinimized: wrap.classList.contains("minimized"),
+      imagePinned: window.__ssImagePinned
+    };
+  })()`);
+  if (fixture.titleTop !== 0 || fixture.endingTop !== 0 || fixture.whatRemainsTop !== 0) {
+    errors.push(`phone surface inherited stale scroll: ${JSON.stringify(fixture)}`);
+  }
+  if (!fixture.crewVisible || !fixture.imageMinimized || fixture.imagePinned) {
+    errors.push(`Crew did not release scene-image space on a short phone: ${JSON.stringify(fixture)}`);
+  }
+  return errors;
+}
+
 function registrationChecks(runtime) {
   const errors = [];
   const counts = new Map();
@@ -3516,6 +3606,10 @@ async function main() {
   printCheck("0.32 widescreen scene composition", desktopCompositionErrors);
   failures.push(...desktopCompositionErrors);
 
+  const mobileUsabilityErrors = mobileUsabilityContractChecks();
+  printCheck("0.34 real-phone layout + gesture contract", mobileUsabilityErrors);
+  failures.push(...mobileUsabilityErrors);
+
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
   failures.push(...syntaxErrors);
@@ -3582,6 +3676,10 @@ async function main() {
     const keyboardChoiceErrors = keyboardChoiceChecks(runtime);
     printCheck("0.32 keyboard choice controls", keyboardChoiceErrors);
     failures.push(...keyboardChoiceErrors);
+
+    const screenTransitionScrollErrors = screenTransitionScrollChecks(runtime);
+    printCheck("0.34 phone surface scroll reset", screenTransitionScrollErrors);
+    failures.push(...screenTransitionScrollErrors);
 
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
