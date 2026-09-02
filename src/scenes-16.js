@@ -6,9 +6,9 @@ let act3SpineTomasAllusionOnEntry = false;
 registerScenes({
 
   // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: consumes Tomas allusion flag on entry
-  // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: existing corridor plate
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: roster-neutral corridor_variant_2; distinct from immediate warmth returns
   act3_spine_next: {
-    image: "images/corridor.jpg",
+    image: "images/corridor_variant_2.jpg",
     onEnter: () => {
       act3SpineTomasAllusionOnEntry = false;
       // 0.24: Vess arrival window opens once after vault face; guaranteed, no refuse-contact

@@ -2235,6 +2235,101 @@ function tetherRushImageTruthChecks(runtime) {
   return errors;
 }
 
+function act3SpineImageRepeatChecks(runtime) {
+  const errors = [];
+  const expected = "images/corridor_variant_2.jpg";
+  const fixture = runtime.evaluate(`(() => {
+    const hub = "act3_spine_next";
+    const prepare = status => {
+      localStorage.clear();
+      resetRunState();
+      state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true;
+      if (status === "dead") { kill("vess", "image fixture"); kill("sela", "image fixture"); }
+      if (status === "unrecovered") state.recovered.vess = false;
+    };
+    const snapshot = () => ({ id: state.scene, image: document.getElementById("scene-image").src });
+    const sequences = [];
+    for (const status of ["living", "dead"]) {
+      for (const order of [["warmth_music", "warmth_laughter"], ["warmth_laughter", "warmth_music"]]) {
+        prepare(status);
+        showScene(hub);
+        const frames = [snapshot()];
+        for (const id of order) {
+          const choice = scenes[hub].choices.find(choice => choice.next === id);
+          if (!choice) { frames.push({ id: "missing offer", image: null }); break; }
+          makeChoice(choice);
+          frames.push(snapshot());
+          makeChoice(scenes[id].choices[0]);
+          frames.push(snapshot());
+        }
+        sequences.push({ status, order, frames });
+      }
+    }
+    const resumes = [];
+    for (const status of ["living", "dead", "unrecovered"]) {
+      for (const id of [hub, "warmth_music", "warmth_laughter"]) {
+        prepare(status);
+        // Resume fixtures deliberately bypass entry, including an unavailable Vess save.
+        showScene(id, { skipOnEnter: true, resume: true });
+        const before = JSON.stringify(state);
+        const saved = persistSave({ silent: true });
+        const raw = localStorage.getItem("sunsplitter_save_v3");
+        resetRunState();
+        const loaded = loadGame();
+        resumes.push({ status, expectedId: id, saved, loaded, ...snapshot(),
+          stable: JSON.stringify(state) === before && localStorage.getItem("sunsplitter_save_v3") === raw });
+      }
+    }
+    const debt = ["living", "dead"].map(status => {
+      prepare(status);
+      showScene("debt_notice");
+      const before = snapshot();
+      makeChoice(scenes.debt_notice.choices[0]);
+      return { status, before, after: snapshot() };
+    });
+    prepare("unrecovered");
+    showScene(hub);
+    return { sequences, resumes, debt, unrecoveredEntry: snapshot(),
+      mapped: sceneImages[hub], declared: scenes[hub].image };
+  })()`);
+  for (const field of ["mapped", "declared"]) {
+    if (fixture[field] !== expected) errors.push(`act3_spine_next ${field} must use ${expected}`);
+  }
+  for (const row of fixture.sequences) {
+    const ids = ["act3_spine_next", row.order[0], "act3_spine_next", row.order[1], "act3_spine_next"];
+    if (JSON.stringify(row.frames.map(frame => frame.id)) !== JSON.stringify(ids)) {
+      errors.push(`act3 hub/warmth route changed: ${JSON.stringify(row)}`);
+    }
+    for (let i = 0; i < row.frames.length; i++) {
+      if (row.frames[i].id === "act3_spine_next" && row.frames[i].image !== expected) {
+        errors.push(`act3 hub rendered wrong plate in ${row.status} sequence`);
+      }
+      if (i && row.frames[i].image === row.frames[i - 1].image) {
+        errors.push(`consecutive act3 image repeat: ${row.frames[i - 1].id} -> ${row.frames[i].id}`);
+      }
+    }
+  }
+  for (const row of fixture.resumes) {
+    const image = row.expectedId === "act3_spine_next" ? expected : "images/corridor.jpg";
+    if (!row.saved || !row.loaded || !row.stable || row.id !== row.expectedId || row.image !== image) {
+      errors.push(`act3 image-only resume changed state or image: ${JSON.stringify(row)}`);
+    }
+  }
+  for (const row of fixture.debt) {
+    if (row.after.id !== "act3_spine_next" || row.after.image !== expected || row.before.image === row.after.image) {
+      errors.push(`debt return repeats hub plate or changes exit: ${JSON.stringify(row)}`);
+    }
+  }
+  if (fixture.unrecoveredEntry.id !== "vess_signal" || fixture.unrecoveredEntry.image !== "images/transmission.jpg") {
+    errors.push("unrecovered Vess hub entry no longer redirects before painting the hub");
+  }
+  const hash = createHash("sha256").update(readFileSync(resolve(ROOT, expected))).digest("hex");
+  if (hash !== "b1320c8eb2445272fa49599169f18a506a69e7b755dcdd88ba33c8db106d401e") {
+    errors.push(`act3 reused empty-corridor bytes drifted: ${hash}`);
+  }
+  return errors;
+}
+
 function offshiftVessImageTruthChecks(runtime) {
   const errors = [];
   const expected = "images/vess.jpg";
@@ -4739,6 +4834,10 @@ async function main() {
     const offshiftVessImageTruthErrors = offshiftVessImageTruthChecks(runtime);
     printCheck("0.35 Off-Shift Vess official portrait + saved-scene resume", offshiftVessImageTruthErrors);
     failures.push(...offshiftVessImageTruthErrors);
+
+    const act3SpineImageRepeatErrors = act3SpineImageRepeatChecks(runtime);
+    printCheck("0.35 act3 hub distinct image + neighboring routes + saved-scene resume", act3SpineImageRepeatErrors);
+    failures.push(...act3SpineImageRepeatErrors);
 
     const vessHairCanonErrors = vessHairCanonChecks(runtime);
     printCheck("Vess boarding hair canon", vessHairCanonErrors);
