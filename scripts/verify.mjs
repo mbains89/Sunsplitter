@@ -274,6 +274,95 @@ function performanceSourceChecks() {
   return errors;
 }
 
+function crewOverviewChecks(runtime) {
+  const errors = [];
+  const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const status = html.match(/<section id="status"[\s\S]*?<\/section>/)?.[0] || "";
+  if (!/<button id="btn-crew" type="button"[^>]*onclick="toggleCrewPanel\(\)"[^>]*aria-controls="crew-panel"[^>]*aria-expanded="false"/.test(status) ||
+      !status.includes('>Crew</span>') || status.includes('>Surv<') ||
+      (html.match(/id="btn-crew"/g) || []).length !== 1) {
+    errors.push("Crew must be the single native HUD disclosure, replacing Surv and the footer duplicate");
+  }
+  const fixture = runtime.evaluate(`(() => {
+    localStorage.clear();
+    resetRunState();
+    showScene("wake");
+    persistSave({ silent: true });
+    const panel = document.getElementById("crew-panel");
+    const toggle = document.getElementById("btn-crew");
+    const before = JSON.stringify(state);
+    const save = localStorage.getItem("sunsplitter_save_v3");
+    toggleCrewPanel();
+    const opened = { html: panel.innerHTML, expanded: toggle.getAttribute("aria-expanded"),
+      count: document.getElementById("stat-survivors").textContent };
+    renderCrewPanel("mira");
+    toggleCrewPanel();
+    const closed = !panel.classList.contains("visible") && toggle.getAttribute("aria-expanded") === "false";
+    const stable = JSON.stringify(state) === before && localStorage.getItem("sunsplitter_save_v3") === save;
+    const read = key => {
+      panel.classList.remove("hidden");
+      panel.classList.add("visible");
+      const before = JSON.stringify(state);
+      renderCrewPanel(key);
+      return { html: panel.innerHTML, stable: JSON.stringify(state) === before };
+    };
+    kill("rourke", "opening loss fixture");
+    const rourke = read("rourke");
+    state.recovered.vess = true;
+    state.trust.vess = 67;
+    state.romance.vess = true;
+    const vess = read("vess");
+    kill("vess", "<fault> & loss");
+    const deadVess = read("vess");
+    state.recovered.tomas = state.recovered.jiro = true;
+    state.romance.amara_tomas = true;
+    const amara = read("amara"), tomas = read("tomas");
+    state.trust.mira = 0;
+    const zeroTrust = read("mira");
+    state.trust.mira = 100;
+    const maxTrust = read("mira");
+    state.dying.lena = "<injury> & decline";
+    const injuredLena = read("lena");
+    kill("lena", "decline fixture");
+    panel.classList.add("hidden");
+    panel.classList.remove("visible");
+    toggleCrewPanel();
+    const deadDefault = panel.innerHTML;
+    state.recovered.vess = false;
+    const absentDetail = read("vess");
+    showScreen("title");
+    const reset = panel.classList.contains("hidden") && !panel.classList.contains("visible") && toggle.getAttribute("aria-expanded") === "false";
+    return { opened, closed, stable, reset, rourke, vess, deadVess, amara, tomas, zeroTrust, maxTrust, injuredLena, deadDefault, absentDetail };
+  })()`);
+  if (fixture.opened.expanded !== "true" || String(fixture.opened.count) !== "9" ||
+      !fixture.opened.html.includes("Trust: 40/100") || !fixture.opened.html.includes("Romance: None recorded") ||
+      !fixture.opened.html.includes("Condition: Alive")) errors.push("HUD Crew does not immediately show Lena's existing stats and unchanged count");
+  for (const key of ["tomas", "jiro", "vess"]) {
+    if (fixture.opened.html.includes('data-crew="' + key + '"')) errors.push(`unrecovered ${key} leaked into Crew overview`);
+  }
+  const expected = {
+    rourke: ["Condition: Dead", "Trust (last recorded): Not recorded", "Romance: None recorded"],
+    vess: ["Condition: Alive", "Trust: 67/100", "Romance: Recorded this run"],
+    deadVess: ["Condition: Dead", "&lt;fault&gt; &amp; loss", "Trust (last recorded): 67/100", "Romance: Recorded this run", 'data-crew="vess"'],
+    amara: ["Romance: Shared Amara–Tomas encounter recorded"],
+    tomas: ["Romance: Shared Amara–Tomas encounter recorded"],
+    zeroTrust: ["Trust: 0/100"],
+    maxTrust: ["Trust: 100/100"],
+    injuredLena: ["Condition: Alive — &lt;injury&gt; &amp; decline"]
+  };
+  for (const [key, fragments] of Object.entries(expected)) {
+    if (!fixture[key].stable || fragments.some(fragment => !fixture[key].html.includes(fragment))) {
+      errors.push(`Crew ${key} facts missing or render mutated state`);
+    }
+  }
+  if (!fixture.deadDefault.includes("Condition: Dead — decline fixture") ||
+      fixture.absentDetail.html.includes("67/100") || !fixture.absentDetail.stable) {
+    errors.push("Crew default or unavailable-member detail misrepresents roster state");
+  }
+  if (!fixture.closed || !fixture.stable || !fixture.reset) errors.push("Crew disclosure mutated state/save or lost close/screen-reset semantics");
+  return errors;
+}
+
 function accessibilityRuntimeChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -4802,6 +4891,10 @@ async function main() {
     const accessibilityRuntimeErrors = accessibilityRuntimeChecks(runtime);
     printCheck("0.34 accessibility runtime labels + alternatives", accessibilityRuntimeErrors);
     failures.push(...accessibilityRuntimeErrors);
+
+    const crewOverviewErrors = crewOverviewChecks(runtime);
+    printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);
+    failures.push(...crewOverviewErrors);
 
     const performanceRuntimeErrors = performanceRuntimeChecks(runtime);
     printCheck("0.34 image residency + background resume runtime", performanceRuntimeErrors);
