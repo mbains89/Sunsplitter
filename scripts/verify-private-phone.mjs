@@ -10,7 +10,7 @@ import { pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import { buildPrivatePackage, readCanonicalZip } from "./build-private-package.mjs";
 
-const DEFAULT_SOURCE = "e498e96953df4438745303b6751c94a2b0b23e79";
+const DEFAULT_SOURCE = "e3b7472c7c8e740078155c0a7489fc4031cdfb3b";
 const DEFAULT_DEVICES = ["Pixel 7"];
 const FIXED_NOW = 1735689600000;
 
@@ -193,6 +193,9 @@ async function serverContractChecks(baseUrl, manifest) {
   assert.equal((await fetch(baseUrl, { method: "POST" })).status, 405);
   assert.equal((await fetch(new URL("PRIVATE_PACKAGE_MANIFEST.json", baseUrl))).status, 404);
   assert.equal((await fetch(new URL("PRIVATE_PHONE_PLAY.md", baseUrl))).status, 404);
+  assert.equal((await fetch(new URL("PRIVATE_STORE_DRAFT.md", baseUrl))).status, 404);
+  assert.equal((await fetch(new URL("PRIVATE_SUPPORT_DRAFT.md", baseUrl))).status, 404);
+  assert.equal((await fetch(new URL("PRIVATE_PRIVACY_DRAFT.md", baseUrl))).status, 404);
   for (const path of [
     "/%2e%2e%2fPRIVATE_PHONE_PLAY.md",
     "/%5cPRIVATE_PHONE_PLAY.md",

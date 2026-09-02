@@ -35,9 +35,9 @@ const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
 const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
-const PRIVATE_PACKAGE_SOURCE_SHA = "e498e96953df4438745303b6751c94a2b0b23e79";
-const PRIVATE_PACKAGE_SOURCE_TREE = "55e601bcf6208de23bafc321e55ff67383250943";
-const PRIVATE_PACKAGE_SHA256 = "c1ae7bf14cf3c4a917d62a1618d9e4758dee08bbcdc277eea9e4154cceb358a7";
+const PRIVATE_PACKAGE_SOURCE_SHA = "e3b7472c7c8e740078155c0a7489fc4031cdfb3b";
+const PRIVATE_PACKAGE_SOURCE_TREE = "81602c1c1d2c9100af2a6345b1813bd0fe914bb6";
+const PRIVATE_PACKAGE_SHA256 = "0ca55bf7d7bc3558ddec03f4a7ad5d2e05c0cff3abcba926afb819c58af3acd2";
 const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "76d3856cbae5b50d612ddcc71a52b648b2ee65a31d9064e1056cae8b1fbc868d";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
@@ -3853,8 +3853,9 @@ function privatePackageChecks() {
     if (first.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || second.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE) {
       errors.push(`private-package source tree drifted from ${PRIVATE_PACKAGE_SOURCE_TREE}`);
     }
-    if (first.archiveBytes !== 28760209 || first.archiveEntries !== 154 || first.runtimeFiles !== 149 ||
+    if (first.archiveBytes !== 28773988 || first.archiveEntries !== 157 || first.runtimeFiles !== 149 ||
         first.contentNoticeBytes !== 1336 || first.phoneGuideBytes !== 3352 || first.phoneServerBytes !== 7493 ||
+        first.storeDraftBytes !== 2380 || first.supportDraftBytes !== 2558 || first.privacyDraftBytes !== 2912 ||
         first.adultClassificationDescriptors !== 8 ||
         first.packagedAssets !== 88 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
         first.licenseFilesBundled !== 0 || first.externalFontStylesheets !== 1) {
@@ -3879,13 +3880,17 @@ function privatePackageChecks() {
     const contentNoticeEntry = byPath.get("PRIVATE_CONTENT_NOTICE.md");
     const phoneGuideEntry = byPath.get("PRIVATE_PHONE_PLAY.md");
     const phoneServerEntry = byPath.get("PRIVATE_PHONE_SERVER.mjs");
+    const storeDraftEntry = byPath.get("PRIVATE_STORE_DRAFT.md");
+    const supportDraftEntry = byPath.get("PRIVATE_SUPPORT_DRAFT.md");
+    const privacyDraftEntry = byPath.get("PRIVATE_PRIVACY_DRAFT.md");
     if (!manifestEntry || !inventoryEntry || !contentNoticeEntry || !phoneGuideEntry || !phoneServerEntry ||
+        !storeDraftEntry || !supportDraftEntry || !privacyDraftEntry ||
         !byPath.has("index.html") || !byPath.has("VERSION.md")) {
-      errors.push("private package is missing root entry point, version, manifest, inventory, content notice, or phone handoff");
+      errors.push("private package is missing a runtime entry point, evidence file, phone handoff, or private draft");
       return errors;
     }
     const manifest = JSON.parse(manifestEntry.data.toString("utf8"));
-    if (manifest.schemaVersion !== 3 || manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
+    if (manifest.schemaVersion !== 4 || manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
         manifest.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || manifest.posture !== "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED") {
       errors.push("embedded manifest schema, source identity, or release posture drifted");
     }
@@ -3908,6 +3913,9 @@ function privatePackageChecks() {
       "PRIVATE_CONTENT_NOTICE.md",
       "PRIVATE_PHONE_PLAY.md",
       "PRIVATE_PHONE_SERVER.mjs",
+      "PRIVATE_STORE_DRAFT.md",
+      "PRIVATE_SUPPORT_DRAFT.md",
+      "PRIVATE_PRIVACY_DRAFT.md",
       "PRIVATE_PACKAGE_INVENTORY.md",
       "PRIVATE_PACKAGE_MANIFEST.json"
     ]);
@@ -3981,6 +3989,7 @@ function privatePackageChecks() {
     for (const marker of [
       `const SOURCE_COMMIT = "${PRIVATE_PACKAGE_SOURCE_SHA}"`,
       `const SOURCE_TREE = "${PRIVATE_PACKAGE_SOURCE_TREE}"`,
+      "manifest.schemaVersion !== 4",
       "package payload failed manifest verification",
       "process.versions.node.split",
       "request.method !== \"GET\" && request.method !== \"HEAD\"",
@@ -4007,6 +4016,9 @@ function privatePackageChecks() {
       "tamperedPayloadRejected: true",
       "privateTransferEvidence: \"NOT_EXERCISED\"",
       "changedOriginIsolated: true",
+      "assert.equal((await fetch(new URL(\"PRIVATE_STORE_DRAFT.md\", baseUrl))).status, 404);",
+      "assert.equal((await fetch(new URL(\"PRIVATE_SUPPORT_DRAFT.md\", baseUrl))).status, 404);",
+      "assert.equal((await fetch(new URL(\"PRIVATE_PRIVACY_DRAFT.md\", baseUrl))).status, 404);",
       "Dr\\. Lena Voss does not waste words",
       "reopenedSameOrigin: true",
       "continueResumed: true"
@@ -4015,6 +4027,154 @@ function privatePackageChecks() {
     }
     const verifierSyntax = spawnSync(process.execPath, ["--check", phoneVerifierPath], { encoding: "utf8" });
     if (verifierSyntax.status !== 0) errors.push(`private phone browser verifier syntax failed: ${verifierSyntax.stderr || verifierSyntax.stdout}`);
+
+    const privateDrafts = manifest.privateDrafts || {};
+    exactKeys(privateDrafts, [
+      "status", "scope", "sourceCommit", "sourceTree", "store", "support", "privacy",
+      "sourceEvidence", "sourceScan", "publicationStatus", "storefrontSubmissionStatus", "price",
+      "paymentStatus", "certificationStatus", "rightsClearanceStatus", "platformPolicyStatus",
+      "privacyReviewStatus", "legalReviewStatus", "publicUrl", "supportContact", "privacyContact",
+      "gapsParkedFor", "claimLimits"
+    ], "private drafts");
+    const expectedPrivateDraftFields = {
+      status: "DRAFT_PRIVATE_METADATA_ONLY",
+      scope: "PRIVATE_PACKAGE_ONLY",
+      sourceCommit: PRIVATE_PACKAGE_SOURCE_SHA,
+      sourceTree: PRIVATE_PACKAGE_SOURCE_TREE,
+      publicationStatus: "NOT_AUTHORIZED",
+      storefrontSubmissionStatus: "NOT_SUBMITTED",
+      price: null,
+      paymentStatus: "NOT_OFFERED_IN_THIS_DRAFT",
+      certificationStatus: "NOT_CERTIFIED",
+      rightsClearanceStatus: "NOT_EVIDENCED_IN_REPOSITORY",
+      platformPolicyStatus: "DEFERRED_TO_0_39_SUBMISSION_TIME_RECHECK",
+      privacyReviewStatus: "DRAFT_STATIC_BUILD_OBSERVATIONS_ONLY",
+      legalReviewStatus: "NOT_RECORDED",
+      publicUrl: null,
+      supportContact: null,
+      privacyContact: null,
+      gapsParkedFor: "0.39"
+    };
+    for (const [field, expected] of Object.entries(expectedPrivateDraftFields)) {
+      if (privateDrafts[field] !== expected) errors.push(`private-draft manifest field ${field}=${JSON.stringify(privateDrafts[field])}; expected ${JSON.stringify(expected)}`);
+    }
+    const draftArtifacts = [
+      ["store", "PRIVATE_STORE_DRAFT.md", storeDraftEntry],
+      ["support", "PRIVATE_SUPPORT_DRAFT.md", supportDraftEntry],
+      ["privacy", "PRIVATE_PRIVACY_DRAFT.md", privacyDraftEntry]
+    ];
+    for (const [kind, path, entry] of draftArtifacts) {
+      const artifact = privateDrafts[kind] || {};
+      exactKeys(artifact, ["path", "bytes", "sha256"], `private ${kind} draft`);
+      if (artifact.path !== path || artifact.bytes !== entry.data.length || artifact.sha256 !== sha256(entry.data)) {
+        errors.push(`private ${kind} draft manifest binding drifted`);
+      }
+      if (payloadFiles.some(file => file.packagePath === path)) errors.push(`private ${kind} draft entered runtime payload allowlist`);
+    }
+    const expectedDraftClaimLimits = [
+      "NO_PUBLICATION_AUTHORIZED",
+      "NO_STOREFRONT_SUBMISSION",
+      "NO_PRICE_OR_PAYMENT_TERMS",
+      "NO_CERTIFICATION_CLAIM",
+      "NO_RIGHTS_CLEARANCE_CLAIM",
+      "NO_PLATFORM_POLICY_VERIFICATION",
+      "NO_COMPREHENSIVE_PRIVACY_PROMISE"
+    ];
+    if (!sameArray(privateDrafts.claimLimits || [], expectedDraftClaimLimits)) errors.push("private-draft claim limits drifted");
+
+    const commonDraftMarkers = [
+      `SOURCE \`mbains89/Sunsplitter@${PRIVATE_PACKAGE_SOURCE_SHA}\``,
+      `TREE \`${PRIVATE_PACKAGE_SOURCE_TREE}\``,
+      "PACKAGE VERSION `0.33`",
+      "DRAFT · NON-PUBLIC · PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED",
+      "**Use:** NOT FOR PUBLICATION.",
+      "Parked for 0.39"
+    ];
+    const draftTexts = {
+      store: storeDraftEntry.data.toString("utf8"),
+      support: supportDraftEntry.data.toString("utf8"),
+      privacy: privacyDraftEntry.data.toString("utf8")
+    };
+    for (const [kind, text] of Object.entries(draftTexts)) {
+      for (const marker of commonDraftMarkers) {
+        if (!text.includes(marker)) errors.push(`private ${kind} draft missing: ${marker}`);
+      }
+    }
+    for (const marker of [
+      "**Title:** Sunsplitter",
+      "Command a damaged colonization ark after Earth's sudden cascade.",
+      "current source-grounded draft descriptors",
+      "Local save and Continue in the same browser.",
+      "not a live listing, submission, offer for sale, publication authorization, certification, or rights-clearance statement",
+      "Commercial terms, payment configuration, business/tax decisions, and public launch timing",
+      "the current inventory records gaps and does not grant clearance"
+    ]) if (!draftTexts.store.includes(marker)) errors.push(`private store draft missing: ${marker}`);
+    for (const marker of [
+      "verify the checksum before extracting",
+      "PRIVATE_PHONE_PLAY.md",
+      "exact same full address in the same regular browser",
+      "Do not send a save file or screenshot unless the sender separately asks",
+      "Hide private addresses and personal information first",
+      "same private handoff channel through which you received the package",
+      "No public support address or response time is established here"
+    ]) if (!draftTexts.support.includes(marker)) errors.push(`private support draft missing: ${marker}`);
+    for (const marker of [
+      "No analytics or telemetry integration was observed in the inspected runtime files.",
+      "It is not a comprehensive privacy audit.",
+      "No upload or sync behavior was observed in the inspected runtime files.",
+      "uses HTTP, not HTTPS",
+      "has no authentication, accepts no uploads, writes no application request log",
+      "external font stylesheet reference",
+      "another opening method may let the browser attempt the external request",
+      "The method used to send the ZIP is outside this package",
+      "This draft does not declare them complete"
+    ]) if (!draftTexts.privacy.includes(marker)) errors.push(`private privacy draft missing: ${marker}`);
+
+    const draftEvidence = privateDrafts.sourceEvidence || [];
+    const expectedDraftEvidencePaths = ["README.md", "index.html", "src/engine.js", "css/style.css"];
+    if (!sameArray(draftEvidence.map(evidence => evidence.path), expectedDraftEvidencePaths)) {
+      errors.push(`private-draft evidence paths drifted: ${draftEvidence.map(evidence => evidence.path).join(",")}`);
+    }
+    for (const evidence of draftEvidence) {
+      exactKeys(evidence, ["path", "gitBlob", "bytes", "sha256", "observedStatements"], `private-draft evidence ${evidence.path || "missing"}`);
+      const sourceBlob = gitBuffer(["cat-file", "blob", `${PRIVATE_PACKAGE_SOURCE_SHA}:${evidence.path}`]);
+      const sourceText = sourceBlob.toString("utf8");
+      if (sourceBlob.length !== evidence.bytes || sha256(sourceBlob) !== evidence.sha256 ||
+          git(["rev-parse", `${PRIVATE_PACKAGE_SOURCE_SHA}:${evidence.path}`]) !== evidence.gitBlob) {
+        errors.push(`private-draft evidence identity drifted: ${evidence.path}`);
+      }
+      for (const statement of evidence.observedStatements || []) {
+        if (!sourceText.includes(statement)) errors.push(`private-draft evidence statement is absent: ${evidence.path} :: ${statement}`);
+      }
+    }
+    const sourceScan = privateDrafts.sourceScan || {};
+    exactKeys(sourceScan, ["inspectedTextPaths", "networkApiMatches", "externalReferences"], "private-draft source scan");
+    const expectedTextPaths = [
+      "VERSION.md", "css/style.css", "index.html", "src/engine.js",
+      ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
+      "src/state.js", "src/validate.js"
+    ];
+    if (!sameArray(sourceScan.inspectedTextPaths || [], expectedTextPaths)) errors.push("private-draft inspected runtime path set drifted");
+    if ((sourceScan.networkApiMatches || []).length !== 0) errors.push("private-draft source scan found a network API");
+    const expectedExternalReferences = [{
+      path: "css/style.css",
+      url: "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+    }];
+    if (JSON.stringify(sourceScan.externalReferences || []) !== JSON.stringify(expectedExternalReferences)) {
+      errors.push(`private-draft external reference evidence drifted: ${JSON.stringify(sourceScan.externalReferences || [])}`);
+    }
+    const allDraftText = Object.values(draftTexts).join("\n");
+    for (const [pattern, label] of [
+      [/\b(?:itch\.io|steam|esrb|pegi|iarc|gog|epic games)\b/i, "named storefront or ratings authority"],
+      [/https?:\/\//i, "public web URL"],
+      [/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i, "email address"],
+      [/(?:[$€£]\s*\d|\b\d+(?:\.\d{2})?\s*(?:USD|CAD|GBP|EUR)\b)/i, "currency amount"],
+      [/\b(?:buy now|purchase now|add to cart|pay what you want|free-to-play|available now|wishlist)\b/i, "commercial call to action"],
+      [/\b(?:is published|is released|is certified|is approved|is compliant|rights (?:are )?cleared|licensed for distribution|all rights secured)\b/i, "affirmative publication, certification, compliance, or rights claim"],
+      [/\b(?:we collect no data|no data collection|no tracking|no cookies|gdpr|ccpa|coppa|anonymous|guaranteed secure)\b/i, "comprehensive privacy or compliance claim"]
+    ]) {
+      if (pattern.test(allDraftText)) errors.push(`private draft contains forbidden ${label}`);
+    }
 
     const contentNotice = manifest.contentNotice || {};
     exactKeys(contentNotice, [
@@ -4168,8 +4328,10 @@ function privatePackageChecks() {
     }
     if (!readFileSync(first.manifestPath).equals(manifestEntry.data) || !readFileSync(first.inventoryPath).equals(inventoryEntry.data) ||
         !readFileSync(first.contentNoticePath).equals(contentNoticeEntry.data) ||
-        !readFileSync(first.phoneGuidePath).equals(phoneGuideEntry.data) || !readFileSync(first.phoneServerPath).equals(phoneServerEntry.data)) {
-      errors.push("embedded manifest, inventory, content notice, or phone handoff differs from its sidecar");
+        !readFileSync(first.phoneGuidePath).equals(phoneGuideEntry.data) || !readFileSync(first.phoneServerPath).equals(phoneServerEntry.data) ||
+        !readFileSync(first.storeDraftPath).equals(storeDraftEntry.data) || !readFileSync(first.supportDraftPath).equals(supportDraftEntry.data) ||
+        !readFileSync(first.privacyDraftPath).equals(privacyDraftEntry.data)) {
+      errors.push("embedded manifest, inventory, content notice, phone handoff, or private draft differs from its sidecar");
     }
     const checksumText = readFileSync(first.checksumPath, "utf8");
     if (checksumText !== `${PRIVATE_PACKAGE_SHA256}  ${archiveName}\n`) errors.push("archive checksum sidecar drifted");
@@ -4299,7 +4461,7 @@ async function main() {
   failures.push(...performanceSourceErrors);
 
   const privatePackageErrors = privatePackageChecks();
-  printCheck("0.35 exact-source private package + phone handoff contract", privatePackageErrors,
+  printCheck("0.35 exact-source private package + non-public draft contract", privatePackageErrors,
     `source=${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)} archive=${PRIVATE_PACKAGE_SHA256.slice(0, 12)}`);
   failures.push(...privatePackageErrors);
 
