@@ -29,6 +29,7 @@ import {
   simulationAssertions
 } from "./simulate.mjs";
 import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
+import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -4891,6 +4892,10 @@ async function main() {
     const accessibilityRuntimeErrors = accessibilityRuntimeChecks(runtime);
     printCheck("0.34 accessibility runtime labels + alternatives", accessibilityRuntimeErrors);
     failures.push(...accessibilityRuntimeErrors);
+
+    const midgameVarietyErrors = midgameVarietyChecks(runtime);
+    printCheck("0.35 existing mid-game event variety + saved offer stability", midgameVarietyErrors);
+    failures.push(...midgameVarietyErrors);
 
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);

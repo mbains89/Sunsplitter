@@ -476,6 +476,9 @@ function summarize(runtime, policy, seed, path, chosen, failure, invariants, eco
 function simulateRuntime(runtime, { policy = "pragmatic", seed = LOCKED_SEED, maxSteps = 600 } = {}) {
   if (![...POLICY_NAMES, ...LOCKED_POLICY_NAMES].includes(policy)) throw new Error(`Unknown policy ${policy}`);
   installPaymentProbe(runtime);
+  // Player event dispatch uses Math.random only before rendering a new offer.
+  // Seed its own stream for reproducible simulation, separate from policy RNG.
+  runtime.evaluate(`Math.random = (${mulberry32.toString()})(${(seed ^ 0x53554e) >>> 0});`);
   resetRuntime(runtime);
   const economyInitial = economySnapshot(runtime);
   const economyChoices = [];
