@@ -20,7 +20,7 @@ function freshState() {
     survivors: 9,
     integrity: 62,
     cohesion: 48,
-    supplies: 41,
+    supplies: 61,
     embryos: 100,
     flags: {},
     dead: [],

@@ -313,12 +313,98 @@ function accessibilityRuntimeChecks(runtime) {
   if (fixture.invalidAlternatives.length) {
     errors.push(`scene image alternative failures: ${JSON.stringify(fixture.invalidAlternatives.slice(0, 5))}`);
   }
-  if (fixture.statusAnnouncement !== "Ship status: 9 survivors, hull integrity 62%, cohesion 48%, supplies 41%, embryos 100%.") {
+  if (fixture.statusAnnouncement !== "Ship status: 9 survivors, hull integrity 62%, cohesion 48%, supplies 61%, embryos 100%.") {
     errors.push(`status announcement drifted: ${JSON.stringify(fixture)}`);
   }
   if (fixture.crewExpanded !== "true") errors.push("Crew disclosure did not announce expanded state");
   if (fixture.endingAlt !== "Landfall ending illustration." || fixture.remainsAlt !== "Landfall ending illustration.") {
     errors.push(`ending alternatives are not tied to the player-facing ending: ${JSON.stringify(fixture)}`);
+  }
+  return errors;
+}
+
+function suppliesReserveChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const fresh = state.supplies;
+    const originalFreshState = freshState;
+    let fallback;
+    try {
+      freshState = undefined;
+      state.supplies = 0;
+      resetRunState();
+      fallback = state.supplies;
+    } finally {
+      freshState = originalFreshState;
+    }
+
+    const saves = [0, 4, 41, 61, 83, 100].map(supplies => {
+      localStorage.clear();
+      resetRunState();
+      state.supplies = supplies;
+      showScene("wake");
+      const saved = persistSave({ silent: true });
+      const raw = localStorage.getItem("sunsplitter_save_v3");
+      resetRunState();
+      const loaded = loadGame();
+      const first = state.supplies;
+      const loadedAgain = loadGame();
+      showScene("wake", { skipOnEnter: true, resume: true });
+      return { supplies, saved, loaded, loadedAgain, first, after: state.supplies,
+        exactSave: localStorage.getItem("sunsplitter_save_v3") === raw };
+    });
+
+    localStorage.clear();
+    resetRunState();
+    showScene("dying");
+    const paid = scenes.dying.choices.find(choice => choice.next === "rourke_end");
+    makeChoice(paid);
+    const afterSpend = state.supplies;
+    showScene(state.scene, { skipOnEnter: true });
+    showScene(state.scene, { skipOnEnter: true });
+    const afterRender = state.supplies;
+    state.supplies = 0;
+    // The headless DOM stub does not clear children when innerHTML is replaced.
+    document.getElementById("choices").children = [];
+    showScene("dying");
+    const unpaidButton = gameplayChoiceButtons()[0];
+    const unpaidDisabled = unpaidButton.disabled;
+    const unpaidActivated = activateGameplayChoice(unpaidButton, {});
+    return { fresh, fallback, saves, declared: paid.effects.supplies, afterSpend, afterRender,
+      unpaidDisabled, unpaidActivated, unpaidScene: state.scene, unpaidSupplies: state.supplies };
+  })()`);
+  if (fixture.fresh !== 61 || fixture.fallback !== 61) {
+    errors.push(`finite opening Supplies mismatch: fresh=${fixture.fresh}, fallback=${fixture.fallback}`);
+  }
+  for (const save of fixture.saves) {
+    if (!save.saved || !save.loaded || !save.loadedAgain || !save.exactSave ||
+        save.first !== save.supplies || save.after !== save.supplies) {
+      errors.push(`saved Supplies were changed or could not resume: ${JSON.stringify(save)}`);
+    }
+  }
+  if (fixture.declared !== -2 || fixture.afterSpend !== 59 || fixture.afterRender !== 59) {
+    errors.push("opening reserve did not pay the existing cost exactly once, or rendering replenished it");
+  }
+  if (!fixture.unpaidDisabled || fixture.unpaidActivated || fixture.unpaidScene !== "dying" || fixture.unpaidSupplies !== 0) {
+    errors.push("depleted Supplies bypassed the existing affordability gate");
+  }
+  return errors;
+}
+
+function suppliesBandChecks(simulations) {
+  const errors = [];
+  const conserving = simulations.find(result => result.policy === "future");
+  const generous = simulations.find(result => result.policy === "living");
+  if (!conserving?.completed || !generous?.completed) return ["Supplies witnesses must reach real endings"];
+  const supplies = [conserving.economy.initial.supplies,
+    ...conserving.economy.transactions.flatMap(tx => [tx.before.supplies, tx.after.supplies])];
+  const spend = result => result.economy.transactions.reduce((sum, tx) => sum - Math.min(0, tx.actual.supplies), 0);
+  if (Math.min(...supplies) <= 50 || Math.max(...supplies) >= 100 || spend(conserving) < 10) {
+    errors.push(`conserving fresh run must stay above 50 after real spending, without reaching the cap: min=${Math.min(...supplies)}, max=${Math.max(...supplies)}, spent=${spend(conserving)}`);
+  }
+  if (generous.resources.supplies >= 50 || spend(generous) <= 20) {
+    errors.push("Supplies reserve became effectively unspendable on the generous fresh-run control");
   }
   return errors;
 }
@@ -4508,6 +4594,10 @@ async function main() {
     printCheck("0.32 New Run confirmation + atomic replacement", newRunErrors);
     failures.push(...newRunErrors);
 
+    const suppliesReserveErrors = suppliesReserveChecks(runtime);
+    printCheck("0.35 finite Supplies reserve + unchanged saved balances", suppliesReserveErrors);
+    failures.push(...suppliesReserveErrors);
+
     const saveTransferErrors = await saveTransferChecks(runtime);
     printCheck("0.32 local save export/import custody", saveTransferErrors);
     failures.push(...saveTransferErrors);
@@ -4654,6 +4744,10 @@ async function main() {
     printCheck(`simulation ${result.policy}`, errors, detail);
     failures.push(...errors.map(error => `${result.policy}: ${error}`));
   }
+
+  const suppliesBandErrors = suppliesBandChecks(simulations);
+  printCheck("0.35 Supplies band after real fresh-run costs", suppliesBandErrors);
+  failures.push(...suppliesBandErrors);
 
   for (const holder of ["amara", "sela"]) {
     const v6 = assertV6(ROOT, holder);
