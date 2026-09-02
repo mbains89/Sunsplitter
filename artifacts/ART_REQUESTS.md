@@ -379,3 +379,39 @@ New scene IDs (wired to closest existing plates; dedicated art later). No new ar
 | vess_intimate | vess_intimate.jpg | Hero | Power-stays-hers explicit; shorter route. |
 
 **Vess portrait set CLOSED 2026-08-16:** full approved set on disk in both folders (vess.jpg + boarding/offer/intimate + romance_vess_1 + afterglow/lingerie/rear/shower). Long white/silver hair, purple eyes locked. No further generation required.
+
+## SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 — declared portrait reuse (2026-09-02)
+
+SOURCE main@8d23109 · RUNTIME baseline 1f68553 · TASK SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 · MODE implementation
+
+Build / $ Con V9; owner-authorized by `1506CT-V9-OFFSHIFT-VESS-01.md`.
+Read AGENTS, ROADMAP, PROJECT_STATUS, LOCKS, ART_RULES, this manifest,
+SCENE_SKELETON, and GITHUB_PUSH_RULES. This entry is one scene alias, not ART-R2
+or a new portrait lock. L-029 supersedes the older Vess-set approval above.
+
+- **Alias:** `offshift_vess` → existing `images/vess.jpg` in both the map and
+  scene declaration. No duplicate image file; official portrait bytes untouched.
+- **Finding:** both old bindings selected `transmission.jpg`, whose visible
+  dark-haired male figure does not depict Vess. The rejected `offshift_vess.jpg`
+  remains unwired; no discarded Vess plate is reinstated.
+- **Depicted:** Vess alone, adult woman, long white-silver hair, purple irises,
+  dark tank top; no Commander face, extra crew, baked text, or sexual act.
+- **Location/composition:** close character portrait against a rectangular
+  ship interior with cyan/purple light. A portrait substitute for the relay-bay
+  conversation, not a claim to illustrate its chair or beacon action exactly.
+- **Palette/tier:** Future-cold / Solid reused portrait. Existing 784×1168 JPEG.
+- **Render range:** entry and saved-scene resume of `offshift_vess`, after the
+  living/recovered Vess offer in `offshift_open`, until `faction_split`; both
+  romantic and non-romantic states. No romance eligibility change.
+- **Roster safety:** resolver uses existing `corridor_variant.jpg` only for this
+  scene if Vess is absent/dead, including malformed saved-scene fixtures. This
+  is image safety only, not a repair or correctness claim for invalid-save prose.
+- **Portrait SHA-256:** `a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf`.
+- **Proof:** verifier checks map/declaration/resolver/render, exact locked bytes,
+  live admission, both relationship states, unchanged saves/rerenders/exits,
+  and absent/dead saved-image fallback. Mobile composition evidence and exact
+  head/CI results accompany the PR and V9 outbox receipt.
+
+No other scene binding, image bytes, story, cost, or romance gate changes.
+NO-PUBLISH / NOT_CERTIFIED; last certified remains 0.28.1d. ART-R2/L-004 stays held.
+Next action: Manraj reviews the named PR; merge-commit in the browser, not squash.

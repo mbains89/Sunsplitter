@@ -152,7 +152,7 @@ const sceneImages = {
   offshift_amara:      "images/quiet_amara.jpg",
   offshift_jiro:       "images/jiro.jpg",
   offshift_sela:       "images/sela_ritual.jpg",
-  offshift_vess:       "images/transmission.jpg",
+  offshift_vess:       "images/vess.jpg",
   pair_grudge_settle:  "images/observation.jpg",
   pair_favor_confront: "images/hydroponics_amara.jpg",
   pair_shield_cold:    "images/elias.jpg",
