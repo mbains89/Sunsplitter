@@ -35,9 +35,9 @@ const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
 const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
-const PRIVATE_PACKAGE_SOURCE_SHA = "8040b0791715e34fe285649f5be24d9d10cc9953";
-const PRIVATE_PACKAGE_SOURCE_TREE = "b60f67f974e615609c4c0ec240403176c1fea951";
-const PRIVATE_PACKAGE_SHA256 = "c348307f61a44ff0194ca5d1b24052329bffaffc706c1b02ffbda576154e27f3";
+const PRIVATE_PACKAGE_SOURCE_SHA = "e498e96953df4438745303b6751c94a2b0b23e79";
+const PRIVATE_PACKAGE_SOURCE_TREE = "55e601bcf6208de23bafc321e55ff67383250943";
+const PRIVATE_PACKAGE_SHA256 = "c1ae7bf14cf3c4a917d62a1618d9e4758dee08bbcdc277eea9e4154cceb358a7";
 const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "76d3856cbae5b50d612ddcc71a52b648b2ee65a31d9064e1056cae8b1fbc868d";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
@@ -3853,8 +3853,9 @@ function privatePackageChecks() {
     if (first.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || second.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE) {
       errors.push(`private-package source tree drifted from ${PRIVATE_PACKAGE_SOURCE_TREE}`);
     }
-    if (first.archiveBytes !== 28748299 || first.archiveEntries !== 152 || first.runtimeFiles !== 149 ||
-        first.contentNoticeBytes !== 1336 || first.adultClassificationDescriptors !== 8 ||
+    if (first.archiveBytes !== 28760209 || first.archiveEntries !== 154 || first.runtimeFiles !== 149 ||
+        first.contentNoticeBytes !== 1336 || first.phoneGuideBytes !== 3352 || first.phoneServerBytes !== 7493 ||
+        first.adultClassificationDescriptors !== 8 ||
         first.packagedAssets !== 88 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
         first.licenseFilesBundled !== 0 || first.externalFontStylesheets !== 1) {
       errors.push(`private-package summary drifted: ${JSON.stringify(first)}`);
@@ -3876,12 +3877,15 @@ function privatePackageChecks() {
     const manifestEntry = byPath.get("PRIVATE_PACKAGE_MANIFEST.json");
     const inventoryEntry = byPath.get("PRIVATE_PACKAGE_INVENTORY.md");
     const contentNoticeEntry = byPath.get("PRIVATE_CONTENT_NOTICE.md");
-    if (!manifestEntry || !inventoryEntry || !contentNoticeEntry || !byPath.has("index.html") || !byPath.has("VERSION.md")) {
-      errors.push("private package is missing root entry point, version, manifest, inventory, or content notice");
+    const phoneGuideEntry = byPath.get("PRIVATE_PHONE_PLAY.md");
+    const phoneServerEntry = byPath.get("PRIVATE_PHONE_SERVER.mjs");
+    if (!manifestEntry || !inventoryEntry || !contentNoticeEntry || !phoneGuideEntry || !phoneServerEntry ||
+        !byPath.has("index.html") || !byPath.has("VERSION.md")) {
+      errors.push("private package is missing root entry point, version, manifest, inventory, content notice, or phone handoff");
       return errors;
     }
     const manifest = JSON.parse(manifestEntry.data.toString("utf8"));
-    if (manifest.schemaVersion !== 2 || manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
+    if (manifest.schemaVersion !== 3 || manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
         manifest.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || manifest.posture !== "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED") {
       errors.push("embedded manifest schema, source identity, or release posture drifted");
     }
@@ -3902,6 +3906,8 @@ function privatePackageChecks() {
     const expectedEntryPaths = new Set([
       ...payloadFiles.map(file => file.packagePath),
       "PRIVATE_CONTENT_NOTICE.md",
+      "PRIVATE_PHONE_PLAY.md",
+      "PRIVATE_PHONE_SERVER.mjs",
       "PRIVATE_PACKAGE_INVENTORY.md",
       "PRIVATE_PACKAGE_MANIFEST.json"
     ]);
@@ -3920,6 +3926,95 @@ function privatePackageChecks() {
         errors.push(`payload differs from exact Git blob: ${file.sourcePath}`);
       }
     }
+
+    const phoneResume = manifest.phoneResume || {};
+    exactKeys(phoneResume, [
+      "guidePath", "guideBytes", "guideSha256", "serverPath", "serverBytes", "serverSha256",
+      "startPath", "requiredOrigin", "serverBoundary", "publicHostRequired", "directFileModeClaimed",
+      "browserProfileRequirement", "originContinuityRequirement", "privateBrowsingSupported",
+      "saveStorageKey", "saveSchemaVersion", "ownerPhysicalProofRequired"
+    ], "phone-resume manifest");
+    const expectedPhoneResume = {
+      guidePath: "PRIVATE_PHONE_PLAY.md",
+      guideBytes: phoneGuideEntry.data.length,
+      guideSha256: sha256(phoneGuideEntry.data),
+      serverPath: "PRIVATE_PHONE_SERVER.mjs",
+      serverBytes: phoneServerEntry.data.length,
+      serverSha256: sha256(phoneServerEntry.data),
+      startPath: "index.html",
+      requiredOrigin: "STABLE_PRIVATE_HTTP_OR_HTTPS",
+      serverBoundary: "TRUSTED_LAN_UNAUTHENTICATED",
+      publicHostRequired: false,
+      directFileModeClaimed: false,
+      browserProfileRequirement: "SAME_REGULAR_BROWSER_PROFILE",
+      originContinuityRequirement: "SAME_SCHEME_HOST_AND_PORT",
+      privateBrowsingSupported: false,
+      saveStorageKey: "sunsplitter_save_v3",
+      saveSchemaVersion: 3,
+      ownerPhysicalProofRequired: true
+    };
+    for (const [field, expected] of Object.entries(expectedPhoneResume)) {
+      if (phoneResume[field] !== expected) errors.push(`phone-resume manifest field ${field}=${JSON.stringify(phoneResume[field])}; expected ${JSON.stringify(expected)}`);
+    }
+    const phoneGuideText = phoneGuideEntry.data.toString("utf8");
+    for (const marker of [
+      `SOURCE \`mbains89/Sunsplitter@${PRIVATE_PACKAGE_SOURCE_SHA}\``,
+      `TREE \`${PRIVATE_PACKAGE_SOURCE_TREE}\``,
+      "node PRIVATE_PHONE_SERVER.mjs",
+      "regular Safari on iPhone or regular Chrome on Android",
+      "tap **Save**, and confirm **Saved** appears",
+      "Confirm **Continue** appears",
+      "Record the exact address that opens, including the protocol and port",
+      "Use the same recorded protocol, address, and port",
+      "Do not use Private or Incognito browsing",
+      "Persistent storage is not claimed for that route",
+      "same trusted network",
+      "does not publish the game to an internet host",
+      "Private networks only",
+      "Close the tab. Open a new regular tab",
+      "Get-FileHash",
+      "shasum -a 256"
+    ]) {
+      if (!phoneGuideText.includes(marker)) errors.push(`private phone guide missing: ${marker}`);
+    }
+    const phoneServerText = phoneServerEntry.data.toString("utf8");
+    for (const marker of [
+      `const SOURCE_COMMIT = "${PRIVATE_PACKAGE_SOURCE_SHA}"`,
+      `const SOURCE_TREE = "${PRIVATE_PACKAGE_SOURCE_TREE}"`,
+      "package payload failed manifest verification",
+      "process.versions.node.split",
+      "request.method !== \"GET\" && request.method !== \"HEAD\"",
+      "!path || !allowed.has(path)",
+      "\"Cache-Control\": \"no-store\"",
+      "\"X-Content-Type-Options\": \"nosniff\"",
+      "\"Cross-Origin-Resource-Policy\": \"same-origin\"",
+      "\"Content-Security-Policy\"",
+      "\"Referrer-Policy\": \"no-referrer\""
+    ]) {
+      if (!phoneServerText.includes(marker)) errors.push(`private phone server missing: ${marker}`);
+    }
+    const serverSyntax = spawnSync(process.execPath, ["--check", first.phoneServerPath], { encoding: "utf8" });
+    if (serverSyntax.status !== 0) errors.push(`private phone server syntax failed: ${serverSyntax.stderr || serverSyntax.stdout}`);
+    const phoneVerifierPath = resolve(ROOT, "scripts/verify-private-phone.mjs");
+    const phoneVerifierSource = readFileSync(phoneVerifierPath, "utf8");
+    for (const marker of [
+      `const DEFAULT_SOURCE = "${PRIVATE_PACKAGE_SOURCE_SHA}"`,
+      "LOOPBACK_HTTP_FROM_EXTRACTED_EXACT_PACKAGE",
+      "PHYSICAL_DEVICE_NOT_AVAILABLE",
+      "sunsplitter_save_v3",
+      "browserEngine: \"chromium\"",
+      "emulationOnly: true",
+      "tamperedPayloadRejected: true",
+      "privateTransferEvidence: \"NOT_EXERCISED\"",
+      "changedOriginIsolated: true",
+      "Dr\\. Lena Voss does not waste words",
+      "reopenedSameOrigin: true",
+      "continueResumed: true"
+    ]) {
+      if (!phoneVerifierSource.includes(marker)) errors.push(`private phone browser verifier missing: ${marker}`);
+    }
+    const verifierSyntax = spawnSync(process.execPath, ["--check", phoneVerifierPath], { encoding: "utf8" });
+    if (verifierSyntax.status !== 0) errors.push(`private phone browser verifier syntax failed: ${verifierSyntax.stderr || verifierSyntax.stdout}`);
 
     const contentNotice = manifest.contentNotice || {};
     exactKeys(contentNotice, [
@@ -4072,8 +4167,9 @@ function privatePackageChecks() {
       if (!inventoryText.includes(marker)) errors.push(`inventory disclosure missing: ${marker}`);
     }
     if (!readFileSync(first.manifestPath).equals(manifestEntry.data) || !readFileSync(first.inventoryPath).equals(inventoryEntry.data) ||
-        !readFileSync(first.contentNoticePath).equals(contentNoticeEntry.data)) {
-      errors.push("embedded manifest, inventory, or content notice differs from its sidecar");
+        !readFileSync(first.contentNoticePath).equals(contentNoticeEntry.data) ||
+        !readFileSync(first.phoneGuidePath).equals(phoneGuideEntry.data) || !readFileSync(first.phoneServerPath).equals(phoneServerEntry.data)) {
+      errors.push("embedded manifest, inventory, content notice, or phone handoff differs from its sidecar");
     }
     const checksumText = readFileSync(first.checksumPath, "utf8");
     if (checksumText !== `${PRIVATE_PACKAGE_SHA256}  ${archiveName}\n`) errors.push("archive checksum sidecar drifted");
@@ -4203,7 +4299,7 @@ async function main() {
   failures.push(...performanceSourceErrors);
 
   const privatePackageErrors = privatePackageChecks();
-  printCheck("0.35 exact-source private package + content notice + draft adult metadata", privatePackageErrors,
+  printCheck("0.35 exact-source private package + phone handoff contract", privatePackageErrors,
     `source=${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)} archive=${PRIVATE_PACKAGE_SHA256.slice(0, 12)}`);
   failures.push(...privatePackageErrors);
 

@@ -11,6 +11,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const REPOSITORY = "mbains89/Sunsplitter";
 const PACKAGE_POSTURE = "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED";
 const CONTENT_NOTICE_PATH = "PRIVATE_CONTENT_NOTICE.md";
+const PHONE_GUIDE_PATH = "PRIVATE_PHONE_PLAY.md";
+const PHONE_SERVER_PATH = "PRIVATE_PHONE_SERVER.mjs";
 const DOS_DATE_1980_01_01 = 33;
 const UTF8_FLAG = 0x0800;
 const FILE_MODE = 0o100644;
@@ -462,6 +464,210 @@ function buildContentNotice({ commit, tree, root }) {
   return { text: lines.join("\n"), adultClassificationDraft };
 }
 
+function buildPrivatePhoneServer({ commit, tree }) {
+  const lines = [
+    "#!/usr/bin/env node",
+    "",
+    "import { createHash } from \"node:crypto\";",
+    "import { createServer } from \"node:http\";",
+    "import { readFileSync } from \"node:fs\";",
+    "import { networkInterfaces } from \"node:os\";",
+    "import { dirname, resolve } from \"node:path\";",
+    "import { fileURLToPath } from \"node:url\";",
+    "",
+    `const SOURCE_COMMIT = ${JSON.stringify(commit)};`,
+    `const SOURCE_TREE = ${JSON.stringify(tree)};`,
+    `const PACKAGE_POSTURE = ${JSON.stringify(PACKAGE_POSTURE)};`,
+    "const ROOT = dirname(fileURLToPath(import.meta.url));",
+    "process.on(\"uncaughtException\", error => {",
+    "  console.error(\"Could not start the private phone server. Keep every extracted file together and ask the sender for help.\");",
+    "  console.error(error.message);",
+    "  process.exit(1);",
+    "});",
+    "const MIME = new Map([",
+    "  [\".html\", \"text/html; charset=utf-8\"],",
+    "  [\".css\", \"text/css; charset=utf-8\"],",
+    "  [\".js\", \"text/javascript; charset=utf-8\"],",
+    "  [\".jpg\", \"image/jpeg\"],",
+    "  [\".jpeg\", \"image/jpeg\"],",
+    "  [\".md\", \"text/plain; charset=utf-8\"]",
+    "]);",
+    "",
+    "const nodeMajor = Number(process.versions.node.split(\".\")[0]);",
+    "if (!Number.isInteger(nodeMajor) || nodeMajor < 22) throw new Error(\"Node.js 22 or newer is required\");",
+    "",
+    "function sha256(data) {",
+    "  return createHash(\"sha256\").update(data).digest(\"hex\");",
+    "}",
+    "",
+    "function safePackagePath(path) {",
+    "  return typeof path === \"string\" && !!path && !path.startsWith(\"/\") && !path.includes(\"\\\\\") &&",
+    "    !path.includes(\"\\0\") && !path.split(\"/\").includes(\"..\");",
+    "}",
+    "",
+    "function options(args) {",
+    "  const value = { host: \"0.0.0.0\", port: 8787, json: false };",
+    "  for (let index = 0; index < args.length; index += 1) {",
+    "    const arg = args[index];",
+    "    if (arg === \"--host\") value.host = args[++index];",
+    "    else if (arg === \"--port\") value.port = Number(args[++index]);",
+    "    else if (arg === \"--json\") value.json = true;",
+    "    else if (arg === \"--help\") value.help = true;",
+    "    else throw new Error(`unknown argument: ${arg}`);",
+    "  }",
+    "  if (!value.host || !Number.isInteger(value.port) || value.port < 0 || value.port > 65535) throw new Error(\"invalid host or port\");",
+    "  return value;",
+    "}",
+    "",
+    "function extension(path) {",
+    "  const match = path.match(/\\.[^.\\/]+$/);",
+    "  return match ? match[0].toLowerCase() : \"\";",
+    "}",
+    "",
+    "function requestedPath(rawUrl) {",
+    "  let decoded;",
+    "  try { decoded = decodeURIComponent(new URL(rawUrl, \"http://private.invalid\").pathname); }",
+    "  catch { return null; }",
+    "  if (decoded === \"/\") return \"index.html\";",
+    "  const path = decoded.replace(/^\\/+/, \"\");",
+    "  if (!path || path.includes(\"\\\\\") || path.includes(\"\\0\") || path.split(\"/\").includes(\"..\")) return null;",
+    "  return path;",
+    "}",
+    "",
+    "function isPrivateIpv4(address) {",
+    "  const octets = address.split(\".\").map(Number);",
+    "  return octets.length === 4 && octets.every(octet => Number.isInteger(octet) && octet >= 0 && octet <= 255) &&",
+    "    (octets[0] === 10 || (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) || (octets[0] === 192 && octets[1] === 168));",
+    "}",
+    "",
+    "function phoneUrls(host, port) {",
+    "  const hosts = host === \"0.0.0.0\"",
+    "    ? Object.values(networkInterfaces()).flat().filter(item => item && item.family === \"IPv4\" && !item.internal && isPrivateIpv4(item.address)).map(item => item.address)",
+    "    : [host];",
+    "  const urls = [...new Set(hosts)].map(address => `http://${address}:${port}/`);",
+    "  if (!urls.length) throw new Error(\"no reachable private IPv4 address was found; connect both devices to the same trusted private network\");",
+    "  return urls;",
+    "}",
+    "",
+    "const settings = options(process.argv.slice(2));",
+    "if (settings.help) {",
+    "  process.stdout.write(\"Usage: node PRIVATE_PHONE_SERVER.mjs [--host 0.0.0.0] [--port 8787] [--json]\\n\");",
+    "  process.exit(0);",
+    "}",
+    "const manifest = JSON.parse(readFileSync(resolve(ROOT, \"PRIVATE_PACKAGE_MANIFEST.json\"), \"utf8\"));",
+    "if (manifest.schemaVersion !== 3 || manifest.sourceCommit !== SOURCE_COMMIT || manifest.sourceTree !== SOURCE_TREE || manifest.posture !== PACKAGE_POSTURE) {",
+    "  throw new Error(\"package manifest identity or posture does not match this server\");",
+    "}",
+    "const phoneResume = manifest.phoneResume || {};",
+    "const serverData = readFileSync(fileURLToPath(import.meta.url));",
+    "if (phoneResume.serverPath !== \"PRIVATE_PHONE_SERVER.mjs\" || phoneResume.serverBytes !== serverData.length || phoneResume.serverSha256 !== sha256(serverData)) {",
+    "  throw new Error(\"private phone server bytes do not match the manifest\");",
+    "}",
+    "if (phoneResume.startPath !== \"index.html\" || phoneResume.requiredOrigin !== \"STABLE_PRIVATE_HTTP_OR_HTTPS\" || phoneResume.directFileModeClaimed !== false) {",
+    "  throw new Error(\"private phone origin contract does not match this server\");",
+    "}",
+    "if (!Array.isArray(manifest.payloadFiles) || !manifest.payloadFiles.length) throw new Error(\"manifest payload list is missing\");",
+    "const allowed = new Map();",
+    "for (const file of manifest.payloadFiles) {",
+    "  if (!safePackagePath(file.packagePath) || file.packagePath !== file.sourcePath || allowed.has(file.packagePath)) {",
+    "    throw new Error(`unsafe or duplicate manifest payload path: ${file.packagePath}`);",
+    "  }",
+    "  const data = readFileSync(resolve(ROOT, file.packagePath));",
+    "  if (!Number.isInteger(file.bytes) || file.bytes !== data.length || !/^[0-9a-f]{64}$/.test(file.sha256 || \"\") || file.sha256 !== sha256(data)) {",
+    "    throw new Error(`package payload failed manifest verification: ${file.packagePath}`);",
+    "  }",
+    "  allowed.set(file.packagePath, data);",
+    "}",
+    "if (!allowed.has(\"index.html\")) throw new Error(\"manifest does not allow the game entry point\");",
+    "",
+    "const server = createServer((request, response) => {",
+    "  if (request.method !== \"GET\" && request.method !== \"HEAD\") {",
+    "    response.writeHead(405, { Allow: \"GET, HEAD\", \"Cache-Control\": \"no-store\" });",
+    "    response.end();",
+    "    return;",
+    "  }",
+    "  const path = requestedPath(request.url || \"/\");",
+    "  if (!path || !allowed.has(path)) {",
+    "    response.writeHead(404, { \"Cache-Control\": \"no-store\" });",
+    "    response.end(\"Not found\\n\");",
+    "    return;",
+    "  }",
+    "  const data = allowed.get(path);",
+    "  response.writeHead(200, {",
+    "    \"Content-Type\": MIME.get(extension(path)) || \"application/octet-stream\",",
+    "    \"Content-Length\": data.length,",
+    "    \"Cache-Control\": \"no-store\",",
+    "    \"X-Content-Type-Options\": \"nosniff\",",
+    "    \"Cross-Origin-Resource-Policy\": \"same-origin\",",
+    "    \"Referrer-Policy\": \"no-referrer\",",
+    "    \"Content-Security-Policy\": \"default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'\"",
+    "  });",
+    "  response.end(request.method === \"HEAD\" ? undefined : data);",
+    "});",
+    "server.on(\"error\", error => { console.error(`PRIVATE PHONE SERVER FAIL\\n${error.stack || error.message}`); process.exitCode = 1; });",
+    "server.listen(settings.port, settings.host, () => {",
+    "  const address = server.address();",
+    "  const port = typeof address === \"object\" && address ? address.port : settings.port;",
+    "  const urls = phoneUrls(settings.host, port);",
+    "  const ready = { sourceCommit: SOURCE_COMMIT, sourceTree: SOURCE_TREE, host: settings.host, port, urls };",
+    "  if (settings.json) process.stdout.write(`${JSON.stringify(ready)}\\n`);",
+    "  else {",
+    "    process.stdout.write(`Sunsplitter private phone server\\nSOURCE ${SOURCE_COMMIT}\\n`);",
+    "    process.stdout.write(\"Try the addresses below on the phone. Record the one that opens; resume must use that same address.\\n\");",
+    "    urls.forEach((url, index) => process.stdout.write(`  [${index + 1}] ${url}\\n`));",
+    "    process.stdout.write(\"Keep this window open. Press Control-C to stop.\\n\");",
+    "  }",
+    "});",
+    "for (const signal of [\"SIGINT\", \"SIGTERM\"]) process.on(signal, () => server.close(() => process.exit(0)));",
+    ""
+  ];
+  return lines.join("\n");
+}
+
+function buildPrivatePhoneGuide({ commit, tree }) {
+  const archiveName = `sunsplitter-private-${commit.slice(0, 8)}.zip`;
+  const lines = [
+    "# Sunsplitter — Private Phone Play",
+    "",
+    `SOURCE \`${REPOSITORY}@${commit}\``,
+    `TREE \`${tree}\``,
+    "",
+    `**Posture:** ${PACKAGE_POSTURE}.`,
+    "",
+    "This path does not publish the game to an internet host. While it runs, the included server temporarily exposes the extracted game without authentication to devices that can reach this computer.",
+    "",
+    "## Network boundary",
+    "",
+    "Use only a trusted private network. Do not forward the port or run this on public Wi-Fi. On Windows, allow Node.js on Private networks only. On macOS, allow the Node.js connection only while the computer is on that trusted network. If you cannot keep that boundary, stop and ask the sender for help. The server blocks off-computer page resources, serves only manifest-listed game files, accepts no uploads, and must be stopped afterward.",
+    "",
+    "## Open on a phone",
+    "",
+    `1. Download \`${archiveName}\` and its \`.sha256\` sidecar through the private handoff.`,
+    "2. Open a terminal in the folder containing both downloaded files: on Mac, select that folder in Finder and choose **Services → New Terminal at Folder**; on Windows, open the folder, right-click its background, and choose **Open in Terminal**.",
+    `3. Verify the ZIP before opening it. On Mac, run \`shasum -a 256 ${archiveName}\`. On Windows PowerShell, run \`Get-FileHash .\\${archiveName} -Algorithm SHA256\`. The result must match the 64-character value in the sidecar; otherwise stop and ask the sender for a clean copy.`,
+    "4. Extract the complete ZIP into one folder on the Mac or PC. Do not move individual files out of that folder. Open a new terminal in that extracted folder using the same Finder or Windows step above.",
+    "5. Run `node --version`. It must report v22 or newer. If Node is missing or older, stop and ask the sender for setup help.",
+    `6. Run \`node ${PHONE_SERVER_PATH}\` and keep the computer awake.`,
+    "7. Connect the phone to the same trusted network. In regular Safari on iPhone or regular Chrome on Android, try the printed addresses. Record the exact address that opens, including the protocol and port. If none opens, stop and ask the sender for help.",
+    "8. Acknowledge the content notice, begin, make at least one choice, tap **Save**, and confirm **Saved** appears.",
+    "9. Close the tab. Open a new regular tab at the recorded address in the same browser. Confirm **Continue** appears, tap it, and verify the same scene and ship status return.",
+    "10. Stop the server with Control-C when the play session is finished.",
+    "",
+    "## Resume later",
+    "",
+    `Return to the same extracted folder and run \`node ${PHONE_SERVER_PATH}\` again. Use the same recorded protocol, address, and port in the same phone browser. If that address is no longer printed or reachable, do not start a new run; stop and ask the sender to restore the same local address.`,
+    "",
+    "## Save custody",
+    "",
+    "- The save is stored by that phone browser; it is not uploaded or synced.",
+    "- Reuse the exact full web address and the same browser. A different address or browser has a different local save.",
+    "- Do not use Private or Incognito browsing. Clearing browser or site data—or automatic browser cleanup—can remove the save.",
+    "- Do not open `index.html` directly from Files, Downloads, Quick Look, or a `file://` address. Persistent storage is not claimed for that route.",
+    ""
+  ];
+  return lines.join("\n");
+}
+
 function buildInventory({ commit, tree, runtimeFiles, allAssetFiles, allTrackedPaths, cssText }) {
   const includedPaths = new Set(runtimeFiles.map(file => file.path));
   const firstAssetByHash = new Map();
@@ -600,6 +806,8 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const inventoryData = Buffer.from(inventory.text, "utf8");
   const contentNotice = buildContentNotice({ commit, tree, root });
   const contentNoticeData = Buffer.from(contentNotice.text, "utf8");
+  const phoneServerData = Buffer.from(buildPrivatePhoneServer({ commit, tree }), "utf8");
+  const phoneGuideData = Buffer.from(buildPrivatePhoneGuide({ commit, tree }), "utf8");
   const payloadFiles = runtimeFiles.map(file => ({
     packagePath: file.path,
     sourcePath: file.path,
@@ -610,7 +818,7 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     dimensions: file.dimensions
   }));
   const manifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     repository: REPOSITORY,
     sourceCommit: commit,
     sourceTree: tree,
@@ -633,6 +841,25 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
       openingNoticeEvidencePath: "index.html",
       existingInGameSurface: "index.html#tone-screen",
       generatedFromEvidencePaths: contentNotice.adultClassificationDraft.sourceEvidence.map(evidence => evidence.path)
+    },
+    phoneResume: {
+      guidePath: PHONE_GUIDE_PATH,
+      guideBytes: phoneGuideData.length,
+      guideSha256: sha256(phoneGuideData),
+      serverPath: PHONE_SERVER_PATH,
+      serverBytes: phoneServerData.length,
+      serverSha256: sha256(phoneServerData),
+      startPath: "index.html",
+      requiredOrigin: "STABLE_PRIVATE_HTTP_OR_HTTPS",
+      serverBoundary: "TRUSTED_LAN_UNAUTHENTICATED",
+      publicHostRequired: false,
+      directFileModeClaimed: false,
+      browserProfileRequirement: "SAME_REGULAR_BROWSER_PROFILE",
+      originContinuityRequirement: "SAME_SCHEME_HOST_AND_PORT",
+      privateBrowsingSupported: false,
+      saveStorageKey: "sunsplitter_save_v3",
+      saveSchemaVersion: 3,
+      ownerPhysicalProofRequired: true
     },
     adultClassificationDraft: contentNotice.adultClassificationDraft,
     inventory: {
@@ -662,6 +889,8 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const zipEntries = [
     ...runtimeFiles.map(file => ({ path: file.path, data: file.data })),
     { path: CONTENT_NOTICE_PATH, data: contentNoticeData },
+    { path: PHONE_GUIDE_PATH, data: phoneGuideData },
+    { path: PHONE_SERVER_PATH, data: phoneServerData },
     { path: "PRIVATE_PACKAGE_INVENTORY.md", data: inventoryData },
     { path: "PRIVATE_PACKAGE_MANIFEST.json", data: manifestData }
   ];
@@ -673,10 +902,14 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const checksumPath = `${absoluteOutput}.sha256`;
   const inventoryPath = `${absoluteOutput}.inventory.md`;
   const contentNoticePath = `${absoluteOutput}.content-notice.md`;
+  const phoneGuidePath = `${absoluteOutput}.phone-play.md`;
+  const phoneServerPath = `${absoluteOutput}.phone-server.mjs`;
   const manifestPath = `${absoluteOutput}.manifest.json`;
   writeFileSync(checksumPath, `${archiveHash}  ${basename(absoluteOutput)}\n`, "utf8");
   writeFileSync(inventoryPath, inventoryData);
   writeFileSync(contentNoticePath, contentNoticeData);
+  writeFileSync(phoneGuidePath, phoneGuideData);
+  writeFileSync(phoneServerPath, phoneServerData);
   writeFileSync(manifestPath, manifestData);
   return {
     repository: REPOSITORY,
@@ -686,12 +919,16 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     checksumPath,
     inventoryPath,
     contentNoticePath,
+    phoneGuidePath,
+    phoneServerPath,
     manifestPath,
     archiveSha256: archiveHash,
     archiveBytes: archive.length,
     archiveEntries: zipEntries.length,
     runtimeFiles: runtimeFiles.length,
     contentNoticeBytes: contentNoticeData.length,
+    phoneGuideBytes: phoneGuideData.length,
+    phoneServerBytes: phoneServerData.length,
     adultClassificationDescriptors: contentNotice.adultClassificationDraft.descriptors.length,
     packagedAssets: inventory.assetRows.filter(file => file.packageIncluded).length,
     inventoriedAssets: inventory.assetRows.length,
