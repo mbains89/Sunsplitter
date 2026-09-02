@@ -12,10 +12,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { buildPrivatePackage, readCanonicalZip } from "./build-private-package.mjs";
 import {
   EXPECTED_SCENE_COUNT,
   POLICY_NAMES,
@@ -33,6 +35,10 @@ const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
 const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
+const PRIVATE_PACKAGE_SOURCE_SHA = "11ea6550ad14bb8384d592b10b52baecd73fa693";
+const PRIVATE_PACKAGE_SOURCE_TREE = "db5a84471cc6ef91c88bf0e5d69e99f276a577d0";
+const PRIVATE_PACKAGE_SHA256 = "2f07e57a2b2dd9e15c591c6af4057962e71c0fdc5d6676d32202c532a867f20a";
+const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "76d3856cbae5b50d612ddcc71a52b648b2ee65a31d9064e1056cae8b1fbc868d";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
@@ -3807,6 +3813,136 @@ function sha256(text) {
   return createHash("sha256").update(text).digest("hex");
 }
 
+function gitBuffer(args) {
+  const result = spawnSync("git", args, {
+    cwd: ROOT,
+    encoding: null,
+    env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" },
+    maxBuffer: 256 * 1024 * 1024
+  });
+  if (result.status !== 0) throw new Error(`git ${args.join(" ")} failed: ${Buffer.from(result.stderr || result.stdout).toString("utf8").trim()}`);
+  return Buffer.from(result.stdout);
+}
+
+function privatePackageChecks() {
+  const errors = [];
+  const temporaryRoot = mkdtempSync(resolve(tmpdir(), "sunsplitter-private-package-"));
+  try {
+    const archiveName = `sunsplitter-private-${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)}.zip`;
+    const first = buildPrivatePackage({
+      sourceRef: PRIVATE_PACKAGE_SOURCE_SHA,
+      outputPath: resolve(temporaryRoot, "first", archiveName),
+      root: ROOT
+    });
+    const second = buildPrivatePackage({
+      sourceRef: PRIVATE_PACKAGE_SOURCE_SHA,
+      outputPath: resolve(temporaryRoot, "second", archiveName),
+      root: ROOT
+    });
+    const firstArchive = readFileSync(first.outputPath);
+    const secondArchive = readFileSync(second.outputPath);
+    if (!firstArchive.equals(secondArchive)) errors.push("two exact-source builds produced different ZIP bytes");
+    if (first.archiveSha256 !== second.archiveSha256 || first.archiveSha256 !== PRIVATE_PACKAGE_SHA256) {
+      errors.push(`archive SHA-256 drifted: first=${first.archiveSha256} second=${second.archiveSha256} expected=${PRIVATE_PACKAGE_SHA256}`);
+    }
+    if (first.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || second.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE) {
+      errors.push(`private-package source tree drifted from ${PRIVATE_PACKAGE_SOURCE_TREE}`);
+    }
+    if (first.archiveBytes !== 28737243 || first.archiveEntries !== 151 || first.runtimeFiles !== 149 ||
+        first.packagedAssets !== 88 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
+        first.licenseFilesBundled !== 0 || first.externalFontStylesheets !== 1) {
+      errors.push(`private-package summary drifted: ${JSON.stringify(first)}`);
+    }
+
+    const entries = readCanonicalZip(firstArchive);
+    const paths = entries.map(entry => entry.path);
+    const sortedPaths = [...paths].sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
+    if (!sameArray(paths, sortedPaths)) errors.push("ZIP entries are not in UTF-8 bytewise path order");
+    for (const entry of entries) {
+      if (entry.flags !== 0x0800 || entry.compression !== 0 || entry.time !== 0 || entry.date !== 33 || entry.mode !== 0o100644) {
+        errors.push(`non-canonical ZIP metadata: ${entry.path}`);
+      }
+      if (entry.path.endsWith("/") || entry.path.startsWith("/") || entry.path.includes("\\") || entry.path.split("/").includes("..")) {
+        errors.push(`unsafe or non-file ZIP path: ${entry.path}`);
+      }
+    }
+    const byPath = new Map(entries.map(entry => [entry.path, entry]));
+    const manifestEntry = byPath.get("PRIVATE_PACKAGE_MANIFEST.json");
+    const inventoryEntry = byPath.get("PRIVATE_PACKAGE_INVENTORY.md");
+    if (!manifestEntry || !inventoryEntry || !byPath.has("index.html") || !byPath.has("VERSION.md")) {
+      errors.push("private package is missing root entry point, version, manifest, or inventory");
+      return errors;
+    }
+    const manifest = JSON.parse(manifestEntry.data.toString("utf8"));
+    if (manifest.repository !== "mbains89/Sunsplitter" || manifest.sourceCommit !== PRIVATE_PACKAGE_SOURCE_SHA ||
+        manifest.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || manifest.posture !== "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED") {
+      errors.push("embedded manifest source identity or release posture drifted");
+    }
+    const canonicalZip = manifest.canonicalZip || {};
+    if (canonicalZip.compression !== "store" || canonicalZip.pathOrder !== "UTF-8 bytewise ascending" ||
+        canonicalZip.timestamp !== "1980-01-01T00:00:00Z" || canonicalZip.fileMode !== "100644" ||
+        canonicalZip.directoryEntries !== false || canonicalZip.extraFields !== false || canonicalZip.archiveComment !== false) {
+      errors.push("embedded canonical-ZIP method drifted");
+    }
+
+    const payloadFiles = manifest.payloadFiles || [];
+    const payloadPaths = payloadFiles.map(file => file.sourcePath)
+      .sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
+    const payloadPathDigest = sha256(`${payloadPaths.join("\n")}\n`);
+    if (payloadFiles.length !== 149 || payloadPathDigest !== PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256) {
+      errors.push(`runtime closure drifted: files=${payloadFiles.length} sha256=${payloadPathDigest}`);
+    }
+    const expectedEntryPaths = new Set([...payloadFiles.map(file => file.packagePath), "PRIVATE_PACKAGE_INVENTORY.md", "PRIVATE_PACKAGE_MANIFEST.json"]);
+    if (expectedEntryPaths.size !== entries.length || paths.some(path => !expectedEntryPaths.has(path))) {
+      errors.push("ZIP contains an entry outside the manifest-bound runtime closure");
+    }
+    for (const file of payloadFiles) {
+      if (file.packagePath !== file.sourcePath) errors.push(`package/source path mismatch: ${file.packagePath}`);
+      const entry = byPath.get(file.packagePath);
+      if (!entry) {
+        errors.push(`manifest payload is absent from ZIP: ${file.packagePath}`);
+        continue;
+      }
+      const sourceBlob = gitBuffer(["cat-file", "blob", `${PRIVATE_PACKAGE_SOURCE_SHA}:${file.sourcePath}`]);
+      if (!entry.data.equals(sourceBlob) || entry.data.length !== file.bytes || sha256(entry.data) !== file.sha256) {
+        errors.push(`payload differs from exact Git blob: ${file.sourcePath}`);
+      }
+    }
+
+    const inventory = manifest.inventory || {};
+    const trackedAssets = inventory.trackedAssets || [];
+    const duplicateAssets = trackedAssets.filter(asset => asset.duplicateOf);
+    if (trackedAssets.length !== 169 || trackedAssets.filter(asset => asset.packageIncluded).length !== 88 || duplicateAssets.length !== 3) {
+      errors.push(`asset inventory drifted: assets=${trackedAssets.length} included=${trackedAssets.filter(asset => asset.packageIncluded).length} duplicates=${duplicateAssets.length}`);
+    }
+    if ((inventory.trackedFontFiles || []).length !== 0 || (inventory.trackedLicenseFiles || []).length !== 0 ||
+        (inventory.externalFontStylesheets || []).length !== 1) {
+      errors.push("font or repository-license inventory drifted");
+    }
+    if (trackedAssets.some(asset => asset.licenseEvidence !== "NOT_EVIDENCED_IN_REPOSITORY" ||
+        asset.rightsStatus !== "PROJECT_LOCK_NOT_RIGHTS_EVIDENCE" || asset.mime !== "image/jpeg")) {
+      errors.push("asset MIME or rights-evidence posture drifted");
+    }
+    const inventoryText = inventoryEntry.data.toString("utf8");
+    for (const marker of ["NOT_EVIDENCED_IN_REPOSITORY", "PROJECT_LOCK_NOT_RIGHTS_EVIDENCE", "No font binaries are tracked or bundled", "No LICENSE, LICENCE, COPYING, or NOTICE file is tracked"]) {
+      if (!inventoryText.includes(marker)) errors.push(`inventory disclosure missing: ${marker}`);
+    }
+    if (!readFileSync(first.manifestPath).equals(manifestEntry.data) || !readFileSync(first.inventoryPath).equals(inventoryEntry.data)) {
+      errors.push("embedded manifest/inventory differs from its sidecar");
+    }
+    const checksumText = readFileSync(first.checksumPath, "utf8");
+    if (checksumText !== `${PRIVATE_PACKAGE_SHA256}  ${archiveName}\n`) errors.push("archive checksum sidecar drifted");
+    for (const forbidden of [".git/", ".github/", ".netlify/", "artifacts/", "scripts/", "netlify.toml", "SUNSPLITTER_STORYLINE_EXTERNAL_REVIEW_792E202_R1.md"]) {
+      if (paths.some(path => path === forbidden || path.startsWith(forbidden))) errors.push(`private package contains forbidden repository material: ${forbidden}`);
+    }
+  } catch (error) {
+    errors.push(error.stack || error.message);
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+  return errors;
+}
+
 function identityAndAuthorityChecks() {
   const errors = [];
   const head = git(["rev-parse", "HEAD"]);
@@ -3920,6 +4056,11 @@ async function main() {
   const performanceSourceErrors = performanceSourceChecks();
   printCheck("0.34 image + lifecycle performance source contract", performanceSourceErrors);
   failures.push(...performanceSourceErrors);
+
+  const privatePackageErrors = privatePackageChecks();
+  printCheck("0.35 exact-source deterministic private package + inventory", privatePackageErrors,
+    `source=${PRIVATE_PACKAGE_SOURCE_SHA.slice(0, 8)} archive=${PRIVATE_PACKAGE_SHA256.slice(0, 12)}`);
+  failures.push(...privatePackageErrors);
 
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
