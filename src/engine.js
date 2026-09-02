@@ -16,6 +16,9 @@ const MAX_IMPORT_BYTES = 1_048_576;
 let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
 let renderingSavedScene = false;
 let pendingLegacyResume = null;
+let preserveCompletedSlotUntilChoice = false;
+let currentEndingArt = "";
+let suspendedImagePresentation = null;
 
 function parseSemanticVersion(value) {
   if (typeof value !== "string") return null;
@@ -117,6 +120,7 @@ function beginFreshCampaign(opts) {
   opts = opts || {};
   let previousState = null;
   const previousGameVersion = loadedGameVersion;
+  const previousSlotGuard = preserveCompletedSlotUntilChoice;
   if (opts.persist) {
     try {
       previousState = JSON.parse(JSON.stringify(state));
@@ -129,8 +133,10 @@ function beginFreshCampaign(opts) {
   if (opts.persist && !persistSave({ silent: true, retireLegacy: true })) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
+    preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
   }
+  preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   showScreen("game");
   renderStatus();
   showScene("wake");
@@ -149,7 +155,7 @@ function startGame() {
 function playAgain() {
   // Ending / What Remains: start a fresh campaign in memory.
   // Leave the completed slot on disk so Continue can still load it.
-  beginFreshCampaign({ persist: false });
+  beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true });
 }
 
 function showTitleScreen() {
@@ -173,6 +179,77 @@ function imageAlternative(src) {
     .join(" ");
   const label = words ? words.charAt(0).toUpperCase() + words.slice(1) : "the ship";
   return `Scene illustration: ${label}.`;
+}
+
+// Keep one decoded resource per visible surface. Reassigning the same URL can
+// restart image work on constrained browsers, while hidden image references
+// can keep large decoded plates resident after their surface is gone.
+function setManagedImageSource(img, src) {
+  if (!img) return false;
+  const next = typeof src === "string" ? src : "";
+  const current = typeof img.__ssManagedSource === "string"
+    ? img.__ssManagedSource
+    : ((typeof img.getAttribute === "function" && img.getAttribute("src")) || "");
+  if (current === next) return false;
+  if (next) img.src = next;
+  else if (typeof img.removeAttribute === "function") img.removeAttribute("src");
+  img.__ssManagedSource = next;
+  return true;
+}
+
+function endingArtAlternative() {
+  const endingTitle = document.getElementById("ending-title");
+  const title = endingTitle && endingTitle.textContent ? endingTitle.textContent.trim() : "Ending";
+  return `${title} ending illustration.`;
+}
+
+function syncEndingArtForScreen(id) {
+  for (const [screenId, wrapId, imageId] of [
+    ["ending", "ending-image-wrap", "ending-image"],
+    ["what-remains", "what-remains-image-wrap", "what-remains-image"]
+  ]) {
+    const wrap = document.getElementById(wrapId);
+    const img = document.getElementById(imageId);
+    const activeSource = id === screenId ? currentEndingArt : "";
+    setManagedImageSource(img, activeSource);
+    if (img) img.alt = activeSource ? endingArtAlternative() : "";
+    if (wrap) wrap.classList.toggle("visible", !!activeSource);
+  }
+}
+
+function releaseInactiveArtForScreen(id) {
+  if (id !== "game") {
+    const sceneImage = document.getElementById("scene-image");
+    setManagedImageSource(sceneImage, "");
+    if (sceneImage) sceneImage.alt = "";
+  }
+  syncEndingArtForScreen(id);
+}
+
+function suspendPresentationImages() {
+  if (suspendedImagePresentation) return;
+  suspendedImagePresentation = ["scene-image", "ending-image", "what-remains-image"].map(id => {
+    const img = document.getElementById(id);
+    return {
+      id,
+      src: img && typeof img.__ssManagedSource === "string" ? img.__ssManagedSource : "",
+      alt: img ? img.alt : ""
+    };
+  });
+  for (const item of suspendedImagePresentation) {
+    setManagedImageSource(document.getElementById(item.id), "");
+  }
+}
+
+function restorePresentationImages() {
+  const presentation = suspendedImagePresentation;
+  suspendedImagePresentation = null;
+  if (!presentation) return;
+  for (const item of presentation) {
+    const img = document.getElementById(item.id);
+    setManagedImageSource(img, item.src);
+    if (img) img.alt = item.alt;
+  }
 }
 
 // Boot: tone once → title (with Continue if save exists)
@@ -222,13 +299,13 @@ function showScene(id, opts) {
   imgWrap.classList.remove("minimized"); // full size on every new scene
   window.__ssImagePinned = false; // 0.24.92: clear manual pin
   if (imgSrc) {
-    img.src = imgSrc;
+    setManagedImageSource(img, imgSrc);
     img.alt = imageAlternative(imgSrc);
     imgWrap.classList.add("visible");
     if (isIntimateScene(id, scene)) imgWrap.classList.add("intimate");
   } else {
     imgWrap.classList.remove("visible");
-    img.removeAttribute("src");
+    setManagedImageSource(img, "");
     img.alt = "";
   }
 
@@ -785,26 +862,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
 }
 
 function setEndingArt(src) {
-  const targets = [
-    ["ending-image-wrap", "ending-image"],
-    ["what-remains-image-wrap", "what-remains-image"]
-  ];
-  for (const [wrapId, imageId] of targets) {
-    const wrap = document.getElementById(wrapId);
-    const img = document.getElementById(imageId);
-    if (!wrap || !img) continue;
-    if (src) {
-      img.src = src;
-      const endingTitle = document.getElementById("ending-title");
-      const title = endingTitle && endingTitle.textContent ? endingTitle.textContent.trim() : "Ending";
-      img.alt = `${title} ending illustration.`;
-      wrap.classList.add("visible");
-    } else {
-      wrap.classList.remove("visible");
-      img.removeAttribute("src");
-      img.alt = "";
-    }
-  }
+  currentEndingArt = typeof src === "string" ? src : "";
+  syncEndingArtForScreen("ending");
 }
 
 
@@ -1354,6 +1413,7 @@ function commitImportedSave(raw) {
     return false;
   }
   pendingLegacyResume = null;
+  preserveCompletedSlotUntilChoice = false;
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
@@ -1558,7 +1618,9 @@ function reportSaveWriteFailure(silent, priorRecoverable) {
 
 function saveGame() {
   // Manual save — always visible feedback
-  persistSave({ silent: false });
+  const saved = persistSave({ silent: false });
+  if (saved) preserveCompletedSlotUntilChoice = false;
+  return saved;
 }
 
 function loadGame() {
@@ -1586,6 +1648,7 @@ function loadGame() {
       return false;
     }
     pendingLegacyResume = null;
+    preserveCompletedSlotUntilChoice = false;
     showScreen("game");
     renderStatus();
     showScene(state.scene, { skipOnEnter: true, resume: true });
@@ -1615,6 +1678,7 @@ function loadGame() {
     showTitleScreen();
     return false;
   }
+  preserveCompletedSlotUntilChoice = false;
   updateMetaSaveHint();
   flashSaveStatus("Resumed");
   return true;
@@ -1738,27 +1802,40 @@ function makeChoice(choice) {
   }
   showScene(choice.next);
   // Persist after scene is current so resume lands on the post-choice beat
+  preserveCompletedSlotUntilChoice = false;
   persistSave({ silent: true });
 }
 
 // iOS Safari: pagehide is the reliable background/close signal; visibilitychange for switch-away
 (function wireLifecycleSave() {
   if (typeof window === "undefined" || typeof window.addEventListener !== "function") return;
+  let savedWhileBackgrounded = false;
+  const resetBackgroundSave = () => { savedWhileBackgrounded = false; };
   const saveIfPlaying = () => {
-    try {
-      const game = document.getElementById("game-screen");
-      if (game && !game.classList.contains("hidden") && state && state.scene) {
-        persistSave({ silent: true });
-      }
-    } catch (e) { /* ignore */ }
+    if (!savedWhileBackgrounded && !preserveCompletedSlotUntilChoice) {
+      try {
+        const game = document.getElementById("game-screen");
+        if (game && !game.classList.contains("hidden") && state && state.scene) {
+          savedWhileBackgrounded = persistSave({ silent: true }) === true;
+        }
+      } catch (e) { /* ignore */ }
+    }
+    suspendPresentationImages();
+  };
+  const resumePresentation = () => {
+    resetBackgroundSave();
+    restorePresentationImages();
   };
   window.addEventListener("pagehide", saveIfPlaying);
+  window.addEventListener("pageshow", resumePresentation);
   if (typeof document.addEventListener === "function") {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") saveIfPlaying();
+      else resumePresentation();
     });
+    document.addEventListener("freeze", saveIfPlaying);
+    document.addEventListener("resume", resumePresentation);
   }
-  window.addEventListener("freeze", saveIfPlaying);
 })();
 
 // 0.34: scroll minimizes; desktop double-click toggles; one-finger image drags

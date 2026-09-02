@@ -245,6 +245,29 @@ function accessibilitySourceChecks() {
   return errors;
 }
 
+function performanceSourceChecks() {
+  const errors = [];
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 3) {
+    errors.push("0.34 all three runtime art surfaces must request asynchronous decode");
+  }
+  for (const fragment of [
+    "function setManagedImageSource(img, src)",
+    "function releaseInactiveArtForScreen(id)",
+    "preserveCompletedSlotUntilChoice",
+    'window.addEventListener("pagehide", saveIfPlaying)',
+    'window.addEventListener("pageshow", resumePresentation)',
+    'document.addEventListener("freeze", saveIfPlaying)'
+  ]) {
+    if (!engineSource.includes(fragment)) errors.push(`0.34 performance contract missing ${fragment}`);
+  }
+  if (engineSource.includes('window.addEventListener("freeze", saveIfPlaying)')) {
+    errors.push("0.34 freeze lifecycle save is wired to window instead of document");
+  }
+  return errors;
+}
+
 function accessibilityRuntimeChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -260,16 +283,22 @@ function accessibilityRuntimeChecks(runtime) {
       return src ? { id, alt: imageAlternative(src) } : null;
     }).filter(Boolean);
     toggleCrewPanel();
+    const sceneAlt = document.getElementById("scene-image").alt;
+    const statusAnnouncement = document.getElementById("stat-announcer").textContent;
+    const crewExpanded = crewToggle.getAttribute("aria-expanded");
     document.getElementById("ending-title").textContent = "Landfall";
     setEndingArt("images/ending_landfall.jpg");
+    const endingAlt = document.getElementById("ending-image").alt;
+    showScreen("what-remains");
+    const remainsAlt = document.getElementById("what-remains-image").alt;
     return {
       scene: state.scene,
-      sceneAlt: document.getElementById("scene-image").alt,
+      sceneAlt,
       invalidAlternatives: alternatives.filter(row => !row.alt || row.alt === row.id || row.alt.includes("_")),
-      statusAnnouncement: document.getElementById("stat-announcer").textContent,
-      crewExpanded: crewToggle.getAttribute("aria-expanded"),
-      endingAlt: document.getElementById("ending-image").alt,
-      remainsAlt: document.getElementById("what-remains-image").alt
+      statusAnnouncement,
+      crewExpanded,
+      endingAlt,
+      remainsAlt
     };
   })()`);
   if (!fixture.sceneAlt || fixture.sceneAlt === fixture.scene || fixture.sceneAlt.includes("_")) {
@@ -284,6 +313,163 @@ function accessibilityRuntimeChecks(runtime) {
   if (fixture.crewExpanded !== "true") errors.push("Crew disclosure did not announce expanded state");
   if (fixture.endingAlt !== "Landfall ending illustration." || fixture.remainsAlt !== "Landfall ending illustration.") {
     errors.push(`ending alternatives are not tied to the player-facing ending: ${JSON.stringify(fixture)}`);
+  }
+  return errors;
+}
+
+function performanceRuntimeChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const stateDigest = () => JSON.stringify(state);
+    const sceneImage = document.getElementById("scene-image");
+    let assignments = 0;
+    let assignedValue = "";
+    Object.defineProperty(sceneImage, "src", {
+      configurable: true,
+      get() { return assignedValue; },
+      set(value) { assignments += 1; assignedValue = String(value); }
+    });
+    delete sceneImage.__ssManagedSource;
+    const firstAssign = setManagedImageSource(sceneImage, "images/wake.jpg");
+    const repeatAssign = setManagedImageSource(sceneImage, "images/wake.jpg");
+    const replacementAssign = setManagedImageSource(sceneImage, "images/bridge.jpg");
+    const clearAssign = setManagedImageSource(sceneImage, "");
+    const managedImage = {
+      firstAssign,
+      repeatAssign,
+      replacementAssign,
+      clearAssign,
+      assignments,
+      finalSource: assignedValue,
+      managedSource: sceneImage.__ssManagedSource
+    };
+
+    setManagedImageSource(sceneImage, "images/wake.jpg");
+    sceneImage.alt = "Scene illustration: Wake.";
+    document.getElementById("ending-title").textContent = "Landfall";
+    setEndingArt("images/ending_landfall.jpg");
+    const beforeScreenState = stateDigest();
+    showScreen("ending");
+    const endingTransition = {
+      sceneSource: sceneImage.__ssManagedSource,
+      sceneAlt: sceneImage.alt,
+      endingSource: document.getElementById("ending-image").__ssManagedSource,
+      remainsSource: document.getElementById("what-remains-image").__ssManagedSource,
+      stateSame: stateDigest() === beforeScreenState
+    };
+    showScreen("what-remains");
+    const remainsTransition = {
+      endingSource: document.getElementById("ending-image").__ssManagedSource,
+      remainsSource: document.getElementById("what-remains-image").__ssManagedSource,
+      stateSame: stateDigest() === beforeScreenState
+    };
+    showScreen("title");
+    const titleTransition = {
+      endingSource: document.getElementById("ending-image").__ssManagedSource,
+      remainsSource: document.getElementById("what-remains-image").__ssManagedSource,
+      endingAlt: document.getElementById("ending-image").alt,
+      remainsAlt: document.getElementById("what-remains-image").alt,
+      stateSame: stateDigest() === beforeScreenState
+    };
+
+    localStorage.clear();
+    resetRunState();
+    showScreen("game");
+    showScene("wake");
+    state.cohesion = 57;
+    let saveAttempts = 0;
+    let failNextSave = false;
+    const originalPersistSave = persistSave;
+    persistSave = function performanceProbePersistSave(opts) {
+      saveAttempts += 1;
+      if (failNextSave) {
+        failNextSave = false;
+        return false;
+      }
+      return originalPersistSave(opts);
+    };
+    window.dispatchEvent({ type: "pageshow", persisted: true });
+    window.dispatchEvent({ type: "pagehide", persisted: true });
+    const firstRaw = localStorage.getItem("sunsplitter_save_v3");
+    document.visibilityState = "hidden";
+    document.dispatchEvent({ type: "visibilitychange" });
+    document.dispatchEvent({ type: "freeze" });
+    const dedupedAttempts = saveAttempts;
+    const dedupedRaw = localStorage.getItem("sunsplitter_save_v3");
+
+    window.dispatchEvent({ type: "pageshow", persisted: true });
+    state.cohesion = 58;
+    failNextSave = true;
+    window.dispatchEvent({ type: "pagehide", persisted: true });
+    document.dispatchEvent({ type: "freeze" });
+    const retriedRaw = localStorage.getItem("sunsplitter_save_v3");
+    const retryAttempts = saveAttempts;
+
+    window.dispatchEvent({ type: "pageshow", persisted: true });
+    resetRunState();
+    state.scene = "ending_check";
+    state.cohesion = 18;
+    persistSave = originalPersistSave;
+    persistSave({ silent: true });
+    const completedRaw = localStorage.getItem("sunsplitter_save_v3");
+    resolveEnding();
+    playAgain();
+    window.dispatchEvent({ type: "pagehide", persisted: true });
+    document.visibilityState = "hidden";
+    document.dispatchEvent({ type: "visibilitychange" });
+    document.dispatchEvent({ type: "freeze" });
+    const protectedRaw = localStorage.getItem("sunsplitter_save_v3");
+    makeChoice({ next: "wake", effects: { cohesion: 1 } });
+    const committedRaw = localStorage.getItem("sunsplitter_save_v3");
+    const committed = JSON.parse(committedRaw);
+    document.visibilityState = "visible";
+    document.dispatchEvent({ type: "visibilitychange" });
+
+    return {
+      managedImage,
+      endingTransition,
+      remainsTransition,
+      titleTransition,
+      lifecycle: {
+        firstSaved: JSON.parse(firstRaw).cohesion === 57,
+        dedupedAttempts,
+        dedupedBytes: dedupedRaw === firstRaw,
+        retryAttempts,
+        retrySaved: JSON.parse(retriedRaw).cohesion === 58,
+        completedProtected: protectedRaw === completedRaw,
+        firstChoiceReplaced: committedRaw !== completedRaw,
+        committedScene: committed.scene,
+        committedCohesion: committed.cohesion
+      }
+    };
+  })()`);
+
+  const image = fixture.managedImage;
+  if (!image.firstAssign || image.repeatAssign || !image.replacementAssign || !image.clearAssign ||
+      image.assignments !== 3 || image.finalSource || image.managedSource) {
+    errors.push(`managed image source did not dedupe/replace/release exactly: ${JSON.stringify(image)}`);
+  }
+  const ending = fixture.endingTransition;
+  if (ending.sceneSource || ending.sceneAlt || !ending.endingSource || ending.remainsSource || !ending.stateSame) {
+    errors.push(`ending transition did not release scene art while preserving ending art/state: ${JSON.stringify(ending)}`);
+  }
+  const remains = fixture.remainsTransition;
+  if (remains.endingSource || !remains.remainsSource || !remains.stateSame) {
+    errors.push(`What Remains did not move the one ending-art reference without changing state: ${JSON.stringify(remains)}`);
+  }
+  const title = fixture.titleTransition;
+  if (title.endingSource || title.remainsSource || title.endingAlt || title.remainsAlt || !title.stateSame) {
+    errors.push(`title transition retained hidden ending art or changed state: ${JSON.stringify(title)}`);
+  }
+  const lifecycle = fixture.lifecycle;
+  if (!lifecycle.firstSaved || lifecycle.dedupedAttempts !== 1 || !lifecycle.dedupedBytes) {
+    errors.push(`background lifecycle signals did not coalesce around one verified save: ${JSON.stringify(lifecycle)}`);
+  }
+  if (lifecycle.retryAttempts !== 3 || !lifecycle.retrySaved) {
+    errors.push(`failed lifecycle save did not retry on the next signal: ${JSON.stringify(lifecycle)}`);
+  }
+  if (!lifecycle.completedProtected || !lifecycle.firstChoiceReplaced || lifecycle.committedScene !== "wake" || lifecycle.committedCohesion !== 49) {
+    errors.push(`Play Again completed-slot custody failed across background/first choice: ${JSON.stringify(lifecycle)}`);
   }
   return errors;
 }
@@ -3731,6 +3917,10 @@ async function main() {
   printCheck("0.34 accessibility source contract", accessibilitySourceErrors);
   failures.push(...accessibilitySourceErrors);
 
+  const performanceSourceErrors = performanceSourceChecks();
+  printCheck("0.34 image + lifecycle performance source contract", performanceSourceErrors);
+  failures.push(...performanceSourceErrors);
+
   const syntaxErrors = syntaxChecks(scripts);
   printCheck("loaded JavaScript syntax", syntaxErrors, `${scripts.length} files compiled`);
   failures.push(...syntaxErrors);
@@ -3805,6 +3995,10 @@ async function main() {
     const accessibilityRuntimeErrors = accessibilityRuntimeChecks(runtime);
     printCheck("0.34 accessibility runtime labels + alternatives", accessibilityRuntimeErrors);
     failures.push(...accessibilityRuntimeErrors);
+
+    const performanceRuntimeErrors = performanceRuntimeChecks(runtime);
+    printCheck("0.34 image residency + background resume runtime", performanceRuntimeErrors);
+    failures.push(...performanceRuntimeErrors);
 
     const resumeEntryErrors = resumeEntryIdempotenceChecks(runtime);
     printCheck("resume preserves completed scene entry", resumeEntryErrors);
