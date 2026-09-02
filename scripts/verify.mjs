@@ -2235,6 +2235,84 @@ function tetherRushImageTruthChecks(runtime) {
   return errors;
 }
 
+function offshiftVessImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/vess.jpg";
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const absentOffer = scenes.offshift_open.choices.some(choice => choice.next === "offshift_vess");
+    state.recovered.vess = true;
+    state.dead.push("vess");
+    const deadOffer = scenes.offshift_open.choices.some(choice => choice.next === "offshift_vess");
+    const rows = [false, true].map(romanced => {
+      localStorage.clear();
+      resetRunState();
+      state.recovered.vess = true;
+      state.romance.vess = romanced;
+      state.crisisPath = "breath";
+      showScene("offshift_open");
+      const offered = scenes.offshift_open.choices.find(choice => choice.next === "offshift_vess");
+      if (!offered) return { romanced, offered: false };
+      makeChoice(offered);
+      const rendered = document.getElementById("scene-image").src;
+      const before = JSON.stringify(state);
+      showScene("offshift_vess", { skipOnEnter: true });
+      const stableRender = JSON.stringify(state) === before;
+      const saved = persistSave({ silent: true });
+      const raw = localStorage.getItem("sunsplitter_save_v3");
+      resetRunState();
+      const loaded = loadGame();
+      return { romanced, offered: true, rendered, stableRender, saved, loaded,
+        scene: state.scene, alive: isAlive("vess"),
+        mapped: sceneImages.offshift_vess, declared: scenes.offshift_vess.image,
+        resolved: resolveSceneImage("offshift_vess", scenes.offshift_vess),
+        resumed: document.getElementById("scene-image").src,
+        alt: document.getElementById("scene-image").alt,
+        exactSave: localStorage.getItem("sunsplitter_save_v3") === raw,
+        exits: scenes.offshift_vess.choices.map(choice => choice.next) };
+    });
+    const unavailable = ["unrecovered", "dead"].map(status => {
+      localStorage.clear();
+      resetRunState();
+      state.recovered.vess = status === "dead";
+      if (status === "dead") kill("vess", "image regression fixture");
+      showScene("offshift_vess", { skipOnEnter: true });
+      const rendered = document.getElementById("scene-image").src;
+      const saved = persistSave({ silent: true });
+      resetRunState();
+      const loaded = loadGame();
+      return { status, saved, loaded, rendered,
+        resumed: document.getElementById("scene-image").src };
+    });
+    return { absentOffer, deadOffer, rows, unavailable };
+  })()`);
+  if (fixture.absentOffer || fixture.deadOffer) errors.push("Off-Shift offered absent/dead Vess");
+  for (const row of fixture.rows) {
+    if (!row.offered || !row.alive || row.scene !== "offshift_vess" ||
+        !row.stableRender || !row.saved || !row.loaded || !row.exactSave) {
+      errors.push(`Off-Shift Vess entry/render/resume failed: ${JSON.stringify(row)}`);
+    }
+    for (const field of ["mapped", "declared", "resolved", "rendered", "resumed"]) {
+      if (row[field] !== expected) errors.push(`offshift_vess ${field} must use the official Vess portrait; got ${row[field]}`);
+    }
+    if (row.alt !== "Portrait of Vess.") errors.push("Off-Shift Vess portrait alternative drifted");
+    if (row.exits?.length !== 3 || row.exits.some(next => next !== "faction_split")) {
+      errors.push("Off-Shift Vess existing exits changed");
+    }
+  }
+  for (const row of fixture.unavailable) {
+    if (!row.saved || !row.loaded || row.rendered !== "images/corridor_variant.jpg" ||
+        row.resumed !== "images/corridor_variant.jpg") {
+      errors.push(`Off-Shift portrait asserted unavailable Vess: ${JSON.stringify(row)}`);
+    }
+  }
+  const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, expected))).digest("hex");
+  if (actualHash !== "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf") {
+    errors.push(`official Vess portrait bytes drifted: ${actualHash}`);
+  }
+  return errors;
+}
+
 function vessHairCanonChecks(runtime) {
   const errors = [];
   const boardingText = runtime.evaluate(`String(scenes.vess_boarding.text())`);
@@ -4657,6 +4735,10 @@ async function main() {
     const tetherRushImageTruthErrors = tetherRushImageTruthChecks(runtime);
     printCheck("0.33 tether rush distinct locked-plate truth", tetherRushImageTruthErrors);
     failures.push(...tetherRushImageTruthErrors);
+
+    const offshiftVessImageTruthErrors = offshiftVessImageTruthChecks(runtime);
+    printCheck("0.35 Off-Shift Vess official portrait + saved-scene resume", offshiftVessImageTruthErrors);
+    failures.push(...offshiftVessImageTruthErrors);
 
     const vessHairCanonErrors = vessHairCanonChecks(runtime);
     printCheck("Vess boarding hair canon", vessHairCanonErrors);

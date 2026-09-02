@@ -883,6 +883,9 @@ function resolveSceneImage(id, scene) {
   // Fallbacks use literal paths — map keys are scene ids, not generic location names.
   // Scene-level image: is honored only after guards fall through (0.24.2).
 
+  // The Off-Shift portrait asserts Vess is present, including on saved renders.
+  if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant.jpg";
+
   // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
