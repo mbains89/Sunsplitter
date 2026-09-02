@@ -10,6 +10,7 @@ import { spawnSync } from "node:child_process";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const REPOSITORY = "mbains89/Sunsplitter";
 const PACKAGE_POSTURE = "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED";
+const CONTENT_NOTICE_PATH = "PRIVATE_CONTENT_NOTICE.md";
 const DOS_DATE_1980_01_01 = 33;
 const UTF8_FLAG = 0x0800;
 const FILE_MODE = 0o100644;
@@ -288,6 +289,179 @@ function markdownEscape(value) {
   return String(value).replace(/\|/g, "\\|");
 }
 
+function buildContentNotice({ commit, tree, root }) {
+  const evidenceSpecs = [
+    {
+      path: "index.html",
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery", "resource-scarcity-and-lethal-decisions"],
+      requiredStatements: [
+        "Adult sexual content is permanent.",
+        "Named characters die. Deaths stick.",
+        "Resources gate options. Numbers are not decoration."
+      ]
+    },
+    {
+      path: "src/scenes-30.js",
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery", "command-hierarchy-consent-and-favoritism"],
+      requiredStatements: ["the chain of command tonight", "The sex is intense", "What follows is unhurried and explicit.", "The sex is quiet, intense, deliberate"]
+    },
+    {
+      path: "src/scenes-31.js",
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery"],
+      requiredStatements: ["What follows is explicit and unhurried."]
+    },
+    {
+      path: "src/scenes-32.js",
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery", "intimate-recording-disclosure-and-privacy"],
+      requiredStatements: ["intimate audio fragments", "Still naked"]
+    },
+    {
+      path: "src/scenes-36.js",
+      supports: ["pregnancy-and-reproductive-survival"],
+      requiredStatements: ["unplanned pregnancy", "prevention after the fact"]
+    },
+    {
+      path: "src/scenes-38.js",
+      supports: ["blood-medical-trauma-death-and-decompression", "mass-death-grief-isolation-and-moral-distress"],
+      requiredStatements: ["smells of ozone and blood", "Chest full of shrapnel"]
+    },
+    {
+      path: "src/scenes-02.js",
+      supports: ["blood-medical-trauma-death-and-decompression", "mass-death-grief-isolation-and-moral-distress"],
+      requiredStatements: ["The screaming on the intercom lasts eleven seconds."]
+    },
+    {
+      path: "src/scenes-42.js",
+      supports: ["brief-unspecified-drink-use"],
+      requiredStatements: ["He pours two measures"]
+    },
+    {
+      path: "artifacts/ART_REQUESTS.md",
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery"],
+      requiredStatements: [
+        "fully nude except prop",
+        "`lingerie_mira.jpg` — nude, clipboard held low",
+        "breasts exposed, minimal cover"
+      ]
+    },
+    ...[
+      "images/shower_mira.jpg",
+      "images/lingerie_mira.jpg",
+      "images/afterglow_mira.jpg",
+      "images/romance_amara_tomas.jpg"
+    ].map(path => ({
+      path,
+      supports: ["explicit-sexual-content-nudity-and-sexualized-imagery"],
+      requiredStatements: []
+    }))
+  ];
+  const sourceEvidence = evidenceSpecs.map(spec => {
+    const data = blobAt(commit, spec.path, root);
+    const text = spec.requiredStatements.length ? data.toString("utf8") : "";
+    for (const statement of spec.requiredStatements) {
+      if (!text.includes(statement)) throw new Error(`content-classification evidence missing from exact source: ${spec.path} :: ${statement}`);
+    }
+    return {
+      path: spec.path,
+      gitBlob: git(["rev-parse", `${commit}:${spec.path}`], { root }),
+      bytes: data.length,
+      sha256: sha256(data),
+      supports: spec.supports,
+      observedStatements: spec.requiredStatements
+    };
+  });
+  const adultClassificationDraft = {
+    status: "DRAFT_PRIVATE_METADATA_ONLY",
+    scope: "PRIVATE_PACKAGE_ONLY",
+    sourceCommit: commit,
+    sourceTree: tree,
+    platform: null,
+    officialRating: null,
+    ratingAuthority: null,
+    submitted: false,
+    adultContent: true,
+    sexualContentStatus: "PRESENT_AND_PERMANENT_IN_BUILD",
+    explicitSexualText: true,
+    fullNudity: true,
+    sexualizedImagery: true,
+    multiPartnerSexualContent: true,
+    commanderCrewSexualPowerDynamics: true,
+    intimateRecordingAndDisclosure: true,
+    bloodAndMedicalTrauma: true,
+    namedCharacterDeath: true,
+    decompressionAndSuffocation: true,
+    massCasualtyDisasterAndGrief: true,
+    pregnancyAndReproductiveThemes: true,
+    briefUnspecifiedDrinkUse: true,
+    reducedContentModeAvailable: false,
+    descriptors: [
+      {
+        id: "explicit-sexual-content-nudity-and-sexualized-imagery",
+        runExposure: "OPTIONAL_REFUSABLE_ROUTES",
+        playerFacingText: "Optional and refusable explicit sexual text, sexualized imagery, and full nudity, including an optional multi-partner encounter."
+      },
+      {
+        id: "command-hierarchy-consent-and-favoritism",
+        runExposure: "OPTIONAL_REFUSABLE_ROUTES",
+        playerFacingText: "Sexual relationships within a commander/crew hierarchy; consent, refusal, boundaries, favoritism, and resource consequences are explicit themes."
+      },
+      {
+        id: "intimate-recording-disclosure-and-privacy",
+        runExposure: "OPTIONAL_ROUTE",
+        playerFacingText: "Intimate recording, disclosure, and loss-of-privacy themes."
+      },
+      {
+        id: "pregnancy-and-reproductive-survival",
+        runExposure: "CONDITIONAL_ROUTE",
+        playerFacingText: "Pregnancy risk, post-coital prevention, embryos, and reproductive-resource triage."
+      },
+      {
+        id: "blood-medical-trauma-death-and-decompression",
+        runExposure: "CORE_AND_BRANCHING",
+        playerFacingText: "Blood, serious injury, medical trauma, suffocation/decompression, and named-character death."
+      },
+      {
+        id: "mass-death-grief-isolation-and-moral-distress",
+        runExposure: "CORE_AND_RECURRING",
+        playerFacingText: "Mass death, grief, isolation, extinction themes, and moral distress."
+      },
+      {
+        id: "resource-scarcity-and-lethal-decisions",
+        runExposure: "CORE_AND_BRANCHING",
+        playerFacingText: "Resource scarcity and command decisions that can sacrifice or kill named characters."
+      },
+      {
+        id: "brief-unspecified-drink-use",
+        runExposure: "OPTIONAL_ROUTE",
+        playerFacingText: "Brief use of an unspecified non-regulation drink."
+      }
+    ],
+    sourceEvidence,
+    claimLimits: [
+      "NO_PLATFORM_AGE_RATING_ASSIGNED",
+      "NO_STOREFRONT_CLASSIFICATION_SUBMITTED",
+      "NO_PUBLICATION_AUTHORIZED"
+    ]
+  };
+  const lines = [
+    "# Sunsplitter — Content Notice",
+    "",
+    `SOURCE \`${REPOSITORY}@${commit}\``,
+    "",
+    `**Posture:** ${PACKAGE_POSTURE}.`,
+    "",
+    "Sunsplitter is a grim narrative-survival game for adults. This private build contains:",
+    "",
+    ...adultClassificationDraft.descriptors.map(descriptor => `- ${descriptor.playerFacingText}`),
+    "",
+    "This build does not provide a reduced-content mode. Its in-game opening notice also states that adult sexual content is permanent and that named-character deaths persist.",
+    "",
+    "This notice describes the exact private-package source commit above. It is not a platform age rating, storefront submission, publication authorization, or commercial claim.",
+    ""
+  ];
+  return { text: lines.join("\n"), adultClassificationDraft };
+}
+
 function buildInventory({ commit, tree, runtimeFiles, allAssetFiles, allTrackedPaths, cssText }) {
   const includedPaths = new Set(runtimeFiles.map(file => file.path));
   const firstAssetByHash = new Map();
@@ -424,6 +598,8 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     cssText
   });
   const inventoryData = Buffer.from(inventory.text, "utf8");
+  const contentNotice = buildContentNotice({ commit, tree, root });
+  const contentNoticeData = Buffer.from(contentNotice.text, "utf8");
   const payloadFiles = runtimeFiles.map(file => ({
     packagePath: file.path,
     sourcePath: file.path,
@@ -434,7 +610,7 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     dimensions: file.dimensions
   }));
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     repository: REPOSITORY,
     sourceCommit: commit,
     sourceTree: tree,
@@ -449,6 +625,16 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
       extraFields: false,
       archiveComment: false
     },
+    contentNotice: {
+      path: CONTENT_NOTICE_PATH,
+      bytes: contentNoticeData.length,
+      sha256: sha256(contentNoticeData),
+      playerFacing: true,
+      openingNoticeEvidencePath: "index.html",
+      existingInGameSurface: "index.html#tone-screen",
+      generatedFromEvidencePaths: contentNotice.adultClassificationDraft.sourceEvidence.map(evidence => evidence.path)
+    },
+    adultClassificationDraft: contentNotice.adultClassificationDraft,
     inventory: {
       path: "PRIVATE_PACKAGE_INVENTORY.md",
       bytes: inventoryData.length,
@@ -475,6 +661,7 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const manifestData = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   const zipEntries = [
     ...runtimeFiles.map(file => ({ path: file.path, data: file.data })),
+    { path: CONTENT_NOTICE_PATH, data: contentNoticeData },
     { path: "PRIVATE_PACKAGE_INVENTORY.md", data: inventoryData },
     { path: "PRIVATE_PACKAGE_MANIFEST.json", data: manifestData }
   ];
@@ -485,9 +672,11 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   writeFileSync(absoluteOutput, archive);
   const checksumPath = `${absoluteOutput}.sha256`;
   const inventoryPath = `${absoluteOutput}.inventory.md`;
+  const contentNoticePath = `${absoluteOutput}.content-notice.md`;
   const manifestPath = `${absoluteOutput}.manifest.json`;
   writeFileSync(checksumPath, `${archiveHash}  ${basename(absoluteOutput)}\n`, "utf8");
   writeFileSync(inventoryPath, inventoryData);
+  writeFileSync(contentNoticePath, contentNoticeData);
   writeFileSync(manifestPath, manifestData);
   return {
     repository: REPOSITORY,
@@ -496,11 +685,14 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     outputPath: absoluteOutput,
     checksumPath,
     inventoryPath,
+    contentNoticePath,
     manifestPath,
     archiveSha256: archiveHash,
     archiveBytes: archive.length,
     archiveEntries: zipEntries.length,
     runtimeFiles: runtimeFiles.length,
+    contentNoticeBytes: contentNoticeData.length,
+    adultClassificationDescriptors: contentNotice.adultClassificationDraft.descriptors.length,
     packagedAssets: inventory.assetRows.filter(file => file.packageIncluded).length,
     inventoriedAssets: inventory.assetRows.length,
     fontsBundled: inventory.fontFiles.length,
