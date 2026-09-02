@@ -3209,6 +3209,11 @@ function cascadeAndMirrorChecks(runtime) {
     return {
       manifest: scenes.empty_berths.choices.map(choice => choice.next),
       changeorders: scenes.arc_future_3.choices.map(choice => choice.next),
+      changeorderOutcomes: scenes.records_changeorders.choices.map(choice => ({
+        next: choice.next,
+        flag: choice.flag?.changeorders || null
+      })),
+      hasChangeordersAfter: Object.prototype.hasOwnProperty.call(scenes, "records_changeorders_after"),
       briefing: scenes.act3_reckoning_briefing.choices.map(choice => choice.next),
       vault: scenes.act3_vault_face.choices.map(choice => choice.next),
       vaultRead: scenes.act3_vault_face_read.choices.map(choice => choice.next),
@@ -3220,6 +3225,56 @@ function cascadeAndMirrorChecks(runtime) {
   }
   if (bindings.changeorders.length !== 3 || bindings.changeorders.some(next => next !== "records_changeorders")) {
     errors.push(`arc_future_3 change-order routes mismatch: ${bindings.changeorders.join(",")}`);
+  }
+  const expectedChangeorderOutcomes = [
+    { next: "records_changeorders_after", flag: "logged" },
+    { next: "records_changeorders_after", flag: "buried" }
+  ];
+  if (JSON.stringify(bindings.changeorderOutcomes) !== JSON.stringify(expectedChangeorderOutcomes)) {
+    errors.push(`records_changeorders outcomes mismatch: ${JSON.stringify(bindings.changeorderOutcomes)}`);
+  }
+  if (!bindings.hasChangeordersAfter) {
+    errors.push("records_changeorders_after legacy save-compatibility node is missing");
+  }
+
+  const changeorderFlow = runtime.evaluate(`(() => {
+    const current = scenes.records_changeorders.choices.map((choice, index) => {
+      resetRunState();
+      showScene("records_changeorders");
+      makeChoice(scenes.records_changeorders.choices[index]);
+      return { scene: state.scene, flag: state.flags.changeorders };
+    });
+    resetRunState();
+    state.flags.changeorders = "logged";
+    showScene("records_changeorders_after", { skipOnEnter: true, resume: true });
+    const legacyBefore = {
+      scene: state.scene,
+      flag: state.flags.changeorders,
+      choices: scenes.records_changeorders_after.choices.length
+    };
+    makeChoice(scenes.records_changeorders_after.choices[0]);
+    return {
+      current,
+      legacyBefore,
+      legacyAfter: { scene: state.scene, flag: state.flags.changeorders }
+    };
+  })()`);
+  const expectedCurrentFlow = [
+    { scene: "arc_future_4", flag: "logged" },
+    { scene: "arc_future_4", flag: "buried" }
+  ];
+  if (JSON.stringify(changeorderFlow.current) !== JSON.stringify(expectedCurrentFlow)) {
+    errors.push(`records_changeorders runtime flow mismatch: ${JSON.stringify(changeorderFlow.current)}`);
+  }
+  if (changeorderFlow.legacyBefore.scene !== "records_changeorders_after" ||
+      changeorderFlow.legacyBefore.flag !== "logged" ||
+      changeorderFlow.legacyBefore.choices !== 1 ||
+      changeorderFlow.legacyAfter.scene !== "arc_future_4" ||
+      changeorderFlow.legacyAfter.flag !== "logged") {
+    errors.push(`records_changeorders_after legacy resume mismatch: ${JSON.stringify({
+      before: changeorderFlow.legacyBefore,
+      after: changeorderFlow.legacyAfter
+    })}`);
   }
   if (bindings.briefing.length !== 1 || bindings.briefing[0] !== "observation_nightshift") {
     errors.push(`reckoning briefing route mismatch: ${bindings.briefing.join(",")}`);

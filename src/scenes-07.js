@@ -4,7 +4,7 @@
 registerScenes({
 
   // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
-  // SCENE_IDS: records_changeorders, records_changeorders_after
+  // SCENE_IDS: records_changeorders; records_changeorders_after (legacy save compatibility only)
   // VERSION: 0.29        TICKET: Cascade Allusive 2/6
   // PACKAGE: The Unsigned Pages
   // SPINE: adjacent after arc_future_3; exits to arc_future_4
@@ -51,11 +51,11 @@ registerScenes({
     ]
   },
 
+  // Current play auto-forwards without rendering this former follow-up.
+  // A save already paused here skips onEnter and can still resume normally.
   records_changeorders_after: {
     image: "images/cascade_records.jpg",
-    onEnter: () => {
-      if (!isAlive("mira") || !state.flags.changeorders) return "arc_future_4";
-    },
+    onEnter: () => "arc_future_4",
     text: () => state.flags.changeorders === "logged"
       ? `"Entered. It proves the schedule moved. Nothing else. I want that on the same line."`
       : `"Understood."\n\nShe closes the log. She does not close it all the way.`,
