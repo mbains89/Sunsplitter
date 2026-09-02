@@ -658,6 +658,9 @@ function renderStatus() {
   set("stat-cohesion", state.cohesion, state.cohesion + "%", true);
   set("stat-supplies", state.supplies, state.supplies + "%", true);
   set("stat-embryos", state.embryos, state.embryos + "%", true);
+  const announcement = `Ship status: ${state.survivors} survivors, hull integrity ${state.integrity}%, cohesion ${state.cohesion}%, supplies ${state.supplies}%, embryos ${state.embryos}%.`;
+  const announcer = document.getElementById("stat-announcer");
+  if (announcer && announcer.textContent !== announcement) announcer.textContent = announcement;
   if (typeof renderCrewPanel === "function") renderCrewPanel();
 }
 
@@ -672,6 +675,8 @@ function showScreen(id) {
   });
   const crew = document.getElementById("crew-panel");
   if (crew) crew.classList.remove("visible");
+  const crewToggle = document.getElementById("btn-crew");
+  if (crewToggle) crewToggle.setAttribute("aria-expanded", "false");
   // 0.21.3: scene art lives outside #main; force hide when leaving game
   const imgWrap = document.getElementById("scene-image-wrap");
   if (imgWrap && id !== "game") {
@@ -695,6 +700,18 @@ function showScreen(id) {
   }
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
+
+  const focusTargetId = {
+    tone: "tone-heading",
+    title: "title-heading",
+    ending: "ending-title",
+    "what-remains": "what-remains-heading"
+  }[id];
+  const focusTarget = focusTargetId ? document.getElementById(focusTargetId) : null;
+  if (focusTarget && typeof focusTarget.focus === "function") {
+    try { focusTarget.focus({ preventScroll: true }); }
+    catch (e) { focusTarget.focus(); }
+  }
 }
 
 // ─── 0.28 helpers: Last Off-Shift eligibility + pairs + attributable death ───

@@ -10,14 +10,15 @@
   --border: #2a3038;
   --border-hot: #5c3030;
   --text: #c4c8ce;
-  --dim: #6a707a;
-  --accent: #9a3a3a;
+  --dim: #8a919c;
+  --accent: #d16a6a;
   --accent-dim: #5c2424;
-  --danger: #c44;
-  --ok: #3d8f5f;
+  --danger: #dc6262;
+  --ok: #4ca873;
   --pro: #4caf70;
-  --con: #d45a5a;
+  --con: #dc6262;
   --cyan: #3a7a8a;
+  --focus: #f2c14e;
   --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --font-mono: "Share Tech Mono", "Consolas", "Courier New", monospace;
   --touch: 48px;
@@ -26,6 +27,18 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 
 html {
   height: 100%;
@@ -41,7 +54,7 @@ body {
   background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-ui);
-  font-size: 16px; /* ≥16px body — mobile readable, no iOS zoom-on-focus */
+  font-size: 1rem; /* respects browser/user text-size preferences */
   line-height: 1.55;
   height: 100%;
   height: 100dvh;
@@ -203,7 +216,6 @@ body::before {
 .crew-chip.dead {
   color: var(--dim);
   text-decoration: line-through;
-  opacity: 0.6;
   border-color: transparent;
   background: transparent;
 }
@@ -503,13 +515,16 @@ body::before {
 }
 
 .choice-btn:focus {
-  outline: none;
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .choice-btn:focus-visible {
   border-color: var(--accent);
   background: #1a1e26;
-  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.35);
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  box-shadow: inset 0 0 0 1px rgba(209, 106, 106, 0.35);
 }
 
 .choice-btn:active {
@@ -933,7 +948,6 @@ body::before {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   color: var(--dim);
-  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1012,5 +1026,58 @@ body::before {
 
   #tone-screen {
     overflow: visible;
+  }
+}
+
+/* Browser zoom can create a short viewport wider than a phone breakpoint. */
+@media (min-width: 481px) and (max-width: 1023px) and (max-height: 700px) {
+  #scene-image-wrap,
+  #scene-image-wrap.intimate {
+    width: auto;
+    max-width: calc(100% - 12px);
+    max-height: min(48dvh, 320px);
+  }
+
+  #scene-image-wrap.minimized,
+  #scene-image-wrap.intimate.minimized {
+    max-width: calc(100% - 20px);
+    max-height: min(20dvh, 140px);
+  }
+
+  #crew-panel {
+    max-height: min(30dvh, 180px);
+  }
+
+  #tone-screen,
+  #title-screen,
+  #ending-screen {
+    min-height: 0;
+    justify-content: flex-start;
+  }
+}
+
+/* ---- 0.34 accessibility: unmistakable keyboard focus ---- */
+:where(button, input, [role="button"]):focus,
+:where(button, input, [role="button"]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+#story:focus {
+  outline: none;
+}
+
+/* ---- 0.34 accessibility: honor reduced-motion preferences ---- */
+@media (prefers-reduced-motion: reduce) {
+  #scene-image-wrap,
+  .choice-btn,
+  .btn,
+  .save-status {
+    transition: none !important;
+  }
+
+  .choice-btn:active,
+  .btn:active {
+    transform: none !important;
   }
 }
