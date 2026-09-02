@@ -968,7 +968,7 @@ function toggleCrewPanel() {
   const toggle = document.getElementById("btn-crew");
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
-    renderCrewPanel();
+    renderCrewPanel("lena");
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
     if (wrap && wrap.classList.contains("visible")) {
@@ -1018,28 +1018,31 @@ function renderCrewPanel(selectedKey) {
       (dead ? " dead" : "") +
       (!dead && favored === k ? " favored" : "") +
       (selectedKey === k ? " selected" : "");
-    return `<button type="button" class="${cls}" data-crew="${k}" aria-pressed="${selectedKey === k ? "true" : "false"}">${name}</button>`;
+    return `<button type="button" class="${cls}" data-crew="${k}" aria-label="${name} — ${dead ? "Dead" : "Alive"}" aria-pressed="${selectedKey === k ? "true" : "false"}">${name}</button>`;
   }).join("");
 
   let detail = "";
-  if (selectedKey && crew[selectedKey]) {
+  if (selectedKey && order.includes(selectedKey) && crew[selectedKey]) {
     const c = crew[selectedKey];
     const dead = !isAlive(selectedKey);
     const role = c.role && c.role !== "None" ? c.role : "No rank";
-    if (dead) {
-      const cause = state.deathCause && state.deathCause[selectedKey]
-        ? state.deathCause[selectedKey]
-        : "gone";
-      detail = `<div class="crew-detail" role="status"><strong>${c.name}</strong> · <span class="dim">${role}</span><br>Dead — ${escapeHtml(cause)}</div>`;
-    } else {
-      const bits = [role];
-      if (favored === selectedKey) bits.push("favored");
-      if (state.romance && state.romance[selectedKey]) bits.push("private line");
-      if (state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
-      detail = `<div class="crew-detail" role="status"><strong>${c.name}</strong> · ${bits.map(escapeHtml).join(" · ")}</div>`;
+    // Owner-requested read-only facts, not affinity, eligibility, or new meters.
+    const trust = state.trust && state.trust[selectedKey];
+    const trustText = Number.isFinite(trust) ? `${trust}/100` : "Not recorded";
+    const romance = [];
+    if (state.romance && state.romance[selectedKey]) romance.push("Recorded this run");
+    if ((selectedKey === "amara" || selectedKey === "tomas") && state.romance && state.romance.amara_tomas) {
+      romance.push("Shared Amara–Tomas encounter recorded");
     }
+    const cause = dead ? ((state.deathCause && state.deathCause[selectedKey]) || "gone")
+      : (state.dying && state.dying[selectedKey]);
+    const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
+    const bits = [role];
+    if (!dead && favored === selectedKey) bits.push("favored");
+    if (!dead && state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
+    detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
   } else {
-    detail = `<div class="crew-detail dim" role="status">Tap a name for status.</div>`;
+    detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
   }
 
   el.innerHTML = `<div class="crew-chips">${chips}</div>${detail}`;

@@ -12,9 +12,12 @@
 <div id="app">
 
   <section id="status" class="hidden" role="region" aria-label="Ship status">
-    <div class="stat" role="group" aria-label="Survivors">
-      <div class="stat-label" aria-hidden="true">Surv</div>
-      <div class="stat-value" id="stat-survivors">—</div>
+    <div id="crew-stat" class="stat" role="group" aria-label="Crew">
+      <button id="btn-crew" type="button" onclick="toggleCrewPanel()" title="View crew stats" aria-controls="crew-panel" aria-expanded="false">
+        <span class="stat-label">Crew</span>
+        <span class="stat-value" id="stat-survivors">—</span>
+        <span class="sr-only">survivors; view crew stats</span>
+      </button>
     </div>
     <div class="stat" role="group" aria-label="Hull integrity">
       <div class="stat-label" aria-hidden="true">Hull</div>
@@ -121,7 +124,6 @@
     <span id="save-hint" class="save-hint" aria-live="polite"></span>
     <span id="save-status" class="save-status" aria-live="polite"></span>
     <div class="meta-actions">
-      <button id="btn-crew" type="button" onclick="toggleCrewPanel()" title="Crew" aria-controls="crew-panel" aria-expanded="false">Crew</button>
       <button type="button" onclick="saveGame()" title="Save now">Save</button>
       <button type="button" onclick="loadGame()" title="Load saved run">Load</button>
     </div>
