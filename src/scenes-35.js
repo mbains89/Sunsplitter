@@ -21,7 +21,12 @@ She finally meets your eyes.
     }
   },
 
+  // PRE: after power_crisis; may precede or follow private_stores, before Deck 4
+  // WRITES: existing coolant flag, costs and lean only; return checks stores/coolant
+  // DEATH: none | DEAD SPEECH/APPEARANCE: unchanged early roster, before lethal beats
+  // IMAGE: unchanged corridor_variant.jpg; no art work
   coolant_trade: {
+    onEnter: () => { if (state.flags.coolant) return "seal_or_food"; },
     get text() {
       let t = `Mira and Lena are arguing over the same tank of coolant-grade fluid.`;
 
@@ -67,7 +72,12 @@ She finally meets your eyes.
     image: "images/corridor_variant.jpg"
   },
 
+  // PRE: both existing stores/coolant decisions completed; if coolant came
+  // first, return for stores before presenting this unchanged Deck 4 decision
+  // WRITES: existing feedstock/ship_memory choices only | DEATH: none
+  // DEAD SPEECH/APPEARANCE: unchanged early living roster | IMAGE: unchanged
   seal_or_food: {
+    onEnter: () => { if (!state.flags.stores) return "private_stores"; },
     get text() {
       let t = `A pressure seal on Deck 4 is failing in slow motion. The same fabrication feedstock can patch it for months — or be rendered into calorie paste that extends ration estimates by ten days.`;
 

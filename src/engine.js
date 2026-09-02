@@ -282,8 +282,9 @@ function showScene(id, opts) {
   }
 
   // onEnter may return a redirect scene id (avoids recursive showScene overwrite bug)
+  // Pass entry context so ordering can preserve a legacy resume's waiting offer.
   if (scene.onEnter && !opts.skipOnEnter) {
-    const redirect = scene.onEnter();
+    const redirect = scene.onEnter(opts);
     if (typeof redirect === "string" && redirect && redirect !== id) {
       showScene(redirect);
       return;

@@ -125,7 +125,27 @@ The choice is simple and ugly: comfort and visibility now, or the possibility of
       { text: "Ask Mira to invent a third option, even if it is riskier.", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 } }
     ]
   },
+  // PRE: after power_crisis, before time_pass; the original early living roster
+  // WRITES: only the existing stores choice flag/effects; entry only orders events
+  // DEATH: none | DEAD SPEECH/APPEARANCE: unchanged early roster, before lethal beats
+  // IMAGE: unchanged private_stores binding; no art work
+  // L-046 reopened narrowly by SUN-V035-PLAYTEST-MIDGAME-VARIETY-01.
+  // Roll only before an offer is rendered. state.scene persists the selected
+  // offer; sceneEntered resumes it without rolling or replaying a paid choice.
   private_stores: {
+    onEnter: (entry = {}) => {
+      if (state.flags.stores) return state.flags.coolant ? "seal_or_food" : "coolant_trade";
+      // Conservative reversal floor: at most 3 supplies for coolant plus 3
+      // for the stores exit; at most 3+9 cohesion spent, leaving 1 for Deck 4's
+      // no-supplies patch. Every legal reversed outcome retains an exit.
+      // Depleted runs retain their original order. Legacy resumes retain the
+      // already offered stores scene even without the sceneEntered marker.
+      if (!entry.resume && !state.flags.coolant && state.supplies >= 6 && state.cohesion >= 13) {
+        const coolantAvailable = scenes.coolant_trade.choices.some(c =>
+          (!c.alive || isAlive(c.alive)) && (!c.requires || meetsRequirements(c.requires)) && canAffordEffects(c.effects));
+        if (coolantAvailable && Math.random() < 0.5) return "coolant_trade";
+      }
+    },
     text: `Elias reports a problem he has been watching.
 
 Two of the remaining survivors have been holding back small private food stores. Not enough to change the math of the ship — enough to create a line between those who share and those who do not.
