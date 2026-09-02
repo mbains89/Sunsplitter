@@ -13,6 +13,9 @@ const PACKAGE_POSTURE = "PRIVATE TEST PACKAGE · NO-PUBLISH / NOT_CERTIFIED";
 const CONTENT_NOTICE_PATH = "PRIVATE_CONTENT_NOTICE.md";
 const PHONE_GUIDE_PATH = "PRIVATE_PHONE_PLAY.md";
 const PHONE_SERVER_PATH = "PRIVATE_PHONE_SERVER.mjs";
+const STORE_DRAFT_PATH = "PRIVATE_STORE_DRAFT.md";
+const SUPPORT_DRAFT_PATH = "PRIVATE_SUPPORT_DRAFT.md";
+const PRIVACY_DRAFT_PATH = "PRIVATE_PRIVACY_DRAFT.md";
 const DOS_DATE_1980_01_01 = 33;
 const UTF8_FLAG = 0x0800;
 const FILE_MODE = 0o100644;
@@ -555,7 +558,7 @@ function buildPrivatePhoneServer({ commit, tree }) {
     "  process.exit(0);",
     "}",
     "const manifest = JSON.parse(readFileSync(resolve(ROOT, \"PRIVATE_PACKAGE_MANIFEST.json\"), \"utf8\"));",
-    "if (manifest.schemaVersion !== 3 || manifest.sourceCommit !== SOURCE_COMMIT || manifest.sourceTree !== SOURCE_TREE || manifest.posture !== PACKAGE_POSTURE) {",
+    "if (manifest.schemaVersion !== 4 || manifest.sourceCommit !== SOURCE_COMMIT || manifest.sourceTree !== SOURCE_TREE || manifest.posture !== PACKAGE_POSTURE) {",
     "  throw new Error(\"package manifest identity or posture does not match this server\");",
     "}",
     "const phoneResume = manifest.phoneResume || {};",
@@ -668,6 +671,213 @@ function buildPrivatePhoneGuide({ commit, tree }) {
   return lines.join("\n");
 }
 
+function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externalFontStylesheets }) {
+  const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/"));
+  const networkApiPatterns = [
+    ["fetch", /\bfetch\s*\(/],
+    ["XMLHttpRequest", /\bXMLHttpRequest\b/],
+    ["WebSocket", /\bWebSocket\b/],
+    ["EventSource", /\bEventSource\b/],
+    ["sendBeacon", /\bsendBeacon\s*\(/],
+    ["document.cookie", /\bdocument\.cookie\b/],
+    ["geolocation", /\bnavigator\.geolocation\b/]
+  ];
+  const networkApiMatches = [];
+  const externalReferences = [];
+  for (const file of textRuntimeFiles) {
+    const text = file.data.toString("utf8");
+    for (const [name, pattern] of networkApiPatterns) {
+      if (pattern.test(text)) networkApiMatches.push({ path: file.path, api: name });
+    }
+    for (const match of text.matchAll(/https?:\/\/[^\s'"`)]+/g)) externalReferences.push({ path: file.path, url: match[0] });
+  }
+  if (networkApiMatches.length) throw new Error(`private-draft network API scan found: ${JSON.stringify(networkApiMatches)}`);
+  const expectedExternalReferences = externalFontStylesheets.map(item => ({ path: "css/style.css", url: item.url }));
+  if (JSON.stringify(externalReferences) !== JSON.stringify(expectedExternalReferences)) {
+    throw new Error(`private-draft external reference scan drifted: ${JSON.stringify(externalReferences)}`);
+  }
+  const evidenceSpecs = [
+    {
+      path: "README.md",
+      requiredStatements: [
+        "Sunsplitter is a short, grim narrative-survival browser game about commanding a damaged colonization ark after Earth's sudden cascade.",
+        "It is a static HTML/CSS/JavaScript project with no build step, backend, account system, framework, or bundler."
+      ]
+    },
+    {
+      path: "index.html",
+      requiredStatements: [
+        "Adult sexual content is permanent.",
+        "Named characters die. Deaths stick.",
+        "Choices have weight. The Future and the Living will both ask for blood."
+      ]
+    },
+    {
+      path: "src/engine.js",
+      requiredStatements: [
+        "const TONE_ACK_KEY = \"sunsplitter_tone_ack_v1\";",
+        "const SAVE_KEY = \"sunsplitter_save_v3\";",
+        "function exportSaveFile()",
+        "function requestSaveImport()"
+      ]
+    },
+    {
+      path: "css/style.css",
+      requiredStatements: externalFontStylesheets.map(item => item.url)
+    }
+  ];
+  const sourceEvidence = evidenceSpecs.map(spec => {
+    const data = blobAt(commit, spec.path, root);
+    const text = data.toString("utf8");
+    for (const statement of spec.requiredStatements) {
+      if (!text.includes(statement)) throw new Error(`private-draft evidence missing from exact source: ${spec.path} :: ${statement}`);
+    }
+    return {
+      path: spec.path,
+      gitBlob: git(["rev-parse", `${commit}:${spec.path}`], { root }),
+      bytes: data.length,
+      sha256: sha256(data),
+      observedStatements: spec.requiredStatements
+    };
+  });
+  const commonHeader = title => [
+    `# Sunsplitter — ${title}`,
+    "",
+    `SOURCE \`${REPOSITORY}@${commit}\``,
+    `TREE \`${tree}\``,
+    `PACKAGE VERSION \`${version || "UNAVAILABLE"}\``,
+    "",
+    `**Status:** DRAFT · NON-PUBLIC · ${PACKAGE_POSTURE}.`,
+    "**Use:** NOT FOR PUBLICATION.",
+    ""
+  ];
+  const store = [
+    ...commonHeader("Non-Public Store Copy Draft"),
+    "Internal review copy only. It is not a live listing, submission, offer for sale, publication authorization, certification, or rights-clearance statement.",
+    "",
+    "## Draft listing copy",
+    "",
+    "**Title:** Sunsplitter",
+    "",
+    "**Short description:** Command a damaged colonization ark after Earth's sudden cascade. Decide what—and who—the last ship will carry forward.",
+    "",
+    "**Long description:**",
+    "",
+    "Sunsplitter is a short, grim narrative-survival browser game. You are the Commander of a damaged colonization ark built for thousands; nine people cleared the hatch after Earth failed.",
+    "",
+    "The Future and the Living both make demands. Resources gate choices, early orders return later, named characters can die, and the ending reflects the run you actually played.",
+    "",
+    "This exact private candidate runs in a browser, includes a private phone-opening path, keeps saves locally, and contains permanent adult sexual content alongside death, medical trauma, grief, reproductive themes, and lethal command decisions. The accompanying content notice gives the current source-grounded draft descriptors.",
+    "",
+    "## Draft feature bullets",
+    "",
+    "- Choice-driven narrative survival with persistent consequences.",
+    "- Local save and Continue in the same browser.",
+    "- Private phone-opening instructions; later PC-readiness claims are not made here.",
+    "- Adult content is permanent; there is no reduced-content mode.",
+    "",
+    "## Required companion material",
+    "",
+    `- Content details: \`${CONTENT_NOTICE_PATH}\`.`,
+    "- Exact package identity and evidence inventory: `PRIVATE_PACKAGE_MANIFEST.json` and `PRIVATE_PACKAGE_INVENTORY.md`.",
+    `- Private phone opening instructions: \`${PHONE_GUIDE_PATH}\`.`,
+    "",
+    "## Parked for 0.39",
+    "",
+    "- Storefront-specific fields, current platform rules, and submission review.",
+    "- Commercial terms, payment configuration, business/tax decisions, and public launch timing.",
+    "- Final adult classification, generative-AI disclosure, cover/screenshots, and marketing claims.",
+    "- Font, asset, and third-party rights evidence; the current inventory records gaps and does not grant clearance.",
+    "- Final support and privacy contacts plus owner/legal review.",
+    ""
+  ].join("\n");
+  const support = [
+    ...commonHeader("Non-Public Support Draft"),
+    "Internal support-response draft for this exact private package. No support channel, service level, refund policy, or commercial availability is promised.",
+    "",
+    "## Before play",
+    "",
+    "1. Keep the ZIP and its `.sha256` sidecar together and verify the checksum before extracting.",
+    `2. Follow \`${PHONE_GUIDE_PATH}\` for the private phone path. Do not open \`index.html\` directly from Files, Downloads, Quick Look, or a \`file://\` address.`,
+    "3. Use a regular browser window, keep the same full web address, and do not clear browser/site data if you need the local Continue slot.",
+    "",
+    "## Draft troubleshooting replies",
+    "",
+    "### The checksum does not match",
+    "",
+    "Stop. Do not extract or run the ZIP. Ask the sender for a clean copy and checksum.",
+    "",
+    "### The phone cannot open a printed address",
+    "",
+    "Confirm the phone and computer are on the same trusted private network, keep the server window open, and try each printed private address. Do not forward the port or use public Wi-Fi. If none works, stop and ask the sender for help.",
+    "",
+    "### Continue is missing",
+    "",
+    "Return to the exact same full address in the same regular browser. A different address, browser, Private/Incognito window, cleared site data, or automatic browser cleanup has a different or missing local save.",
+    "",
+    "### The package reports damaged or mismatched files",
+    "",
+    "Stop the server. Keep every extracted file together, verify the original ZIP checksum again, and extract a clean copy. Do not replace individual files.",
+    "",
+    "## Draft issue report fields",
+    "",
+    "- Copy the `SOURCE` line from this draft and the ZIP SHA-256 checksum.",
+    "- Device, operating system, browser, and browser version.",
+    "- Exact step that failed and the visible error text.",
+    "- Whether this was a new run, Continue, export, or import.",
+    "- Do not send a save file or screenshot unless the sender separately asks for it to reproduce the problem. Hide private addresses and personal information first.",
+    "",
+    "## Draft contact route",
+    "",
+    "For this private test, use the same private handoff channel through which you received the package. No public support address or response time is established here.",
+    "",
+    "## Parked for 0.39",
+    "",
+    "Support contact, hours, response target, refund/payment handling, accessibility escalation, known-bugs publication, and platform-specific procedures remain owner/policy decisions.",
+    ""
+  ].join("\n");
+  const privacy = [
+    ...commonHeader("Private Package Data Notes Draft"),
+    "Internal review draft only. It is not a published legal policy, legal advice, or a claim about any future storefront, public host, download provider, browser, device, operating system, or network operator.",
+    "",
+    "## Exact private-package behavior",
+    "",
+    "- The packaged game is static HTML, CSS, and JavaScript with no account system or backend. No analytics or telemetry integration was observed in the inspected runtime files.",
+    "- The manifest's static scan covers every packaged text runtime file, checks named browser networking/data APIs and literal HTTP(S) references, and records the exact matches. It is not a comprehensive privacy audit.",
+    "- Normal play stores the content-notice acknowledgement and game save in that browser's local storage. No upload or sync behavior was observed in the inspected runtime files.",
+    "- Save export creates a JSON file only when the player requests it. Save import reads the file the player selects and validates it before replacing a valid save.",
+    "- The included private server uses HTTP, not HTTPS. It serves only included game files on a trusted local network, has no authentication, accepts no uploads, writes no application request log, and blocks the game page from making off-computer connections.",
+    "- The tracked CSS contains an external font stylesheet reference. The included private server blocks that request and uses system fallback fonts; another opening method may let the browser attempt the external request.",
+    "",
+    "## Player control and retention",
+    "",
+    "- Browser-stored values remain locally until they are replaced or removed by game actions, player browser controls, or browser/device cleanup. Automatic transmission or receipt of those local values was not observed in the inspected game and server files.",
+    "- Exported save files remain wherever the player chooses to store or share them. Automatic receipt of exported saves was not observed in the inspected game and server files.",
+    "- Stopping the private server ends the package's local-network availability. The server does not provide an account, cloud save, upload route, or public hosting service.",
+    "",
+    "## Scope boundary",
+    "",
+    "The method used to send the ZIP is outside this package and may have its own privacy terms. Browser, operating-system, network, security-software, and future storefront processing must be reviewed separately before any public release.",
+    "",
+    "## Parked for 0.39",
+    "",
+    "Final owner/legal review, privacy and support contacts, jurisdiction-specific notices, platform/processor disclosures, public-host behavior, retention/request procedures, and rights evidence are unset. This draft does not declare them complete.",
+    ""
+  ].join("\n");
+  return {
+    store,
+    support,
+    privacy,
+    sourceEvidence,
+    sourceScan: {
+      inspectedTextPaths: textRuntimeFiles.map(file => file.path),
+      networkApiMatches,
+      externalReferences
+    },
+    gapsParkedFor: "0.39"
+  };
+}
+
 function buildInventory({ commit, tree, runtimeFiles, allAssetFiles, allTrackedPaths, cssText }) {
   const includedPaths = new Set(runtimeFiles.map(file => file.path));
   const firstAssetByHash = new Map();
@@ -759,7 +969,7 @@ function buildInventory({ commit, tree, runtimeFiles, allAssetFiles, allTrackedP
     "",
     "## Deliberate exclusions",
     "",
-    "The private player package excludes Git metadata, untracked files, `.netlify/`, `netlify.toml`, workflows, repository scripts, source-governance artifacts, store/price material, and tracked images with no static literal runtime reference under the declared extraction method. Exclusion does not call an asset unused, delete it, or rewrite repository bytes.",
+    "The private player package excludes Git metadata, untracked files, `.netlify/`, `netlify.toml`, workflows, repository scripts, source-governance artifacts, commercial terms, live-listing configuration, and tracked images with no static literal runtime reference under the declared extraction method. The generated non-public store/support/privacy drafts are the package's only listing-policy material. Exclusion does not call an asset unused, delete it, or rewrite repository bytes.",
     ""
   );
   return { text: lines.join("\n"), fontFiles, licenseFiles, imports, assetRows };
@@ -808,6 +1018,19 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const contentNoticeData = Buffer.from(contentNotice.text, "utf8");
   const phoneServerData = Buffer.from(buildPrivatePhoneServer({ commit, tree }), "utf8");
   const phoneGuideData = Buffer.from(buildPrivatePhoneGuide({ commit, tree }), "utf8");
+  const version = runtimeFiles.find(file => file.path === "VERSION.md")?.data.toString("utf8").trim() || null;
+  const versionLabel = version?.split(/\r?\n/).find(line => line.trim())?.trim() || null;
+  const privateDrafts = buildPrivateDrafts({
+    commit,
+    tree,
+    version: versionLabel,
+    root,
+    runtimeFiles,
+    externalFontStylesheets: inventory.imports
+  });
+  const storeDraftData = Buffer.from(privateDrafts.store, "utf8");
+  const supportDraftData = Buffer.from(privateDrafts.support, "utf8");
+  const privacyDraftData = Buffer.from(privateDrafts.privacy, "utf8");
   const payloadFiles = runtimeFiles.map(file => ({
     packagePath: file.path,
     sourcePath: file.path,
@@ -818,12 +1041,12 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     dimensions: file.dimensions
   }));
   const manifest = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     repository: REPOSITORY,
     sourceCommit: commit,
     sourceTree: tree,
     posture: PACKAGE_POSTURE,
-    version: runtimeFiles.find(file => file.path === "VERSION.md")?.data.toString("utf8").trim() || null,
+    version,
     canonicalZip: {
       compression: "store",
       pathOrder: "UTF-8 bytewise ascending",
@@ -861,6 +1084,39 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
       saveSchemaVersion: 3,
       ownerPhysicalProofRequired: true
     },
+    privateDrafts: {
+      status: "DRAFT_PRIVATE_METADATA_ONLY",
+      scope: "PRIVATE_PACKAGE_ONLY",
+      sourceCommit: commit,
+      sourceTree: tree,
+      store: { path: STORE_DRAFT_PATH, bytes: storeDraftData.length, sha256: sha256(storeDraftData) },
+      support: { path: SUPPORT_DRAFT_PATH, bytes: supportDraftData.length, sha256: sha256(supportDraftData) },
+      privacy: { path: PRIVACY_DRAFT_PATH, bytes: privacyDraftData.length, sha256: sha256(privacyDraftData) },
+      sourceEvidence: privateDrafts.sourceEvidence,
+      sourceScan: privateDrafts.sourceScan,
+      publicationStatus: "NOT_AUTHORIZED",
+      storefrontSubmissionStatus: "NOT_SUBMITTED",
+      price: null,
+      paymentStatus: "NOT_OFFERED_IN_THIS_DRAFT",
+      certificationStatus: "NOT_CERTIFIED",
+      rightsClearanceStatus: "NOT_EVIDENCED_IN_REPOSITORY",
+      platformPolicyStatus: "DEFERRED_TO_0_39_SUBMISSION_TIME_RECHECK",
+      privacyReviewStatus: "DRAFT_STATIC_BUILD_OBSERVATIONS_ONLY",
+      legalReviewStatus: "NOT_RECORDED",
+      publicUrl: null,
+      supportContact: null,
+      privacyContact: null,
+      gapsParkedFor: privateDrafts.gapsParkedFor,
+      claimLimits: [
+        "NO_PUBLICATION_AUTHORIZED",
+        "NO_STOREFRONT_SUBMISSION",
+        "NO_PRICE_OR_PAYMENT_TERMS",
+        "NO_CERTIFICATION_CLAIM",
+        "NO_RIGHTS_CLEARANCE_CLAIM",
+        "NO_PLATFORM_POLICY_VERIFICATION",
+        "NO_COMPREHENSIVE_PRIVACY_PROMISE"
+      ]
+    },
     adultClassificationDraft: contentNotice.adultClassificationDraft,
     inventory: {
       path: "PRIVATE_PACKAGE_INVENTORY.md",
@@ -891,6 +1147,9 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     { path: CONTENT_NOTICE_PATH, data: contentNoticeData },
     { path: PHONE_GUIDE_PATH, data: phoneGuideData },
     { path: PHONE_SERVER_PATH, data: phoneServerData },
+    { path: STORE_DRAFT_PATH, data: storeDraftData },
+    { path: SUPPORT_DRAFT_PATH, data: supportDraftData },
+    { path: PRIVACY_DRAFT_PATH, data: privacyDraftData },
     { path: "PRIVATE_PACKAGE_INVENTORY.md", data: inventoryData },
     { path: "PRIVATE_PACKAGE_MANIFEST.json", data: manifestData }
   ];
@@ -904,12 +1163,18 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const contentNoticePath = `${absoluteOutput}.content-notice.md`;
   const phoneGuidePath = `${absoluteOutput}.phone-play.md`;
   const phoneServerPath = `${absoluteOutput}.phone-server.mjs`;
+  const storeDraftPath = `${absoluteOutput}.store-draft.md`;
+  const supportDraftPath = `${absoluteOutput}.support-draft.md`;
+  const privacyDraftPath = `${absoluteOutput}.privacy-draft.md`;
   const manifestPath = `${absoluteOutput}.manifest.json`;
   writeFileSync(checksumPath, `${archiveHash}  ${basename(absoluteOutput)}\n`, "utf8");
   writeFileSync(inventoryPath, inventoryData);
   writeFileSync(contentNoticePath, contentNoticeData);
   writeFileSync(phoneGuidePath, phoneGuideData);
   writeFileSync(phoneServerPath, phoneServerData);
+  writeFileSync(storeDraftPath, storeDraftData);
+  writeFileSync(supportDraftPath, supportDraftData);
+  writeFileSync(privacyDraftPath, privacyDraftData);
   writeFileSync(manifestPath, manifestData);
   return {
     repository: REPOSITORY,
@@ -921,6 +1186,9 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     contentNoticePath,
     phoneGuidePath,
     phoneServerPath,
+    storeDraftPath,
+    supportDraftPath,
+    privacyDraftPath,
     manifestPath,
     archiveSha256: archiveHash,
     archiveBytes: archive.length,
@@ -929,6 +1197,9 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
     contentNoticeBytes: contentNoticeData.length,
     phoneGuideBytes: phoneGuideData.length,
     phoneServerBytes: phoneServerData.length,
+    storeDraftBytes: storeDraftData.length,
+    supportDraftBytes: supportDraftData.length,
+    privacyDraftBytes: privacyDraftData.length,
     adultClassificationDescriptors: contentNotice.adultClassificationDraft.descriptors.length,
     packagedAssets: inventory.assetRows.filter(file => file.packageIncluded).length,
     inventoriedAssets: inventory.assetRows.length,
