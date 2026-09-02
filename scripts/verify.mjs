@@ -1715,6 +1715,41 @@ function lenaIntimacyImageTruthChecks(runtime) {
   return errors;
 }
 
+function tetherRushImageTruthChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => ({
+    sighting: {
+      mapped: sceneImages.act2_tether_sighting,
+      declared: scenes.act2_tether_sighting.image,
+      resolved: resolveSceneImage("act2_tether_sighting", scenes.act2_tether_sighting)
+    },
+    rush: {
+      mapped: sceneImages.act2_tether_rush,
+      declared: scenes.act2_tether_rush.image,
+      resolved: resolveSceneImage("act2_tether_rush", scenes.act2_tether_rush)
+    }
+  }))()`);
+  const expected = {
+    sighting: "images/debris_field.jpg",
+    rush: "images/tether_ride.jpg"
+  };
+
+  for (const [scene, image] of Object.entries(expected)) {
+    for (const field of ["mapped", "declared", "resolved"]) {
+      if (fixture[scene]?.[field] !== image) {
+        errors.push(`act2_tether_${scene} ${field} image is ${fixture[scene]?.[field] || "missing"}; expected ${image}`);
+      }
+    }
+  }
+  if (fixture.sighting.resolved === fixture.rush.resolved) {
+    errors.push("act2_tether_rush still repeats the act2_tether_sighting plate");
+  }
+  const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, expected.rush))).digest("hex");
+  const expectedHash = "7961187200068efe1938de5a110d0a30f673be212e8aaf0694e0650e3a506c34";
+  if (actualHash !== expectedHash) errors.push(`locked tether ride plate drifted: ${expected.rush} sha256=${actualHash}`);
+  return errors;
+}
+
 function vessHairCanonChecks(runtime) {
   const errors = [];
   const boardingText = runtime.evaluate(`String(scenes.vess_boarding.text())`);
@@ -3512,6 +3547,10 @@ async function main() {
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
     failures.push(...lenaIntimacyImageTruthErrors);
+
+    const tetherRushImageTruthErrors = tetherRushImageTruthChecks(runtime);
+    printCheck("0.33 tether rush distinct locked-plate truth", tetherRushImageTruthErrors);
+    failures.push(...tetherRushImageTruthErrors);
 
     const vessHairCanonErrors = vessHairCanonChecks(runtime);
     printCheck("Vess boarding hair canon", vessHairCanonErrors);
