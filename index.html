@@ -71,9 +71,9 @@
       <h1 class="game-title" id="title-heading" tabindex="-1">Sunsplitter</h1>
       <div class="game-subtitle" id="game-subtitle">v0.33</div>
       <div class="prologue">
-        Earth failed in a cascade measured in hours.<br><br>
-        The <em>Sunsplitter</em> was a colonization ark — built for thousands. Nine of you cleared the hatch.<br><br>
-        You are the Commander. The ship is damaged. The living are already arguing about what to save.
+        <p id="intro-line-1">Earth failed in a cascade measured in hours.</p>
+        <p id="intro-line-2">The <em>Sunsplitter</em> was a colonization ark — built for thousands. Nine of you cleared the hatch.</p>
+        <p id="intro-line-3">You are the Commander. The ship is damaged. The living are already arguing about what to save.</p>
       </div>
       <p class="title-contract">
         Choices have weight. The Future and the Living will both ask for blood.
@@ -90,6 +90,22 @@
         <p id="title-save-status" class="title-save-status" aria-live="polite"></p>
       </div>
     </div>
+
+    <section id="cinematic-screen" class="hidden" aria-labelledby="cinematic-heading">
+      <img id="cinematic-image" alt="" decoding="async" />
+      <div id="cinematic-body" class="cinematic-body">
+        <h1 id="cinematic-heading" tabindex="-1"></h1>
+        <div class="cinematic-caption" aria-live="polite" aria-atomic="true">
+          <p id="cinematic-text"></p>
+          <p id="cinematic-progress"></p>
+        </div>
+      </div>
+      <div class="cinematic-actions" role="group" aria-label="Cinematic controls">
+        <button id="cinematic-pause" class="btn" type="button" onclick="toggleCinematicPause()" aria-pressed="false">Pause</button>
+        <button id="cinematic-next" class="btn" type="button" onclick="advanceCinematic()">Next</button>
+        <button id="cinematic-skip" class="btn btn-primary" type="button" onclick="finishCinematic()">Skip</button>
+      </div>
+    </section>
 
     <div id="game-screen" class="hidden" aria-labelledby="scene-heading">
       <h1 id="scene-heading" class="sr-only">Current scene</h1>

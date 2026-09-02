@@ -1099,8 +1099,69 @@ body::before {
   outline: none;
 }
 
+.prologue p + p { margin-top: 1.55em; }
+
+/* 0.35 still-image beats: controls never share the text scroller. */
+#main.cinematic-active { padding: 0; max-width: none; overflow: hidden; }
+#cinematic-screen {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  background: #08090b;
+}
+#cinematic-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  animation: cinematic-drift 18s ease-out both;
+}
+#cinematic-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(8,9,11,.68), rgba(8,9,11,.78) 42%, #08090b);
+}
+.cinematic-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding: clamp(24px, 8vh, 80px) 24px 24px;
+  color: #e8ebef;
+}
+#cinematic-heading {
+  font: 1.6rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin: 0 auto 2rem;
+  max-width: 36rem;
+}
+.cinematic-caption { max-width: 36rem; margin: 0 auto; font-size: 1.1rem; line-height: 1.7; }
+#cinematic-progress { margin-top: 1.5rem; font: .85rem var(--font-mono); }
+.cinematic-actions {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 16px;
+  background: #08090b;
+}
+.cinematic-actions .btn { width: 100%; min-width: 0; margin: 0; white-space: normal; }
+#cinematic-skip { grid-column: 1 / -1; }
+.cinematic-paused #cinematic-image { animation-play-state: paused; }
+@keyframes cinematic-drift { from { opacity: .65; transform: scale(1); } to { opacity: 1; transform: scale(1.025); } }
+
 /* ---- 0.34 accessibility: honor reduced-motion preferences ---- */
 @media (prefers-reduced-motion: reduce) {
+  #cinematic-image { animation: none !important; }
   #scene-image-wrap,
   .choice-btn,
   .btn,

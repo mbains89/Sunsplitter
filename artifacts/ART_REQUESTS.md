@@ -1,5 +1,11 @@
 # Sunsplitter — Art Requests
 
+## SUN-V035-PLAYTEST-CINEMATICS-01 — existing-screen aliases only
+
+- Intro beat: byte-identical `images/onboarding_background.jpg`, already used by the content-notice screen. Empty rectangular corridor and stars, no identifiable crew. Reused before fresh `wake`; no new plate.
+- Ending beat: the same byte-identical `images/onboarding_background.jpg` as a neutral visual bookend, with the actual resolved ending title/text. No crew, outcome or numerical HUD assertion in the cinematic art. The existing ending screen and its selected art are unchanged.
+- Presentation-only aliases, skippable; no asset edits, generation, new identity approval, or ART-R2 gate credit.
+
 **Last updated:** 2026-08-16  
 **Hard goal:** 100% of scenes have unique (or clearly distinct + fitting) art  
 **Style lock:** grimdark × cyberpunk — decaying high-tech, crimson/cyan neon, atmospheric haze, attractive but grounded characters  
