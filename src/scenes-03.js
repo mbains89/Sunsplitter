@@ -117,7 +117,8 @@ Her hand is close to yours. The ship is quiet around you.`;
   // PRE: Lena living; reached from lena_dying before the intimacy decision
   // WRITES: choices only; scene entry writes nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena gets the empty-blister exit
-  // IMAGE: REUSE images/shower_lena.jpg via sceneImages; solo Lena, Commander absent; L-025 audited
+  // IMAGE: REUSE images/observation_bridge_alt_2.jpg; person-free observation blister,
+  //   clothed/unresolved, Commander absent. The later optional rinse stays on lena_shower.
   romance_lena_1: {
     get text() {
       if (!isAlive("lena")) return `The blister is empty. Whatever might have happened here has nowhere to land.`;
@@ -136,7 +137,8 @@ The observation blister is cold. The ship is quiet. The line between comfort and
         { text: "Hold her hand only. Stay present without sex.", next: "past_leak", effects: { cohesion: 4 }, affinity: { lena: 12 }, trust: { lena: 10 }, mark: { lena: "held_only" } },
         { text: "Step back. You will not take this from her fear.", next: "past_leak", effects: { cohesion: 1 }, affinity: { lena: 4 }, trust: { lena: 2 }, mark: { lena: "declined" } }
       ];
-    }
+    },
+    image: "images/observation_bridge_alt_2.jpg"
   },
 
 });

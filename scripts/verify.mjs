@@ -2270,6 +2270,42 @@ function rourkeDyingImageHonestyChecks(runtime) {
   return errors;
 }
 
+function romanceLena1ImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/observation_bridge_alt_2.jpg";
+  const forbidden = "images/shower_lena.jpg";
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "romance_lena_1";
+    const before = JSON.stringify(state);
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      showerMapped: sceneImages.lena_shower,
+      showerResolved: resolveSceneImage("lena_shower", scenes.lena_shower),
+      sexResolved: resolveSceneImage("romance_lena_sex", scenes.romance_lena_sex)
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("romance_lena_1 image resolve wrote run state");
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`romance_lena_1 ${field} still uses the premature shower plate ${forbidden}`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`romance_lena_1 ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  if (fixture.showerMapped !== forbidden || fixture.showerResolved !== forbidden) {
+    errors.push("lena_shower lost its later rinse plate");
+  }
+  if (fixture.sexResolved !== "images/afterglow_lena.jpg") {
+    errors.push(`romance_lena_sex resolved to ${fixture.sexResolved || "missing"}; expected images/afterglow_lena.jpg`);
+  }
+  return errors;
+}
+
 function lenaIntimacyImageTruthChecks(runtime) {
   const errors = [];
   const expected = {
@@ -4960,6 +4996,10 @@ async function main() {
     const rourkeDyingImageErrors = rourkeDyingImageHonestyChecks(runtime);
     printCheck("dying Rourke image honesty", rourkeDyingImageErrors);
     failures.push(...rourkeDyingImageErrors);
+
+    const romanceLena1ImageTruthErrors = romanceLena1ImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-LENA-01 clothed blister plate", romanceLena1ImageTruthErrors);
+    failures.push(...romanceLena1ImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
