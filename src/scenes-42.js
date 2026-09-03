@@ -3,6 +3,11 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // SUN-V035-PLAYTEST-MALE-CREW-01: accepted bond now includes a zero-write follow-through.
+  // PRE: living Elias via crew_walk / act3_spine_next. WRITES: existing choice
+  // affinity/trust/cohesion/marks/memories only; none added. DEATH: none.
+  // DEAD SPEECH/APPEARANCE: original living-gated entry; follow-through guards its own renders.
+  // IMAGE: unchanged bond_elias.jpg. CHRONOLOGY: VC-02 / VC-09, same quiet interval.
   bond_elias: {
     text: `Elias does not do small talk. He does, apparently, keep a sealed bulb of something that was never ship-issue.
 
@@ -15,8 +20,8 @@ He does not ask for your past. He does not offer his. He lets the shared quiet b
       // 0.23.3: early exit stays lead_prompt; post-vault (recovered path) returns to act3_spine_next
       const next = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
       return [
-        { text: "Drink. Let the quiet stand without turning it into a briefing.", next, affinity: { elias: 12 }, trust: { elias: 10 }, effects: { cohesion: 2 }, mark: { elias: "bonded" }, remember: "Elias shared a non-regulation drink and Rourke's name without demanding anything back." },
-        { text: "Ask one question about what he was before the lists.", next, affinity: { elias: 8 }, trust: { elias: 8 }, effects: { cohesion: 1 }, mark: { elias: "bonded" }, remember: "Elias admitted he was selection security long before the cascade — the lists were always his language." },
+        { text: "Drink. Let the quiet stand without turning it into a briefing.", next: "bond_elias_mending", affinity: { elias: 12 }, trust: { elias: 10 }, effects: { cohesion: 2 }, mark: { elias: "bonded" }, remember: "Elias shared a non-regulation drink and Rourke's name without demanding anything back." },
+        { text: "Ask one question about what he was before the lists.", next: "bond_elias_mending", affinity: { elias: 8 }, trust: { elias: 8 }, effects: { cohesion: 1 }, mark: { elias: "bonded" }, remember: "Elias admitted he was selection security long before the cascade — the lists were always his language." },
         { text: "Leave the bulb untouched. You will not soften this chain of command.", next, affinity: { elias: 2 }, mark: { elias: "bond_skipped" } }
       ];
     },
@@ -41,6 +46,11 @@ He does not recruit you. He plays the next card.`,
     image: "images/bond_tomas.jpg"
   },
 
+  // SUN-V035-PLAYTEST-MALE-CREW-01: accepted bond now includes a zero-write follow-through.
+  // PRE: living, recovered Jiro via existing bond entry. WRITES: existing choice
+  // affinity/trust/integrity/cohesion/marks/memories only; none added. DEATH: none.
+  // DEAD SPEECH/APPEARANCE: original living-gated entry; follow-through guards its own renders.
+  // IMAGE: unchanged bond_jiro.jpg. CHRONOLOGY: VC-09, same quiet interval; recovery ledger applies.
   bond_jiro: {
     text: `Jiro is recalibrating the star tracker against a catalog that no longer matches the sky.
 
@@ -52,12 +62,90 @@ He shows you a fix that is almost elegant. Competence as company.`,
     get choices() {
       const next = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
       return [
-        { text: "Sit the stool. Help with the dull part of the calibration.", next, affinity: { jiro: 12 }, trust: { jiro: 10 }, effects: { integrity: 2, cohesion: 2 }, mark: { jiro: "bonded" }, remember: "Jiro let you into the dull half of a star fix. He trained for a crew of eight." },
-        { text: "Ask what heading he would choose if the commander were silent.", next, affinity: { jiro: 8 }, trust: { jiro: 8 }, effects: { cohesion: 1 }, mark: { jiro: "bonded" }, remember: "Jiro said if command went silent he would still hold a usable fix — not a destination, a refusal to be lost." },
+        { text: "Sit the stool. Help with the dull part of the calibration.", next: "bond_jiro_distance", affinity: { jiro: 12 }, trust: { jiro: 10 }, effects: { integrity: 2, cohesion: 2 }, mark: { jiro: "bonded" }, remember: "Jiro let you into the dull half of a star fix. He trained for a crew of eight." },
+        { text: "Ask what heading he would choose if the commander were silent.", next: "bond_jiro_distance", affinity: { jiro: 8 }, trust: { jiro: 8 }, effects: { cohesion: 1 }, mark: { jiro: "bonded" }, remember: "Jiro said if command went silent he would still hold a usable fix — not a destination, a refusal to be lost." },
         { text: "Leave him the work. You are not nav.", next, affinity: { jiro: 2 }, mark: { jiro: "bond_skipped" } }
       ];
     },
     image: "images/bond_jiro.jpg"
+  },
+
+  // SCENE: bond_elias_mending | TICKET: SUN-V035-PLAYTEST-MALE-CREW-01
+  // PRE: either accepting bond_elias choice; isAlive("elias") at render.
+  // WRITES: none beyond normal scene/save navigation; no new marks or rewards.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: live text + portrait guards; neutral fallback.
+  // IMAGE: byte-identical elias.jpg alias; absent fallback onboarding_background.jpg.
+  // CHRONOLOGY: VOYAGE_CHRONOLOGY VC-02 / VC-09 @ fed798c; ends the same quiet interval.
+  bond_elias_mending: {
+    get image() { return isAlive("elias") ? "images/elias.jpg" : "images/onboarding_background.jpg"; },
+    text: () => {
+      if (!isAlive("elias")) return "The chair is empty. There is no conversation to finish. The ship's work remains.";
+      // Preserve the already-authored unmended-jacket consequence, not a new reconciliation.
+      if (!isAlive("mira") && attributableDeath("mira")) {
+        return `A work jacket lies folded beside Elias. The cuff is split. A needle rests across the open seam.
+
+He sees you looking.
+
+"Not tonight, Commander."
+
+He folds the jacket over the needle. You leave it where it is.`;
+      }
+      return `Before you leave, Elias draws a work jacket across his knees. The cuff has opened along an old seam. He puts the needle through where the previous stitches held.
+
+"Hold the edge, Commander."
+
+You hold it. His stitches are small and close, the knot buried where it will not catch on a hatch. He tests the seam with both thumbs.
+
+"You do all of them?" you ask.
+
+"The torn ones."
+
+There is no list beside the jacket. You have seen him keep lists for less.
+
+He folds it with the repaired cuff on top.
+
+"Leave it on the chair. They know where to look."
+
+For once, he has given you a task that ends when it is done.`;
+    },
+    get choices() {
+      return [{ text: "Return to the ship's work.", next: state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" }];
+    }
+  },
+
+  // SCENE: bond_jiro_distance | TICKET: SUN-V035-PLAYTEST-MALE-CREW-01
+  // PRE: either accepting bond_jiro choice; isAlive("jiro") checks recovery and death live.
+  // WRITES: none beyond normal scene/save navigation; no new marks or rewards.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: live text + portrait guards; neutral fallback.
+  // IMAGE: byte-identical jiro.jpg alias; absent fallback onboarding_background.jpg.
+  // CHRONOLOGY: VOYAGE_CHRONOLOGY VC-09 + recovery ledger @ fed798c; no new elapsed-time claim.
+  bond_jiro_distance: {
+    get image() { return isAlive("jiro") ? "images/jiro.jpg" : "images/onboarding_background.jpg"; },
+    text: () => {
+      if (!isAlive("jiro")) return "The second stool is empty. The chart stays where it was left. There is no conversation to finish.";
+      return `As you get up, you ask Jiro how far it is to the common area.
+
+"Forty seconds. Fifty if the hatch sticks."
+
+You repeat the estimate. He looks up from the chart.
+
+"Most people ask for meters."
+
+"You don't."
+
+His thumb trembles against the paper. He presses it flat without comment.
+
+"Meters don't tell you whether someone will still be there."
+
+You leave the second stool pulled out. He reaches to put it away, then stops.
+
+"Forty seconds back," he says. "The hatch only sticks on the way out."
+
+It is the first route he has given you with the return journey included without being asked.`;
+    },
+    get choices() {
+      return [{ text: "Leave the second stool out. Return to duty.", next: state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" }];
+    }
   },
 
   lead_prompt: {

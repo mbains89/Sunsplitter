@@ -1,5 +1,12 @@
 # Sunsplitter — Art Requests
 
+## SUN-V035-PLAYTEST-MALE-CREW-01 — existing-portrait aliases only
+
+- `bond_elias_mending` → byte-identical `images/elias.jpg`, the existing official Elias portrait. One identifiable man, rectangular interior, neutral/cold character focus; early or post-vault accepted Elias bond only while alive.
+- `bond_jiro_distance` → byte-identical `images/jiro.jpg`, the existing official Jiro portrait. One identifiable man, rectangular interior, neutral/cold character focus; accepted Jiro bond after recovery only while alive.
+- Both saved absent/dead renders → existing crew-free `images/onboarding_background.jpg`. The portrait is a character focus, not an illustration claiming to show stitching or a navigation procedure.
+- No new or edited images, generation, new identity ruling, or ART-R2 gate credit. Existing bond-entry art is unchanged.
+
 ## SUN-V035-PLAYTEST-CINEMATICS-01 — existing-screen aliases only
 
 - Intro beat: byte-identical `images/onboarding_background.jpg`, already used by the content-notice screen. Empty rectangular corridor and stars, no identifiable crew. Reused before fresh `wake`; no new plate.
