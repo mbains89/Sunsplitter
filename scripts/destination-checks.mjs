@@ -62,12 +62,12 @@ function exerciseDestination(fixtures, mode) {
     const hold = choices.find(c => c.flag.final === "hold");
     const oldLabels = {
       jiro: "Hold course for the rogue planet. We finish what we started.",
-      mira: "Hold course — Mira can keep the drive honest even without Jiro's full voice.",
+      mira: "Hold course — Mira can keep the drive honest.",
       rough: "Hold course anyway. Navigation will be rougher without full crew buy-in."
     };
     const newLabels = {
       jiro: "Set course for the rogue planet.",
-      mira: "Set course for the rogue planet — Mira can keep the drive honest even without Jiro's full voice.",
+      mira: "Set course for the rogue planet — Mira can keep the drive honest.",
       rough: "Set course for the rogue planet anyway. Navigation will be rougher without full crew buy-in."
     };
     expect(hold.text === (committed ? oldLabels : newLabels)[navBranch()], "course label contradicts setup");
