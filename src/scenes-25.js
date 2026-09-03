@@ -41,6 +41,11 @@ registerScenes({
     choices: [ { text: "Let the private hour begin.", next: "offshift_open" } ]
   },
 
+  // SUN-V035-PLAYTEST-JOIN-TYPO-01: paragraph boundary only; no prose/mechanics changes.
+  // PRE: resolved crisisPath + junctionChoice; existing redirects remain otherwise.
+  // WRITES: entry/render none; choices retain resource deltas, flags.reckon and ideology.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: existing isAlive/voicesFor/debtors guards retained.
+  // IMAGE: REUSE images/corridor_variant.jpg; no art work.
   faction_split: {
     onEnter: () => {
       if (state.crisisPath == null) return "act3_crisis_router"; // existing 0.26
@@ -93,7 +98,7 @@ registerScenes({
       }
       if (isAlive("elias")) t += `Elias has begun keeping his own informal watch list.`;
       if (isAlive("amara")) t += ` Amara has stopped pretending the hydroponics bay is only about food.`;
-      t += `\n\nYou can feel the lines hardening. The next order will not be answered the same way by everyone.`;
+      t += `\n\nYou can feel the lines hardening. The next order will not be answered the same way by everyone.\n\n`;
       
       if (state.flags.cascade_truth === "open") t += `The cascade records are out. Trust is a different shape now.\n\n`;
       else if (state.flags.cascade_truth === "sealed") t += `You sealed the cascade records. Someone will unseal them eventually.\n\n`;
@@ -143,7 +148,7 @@ registerScenes({
       if (state.supplies <= 0) t += `Supplies are at zero. The next real expenditure will come out of bodies or hull.\n\n`;
       else if (state.supplies <= 8) t += `Supplies are thin enough that every request is already an argument.\n\n`;
 
-return t;
+      return t.trimEnd();
     },
     choices: [
       { text: "Call them together and force the fracture into the open.", next: "reckon_summary", effects: { cohesion: -3, integrity: -2 }, lean: { living: 2 }, requires: { cohesion: { min: 25 }, survivors: { min: 4 } }, flag: { reckon: "public" } },
