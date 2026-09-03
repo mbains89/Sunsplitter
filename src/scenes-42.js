@@ -149,68 +149,68 @@ It is the first route he has given you with the return journey included without 
   },
 
   lead_prompt: {
-    text: `Elias finds you in the observation blister.
+    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.
 
-"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."`,
+"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."` : ""}`; },
     choices: [
       { text: "I will not rule by fear. We hold together or we die together.", next: "lead_together", effects: { cohesion: 10, integrity: -2 }, flag: { leadership: "together" } },
       { text: "Hard rules. Clear consequences. No debate.", next: "lead_hard", effects: { cohesion: -7, integrity: 6, supplies: 2 }, flag: { leadership: "hard" } },
-      { text: "Tell me who is already talking against me.", next: "lead_watch", effects: { cohesion: -11, integrity: 2 }, flag: { leadership: "watch" } }
+      { text: "Tell me who is already talking against me.", alive: "elias", next: "lead_watch", effects: { cohesion: -11, integrity: 2 }, flag: { leadership: "watch" } }
     ]
   },
   lead_together: {
-    text: `You say it loud enough for anyone nearby to hear.
+    get text() { return `You say it loud enough for anyone nearby to hear.
 
-Elias studies you, then nods once. Not agreement — acknowledgment.
+${isAlive("elias") ? `Elias studies you, then nods once. Not agreement — acknowledgment.` : ""}
 
-Amara catches your eye from the far hatch and does not look away. The empty chairs stay empty.
+${isAlive("amara") ? `Amara catches your eye from the far hatch and does not look away.` : ""} The empty chairs stay empty.
 
-The ship does not become kinder. But the air feels less sharp.`,
+The ship does not become kinder. But the air feels less sharp.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
       { text: "Spend one more cycle with the crew before the next crisis.", next: "competence_watch", effects: { cohesion: 3, supplies: -2 } }
     ]
   },
   lead_hard: {
-    text: `You draft the rules and post them.
+    get text() { return `You draft the rules and post them.
 
 Rations enforced. Work mandatory. Disobedience punished by reduced shares.
 
-Elias smiles with half his mouth. Mira looks at the list and says nothing.
+${isAlive("elias") ? `Elias smiles with half his mouth.` : ""} ${isAlive("mira") ? `Mira looks at the list and says nothing.` : ""}
 
 Two survivors stop speaking when you pass.
 
-Order returns. Trust does not.`,
+Order returns. Trust does not.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis", effects: { integrity: 1 } },
       { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 } }
     ]
   },
   lead_watch: {
-    text: `Elias gives you three names without hesitation.
+    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}
 
 You do not act on them yet. The knowledge sits in your chest like a stone.
 
 Word spreads that you asked. The corridors grow quieter when you walk them.
 
-You have drawn a line. People are already deciding which side of it they stand on.`,
+You have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
-      { text: "Ask Elias to watch those three quietly. Do not act yet.", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
+      { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
     ]
   },
   power_crisis: {
-    text: `Mira calls you to engineering. The main power bus is fluctuating again.
+    get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.
 
-"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.
+${isAlive("mira") ? `"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.
 
-Or we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."
+Or we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : ""}
 
-The choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`,
+The choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
     choices: [
       { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" } },
       { text: "Burn the capacitors. Keep systems running and protect the drive option.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 } },
-      { text: "Ask Mira to invent a third option, even if it is riskier.", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 } }
+      { text: "Ask Mira to invent a third option, even if it is riskier.", alive: "mira", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 } }
     ]
   },
   // PRE: after power_crisis, before time_pass; the original early living roster
@@ -234,13 +234,13 @@ The choice is simple and ugly: comfort and visibility now, or the possibility of
         if (coolantAvailable && Math.random() < 0.5) return "coolant_trade";
       }
     },
-    text: `Elias reports a problem he has been watching.
+    get text() { return `${isAlive("elias") ? `Elias reports a problem he has been watching.` : ""}
 
 Two of the remaining survivors have been holding back small private food stores. Not enough to change the math of the ship — enough to create a line between those who share and those who do not.
 
-"I can seize it and make an example. Or we can pretend we did not notice. Or you can address it yourself in front of everyone."
+${isAlive("elias") ? `"I can seize it and make an example. Or we can pretend we did not notice. Or you can address it yourself in front of everyone."` : ""}
 
-The food is almost irrelevant. What it represents is not. Cohesion will notice either way.`,
+The food is almost irrelevant. What it represents is not. Cohesion will notice either way.`; },
     choices: [
       { text: "Seize the stores and make the rule clear: no private reserves.", next: "coolant_trade", effects: { supplies: 6, cohesion: -9, integrity: 1 }, flag: { stores: "seize" }, lean: { future: 2 } },
       { text: "Ignore it. Some small secrets are the price of holding the group together.", next: "coolant_trade", effects: { cohesion: 3, supplies: -3 }, flag: { stores: "ignore" }, lean: { living: 1 } },

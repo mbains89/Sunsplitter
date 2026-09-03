@@ -41,14 +41,25 @@
       warnings.push(`${id}: choices did not resolve to array`);
       return [];
     }
+    // Also validate the authored branch hidden by an absent-cast saved view.
+    // Never run onEnter or change the roster to discover those graph edges.
+    const authored = livingCastOriginals.get(sc)?.choices;
+    if (authored) {
+      try {
+        const raw = authored.get ? authored.get.call(sc) : authored.value;
+        const original = typeof raw === "function" ? raw.call(sc) : raw;
+        if (Array.isArray(original)) choiceList = [...new Set([...choiceList, ...original])];
+      } catch (e) {
+        warnings.push(`${id}: authored choices getter threw (${e.message})`);
+      }
+    }
     return choiceList;
   }
 
   function propertySource(object, key) {
     const descriptor = Object.getOwnPropertyDescriptor(object, key);
-    if (descriptor && descriptor.get) return descriptor.get.toString();
-    const value = object[key];
-    return value && value.toString ? value.toString() : "";
+    const source = d => d?.get ? d.get.toString() : String(d?.value || "");
+    return source(descriptor) + "\n" + source(livingCastOriginals.get(object)?.[key]);
   }
 
   function validate() {
@@ -136,9 +147,9 @@
 
       // Flag/mark reads inside text getters (best-effort static scan)
       try {
-        const src = sc.text && sc.text.toString ? sc.text.toString() : "";
-        const onSrc = sc.onEnter && sc.onEnter.toString ? sc.onEnter.toString() : "";
-        const chSrc = sc.choices && sc.choices.toString ? sc.choices.toString() : "";
+        const src = propertySource(sc, "text");
+        const onSrc = propertySource(sc, "onEnter");
+        const chSrc = propertySource(sc, "choices");
         const blob = src + "\n" + onSrc + "\n" + chSrc;
         for (const m of blob.matchAll(/flags\.([a-zA-Z0-9_]+)/g)) readFlags.add(m[1]);
         for (const m of blob.matchAll(/flags\[['\"]([a-zA-Z0-9_]+)['\"]\]/g)) readFlags.add(m[1]);
@@ -160,12 +171,7 @@
     try {
       for (const id of ids) {
         const sc = scenes[id];
-        const chDesc = Object.getOwnPropertyDescriptor(sc, "choices");
-        if (chDesc && chDesc.get) allSource += chDesc.get.toString() + "\n";
-        else if (sc.choices && sc.choices.toString) allSource += sc.choices.toString() + "\n";
-        const teDesc = Object.getOwnPropertyDescriptor(sc, "text");
-        if (teDesc && teDesc.get) allSource += teDesc.get.toString() + "\n";
-        if (sc.onEnter && sc.onEnter.toString) allSource += sc.onEnter.toString() + "\n";
+        for (const key of ["choices", "text", "onEnter"]) allSource += propertySource(sc, key) + "\n";
       }
     } catch (_) {}
     for (const id of ids) {

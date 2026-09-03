@@ -12,13 +12,14 @@ registerScenes({
     onEnter: () => {
       act3SpineTomasAllusionOnEntry = false;
       // 0.24: Vess arrival window opens once after vault face; guaranteed, no refuse-contact
-      if (!state.recovered || !state.recovered.vess) return "vess_signal";
+      if ((!state.recovered || !state.recovered.vess) && !state.dead.includes("vess")) return "vess_signal";
       act3SpineTomasAllusionOnEntry = state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded;
       if (act3SpineTomasAllusionOnEntry) state.flags.prom_tomas_alluded = true;
     },
     text: () => {
-      let t = `The vault light stays on behind you. The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
-      if (state.recovered && state.recovered.vess) {
+      let t = `The vault light stays on behind you.`;
+      if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
+      if (isAlive("vess")) {
         t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
       }
       t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;

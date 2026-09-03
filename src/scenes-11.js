@@ -69,15 +69,15 @@ The hatch opens on wet ruin. Grey-green mash where the trays were.`;
 The hatch opens on the smell of soil. Nobody aboard has smelled soil in a long time.`;
       }
       // Rider-comm payoffs (guarded)
-      if (state.flags.tether_hand_sela) {
+      if (state.flags.tether_hand_sela && isAlive("sela")) {
         t += state.flags.tether_rushed
           ? `\n\nSela's last call was a single word: "Sealed." Then silence until the hatch.`
           : `\n\nSela's last call was clean range and a quiet "Green light holds." She does not celebrate.`;
-      } else if (state.flags.tether_hand_mira) {
+      } else if (state.flags.tether_hand_mira && isAlive("mira")) {
         t += `\n\nMira's last transmission was the seal pressure, read once, then "Collar holds."`;
-      } else if (state.flags.tether_hand_elias) {
+      } else if (state.flags.tether_hand_elias && isAlive("elias")) {
         t += `\n\nElias comes off the line the same way he went on it: three checks, then the hatch.`;
-      } else {
+      } else if (!["sela", "mira", "elias"].some(who => state.flags[`tether_hand_${who}`])) {
         t += `\n\nYou rode it yourself. The line sang under your hands the whole way in. Nobody else was available to hear the report.`;
       }
       t += `\n\nTomas comes through it on his own feet, barely. Gaunt to the bone, soil under every nail, eyes lamp-burned to a permanent squint. `;

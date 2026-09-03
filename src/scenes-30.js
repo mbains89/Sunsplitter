@@ -26,7 +26,7 @@ registerScenes({
   },
 
   romance_mira_1: {
-    text: `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one. And do not pretend Elias will not notice who you left engineering smelling like."`,
+    get text() { return `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one.${isAlive("elias") ? " And do not pretend Elias will not notice who you left engineering smelling like." : ""}"`; },
     get choices() {
       const opts = [
         { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { mira: 8 }, lean: { living: 1 } },

@@ -62,7 +62,11 @@ export function offshiftDefensiveGuardChecks(runtime) {
   if (fixture.zero.junctionChoice !== "none") {
     errors.push(`zero-eligible Off-Shift guard wrote junctionChoice=${fixture.zero.junctionChoice} instead of none`);
   }
-  if (fixture.zero.offers.length) errors.push(`zero-eligible Off-Shift guard rendered invitations: ${fixture.zero.offers.join(",")}`);
+  // A marked imported zero-invitation scene now has one neutral onward exit,
+  // never a crew selector. Fresh onEnter still bypasses it and writes "none".
+  if (JSON.stringify(fixture.zero.offers) !== '["faction_split"]') {
+    errors.push(`zero-eligible Off-Shift fallback is not a neutral exit: ${fixture.zero.offers.join(",")}`);
+  }
 
   if (fixture.oneLena.redirect !== "offshift_lena" || fixture.oneLena.before !== null || fixture.oneLena.after !== "lena") {
     errors.push("one-eligible Lena guard no longer defers junctionChoice to offshift_lena");

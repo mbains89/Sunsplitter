@@ -34,6 +34,7 @@ import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
 import { cinematicChecks } from "./cinematic-checks.mjs";
 import { maleCrewChecks } from "./male-crew-checks.mjs";
 import { artEventChecks } from "./art-event-checks.mjs";
+import { livingCastChecks } from "./living-cast-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -458,6 +459,8 @@ function suppliesReserveChecks(runtime) {
     showScene(state.scene, { skipOnEnter: true });
     showScene(state.scene, { skipOnEnter: true });
     const afterRender = state.supplies;
+    // Separate affordability fixture: Rourke must still be alive to offer care.
+    resetRunState();
     state.supplies = 0;
     // The headless DOM stub does not clear children when innerHTML is replaced.
     document.getElementById("choices").children = [];
@@ -2003,6 +2006,7 @@ function keyboardChoiceChecks(runtime) {
     const choicesEl = document.getElementById("choices");
     const game = document.getElementById("game-screen");
     const renderFixture = choices => {
+      resetRunState(); // Each keyboard case starts before either death route.
       scenes.wake.choices = choices;
       choicesEl.children = [];
       state.scene = "wake";
@@ -2506,7 +2510,10 @@ function offshiftVessImageTruthChecks(runtime) {
 
 function vessHairCanonChecks(runtime) {
   const errors = [];
-  const boardingText = runtime.evaluate(`String(scenes.vess_boarding.text())`);
+  const boardingText = runtime.evaluate(`(() => {
+    resetRunState(); state.recovered.vess = true;
+    return String(scenes.vess_boarding.text());
+  })()`);
 
   if (!boardingText.includes("Long white-silver hair")) {
     errors.push("Vess boarding prose does not preserve the locked white-silver hair identity");
@@ -3672,6 +3679,7 @@ function lastTransmissionChecks(runtime) {
     const spentChoice = finalTransmission();
 
     state.flags.last_tx_spent = false;
+    state.recovered.vess = true; // The private reply needs its living speaker.
     const offshiftUnspentHasAnswer = hasOffshiftAnswer();
     state.flags.last_tx_spent = true;
     const offshiftSpentHasAnswer = hasOffshiftAnswer();
@@ -3901,6 +3909,7 @@ function commanderIdentityChecks(runtime) {
 
     resetRunState();
     state.flags.manifest_lie = true;
+    state.recovered.tomas = true; // The promise follows Tomas's recovery.
     const tomasManifest = renderText("prom_make_tomas");
 
     resetRunState();
@@ -3959,6 +3968,7 @@ function cascadeAndMirrorChecks(runtime) {
   const errors = [];
   const bindings = runtime.evaluate(`(() => {
     resetRunState();
+    state.recovered.jiro = true; // Inspect the live post-recovery briefing.
     state.crisisPath = "breath";
     return {
       manifest: scenes.empty_berths.choices.map(choice => choice.next),
@@ -4124,9 +4134,13 @@ function cascadeAndMirrorChecks(runtime) {
   }
 
   const phraseOwners = runtime.evaluate(`(() => {
+    resetRunState();
+    Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });
     const find = phrase => Object.keys(scenes).filter(id => {
-      const descriptor = Object.getOwnPropertyDescriptor(scenes[id], "text");
-      return descriptor && typeof descriptor.value === "string" && descriptor.value.includes(phrase);
+      // Ownership includes live getters now that restored absent cast is masked.
+      const raw = scenes[id].text;
+      const rendered = typeof raw === "function" ? raw.call(scenes[id]) : raw;
+      return typeof rendered === "string" && rendered.includes(phrase);
     });
     return {
       handoff: find("I am the hand-off."),
@@ -5002,6 +5016,10 @@ async function main() {
     const offshiftChoiceErrors = offshiftChoiceChecks(runtime);
     printCheck("0.35 Off-Shift dead-holder choices + save/resume", offshiftChoiceErrors);
     failures.push(...offshiftChoiceErrors);
+
+    const livingCastErrors = livingCastChecks(runtime);
+    printCheck("0.35 full-graph living cast + Import/Continue custody", livingCastErrors);
+    failures.push(...livingCastErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
