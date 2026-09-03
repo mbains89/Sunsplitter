@@ -3,6 +3,12 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+// PRE: living Elias at Deck 4 / Station B-four; pre-0.25 saves skip this plant
+// WRITES: none
+// DEATH: none here | DEAD SPEECH/APPEARANCE: dead Elias redirects before text/image/choices
+// IMAGE: REUSE images/work_elias.jpg; living Elias at a station panel during the unresolved
+//   pressure-seal decision. Not bond_elias.jpg (quiet seated cup). Commander faceless.
+//   Dead/saved-absent fallback stays empty corridor_pressure_3.jpg via the resolver.
 act3_lethal_elias_order: {
   onEnter: () => {
     // Lock 5: in-flight saves from <0.25 skip Elias + Mira lethals (new plants)
@@ -68,7 +74,7 @@ Elias keeps one finger on B-four.
       }
     ];
   },
-  image: "images/bond_elias.jpg"
+  image: "images/work_elias.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
