@@ -2,7 +2,7 @@
 
 // Release-gate ownership:
 // - Manifest + syntax: exact browser load order and parseability.
-// - Runtime + validator: one-time registration, 222-scene count, and scene-ID digest.
+// - Runtime + validator: one-time registration, 224-scene count, and scene-ID digest.
 // - Policy simulations: Living, Future, and pragmatic routes reach truthful endings.
 // - V6 fixtures: Amara and Sela stay "made" when they die before an authored test,
 //   and their untested promises are omitted from ending reflection.
@@ -31,6 +31,7 @@ import {
 import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
 import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
 import { cinematicChecks } from "./cinematic-checks.mjs";
+import { maleCrewChecks } from "./male-crew-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -50,7 +51,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "df38e92826aeb58f7d945c7c0f22c1b41e0bfdfc50a1cdb8232f46d5601350ec";
+const EXPECTED_SCENE_IDS_SHA256 = "bd463f1a12019a6bd6c150516a9c6f67b203abd67384d2645697d40152fa5234";
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
@@ -4903,6 +4904,10 @@ async function main() {
     const cinematicErrors = cinematicChecks(runtime);
     printCheck("0.35 skippable intro/ending + presentation-only save custody", cinematicErrors);
     failures.push(...cinematicErrors);
+
+    const maleCrewErrors = maleCrewChecks(runtime);
+    printCheck("0.35 existing male crew personality follow-through + save custody", maleCrewErrors);
+    failures.push(...maleCrewErrors);
 
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);
