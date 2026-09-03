@@ -24,16 +24,20 @@ He does not open a tablet. He does not need to.
   },
 
   // PRE: medical route with an existing dead-Lena exit | WRITES: paid choices affect resources/pregnancy_risk/lean; governed floor writes pregnancy_risk="unknown"
+  // PREGNANCY-LENA-01: living participant opening reads romance.lena only; entry/render write nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: Lena text and recovered-Tomas routing are guarded
-  // IMAGE: REUSE images/medbay_dim_alt.jpg; no new art request
+  // IMAGE: unchanged living images/lena.jpg / absent images/corridor_pressure_3.jpg resolver; no art work
   pregnancy_check: {
     get text() {
       if (!isAlive("lena")) {
         return `There is no medical officer left to translate private risk into protocol. Whatever has happened between people on this ship will have to surface some other way — or not at all.`;
       }
+      const opening = state.romance.lena
+        ? "We crossed that line together. We need to talk about the medical reality."
+        : "If you have been with anyone, we need to talk about the medical reality.";
       return `Lena stops you in the corridor. Her expression is clinical and something else underneath.
 
-"If you have been with anyone, we need to talk about the medical reality. This ship does not have the margin for an unplanned pregnancy. The vault already carries the future. A living pregnancy competes for the same resources and the same oxygen."
+"${opening} This ship does not have the margin for an unplanned pregnancy. The vault already carries the future. A living pregnancy competes for the same resources and the same oxygen."
 
 She waits.
 
