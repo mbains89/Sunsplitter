@@ -199,6 +199,10 @@ You have drawn a line. People are already deciding which side of it they stand o
       { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
     ]
   },
+  // PRE: existing engineering call; capacitor label only, no entry change
+  // WRITES: existing integrity/cohesion/supplies effects, flags.power, future lean
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira text/choice retain living guards
+  // IMAGE: existing images/power_stress_2.jpg binding; no art work
   power_crisis: {
     get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.
 
@@ -209,7 +213,7 @@ Or we can burn through the remaining high-grade capacitors to keep everything on
 The choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
     choices: [
       { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" } },
-      { text: "Burn the capacitors. Keep systems running and protect the drive option.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 } },
+      { text: "Burn the drive-repair capacitors. Keep systems running now.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 } },
       { text: "Ask Mira to invent a third option, even if it is riskier.", alive: "mira", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 } }
     ]
   },
