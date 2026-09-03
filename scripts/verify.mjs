@@ -2354,6 +2354,61 @@ function romanceAmara1ImageTruthChecks(runtime) {
   return errors;
 }
 
+function tetherHandEliasImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/tether_ride.jpg";
+  const forbidden = "images/self_risk.jpg";
+  const deadFallback = "images/corridor_pressure_3.jpg";
+  const expectedHashes = {
+    "images/tether_ride.jpg": "7961187200068efe1938de5a110d0a30f673be212e8aaf0694e0650e3a506c34",
+    "images/self_risk.jpg": "427fb4c5a72239451d213dcf7d6e80bef15da646a4b5e6000ddb54ffeb9de8a7",
+    "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "act2_tether_hand_elias";
+    const before = JSON.stringify(state);
+    const livingText = typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      eliasAlive: isAlive("elias"),
+      livingText
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("act2_tether_hand_elias image resolve wrote run state");
+  if (!fixture.eliasAlive) errors.push("fresh run lost living Elias before tether-hand resolve");
+  if (!String(fixture.livingText || "").startsWith("Elias suits up")) {
+    errors.push("act2_tether_hand_elias living roster text is no longer Elias");
+  }
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`act2_tether_hand_elias ${field} still uses the interior corridor-wheel plate ${forbidden}`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`act2_tether_hand_elias ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  const dead = runtime.evaluate(`(() => {
+    resetRunState();
+    state.dead.push("elias");
+    const before = JSON.stringify(state);
+    const resolved = resolveSceneImage("act2_tether_hand_elias", scenes.act2_tether_hand_elias);
+    return { resolved, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (dead.wroteState) errors.push("dead Elias tether-hand resolve wrote run state");
+  if (dead.resolved !== deadFallback) {
+    errors.push(`dead Elias tether-hand resolved to ${dead.resolved || "missing"}; expected ${deadFallback}`);
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Elias tether leftover plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function lenaIntimacyImageTruthChecks(runtime) {
   const errors = [];
   const expected = {
@@ -5052,6 +5107,10 @@ async function main() {
     const romanceAmara1ImageTruthErrors = romanceAmara1ImageTruthChecks(runtime);
     printCheck("SUN-V035-ART-R2-AMARA-01 hydroponics tray plate", romanceAmara1ImageTruthErrors);
     failures.push(...romanceAmara1ImageTruthErrors);
+
+    const tetherHandEliasImageTruthErrors = tetherHandEliasImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-ELIAS-TETHER-01 exterior tether plate", tetherHandEliasImageTruthErrors);
+    failures.push(...tetherHandEliasImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
