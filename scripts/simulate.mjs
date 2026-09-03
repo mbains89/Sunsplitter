@@ -442,8 +442,7 @@ function v5Violations(state, ending, facts) {
   if (final !== "hold" && /The course is a fact on the board|The course remains locked|The commitment made earlier was enough/i.test(ending.text)) violations.push({ rule: "abandoned_course_reported_locked", scene: "ending_check", final: final || null, planet: planet || null, ending: ending.title });
   const future = Number(state.ideology?.future || 0);
   const living = Number(state.ideology?.living || 0);
-  const vault = state.flags?.vault_sacrifice;
-  const shape = ["future", "living", "split"].includes(vault) ? vault : future - living >= 8 ? "future" : living - future >= 8 ? "living" : "split";
+  const shape = future - living >= 8 ? "future" : living - future >= 8 ? "living" : "split";
   const expected = { future: "Across the recorded orders, Future carried more weight.", living: "Across the recorded orders, Living carried more weight.", split: "The recorded orders remained split between Future and Living." }[shape];
   if (facts[0] !== expected) violations.push({ rule: "what_remains_ideology_disagrees_with_totals", scene: "what_remains", future, living, expected, actual: facts[0] || null });
   return violations;
@@ -812,6 +811,10 @@ function runSelfTest() {
   assert.ok(economyChoiceViolations(phantomCredit).some(item => item.rule === "phantom_resource_credit"));
   const injectedV5 = v5Violations({ flags: { final: "comfort", planet: "committed", vault_sacrifice: "split" }, ideology: { future: 0, living: 0 } }, { title: "Landfall", text: "The course remains locked." }, ["The recorded orders remained split between Future and Living."]);
   assert.ok(injectedV5.some(item => item.rule === "landfall_without_final_hold"));
+  const weightTrueV5 = v5Violations({ flags: { final: "endure", vault_sacrifice: "split" }, ideology: { future: 11, living: 3 } }, { title: "The Long Dark", text: "The long dark holds." }, ["Across the recorded orders, Future carried more weight."]);
+  assert.equal(weightTrueV5.length, 0, "Future-leaning recorded orders must agree with What Remains");
+  const staleSplitV5 = v5Violations({ flags: { final: "endure", vault_sacrifice: "split" }, ideology: { future: 11, living: 3 } }, { title: "The Long Dark", text: "The long dark holds." }, ["The recorded orders remained split between Future and Living."]);
+  assert.ok(staleSplitV5.some(item => item.rule === "what_remains_ideology_disagrees_with_totals"), "split What Remains on Future-leaning totals must fail V5");
   const nonzero = { summaries: [{ policy: "random", runs: 1, endings: 1, incomplete: 0, errors: 0, economy: { runsReconciled: 1 }, invariantTotals: { V1: 0, V4: 1, V5: 0 } }] };
   assert.ok(strictErrors(nonzero).some(error => error.includes("V4")), "strict gate accepted nonzero V4");
   assert.equal(derivedSeed(LOCKED_SEED, "random", 63), derivedSeed(LOCKED_SEED, "random", 63), "seed derivation changed across shard layouts");

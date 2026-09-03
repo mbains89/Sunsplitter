@@ -332,10 +332,19 @@ function ideologyShape() {
   const f = state.ideology.future || 0;
   const l = state.ideology.living || 0;
   const sac = state.flags.vault_sacrifice;
-  // Hard vault choice outweighs soft leans
+  // Hard vault choice outweighs soft leans for endings and mid-voyage voice.
   if (sac === "future") return "future";
   if (sac === "living") return "living";
   if (sac === "split") return "split";
+  if (f - l >= 8) return "future";
+  if (l - f >= 8) return "living";
+  return "split";
+}
+
+// What Remains first line cites recorded order weights, not the vault override.
+function whatRemainsIdeologyShape() {
+  const f = state.ideology.future || 0;
+  const l = state.ideology.living || 0;
   if (f - l >= 8) return "future";
   if (l - f >= 8) return "living";
   return "split";
@@ -623,7 +632,7 @@ function whatRemainsFacts() {
     living: "Across the recorded orders, Living carried more weight.",
     split: "The recorded orders remained split between Future and Living."
   };
-  const facts = [ideologyLines[ideologyShape()]];
+  const facts = [ideologyLines[whatRemainsIdeologyShape()]];
   facts.push(...whatRemainsDeathFacts());
   const crisis = whatRemainsCrisisFact();
   if (crisis) facts.push(crisis);
