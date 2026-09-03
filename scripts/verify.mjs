@@ -37,6 +37,7 @@ import { artEventChecks } from "./art-event-checks.mjs";
 import { livingCastChecks } from "./living-cast-checks.mjs";
 import { selaAnswerChecks } from "./sela-answer-checks.mjs";
 import { capacitorChecks } from "./capacitor-checks.mjs";
+import { epilogueChecks } from "./epilogue-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5030,6 +5031,10 @@ async function main() {
     const capacitorErrors = capacitorChecks(runtime);
     printCheck("0.35 capacitor tradeoff honesty + unchanged mechanics and saves", capacitorErrors);
     failures.push(...capacitorErrors);
+
+    const epilogueErrors = epilogueChecks(runtime);
+    printCheck("0.35 current living private-hours recap + unchanged rewards and saves", epilogueErrors);
+    failures.push(...epilogueErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
