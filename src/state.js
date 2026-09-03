@@ -222,7 +222,7 @@ const sceneImages = {
   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
   romance_mira_1:      "images/shower_mira.jpg",
   romance_amara_tomas: "images/romance_amara_tomas.jpg",
-  romance_lena_1:      "images/shower_lena.jpg",
+  romance_lena_1:      "images/observation_bridge_alt_2.jpg",
 
   // 0.22.1 explicit art utilization (one-shot aftermath variants)
   lena_shower:     "images/shower_lena.jpg",
