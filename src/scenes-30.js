@@ -72,6 +72,11 @@ registerScenes({
     }
   },
 
+  // PRE: Amara living; reached from bond_amara yes-path
+  // WRITES: onEnter may set romance.amara, affinity, trust, memory; dead Amara redirects
+  // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Amara redirects via requireLivingCast / onEnter
+  // IMAGE: REUSE images/hydroponics.jpg; person-free grow trays, Commander absent.
+  //   Later linger stays on amara_rear / rear_amara.jpg. Shower/rinse is not this beat.
   romance_amara_1: {
     text: `She locks the bay hatch. Not dramatic — practical.\n\nWhat follows is unhurried and explicit. Amara is vocal about what she likes and what she does not. She pulls you down among the warm trays, skin against skin, the smell of wet earth and her mouth at your ear. She does not perform vulnerability; she chooses it. When she finishes she laughs once, quiet, then goes still with her forehead against your shoulder.\n\n"The crew will smell the bay," she says. "Let them. I am done pretending only the vault gets a future."`,
     get choices() {
@@ -94,7 +99,7 @@ registerScenes({
         remember("You and Amara claimed the hydroponics bay. Favoritism is no longer theoretical.");
       }
     },
-    image: "images/shower_amara.jpg"
+    image: "images/hydroponics.jpg"
   },
 
   bond_sela: {

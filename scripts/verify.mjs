@@ -2306,6 +2306,54 @@ function romanceLena1ImageTruthChecks(runtime) {
   return errors;
 }
 
+function romanceAmara1ImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/hydroponics.jpg";
+  const forbidden = "images/shower_amara.jpg";
+  const linger = "images/rear_amara.jpg";
+  const expectedHashes = {
+    "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
+    "images/shower_amara.jpg": "588ba8e67d7c1c6f44e38f26da7f25f15a412283c65ffed55831b54065e827f9",
+    "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1",
+    "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "romance_amara_1";
+    const before = JSON.stringify(state);
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      rearMapped: sceneImages.amara_rear,
+      rearDeclared: scenes.amara_rear && scenes.amara_rear.image,
+      rearResolved: resolveSceneImage("amara_rear", scenes.amara_rear),
+      inventedShowerScene: Boolean(scenes.amara_shower)
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("romance_amara_1 image resolve wrote run state");
+  if (fixture.inventedShowerScene) errors.push("amara_shower scene was invented; linger stays on amara_rear");
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`romance_amara_1 ${field} still uses the premature shower plate ${forbidden}`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`romance_amara_1 ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  for (const field of ["rearMapped", "rearDeclared", "rearResolved"]) {
+    if (fixture[field] !== linger) {
+      errors.push(`amara_rear ${field} is ${fixture[field] || "missing"}; expected ${linger}`);
+    }
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Amara leftover plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function lenaIntimacyImageTruthChecks(runtime) {
   const errors = [];
   const expected = {
@@ -5000,6 +5048,10 @@ async function main() {
     const romanceLena1ImageTruthErrors = romanceLena1ImageTruthChecks(runtime);
     printCheck("SUN-V035-ART-R2-LENA-01 clothed blister plate", romanceLena1ImageTruthErrors);
     failures.push(...romanceLena1ImageTruthErrors);
+
+    const romanceAmara1ImageTruthErrors = romanceAmara1ImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-AMARA-01 hydroponics tray plate", romanceAmara1ImageTruthErrors);
+    failures.push(...romanceAmara1ImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
