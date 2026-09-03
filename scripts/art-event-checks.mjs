@@ -12,7 +12,7 @@ export const FIXED_EVENT_ART = {
   vault_voice: "images/vault.jpg"
 };
 const PORTRAIT_EVENTS = {
-  private_stores: "elias", act3_lethal_elias_order: "elias", act3_lethal_elias_sealant: "elias",
+  private_stores: "elias", act3_lethal_elias_sealant: "elias",
   prom_deck4_keep: "elias", prom_deck4_break: "elias", pregnancy_check: "lena",
   filters_stencil: "sela", filters_stencil_luck: "sela", filters_stencil_silent: "sela", offshift_sela: "sela"
 };

@@ -199,6 +199,7 @@ const sceneImages = {
   act3_vault_face:      "images/vault.jpg",
   act3_vault_face_read: "images/vault.jpg",
   act3_spine_next:      "images/corridor_variant_2.jpg",
+  act3_lethal_elias_order: "images/work_elias.jpg",
   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
   vess_signal:          "images/vess_signal.jpg",
   vess_cost:            "images/vess_signal.jpg",

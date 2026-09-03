@@ -2409,6 +2409,80 @@ function tetherHandEliasImageTruthChecks(runtime) {
   return errors;
 }
 
+function lethalEliasOrderImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/work_elias.jpg";
+  const forbidden = "images/bond_elias.jpg";
+  const quietCup = "images/quiet_elias.jpg";
+  const deadFallback = "images/corridor_pressure_3.jpg";
+  const expectedHashes = {
+    "images/work_elias.jpg": "9dfa81959aba082c192c1a9d0ea3c24383dc7695da0ccbe74bc1c3025af63ff2",
+    "images/bond_elias.jpg": "084655c278e2c398843a26885eceeab517117b0da8656a7ccb57029e514d1db8",
+    "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "act3_lethal_elias_order";
+    const before = JSON.stringify(state);
+    const livingText = typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      eliasAlive: isAlive("elias"),
+      livingText,
+      bondMapped: sceneImages.bond_elias,
+      bondDeclared: scenes.bond_elias && scenes.bond_elias.image,
+      bondResolved: resolveSceneImage("bond_elias", scenes.bond_elias)
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("act3_lethal_elias_order image resolve wrote run state");
+  if (!fixture.eliasAlive) errors.push("fresh run lost living Elias before lethal-order resolve");
+  if (!String(fixture.livingText || "").includes("Station B-four")) {
+    errors.push("act3_lethal_elias_order living text no longer stages Station B-four");
+  }
+  if (!String(fixture.livingText || "").includes("Elias")) {
+    errors.push("act3_lethal_elias_order living roster text is no longer Elias");
+  }
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`act3_lethal_elias_order ${field} still uses the quiet seated cup plate ${forbidden}`);
+    }
+    if (fixture[field] === quietCup) {
+      errors.push(`act3_lethal_elias_order ${field} still uses the seated rest plate ${quietCup}`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`act3_lethal_elias_order ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  for (const field of ["bondMapped", "bondDeclared", "bondResolved"]) {
+    if (fixture[field] !== forbidden) {
+      errors.push(`bond_elias ${field} is ${fixture[field] || "missing"}; expected ${forbidden}`);
+    }
+  }
+  const dead = runtime.evaluate(`(() => {
+    resetRunState();
+    state.dead.push("elias");
+    const before = JSON.stringify(state);
+    const resolved = resolveSceneImage("act3_lethal_elias_order", scenes.act3_lethal_elias_order);
+    return { resolved, wroteState: JSON.stringify(state) !== before, eliasAlive: isAlive("elias") };
+  })()`);
+  if (dead.wroteState) errors.push("dead Elias lethal-order resolve wrote run state");
+  if (dead.eliasAlive) errors.push("dead Elias lethal-order fixture still reports living Elias");
+  if (dead.resolved !== deadFallback) {
+    errors.push(`dead Elias lethal-order resolved to ${dead.resolved || "missing"}; expected ${deadFallback}`);
+  }
+  if (dead.resolved === expected || dead.resolved === forbidden) {
+    errors.push("dead Elias lethal-order still shows a living Elias plate");
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Elias lethal leftover plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function lenaIntimacyImageTruthChecks(runtime) {
   const errors = [];
   const expected = {
@@ -5111,6 +5185,10 @@ async function main() {
     const tetherHandEliasImageTruthErrors = tetherHandEliasImageTruthChecks(runtime);
     printCheck("SUN-V035-ART-R2-ELIAS-TETHER-01 exterior tether plate", tetherHandEliasImageTruthErrors);
     failures.push(...tetherHandEliasImageTruthErrors);
+
+    const lethalEliasOrderImageTruthErrors = lethalEliasOrderImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-ELIAS-LETHAL-01 station work plate", lethalEliasOrderImageTruthErrors);
+    failures.push(...lethalEliasOrderImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
