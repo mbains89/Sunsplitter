@@ -217,7 +217,7 @@ const sceneImages = {
   bond_sela:        "images/sela.jpg",
   bond_lena:        "images/lena.jpg",
   romance_lena_sex: "images/afterglow_lena.jpg",
-  romance_amara_1:  "images/shower_amara.jpg",
+  romance_amara_1:  "images/hydroponics.jpg",
   romance_sela_1:   "images/shower_sela.jpg",
   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
   romance_mira_1:      "images/shower_mira.jpg",
