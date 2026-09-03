@@ -669,8 +669,10 @@ function showScreen(id) {
   // previous surface's scroll position and can open with the heading hidden.
   const main = document.getElementById("main");
   if (main) main.scrollTop = 0;
+  if (main) main.classList.toggle("cinematic-active", id === "cinematic");
+  if (id !== "cinematic" && typeof cancelCinematic === "function") cancelCinematic();
   if (typeof releaseInactiveArtForScreen === "function") releaseInactiveArtForScreen(id);
-  ["tone-screen", "title-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
+  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
@@ -700,11 +702,13 @@ function showScreen(id) {
     document.getElementById("meta").classList.remove("hidden");
   }
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
+  if (id === "cinematic") document.getElementById("cinematic-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
 
   const focusTargetId = {
     tone: "tone-heading",
     title: "title-heading",
+    cinematic: "cinematic-heading",
     ending: "ending-title",
     "what-remains": "what-remains-heading"
   }[id];

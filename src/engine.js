@@ -19,6 +19,96 @@ let pendingLegacyResume = null;
 let preserveCompletedSlotUntilChoice = false;
 let currentEndingArt = "";
 let suspendedImagePresentation = null;
+// Presentation only: never serialized into run state or save flags.
+let currentCinematic = null;
+let cinematicTimer = null;
+
+function cancelCinematic() {
+  if (cinematicTimer !== null) clearTimeout(cinematicTimer);
+  cinematicTimer = null;
+  currentCinematic = null;
+}
+
+function scheduleCinematicFrame() {
+  if (cinematicTimer !== null) clearTimeout(cinematicTimer);
+  cinematicTimer = null;
+  if (!currentCinematic || currentCinematic.paused) return;
+  const timer = setTimeout(() => {
+    if (cinematicTimer === timer) advanceCinematic();
+  }, 6000);
+  cinematicTimer = timer;
+}
+
+function renderCinematicFrame(resetScroll = false) {
+  if (!currentCinematic) return;
+  if (resetScroll) document.getElementById("cinematic-body").scrollTop = 0;
+  const c = currentCinematic;
+  document.getElementById("cinematic-text").textContent = c.frames[c.index];
+  document.getElementById("cinematic-progress").textContent = `${c.index + 1} / ${c.frames.length}`;
+  document.getElementById("cinematic-next").textContent = c.index + 1 === c.frames.length
+    ? (c.kind === "intro" ? "Begin story" : "Read ending") : "Next";
+  const pause = document.getElementById("cinematic-pause");
+  pause.textContent = c.paused ? "Resume" : "Pause";
+  pause.setAttribute("aria-pressed", String(c.paused));
+  document.getElementById("cinematic-screen").classList.toggle("cinematic-paused", c.paused);
+  scheduleCinematicFrame();
+}
+
+function showCinematic(kind) {
+  cancelCinematic();
+  const intro = kind === "intro";
+  // Reuse the existing prologue or already-resolved ending, never new prose.
+  const frames = intro
+    ? [1, 2, 3].map(n => document.getElementById(`intro-line-${n}`).textContent.trim())
+    : document.getElementById("ending-text").textContent.split(/\n\n+/).slice(0, 2);
+  const reduced = typeof window.matchMedia !== "function" || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  currentCinematic = { kind, frames, index: 0, paused: reduced };
+  document.getElementById("cinematic-heading").textContent = intro ? "Sunsplitter" : document.getElementById("ending-title").textContent;
+  document.getElementById("cinematic-skip").textContent = intro ? "Skip intro" : "Skip ending";
+  showScreen("cinematic");
+  const img = document.getElementById("cinematic-image");
+  // Neutral bookend: no new roster or baked-in HUD assertion from an enlarged plate.
+  // The existing ending screen retains its own outcome-selected art unchanged.
+  setManagedImageSource(img, "images/onboarding_background.jpg");
+  img.alt = "The empty ship corridor opens onto the stars.";
+  renderCinematicFrame(true);
+}
+
+function finishCinematic() {
+  if (!currentCinematic) return false;
+  const kind = currentCinematic.kind;
+  cancelCinematic();
+  showScreen(kind === "intro" ? "game" : "ending");
+  if (kind === "intro") showScene(state.scene, { skipOnEnter: true, resume: true });
+  return true;
+}
+
+function advanceCinematic() {
+  if (!currentCinematic) return;
+  if (++currentCinematic.index >= currentCinematic.frames.length) finishCinematic();
+  else renderCinematicFrame(true);
+}
+
+function toggleCinematicPause() {
+  if (!currentCinematic) return;
+  currentCinematic.paused = !currentCinematic.paused;
+  renderCinematicFrame();
+}
+
+function pauseCinematicForBackground() {
+  if (!currentCinematic) return;
+  currentCinematic.paused = true;
+  renderCinematicFrame();
+}
+
+if (typeof document.addEventListener === "function") {
+  document.addEventListener("keydown", e => {
+    if (currentCinematic && e.key === "Escape" && !e.defaultPrevented) {
+      e.preventDefault();
+      finishCinematic();
+    }
+  });
+}
 
 function parseSemanticVersion(value) {
   if (typeof value !== "string") return null;
@@ -78,6 +168,7 @@ function acknowledgeTone() {
 }
 
 function resetRunState() {
+  cancelCinematic();
   loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
   const fresh = typeof freshState === "function" ? freshState() : null;
   if (fresh) {
@@ -149,13 +240,15 @@ function startGame() {
     const ok = window.confirm("Start a new run? This will replace your saved progress.");
     if (!ok) return false;
   }
-  return beginFreshCampaign({ persist: true });
+  const started = beginFreshCampaign({ persist: true });
+  if (started) showCinematic("intro");
+  return started;
 }
 
 function playAgain() {
   // Ending / What Remains: start a fresh campaign in memory.
   // Leave the completed slot on disk so Continue can still load it.
-  beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true });
+  if (beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true })) showCinematic("intro");
 }
 
 function showTitleScreen() {
@@ -218,6 +311,11 @@ function syncEndingArtForScreen(id) {
 }
 
 function releaseInactiveArtForScreen(id) {
+  if (id !== "cinematic") {
+    const img = document.getElementById("cinematic-image");
+    setManagedImageSource(img, "");
+    if (img) img.alt = "";
+  }
   if (id !== "game") {
     const sceneImage = document.getElementById("scene-image");
     setManagedImageSource(sceneImage, "");
@@ -228,7 +326,7 @@ function releaseInactiveArtForScreen(id) {
 
 function suspendPresentationImages() {
   if (suspendedImagePresentation) return;
-  suspendedImagePresentation = ["scene-image", "ending-image", "what-remains-image"].map(id => {
+  suspendedImagePresentation = ["scene-image", "ending-image", "what-remains-image", "cinematic-image"].map(id => {
     const img = document.getElementById(id);
     return {
       id,
@@ -272,6 +370,7 @@ function showScene(id, opts) {
 
   if (id === "ending_check") {
     resolveEnding();
+    if (!opts.resume) showCinematic("ending");
     return;
   }
 
@@ -1819,6 +1918,7 @@ function makeChoice(choice) {
   let savedWhileBackgrounded = false;
   const resetBackgroundSave = () => { savedWhileBackgrounded = false; };
   const saveIfPlaying = () => {
+    pauseCinematicForBackground();
     if (!savedWhileBackgrounded && !preserveCompletedSlotUntilChoice) {
       try {
         const game = document.getElementById("game-screen");

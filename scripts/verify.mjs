@@ -30,6 +30,7 @@ import {
 } from "./simulate.mjs";
 import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
 import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
+import { cinematicChecks } from "./cinematic-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -256,8 +257,8 @@ function performanceSourceChecks() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
-  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 3) {
-    errors.push("0.34 all three runtime art surfaces must request asynchronous decode");
+  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 4) {
+    errors.push("all four runtime art surfaces, including cinematic, must request asynchronous decode");
   }
   for (const fragment of [
     "function setManagedImageSource(img, src)",
@@ -1039,6 +1040,7 @@ function newRunChecks(runtime) {
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return true; };
     const acceptResult = startGame();
+    finishCinematic(); // Begin now includes a skippable presentation before wake.
     const acceptedRaw = localStorage.getItem(SAVE_KEY);
     const accepted = JSON.parse(acceptedRaw);
     const acceptedState = Object.assign({}, accepted);
@@ -1635,6 +1637,7 @@ function playAgainChecks(runtime) {
     playAgain();
     const afterPlayAgainRaw = localStorage.getItem("sunsplitter_save_v3");
     const afterPlayAgain = JSON.parse(afterPlayAgainRaw);
+    finishCinematic(); // Preserve the same fresh-game assertion after explicit Skip.
     const gameVisible = !document.getElementById("game-screen").classList.contains("hidden");
     const endingHidden = document.getElementById("ending-screen").classList.contains("hidden");
     const remainsHidden = document.getElementById("what-remains-screen").classList.contains("hidden");
@@ -4896,6 +4899,10 @@ async function main() {
     const midgameVarietyErrors = midgameVarietyChecks(runtime);
     printCheck("0.35 existing mid-game event variety + saved offer stability", midgameVarietyErrors);
     failures.push(...midgameVarietyErrors);
+
+    const cinematicErrors = cinematicChecks(runtime);
+    printCheck("0.35 skippable intro/ending + presentation-only save custody", cinematicErrors);
+    failures.push(...cinematicErrors);
 
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);
