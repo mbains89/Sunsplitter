@@ -250,6 +250,8 @@ requireLivingCast("dying", ["rourke"], "intro_lena");
 requireLivingCast("quiet_amara berths_manifest", ["amara"], "lead_prompt");
 requireLivingCast("quiet_mira", ["mira"], "lead_prompt");
 requireLivingCast("quiet_sela", ["sela"], "lead_prompt");
+// SUN-V035-PLAYTEST-SELA-ANSWER-01: same saved-cast contract, mid-arc exit.
+requireLivingCast("arc_living_sela_answer", ["sela"], "arc_living_3");
 requireLivingCast("quiet_tomas", ["tomas"], "act3_spine_next");
 for (const who of ["elias", "tomas", "jiro"]) {
   requireLivingCast(`bond_${who}`, [who], () => state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt");

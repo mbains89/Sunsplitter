@@ -26,6 +26,11 @@ registerScenes({
     ]
   },
 
+  // SUN-V035-PLAYTEST-SELA-ANSWER-01: only the Ask destination changes.
+  // PRE: existing Living arc; Sela/Jiro text and addressed choices are live-gated.
+  // WRITES: original cohesion/supplies/integrity, lean, affinity/trust, spoken
+  // marks and sela_attention choices; entry retains its original memory/mark.
+  // DEATH: none. IMAGE: existing sela_ritual / absent-Sela resolver unchanged.
   arc_living_2: {
     get text() {
       let t = ``;
@@ -49,7 +54,7 @@ registerScenes({
     },
     choices: [
       { text: "Tell her refusal is a kind of navigation. Keep the ritual protected.", next: "arc_living_3", effects: { cohesion: 4, supplies: -1 }, lean: { living: 3 }, affinity: { sela: 12, jiro: 6 }, trust: { sela: 10 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, alive: "sela" },
-      { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_3", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
+      { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_sela_answer", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
       { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" },
       { text: "Leave the marks where they are.", next: "arc_living_3" }
     ],
@@ -61,4 +66,16 @@ registerScenes({
     }
   },
 
+  // SCENE_ID: arc_living_sela_answer | TICKET: SUN-V035-PLAYTEST-SELA-ANSWER-01
+  // SPINE: arc_living_2 Ask -> this response -> original arc_living_3.
+  // PRE: isAlive("sela"), enforced by the existing full-graph guard.
+  // WRITES: none; the question already paid its original effects exactly once.
+  // DEATH: none. DEAD SPEECH/CHOICES: Sela only; absent saved view is neutral.
+  // IMAGE: REUSE images/sela_ritual.jpg; absent guard uses existing corridor.
+  // PROSE: exact existing quiet_sela sentence, not a new price or story chapter.
+  arc_living_sela_answer: {
+    text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."`,
+    choices: [{ text: "Continue.", next: "arc_living_3" }],
+    image: "images/sela_ritual.jpg"
+  }
 });
