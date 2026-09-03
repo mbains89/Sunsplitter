@@ -44,6 +44,7 @@ import { vessRecapChecks } from "./vess-recap-checks.mjs";
 import { destinationChecks } from "./destination-checks.mjs";
 import { jiroVoiceChecks } from "./jiro-voice-checks.mjs";
 import { remainsLeanChecks } from "./remains-lean-checks.mjs";
+import { openingBackstoryChecks } from "./opening-backstory-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5396,6 +5397,10 @@ async function main() {
     const remainsLeanErrors = remainsLeanChecks(runtime);
     printCheck("0.35 What Remains lean matches recorded order weights", remainsLeanErrors);
     failures.push(...remainsLeanErrors);
+
+    const openingBackstoryErrors = openingBackstoryChecks(runtime);
+    printCheck("0.35 opening path reads existing prologue/plates only", openingBackstoryErrors);
+    failures.push(...openingBackstoryErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
