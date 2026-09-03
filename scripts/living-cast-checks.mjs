@@ -10,11 +10,11 @@ export function livingCastChecks(runtime) {
       assert.equal(result.length, 0, JSON.stringify(result.slice(0, 12)));
     } catch (error) { errors.push(`Living cast ${label}: ${error.message}`); }
   };
-  assert.equal(runtime.sceneIds.length, 224);
+  assert.equal(runtime.sceneIds.length, 225);
 
   check("authored living branches and absent entry guards", `(() => {
     const failures = [];
-    if (Object.keys(livingCastContracts).length !== 121) failures.push("required 121-site guard inventory changed");
+    if (Object.keys(livingCastContracts).length !== 122) failures.push("required 122-site guard inventory changed");
     const read = (scene, desc) => {
       const raw = desc.get ? desc.get.call(scene) : desc.value;
       return typeof raw === "function" ? raw.call(scene) : raw;

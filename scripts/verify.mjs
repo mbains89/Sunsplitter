@@ -2,7 +2,7 @@
 
 // Release-gate ownership:
 // - Manifest + syntax: exact browser load order and parseability.
-// - Runtime + validator: one-time registration, 224-scene count, and scene-ID digest.
+// - Runtime + validator: one-time registration, 225-scene count, and scene-ID digest.
 // - Policy simulations: Living, Future, and pragmatic routes reach truthful endings.
 // - V6 fixtures: Amara and Sela stay "made" when they die before an authored test,
 //   and their untested promises are omitted from ending reflection.
@@ -35,6 +35,7 @@ import { cinematicChecks } from "./cinematic-checks.mjs";
 import { maleCrewChecks } from "./male-crew-checks.mjs";
 import { artEventChecks } from "./art-event-checks.mjs";
 import { livingCastChecks } from "./living-cast-checks.mjs";
+import { selaAnswerChecks } from "./sela-answer-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -54,7 +55,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "bd463f1a12019a6bd6c150516a9c6f67b203abd67384d2645697d40152fa5234";
+const EXPECTED_SCENE_IDS_SHA256 = "697828a09d2985b8a4c014fa3b782cc28ddc9451956493643dd92a2cd34d46b3";
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
@@ -5020,6 +5021,10 @@ async function main() {
     const livingCastErrors = livingCastChecks(runtime);
     printCheck("0.35 full-graph living cast + Import/Continue custody", livingCastErrors);
     failures.push(...livingCastErrors);
+
+    const selaAnswerErrors = selaAnswerChecks(runtime);
+    printCheck("0.35 Sela answer before conflict + exact save roundtrip", selaAnswerErrors);
+    failures.push(...selaAnswerErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
