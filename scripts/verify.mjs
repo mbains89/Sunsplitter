@@ -43,6 +43,7 @@ import { joinTypoChecks } from "./join-typo-checks.mjs";
 import { vessRecapChecks } from "./vess-recap-checks.mjs";
 import { destinationChecks } from "./destination-checks.mjs";
 import { jiroVoiceChecks } from "./jiro-voice-checks.mjs";
+import { remainsLeanChecks } from "./remains-lean-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -905,6 +906,22 @@ function whatRemainsChecks(runtime) {
   const mixedRelational = mixed[mixed.length - 1];
   if (mixedRelational !== "Private lines were crossed with Lena and Mira; Lena was alive at the ending, and Mira had died.") {
     errors.push(`mixed relational tense mismatch: ${JSON.stringify(mixedRelational)}`);
+  }
+
+  const weightTrue = runtime.evaluate(`(() => {
+    resetRunState();
+    state.ideology.future = 11;
+    state.ideology.living = 3;
+    state.flags.vault_sacrifice = "split";
+    const facts = whatRemainsFacts();
+    const endingShape = ideologyShape();
+    return { facts, endingShape };
+  })()`);
+  if (weightTrue.endingShape !== "split") {
+    errors.push(`split vault must still shape endings; got ${JSON.stringify(weightTrue.endingShape)}`);
+  }
+  if (weightTrue.facts[0] !== "Across the recorded orders, Future carried more weight.") {
+    errors.push(`Future-leaning recorded orders still classified as split: ${JSON.stringify(weightTrue.facts[0])}`);
   }
 
   return errors;
@@ -5375,6 +5392,10 @@ async function main() {
     const jiroVoiceErrors = jiroVoiceChecks(runtime);
     printCheck("0.35 recovered Jiro voice clarity + destination and save continuity", jiroVoiceErrors);
     failures.push(...jiroVoiceErrors);
+
+    const remainsLeanErrors = remainsLeanChecks(runtime);
+    printCheck("0.35 What Remains lean matches recorded order weights", remainsLeanErrors);
+    failures.push(...remainsLeanErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
