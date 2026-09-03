@@ -29,10 +29,12 @@ Not an alarm. A voice. Soft, almost childlike, cycling through fragments of the 
 
 `;
       }
-      t += `"Some of the crew have started treating it as a presence.`;
-      if (isAlive("amara")) t += ` Amara left a plant cutting on the hatch.`;
-      if (isAlive("elias")) t += ` Elias wants the audio disabled.`;
-      t += `"`;
+      if (isAlive("mira") || isAlive("tomas")) {
+        t += `"Some of the crew have started treating it as a presence.`;
+        if (isAlive("amara")) t += ` Amara left a plant cutting on the hatch.`;
+        if (isAlive("elias")) t += ` Elias wants the audio disabled.`;
+        t += `"`;
+      }
       return t;
     },
     onEnter: () => {

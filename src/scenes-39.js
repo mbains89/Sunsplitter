@@ -47,23 +47,23 @@ He studies you.
   // DEATH: none | DEAD SPEECH/APPEARANCE: all named speakers are present at this early fixed-roster beat
   // IMAGE: REUSE images/vault_reveal.jpg; ART-R2 remains separate
   vault_reveal: {
-    text: `Mira stops you in the corridor outside the sealed cargo section.
+    get text() { return `${isAlive("mira") ? `Mira stops you in the corridor outside the sealed cargo section.
 
-"You need to see this before you give any more orders."
+"You need to see this before you give any more orders."` : ""}
 
-She opens a secondary hatch. Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.
+${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.
 
-"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."
+${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."` : ""}
 
 The monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.
 
-Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."
+${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}
 
-Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."
+${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}
 
 The argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.
 
-The order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`,
+The order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
     get choices() {
       const mandates = [
         { text: "Living priority — divert vault power to habitation now. Cohesion rises; embryo viability takes the first loss.", next: "status", effects: { cohesion: 4, embryos: -5 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 } },

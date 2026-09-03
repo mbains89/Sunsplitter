@@ -79,37 +79,35 @@ The hull produces a recurring metallic knock that people initially mistake for a
     },
     choices: [
       { text: "Go to the alarm yourself.", next: "crisis", effects: { cohesion: 2 } },
-      { text: "Order Mira and Elias ahead. You follow.", next: "crisis", effects: { integrity: 1 } }
+      { text: "Order Mira and Elias ahead. You follow.", next: "crisis", effects: { integrity: 1 }, aliveAll: ["mira", "elias"] }
     ]
   },
   crisis: {
     get text() {
       // 0.22.0: Jiro/Tomas may still be missing; name only the living trapped
-      const trapped = ["Amara Vale"];
+      const trapped = [];
+      if (isAlive("amara")) trapped.push("Amara Vale");
       if (isAlive("jiro")) trapped.push("Jiro Okada");
-      trapped.push("Sela"); // Sela always present early
-      const countWord = trapped.length === 3 ? "Three" : "Two";
+      if (isAlive("sela")) trapped.push("Sela");
+      const countWord = ["No", "One", "Two", "Three"][trapped.length];
       let t = `The alarm is not loud. It does not need to be.
 
-Life support on the lower habitation ring is failing. CO₂ climbing. ${countWord} people are trapped behind a warped bulkhead: ${trapped.join(", ")}.
+Life support on the lower habitation ring is failing. CO₂ climbing. ${countWord} ${trapped.length === 1 ? "person is" : "people are"} trapped behind a warped bulkhead: ${trapped.join(", ")}.
 
-Mira is already at the panel.`;
+${isAlive("mira") ? "Mira is already at the panel." : ""}`;
 
-      if (state.flags.priority === "repairs") {
+      if (isAlive("mira") && state.flags.priority === "repairs") {
         t += `\n\n"The seals we reinforced earlier are buying us minutes. I can try to cut them out. The risk of cascade is lower than it would have been."`;
-      } else {
-        t += `\n\n"I can vent the section and save the rest of the ship, or I can try to cut them out. Cutting risks a cascade. If I fail, we lose more than ${trapped.length === 3 ? "three" : "two"}."`;
+      } else if (isAlive("mira")) {
+        t += `\n\n"I can vent the section and save the rest of the ship, or I can try to cut them out. Cutting risks a cascade. If I fail, we lose more than ${countWord.toLowerCase()}."`;
       }
 
       if (state.flags.priority === "ration") {
         t += `\n\nThe trapped have been on reduced oxygen for two days. They will not last as long as they should.`;
       }
 
-      t += `\n\nElias: "Vent it. Now."
-
-Lena: "Sela is in there."
-
-`;
+      if (isAlive("elias")) t += `\n\nElias: "Vent it. Now."\n\n`;
+      if (isAlive("lena") && isAlive("sela")) t += `Lena: "Sela is in there."\n\n`;
       if (isAlive("tomas")) t += `Tomas looks only at you.\n\n`;
       t += `You have less than four minutes.`;
       return t;

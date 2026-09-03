@@ -77,9 +77,9 @@ registerScenes({
   vault_sacrifice: {
     get text() {
       const pri = state.flags.vault_priority || "both";
-      let t = `A power fault hits the vault and habitation ring at the same time.\n\nMira can stabilize only one grid fully. The other will take irreversible damage. The embryo count will not recover from a living choice; the living will not recover from a full vault divert.\n\n`;
+      let t = `A power fault hits the vault and habitation ring at the same time.\n\n${isAlive("mira") ? `Mira can stabilize only one grid fully.` : ""} The other will take irreversible damage. The embryo count will not recover from a living choice; the living will not recover from a full vault divert.\n\n`;
       if (pri === "future") {
-        t += `You already said the future is what matters. Elias watches to see if you meant it.\n\n`;
+        t += `You already said the future is what matters. ${isAlive("elias") ? `Elias watches to see if you meant it.` : ""}\n\n`;
       } else if (pri === "living") {
         t += `You already said the living come first. The vault panel is still cycling viability percentages in the corner of your vision.\n\n`;
       } else {
@@ -92,7 +92,7 @@ registerScenes({
       if (isAlive("tomas")) t += `Tomas: "Whatever you choose, someone will carry it. Choose knowing that."\n\n`;
       if (isAlive("amara")) t += `Amara: "The trays are still green. That is not a percentage. That is breath."\n\n`;
       if (isAlive("sela")) t += `Sela says nothing. Her latest yellow circle is taped above the vault hatch.\n\n`;
-      t += `Mira waits on the switch. "I need an order."`;
+      if (isAlive("mira")) t += `Mira waits on the switch. "I need an order."`;
       return t;
     },
     choices: [

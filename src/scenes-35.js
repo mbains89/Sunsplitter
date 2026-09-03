@@ -28,7 +28,8 @@ She finally meets your eyes.
   coolant_trade: {
     onEnter: () => { if (state.flags.coolant) return "seal_or_food"; },
     get text() {
-      let t = `Mira and Lena are arguing over the same tank of coolant-grade fluid.`;
+      let t = isAlive("mira") && isAlive("lena")
+        ? `Mira and Lena are arguing over the same tank of coolant-grade fluid.` : "";
 
       if (isAlive("mira")) {
         t += `\n\n"I can stabilize the secondary loop for three weeks if I take it," Mira says. She keeps one hand on the secondary-loop trace.

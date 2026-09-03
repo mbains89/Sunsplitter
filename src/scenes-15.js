@@ -134,7 +134,7 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
       let t = `You read the next line. E-6104. Male. Donor pair deceased. The name field is empty, so you read the emptiness too, the way you'd log a silence on a comm check.`;
       if (isAlive("sela")) {
         t += `\n\nSela does not thank you. She moves her finger down to the following entry and waits — the way people wait for a thing they expect to continue. Tomorrow's line is yours now, if you want it. She will not ask. She has already spent the words.`;
-      } else {
+      } else if (isAlive("elias")) {
         t += `\n\nElias slides the tablet the rest of the way over and doesn't watch you read it. He watches the vault. When you finish he takes the tablet back and marks the count forward by one, in his own column, next to yours.`;
       }
       return t;

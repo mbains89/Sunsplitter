@@ -1091,6 +1091,13 @@ function resolveSceneImage(id, scene) {
     if (state.survivors <= 5) return "images/corridor.jpg";
   }
 
+  // The same absent-participant view must not retain an intimate portrait.
+  // Earlier audited neutral aliases remain authoritative; this only covers
+  // the remaining conversation defaults, using existing in-tree empty art.
+  if (!livingCastPresent(id) || (livingCastImageOnly[id] && !livingCastImageOnly[id].every(isAlive))) {
+    return "images/corridor_variant.jpg";
+  }
+
   // After all id-keyed guards: honor explicit scene.image, then map.
   if (scene && scene.image) return scene.image;
   return map[id] || null;

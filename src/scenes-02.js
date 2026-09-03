@@ -10,12 +10,12 @@ registerScenes({
     get text() {
       let t = `You order the cut.
 
-Mira works like someone who has already accepted she might die today. Sparks. Screaming metal. The bulkhead finally gives.
+${isAlive("mira") ? `Mira works like someone who has already accepted she might die today. Sparks. Screaming metal. The bulkhead finally gives.` : ""}
 
 `;
-      if (isAlive("jiro")) {
+      if (isAlive("jiro") && isAlive("amara") && isAlive("sela")) {
         t += `All three come out alive. Sela is silent with shock. Amara is shaking. Jiro will not release Sela.\n\n`;
-      } else {
+      } else if (isAlive("amara") && isAlive("sela")) {
         t += `Amara and Sela come out alive. Sela is silent with shock. Amara is shaking.\n\n`;
       }
       if (state.flags.priority === "repairs") {
@@ -27,12 +27,12 @@ Mira works like someone who has already accepted she might die today. Sparks. Sc
 
 `;
       }
-      t += `When Amara looks at you, she does not look away.`;
+      if (isAlive("amara")) t += `When Amara looks at you, she does not look away.`;
       return t;
     },
     choices: [
-      { text: "Check on Amara and Sela yourself.", next: "aftermath", effects: { cohesion: 3, supplies: -1 }, affinity: { amara: 8, sela: 6 }, lean: { living: 2 } },
-      { text: "Send Lena. You need to account for the cascade.", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } },
+      { text: "Check on Amara and Sela yourself.", aliveAll: ["amara", "sela"], next: "aftermath", effects: { cohesion: 3, supplies: -1 }, affinity: { amara: 8, sela: 6 }, lean: { living: 2 } },
+      { text: "Send Lena. You need to account for the cascade.", alive: "lena", next: "aftermath", effects: { integrity: 3, cohesion: -1, supplies: -2 }, lean: { future: 1 } },
       { text: "Send them to triage. Spend nothing more here.", next: "aftermath" }
     ]
   },
@@ -56,7 +56,7 @@ ${n} fewer survivors. One of them was twenty years old and still drawing suns on
 
 ${names.join(". ")}.
 
-No one speaks to you for a long time. Elias puts a hand on your shoulder and leaves it there. Lena returns to her work as if nothing happened.
+No one speaks to you for a long time. ${isAlive("elias") ? `Elias puts a hand on your shoulder and leaves it there.` : ""} ${isAlive("lena") ? `Lena returns to her work as if nothing happened.` : ""}
 
 Sela's last yellow circle remains fixed above the sealed bulkhead. No one has asked permission to remove it.`;
     },
@@ -76,21 +76,21 @@ Sela's last yellow circle remains fixed above the sealed bulkhead. No one has as
     }
   },
   self_risk: {
-    text: `You go yourself.
+    get text() { return `You go yourself.
 
-With Mira directing, you and Elias force a secondary access. You take the worst of the exposure. Your lungs burn. Your vision tunnels.
+${isAlive("mira") && isAlive("elias") ? `With Mira directing, you and Elias force a secondary access.` : ""} You take the worst of the exposure. Your lungs burn. Your vision tunnels.
 
 You get them out. The ones who were behind the bulkhead are breathing.
 
-You spend the next day in medical under Lena's care. She does not scold you. She simply says:
+${isAlive("lena") ? `You spend the next day in medical under Lena's care. She does not scold you. She simply says:
 
-"Do not make a habit of this. We cannot afford to lose the only person they still listen to."
+"Do not make a habit of this. We cannot afford to lose the only person they still listen to."` : ""}
 
 The ship is weaker. You are weaker. The people are still alive.
 
-While you recovered, Elias held temporary command. He did not enjoy it. That is the only reason you still have it.`,
+${isAlive("elias") ? `While you recovered, Elias held temporary command. He did not enjoy it. That is the only reason you still have it.` : ""}`; },
     choices: [
-      { text: "Thank Elias for holding the line. Then face the cost.", next: "aftermath", effects: { cohesion: 2, integrity: 1 }, affinity: { elias: 6 } },
+      { text: "Thank Elias for holding the line. Then face the cost.", alive: "elias", next: "aftermath", effects: { cohesion: 2, integrity: 1 }, affinity: { elias: 6 } },
       { text: "Go straight to the crew. They need to see you upright.", next: "aftermath", effects: { cohesion: 4, supplies: -1 } }
     ]
   },
