@@ -29,6 +29,7 @@ import {
   simulationAssertions
 } from "./simulate.mjs";
 import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
+import { offshiftChoiceChecks } from "./offshift-choice-checks.mjs";
 import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
 import { cinematicChecks } from "./cinematic-checks.mjs";
 import { maleCrewChecks } from "./male-crew-checks.mjs";
@@ -4997,6 +4998,10 @@ async function main() {
     const offshiftGuardErrors = offshiftDefensiveGuardChecks(runtime);
     printCheck("L-026 Off-Shift defensive save-recovery guards", offshiftGuardErrors);
     failures.push(...offshiftGuardErrors);
+
+    const offshiftChoiceErrors = offshiftChoiceChecks(runtime);
+    printCheck("0.35 Off-Shift dead-holder choices + save/resume", offshiftChoiceErrors);
+    failures.push(...offshiftChoiceErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
