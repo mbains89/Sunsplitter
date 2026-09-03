@@ -42,6 +42,7 @@ import { pregnancyLenaChecks } from "./pregnancy-lena-checks.mjs";
 import { joinTypoChecks } from "./join-typo-checks.mjs";
 import { vessRecapChecks } from "./vess-recap-checks.mjs";
 import { destinationChecks } from "./destination-checks.mjs";
+import { jiroVoiceChecks } from "./jiro-voice-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5055,6 +5056,10 @@ async function main() {
     const destinationErrors = destinationChecks(runtime);
     printCheck("0.35 final-order destination labels + unchanged outcomes and saves", destinationErrors);
     failures.push(...destinationErrors);
+
+    const jiroVoiceErrors = jiroVoiceChecks(runtime);
+    printCheck("0.35 recovered Jiro voice clarity + destination and save continuity", jiroVoiceErrors);
+    failures.push(...jiroVoiceErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);

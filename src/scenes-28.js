@@ -85,7 +85,9 @@ registerScenes({
   // SUN-V035-PLAYTEST-DESTINATION-01: labels read the same planet commitment
   // as the setup; unset/deferred runs set a course rather than hold one.
   // No entry/render writes, new death exposure, art or mechanical changes.
-  // Existing crew/debt guards and the separate Jiro wording stay unchanged.
+  // Existing crew/debt guards stay unchanged.
+  // SUN-V035-PLAYTEST-JIRO-VOICE-01: Mira's capability does not assert that
+  // Jiro lost his voice. Only that clause changes; Set/Hold labels stay exact.
   // ═════════════════════════════════════════════════════════════════
   final_choice: {
     get text() {
@@ -111,7 +113,7 @@ registerScenes({
       if (isAlive("jiro") && (state.trust.jiro || 0) >= 35 && !debt.includes("jiro")) {
         opts.push({ text: committed ? "Hold course for the rogue planet. We finish what we started." : "Set course for the rogue planet.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 30 }, supplies: { min: 10 } }, lean: { future: 3 }, alive: "jiro" });
       } else if (isAlive("mira") && (state.trust.mira || 0) >= 40 && !debt.includes("mira")) {
-        opts.push({ text: committed ? "Hold course — Mira can keep the drive honest even without Jiro's full voice." : "Set course for the rogue planet — Mira can keep the drive honest even without Jiro's full voice.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 28 }, supplies: { min: 10 } }, lean: { future: 2 }, alive: "mira" });
+        opts.push({ text: committed ? "Hold course — Mira can keep the drive honest." : "Set course for the rogue planet — Mira can keep the drive honest.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 28 }, supplies: { min: 10 } }, lean: { future: 2 }, alive: "mira" });
       } else {
         opts.push({ text: committed ? "Hold course anyway. Navigation will be rougher without full crew buy-in." : "Set course for the rogue planet anyway. Navigation will be rougher without full crew buy-in.", next: holdNext, flag: { final: "hold" }, effects: { integrity: -4, cohesion: -3 }, requires: { integrity: { min: 35 }, supplies: { min: 12 } }, lean: { future: 2 } });
       }
