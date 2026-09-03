@@ -82,6 +82,10 @@ registerScenes({
   // DEATH EXPOSURE: none
   // DEAD-SPEECH CHECK: none (crew names in debt list are living debtors)
   // IMAGE: images/final_choice.jpg via sceneImages map [EXISTS]
+  // SUN-V035-PLAYTEST-DESTINATION-01: labels read the same planet commitment
+  // as the setup; unset/deferred runs set a course rather than hold one.
+  // No entry/render writes, new death exposure, art or mechanical changes.
+  // Existing crew/debt guards and the separate Jiro wording stay unchanged.
   // ═════════════════════════════════════════════════════════════════
   final_choice: {
     get text() {
@@ -101,18 +105,19 @@ registerScenes({
     get choices() {
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       const opts = [];
+      const committed = state.flags.planet === "committed";
       // Hold course needs Jiro or Mira trusting enough — structural dependence
       const holdNext = (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound") ? "patch_fails" : "ending_check";
       if (isAlive("jiro") && (state.trust.jiro || 0) >= 35 && !debt.includes("jiro")) {
-        opts.push({ text: "Hold course for the rogue planet. We finish what we started.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 30 }, supplies: { min: 10 } }, lean: { future: 3 }, alive: "jiro" });
+        opts.push({ text: committed ? "Hold course for the rogue planet. We finish what we started." : "Set course for the rogue planet.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 30 }, supplies: { min: 10 } }, lean: { future: 3 }, alive: "jiro" });
       } else if (isAlive("mira") && (state.trust.mira || 0) >= 40 && !debt.includes("mira")) {
-        opts.push({ text: "Hold course — Mira can keep the drive honest even without Jiro's full voice.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 28 }, supplies: { min: 10 } }, lean: { future: 2 }, alive: "mira" });
+        opts.push({ text: committed ? "Hold course — Mira can keep the drive honest even without Jiro's full voice." : "Set course for the rogue planet — Mira can keep the drive honest even without Jiro's full voice.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 28 }, supplies: { min: 10 } }, lean: { future: 2 }, alive: "mira" });
       } else {
-        opts.push({ text: "Hold course anyway. Navigation will be rougher without full crew buy-in.", next: holdNext, flag: { final: "hold" }, effects: { integrity: -4, cohesion: -3 }, requires: { integrity: { min: 35 }, supplies: { min: 12 } }, lean: { future: 2 } });
+        opts.push({ text: committed ? "Hold course anyway. Navigation will be rougher without full crew buy-in." : "Set course for the rogue planet anyway. Navigation will be rougher without full crew buy-in.", next: holdNext, flag: { final: "hold" }, effects: { integrity: -4, cohesion: -3 }, requires: { integrity: { min: 35 }, supplies: { min: 12 } }, lean: { future: 2 } });
       }
       // Comfort path needs living-side trust. Advertised supplies min is an immediate paid fuel cost.
       if (!debt.includes("amara") && !debt.includes("tomas")) {
-        opts.push({ text: "Abandon the destination. Spend the remaining fuel on speed and comfort.", next: "ending_check", flag: { final: "comfort" }, effects: { supplies: -15 }, requires: { supplies: { min: 15 } }, lean: { living: 3 } });
+        opts.push({ text: (committed ? "Abandon the destination." : "Leave the destination unset.") + " Spend the remaining fuel on speed and comfort.", next: "ending_check", flag: { final: "comfort" }, effects: { supplies: -15 }, requires: { supplies: { min: 15 } }, lean: { living: 3 } });
       } else {
         opts.push({ text: "Push for comfort anyway — even if some of the living will not thank you.", next: "ending_check", flag: { final: "comfort" }, effects: { cohesion: -4, supplies: -18 }, requires: { supplies: { min: 18 } }, lean: { living: 2 } });
       }
