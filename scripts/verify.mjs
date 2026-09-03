@@ -32,6 +32,7 @@ import { offshiftDefensiveGuardChecks } from "./l026-offshift-guards.mjs";
 import { midgameVarietyChecks } from "./midgame-variety-checks.mjs";
 import { cinematicChecks } from "./cinematic-checks.mjs";
 import { maleCrewChecks } from "./male-crew-checks.mjs";
+import { artEventChecks } from "./art-event-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -4908,6 +4909,10 @@ async function main() {
     const maleCrewErrors = maleCrewChecks(runtime);
     printCheck("0.35 existing male crew personality follow-through + save custody", maleCrewErrors);
     failures.push(...maleCrewErrors);
+
+    const artEventErrors = artEventChecks(runtime);
+    printCheck("0.35 confirmed event-art retargets + saved-render guards", artEventErrors);
+    failures.push(...artEventErrors);
 
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);

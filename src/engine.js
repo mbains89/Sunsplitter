@@ -978,7 +978,44 @@ function isIntimateScene(id, scene) {
 
 function resolveSceneImage(id, scene) {
   const map = (typeof sceneImages !== "undefined" && sceneImages) ? sceneImages : {};
-  // Death-aware + unrecovered-aware group plates FIRST.
+  // SUN-V035-PLAYTEST-ART-AUDIT-01: pixel-verified event-fit aliases.
+  // PRE: existing scene admission / saved-scene render, unchanged.
+  // WRITES: none (including no scene, choice, memory, relationship or RNG writes).
+  // DEATH: no new exposure; silence/vent depict their existing committed losses.
+  // APPEARANCE: every new named portrait is live-guarded, even on saved renders.
+  // IMAGE: exact existing bytes; declarations and before/after evidence in ART_REQUESTS.
+  // These explicit repairs precede historical scene/map defaults; all other IDs
+  // still use the existing guards below. No story object or save format changes.
+  const eventArt = {
+    silence: "images/covered_body.jpg",
+    offshift_lena: "images/medbay_dim.jpg",
+    breath_blacksleep: "images/medbay_dim.jpg",
+    ship_memory_payoff: "images/corridor_pressure_4.jpg",
+    patch_fails: "images/power_stress_2.jpg",
+    custody_possession: "images/corridor_pressure_1.jpg",
+    prom_deck4: "images/corridor_pressure_3.jpg",
+    vault_voice: "images/vault.jpg"
+  };
+  if (Object.prototype.hasOwnProperty.call(eventArt, id)) return eventArt[id];
+  if (id === "vent" || (["aftermath", "crisis", "priority_repairs"].includes(id) && state.flags.crisis === "vent")) {
+    return "images/aftermath.jpg";
+  }
+  if (["private_stores", "act3_lethal_elias_order", "act3_lethal_elias_sealant", "prom_deck4_keep", "prom_deck4_break"].includes(id)) {
+    return isAlive("elias") ? "images/elias.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  if (id === "pregnancy_check") {
+    return isAlive("lena") ? "images/lena.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  if (["filters_stencil", "filters_stencil_luck", "filters_stencil_silent", "offshift_sela"].includes(id)) {
+    return isAlive("sela") ? "images/sela.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  if (["act2_tether_hand_elias", "act2_tether_hand_mira", "act2_tether_hand_sela"].includes(id)) {
+    return isAlive(id.slice("act2_tether_hand_".length)) ? "images/tether_ride.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  // Preserve the previously repaired live yellow-mark plate, but not a dead artist.
+  if (id === "arc_living_2" && !isAlive("sela")) return "images/corridor_pressure_3.jpg";
+
+  // Remaining death-aware + unrecovered-aware historical group plates.
   // isAlive already treats !recovered.tomas/jiro as not alive (0.22+).
   // Fallbacks use literal paths — map keys are scene ids, not generic location names.
   // Scene-level image: is honored only after guards fall through (0.24.2).

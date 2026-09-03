@@ -1,5 +1,69 @@
 # Sunsplitter — Art Requests
 
+## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets
+
+`SOURCE main@8d23109 · RUNTIME base@163d333 · TASK SUN-V035-PLAYTEST-ART-AUDIT-01 · MODE implementation`
+
+Build / $ Con V9; owner-authorized 2035CT dispatch. Existing in-tree bytes only.
+These aliases are resolved centrally by `resolveSceneImage`, ahead of historical
+scene/map defaults. No scene text, choices, entry hooks, gates, costs, memories,
+state keys, RNG, save schema, image files or prior source mappings are rewritten.
+All image reads are pure. Entry and death exposure remain exactly those in the
+existing scene declarations; this change creates no death or relationship effect.
+
+Pixel inspection, not filename inference, established each mismatch below.
+Portraits are character-focus illustrations, not claims to show a literal procedure.
+
+| Event / existing render point | Confirmed old image contradiction | Existing alias / appearance condition |
+|---|---|---|
+| `silence`, after its existing Rourke death entry | `medical_bay.jpg` still shows the exposed man being treated after Lena covers his face | `covered_body.jpg`; concealed corpse, two indistinct observers; same existing outcome-art class as the other Rourke exits |
+| `offshift_lena`, quiet late medbay hour | Opening emergency/bloody Rourke instead of a quiet medbay | `medbay_dim.jpg`; empty exam chairs, one indistinct distant silhouette; no named face |
+| `breath_blacksleep`, committed medical crisis response | `medbay_dim_alt.jpg` is a control hall overlooking an industrial skyline, not treatment space | `medbay_dim.jpg`; actual medical setting, no particular patient's condition asserted |
+| `pregnancy_check`, corridor conversation / dead-Lena fallback | Same unrelated skyline/control hall | Official `lena.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `act3_lethal_elias_order`, `act3_lethal_elias_sealant`, pressure-control decision and contained breach | `bond_elias.jpg` shows seated mug/table companionship during emergency work | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `private_stores`, early Elias report before crew recoveries | `private_stores.jpg` is three people at a navigation viewport, including unrecovered Jiro, not Elias's private-food report | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `prom_deck4`, reconstructed door record | `bulkhead.jpg` depicts a face-visible armed man crawling through a vent; no such intervention is in this scene | `corridor_pressure_3.jpg`; empty structural passage, no invented participant |
+| `prom_deck4_keep`, `prom_deck4_break`, Elias hears the whole / edited / buried record | Star-window two-man tableau / armed vent crawl instead of Elias's record response | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `ship_memory_payoff`, all seal/memory branches before final orders | Armed vent crawl despite passive structural-debt accounting | `corridor_pressure_4.jpg`; empty structural passage, no new damage or repair assertion |
+| `patch_fails`, loaded seal / remote-valve failure | `vent.jpg` is an armed man entering a shaft, not the described remote structural failure | `power_stress_2.jpg`; crew-free red emergency passage with sparking conduits |
+| `custody_possession`, committed thermal exposure | Armed vent crawl, no matching authored intervention | `corridor_pressure_1.jpg`; empty red-pressure passage, no individual outcome asserted |
+| `vent`; `aftermath`, `crisis`, `priority_repairs` only when their existing crisis flag is `vent` | Armed crawling man instead of the sealed section and lost crew | `aftermath.jpg`; sealed bulkhead, geometric yellow sun, empty bunks and abandoned key; no people. Non-vent crisis handling unchanged |
+| `arc_living_2`, dead-Sela branch only | Living Sela actively painting while text says “Their author does not.” | `corridor_pressure_3.jpg`; no artist asserted. The previously repaired live `sela_ritual.jpg` binding stays intact |
+| `act2_tether_hand_elias`, `act2_tether_hand_mira`, `act2_tether_hand_sela`, before the catch, both approach speeds | `self_risk.jpg` is an unhelmeted male back inside a corridor, not an EVA tether rider | `tether_ride.jpg`; one anonymous helmeted rider outside the ship, green annex still ahead. If the selected rider is dead in a saved render, empty `corridor_pressure_3.jpg` instead |
+| `vault_voice`, speaking-vault interface | `vault_voice.jpg` is a navigation/planet-window tableau | `vault.jpg`; cold, crew-free vault racks; location-level illustration |
+| `filters_stencil`, `filters_stencil_luck`, `filters_stencil_silent`, crate/filter discussion; `offshift_sela`, lamp ritual | `sela_ritual.jpg` shows actively painting a door, not handling filters or attending a lamp | Official `sela.jpg` only while alive; otherwise `corridor_pressure_3.jpg`; no new ritual action invented |
+
+### Alias properties and preservation
+
+- All reused files are existing portrait-aspect plates. No crop, recolor, generation,
+  duplication, new identity ruling, or new ART-R2 approval.
+- Official Elias/Lena/Sela portraits: one face, neutral/cold existing interior.
+- Pressure passages and vault: no figures, rectangular interiors; crimson emergency
+  for `_1` / `power_stress_2`, mixed cyan/red for `_3` / `_4`, cold cyan for vault.
+- Medbay: cold cyan medical chairs, one unidentifiable silhouette; not a crew count.
+- Covered body: identity concealed, cold/crimson medical aftermath; opening death only.
+- Tether: one anonymous helmeted exterior rider; no rider gender/face or rescued crew asserted.
+- Sealed vent aftermath: crew-free, crimson/cyan structural interior.
+- Existing repair controls remain: Rourke siblings / covered-body Lena outcome,
+  faction-split retirement, offshift Vess official portrait and guard, act3 hub
+  variant, live yellow-mark action, tether sighting/rush, Lena intimacy, and male-crew
+  portraits. No cinematic or ending-screen binding changes.
+
+### Coverage and limits
+
+Source/event-fit review covered the 55 scene modules with two independent read-only
+review tracks plus root reconciliation. This is not full ART-R2 identity/crop/signage
+certification. Runtime retargets are limited to the 26 named IDs above (some conditional).
+No catalog-only change is proposed: the resolver changes the rendered game.
+
+Unchanged candidates without a proven safe replacement or outside this bounded repair:
+the tether docking plate across intact versus ruined-tray outcomes; early records
+imagery; berth imagery with visible invented name tape; variable numerical overlays;
+legacy observation fallbacks; intimate-setting
+and full character-identity issues. These are not represented as fixed or approved.
+No further ticket is minted. ART-R2 remains held; NO-PUBLISH / NOT_CERTIFIED; last
+certified remains 0.28.1d.
+
 ## SUN-V035-PLAYTEST-MALE-CREW-01 — existing-portrait aliases only
 
 - `bond_elias_mending` → byte-identical `images/elias.jpg`, the existing official Elias portrait. One identifiable man, rectangular interior, neutral/cold character focus; early or post-vault accepted Elias bond only while alive.
