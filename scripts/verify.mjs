@@ -40,6 +40,7 @@ import { capacitorChecks } from "./capacitor-checks.mjs";
 import { epilogueChecks } from "./epilogue-checks.mjs";
 import { pregnancyLenaChecks } from "./pregnancy-lena-checks.mjs";
 import { joinTypoChecks } from "./join-typo-checks.mjs";
+import { vessRecapChecks } from "./vess-recap-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5045,6 +5046,10 @@ async function main() {
     const joinTypoErrors = joinTypoChecks(runtime);
     printCheck("0.35 faction summary paragraph joins + unchanged prose, outcomes and saves", joinTypoErrors);
     failures.push(...joinTypoErrors);
+
+    const vessRecapErrors = vessRecapChecks(runtime);
+    printCheck("0.35 accepted Vess recap + unchanged approach gates and save custody", vessRecapErrors);
+    failures.push(...vessRecapErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);
