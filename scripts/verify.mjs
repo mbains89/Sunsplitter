@@ -2483,6 +2483,88 @@ function lethalEliasOrderImageTruthChecks(runtime) {
   return errors;
 }
 
+function romanceMira1ImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/quiet_mira.jpg";
+  const forbidden = "images/shower_mira.jpg";
+  const faceReveal = "images/romance_mira_1.jpg";
+  const linger = "images/shower_mira.jpg";
+  const expectedHashes = {
+    "images/quiet_mira.jpg": "27518fd30d22c578eca8fb2b3a775ca6a77c6b4da4486fb0b2a5a39d81d0cf3c",
+    "images/shower_mira.jpg": "003145b704f5df06cde8c2b586229b951c820059b92efc8dd2b76d750817ec13",
+    "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
+    "images/bodysuit_mira.jpg": "8b902308cd93489332629b004ec17e5a7b9675d9ae006391554c82690193229b",
+    "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "romance_mira_1";
+    const before = JSON.stringify(state);
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      showerMapped: sceneImages.mira_shower,
+      showerDeclared: scenes.mira_shower && scenes.mira_shower.image,
+      showerResolved: resolveSceneImage("mira_shower", scenes.mira_shower),
+      lenaMapped: sceneImages.romance_lena_1,
+      lenaDeclared: scenes.romance_lena_1 && scenes.romance_lena_1.image,
+      lenaResolved: resolveSceneImage("romance_lena_1", scenes.romance_lena_1),
+      amaraMapped: sceneImages.romance_amara_1,
+      amaraDeclared: scenes.romance_amara_1 && scenes.romance_amara_1.image,
+      amaraResolved: resolveSceneImage("romance_amara_1", scenes.romance_amara_1),
+      eliasTetherMapped: sceneImages.act2_tether_hand_elias,
+      eliasTetherDeclared: scenes.act2_tether_hand_elias && scenes.act2_tether_hand_elias.image,
+      eliasTetherResolved: resolveSceneImage("act2_tether_hand_elias", scenes.act2_tether_hand_elias),
+      eliasLethalMapped: sceneImages.act3_lethal_elias_order,
+      eliasLethalDeclared: scenes.act3_lethal_elias_order && scenes.act3_lethal_elias_order.image,
+      eliasLethalResolved: resolveSceneImage("act3_lethal_elias_order", scenes.act3_lethal_elias_order)
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("romance_mira_1 image resolve wrote run state");
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`romance_mira_1 ${field} still uses the premature shower plate ${forbidden}`);
+    }
+    if (fixture[field] === faceReveal) {
+      errors.push(`romance_mira_1 ${field} wired the face-revealing plate ${faceReveal}`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`romance_mira_1 ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  for (const field of ["showerMapped", "showerDeclared", "showerResolved"]) {
+    if (fixture[field] !== linger) {
+      errors.push(`mira_shower ${field} is ${fixture[field] || "missing"}; expected ${linger}`);
+    }
+  }
+  const prior = {
+    lenaMapped: "images/observation_bridge_alt_2.jpg",
+    lenaDeclared: "images/observation_bridge_alt_2.jpg",
+    lenaResolved: "images/observation_bridge_alt_2.jpg",
+    amaraMapped: "images/hydroponics.jpg",
+    amaraDeclared: "images/hydroponics.jpg",
+    amaraResolved: "images/hydroponics.jpg",
+    eliasTetherMapped: "images/tether_ride.jpg",
+    eliasTetherDeclared: "images/tether_ride.jpg",
+    eliasTetherResolved: "images/tether_ride.jpg",
+    eliasLethalMapped: "images/work_elias.jpg",
+    eliasLethalDeclared: "images/work_elias.jpg",
+    eliasLethalResolved: "images/work_elias.jpg"
+  };
+  for (const [field, image] of Object.entries(prior)) {
+    if (fixture[field] !== image) {
+      errors.push(`prior ART-R2 ${field} is ${fixture[field] || "missing"}; expected ${image}`);
+    }
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Mira leftover plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function lenaIntimacyImageTruthChecks(runtime) {
   const errors = [];
   const expected = {
@@ -5189,6 +5271,10 @@ async function main() {
     const lethalEliasOrderImageTruthErrors = lethalEliasOrderImageTruthChecks(runtime);
     printCheck("SUN-V035-ART-R2-ELIAS-LETHAL-01 station work plate", lethalEliasOrderImageTruthErrors);
     failures.push(...lethalEliasOrderImageTruthErrors);
+
+    const romanceMira1ImageTruthErrors = romanceMira1ImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-MIRA-01 engineering console plate", romanceMira1ImageTruthErrors);
+    failures.push(...romanceMira1ImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
