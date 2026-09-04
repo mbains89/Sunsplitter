@@ -9,6 +9,8 @@ export function playtestNewRunChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const validate = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  const runtimeSrc = engine + "\n" + validate;
 
   if (!html.includes('id="btn-begin"') || !html.includes('onclick="startGame()"')) {
     errors.push("title Begin/New run lost startGame wiring");
@@ -16,14 +18,14 @@ export function playtestNewRunChecks(runtime) {
   if (!html.includes('id="new-run-confirm"') || !html.includes("confirmNewRun()") || !html.includes("cancelNewRun()")) {
     errors.push("in-page new-run confirm markup missing");
   }
-  if (!engine.includes("function startGame") || !engine.includes("function commitNewRun") || !engine.includes("function confirmNewRun")) {
-    errors.push("engine lost new-run confirm helpers");
+  if (!engine.includes("function startGame") || !engine.includes("beginFreshCampaign({ persist: true })")) {
+    errors.push("engine lost persist-true new run");
   }
-  if (!engine.includes("beginFreshCampaign({ persist: true })")) {
-    errors.push("new run no longer persists a fresh slot");
-  }
-  if (!engine.includes('showCinematic("intro")')) {
+  if (!runtimeSrc.includes('showCinematic("intro")')) {
     errors.push("new run no longer reaches intro cinematic");
+  }
+  if (!runtimeSrc.includes("Start a new run? This will replace your saved progress.")) {
+    errors.push("new-run confirm copy missing");
   }
 
   try {
@@ -32,76 +34,70 @@ export function playtestNewRunChecks(runtime) {
         try { return localStorage.getItem("sunsplitter_save_v3"); } catch (e) { return null; }
       };
       const begin = document.getElementById("btn-begin");
-      const panel = document.getElementById("new-run-confirm");
-
-      localStorage.clear();
-      resetRunState();
-      const noSaveStart = startGame();
-      const noSave = {
-        started: noSaveStart,
-        intro: !!(currentCinematic && currentCinematic.kind === "intro"),
-        scene: state.scene,
-        panelHidden: !panel || panel.classList.contains("hidden")
-      };
-      if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
-
-      resetRunState();
-      state.scene = "hydroponics";
-      state.survivors = 6;
-      persistSave({ silent: true });
-      const savedRaw = rawSave();
-      showTitleScreen();
-      const labeled = begin && begin.textContent === "New run";
-      const afterClick = startGame();
-      const pending = {
-        afterClick,
-        labeled,
-        panelOpen: !!(panel && !panel.classList.contains("hidden")),
-        scene: state.scene,
-        saveKept: rawSave() === savedRaw
-      };
-      const cancelled = cancelNewRun();
-      const afterCancel = {
-        cancelled,
-        panelHidden: !panel || panel.classList.contains("hidden"),
-        scene: state.scene,
-        saveKept: rawSave() === savedRaw
-      };
-      const resumed = resumeGame();
-      const afterResume = {
-        resumed,
-        scene: state.scene,
-        cinematic: !!(currentCinematic && currentCinematic.kind)
-      };
-
-      showTitleScreen();
-      startGame();
-      const confirmed = confirmNewRun();
-      const afterConfirm = {
-        confirmed,
-        intro: !!(currentCinematic && currentCinematic.kind === "intro"),
-        scene: state.scene,
-        panelHidden: !panel || panel.classList.contains("hidden"),
-        saveIsWake: false
-      };
+      const nativeConfirm = window.confirm;
+      const results = {};
       try {
-        const live = JSON.parse(rawSave() || "null");
-        afterConfirm.saveIsWake = !!(live && live.scene === "wake");
-      } catch (e) { afterConfirm.saveIsWake = false; }
+        localStorage.clear();
+        resetRunState();
+        window.confirm = () => true;
+        const noSaveStart = startGame();
+        results.noSave = {
+          started: noSaveStart,
+          intro: !!(currentCinematic && currentCinematic.kind === "intro"),
+          scene: state.scene
+        };
+        if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
 
-      return { noSave, pending, afterCancel, afterResume, afterConfirm };
+        resetRunState();
+        state.scene = "hydroponics";
+        state.survivors = 6;
+        persistSave({ silent: true });
+        const savedRaw = rawSave();
+        showTitleScreen();
+        results.labeled = begin && begin.textContent === "New run";
+
+        window.confirm = () => false;
+        const cancelled = startGame();
+        results.afterCancel = {
+          cancelled,
+          scene: state.scene,
+          saveKept: rawSave() === savedRaw
+        };
+
+        const resumed = resumeGame();
+        results.afterResume = {
+          resumed,
+          scene: state.scene,
+          cinematic: !!(currentCinematic && currentCinematic.kind)
+        };
+
+        showTitleScreen();
+        window.confirm = () => true;
+        const confirmed = startGame();
+        let saveIsWake = false;
+        try {
+          const live = JSON.parse(rawSave() || "null");
+          saveIsWake = !!(live && live.scene === "wake");
+        } catch (e) { saveIsWake = false; }
+        results.afterConfirm = {
+          confirmed,
+          intro: !!(currentCinematic && currentCinematic.kind === "intro"),
+          scene: state.scene,
+          saveIsWake
+        };
+      } finally {
+        window.confirm = nativeConfirm;
+      }
+      return results;
     })()`);
 
     if (!fixture.noSave || !fixture.noSave.started || !fixture.noSave.intro || fixture.noSave.scene !== "wake") {
       errors.push("Begin with no save did not start a fresh intro/wake run");
     }
-    if (!fixture.pending || fixture.pending.afterClick || !fixture.pending.panelOpen || !fixture.pending.saveKept || fixture.pending.scene !== "hydroponics") {
-      errors.push("NEW RUN with a save did not wait on confirm (dead click or wiped early)");
-    }
-    if (!fixture.pending || !fixture.pending.labeled) {
+    if (!fixture.labeled) {
       errors.push("btn-begin did not relabel to New run when a save exists");
     }
-    if (!fixture.afterCancel || fixture.afterCancel.scene !== "hydroponics" || !fixture.afterCancel.saveKept || !fixture.afterCancel.panelHidden) {
+    if (!fixture.afterCancel || fixture.afterCancel.cancelled || fixture.afterCancel.scene !== "hydroponics" || !fixture.afterCancel.saveKept) {
       errors.push("Cancel confirm did not leave the existing save intact");
     }
     if (!fixture.afterResume || !fixture.afterResume.resumed || fixture.afterResume.scene !== "hydroponics" || fixture.afterResume.cinematic) {
