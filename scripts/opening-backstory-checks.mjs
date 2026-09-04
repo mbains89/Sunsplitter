@@ -6,6 +6,7 @@ import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-check
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
 import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 import { playtestTutorialTopfieldsChecks } from "./playtest-tutorial-topfields-checks.mjs";
+import { playtestAmaraRomanceReproChecks } from "./playtest-amara-romance-repro-checks.mjs";
 
 // SUN-V035-OPENING-BACKSTORY-01. Opening path may read only the already-in-tree
 // title prologue and onboarding plate. No new invented cascade backstory.
@@ -160,6 +161,7 @@ export function openingBackstoryChecks(runtime) {
   errors.push(...playtestTitleRotatingShipChecks(runtime));
   errors.push(...playtestIntroBackArtChecks(runtime));
   errors.push(...playtestTutorialTopfieldsChecks(runtime));
+  errors.push(...playtestAmaraRomanceReproChecks(runtime));
   if (errors.length) return errors;
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   return openingPathErrors(runtime, parseExistingIntroLines(indexSource));
