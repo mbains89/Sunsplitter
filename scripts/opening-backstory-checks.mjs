@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-checks.mjs";
 
 // SUN-V035-OPENING-BACKSTORY-01. Opening path may read only the already-in-tree
 // title prologue and onboarding plate. No new invented cascade backstory.
@@ -139,6 +140,7 @@ function openingPathErrors(runtime, lines) {
 
 export function openingBackstoryChecks(runtime) {
   const errors = sourceErrors();
+  errors.push(...playtestTitleWhitespaceChecks(runtime));
   if (errors.length) return errors;
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   return openingPathErrors(runtime, parseExistingIntroLines(indexSource));
