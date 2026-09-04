@@ -52,10 +52,10 @@ const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
 const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
-const PRIVATE_PACKAGE_SOURCE_SHA = "e3b7472c7c8e740078155c0a7489fc4031cdfb3b";
-const PRIVATE_PACKAGE_SOURCE_TREE = "81602c1c1d2c9100af2a6345b1813bd0fe914bb6";
-const PRIVATE_PACKAGE_SHA256 = "0ca55bf7d7bc3558ddec03f4a7ad5d2e05c0cff3abcba926afb819c58af3acd2";
-const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "76d3856cbae5b50d612ddcc71a52b648b2ee65a31d9064e1056cae8b1fbc868d";
+const PRIVATE_PACKAGE_SOURCE_SHA = "a91a26d47ac76a976ca4406caf9b04511c11ba82";
+const PRIVATE_PACKAGE_SOURCE_TREE = "dd9ea40d90ee08d52ff2c11c263a7d7cceb80895";
+const PRIVATE_PACKAGE_SHA256 = "47d8d9c9fdea11971e8e62763344ff5308453358d6ada42fb14e88b102408a58";
+const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "5900313bf0dd17700edb159733bb0521a85ff077d596476274a5c6435654ab11";
 const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
@@ -4659,11 +4659,11 @@ function privatePackageChecks() {
     if (first.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE || second.sourceTree !== PRIVATE_PACKAGE_SOURCE_TREE) {
       errors.push(`private-package source tree drifted from ${PRIVATE_PACKAGE_SOURCE_TREE}`);
     }
-    if (first.archiveBytes !== 28773988 || first.archiveEntries !== 157 || first.runtimeFiles !== 149 ||
+    if (first.archiveBytes !== 29596520 || first.archiveEntries !== 160 || first.runtimeFiles !== 152 ||
         first.contentNoticeBytes !== 1336 || first.phoneGuideBytes !== 3352 || first.phoneServerBytes !== 7493 ||
         first.storeDraftBytes !== 2380 || first.supportDraftBytes !== 2558 || first.privacyDraftBytes !== 2912 ||
         first.adultClassificationDescriptors !== 8 ||
-        first.packagedAssets !== 88 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
+        first.packagedAssets !== 91 || first.inventoriedAssets !== 169 || first.fontsBundled !== 0 ||
         first.licenseFilesBundled !== 0 || first.externalFontStylesheets !== 1) {
       errors.push(`private-package summary drifted: ${JSON.stringify(first)}`);
     }
@@ -4711,7 +4711,7 @@ function privatePackageChecks() {
     const payloadPaths = payloadFiles.map(file => file.sourcePath)
       .sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
     const payloadPathDigest = sha256(`${payloadPaths.join("\n")}\n`);
-    if (payloadFiles.length !== 149 || payloadPathDigest !== PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256) {
+    if (payloadFiles.length !== 152 || payloadPathDigest !== PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256) {
       errors.push(`runtime closure drifted: files=${payloadFiles.length} sha256=${payloadPathDigest}`);
     }
     const expectedEntryPaths = new Set([
@@ -5117,7 +5117,7 @@ function privatePackageChecks() {
     const inventory = manifest.inventory || {};
     const trackedAssets = inventory.trackedAssets || [];
     const duplicateAssets = trackedAssets.filter(asset => asset.duplicateOf);
-    if (trackedAssets.length !== 169 || trackedAssets.filter(asset => asset.packageIncluded).length !== 88 || duplicateAssets.length !== 3) {
+    if (trackedAssets.length !== 169 || trackedAssets.filter(asset => asset.packageIncluded).length !== 91 || duplicateAssets.length !== 3) {
       errors.push(`asset inventory drifted: assets=${trackedAssets.length} included=${trackedAssets.filter(asset => asset.packageIncluded).length} duplicates=${duplicateAssets.length}`);
     }
     if ((inventory.trackedFontFiles || []).length !== 0 || (inventory.trackedLicenseFiles || []).length !== 0 ||
