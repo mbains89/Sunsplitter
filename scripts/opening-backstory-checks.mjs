@@ -4,9 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-checks.mjs";
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
+import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 
 // SUN-V035-OPENING-BACKSTORY-01. Opening path may read only the already-in-tree
 // title prologue and onboarding plate. No new invented cascade backstory.
+// SUN-PLAYTEST-INTRO-BACK-ART-01 wires per-slide in-tree art on that same path.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -16,6 +18,11 @@ const EXISTING_INTRO_LINES = [
   "You are the Commander. The ship is damaged. The living are already arguing about what to save."
 ];
 const EXISTING_PLATE = "images/onboarding_background.jpg";
+const INTRO_SLIDE_ART = [
+  "images/cascade_records.jpg",
+  "images/ship_exterior_2.jpg",
+  "images/arc_living_conflict.jpg"
+];
 const EXISTING_WAKE_OFFICIAL = "Nine of you cleared the hatch. The official story is that the cascade gave you hours, maybe two days.";
 const INVENTED_OPENING = [
   "standoff operation",
@@ -68,7 +75,12 @@ function sourceErrors() {
     errors.push("start path no longer shows the existing intro cinematic");
   }
   if (!engineSource.includes(`setManagedImageSource(img, "${EXISTING_PLATE}")`)) {
-    errors.push("intro cinematic no longer uses the existing onboarding plate");
+    errors.push("ending cinematic no longer uses the existing onboarding plate");
+  }
+  for (const plate of INTRO_SLIDE_ART) {
+    if (!engineSource.includes(`"${plate}"`)) {
+      errors.push(`intro cinematic lost in-tree slide plate ${plate}`);
+    }
   }
   if (EXISTING_INTRO_LINES.some(line => engineSource.includes(line))) {
     errors.push("engine hardcodes opening backstory instead of reading in-tree prologue");
@@ -95,6 +107,7 @@ function openingPathErrors(runtime, lines) {
   check("Begin reads existing prologue/plate, not invented frames", `(() => {
     const lines = ${seeded};
     const invented = ${JSON.stringify(INVENTED_OPENING)};
+    const plates = ${JSON.stringify(INTRO_SLIDE_ART)};
     localStorage.clear();
     resetRunState();
     for (let n = 1; n <= 3; n++) document.getElementById("intro-line-" + n).textContent = lines[n - 1];
@@ -102,10 +115,9 @@ function openingPathErrors(runtime, lines) {
     if (currentCinematic.frames.length !== 3) return false;
     for (let i = 0; i < 3; i++) {
       if (currentCinematic.frames[i] !== lines[i]) return false;
-      if (document.getElementById("cinematic-text").textContent !== lines[0] && i === 0) return false;
+      if (document.getElementById("cinematic-image").__ssManagedSource !== plates[i]) return false;
+      if (i < 2) advanceCinematic();
     }
-    if (document.getElementById("cinematic-text").textContent !== lines[0]) return false;
-    if (document.getElementById("cinematic-image").__ssManagedSource !== "${EXISTING_PLATE}") return false;
     if (invented.some(phrase => currentCinematic.frames.some(frame => frame.includes(phrase)))) return false;
     if (state.scene !== "wake") return false;
     const live = JSON.stringify(state);
@@ -118,6 +130,7 @@ function openingPathErrors(runtime, lines) {
   })()`);
   check("Play Again intro still reads the same existing prologue", `(() => {
     const lines = ${seeded};
+    const plates = ${JSON.stringify(INTRO_SLIDE_ART)};
     resetRunState();
     state.scene = "ending_check";
     persistSave({ silent: true });
@@ -125,7 +138,7 @@ function openingPathErrors(runtime, lines) {
     playAgain();
     if (!currentCinematic || currentCinematic.kind !== "intro") return false;
     if (currentCinematic.frames.join("\\n") !== lines.join("\\n")) return false;
-    if (document.getElementById("cinematic-image").__ssManagedSource !== "${EXISTING_PLATE}") return false;
+    if (document.getElementById("cinematic-image").__ssManagedSource !== plates[0]) return false;
     finishCinematic();
     return state.scene === "wake" && !currentCinematic;
   })()`);
@@ -143,6 +156,7 @@ export function openingBackstoryChecks(runtime) {
   const errors = sourceErrors();
   errors.push(...playtestTitleWhitespaceChecks(runtime));
   errors.push(...playtestTitleRotatingShipChecks(runtime));
+  errors.push(...playtestIntroBackArtChecks(runtime));
   if (errors.length) return errors;
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   return openingPathErrors(runtime, parseExistingIntroLines(indexSource));
