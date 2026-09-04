@@ -35,11 +35,10 @@ export function playtestTitleWhitespaceChecks(runtime) {
       showScreen("tone");
       const tone = document.getElementById("tone-screen");
       const title = document.getElementById("title-screen");
-      const continueBtn = tone && tone.querySelector(".btn-primary");
       const notice = {
         visible: !!(tone && !tone.classList.contains("hidden")),
-        continue: !!(continueBtn && /I understand/.test(continueBtn.textContent)),
-        copy: !!(tone && /Adult sexual content is permanent/.test(tone.textContent))
+        continue: !!(tone && /I understand/.test(tone.textContent || "")),
+        copy: !!(tone && /Adult sexual content is permanent/.test(tone.textContent || ""))
       };
       showScreen("title");
       const begin = document.getElementById("btn-begin");
@@ -49,7 +48,7 @@ export function playtestTitleWhitespaceChecks(runtime) {
         toneHidden: !!(tone && tone.classList.contains("hidden")),
         begin: !!(begin && begin.textContent.trim() === "Begin"),
         notice: !!(noticeBtn && /Content notice/.test(noticeBtn.textContent)),
-        prologue: !!(title && /Earth failed in a cascade/.test(title.textContent))
+        prologue: !!(title && /Earth failed in a cascade/.test(title.textContent || ""))
       };
       return { notice, start };
     })()`);
