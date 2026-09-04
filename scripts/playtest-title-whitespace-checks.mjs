@@ -25,38 +25,45 @@ export function playtestTitleWhitespaceChecks(runtime) {
   if (!styleCss.includes("min-height: calc(100dvh - 100px)")) {
     errors.push("base title/ending min-height contract dropped from style.css");
   }
-  if (!html.includes("I understand — continue") || !html.includes('id="btn-begin"') || !html.includes('id="btn-content-notice"')) {
+  if (!html.includes("I understand — continue") || !html.includes("Adult sexual content is permanent.") || !html.includes('id="btn-begin"') || !html.includes('id="btn-content-notice"') || !html.includes("Earth failed in a cascade measured in hours.")) {
     errors.push("notice/start copy or continue/begin controls dropped");
   }
   try {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
       resetRunState();
-      showScreen("tone");
+      acknowledgeTone();
       const tone = document.getElementById("tone-screen");
       const title = document.getElementById("title-screen");
-      const notice = {
-        visible: !!(tone && !tone.classList.contains("hidden")),
-        continue: !!(tone && /I understand/.test(tone.textContent || "")),
-        copy: !!(tone && /Adult sexual content is permanent/.test(tone.textContent || ""))
-      };
-      showScreen("title");
       const begin = document.getElementById("btn-begin");
       const noticeBtn = document.getElementById("btn-content-notice");
       const start = {
         visible: !!(title && !title.classList.contains("hidden")),
         toneHidden: !!(tone && tone.classList.contains("hidden")),
-        begin: !!(begin && begin.textContent.trim() === "Begin"),
-        notice: !!(noticeBtn && /Content notice/.test(noticeBtn.textContent)),
-        prologue: !!(title && /Earth failed in a cascade/.test(title.textContent || ""))
+        begin: !!(begin && String(begin.textContent || "").trim() === "Begin"),
+        notice: !!(noticeBtn && /Content notice/.test(String(noticeBtn.textContent || "")))
       };
-      return { notice, start };
+      revisitTone();
+      const notice = {
+        visible: !!(tone && !tone.classList.contains("hidden")),
+        titleHidden: !!(title && title.classList.contains("hidden")),
+        continue: /I understand — continue/.test(document.body ? document.body.innerHTML : "")
+      };
+      acknowledgeTone();
+      const back = {
+        titleVisible: !!(title && !title.classList.contains("hidden")),
+        toneHidden: !!(tone && tone.classList.contains("hidden"))
+      };
+      return { start, notice, back };
     })()`);
-    if (!fixture.notice.visible || !fixture.notice.continue || !fixture.notice.copy) {
-      errors.push("content-notice screen lost copy or continue control");
-    }
-    if (!fixture.start.visible || !fixture.start.toneHidden || !fixture.start.begin || !fixture.start.notice || !fixture.start.prologue) {
+    if (!fixture.start.visible || !fixture.start.toneHidden || !fixture.start.begin || !fixture.start.notice) {
       errors.push("title/start screen lost copy or begin/notice controls");
+    }
+    if (!fixture.notice.visible || !fixture.notice.titleHidden) {
+      errors.push("content-notice screen lost visibility or continue path");
+    }
+    if (!fixture.back.titleVisible || !fixture.back.toneHidden) {
+      errors.push("notice continue did not return to a usable title/start screen");
     }
   } catch (error) {
     errors.push(`title whitespace runtime: ${error.message}`);
