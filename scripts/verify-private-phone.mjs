@@ -10,7 +10,7 @@ import { pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import { buildPrivatePackage, readCanonicalZip } from "./build-private-package.mjs";
 
-const DEFAULT_SOURCE = "e3b7472c7c8e740078155c0a7489fc4031cdfb3b";
+const DEFAULT_SOURCE = "a91a26d47ac76a976ca4406caf9b04511c11ba82";
 const DEFAULT_DEVICES = ["Pixel 7"];
 const FIXED_NOW = 1735689600000;
 
