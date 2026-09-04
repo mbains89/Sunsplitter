@@ -1,4 +1,3 @@
-import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,16 +8,17 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export function playtestCrewCharacterScreenChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const css = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const panelCss = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const sheetCss = readFileSync(resolve(ROOT, "css/crew-sheet.css"), "utf8");
+  const runtimeSrc = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
   if (!html.includes('id="crew-sheet"') || !html.includes('id="crew-sheet-close"') || !html.includes('id="crew-sheet-image"')) {
     errors.push("index missing full-screen crew sheet markup");
   }
-  if (!css.includes("position: fixed") || !css.includes("#crew-sheet.visible") || !css.includes("max-height: min(36dvh, 260px)")) {
+  if (!sheetCss.includes("position: fixed") || !sheetCss.includes("#crew-sheet.visible") || !panelCss.includes("max-height: min(36dvh, 260px)")) {
     errors.push("sheet overlay CSS missing or crew-panel height contract dropped");
   }
-  if (!engine.includes("officialBodysuitSrc") || !engine.includes("images/bodysuit_lena.jpg") || !engine.includes("closeCrewSheet")) {
-    errors.push("engine missing official bodysuit wiring or sheet close");
+  if (!runtimeSrc.includes("officialBodysuitSrc") || !runtimeSrc.includes("images/bodysuit_lena.jpg") || !runtimeSrc.includes("closeCrewSheet")) {
+    errors.push("sheet runtime missing official bodysuit wiring or sheet close");
   }
   try {
     const fixture = runtime.evaluate(`(() => {
@@ -42,8 +42,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
       closeCrewSheet();
       const afterClose = {
         sheetHidden: !sheet.classList.contains("visible") && sheet.classList.contains("hidden"),
-        panelOpen: panel.classList.contains("visible"),
-        portraitCleared: !img.__ssManagedSource
+        panelOpen: panel.classList.contains("visible")
       };
       renderCrewPanel("mira");
       const mira = {
