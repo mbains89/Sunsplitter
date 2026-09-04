@@ -20,18 +20,17 @@ export function playtestTutorialTopfieldsChecks(runtime) {
   ].join("\n");
   const runtimeSrc = [
     readFileSync(resolve(ROOT, "src/validate.js"), "utf8"),
-    readFileSync(resolve(ROOT, "src/engine.js"), "utf8"),
-    readOptional(resolve(ROOT, "src/tutorial-topfields.js"))
+    readFileSync(resolve(ROOT, "src/engine.js"), "utf8")
   ].join("\n");
 
+  if (html.includes("src/tutorial-topfields.js")) {
+    errors.push("tutorial overlay added a locked script-manifest entry");
+  }
   if (!html.includes('id="tutorial-overlay"') || !html.includes('id="tutorial-topfields"')) {
     errors.push("tutorial overlay markup missing");
   }
   if (!html.includes('href="css/tutorial-topfields.css"')) {
     errors.push("tutorial overlay stylesheet link missing");
-  }
-  if (!html.includes('src="src/tutorial-topfields.js"')) {
-    errors.push("tutorial overlay script tag missing");
   }
   if (!html.includes('id="tutorial-skip"') || !html.includes("skipTutorial()")) {
     errors.push("tutorial Skip control markup missing");
