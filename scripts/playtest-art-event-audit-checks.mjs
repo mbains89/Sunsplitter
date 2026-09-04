@@ -359,8 +359,11 @@ function runtimeErrors(runtime) {
     resetRunState();
     showCinematic("intro");
     if (!currentCinematic || currentCinematic.frames.length !== 3) errors.push("intro cinematic is not three slides");
-    if (document.getElementById("cinematic-image").__ssManagedSource !== "images/onboarding_background.jpg") {
-      errors.push("intro slides lost shared bookend plate before Grok PASS");
+    const introPlates = ["images/cascade_records.jpg", "images/ship_exterior_2.jpg", "images/arc_living_conflict.jpg"];
+    for (let i = 0; i < 3; i++) {
+      const got = document.getElementById("cinematic-image").__ssManagedSource;
+      if (got !== introPlates[i]) errors.push("intro slide " + (i + 1) + " art is " + (got || "missing") + "; expected " + introPlates[i]);
+      if (i < 2) advanceCinematic();
     }
     finishCinematic();
     resetRunState();
