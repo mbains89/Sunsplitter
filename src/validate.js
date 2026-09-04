@@ -293,3 +293,261 @@
     }
   }
 })();
+
+// SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 — full-screen sheet over existing crew chips.
+// Loaded after engine.js. Does not invent stats or generate art.
+const OFFICIAL_BODYSUIT = {
+  lena: "images/bodysuit_lena.jpg",
+  elias: "images/bodysuit_elias.jpg",
+  mira: "images/bodysuit_mira.jpg",
+  tomas: "images/bodysuit_tomas.jpg",
+  amara: "images/bodysuit_amara.jpg",
+  jiro: "images/bodysuit_jiro.jpg",
+  sela: "images/bodysuit_sela.jpg",
+  vess: "images/bodysuit_vess.jpg",
+  rourke: "images/bodysuit_rourke.jpg"
+};
+
+function officialBodysuitSrc(key) {
+  return OFFICIAL_BODYSUIT[key] || "";
+}
+
+function closeCrewSheet() {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet) return;
+  sheet.classList.add("hidden");
+  sheet.classList.remove("visible");
+  const img = document.getElementById("crew-sheet-image");
+  if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+  else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
+  if (img) img.alt = "";
+}
+
+function openCrewSheet(key) {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet || typeof crew === "undefined" || !crew[key]) {
+    closeCrewSheet();
+    return;
+  }
+  const c = crew[key];
+  const dead = typeof isAlive === "function" ? !isAlive(key) : false;
+  const role = c.role && c.role !== "None" ? c.role : "No rank";
+  const trust = state.trust && state.trust[key];
+  const affinity = state.affinity && state.affinity[key];
+  const trustText = Number.isFinite(trust) ? (trust + "/100") : "Not recorded";
+  const affinityText = Number.isFinite(affinity) ? (affinity + "/100") : "Not recorded";
+  const romance = [];
+  if (state.romance && state.romance[key]) romance.push("Recorded this run");
+  if ((key === "amara" || key === "tomas") && state.romance && state.romance.amara_tomas) {
+    romance.push("Shared Amara-Tomas encounter recorded");
+  }
+  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone")
+    : (state.dying && state.dying[key]);
+  const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
+  const lean = (typeof crewLean === "object" && crewLean[key]) ? crewLean[key] : "";
+  const nameEl = document.getElementById("crew-sheet-name");
+  const roleEl = document.getElementById("crew-sheet-role");
+  const factsEl = document.getElementById("crew-sheet-facts");
+  const bioEl = document.getElementById("crew-sheet-bio");
+  if (nameEl) nameEl.textContent = c.name;
+  if (roleEl) roleEl.textContent = role + (lean ? " | lean " + lean : "");
+  const factLines = [
+    "Condition: " + condition,
+    (dead ? "Trust (last recorded)" : "Trust") + ": " + trustText,
+    "Affinity: " + affinityText,
+    "Romance: " + (romance.join("; ") || "None recorded")
+  ];
+  if (!dead && state.marks && state.marks[key]) factLines.push("Marks: " + String(state.marks[key]).replace(/_/g, " "));
+  if (factsEl) factsEl.textContent = factLines.join("\n");
+  if (bioEl) bioEl.textContent = c.bio || "";
+  const img = document.getElementById("crew-sheet-image");
+  const wrap = document.getElementById("crew-sheet-portrait-wrap");
+  const src = officialBodysuitSrc(key);
+  if (src) {
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, src);
+    else if (img) img.src = src;
+    if (img) img.alt = "Official bodysuit portrait of " + (c.first || c.name) + ".";
+    if (wrap) wrap.classList.add("visible");
+  } else {
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+    if (img) img.alt = "";
+    if (wrap) wrap.classList.remove("visible");
+  }
+  sheet.classList.remove("hidden");
+  sheet.classList.add("visible");
+}
+
+(function wireCrewCharacterSheet() {
+  if (typeof renderCrewPanel === "function") {
+    const previous = renderCrewPanel;
+    renderCrewPanel = function(selectedKey) {
+      previous(selectedKey);
+      if (selectedKey && typeof crew !== "undefined" && crew[selectedKey]) openCrewSheet(selectedKey);
+      else closeCrewSheet();
+    };
+  }
+  if (typeof toggleCrewPanel === "function") {
+    const previous = toggleCrewPanel;
+    toggleCrewPanel = function() {
+      previous();
+      const panel = document.getElementById("crew-panel");
+      if (!panel || !panel.classList.contains("visible")) closeCrewSheet();
+    };
+  }
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", event => {
+    if (!event || event.key !== "Escape") return;
+    const sheet = document.getElementById("crew-sheet");
+    if (!sheet || !sheet.classList.contains("visible")) return;
+    if (typeof event.preventDefault === "function") event.preventDefault();
+    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    if (typeof event.stopPropagation === "function") event.stopPropagation();
+    closeCrewSheet();
+    const panel = document.getElementById("crew-panel");
+    if (panel) {
+      panel.classList.add("visible");
+      panel.classList.remove("hidden");
+    }
+    const toggle = document.getElementById("btn-crew");
+    if (toggle) toggle.setAttribute("aria-expanded", "true");
+  });
+})();
+
+// SUN-PLAYTEST-ART-DOUBLECLICK-01 — documented minimize/expand (desktop dblclick stays in engine).
+function toggleSceneArtSize() {
+  const wrap = document.getElementById("scene-image-wrap");
+  if (!wrap || !wrap.classList.contains("visible")) return false;
+  wrap.classList.toggle("minimized");
+  window.__ssImagePinned = true;
+  return wrap.classList.contains("minimized");
+}
+
+// SUN-PLAYTEST-INTRO-BACK-ART-01 — Back on all 3 intro slides + in-tree slide art.
+// Loaded after engine.js. Does not invent plates or opening prose.
+const INTRO_SLIDE_ART = [
+  "images/cascade_records.jpg",
+  "images/ship_exterior_2.jpg",
+  "images/arc_living_conflict.jpg"
+];
+const INTRO_SLIDE_ALT = [
+  "Records of Earth's cascade.",
+  "The Sunsplitter colonization ark.",
+  "The living already arguing what to save."
+];
+
+function introSlideArt(index) {
+  return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0];
+}
+
+function retreatCinematic() {
+  if (!currentCinematic) return false;
+  if (currentCinematic.index > 0) {
+    currentCinematic.index -= 1;
+    renderCinematicFrame(true);
+    return true;
+  }
+  if (currentCinematic.kind === "intro") {
+    cancelCinematic();
+    showTitleScreen();
+    return true;
+  }
+  return false;
+}
+
+(function overlayIntroBackArt() {
+  if (typeof renderCinematicFrame !== "function" || typeof showCinematic !== "function") return;
+  const previousRender = renderCinematicFrame;
+  renderCinematicFrame = function(resetScroll) {
+    previousRender(resetScroll);
+    if (!currentCinematic) return;
+    const back = document.getElementById("cinematic-back");
+    if (back) {
+      back.classList.toggle("hidden", currentCinematic.kind !== "intro");
+      back.textContent = currentCinematic.kind === "intro" && currentCinematic.index === 0 ? "Back to title" : "Back";
+    }
+    if (currentCinematic.kind === "intro") {
+      const img = document.getElementById("cinematic-image");
+      setManagedImageSource(img, introSlideArt(currentCinematic.index));
+      if (img) img.alt = INTRO_SLIDE_ALT[currentCinematic.index] || "";
+    }
+  };
+  const previousShow = showCinematic;
+  showCinematic = function(kind) {
+    previousShow(kind);
+    if (kind === "intro") renderCinematicFrame(false);
+  };
+})();
+
+// SUN-PLAYTEST-TUTORIAL-TOPFIELDS-01 — first-run overlay for Crew/Hull/Coh/Sup/Emb.
+const TUTORIAL_SEEN_KEY = "sunsplitter_tutorial_seen_v1";
+const TUTORIAL_TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
+
+function tutorialSeen() {
+  try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1"; }
+  catch (_) { return false; }
+}
+
+function markTutorialSeen() {
+  try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); }
+  catch (_) {}
+}
+
+function isTutorialOpen() {
+  const overlay = document.getElementById("tutorial-overlay");
+  return !!(overlay && !overlay.classList.contains("hidden"));
+}
+
+function dismissTutorial() {
+  const overlay = document.getElementById("tutorial-overlay");
+  if (overlay) {
+    overlay.classList.add("hidden");
+    overlay.classList.remove("visible");
+  }
+  markTutorialSeen();
+  return true;
+}
+
+function skipTutorial() {
+  return dismissTutorial();
+}
+
+function showTutorialOverlay() {
+  const overlay = document.getElementById("tutorial-overlay");
+  if (!overlay) return false;
+  const copy = document.getElementById("tutorial-copy");
+  if (copy && !copy.textContent) {
+    copy.textContent = "The status bar is live. Crew, Hull, Coh, Sup, and Emb are the only numbers that gate what you can order.";
+  }
+  const list = document.getElementById("tutorial-topfields");
+  if (list && !list.textContent) {
+    list.textContent = TUTORIAL_TOPFIELDS.join(" ");
+  }
+  overlay.classList.remove("hidden");
+  overlay.classList.add("visible");
+  return true;
+}
+
+(function overlayTutorialTopfields() {
+  if (typeof finishCinematic === "function") {
+    const previousFinish = finishCinematic;
+    finishCinematic = function() {
+      const kind = currentCinematic && currentCinematic.kind;
+      const ok = previousFinish();
+      if (ok && kind === "intro" && !tutorialSeen()) showTutorialOverlay();
+      return ok;
+    };
+  }
+  if (typeof showScreen === "function") {
+    const previousShow = showScreen;
+    showScreen = function(id) {
+      previousShow(id);
+      if (id !== "game" && isTutorialOpen()) {
+        const overlay = document.getElementById("tutorial-overlay");
+        if (overlay) {
+          overlay.classList.add("hidden");
+          overlay.classList.remove("visible");
+        }
+      }
+    };
+  }
+})();
