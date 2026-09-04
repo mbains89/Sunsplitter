@@ -10,7 +10,8 @@ function exerciseRemainsLean() {
     romance_amara_1: "images/hydroponics.jpg",
     romance_mira_1: "images/quiet_mira.jpg",
     act2_tether_hand_elias: "images/tether_ride.jpg",
-    act3_lethal_elias_order: "images/work_elias.jpg"
+    act3_lethal_elias_order: "images/work_elias.jpg",
+    act3_lethal_elias_sealant: "images/work_elias.jpg"
   };
   const errors = [];
   const expect = (ok, message) => { if (!ok) throw new Error(message); };
