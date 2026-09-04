@@ -9,7 +9,10 @@ const TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
 export function playtestTutorialTopfieldsChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const css = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const styleCss = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  let tutorialCss = "";
+  try { tutorialCss = readFileSync(resolve(ROOT, "css/tutorial-topfields.css"), "utf8"); } catch (_) {}
+  const css = styleCss + "\n" + tutorialCss;
   const runtimeSrc = [
     readFileSync(resolve(ROOT, "src/validate.js"), "utf8"),
     readFileSync(resolve(ROOT, "src/engine.js"), "utf8")
@@ -17,6 +20,9 @@ export function playtestTutorialTopfieldsChecks(runtime) {
 
   if (!html.includes('id="tutorial-overlay"') || !html.includes('id="tutorial-topfields"')) {
     errors.push("tutorial overlay markup missing");
+  }
+  if (!html.includes('href="css/tutorial-topfields.css"')) {
+    errors.push("tutorial overlay stylesheet link missing");
   }
   if (!html.includes('id="tutorial-skip"') || !html.includes("skipTutorial()")) {
     errors.push("tutorial Skip control markup missing");
