@@ -5,17 +5,23 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
 
+function readOptional(path) {
+  try { return readFileSync(path, "utf8"); }
+  catch (_) { return ""; }
+}
+
 // SUN-PLAYTEST-TUTORIAL-TOPFIELDS-01 — overlay names the five HUD cells; Skip still starts.
 export function playtestTutorialTopfieldsChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const styleCss = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
-  let tutorialCss = "";
-  try { tutorialCss = readFileSync(resolve(ROOT, "css/tutorial-topfields.css"), "utf8"); } catch (_) {}
-  const css = styleCss + "\n" + tutorialCss;
+  const css = [
+    readFileSync(resolve(ROOT, "css/style.css"), "utf8"),
+    readOptional(resolve(ROOT, "css/tutorial-topfields.css"))
+  ].join("\n");
   const runtimeSrc = [
     readFileSync(resolve(ROOT, "src/validate.js"), "utf8"),
-    readFileSync(resolve(ROOT, "src/engine.js"), "utf8")
+    readFileSync(resolve(ROOT, "src/engine.js"), "utf8"),
+    readOptional(resolve(ROOT, "src/tutorial-topfields.js"))
   ].join("\n");
 
   if (!html.includes('id="tutorial-overlay"') || !html.includes('id="tutorial-topfields"')) {
@@ -23,6 +29,9 @@ export function playtestTutorialTopfieldsChecks(runtime) {
   }
   if (!html.includes('href="css/tutorial-topfields.css"')) {
     errors.push("tutorial overlay stylesheet link missing");
+  }
+  if (!html.includes('src="src/tutorial-topfields.js"')) {
+    errors.push("tutorial overlay script tag missing");
   }
   if (!html.includes('id="tutorial-skip"') || !html.includes("skipTutorial()")) {
     errors.push("tutorial Skip control markup missing");
