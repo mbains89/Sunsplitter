@@ -1155,10 +1155,7 @@ function renderCrewPanel(selectedKey) {
   const el = document.getElementById("crew-panel");
   if (!el || el.classList.contains("hidden")) return;
   // 0.22.0+: Tomas/Jiro/Vess only appear once recovered. 0.25.1: use isRecovered so recovered-then-killed still show as dead chips.
-  const order = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess", "rourke"].filter(k => {
-    if (k === "tomas" || k === "jiro" || k === "vess") return isRecovered(k);
-    return true;
-  });
+  const order = visibleCrewKeys();
   const fav = typeof favoritism === "function" ? favoritism() : null;
   const favored = fav ? fav.favored : null;
   const chips = order.map(k => {

@@ -407,6 +407,20 @@ function isAlive(key) {
   return !state.dead.includes(key);
 }
 
+function visibleCrewKeys() {
+  // Same roster the Crew panel paints: unrecovered Tomas/Jiro/Vess stay off the board.
+  return CREW_ORDER.filter(k => {
+    if (!crew[k]) return false;
+    if (k === "tomas" || k === "jiro" || k === "vess") return isRecovered(k);
+    return true;
+  });
+}
+
+function visibleLivingCrewCount() {
+  // HUD Crew number: living names the player can actually tap, not state.survivors.
+  return visibleCrewKeys().filter(isAlive).length;
+}
+
 
 function relationshipDebtors() {
   // Living crew who notice heavy favoritism / exclusive romance and cool off.
@@ -664,12 +678,13 @@ function renderStatus() {
     el.textContent = display;
     el.className = "stat-value" + (classify ? " " + (value < 30 ? "low" : value < 60 ? "mid" : "high") : "");
   };
-  set("stat-survivors", state.survivors, state.survivors, false);
+  const livingCrew = visibleLivingCrewCount();
+  set("stat-survivors", livingCrew, livingCrew, false);
   set("stat-integrity", state.integrity, state.integrity + "%", true);
   set("stat-cohesion", state.cohesion, state.cohesion + "%", true);
   set("stat-supplies", state.supplies, state.supplies + "%", true);
   set("stat-embryos", state.embryos, state.embryos + "%", true);
-  const announcement = `Ship status: ${state.survivors} survivors, hull integrity ${state.integrity}%, cohesion ${state.cohesion}%, supplies ${state.supplies}%, embryos ${state.embryos}%.`;
+  const announcement = `Ship status: ${livingCrew} survivors, hull integrity ${state.integrity}%, cohesion ${state.cohesion}%, supplies ${state.supplies}%, embryos ${state.embryos}%.`;
   const announcer = document.getElementById("stat-announcer");
   if (announcer && announcer.textContent !== announcement) announcer.textContent = announcement;
   if (typeof renderCrewPanel === "function") renderCrewPanel();
