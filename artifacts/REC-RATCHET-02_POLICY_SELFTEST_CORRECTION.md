@@ -1,16 +1,212 @@
-# REC-RATCHET-02 — C10 Immutable-Fixture Policy Successor
+# REC-RATCHET-02 — C13 Environment-Contract Successor
 
-`SOURCE main@792e202 · RUNTIME 31642c3 · TASK REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R8-C10 · MODE implementation`
+`SOURCE main@792e202 · RUNTIME 5995e34 · TASK REC-RATCHET-02-C13-R11 · MODE implementation`
 
 **Acting role:** Build / GPT-Codex
 
-**Files read:** exact `main@792e202` copies of `AGENTS.md`, `artifacts/ROADMAP.md`, `artifacts/PROJECT_STATUS.md`, and `artifacts/LOCKS.md`; exact protected successor `Q=31642c3` copies of `artifacts/PROJECT_STATUS.md`, `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`, both recovery workflows, `scripts/release-policy.mjs`, and the REC-02 projection artifacts; exact C9 head and protected-merge objects; the preserved unfrozen REC-02 r2 pre-freeze receipt; frozen PR #30/#31/#33/#34 state; Fable 5 and Grok advisory findings; and the independent C10 policy, evidence, and governance design audits.
+**Implementation authorization:** Manraj authorized this exact successor through the complete C13/r11 program-office dispatch. Build may construct, validate, independently review, freeze once, run the no-retry 13-gate harness, and—only on complete PASS—push r11 once and open one draft PR. Ready, merge, issue #24 repin, REC-02 activation, release, publication, deployment, tag, certification, ruleset, protection, and bypass-actor changes remain unauthorized.
 
-**Implementation authorization:** Manraj's active continuous goal authorizes one fresh authority-compliant C10 successor, including isolated local construction, repair before identity freeze, validation, one non-protected branch push, and one draft PR after complete local PASS. It does not authorize reuse or modification of any frozen identity, the consumed C9 route, the preserved unfrozen Q-based r2 candidate, a ready transition, protected merge, issue repin, REC-02 activation, deployment, publication, release, tag, certification, or production activation.
+**Exact scope:** `artifacts/PROJECT_STATUS.md`, this record, the byte-identical authorized patch JSON, and `scripts/release-policy.mjs`, all reconstructed from exact `S=5995e344dbdbc18ce83186359ba9838fcf69c37e`.
 
 **Certification:** `NO-PUBLISH / NOT CERTIFIED`
 
-## 1. Exact protected base and landed precursor
+## C13/r11 identity contract
+
+- branch `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r11`
+- exact sole parent S; tree `ea2c992bbb083eecf32404b21a11afc436a5f3c3`
+- subject `REC-RATCHET-02: harden receipt-safe remote handoff`
+- author and committer `Sunsplitter Recovery Build <noreply@openai.com> 1788483600 -0500`
+- topology `S -> C13 -> W=[S,C13]`, with `tree(W)=tree(C13)`; later r2 may be freshly reconstructed from W only after a separately authorized issue #24 repin to W
+- identity state `UNFROZEN`; no C13 head, tree, raw frame, manifest, W, bundle, push, PR, workflow, run, job, or check identity is claimed here
+
+## Authoritative terminal C12 custody
+
+The authoritative C12 receipt is `/private/tmp/sunsplitter-c12-r10-terminal/REMOTE-PUSH-TERMINAL.v1.json`, `8,100` bytes, SHA-256 `dc88db0356ffd51ea82d927c4008c07e92a8659d09a07f0b8fdb35ad0fd21c09`. Independent verification reconciled its frozen source, topology, bundles, production setup, all 13 first-result gate receipts, receipt chain, clean restoration, failed remote result, and post-failure readback. No C12 byte, ref, runner, session, gate, push, or PR action may be edited, resumed, rerun, retried, or reused.
+
+Frozen C12/r10 source and topology:
+
+- branch `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r10`
+- C12 `9612d4bbbcdbf91344b0852ee512a93c7ea5d1ae`; tree `95438204b89cfcf9bc53d899dd40fc34836ce332`; sole parent exact S
+- raw frame `989` bytes / SHA-256 `6034dba8764a6d96c6a06f2f2b8d2eb85e24be967ff2f6e0f443dfa1169ce583`
+- canonical manifest `616` bytes / SHA-256 `edbd84eccf323f9717bb10def6fd134360427a072673b59047db67c7923777f7`
+- synthetic V `e2872b2f3e7d37d7c024bbb6943cf008c2942e69`; future R `de65821d54d197209e975f428706754de730ee3e`; R tree `ea2bcfa7d3bd2123bc2f582580d50debf73d3877`; terminal T `2fd56a0f18c1f3947b6ce198376a96f26f5c1f64`
+- candidate bundle `45,115,640` bytes / SHA-256 `39ba64931df268e054b59b9161c4501f5aafc2a57c39f050e0c4c48b4cef782a`
+- transition bundle `45,124,314` bytes / SHA-256 `c5f645567a928734aa0e6ca801d800a4c6c73c8f9314eca85ad774ad1251a022`
+
+Frozen C12 source identities:
+
+| Path | Blob | Bytes | SHA-256 |
+|---|---:|---:|---:|
+| `artifacts/PROJECT_STATUS.md` | `9b82d6ae75f9c410a58cb08f21909a8a0bf44bc0` | 30,015 | `099293861bf4b514ae4c1701633134c6bb438cc2112f8b2d15385ca39ff17c45` |
+| `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md` | `7ad73d6ba1e1ad3f189d27ced69b444b496f9fe4` | 65,056 | `d9d78dca1f2922fe51c4b013953f56fd85032e2f0eff13ad01869e33a28e4350` |
+| `artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json` | `00f53e6fe2dc3787ccde36cb9e85f63d24c02950` | 37,735 | `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551` |
+| `scripts/release-policy.mjs` | `ae90770f626b7542cbe1ee5c9dc5fe23bf0b572d` | 241,172 | `0b1034bf60b7444cb3ce1c1823ee18f12e870996517e7f9334a68a0410c0aeb1` |
+
+C12 production setup and all gates passed exactly once. A01, A02, and B01–B11 each returned status `0`, null signal, status bytes `0\n`, and empty stderr. The terminal receipt-chain SHA-256 is `389fb08d8c8eccd851a7c98f69253c6132e55c61192d23c72ca04ac915e7de3b`; restoration returned cleanly from T to C12.
+
+The sole C12 push then returned status `1` before any remote mutation. The shell command interpolated `$BRANCH:refs/...`; zsh treated `:r` as a parameter modifier and produced malformed source refspec `refs/heads/ticket/0.30efs/heads/ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r10`. Remote r10 remained absent, no PR or CI attempt exists, and no retry is permitted. C13 makes that failure class structurally impossible by using absolute `/usr/bin/git`, Node `spawnSync`, `shell:false`, and one immutable full literal r11 refspec.
+
+## Authoritative terminal C11 custody
+
+The sole authoritative seal is `/private/tmp/sunsplitter-c11-r9-a02-terminal-seal.v1.F2Cb0l/MANIFEST.v1.json`, `56,255` bytes, SHA-256 `9f8b432800d68b3919c3ec3451d86d5411b5f748334c5c3a6399d9c1113c3df9`. Its `108` evidence entries resolve to `74` unique immutable objects and `201,456,203` logical bytes. Independent verification passed every object hash and size, the manifest sidecar, the no-symlink rule, object mode `0400`, manifest mode `0444`, and directory mode `0555`. The incomplete no-manifest diagnostic seal `.9k7FEi` is preserved but non-authoritative.
+
+Frozen C11/r9 source and topology:
+
+- branch `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r9`
+- C11 `8a6dcc0fd99e7ace4cd3cea2e6d2030179f681e5`; tree `78021c8d4a766bb4928226494dcbaab9c978e32c`; sole parent exact S
+- raw frame `982` bytes / SHA-256 `6ce75a8b334e3d018a6e4d74653da6ed3588e897b14e0d5cf992d33ea3a41d99`
+- canonical manifest `616` bytes / SHA-256 `f37e73d8e12c82ae855f149a92725f28668da5a5cb87a02bb474b84d41f729dd`
+- candidate bundle `45,111,508` bytes / SHA-256 `a96a4dc978f353d39b362b752f30fc52fd34cecc2c03ed9d5844d4727171385c`
+- transition bundle `45,118,338` bytes / SHA-256 `fbf91be6da1cd13053aedec3549e0e029337f610f40626b92783f38eed592c50`
+- terminal U `34483057eafed92bcc091215bd6854f0bf37d83a`; terminal R `5ad492ae49197bec85fb68b4dbd64ee6918bffca`; R tree `77b45e46340a286d456098a831c402034bce4bca`; terminal T `12345903c07a612431f3a05de69cc97c6b1cab60`
+
+Frozen source identities:
+
+| Path | Blob | Bytes | SHA-256 |
+|---|---:|---:|---:|
+| `artifacts/PROJECT_STATUS.md` | `a7f6ceb7faee57cbb64816397233036310892f66` | 25,258 | `ed4810be290593c8e95a0d2650aba520224b9f3e5ada147f0426b035b290bd36` |
+| `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md` | `3964f2cede293e815fb4b33d9a0e43932de96a25` | 56,420 | `487b9a3229c2f41ba37e1ae4a6d0238654fc58409c376acb6ec7254f9d9b6c05` |
+| `artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json` | `00f53e6fe2dc3787ccde36cb9e85f63d24c02950` | 37,735 | `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551` |
+| `scripts/release-policy.mjs` | `5decb7883d679a7a0609fb217561212ad509f7c5` | 227,377 | `898c3ce336a814f819431901e0c6a12d2f4d161ff51d9c76c657ee0030e7ac8f` |
+
+Terminal first-result chain:
+
+- setup outer completion SHA-256 `907272bc767ba8b96d9e88779c7a41c64d8ca17526b6b0e277f62958d65b93ce`
+- A01 status `0`; receipt SHA-256 `16abefb1214c2b3d410fba21737100f99b4c48b43b4d43e967ab6d842f5c5891`
+- A02 terminal nonzero receipt SHA-256 `322bd26375244f8d3a47f76f21857e08badcdd4ad9f5933132569cf8ec8e950c`
+- A02 stderr `772` bytes / SHA-256 `fa8f4c48c77d3fd53852d68d986590ca3a2edab3323295f2d72d00014aa88af2`
+- state SHA-256 `31a7cba5b7c57bfe65a4eacbf925c2701573bf1e919f604c39a6d62d61b7c3d9`, `nextIndex=1`; A01 is the sole completed link
+- session terminal SHA-256 `28ad4b88beaa960e963df87f02a5670c190348930a9acbfcfdfa24a20829aa91`; B01-B11 were not run
+- no retry, mutation, resume, push, PR, issue #24 write, protected-ref write, release, publication, deployment, tag, or certification occurred
+
+## Preserved A02 contract and bounded C13 repair
+
+C11 passed the same five Git variables to runner-owned Git and repository children. Its policy allowed only exact `GIT_PAGER=cat`, so A02 correctly rejected the four fixed hardening variables plus the dynamic ceiling. C12 repaired and proved that environment boundary through A02 and B01, then completed all 13 gates. C13 preserves those semantics byte-for-byte in behavior and changes only successor identity/custody binding plus the shell-free remote handoff.
+
+C13 uses two explicit environments:
+
+- runner Git: `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, and session-bound `GIT_CEILING_DIRECTORIES`
+- repository children: exactly the four fixed values and no ceiling
+- policy: requires those exact four, permits optional exact `GIT_PAGER=cat`, and rejects every missing/wrong value, wrong pager, ceiling leak, or other `GIT_*` before Git
+
+All six C11 and all six C12 topology objects form separate forbidden groups in both inventories. Mechanically derived identities are:
+
+- C13: `119` objects, `5,412` canonical bytes, SHA-256 `ff19bd5e299c9889fd9972d726c05a77dea8f0010278fc54474d96eeba5c853d`
+- future REC-02: `118` objects, `5,372` canonical bytes, SHA-256 `6d161eb9016eaadd36cdf3d12afc375cdf61edc1a8b90839ded3b060eeb3036c`
+
+The old r9 and r10 branches and all twelve terminal values are rejected before checkout/OID lookup. A direct candidate-store `.git/HEAD` guard rejects either old symbolic ref or any of the twelve OIDs before its first Git call.
+
+## C13 pre-freeze evidence state
+
+- Policy targets: `224` zero-Git rejected-head checks; `14` zero-Git candidate-store C12 HEAD guards; `86` historical raw-frame fixtures; `108` structured adversarial fixtures.
+- Runner: `51,058` bytes / SHA-256 `056f3cf4ea3813441be4e5ca215573001de0299950541487b426b7dcf6f3c859`.
+- Test: `37,019` bytes / SHA-256 `f395bbf568c7aa80e56fe3a30df63446bfd5aa558c8b3f7b4d255304bc1ac0b9`.
+- Stub-only disposable evidence passes `276` role-OID negatives, `23` execution-root negatives, and one exact 13-gate vector.
+- Real prospective A02 and B01 passed under the exact four-variable production repository-child environment. The exact `GIT_PAGER=cat` exception and all `24` wrong-value, missing-value, wrong-pager, extra-`GIT_*`, and leaked-ceiling negatives passed without repository state drift.
+- The complete disposable runner suite passes `276` role-OID negatives, `23` execution-root negatives, `13` ordered gates, durable terminal/replay/receipt-loss/malformed/nonzero/interruption/topology/tamper controls, and the production-session fence. Its prospective commit is disposable evidence only and is intentionally not embedded in the four-file identity.
+- C13-bound production setup passes disposable exact C13→W→R→T construction, candidate/future canonical framing, two exact bundles, the five-pair setup-owned Git environment, replay rejection, and the production fence.
+- The first-result launcher passed disposable copied/symlink/mode/wrong-Node/extra-argument pre-attempt fences; durable `ATTEMPTED`-before-`LAUNCHED` ordering; exact-four component environment; setup-predecessor topology binding; replay; fixed-terminal; nonzero, signal, and binary-capture controls; and production-root fences.
+- The fresh remote launcher uses absolute `/usr/bin/git`, `spawnSync`, `shell:false`, and one immutable literal full r11 refspec. Its disposable bare-remote tests prove one expected ref update, unrelated-ref preservation, raw stdout/stderr capture, and absence of the malformed C12 refspec.
+- No production setup, launcher mode, runner gate, branch push, or pull request is claimed by pre-freeze evidence.
+- The authorized REC-02 patch remains `37,735` bytes / SHA-256 `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551`; gameplay, baseline, verifier, simulator, ART, and projection bytes are unchanged.
+
+## Fail-closed identity rule
+
+Ordinary pre-identity repair and disposable validation may repeat. After the one canonical C13 commit is frozen, any required failure retires that exact identity permanently. Production setup may run once and the production runner `--run` may run once; there is no production audit rerun. Only complete first-attempt PASS permits one r11 push and one draft PR.
+
+---
+
+## Preserved C11 pre-freeze record (historical; superseded by the terminal custody addendum above)
+
+# REC-RATCHET-02 — C11 Saved-Resume and Policy Successor
+
+`SOURCE main@792e202 · RUNTIME 5995e34 · TASK REC-RATCHET-02-C11-R9 · MODE implementation`
+
+**Acting role:** Build / GPT-Codex
+
+**Files read:** exact `main@792e202` copies of `AGENTS.md`, `artifacts/ROADMAP.md`, `artifacts/PROJECT_STATUS.md`, and `artifacts/LOCKS.md`; exact protected successor `S=5995e34` copies of STATUS, this record, both recovery workflows, authorized baseline and patch, baseline transition, policy, verifier, simulator, engine, and scene 55; exact C10 head and protected-merge objects; live issue #24 and protected-ref/branch/PR readbacks; the preserved Q-based and S-based unfrozen r2 receipts; frozen PR #30/#31/#33/#34 state; the exact authorized C11/r9 dispatch; and three independent C11 design audits.
+
+**Implementation authorization:** Manraj authorized the exact 7,478-byte C11/r9 dispatch at SHA-256 `4e652a99a8c827007c3795e06f506d074469fa012e1b20bd32d29268bcb97c76` from exact S. Build may construct, validate, independently review, commit, push, and open one draft PR for exactly four paths. This does not authorize marking ready, protected merge, issue #24 repin, REC-02 activation, deployment, publication, release, tag, certification, or production activation.
+
+**Certification:** `NO-PUBLISH / NOT CERTIFIED`
+
+## Current C11/r9 correction
+
+C10/r8 is landed and consumed. Its exact immutable closure is:
+
+- C10 head `800ccc876d6d784a6851ca8ff74dbff7467bd1ff`; tree `ea2c992bbb083eecf32404b21a11afc436a5f3c3`; sole parent `Q=31642c3644a58e9f5fc007bff648dc6146dabcfb`.
+- C10 raw payload: 815 bytes; SHA-256 `d4a995a8f8317cb99f4cc1d85976f0b0da446b9196494cc93500f27635732f9e`.
+- C10 three-path manifest SHA-256 `6679fedec181ab750195761ad510dd010cf1bdd209dfa8c89ed469b63413425d`; normalized policy projection `ca950b95fbc605c6d562853868df331e3e4ffe00ef4680206ee5638f47e998ad`.
+- PR #36 synthetic merge `a0d3804a03b5133c2078a13e5457d9ec8ec27dd7`; merged at `2026-08-24T06:14:17Z`.
+- First-attempt ready CI: Recovery Release Policy #57 run `32696066165`, job `97338240415`, SUCCESS; Recovery Verify #67 run `32696066251`, jobs verify `97338240516`, random `97338240702`, cheapest `97338240750`, priciest `97338240780`, simulation-gate `97338840771`, all SUCCESS.
+- Protected successor S `5995e344dbdbc18ce83186359ba9838fcf69c37e`; tree `ea2c992bbb083eecf32404b21a11afc436a5f3c3`; ordered parents `[31642c3644a58e9f5fc007bff648dc6146dabcfb,800ccc876d6d784a6851ca8ff74dbff7467bd1ff]`; raw payload 1,252 bytes / SHA-256 `3740cabe584ceb7f7663ab3186b1bc87a947add89a440860a4c32a67b198839e`.
+- First-attempt protected-push CI: Recovery Release Policy #58 run `32696477310`, job `97339402710`, SUCCESS; Recovery Verify #68 run `32696477394`, jobs verify `97339403455`, priciest `97339403683`, cheapest `97339403689`, random `97339403738`, simulation-gate `97340031086`, all SUCCESS.
+- Both CI stages used seed `20260817`, 2,000 runs per policy, and 6,000 total simulations.
+- Exact issue #24 S-repin completed `2026-08-24T07:08:23Z`: title 81 bytes / SHA-256 `1687f47f018e4a47e8d58b61bd19c26dfe4c10e6de75c557c8562d3dae37b486`; body 24,371 bytes / SHA-256 `0688c4534fc4bf164f89409d983da8ca5f244a4ef6191886d1f494253457ff38`; exact equality PASS; open; zero comments.
+
+C11 is a direct child only of exact S on branch `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r9`. Exactly these regular mode-`100644` paths may differ:
+
+1. `artifacts/PROJECT_STATUS.md`
+2. `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`
+3. `artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json`
+4. `scripts/release-policy.mjs`
+
+No C11 head, tree, manifest, raw payload, bundle, synthetic merge, PR, workflow, run, job, or check identity is embedded before freeze. The only eligible topology is:
+
+`S -> C11/r9 -> U=[S,C11], tree(U)=tree(C11) -> separately authorized issue #24 repin to U -> fresh REC-02 r2 from U`
+
+### S-based held-r2 HOLD
+
+The S-based r2 projection at tree `79cb247fca8f5de9d56eada1daa6177e7ed5b699` is UNFROZEN / UNCOMMITTED / UNPUSHED / NON-AUTHORITATIVE. Its STATUS is blob `e92b1255a8b240c0dfb44cf879f8c3d5a0abfc48`, 21,787 bytes, SHA-256 `2e99d8cfd065e0d050bdec0409522f2a84c27d687e9c106aa8b765e3bada6935`. Syntax, scope, UTF-8/LF, projection, verifier, and locked-simulation diagnostics passed. The policy self-test was interrupted with exit `130` and no stdout; no policy or candidate PASS exists.
+
+Two independent defects caused HOLD:
+
+1. The derived STATUS left `rec_ratchet_02_control_state` saying C10/r8 was PRE-IDENTITY after C10 had landed at S.
+2. A legal pre-r2 save could resume directly at `custody_thaw` below the 14-embryo/1-cohesion payment and render no enabled exit. The predecessor locked baseline records 10 priciest-policy V1 failures at that scene.
+
+### Re-sealed prospective REC-02 repair
+
+The old S patch artifact remains immutable historical evidence: blob `00fca0cd98a8e7eb23438af1a2118549203303ab`, 32,759 bytes, SHA-256 `b9d97f57ef5ab755db2509789ebee2dda129460f7ce6a7934a71e7ebc5b04eb3`; embedded diff `b33fdc96c1a5942e1dcd2fdb9d5606ca4222696133302c0ed3ebdd225e9d38fd`; replacement manifest `b5694ca533f34f3b16f57589c0e5248ddcb7dee105c705c35914d79580f025f9`; functional tree `57e1439741965bf290cd6daf305c551e2f104182`; functional manifest `3f10dbc636fadc942ee17dd6356ff7be023a34a5347c147d2c7631132b0fe48d`. The unchanged 15,557-byte baseline-transition document at SHA-256 `a01180e9d5f917e47eafb9b65eea3c1c045e325b7b97690cfd8bfbef0110ba2a` is historical, not current route authority.
+
+The active C11 re-seal is distinct:
+
+- outer patch artifact: blob `00f53e6fe2dc3787ccde36cb9e85f63d24c02950`; 37,735 bytes; SHA-256 `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551`;
+- embedded full-index diff: 28,637 bytes; SHA-256 `cee97660f7e472aeefee119c9e3679a6f10a7614541e283a80d70a47377665fb`;
+- replacement-manifest SHA-256 `265eb1343f4a2f1e9b8d7d3e4bfef8a4a219db644b74058dcc48b4f3fc6b6c35`;
+- prospective verifier: blob `3b06c7164e1da5f1d1c080bc016aa349f984d31e`; 48,004 bytes; SHA-256 `654548f791ceebd842126ea06e603a452ffb54ba1db7a2363c68fd351ddd4f0c`;
+- prospective scene 55: blob `9900ebb0b30aca0260d493b1ed77ee2e47a2ee7c`; 7,273 bytes; SHA-256 `ac0fa937d08768312b593b90dc0480879f230411b17c90fb70fa21fd7cbbf1e0`;
+- prospective functional tree `b0f2be69ef549e4ccf65005b8298056294c14716`; manifest SHA-256 `cf8510273f64c63f8c423c5049b0b3d7b724d11ddc9b5c0ed5eebacb5402cebb`;
+- fresh ART-combined verifier blob `595c3f018716d244735adb39084ed0a9623a4db5`; SHA-256 `46f5504c5362e464726b6dc881e9aa024b54542767f065797dec1cbc6e491b08`; combined tree `1ed5bffeebc01b6cbdacd886c26044db34ba1000`; combined manifest `07498803ed5d2a41bbfd557d57e3b88e6a6f73f195a7cbda0d6969557a8973c2`;
+- sealed ART image-manifest digest remains `1441be78e8d0d95f4cf2cfd9ace72b7e6458aa0ec230336748de6a2b96db7baa`.
+
+The only scene-55 behavioral addition is a pre-write `custody_thaw` guard: `(13,1)` and `(14,0)` redirect through the existing engine mechanism to `custody_hub`, preserve resources, expose the ungated possession exit, and write neither custody flag. `(14,1)` retains the existing `custody_answer="thawed"` and `custody_roll=true` writes, exact paid `{embryos:-14, cohesion:-1}` exit, `(0,0)` result, and `custody_after` destination. There is no new prose, state key, engine hook, schema field, or non-REC-02 behavior.
+
+The authorized inactive baseline remains exactly 4,546 bytes at blob `3945a51f5fe811830e786a5bbcb5221466b8baf9`, SHA-256 `048ee211f4708252b8609d475b47d3b6c05e85bd1d8bd1ae9c44f9229b659c20`. Both locked repetitions must remain raw SHA-256 `f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d`, normalized core `c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08`, random `13c043596cd756badc06844d72e0b4575e4470fe2947e5b46a68018230c1e385`, cheapest `0eb8095881dadec2f947bf3ebe05139eb7c2b91be75151273171681bd9a6cdcd`, and priciest `38b752e6b7194da98368ef1e11e9389d710e6915859eed4a53d889efd94ef05a`, with V1 zero and V4/V5 unchanged.
+
+### C11 policy and runner contract
+
+- Historical Gate A, C9/Q, and C10/S evidence uses the historical patch/verifier/ART seal. C11 and later REC-02 use the distinct active seal.
+- STATUS derives only from literal lowercase exact S before any dereference. Future STATUS derives only from exact U and replaces the stale control state with C10/C11 closed and consumed plus REC-02 r2 active.
+- Only r9 from S and later r2 from exact U are armed. r7/r8 and every frozen branch or identity remain consumed/non-reusable.
+- Candidate-only validation is route-aware and read-only. C11 requires 12 controls and a 107-object forbidden inventory: 4,850 bytes / SHA-256 `5958a9ff5ca3864e0590c3b3f738ae4ab8ea4e1aad3d54b9b7c6311a3bf7fd41`. Later REC-02 requires 15 controls and a 106-object inventory: 4,810 bytes / SHA-256 `9eb3ca2847594b03f23c1eb5d7f0e094f1f03cd1ddff5c423099a11df3f6caf1`.
+- The policy self-test must preserve 162 zero-Git failed-head checks and 86 historical raw-frame fixtures and must report exactly 108 structured adversarial fixtures, adding stale future control-state, wrong/old patch seal, consumed C10 reuse, and underfunded direct-resume coverage.
+- A fresh C11 external runner/test/session must structurally deny frozen, consumed, protected, builder, and symlink-alias worktrees before spawning repository code; durably store raw stdout, stderr, and numeric status before parsing/hashing/formatting; and make receipt loss, post-status parser failure, nonzero exit, interruption, and same-label replay terminal after freeze. C10 runner machinery is consumed historical evidence.
+- Fresh C11 runner preflight: PASS / COMPLETE PRE-IDENTITY. Runner `/private/tmp/sunsplitter-c11-runner/c11-receipt-runner.mjs` is mode `0644`, 49,227 bytes, SHA-256 `e7046c8ecbd1693d4c87b277294f75cba0492eaa09e3715289e61e810ed9e6af`. Disposable test `/private/tmp/sunsplitter-c11-runner/c11-receipt-runner.test.mjs` is mode `0644`, 27,220 bytes, SHA-256 `322a8f2ed0b1597e701ea7f94a9bd0fd6a1c5a9184c9693dcf692a41bbca5957`.
+- Pinned Node.js `v22.16.0` syntax and the full disposable preflight passed: 204 forbidden-role identity cases, 15 forbidden execution roots, the exact 13-label vector, `S→C11→U→r2→T` topology, candidate-only and transition-bundle ref contracts, durable status-first/post-status capture, replay, receipt-loss, immediate-next out-of-order receipt rejection, malformed/nonzero/binary/signal/unavailable handling, manifest/state/facts tamper, symlink/copy/wrong-node/production-script fences, and final restoration. No repository policy mode, verifier, simulator, candidate gate, production session, commit, push, or remote action ran.
+
+Pre-identity C11 input-transport repair receipt: the pinned self-test process `72223` began `2026-08-24T09:14:49-05:00` and blocked behind child `78504`, launched at `2026-08-24T09:19:55-05:00` as `git hash-object -w --stdin`. Process and socket inspection proved that the exact 25,188-byte stale-control STATUS fixture at SHA-256 `0cd43e1bf4e65378da6a2500b99d5d3c121ed54acc594d5d4a36b457478e4625` had been fully transmitted with zero queued bytes, but the pipe remained open and Git waited only for EOF; predicted blob `ef4f7e0e824223cc2cf5888168b1041da2aa0e75` remained absent. The stalled run was interrupted with exit `130` and no stdout. After replacing the pipe, two pre-identity diagnostics advanced normally and failed closed at an over-constrained live-fixture SHA assertion: exit `1` / actual `6c8ec8b3b29030eed20039cc5c437d051b6d747a5b3df134d1fd7946bb55da6c` versus expected `0cd43e1bf4e65378da6a2500b99d5d3c121ed54acc594d5d4a36b457478e4625`, then exit `1` / actual `bae503d72c791c7dd28da544600421e1a8ef0255cea2d97971bb582db94586b5` versus expected `6c8ec8b3b29030eed20039cc5c437d051b6d747a5b3df134d1fd7946bb55da6c`. The live future STATUS embeds the candidate's synthetic identity, so editing the policy or record necessarily changes that SHA; a hard-coded live digest is circular and is retired. No C11 identity, one-shot gate, branch push, PR, synthetic merge, or CI run existed in any attempt. The blocking in-memory stdin transport is retired: Git input is now staged in a disposable mode-`0600` file and passed as a seekable descriptor, with cleanup in `finally`. The self-test binds a stable 25,188-byte transport sentinel at SHA-256 `c30e1005a28ea119a787892a8c3201d77b373642f5b9955ca84460a4e61a4b97` / blob `f95e6cfcf1ce50331f106be3321479884e67fb53`, separately requires the live stale STATUS write to equal its pure canonical Git-blob computation, and prints that live fixture's exact stabilized digest and blob in its final receipt.
+
+Pre-identity C11 pack-transfer repair receipt: the next stabilized self-test passed the former stdin and circular-identity points, then exited `1` in `populateRefLessStore` because `git pack-objects --stdout --revs` returned status `null` after its binary stdout exceeded the helper's 32 MiB capture limit; the preserved wrapper receipt reported 60,098,702 bytes omitted and no policy PASS line. No frozen C11 identity or one-shot gate existed. Large pack output is no longer materialized in memory or formatted as failure text: `pack-objects` writes directly to one disposable mode-`0600` physical pack file, `index-pack --stdin` reads that same file through a seekable descriptor, bounded stderr remains capturable, and the transfer root is deleted in `finally`.
+
+Latest pre-identity C11 candidate-store receipt: the full self-test passed the file-backed pack transfer and large-pack points, then exited `1` with no PASS line at policy line 3978: `ENOENT` while renaming the exact recovery-base object from `.git/objects/e4/f84409759760d31fcf47b8a227802a61421f51` to its `.missing` fixture. The `index-pack --stdin` consumer had stored reachable controls in a pack, while the exact-one-control removal negative still correctly required a removable loose object. No C11 identity, one-shot gate, commit, branch push, PR, synthetic merge, or CI run existed. An independent focused exact-S probe produced a 45,093,159-byte physical pack, then proved `git unpack-objects -r` in an empty temporary repository materialized all 840 reachable objects as 840 loose objects with zero packed objects; the exact recovery-base loose path existed and strict full fsck returned status `0` with zero output. Parking only that control made `cat-file` fail `128` and strict fsck fail `2`; restoring it returned strict fsck to PASS. Because full reachability inventory necessarily fails after that exact ancestor is parked, the narrow repair also adds an early read-only exact recovery-base type check before inventory traversal; it emits the existing required-control failure while leaving the later complete 12/15-control probe, exact reachable/stored equality, and strict fsck unchanged. The repair therefore retains file-backed `pack-objects`, replaces only the consumer with `unpack-objects -r`, preserves seekable-input and cleanup controls, and keeps the exact missing-control negative unchanged.
+
+First stabilized unpack-repair self-test receipt: the pinned full self-test at `/private/tmp/sunsplitter-c11-prefreeze-selftest.seYI46` ran from `2026-08-24T15:36:14Z` through `2026-08-24T15:43:50Z`, exited `1` with no PASS line, and produced zero stdout bytes at SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`; stderr was 876 bytes at SHA-256 `802d55399e4ebfe21fc3873e8635b8c70e1622f365950a4c555ff483fe195efe`, and the two-byte status receipt SHA-256 was `4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865`. The representative forbidden-tree negative inserted exact active functional tree `b0f2be69ef549e4ccf65005b8298056294c14716`, but exact reachability inventory classified it first as one unreachable stored object, so the assertion expecting the policy's `forbidden objects present` classification failed at the then-current line 3992. No frozen identity or one-shot gate existed. The narrow root-cause repair keeps the early exact recovery-base required-control check, frames HEAD only far enough to select C11 or REC-02, then identity-checks and probes the complete sealed route-specific forbidden inventory before strict reachability inventory. The later deep route evidence and complete 12/15-control probe remain between the exact before/after inventories, while exact reachable/stored equality, strict fsck, and the unrelated-unreachable negative remain unchanged.
+
+L-021 alone authorizes this saved-resume repair. L-025, L-026, and L-027 remain LOCKED and outside C11; L-026 remains specific to Last Off-Shift defensive save recovery. L-028 remains DEFERRED. ROADMAP, LOCKS, AGENTS, workflows, baseline, engine, state schema, deployment, publication, tag, release, and certification surfaces remain unchanged.
+
+Everything below this line is the immutable historical C10 construction ledger. Its prospective C10 language describes the state before C10 froze and landed; it is preserved as chronology and does not govern the active C11/r9 route. The C11 addendum above supersedes only prospective patch/verifier/tree identities and current routing.
+
+## Historical C10 ledger — exact protected base and landed precursor
 
 - Protected branch: `recovery/e4f8440-nopub`
 - C10 base and sole candidate parent `Q`: `31642c3644a58e9f5fc007bff648dc6146dabcfb`
@@ -292,6 +488,6 @@ Rulesets, required checks, bypass actors, protected refs, and PR state remain me
 
 `NO-PUBLISH / NOT CERTIFIED` remains active.
 
-## 9. Next action
+## Current next action
 
-**Build / GPT-Codex:** run the repaired pre-identity self-test and remaining pre-freeze static checks; only after PASS may Build freeze and enter the 13-gate one-shot. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Build / GPT-Codex:** complete C11 pre-identity construction and independent checks; only total PASS may freeze the one exact correction identity. `NO-PUBLISH / NOT CERTIFIED` remains active.
