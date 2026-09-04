@@ -412,3 +412,12 @@ function openCrewSheet(key) {
     if (toggle) toggle.setAttribute("aria-expanded", "true");
   });
 })();
+
+// SUN-PLAYTEST-ART-DOUBLECLICK-01 — documented minimize/expand (desktop dblclick stays in engine).
+function toggleSceneArtSize() {
+  const wrap = document.getElementById("scene-image-wrap");
+  if (!wrap || !wrap.classList.contains("visible")) return false;
+  wrap.classList.toggle("minimized");
+  window.__ssImagePinned = true;
+  return wrap.classList.contains("minimized");
+}

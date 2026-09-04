@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { playtestArtDoubleclickChecks } from "./playtest-art-doubleclick-checks.mjs";
 
 export function cinematicChecks(runtime) {
   const errors = [];
@@ -103,5 +104,6 @@ export function cinematicChecks(runtime) {
       showTitleScreen();
     }
   })()`);
+  errors.push(...playtestArtDoubleclickChecks(runtime));
   return errors;
 }
