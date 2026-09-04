@@ -56,6 +56,24 @@
     </div>
   </section>
 
+  <section id="tutorial-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tutorial-heading">
+    <div class="tutorial-panel">
+      <h2 id="tutorial-heading">Top bar</h2>
+      <p id="tutorial-copy">The status bar is live. Crew, Hull, Coh, Sup, and Emb are the only numbers that gate what you can order.</p>
+      <ul id="tutorial-topfields">
+        <li id="tutorial-field-crew"><span class="tutorial-field-label">Crew</span> — living complement. Open the roster from this cell.</li>
+        <li id="tutorial-field-hull"><span class="tutorial-field-label">Hull</span> — integrity. Damage closes routes.</li>
+        <li id="tutorial-field-coh"><span class="tutorial-field-label">Coh</span> — cohesion. The living stop taking orders when this drops.</li>
+        <li id="tutorial-field-sup"><span class="tutorial-field-label">Sup</span> — supplies. Rations and repairs spend this.</li>
+        <li id="tutorial-field-emb"><span class="tutorial-field-label">Emb</span> — embryos. The Future ledger.</li>
+      </ul>
+      <div class="tutorial-actions" role="group" aria-label="Tutorial controls">
+        <button id="tutorial-skip" class="btn" type="button" onclick="skipTutorial()">Skip</button>
+        <button id="tutorial-dismiss" class="btn btn-primary" type="button" onclick="dismissTutorial()">Got it</button>
+      </div>
+    </div>
+  </section>
+
   <div id="scene-image-wrap">
     <img id="scene-image" alt="" decoding="async" />
   </div>
