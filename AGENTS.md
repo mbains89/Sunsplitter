@@ -92,6 +92,73 @@ The authority-bootstrap PR defined by ROADMAP is the sole exception to the versi
 
 Verification and release claims must be tied to an exact commit and the evidence required by ROADMAP. If required verifier/simulator tooling is absent, record `NOT_AVAILABLE`; do not manufacture a pass.
 
+## Implementer-under-loops
+
+This section binds Phase-2 implementers queued by Orchestrator (`/goal`). It does not replace the contract above. Manraj remains owner and the only publish authority. Orchestrator queues. One implementer writes.
+
+### One writer
+
+- One writer on the checkout for a live ticket. Do not dual-write with another implementer (`$ S1`, Cursor, Codex, or a second Grok session) on the same branch.
+- Work only in GitHub / owner-allowed paths. Do not clone onto a random machine.
+- Wait for a `/goal`. Do not start a ticket unbidden. Do not start a second ticket after merge.
+
+### Ticket shape
+
+- Branch prefix: `ticket/*` only. Never `cursor/*` as the publish head.
+- Base exactly the SHA and lane named in the `/goal`. Refresh the tip if the goal says to.
+- Honor `authority:`, `touch:`, and the verbatim success proof.
+- Open one **non-draft** PR from that `ticket/*` branch into the named version lane (`version/0.30.1-main-reconcile-ci.1` unless the goal names another).
+- Merge with a **merge commit**. Never squash. Never rebase-merge as a substitute when the goal requires merge-commit.
+- If merge returns 403, stop and say so. Manraj merges in the browser.
+- After a successful merge, post exactly:
+  `MERGED_TIP: <sha> · PARENTS: <p1> <p2> · VERSION_PAINT: <string>`
+- Then **stop**. Do not start the next ticket.
+
+### Hard prohibitions
+
+- No 0.36. Do not mint, open, or paint 0.36.
+- No tag. No Release. No deploy. No Netlify. No certify.
+- No clone as a publishing or proof method.
+- No remint of a spent ticket identity.
+- No Amara-route work unless the `/goal` names it.
+- Do not touch PR 45 / draft PR 46.
+- Do not invent `GAME_VERSION`. Player-facing paint lives in existing `VERSION.md`; lane lock lives in `docs/version-lock.md`.
+- Do not mix From the Ashes into this repository.
+- Do not generate art plates unless the `/goal` names that work.
+
+### Stop tokens
+
+Emit the token and halt. Do not invent a workaround.
+
+| Token | Meaning |
+|---|---|
+| `STOP_NO_GOAL` | No `/goal` in this session. |
+| `STOP_NO_AUTHORITY` | Goal authority missing, stale, or contradicted by LOCKS/ROADMAP. |
+| `STOP_NO_BASE` | Named base SHA or lane tip cannot be read. |
+| `STOP_NO_TOUCH` | Required change is outside the goal `touch:` list. |
+| `STOP_NO_DUAL_WRITE` | Another writer is already on this checkout or branch. |
+| `STOP_NO_036` | Work would open, mint, or paint 0.36. |
+| `STOP_NO_PUBLISH` | Work would ship, tag, Release, or close out to `main` without owner publish authority. |
+| `STOP_NO_CERTIFY` | Work would claim CERTIFIED / sequential-gate closure. |
+| `STOP_NO_NETLIFY` | Work would deploy or remint a Netlify pin. |
+| `STOP_NO_SQUASH` | Merge path is squash. Refuse. |
+| `STOP_NO_TAG` | Work would create a git tag or GitHub Release. |
+| `STOP_NO_DEPLOY` | Work would deploy anywhere. |
+| `STOP_NO_CLONE` | Proof or publish path requires cloning onto an unauthorized machine. |
+| `ALREADY_SATISFIED` | Goal checks are already true on the named base. Do not remint. Return evidence and stop. |
+
+### Receipts
+
+PR body must include the PROOF block from `.github/PULL_REQUEST_TEMPLATE.md`. `FILES TOUCHED:` in that block must match the goal `touch:` list. A gap is a fail.
+
+Orchestrator treats a merged PR plus the `MERGED_TIP` comment as the receipt. Do not require Orchestrator to re-read the diff or CI logs when those receipts exist.
+
+Version lock string for this lane (do not invent a second product version here):
+
+`lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 HOLD`
+
+See `docs/version-lock.md`.
+
 ## Return contract
 
 Return only the artifact or finding requested, plus:
