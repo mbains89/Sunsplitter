@@ -1,0 +1,60 @@
+/* SUN-PLAYTEST-TUTORIAL-TOPFIELDS-01 — first-run overlay for Crew/Hull/Coh/Sup/Emb. */
+#tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(72px + var(--safe-top)) 16px 24px;
+  background: rgba(8, 9, 11, 0.62);
+}
+#tutorial-overlay.hidden { display: none !important; }
+#tutorial-overlay.visible { display: flex; }
+.tutorial-panel {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(16, 18, 22, 0.94);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-dim);
+  padding: 18px 16px 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+#tutorial-heading {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+#tutorial-copy {
+  color: var(--dim);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+#tutorial-topfields {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+#tutorial-topfields li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42, 48, 56, 0.6);
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+#tutorial-topfields li:last-child { border-bottom: none; }
+.tutorial-field-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.tutorial-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.tutorial-actions .btn { min-width: var(--touch); }
