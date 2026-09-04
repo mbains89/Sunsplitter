@@ -93,7 +93,10 @@ Elias keeps one finger on B-four.
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Elias dialogue/action guarded by isAlive('elias'); dead
 //   entry redirects before image/text/choices
-// IMAGE: images/bond_elias.jpg [REUSE live Elias portrait; EXISTS; NO BAKED TEXT]
+// IMAGE: REUSE images/work_elias.jpg; living Elias at the station board after
+//   the sealant cartridges fire. Not bond_elias.jpg (quiet seated cup). Commander
+//   faceless. Dead/saved-absent fallback stays empty corridor_pressure_3.jpg
+//   via the resolver.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_elias_sealant: {
   onEnter: () => {
@@ -112,7 +115,7 @@ Elias watches every downstream compartment hold before he releases the board.
   choices: [
     { text: "Log the empty rack. Continue.", next: "act3_lethal_mira_board" }
   ],
-  image: "images/bond_elias.jpg"
+  image: "images/work_elias.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
