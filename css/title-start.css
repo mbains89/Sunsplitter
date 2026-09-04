@@ -1,5 +1,6 @@
 /* SUN-PLAYTEST-TITLE-WHITESPACE-01 — drop the leftover bottom band on notice/title.
-   Loaded after css/style.css. Does not invent rotating-ship art. */
+   SUN-PLAYTEST-TITLE-ROTATING-SHIP-01 — slow in-tree ship plate behind title/start.
+   Loaded after css/style.css. Does not invent new ship art. */
 
 #tone-screen,
 #title-screen {
@@ -16,9 +17,63 @@
   overflow: hidden;
 }
 
+#title-screen {
+  position: relative;
+  overflow: hidden;
+}
+
 #tone-screen .tone-panel,
-#title-screen .title-actions {
+#title-screen .title-actions,
+#title-screen .game-title,
+#title-screen .game-subtitle,
+#title-screen .prologue,
+#title-screen .title-contract {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
+}
+
+#title-ship-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #08090b;
+}
+
+#title-ship-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 9, 11, 0.42) 0%, rgba(8, 9, 11, 0.72) 55%, rgba(8, 9, 11, 0.92) 100%);
+}
+
+#title-ship-image {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 168%;
+  height: 168%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 40%;
+  transform: translate(-50%, -50%);
+  filter: saturate(0.78) contrast(1.05);
+  animation: title-ship-rotate 180s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes title-ship-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #title-ship-image {
+    animation: none;
+  }
 }
 
 @media (max-width: 480px) {
