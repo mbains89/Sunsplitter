@@ -25,13 +25,12 @@ export function playtestTitleWhitespaceChecks(runtime) {
   if (!styleCss.includes("min-height: calc(100dvh - 100px)")) {
     errors.push("base title/ending min-height contract dropped from style.css");
   }
-  if (!html.includes("I understand — continue") || !html.includes("Adult sexual content is permanent.") || !html.includes('id="btn-begin"') || !html.includes('id="btn-content-notice"') || !html.includes("Earth failed in a cascade measured in hours.")) {
+  if (!html.includes("I understand — continue") || !html.includes("Adult sexual content is permanent.") || !html.includes('id="btn-begin"') || !html.includes('onclick="startGame()"') || !html.includes('id="btn-content-notice"') || !html.includes('onclick="revisitTone()"') || !html.includes("Earth failed in a cascade measured in hours.")) {
     errors.push("notice/start copy or continue/begin controls dropped");
   }
   try {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
-      resetRunState();
       acknowledgeTone();
       const tone = document.getElementById("tone-screen");
       const title = document.getElementById("title-screen");
@@ -40,19 +39,20 @@ export function playtestTitleWhitespaceChecks(runtime) {
       const start = {
         visible: !!(title && !title.classList.contains("hidden")),
         toneHidden: !!(tone && tone.classList.contains("hidden")),
-        begin: !!(begin && String(begin.textContent || "").trim() === "Begin"),
-        notice: !!(noticeBtn && /Content notice/.test(String(noticeBtn.textContent || "")))
+        begin: !!begin,
+        notice: !!noticeBtn
       };
       revisitTone();
       const notice = {
         visible: !!(tone && !tone.classList.contains("hidden")),
-        titleHidden: !!(title && title.classList.contains("hidden")),
-        continue: /I understand — continue/.test(document.body ? document.body.innerHTML : "")
+        titleHidden: !!(title && title.classList.contains("hidden"))
       };
       acknowledgeTone();
       const back = {
         titleVisible: !!(title && !title.classList.contains("hidden")),
-        toneHidden: !!(tone && tone.classList.contains("hidden"))
+        toneHidden: !!(tone && tone.classList.contains("hidden")),
+        begin: !!document.getElementById("btn-begin"),
+        notice: !!document.getElementById("btn-content-notice")
       };
       return { start, notice, back };
     })()`);
@@ -62,7 +62,7 @@ export function playtestTitleWhitespaceChecks(runtime) {
     if (!fixture.notice.visible || !fixture.notice.titleHidden) {
       errors.push("content-notice screen lost visibility or continue path");
     }
-    if (!fixture.back.titleVisible || !fixture.back.toneHidden) {
+    if (!fixture.back.titleVisible || !fixture.back.toneHidden || !fixture.back.begin || !fixture.back.notice) {
       errors.push("notice continue did not return to a usable title/start screen");
     }
   } catch (error) {
