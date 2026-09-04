@@ -17,7 +17,11 @@ full-body refs, shared pose, underwear/base layer) is documented in the
 audit/plan only — planned `body_ref_<id>_front.jpg` /
 `body_ref_<id>_back.jpg`. No `body_ref` bytes and no scene wiring in that
 ticket. Owner approves body portraits directly before any later wire.
-PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket.
+PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket. Do not
+generate event plates in Cursor. Style bible draft:
+`artifacts/SUN_ART_STYLE_BIBLE.md` (owner lock before grok.com loops).
+Body_ref front/back pack comes after that style lock. Generation is
+grok.com, one event or body_ref at a time.
 Post-0.35 / pre-0.36 follow-ups: `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 
 ## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets

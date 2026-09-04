@@ -13,6 +13,7 @@ const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
 const ROADMAP_PATH = "artifacts/ROADMAP.md";
+const STYLE_BIBLE_PATH = "artifacts/SUN_ART_STYLE_BIBLE.md";
 const STANDING_RULE_NEEDLES = [
   "Unique plate per event beat — never official portrait as stand-in.",
   "Identity refs: official face + bodysuit",
@@ -39,6 +40,9 @@ const PLAN_NEEDLES = [
   "Does not open 0.36",
   "Art–event match",
   "SUN-ART-BODY-REFERENCE-01",
+  "Style bible lock",
+  "grok.com",
+  "SUN_ART_STYLE_BIBLE.md",
   "Grok plate batch",
   "Crew count + flex name buttons + full-screen crew character sheet",
   "Art double-click minimize restore",
@@ -67,7 +71,19 @@ const ROADMAP_NEEDLES = [
   "### Playtest response (post-0.35, pre-0.36)",
   "SUN_PLAYTEST_RESPONSE_PLAN.md",
   "SUN-ART-BODY-REFERENCE-01",
+  "SUN_ART_STYLE_BIBLE.md",
   "Do not mint or open 0.36"
+];
+const STYLE_BIBLE_NEEDLES = [
+  "## Medium",
+  "## Lighting",
+  "## Palette",
+  "## Lens",
+  "## Sharpness / grain",
+  "## Ban list",
+  "## How to attach style anchors (grok.com)",
+  "784×1168",
+  "Do not generate plates in Cursor"
 ];
 const GROK_STUBS = [
   "romance_lena_1", "romance_mira_1", "romance_amara_1",
@@ -114,6 +130,7 @@ function sourceErrors() {
   const briefs = readFileSync(resolve(ROOT, BRIEFS_PATH), "utf8");
   const plan = readFileSync(resolve(ROOT, PLAN_PATH), "utf8");
   const roadmap = readFileSync(resolve(ROOT, ROADMAP_PATH), "utf8");
+  const styleBible = readFileSync(resolve(ROOT, STYLE_BIBLE_PATH), "utf8");
 
   if (!/bond_mira:\s+"images\/quiet_mira\.jpg"/.test(stateSource)) {
     errors.push("state.js bond_mira is not quiet_mira.jpg");
@@ -176,6 +193,15 @@ function sourceErrors() {
   }
   for (const needle of ROADMAP_NEEDLES) {
     if (!roadmap.includes(needle)) errors.push(`ROADMAP missing playtest-response needle: ${needle}`);
+  }
+  for (const needle of STYLE_BIBLE_NEEDLES) {
+    if (!styleBible.includes(needle)) errors.push(`style bible missing needle: ${needle}`);
+  }
+  if (!plan.includes("body_ref front/back pack comes **after** that style lock")) {
+    errors.push("plan missing style-lock-before-body_ref rule");
+  }
+  if (!audit.includes("SUN_ART_STYLE_BIBLE.md")) {
+    errors.push("audit missing style-bible pointer");
   }
   for (const needle of BODY_REF_NEEDLES) {
     if (!audit.includes(needle) && !plan.includes(needle)) {

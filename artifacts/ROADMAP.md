@@ -544,7 +544,7 @@ Work allowed now:
 
 ### Playtest response (post-0.35, pre-0.36)
 
-Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). Pack note `SUN-ART-BODY-REFERENCE-01` is documented in that plan; the audit PR does not generate `body_ref` bytes or wire them. ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
+Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). Pack note `SUN-ART-BODY-REFERENCE-01` is documented in that plan; the audit PR does not generate `body_ref` bytes or wire them. Style bible draft `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before grok.com event or body_ref chats; generation is offloaded off Grok Bot / Cursor. ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
 
 **Hard holds:** PR 45/46; do not mint 0.36; no certify; last certified `0.28.1d`; NO-PUBLISH; live Netlify pin `a91a26d` (no PIN-02 remint); L-025–L-028 not reopened here.
 

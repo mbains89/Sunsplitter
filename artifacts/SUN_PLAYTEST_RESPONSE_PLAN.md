@@ -8,24 +8,35 @@ PR 45/46. Do not reopen L-025–L-028.
 
 This file is the ordered follow-up list. Full event→image table:
 `artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`. Grok stubs:
-`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`.
+`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`. Style bible draft:
+`artifacts/SUN_ART_STYLE_BIBLE.md`.
+
+## Owner generation workflow (locked for this workstream)
+
+Do **not** generate event-plate or body_ref binaries in Cursor or Grok Bot.
+
+1. **Orchestrator / `$ S1`:** keep the style bible, the ordered `NEEDS_GROK_PLATE` list, and paste-ready briefs (identity lock, style bible, beat verb, body/face language). Wire only owner-approved assets.
+2. **Manraj** approves each image personally in **grok.com chats**, one event (or one body_ref plate) at a time. Generation is offloaded off Grok Bot.
+3. **Canon PASS/HOLD/REJECT** likeness before any wire.
+4. **Prerequisite:** lock art direction / `artifacts/SUN_ART_STYLE_BIBLE.md` before event-by-event grok.com chats. The body_ref front/back pack comes **after** that style lock.
 
 ## Ordered follow-ups (post-0.35, pre-0.36)
 
 1. **Art–event match** — this audit + in-tree retargets (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`). Unique plate per beat; never official portrait as stand-in.
-2. **SUN-ART-BODY-REFERENCE-01** — **front and back** full-body living-cast refs, same shared pose, underwear/base layer (not nude). Match official CURRENT face portrait + bodysuit as closely as possible. Documented on this audit; **no image bytes and no scene wiring in this PR.** Owner approves body portraits directly before any event-modeling use or later wire. Pack note: `artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`.
-3. **Grok plate batch** from the brief stubs (official bodysuit portrait as sole face reference + full beat; Canon identity lock; PASS/HOLD/REJECT before wire). Attach owner-approved `body_ref_<id>_front.jpg` / `body_ref_<id>_back.jpg` only after item 2. Not a broad ART-R2 binary campaign until Grok dispatches a new ticket identity.
-4. **Crew count + flex name buttons + full-screen crew character sheet.**
-5. **Art double-click minimize restore.**
-6. **Title white-space + rotating ship background.**
-7. **Intro slides back button + intro art.**
-8. **Tutorial covers 5 top fields** (skip kept).
-9. **Amara romance trigger repro** (narrow; Amara-route stays PARKED unless repro proves a wiring bug vs the intended scene map).
-10. **Crew conflict events** (design later).
-11. **Light commander creation** (design later; Grok already advised light hybrid).
-12. **Ending cinematic art.**
+2. **Style bible lock** — owner approves `artifacts/SUN_ART_STYLE_BIBLE.md` (drafted from CURRENT bodysuit / CURRENT Batch A). Prerequisite for items 3–4.
+3. **SUN-ART-BODY-REFERENCE-01** — **front and back** full-body living-cast refs, same shared pose, underwear/base layer (not nude). Match official CURRENT face portrait + bodysuit as closely as possible. **After style lock.** **No image bytes and no scene wiring in this PR.** Owner approves each plate in grok.com before any event-modeling use or later wire.
+4. **Grok plate batch** from the brief stubs, in grok.com, one beat at a time (official bodysuit portrait as sole face reference + full beat; Canon identity lock; PASS/HOLD/REJECT before wire). Attach owner-approved `body_ref_<id>_front.jpg` / `body_ref_<id>_back.jpg` only after item 3. Not a broad ART-R2 binary campaign. Not a Cursor generation job.
+5. **Crew count + flex name buttons + full-screen crew character sheet.**
+6. **Art double-click minimize restore.**
+7. **Title white-space + rotating ship background.**
+8. **Intro slides back button + intro art.**
+9. **Tutorial covers 5 top fields** (skip kept).
+10. **Amara romance trigger repro** (narrow; Amara-route stays PARKED unless repro proves a wiring bug vs the intended scene map).
+11. **Crew conflict events** (design later).
+12. **Light commander creation** (design later; Grok already advised light hybrid).
+13. **Ending cinematic art.**
 
-This audit PR documents item 2 only. Do not generate `body_ref` JPEGs here. Do not start items 4–12 on the audit branch. One merged PR for the audit, then stop. Grok / orchestrator dispatches the next identity.
+This audit PR documents items 1–4 as paper only (plus the one in-tree `bond_mira` retarget). Do not generate `body_ref` or event JPEGs here. Do not start items 5–13 on the audit branch. One merged PR for the audit, then stop. Grok / orchestrator dispatches the next identity.
 
 ## SUN-ART-BODY-REFERENCE-01 — living cast IDs
 

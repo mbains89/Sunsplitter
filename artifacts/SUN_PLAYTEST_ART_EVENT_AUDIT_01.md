@@ -68,7 +68,10 @@ a body_ref path. Pack note `SUN-ART-BODY-REFERENCE-01` (below) plans later
 owner-approved full-body refs; this PR does not generate or wire them.
 
 Post-0.35 / pre-0.36 ordered follow-ups (0.36 not opened):
-`artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
+`artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Style bible draft (owner must
+approve before grok.com loops): `artifacts/SUN_ART_STYLE_BIBLE.md`. Body_ref
+front/back pack comes after that style lock. Do not generate event plates in
+Cursor.
 
 ## Closed table
 
@@ -180,6 +183,16 @@ approval gallery and **must not** be assigned to `scene.image` /
 `sceneImages`. Rourke is dead (first hour) and is not in this living set.
 
 Living-cast IDs are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
+This pack runs **after** owner lock of `artifacts/SUN_ART_STYLE_BIBLE.md`.
+Generation is grok.com, one plate at a time; not Cursor / Grok Bot.
+
+## Owner generation workflow
+
+Orchestrator/`$ S1` holds style bible + ordered NEEDS_GROK list + paste-ready
+briefs. Manraj approves each image in **grok.com** chats (one event or
+body_ref plate at a time). Canon PASS/HOLD/REJECT before wire. Style bible
+lock is the prerequisite. This audit PR does not generate event-plate
+binaries.
 
 ## Prior ART-R2 cluster (do not remint)
 
@@ -193,6 +206,7 @@ Do not rewire shower linger plates onto first-offer sex beats.
 
 - No 0.36, certify, tag, deploy, Netlify, PIN-02 remint.
 - No broad ART-R2 binary regen batch.
+- No event-plate or body_ref generation in Cursor / Grok Bot.
 - No crew-UI / white-space / tutorial on this branch.
 - L-025–L-028 dispositions unchanged.
 - Required version-lane checks, then merge-commit. Not squash.

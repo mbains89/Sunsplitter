@@ -32,6 +32,9 @@ Canon still PASS/HOLD/REJECT before wire.
 
 ### Style bible (verbatim in every job)
 
+After Manraj locks `artifacts/SUN_ART_STYLE_BIBLE.md`, paste that page (or its
+approved paragraph) at the top of the grok.com chat. Until then, use:
+
 Photoreal cinematic still for Sunsplitter, portrait aspect ~784×1168 (2:3).
 Gritty used-future O'Neill-cylinder interior: rectangular bays, rooms, and
 straight corridors only — no curved-ring architecture. Dark weathered metal,
@@ -44,6 +47,9 @@ body that assigns the player a face. No baked ship names, character names,
 system labels, or ending copy. Adult content stays adult; do not soften.
 One unique plate for this beat; do not reuse an official portrait pose, a
 neutral arms-at-sides stare, or another scene's composition.
+
+Do not generate this plate in Cursor or Grok Bot. Owner approves in grok.com,
+one beat at a time. Canon PASS/HOLD/REJECT before wire.
 
 ### Identity ref protocol
 
@@ -959,7 +965,9 @@ hero-Commander face.
 ## Pack: SUN-ART-BODY-REFERENCE-01 (later ticket; not this PR)
 
 Do not run this pack on the audit branch. No `images/body_ref_*.jpg`. No
-scene wire. Owner approves each plate directly before event-modeling use.
+scene wire. Runs **after** owner lock of `artifacts/SUN_ART_STYLE_BIBLE.md`.
+Owner approves each plate in grok.com (one front or back at a time), not in
+Cursor / Grok Bot.
 
 **Locked pose:** same shared stance for the whole set. Front plate = front
 three-quarter, feet-to-head, arms relaxed. Back plate = 180° turn of that
