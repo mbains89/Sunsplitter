@@ -421,3 +421,59 @@ function toggleSceneArtSize() {
   window.__ssImagePinned = true;
   return wrap.classList.contains("minimized");
 }
+
+// SUN-PLAYTEST-INTRO-BACK-ART-01 — Back on all 3 intro slides + in-tree slide art.
+// Loaded after engine.js. Does not invent plates or opening prose.
+const INTRO_SLIDE_ART = [
+  "images/cascade_records.jpg",
+  "images/ship_exterior_2.jpg",
+  "images/arc_living_conflict.jpg"
+];
+const INTRO_SLIDE_ALT = [
+  "Records of Earth's cascade.",
+  "The Sunsplitter colonization ark.",
+  "The living already arguing what to save."
+];
+
+function introSlideArt(index) {
+  return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0];
+}
+
+function retreatCinematic() {
+  if (!currentCinematic) return false;
+  if (currentCinematic.index > 0) {
+    currentCinematic.index -= 1;
+    renderCinematicFrame(true);
+    return true;
+  }
+  if (currentCinematic.kind === "intro") {
+    cancelCinematic();
+    showTitleScreen();
+    return true;
+  }
+  return false;
+}
+
+(function overlayIntroBackArt() {
+  if (typeof renderCinematicFrame !== "function" || typeof showCinematic !== "function") return;
+  const previousRender = renderCinematicFrame;
+  renderCinematicFrame = function(resetScroll) {
+    previousRender(resetScroll);
+    if (!currentCinematic) return;
+    const back = document.getElementById("cinematic-back");
+    if (back) {
+      back.classList.toggle("hidden", currentCinematic.kind !== "intro");
+      back.textContent = currentCinematic.kind === "intro" && currentCinematic.index === 0 ? "Back to title" : "Back";
+    }
+    if (currentCinematic.kind === "intro") {
+      const img = document.getElementById("cinematic-image");
+      setManagedImageSource(img, introSlideArt(currentCinematic.index));
+      if (img) img.alt = INTRO_SLIDE_ALT[currentCinematic.index] || "";
+    }
+  };
+  const previousShow = showCinematic;
+  showCinematic = function(kind) {
+    previousShow(kind);
+    if (kind === "intro") renderCinematicFrame(false);
+  };
+})();

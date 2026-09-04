@@ -64,7 +64,7 @@ export function cinematicChecks(runtime) {
     window.dispatchEvent({ type: "pagehide" });
     if (!currentCinematic.paused || cinematicTimer !== null || document.getElementById("cinematic-image").__ssManagedSource) return false;
     window.dispatchEvent({ type: "pageshow" });
-    if (!currentCinematic.paused || document.getElementById("cinematic-image").__ssManagedSource !== "images/onboarding_background.jpg") return false;
+    if (!currentCinematic.paused || document.getElementById("cinematic-image").__ssManagedSource !== "images/cascade_records.jpg") return false;
     finishCinematic();
     if (localStorage.getItem(SAVE_KEY) !== completed || !preserveCompletedSlotUntilChoice) return false;
     makeChoice(scenes.wake.choices[0]);
