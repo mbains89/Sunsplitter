@@ -16,6 +16,17 @@ Authority: DRAIN sun playtest-P2 · owner · 2026-09-03.
   second event spine.
 - Do **not** implement beats here. Do **not** expand Amara-route.
 - Commander creation (item 12) stays a later ticket.
+- P5 content stays PARKED until owner greenlights gameplay.
+
+## Non-goals (this PR)
+
+- No gameplay code: no `src/**`, `css/**`, `images/**`, `index.html`.
+- No new scenes, flags, meters, HUD, or event spine.
+- No Amara-route expansion; no tray/romance prose.
+- No commander-creation (item 12) and no ending-cinematic art (item 13).
+- No STATUS / ROADMAP / LOCKS edits.
+- No 0.36, tag, Netlify, certify, or publish.
+- This page is not approval to ship conflict content.
 
 ## Observed map (code at BASE)
 
@@ -70,6 +81,18 @@ It may not:
 
 Owner approves the implement ticket separately. This page is not that
 approval.
+
+## Open questions (owner)
+
+These block P5 content. Do not answer them by shipping scenes on this branch.
+
+1. First attach point: `crew_walk`, `faction_split`, or an existing `pair_*`
+   offer from `src/scenes-16.js`?
+2. Is copy-tighten on existing beats enough, or is one new living-gated
+   `crew_walk` choice required?
+3. Does `pair_favor_confront` count as crew conflict without touching
+   parked Amara-route / tray prose?
+4. When does owner greenlight `SUN-PLAYTEST-CREW-CONFLICT-01` content?
 
 ## Out of scope here
 
