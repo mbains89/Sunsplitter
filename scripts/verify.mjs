@@ -177,6 +177,14 @@ function mobileUsabilityContractChecks() {
       errors.push(`0.34 ${selector} lost the 48px minimum touch width`);
     }
   }
+  const chipFlex = controlBlock(".crew-chip");
+  if (!/flex:\s*1 1 /.test(chipFlex) || !/text-align:\s*center/.test(chipFlex)) {
+    errors.push("crew name chips must flex-grow when few and flex-shrink when many");
+  }
+  const chipsRow = controlBlock("#crew-panel .crew-chips");
+  if (!/display:\s*flex/.test(chipsRow) || !/flex-wrap:\s*wrap/.test(chipsRow)) {
+    errors.push("crew name chips must wrap as a flex row on phone width");
+  }
   const appBlock = cssSource.match(/#app\s*\{([\s\S]*?)\}/)?.[1] || "";
   if (!/height:\s*100%/.test(appBlock) || !/max-height:\s*100%/.test(appBlock) || /100dvh/.test(appBlock)) {
     errors.push("0.34 #app no longer sizes inside the body-owned safe-area content box");
@@ -311,8 +319,36 @@ function crewOverviewChecks(runtime) {
     const before = JSON.stringify(state);
     const save = localStorage.getItem("sunsplitter_save_v3");
     toggleCrewPanel();
-    const opened = { html: panel.innerHTML, expanded: toggle.getAttribute("aria-expanded"),
-      count: document.getElementById("stat-survivors").textContent };
+    const parseRoster = html => {
+      const living = [];
+      const shown = [];
+      const re = /class="([^"]*)" data-crew="([^"]+)"/g;
+      let match;
+      while ((match = re.exec(html))) {
+        shown.push(match[2]);
+        if (!match[1].split(" ").includes("dead")) living.push(match[2]);
+      }
+      return { living, shown };
+    };
+    const snapshot = () => {
+      renderStatus();
+      const html = panel.innerHTML;
+      const roster = parseRoster(html);
+      return {
+        html,
+        count: String(document.getElementById("stat-survivors").textContent),
+        living: roster.living.slice(),
+        shown: roster.shown.slice(),
+        survivors: state.survivors
+      };
+    };
+    const opened = Object.assign({
+      html: panel.innerHTML,
+      expanded: toggle.getAttribute("aria-expanded"),
+      count: document.getElementById("stat-survivors").textContent,
+      survivors: state.survivors
+    }, parseRoster(panel.innerHTML));
+    const wakeRoster = snapshot();
     renderCrewPanel("mira");
     toggleCrewPanel();
     const closed = !panel.classList.contains("visible") && toggle.getAttribute("aria-expanded") === "false";
@@ -326,12 +362,15 @@ function crewOverviewChecks(runtime) {
     };
     kill("rourke", "opening loss fixture");
     const rourke = read("rourke");
+    const afterRourke = snapshot();
     state.recovered.vess = true;
     state.trust.vess = 67;
     state.romance.vess = true;
     const vess = read("vess");
+    const afterVess = snapshot();
     kill("vess", "<fault> & loss");
     const deadVess = read("vess");
+    const afterDeadVess = snapshot();
     state.recovered.tomas = state.recovered.jiro = true;
     state.romance.amara_tomas = true;
     const amara = read("amara"), tomas = read("tomas");
@@ -350,11 +389,29 @@ function crewOverviewChecks(runtime) {
     const absentDetail = read("vess");
     showScreen("title");
     const reset = panel.classList.contains("hidden") && !panel.classList.contains("visible") && toggle.getAttribute("aria-expanded") === "false";
-    return { opened, closed, stable, reset, rourke, vess, deadVess, amara, tomas, zeroTrust, maxTrust, injuredLena, deadDefault, absentDetail };
+    return {
+      opened, wakeRoster, afterRourke, afterVess, afterDeadVess, closed, stable, reset,
+      rourke, vess, deadVess, amara, tomas, zeroTrust, maxTrust, injuredLena, deadDefault, absentDetail
+    };
   })()`);
-  if (fixture.opened.expanded !== "true" || String(fixture.opened.count) !== "9" ||
+  const countMatchesLiving = (row, label, expected) => {
+    const living = row.living || [];
+    if (String(row.count) !== String(living.length) || (expected != null && String(row.count) !== String(expected))) {
+      errors.push(`Crew HUD ${label} count ${JSON.stringify(row.count)} != visible living names ${JSON.stringify(living)}`);
+    }
+  };
+  if (fixture.opened.expanded !== "true" ||
       !fixture.opened.html.includes("Trust: 40/100") || !fixture.opened.html.includes("Romance: None recorded") ||
-      !fixture.opened.html.includes("Condition: Alive")) errors.push("HUD Crew does not immediately show Lena's existing stats and unchanged count");
+      !fixture.opened.html.includes("Condition: Alive")) errors.push("HUD Crew does not immediately show Lena's existing stats");
+  if (fixture.opened.survivors !== 9) errors.push("mechanical survivors resource must remain 9 at wake");
+  countMatchesLiving(fixture.opened, "wake open", 6);
+  countMatchesLiving(fixture.wakeRoster, "wake status", 6);
+  countMatchesLiving(fixture.afterRourke, "after Rourke death", 5);
+  countMatchesLiving(fixture.afterVess, "after Vess recovery", 6);
+  countMatchesLiving(fixture.afterDeadVess, "after Vess death", 5);
+  if ((fixture.opened.living || []).includes("tomas") || (fixture.opened.shown || []).includes("vess")) {
+    errors.push("wake Crew roster leaked unrecovered names into the living count");
+  }
   for (const key of ["tomas", "jiro", "vess"]) {
     if (fixture.opened.html.includes('data-crew="' + key + '"')) errors.push(`unrecovered ${key} leaked into Crew overview`);
   }
@@ -420,7 +477,7 @@ function accessibilityRuntimeChecks(runtime) {
   if (fixture.invalidAlternatives.length) {
     errors.push(`scene image alternative failures: ${JSON.stringify(fixture.invalidAlternatives.slice(0, 5))}`);
   }
-  if (fixture.statusAnnouncement !== "Ship status: 9 survivors, hull integrity 62%, cohesion 48%, supplies 61%, embryos 100%.") {
+  if (fixture.statusAnnouncement !== "Ship status: 6 survivors, hull integrity 62%, cohesion 48%, supplies 61%, embryos 100%.") {
     errors.push(`status announcement drifted: ${JSON.stringify(fixture)}`);
   }
   if (fixture.crewExpanded !== "true") errors.push("Crew disclosure did not announce expanded state");
@@ -3830,7 +3887,8 @@ function resourceFeedbackChecks(runtime) {
     renderStatus();
     const survivors = {
       text: String(document.getElementById("stat-survivors").textContent),
-      className: document.getElementById("stat-survivors").className
+      className: document.getElementById("stat-survivors").className,
+      resource: state.survivors
     };
 
     resetRunState();
@@ -3874,8 +3932,8 @@ function resourceFeedbackChecks(runtime) {
       }
     }
   }
-  if (fixture.survivors.text !== "2" || fixture.survivors.className !== "stat-value") {
-    errors.push(`Survivors status is not neutral: text=${JSON.stringify(fixture.survivors.text)} class=${JSON.stringify(fixture.survivors.className)}`);
+  if (fixture.survivors.text !== "6" || fixture.survivors.className !== "stat-value" || fixture.survivors.resource !== 2) {
+    errors.push(`Crew HUD is not a neutral living-name count: ${JSON.stringify(fixture.survivors)}`);
   }
   if (!fixture.vaultUnpaid.found || !fixture.vaultUnpaid.disabled || fixture.vaultUnpaid.reason !== "Needs 1 Cohesion; 0 available") {
     errors.push(`vault_voice unpaid reason mismatch: ${JSON.stringify(fixture.vaultUnpaid)}`);
