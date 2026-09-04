@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { playtestCrewCharacterScreenChecks } from "./playtest-crew-character-screen-checks.mjs";
 
 export function maleCrewChecks(runtime) {
   const errors = [];
@@ -87,5 +88,6 @@ export function maleCrewChecks(runtime) {
     }
     return true;
   })()`);
+  errors.push(...playtestCrewCharacterScreenChecks(runtime));
   return errors;
 }
