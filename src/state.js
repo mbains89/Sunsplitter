@@ -214,7 +214,7 @@ const sceneImages = {
   sun_payoff:       "images/sela_ritual.jpg",
   boarding_stories: "images/corridor.jpg",
   patch_fails:      "images/vent.jpg",
-  bond_mira:        "images/mira.jpg",
+  bond_mira:        "images/quiet_mira.jpg",
   bond_amara:       "images/amara.jpg",
   bond_sela:        "images/sela.jpg",
   bond_lena:        "images/lena.jpg",

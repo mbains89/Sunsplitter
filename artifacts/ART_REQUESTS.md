@@ -1,5 +1,29 @@
 # Sunsplitter — Art Requests
 
+## SUN-PLAYTEST-ART-EVENT-AUDIT-01 — Grok briefs + one retarget (2026-09-04)
+
+Owner standing brief rule, closed event→image table, and Grok stubs:
+`artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`,
+`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`.
+Unique plate per beat; never official portrait as stand-in. Every
+NEEDS_GROK_PLATE stub carries a standing **portrait identity-lock**: official
+bodysuit portrait path as sole face reference; exact likeness (geometry, age,
+skin, hairline, eye shape, scars/marks; no beautify/age/ethnicity swap);
+bodysuit silhouette unless the beat changes clothes; named must-appear /
+must-not; scene verb + full event prose; REJECT if the face fails vs official
+at thumbnail size. Ban "generic crew." `body_ref` front/back NOT_APPROVED
+in-tree. Pack note `SUN-ART-BODY-REFERENCE-01` (living-cast **front and back**
+full-body refs, shared pose, underwear/base layer) is documented in the
+audit/plan only — planned `body_ref_<id>_front.jpg` /
+`body_ref_<id>_back.jpg`. No `body_ref` bytes and no scene wiring in that
+ticket. Owner approves body portraits directly before any later wire.
+PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket. Do not
+generate event plates in Cursor. Style bible draft:
+`artifacts/SUN_ART_STYLE_BIBLE.md` (owner lock before grok.com loops).
+Body_ref front/back pack comes after that style lock. Generation is
+grok.com, one event or body_ref at a time.
+Post-0.35 / pre-0.36 follow-ups: `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
+
 ## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets
 
 `SOURCE main@8d23109 · RUNTIME base@163d333 · TASK SUN-V035-PLAYTEST-ART-AUDIT-01 · MODE implementation`

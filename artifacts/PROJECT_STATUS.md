@@ -8,7 +8,7 @@
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: a2bb4a2065290543a601bb214294d3adf3a852ea`
+`version_lane_sha: 1a8e8a5cd2255350329f3861ef7d881c1a1aa6a6`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: a2bb4a2 — LANDED ON VERSION LANE after PR 145; not SHIPPED; not CERTIFIED`
+`version_lane_head: 1a8e8a5 — LANDED ON VERSION LANE after PR 147; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,8 +38,8 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-V035-STATUS-DOCS-01 — planning-docs sync after PR 145`
-`state: VERSION-LANE DOCS HAND-OFF — 0.34/0.35 drain recorded; 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-PLAYTEST-ART-EVENT-AUDIT-01 — owner playtest art↔event follow-up`
+`state: VERSION-LANE AUDIT + ONE RETARGET + GROK BRIEFS — 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
@@ -52,7 +52,7 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 - **0.34 Mobile UX / a11y / perf:** PRs 107–109 (`SUN-V034-MOBILE-UX-01`, `SUN-V034-A11Y-01`, `SUN-V034-PERF-01`) merge-committed on the lane. Drain recorded. Not certified.
 - **0.35 Packaging and private itch:** PRs 110–113 (`SUN-V035-PRIVATE-PACKAGE-01`, `SUN-V035-CONTENT-NOTICE-01`, `SUN-V035-PHONE-RESUME-01`, `SUN-V035-PRIVATE-DRAFTS-01`) merge-committed on the lane. Refresh PRs 143–145 rebind package and non-public drafts to playtest pin `a91a26d` / archive SHA-256 `47d8d9c9fdea11971e8e62763344ff5308453358d6ada42fb14e88b102408a58`. Drain recorded. Not publication. Not certified.
 
-### Recently landed (PRs 141–145)
+### Recently landed (PRs 141–147)
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
@@ -61,18 +61,30 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 | 143 | `SUN-V035-PRIVATE-PACKAGE-REFRESH-01` | Private package refresh to `a91a26d`. Not a remint of 107–142 as a new identity. |
 | 144 | `SUN-V035-CONTENT-NOTICE-REVISIT-01` | Reopen existing content notice from title utilities. Not a settings dashboard. Not L-040. |
 | 145 | `SUN-V035-PRIVATE-DRAFTS-REFRESH-01` | Non-public drafts bound to the PR 143 digest. No public page. |
+| 146 | `SUN-V035-STATUS-DOCS-01` | Planning-docs sync. LANDED ON VERSION LANE. |
+| 147 | `SUN-V035-PLAYTEST-CLOSED-LEDGER-01` | PLAYTEST_SUN findings closed to PRs. LANDED ON VERSION LANE. |
 
-Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is an ancestor of `a2bb4a2`. Private-package phone-resume guide/server/manifest checks already exist. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry. Owner physical play remains playtesting evidence, not certification.
+This ticket (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`) is the owner playtest art↔event
+audit: one in-tree retarget (`bond_mira` → `quiet_mira.jpg`), Grok brief stubs
+with a standing **portrait identity-lock**, pack note `SUN-ART-BODY-REFERENCE-01`
+(front/back body refs planned; no bytes here), and a **draft** style bible
+`artifacts/SUN_ART_STYLE_BIBLE.md` (owner must lock it before grok.com loops;
+body_ref pack is after that lock). No event-plate generation in Cursor.
+Ordered post-0.35 / pre-0.36 follow-ups live in
+`artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. It is not a remint of PR 142.
+**0.36 is not opened.**
+
+Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is an ancestor of `1a8e8a5`. Private-package phone-resume guide/server/manifest checks already exist. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry. Owner physical play remains playtesting evidence, not certification.
 
 ### Holds (unchanged)
 
 - **0.36 not opened.** Do not mint PC-readiness work from this file.
-- ART-R2 **broad campaign** remains held. Landed one-scene retargets are not a campaign reopen.
+- ART-R2 **broad campaign** (binary regen batch) remains held. Named Grok brief stubs from this ticket are instructions, not a campaign reopen and not wiring authority.
 - Amara-route parked.
 - PR 45 / draft PR 46 untouched.
 - No main close-out, tag, Release, deploy, or certification language.
-- No remint of PRs 107–145. No Netlify pin remint / PIN-02 remint.
-- L-025–L-028 are not reopened here. LOCKS dispositions are not edited by this ticket.
+- No remint of PRs 107–147. No Netlify pin remint / PIN-02 remint.
+- L-025–L-028 are not reopened here. LOCKS dispositions are unchanged. ROADMAP digest in LOCKS may be rewritten if current-work bullets change; that is not a lock ruling.
 
 ## L-025–L-028 dispositions
 
@@ -99,10 +111,10 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-V035-STATUS-DOCS-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not start Q8 `PLAYTEST-CLOSED-LEDGER` on this branch.
+**This ticket:** merge-commit `SUN-PLAYTEST-ART-EVENT-AUDIT-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not generate event-plate or `body_ref` JPEGs in Cursor, and do not start crew-UI, white-space, tutorial, or 0.36 work on this branch.
 
-**Grok / orchestrator:** after this merge, dispatch any queued next ticket as a new ticket identity. Do not mint 0.36.
+**Grok / orchestrator (`$ S1`):** after this merge, follow `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. First: owner-lock `artifacts/SUN_ART_STYLE_BIBLE.md`. Then `SUN-ART-BODY-REFERENCE-01` in grok.com (front/back). Then the NEEDS_GROK_PLATE event loop in grok.com, one beat at a time. Wire only owner-approved assets after Canon PASS/HOLD/REJECT. Do not mint 0.36.
 
-**Manraj:** remains sole publish authority. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or PIN-02 remint.
+**Manraj:** remains sole publish authority. Approves the style bible, then each grok.com plate personally. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or PIN-02 remint.
 
 <!-- STATUS_COMPLETE -->

@@ -3,6 +3,16 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: Mira living; reached from intimacy_window via romanceOpen("mira").
+  // WRITES: onEnter may set interrupt_return and redirect to ship_interrupt;
+  //   otherwise clears interrupt_return. Choices write affinity/trust/marks only.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: living text already empty-engineering;
+  //   requireLivingCast entryOnly + engine image guard; dead resolve is
+  //   corridor_variant.jpg. Continue/Import unchanged.
+  // IMAGE: RETARGET_IN_TREE images/quiet_mira.jpg — living Mira at an
+  //   engineering console (drive-schematic beat). Not mira.jpg portrait
+  //   stand-in. romance_mira_1 keeps quiet_mira.jpg until a Grok intimate
+  //   console plate exists. Face-revealing romance_mira_1.jpg stays unwired.
   bond_mira: {
     onEnter: () => {
       if (!state.flags.ship_interrupt_fired && (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound" || (state.integrity || 0) < 40)) {
@@ -22,7 +32,8 @@ registerScenes({
         { text: "Tell her you care — and that sex would complicate the chain of command tonight.", next: "intimacy_window", affinity: { mira: 8 }, trust: { mira: 8 }, mark: { mira: "held_only" }, effects: { cohesion: 2 } },
         { text: "Step back. Not her. Not like this.", next: "intimacy_window", mark: { mira: "declined" } }
       ];
-    }
+    },
+    image: "images/quiet_mira.jpg"
   },
 
   // PRE: Mira living; reached from bond_mira yes-path
