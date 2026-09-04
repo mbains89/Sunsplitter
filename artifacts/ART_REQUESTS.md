@@ -12,7 +12,11 @@ skin, hairline, eye shape, scars/marks; no beautify/age/ethnicity swap);
 bodysuit silhouette unless the beat changes clothes; named must-appear /
 must-not; scene verb + full event prose; REJECT if the face fails vs official
 at thumbnail size. Ban "generic crew." `body_ref` front/back NOT_APPROVED
-in-tree. PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket.
+in-tree. Pack note `SUN-ART-BODY-REFERENCE-01` (living-cast full-body refs,
+shared pose, underwear/base layer) is documented in the audit/plan only —
+no `body_ref` bytes and no scene wiring in that ticket. Owner approves body
+portraits directly before any later wire. PASS/HOLD/REJECT before wire.
+No new JPEG bytes in that ticket.
 Post-0.35 / pre-0.36 follow-ups: `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 
 ## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets

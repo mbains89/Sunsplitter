@@ -67,9 +67,10 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 This ticket (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`) is the owner playtest art↔event
 audit: one in-tree retarget (`bond_mira` → `quiet_mira.jpg`), Grok brief stubs
 with a standing **portrait identity-lock** (official bodysuit portrait as sole
-face reference), no new JPEG bytes. Ordered post-0.35 / pre-0.36 follow-ups
-live in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md` (pointed from ROADMAP current
-work). It is not a remint of PR 142. **0.36 is not opened.**
+face reference), and pack note `SUN-ART-BODY-REFERENCE-01` (living-cast body
+refs planned; **no body_ref bytes or scene wiring here**). Ordered post-0.35 /
+pre-0.36 follow-ups live in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md` (pointed
+from ROADMAP current work). It is not a remint of PR 142. **0.36 is not opened.**
 
 Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is an ancestor of `1a8e8a5`. Private-package phone-resume guide/server/manifest checks already exist. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry. Owner physical play remains playtesting evidence, not certification.
 
@@ -108,9 +109,9 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-PLAYTEST-ART-EVENT-AUDIT-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not start crew-UI, white-space, tutorial, or 0.36 work on this branch.
+**This ticket:** merge-commit `SUN-PLAYTEST-ART-EVENT-AUDIT-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not generate `body_ref` JPEGs, and do not start crew-UI, white-space, tutorial, or 0.36 work on this branch.
 
-**Grok / orchestrator:** after this merge, follow `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Next identity is the Grok plate batch from the NEEDS_GROK_PLATE stubs (official bodysuit portrait + full beat; Canon identity lock). Do not mint 0.36. Do not wire without PASS/HOLD/REJECT.
+**Grok / orchestrator:** after this merge, follow `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Item 2 is `SUN-ART-BODY-REFERENCE-01` (owner approves body portraits directly before any wire). Item 3 is the Grok event plate batch from the NEEDS_GROK_PLATE stubs. Do not mint 0.36. Do not wire without PASS/HOLD/REJECT.
 
 **Manraj:** remains sole publish authority. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or PIN-02 remint.
 

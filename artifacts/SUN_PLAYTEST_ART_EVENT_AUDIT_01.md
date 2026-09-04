@@ -64,7 +64,8 @@ stand-in.
 
 `body_ref` front/back: **NOT_APPROVED** in this tree (no `body_ref_*` files).
 Identity refs for this ticket are official face + bodysuit only. Do not invent
-a body_ref path.
+a body_ref path. Pack note `SUN-ART-BODY-REFERENCE-01` (below) plans later
+owner-approved full-body refs; this PR does not generate or wire them.
 
 Post-0.35 / pre-0.36 ordered follow-ups (0.36 not opened):
 `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
@@ -133,6 +134,48 @@ Before any later ticket wires a Grok output:
 | **REJECT** | Portrait stand-in, wrong identity, Commander face, wrong beat, green-eyed Mira, porcelain Vess, or invented body_ref. Do not wire. Keep the current living stand-in. |
 
 This ticket performs no PASS. Briefs are instructions, not plates.
+
+## Pack note: SUN-ART-BODY-REFERENCE-01
+
+Ticket/pack identity for later dispatch. **This audit PR does not generate
+image bytes and does not wire any `body_ref` into scenes.** Owner (Manraj)
+approves body portraits **directly** before any use as event-modeling
+reference or any later scene wire.
+
+Purpose: full-body official reference portraits for the living cast, **same
+shared pose**, underwear/undergarments OK (not nude), so later event plates
+can copy body volume without inventing a second anatomy.
+
+### Locked pose (whole set)
+
+Front three-quarter standing. Full body, feet to head in frame. Arms relaxed
+at sides. Weight even. Neutral expression. Same camera height, crop, and
+plain studio backdrop for every id. No scene props. Underwear / base layer
+only — not nude, not the official bodysuit, not event clothes.
+
+### Standing brief rules
+
+- Face + identity from each character’s current official bodysuit and CURRENT
+  tank-top portrait. Exact likeness vs those refs (geometry, age, skin,
+  hairline, eye shape, scars/marks). No beautify, no age shift, no ethnicity
+  swap.
+- L-029 Vess: official face is `images/vess.jpg` only. `images/bodysuit_vess.jpg`
+  is the clothed twin. Porcelain / discarded boarding set is rejected
+  reference.
+- L-030 Mira: ice-blue irises, dark messy bun, olive/tan, no Amara freckles.
+- L-025: Commander stays faceless. **No commander body plate.**
+- Identical pose across the set (locked above). Ban “generic crew.”
+- QA: REJECT if the face does not read as the same person as the official
+  portrait at thumbnail size, or if pose/crop drifts from the locked set.
+
+### Planned outputs (do not create in this PR)
+
+`images/body_ref_<id>.jpg` after owner approval. Until approval, candidates
+may live only in an artifacts approval gallery and **must not** be assigned
+to `scene.image` / `sceneImages`. Rourke is dead (first hour) and is not in
+this living set.
+
+Living-cast IDs are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 
 ## Prior ART-R2 cluster (do not remint)
 

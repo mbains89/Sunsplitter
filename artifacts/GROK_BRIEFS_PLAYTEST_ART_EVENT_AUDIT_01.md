@@ -49,8 +49,10 @@ neutral arms-at-sides stare, or another scene's composition.
 
 - Sole face reference for Grok jobs: `images/bodysuit_<who>.jpg` (official bodysuit portrait).
 - Tank-top `images/<who>.jpg` remains the LOCKS official face twin where named; it confirms identity. It is not a substitute event plate.
-- `body_ref` front/back: **NOT_APPROVED** in this repository. Omit until an
-  owner-approved body_ref pair exists. Do not invent a path.
+- `body_ref` front/back: **NOT_APPROVED** in this repository. Pack note
+  `SUN-ART-BODY-REFERENCE-01` plans `images/body_ref_<who>.jpg` after owner
+  approval. Omit from event jobs until Manraj approves. Do not invent a path
+  and do not wire into scenes on this ticket.
 - Mira: ice-blue irises, dark messy bun, olive/tan, no heavy freckles (L-030).
 - Vess: official `vess.jpg` + `bodysuit_vess.jpg` only (L-029). Porcelain /
   discarded boarding set is rejected reference, not identity.
@@ -951,3 +953,23 @@ hero-Commander face.
 |---|---|
 | `bond_mira` | RETARGET_IN_TREE to `quiet_mira.jpg` in this PR. |
 | `prom_r_amara` | ALREADY_OK art. Romance-gate is a parked finding, not a plate job. |
+| `SUN-ART-BODY-REFERENCE-01` | Pack note only. Living-cast `body_ref_<id>` after owner approval. No bytes and no scene wiring in this PR. |
+
+## Pack: SUN-ART-BODY-REFERENCE-01 (later ticket; not this PR)
+
+Do not run this pack on the audit branch. No `images/body_ref_*.jpg`. No
+scene wire. Owner approves each plate directly before event-modeling use.
+
+**Locked pose:** front three-quarter, full body feet-to-head, arms relaxed
+at sides, weight even, plain studio backdrop, no props. Underwear/base
+layer only (not nude, not bodysuit). Same pose/crop for the whole set.
+
+**Must appear:** one named living-cast id per plate.
+**Must not:** Commander body (L-025); Rourke; generic extras; porcelain Vess;
+green-eyed/freckled Mira; scene props.
+
+**IDs:** `lena`, `elias`, `mira`, `tomas`, `amara`, `jiro`, `sela`, `vess`.
+Vess face = `images/vess.jpg` only (L-029). Mira = L-030 ice-blue.
+
+**Output:** `images/body_ref_<id>.jpg` after approval, or artifacts gallery
+until then. See `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.

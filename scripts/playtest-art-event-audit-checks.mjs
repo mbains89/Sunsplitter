@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -38,6 +38,7 @@ const PLAN_NEEDLES = [
   "Not a version mint",
   "Does not open 0.36",
   "Art–event match",
+  "SUN-ART-BODY-REFERENCE-01",
   "Grok plate batch",
   "Crew count + flex name buttons + full-screen crew character sheet",
   "Art double-click minimize restore",
@@ -53,9 +54,24 @@ const PLAN_NEEDLES = [
   "NO-PUBLISH",
   "a91a26d"
 ];
+const BODY_REF_NEEDLES = [
+  "SUN-ART-BODY-REFERENCE-01",
+  "No commander body plate",
+  "images/body_ref_lena.jpg",
+  "images/body_ref_elias.jpg",
+  "images/body_ref_mira.jpg",
+  "images/body_ref_tomas.jpg",
+  "images/body_ref_amara.jpg",
+  "images/body_ref_jiro.jpg",
+  "images/body_ref_sela.jpg",
+  "images/body_ref_vess.jpg",
+  "vess.jpg` only",
+  "underwear"
+];
 const ROADMAP_NEEDLES = [
   "### Playtest response (post-0.35, pre-0.36)",
   "SUN_PLAYTEST_RESPONSE_PLAN.md",
+  "SUN-ART-BODY-REFERENCE-01",
   "Do not mint or open 0.36"
 ];
 const GROK_STUBS = [
@@ -165,6 +181,29 @@ function sourceErrors() {
   }
   for (const needle of ROADMAP_NEEDLES) {
     if (!roadmap.includes(needle)) errors.push(`ROADMAP missing playtest-response needle: ${needle}`);
+  }
+  for (const needle of BODY_REF_NEEDLES) {
+    if (!audit.includes(needle) && !plan.includes(needle)) {
+      errors.push(`audit/plan missing body-ref pack needle: ${needle}`);
+    }
+    if (!plan.includes(needle) && needle.startsWith("images/body_ref_")) {
+      errors.push(`plan missing living-cast body_ref path: ${needle}`);
+    }
+  }
+  if (!audit.includes("Pack note: SUN-ART-BODY-REFERENCE-01")) {
+    errors.push("audit missing SUN-ART-BODY-REFERENCE-01 pack note");
+  }
+  if (!plan.includes("## SUN-ART-BODY-REFERENCE-01 — living cast IDs")) {
+    errors.push("plan missing living-cast body_ref ID table");
+  }
+  if (plan.includes("body_ref_rourke") || audit.includes("body_ref_commander") || plan.includes("body_ref_commander")) {
+    errors.push("body_ref pack must not include Commander or Rourke");
+  }
+  if (stateSource.includes("body_ref_") || engineSource.includes("body_ref_") || bondSource.includes("body_ref_")) {
+    errors.push("runtime wired a body_ref path; packing note forbids scene wiring");
+  }
+  for (const name of readdirSync(resolve(ROOT, "images"))) {
+    if (name.startsWith("body_ref_")) errors.push(`images tree contains ${name}; this ticket must not generate body_ref bytes`);
   }
   const stubBlocks = briefs.split("## Stub: ").slice(1);
   if (stubBlocks.length !== GROK_STUBS.length) {
