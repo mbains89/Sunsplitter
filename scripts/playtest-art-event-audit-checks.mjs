@@ -183,6 +183,7 @@ function runtimeErrors(runtime) {
       prom_r_amara: "images/quiet_amara.jpg"
     };
     resetRunState();
+    state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true;
     const before = JSON.stringify(state);
     const mapped = sceneImages.bond_mira;
     const declared = scenes.bond_mira && scenes.bond_mira.image;
