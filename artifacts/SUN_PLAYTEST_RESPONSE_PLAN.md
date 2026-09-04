@@ -13,8 +13,8 @@ This file is the ordered follow-up list. Full event→image table:
 ## Ordered follow-ups (post-0.35, pre-0.36)
 
 1. **Art–event match** — this audit + in-tree retargets (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`). Unique plate per beat; never official portrait as stand-in.
-2. **SUN-ART-BODY-REFERENCE-01** — full-body living-cast refs, same shared pose, underwear/base layer (not nude). Documented on this audit; **no image bytes and no scene wiring in this PR.** Owner approves body portraits directly before any event-modeling use or later wire. Pack note: `artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`.
-3. **Grok plate batch** from the brief stubs (official bodysuit portrait as sole face reference + full beat; Canon identity lock; PASS/HOLD/REJECT before wire). Attach owner-approved `body_ref_<id>` only after item 2. Not a broad ART-R2 binary campaign until Grok dispatches a new ticket identity.
+2. **SUN-ART-BODY-REFERENCE-01** — **front and back** full-body living-cast refs, same shared pose, underwear/base layer (not nude). Match official CURRENT face portrait + bodysuit as closely as possible. Documented on this audit; **no image bytes and no scene wiring in this PR.** Owner approves body portraits directly before any event-modeling use or later wire. Pack note: `artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`.
+3. **Grok plate batch** from the brief stubs (official bodysuit portrait as sole face reference + full beat; Canon identity lock; PASS/HOLD/REJECT before wire). Attach owner-approved `body_ref_<id>_front.jpg` / `body_ref_<id>_back.jpg` only after item 2. Not a broad ART-R2 binary campaign until Grok dispatches a new ticket identity.
 4. **Crew count + flex name buttons + full-screen crew character sheet.**
 5. **Art double-click minimize restore.**
 6. **Title white-space + rotating ship background.**
@@ -30,20 +30,26 @@ This audit PR documents item 2 only. Do not generate `body_ref` JPEGs here. Do n
 ## SUN-ART-BODY-REFERENCE-01 — living cast IDs
 
 Eight named living companions (`LIVING_CREW_KEYS` in `src/state.js`). **No
-commander body plate (L-025). No Rourke** (dies first hour). Locked pose:
-front three-quarter, feet-to-head, arms relaxed, plain studio, underwear/base
-layer only.
+commander body plate (L-025). No Rourke** (dies first hour). Generate/plan
+**front and back** per id. Match official CURRENT face portrait + bodysuit as
+closely as possible. Locked pose: same shared stance for the whole set
+(front three-quarter standing; back plate is the 180° turn of that stance).
+Feet-to-head, arms relaxed, plain studio, underwear/base layer only (not
+nude). Owner approves before any wire.
 
-| id | Official CURRENT face | Official bodysuit | Planned output (not in this PR) |
-|---|---|---|---|
-| `lena` | `images/lena.jpg` | `images/bodysuit_lena.jpg` | `images/body_ref_lena.jpg` |
-| `elias` | `images/elias.jpg` | `images/bodysuit_elias.jpg` | `images/body_ref_elias.jpg` |
-| `mira` | `images/mira.jpg` (L-030 ice-blue; no Amara freckles) | `images/bodysuit_mira.jpg` | `images/body_ref_mira.jpg` |
-| `tomas` | `images/tomas.jpg` | `images/bodysuit_tomas.jpg` | `images/body_ref_tomas.jpg` |
-| `amara` | `images/amara.jpg` | `images/bodysuit_amara.jpg` | `images/body_ref_amara.jpg` |
-| `jiro` | `images/jiro.jpg` | `images/bodysuit_jiro.jpg` | `images/body_ref_jiro.jpg` |
-| `sela` | `images/sela.jpg` | `images/bodysuit_sela.jpg` | `images/body_ref_sela.jpg` |
-| `vess` | `images/vess.jpg` only (L-029) | `images/bodysuit_vess.jpg` | `images/body_ref_vess.jpg` |
+Planned names: `images/body_ref_<id>_front.jpg` and
+`images/body_ref_<id>_back.jpg`.
+
+| id | Official CURRENT face | Official bodysuit | Planned front (not in this PR) | Planned back (not in this PR) |
+|---|---|---|---|---|
+| `lena` | `images/lena.jpg` | `images/bodysuit_lena.jpg` | `images/body_ref_lena_front.jpg` | `images/body_ref_lena_back.jpg` |
+| `elias` | `images/elias.jpg` | `images/bodysuit_elias.jpg` | `images/body_ref_elias_front.jpg` | `images/body_ref_elias_back.jpg` |
+| `mira` | `images/mira.jpg` (L-030 ice-blue; no Amara freckles) | `images/bodysuit_mira.jpg` | `images/body_ref_mira_front.jpg` | `images/body_ref_mira_back.jpg` |
+| `tomas` | `images/tomas.jpg` | `images/bodysuit_tomas.jpg` | `images/body_ref_tomas_front.jpg` | `images/body_ref_tomas_back.jpg` |
+| `amara` | `images/amara.jpg` | `images/bodysuit_amara.jpg` | `images/body_ref_amara_front.jpg` | `images/body_ref_amara_back.jpg` |
+| `jiro` | `images/jiro.jpg` | `images/bodysuit_jiro.jpg` | `images/body_ref_jiro_front.jpg` | `images/body_ref_jiro_back.jpg` |
+| `sela` | `images/sela.jpg` | `images/bodysuit_sela.jpg` | `images/body_ref_sela_front.jpg` | `images/body_ref_sela_back.jpg` |
+| `vess` | `images/vess.jpg` only (L-029) | `images/bodysuit_vess.jpg` | `images/body_ref_vess_front.jpg` | `images/body_ref_vess_back.jpg` |
 
 Until Manraj approves a plate, it is not a body_ref. Do not wire into
 `scene.image` / `sceneImages`. Candidates may sit in an artifacts approval

@@ -142,14 +142,16 @@ image bytes and does not wire any `body_ref` into scenes.** Owner (Manraj)
 approves body portraits **directly** before any use as event-modeling
 reference or any later scene wire.
 
-Purpose: full-body official reference portraits for the living cast, **same
-shared pose**, underwear/undergarments OK (not nude), so later event plates
-can copy body volume without inventing a second anatomy.
+Purpose: **front and back** full-body official reference portraits for the
+living cast, **same shared pose**, underwear/undergarments OK (not nude), so
+later event plates can copy body volume without inventing a second anatomy.
+Match each official CURRENT face portrait + bodysuit as closely as possible.
 
 ### Locked pose (whole set)
 
-Front three-quarter standing. Full body, feet to head in frame. Arms relaxed
-at sides. Weight even. Neutral expression. Same camera height, crop, and
+Front plate: front three-quarter standing. Back plate: the same stance turned
+180° (rear three-quarter), same camera height and crop. Full body, feet to
+head in frame. Arms relaxed at sides. Weight even. Neutral expression. Same
 plain studio backdrop for every id. No scene props. Underwear / base layer
 only — not nude, not the official bodysuit, not event clothes.
 
@@ -158,7 +160,9 @@ only — not nude, not the official bodysuit, not event clothes.
 - Face + identity from each character’s current official bodysuit and CURRENT
   tank-top portrait. Exact likeness vs those refs (geometry, age, skin,
   hairline, eye shape, scars/marks). No beautify, no age shift, no ethnicity
-  swap.
+  swap. Match those refs as closely as possible on both front and back plates
+  (back plate: hair, nape, scars/marks, body volume still read as the same
+  person).
 - L-029 Vess: official face is `images/vess.jpg` only. `images/bodysuit_vess.jpg`
   is the clothed twin. Porcelain / discarded boarding set is rejected
   reference.
@@ -170,10 +174,10 @@ only — not nude, not the official bodysuit, not event clothes.
 
 ### Planned outputs (do not create in this PR)
 
-`images/body_ref_<id>.jpg` after owner approval. Until approval, candidates
-may live only in an artifacts approval gallery and **must not** be assigned
-to `scene.image` / `sceneImages`. Rourke is dead (first hour) and is not in
-this living set.
+`images/body_ref_<id>_front.jpg` and `images/body_ref_<id>_back.jpg` after
+owner approval. Until approval, candidates may live only in an artifacts
+approval gallery and **must not** be assigned to `scene.image` /
+`sceneImages`. Rourke is dead (first hour) and is not in this living set.
 
 Living-cast IDs are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 

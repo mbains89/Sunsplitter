@@ -54,17 +54,12 @@ const PLAN_NEEDLES = [
   "NO-PUBLISH",
   "a91a26d"
 ];
+const BODY_REF_IDS = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
 const BODY_REF_NEEDLES = [
   "SUN-ART-BODY-REFERENCE-01",
   "No commander body plate",
-  "images/body_ref_lena.jpg",
-  "images/body_ref_elias.jpg",
-  "images/body_ref_mira.jpg",
-  "images/body_ref_tomas.jpg",
-  "images/body_ref_amara.jpg",
-  "images/body_ref_jiro.jpg",
-  "images/body_ref_sela.jpg",
-  "images/body_ref_vess.jpg",
+  "body_ref_<id>_front.jpg",
+  "body_ref_<id>_back.jpg",
   "vess.jpg` only",
   "underwear"
 ];
@@ -186,8 +181,14 @@ function sourceErrors() {
     if (!audit.includes(needle) && !plan.includes(needle)) {
       errors.push(`audit/plan missing body-ref pack needle: ${needle}`);
     }
-    if (!plan.includes(needle) && needle.startsWith("images/body_ref_")) {
-      errors.push(`plan missing living-cast body_ref path: ${needle}`);
+  }
+  for (const id of BODY_REF_IDS) {
+    for (const side of ["front", "back"]) {
+      const planned = `images/body_ref_${id}_${side}.jpg`;
+      if (!plan.includes(planned)) errors.push(`plan missing living-cast body_ref path: ${planned}`);
+    }
+    if (new RegExp(`images/body_ref_${id}\\.jpg`).test(plan)) {
+      errors.push(`plan still uses singular body_ref_${id}.jpg; front and back required`);
     }
   }
   if (!audit.includes("Pack note: SUN-ART-BODY-REFERENCE-01")) {

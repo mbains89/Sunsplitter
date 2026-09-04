@@ -67,10 +67,12 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 This ticket (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`) is the owner playtest art↔event
 audit: one in-tree retarget (`bond_mira` → `quiet_mira.jpg`), Grok brief stubs
 with a standing **portrait identity-lock** (official bodysuit portrait as sole
-face reference), and pack note `SUN-ART-BODY-REFERENCE-01` (living-cast body
-refs planned; **no body_ref bytes or scene wiring here**). Ordered post-0.35 /
-pre-0.36 follow-ups live in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md` (pointed
-from ROADMAP current work). It is not a remint of PR 142. **0.36 is not opened.**
+face reference), and pack note `SUN-ART-BODY-REFERENCE-01` (living-cast **front
+and back** body refs planned as `body_ref_<id>_front.jpg` /
+`body_ref_<id>_back.jpg`; **no body_ref bytes or scene wiring here**). Ordered
+post-0.35 / pre-0.36 follow-ups live in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`
+(pointed from ROADMAP current work). It is not a remint of PR 142. **0.36 is
+not opened.**
 
 Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is an ancestor of `1a8e8a5`. Private-package phone-resume guide/server/manifest checks already exist. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry. Owner physical play remains playtesting evidence, not certification.
 
