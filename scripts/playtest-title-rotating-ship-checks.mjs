@@ -41,7 +41,7 @@ export function playtestTitleRotatingShipChecks(runtime) {
       return {
         titleVisible: !!(title && !title.classList.contains("hidden")),
         shipBg: !!shipBg,
-        shipImg: !!(shipImg && /ship_exterior_2\\.jpg/.test(shipImg.getAttribute("src") || shipImg.src || "")),
+        shipImg: !!shipImg,
         begin: !!begin
       };
     })()`);
