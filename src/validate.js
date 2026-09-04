@@ -152,7 +152,7 @@
         const chSrc = propertySource(sc, "choices");
         const blob = src + "\n" + onSrc + "\n" + chSrc;
         for (const m of blob.matchAll(/flags\.([a-zA-Z0-9_]+)/g)) readFlags.add(m[1]);
-        for (const m of blob.matchAll(/flags\[['\"]([a-zA-Z0-9_]+)['\"]\]/g)) readFlags.add(m[1]);
+        for (const m of blob.matchAll(/flags\[['\"']([a-zA-Z0-9_]+)['\"']\]/g)) readFlags.add(m[1]);
         for (const m of blob.matchAll(/marks\.([a-zA-Z0-9_]+)/g)) readFlags.add("mark:" + m[1]);
       } catch (_) {}
 
@@ -327,4 +327,130 @@
       boot();
     }
   }
+})();
+
+// SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 — full-screen sheet over existing crew chips.
+// Loaded after engine.js. Does not invent stats or generate art.
+const OFFICIAL_BODYSUIT = {
+  lena: "images/bodysuit_lena.jpg",
+  elias: "images/bodysuit_elias.jpg",
+  mira: "images/bodysuit_mira.jpg",
+  tomas: "images/bodysuit_tomas.jpg",
+  amara: "images/bodysuit_amara.jpg",
+  jiro: "images/bodysuit_jiro.jpg",
+  sela: "images/bodysuit_sela.jpg",
+  vess: "images/bodysuit_vess.jpg",
+  rourke: "images/bodysuit_rourke.jpg"
+};
+
+function officialBodysuitSrc(key) {
+  return OFFICIAL_BODYSUIT[key] || "";
+}
+
+function closeCrewSheet() {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet) return;
+  sheet.classList.add("hidden");
+  sheet.classList.remove("visible");
+  const img = document.getElementById("crew-sheet-image");
+  if (typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+  else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
+  if (img) img.alt = "";
+}
+
+function openCrewSheet(key) {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet || typeof crew === "undefined" || !crew[key]) {
+    closeCrewSheet();
+    return;
+  }
+  const c = crew[key];
+  const dead = typeof isAlive === "function" ? !isAlive(key) : false;
+  const role = c.role && c.role !== "None" ? c.role : "No rank";
+  const trust = state.trust && state.trust[key];
+  const affinity = state.affinity && state.affinity[key];
+  const trustText = Number.isFinite(trust) ? (trust + "/100") : "Not recorded";
+  const affinityText = Number.isFinite(affinity) ? (affinity + "/100") : "Not recorded";
+  const romance = [];
+  if (state.romance && state.romance[key]) romance.push("Recorded this run");
+  if ((key === "amara" || key === "tomas") && state.romance && state.romance.amara_tomas) {
+    romance.push("Shared Amara–Tomas encounter recorded");
+  }
+  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone")
+    : (state.dying && state.dying[key]);
+  const condition = (dead ? "Dead" : "Alive") + (cause ? " — " + cause : "");
+  const lean = (typeof crewLean === "object" && crewLean[key]) ? crewLean[key] : "";
+  const nameEl = document.getElementById("crew-sheet-name");
+  const roleEl = document.getElementById("crew-sheet-role");
+  const factsEl = document.getElementById("crew-sheet-facts");
+  const bioEl = document.getElementById("crew-sheet-bio");
+  if (nameEl) nameEl.textContent = c.name;
+  if (roleEl) roleEl.textContent = role + (lean ? " · lean " + lean : "");
+  const factLines = [
+    "Condition: " + condition,
+    (dead ? "Trust (last recorded)" : "Trust") + ": " + trustText,
+    "Affinity: " + affinityText,
+    "Romance: " + (romance.join("; ") || "None recorded")
+  ];
+  if (!dead && state.marks && state.marks[key]) factLines.push("Marks: " + String(state.marks[key]).replace(/_/g, " "));
+  if (factsEl) {
+    factsEl.innerHTML = factLines.map(line => {
+      const safe = typeof escapeHtml === "function" ? escapeHtml(line) : String(line).replace(/[&<>]/g, ch => ({"&":"&","<":"<",">":">"}[ch]));
+      return "<div>" + safe + "</div>";
+    }).join("");
+  }
+  if (bioEl) bioEl.textContent = c.bio || "";
+  const img = document.getElementById("crew-sheet-image");
+  const wrap = document.getElementById("crew-sheet-portrait-wrap");
+  const src = officialBodysuitSrc(key);
+  if (src) {
+    if (typeof setManagedImageSource === "function") setManagedImageSource(img, src);
+    else if (img) img.src = src;
+    if (img) img.alt = "Official bodysuit portrait of " + (c.first || c.name) + ".";
+    if (wrap) wrap.classList.add("visible");
+  } else {
+    if (typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+    if (img) img.alt = "";
+    if (wrap) wrap.classList.remove("visible");
+  }
+  sheet.classList.remove("hidden");
+  sheet.classList.add("visible");
+}
+
+(function wireCrewCharacterSheet() {
+  if (typeof renderCrewPanel === "function") {
+    const previous = renderCrewPanel;
+    renderCrewPanel = function(selectedKey) {
+      previous(selectedKey);
+      if (selectedKey && typeof crew !== "undefined" && crew[selectedKey]) openCrewSheet(selectedKey);
+      else closeCrewSheet();
+    };
+  }
+  if (typeof toggleCrewPanel === "function") {
+    const previous = toggleCrewPanel;
+    toggleCrewPanel = function() {
+      previous();
+      const panel = document.getElementById("crew-panel");
+      if (!panel || !panel.classList.contains("visible")) closeCrewSheet();
+    };
+  }
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", event => {
+    if (!event || event.key !== "Escape") return;
+    const sheet = document.getElementById("crew-sheet");
+    if (!sheet || !sheet.classList.contains("visible")) return;
+    if (typeof event.preventDefault === "function") event.preventDefault();
+    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    if (typeof event.stopPropagation === "function") event.stopPropagation();
+    closeCrewSheet();
+    // Engine's existing Escape listener closes the chip panel. Keep that
+    // panel as "prior crew UI" when the sheet was the top layer.
+    const panel = document.getElementById("crew-panel");
+    if (panel) {
+      panel.classList.add("visible");
+      panel.classList.remove("hidden");
+    }
+    const toggle = document.getElementById("btn-crew");
+    if (toggle) toggle.setAttribute("aria-expanded", "true");
+  });
 })();
