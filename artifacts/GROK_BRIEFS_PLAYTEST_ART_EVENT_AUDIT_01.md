@@ -21,6 +21,15 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** for the named character. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not. Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
 ### Style bible (verbatim in every job)
 
 Photoreal cinematic still for Sunsplitter, portrait aspect ~784×1168 (2:3).
@@ -38,8 +47,8 @@ neutral arms-at-sides stare, or another scene's composition.
 
 ### Identity ref protocol
 
-- Face: `images/<who>.jpg` (official tank-top Batch A).
-- Body/suit: `images/bodysuit_<who>.jpg` (approved bodysuit twin).
+- Sole face reference for Grok jobs: `images/bodysuit_<who>.jpg` (official bodysuit portrait).
+- Tank-top `images/<who>.jpg` remains the LOCKS official face twin where named; it confirms identity. It is not a substitute event plate.
 - `body_ref` front/back: **NOT_APPROVED** in this repository. Omit until an
   owner-approved body_ref pair exists. Do not invent a path.
 - Mira: ice-blue irises, dark messy bun, olive/tan, no heavy freckles (L-030).
@@ -74,6 +83,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Lena. Commander: hands only, no face.
+- Must not: other named crew; generic extras; shower linger.
+- Sole face reference path: `images/bodysuit_lena.jpg` (SHA-256 `b800e15c634ae96db5a363bd3fa0efc22e7b3d3fab90222cf9563c5b4104872e`).
 
 **Required action:** generate a unique clothed first-offer plate in the
 observation blister. Do not wire `romance_lena_1.jpg` (Commander face). Do
@@ -121,6 +143,19 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Mira (ice-blue irises, L-030). Commander: back/hands, no face.
+- Must not: green-eyed/freckled Mira; other named crew; shower linger.
+- Sole face reference path: `images/bodysuit_mira.jpg` (SHA-256 `8b902308cd93489332629b004ec17e5a7b9675d9ae006391554c82690193229b`).
+
 **Required action:** generate unique intimate-at-console sex plate. Do not
 wire `romance_mira_1.jpg` (Commander face, wet bunks). Do not steal
 `shower_mira.jpg`. Keep `quiet_mira.jpg` until PASS. Ice-blue eyes only.
@@ -164,6 +199,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Amara. Commander: back/hands, no face.
+- Must not: Tomas as a third; generic extras; shower linger; wet-corridor kiss plate.
+- Sole face reference path: `images/bodysuit_amara.jpg` (SHA-256 `af978dbb2b761f2021b193cd6df6e980e507b496659348fbc587dd8567edb90e`).
 
 **Required action:** generate unique explicit tray-bay plate. Do not wire
 `romance_amara_1.jpg` (Commander face; wet corridor, not trays). Do not wire
@@ -210,6 +258,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Lena.
+- Must not: other named crew; generic extras; nude stethoscope catalog.
+- Sole face reference path: `images/bodysuit_lena.jpg` (SHA-256 `b800e15c634ae96db5a363bd3fa0efc22e7b3d3fab90222cf9563c5b4104872e`).
 
 **Required action:** generate unique second-approach medical plate: lingerie
 under an open coat, regenerative drawer cracked. Do not keep nude+stethoscope
@@ -258,6 +319,19 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Amara.
+- Must not: other named crew; generic extras; glow-rod nude catalog.
+- Sole face reference path: `images/bodysuit_amara.jpg` (SHA-256 `af978dbb2b761f2021b193cd6df6e980e507b496659348fbc587dd8567edb90e`).
+
 **Required action:** generate unique second-claim grow-deck plate: work
 lingerie, hatch locked, purge schedule open. Match official Amara face.
 
@@ -304,6 +378,19 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Lena. Commander: chest/hands, no face.
+- Must not: other named crew; generic extras; camera-facing afterglow glamour.
+- Sole face reference path: `images/bodysuit_lena.jpg` (SHA-256 `b800e15c634ae96db5a363bd3fa0efc22e7b3d3fab90222cf9563c5b4104872e`).
+
 **Required action:** generate unique afterglow-*promise* plate. Do not reuse
 solo `afterglow_lena.jpg` stare. Commander chest/hands only.
 
@@ -343,6 +430,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Tomas.
+- Must not: other named crew; generic extras; official tank-top portrait pose.
+- Sole face reference path: `images/bodysuit_tomas.jpg` (SHA-256 `528917e26d1edb1f3d88778bcc86c9e3dcfb05923076ce4d7aaf7229fc1217d3`).
 
 **Required action:** regen the cards-and-bottle composition with official
 Tomas identity. Do not retarget to `tomas.jpg`. Keep `bond_tomas.jpg` until
@@ -389,6 +489,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Tomas at vault bolts.
+- Must not: Elias; generic extras; empty vault corridor with no Tomas.
+- Sole face reference path: `images/bodysuit_tomas.jpg` (SHA-256 `528917e26d1edb1f3d88778bcc86c9e3dcfb05923076ce4d7aaf7229fc1217d3`).
 
 **Required action:** generate Tomas still torquing vault deck bolts while
 answering whether he would sign the living-vs-vault trade again. Do not use
@@ -437,6 +550,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Tomas (living-cast required). At most one other named face, or backs.
+- Must not: nine-face table; generic extras; empty trays with no meal.
+- Sole face reference path: `images/bodysuit_tomas.jpg` (SHA-256 `528917e26d1edb1f3d88778bcc86c9e3dcfb05923076ce4d7aaf7229fc1217d3`). Optional second named face only from official bodysuit of that person.
 
 **Required action:** generate a unique shared-meal plate. Living-cast
 requires Tomas. ≤2 identifiable faces (Tomas plus at most one other, or
@@ -492,6 +618,19 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Vess climbing the hatch. Official identity only.
+- Must not: porcelain/discarded Vess set as identity; generic extras; standing beauty portrait.
+- Sole face reference path: `images/bodysuit_vess.jpg` (SHA-256 `f85ba34123b2585a15a86fe122862fe8ba8beb69710481f6033845afeba34751`). L-029 tank-top `images/vess.jpg` confirms the same person; it is not the event plate.
+
 **Required action:** generate Vess climbing through an ugly hard-dock hatch.
 Do not unwire current `vess_boarding.jpg` in this ticket (discarded porcelain
 identity stays on disk; not a campaign unwire). Do not use discarded porcelain
@@ -536,6 +675,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: Elias.
+- Must not: other named crew; generic extras; tank-top corridor portrait; electronics-repair pose.
+- Sole face reference path: `images/bodysuit_elias.jpg` (SHA-256 `0ddc1c6c98a06a707edb3c2624d9ed1decf44a6f87fc49b5159275ff1a8491ff`).
 
 **Required action:** generate Elias waiting outside the blister with the
 quiet records threat. Do not use official `elias.jpg` as the event plate.
@@ -584,6 +736,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: the ship committing to landfall. No named-face requirement.
+- Must not: crew portrait line-up; generic extras; Commander face; baked ending title.
+- Sole face reference path: none. Do not attach a crew bodysuit as a stand-in.
 
 **Required action:** generate a unique landfall cinematic (ship committing to
 the ice/dark rogue planet, or the moment of landing). No crew portrait
@@ -638,6 +803,19 @@ Each Grok instruction must include:
 
 Canon still PASS/HOLD/REJECT before wire.
 
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: the cascade (planetary/system failure). No named crew.
+- Must not: official portraits; generic extras; Commander face.
+- Sole face reference path: none. Do not attach a crew bodysuit as a stand-in.
+
 **Required action:** unique intro frame 1. Do not share
 `onboarding_background.jpg` across all three slides.
 
@@ -673,6 +851,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: ark / hatch crowding as action, not a cast photo.
+- Must not: nine official portraits; generic extras invented as a tenth person; Commander face.
+- Sole face reference path: none for a lineup. If one identifiable face is unavoidable, use that person's official bodysuit path only — still an action beat.
 
 **Required action:** unique intro frame 2 — ark built for thousands; nine
 through the hatch. Roster-ambiguous: backs/silhouettes, not nine official
@@ -713,6 +904,19 @@ Each Grok instruction must include:
 4. Body + facial language that matches the event (posture, hands, gaze, expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose in event scenes.
 
 Canon still PASS/HOLD/REJECT before wire.
+
+### Portrait identity-lock (standing)
+
+- Sole face reference: the official **bodysuit portrait path** named in this stub. Attach that file as the only face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who must appear / must not (below). Ban portrait-as-stand-in and "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official bodysuit portrait at thumbnail size.
+
+- Must appear: damaged ship; living arguing; Commander faceless (back/hands/silhouette).
+- Must not: hero-Commander face; generic extras; official portrait stand-ins.
+- Sole face reference path: none unless a named arguer is shown; then that person's official bodysuit path only.
 
 **Required action:** unique intro frame 3 — damaged ship, living already
 arguing what to save. Commander faceless. ≤2 identifiable argument faces or

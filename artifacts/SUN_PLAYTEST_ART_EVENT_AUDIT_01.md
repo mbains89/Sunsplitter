@@ -42,9 +42,32 @@ any new plate. Grok briefs live in
 `artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`. The STYLE/IDENTITY
 template and every `NEEDS_GROK_PLATE` stub repeat this rule.
 
+### Portrait identity-lock (standing)
+
+Every `NEEDS_GROK_PLATE` stub includes this block:
+
+- Attach/cite the official **bodysuit portrait path** as the **sole face
+  reference** for that character (`images/bodysuit_<who>.jpg`). Tank-top
+  `images/<who>.jpg` may confirm identity; it is not a substitute event plate
+  and not the face to copy.
+- Exact likeness: same face geometry, age, skin, hairline, eye shape, scars/marks. No beautify, no age shift, no ethnicity swap.
+- Bodysuit silhouette matches that reference unless this beat explicitly changes clothes.
+- Name who **must appear** / **must not**. Ban portrait-as-stand-in and
+  "generic crew."
+- Scene verb + full event prose remain required.
+- QA: REJECT if the face does not read as the same person as the official
+  bodysuit portrait at thumbnail size.
+
+Beats with no named face (intro cascade, landfall) still carry the block and
+set sole face reference path to none — do not attach a crew bodysuit as a
+stand-in.
+
 `body_ref` front/back: **NOT_APPROVED** in this tree (no `body_ref_*` files).
 Identity refs for this ticket are official face + bodysuit only. Do not invent
 a body_ref path.
+
+Post-0.35 / pre-0.36 ordered follow-ups (0.36 not opened):
+`artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 
 ## Closed table
 

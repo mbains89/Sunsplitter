@@ -11,6 +11,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const IMAGES_TREE = "de4c3687cf4c89309d3422505dba4b45a32adc7e";
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
+const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
+const ROADMAP_PATH = "artifacts/ROADMAP.md";
 const STANDING_RULE_NEEDLES = [
   "Unique plate per event beat — never official portrait as stand-in.",
   "Identity refs: official face + bodysuit",
@@ -19,6 +21,42 @@ const STANDING_RULE_NEEDLES = [
   "Body + facial language",
   "Ban neutral portrait pose",
   "PASS/HOLD/REJECT"
+];
+const IDENTITY_LOCK_NEEDLES = [
+  "### Portrait identity-lock (standing)",
+  "official **bodysuit portrait path**",
+  "same face geometry, age, skin, hairline, eye shape, scars/marks",
+  "No beautify, no age shift, no ethnicity swap",
+  "Bodysuit silhouette matches that reference unless this beat explicitly changes clothes",
+  "Must appear:",
+  "Must not:",
+  '"generic crew."',
+  "thumbnail size",
+  "Sole face reference path:"
+];
+const PLAN_NEEDLES = [
+  "Not a version mint",
+  "Does not open 0.36",
+  "Art–event match",
+  "Grok plate batch",
+  "Crew count + flex name buttons + full-screen crew character sheet",
+  "Art double-click minimize restore",
+  "Title white-space + rotating ship background",
+  "Intro slides back button + intro art",
+  "Tutorial covers 5 top fields",
+  "Amara romance trigger repro",
+  "Crew conflict events",
+  "Light commander creation",
+  "Ending cinematic art",
+  "LANDED ON VERSION LANE",
+  "Last certified remains `0.28.1d`",
+  "NO-PUBLISH",
+  "a91a26d"
+];
+const ROADMAP_NEEDLES = [
+  "### Playtest response (post-0.35, pre-0.36)",
+  "SUN_PLAYTEST_RESPONSE_PLAN.md",
+  "Do not mint or open 0.36"
 ];
 const GROK_STUBS = [
   "romance_lena_1", "romance_mira_1", "romance_amara_1",
@@ -63,6 +101,8 @@ function sourceErrors() {
   const livingCastSource = readFileSync(resolve(ROOT, "src/scenes-55.js"), "utf8");
   const audit = readFileSync(resolve(ROOT, AUDIT_PATH), "utf8");
   const briefs = readFileSync(resolve(ROOT, BRIEFS_PATH), "utf8");
+  const plan = readFileSync(resolve(ROOT, PLAN_PATH), "utf8");
+  const roadmap = readFileSync(resolve(ROOT, ROADMAP_PATH), "utf8");
 
   if (!/bond_mira:\s+"images\/quiet_mira\.jpg"/.test(stateSource)) {
     errors.push("state.js bond_mira is not quiet_mira.jpg");
@@ -110,6 +150,22 @@ function sourceErrors() {
     if (!audit.includes(needle)) errors.push(`audit missing standing-rule needle: ${needle}`);
     if (!briefs.includes(needle)) errors.push(`briefs template missing standing-rule needle: ${needle}`);
   }
+  const AUDIT_IDENTITY_LOCK_NEEDLES = IDENTITY_LOCK_NEEDLES.filter((needle) => (
+    needle !== "Must appear:" && needle !== "Must not:" && needle !== "Sole face reference path:"
+  ));
+  for (const needle of AUDIT_IDENTITY_LOCK_NEEDLES) {
+    if (!audit.includes(needle)) errors.push(`audit missing identity-lock needle: ${needle}`);
+    if (!briefs.includes(needle)) errors.push(`briefs template missing identity-lock needle: ${needle}`);
+  }
+  if (!audit.includes("SUN_PLAYTEST_RESPONSE_PLAN.md")) {
+    errors.push("audit missing playtest-response plan pointer");
+  }
+  for (const needle of PLAN_NEEDLES) {
+    if (!plan.includes(needle)) errors.push(`playtest response plan missing needle: ${needle}`);
+  }
+  for (const needle of ROADMAP_NEEDLES) {
+    if (!roadmap.includes(needle)) errors.push(`ROADMAP missing playtest-response needle: ${needle}`);
+  }
   const stubBlocks = briefs.split("## Stub: ").slice(1);
   if (stubBlocks.length !== GROK_STUBS.length) {
     errors.push(`expected ${GROK_STUBS.length} Grok stubs, found ${stubBlocks.length}`);
@@ -135,6 +191,14 @@ function sourceErrors() {
     }
     if (!block.includes("**Full event prose")) {
       errors.push(`stub ${GROK_STUBS[index] || index} missing full event prose`);
+    }
+    for (const needle of IDENTITY_LOCK_NEEDLES) {
+      if (!block.includes(needle)) {
+        errors.push(`stub ${GROK_STUBS[index] || index} missing identity-lock needle: ${needle}`);
+      }
+    }
+    if (!/Sole face reference path:\s*none|images\/bodysuit_/.test(block)) {
+      errors.push(`stub ${GROK_STUBS[index] || index} missing bodysuit sole-face path or explicit none`);
     }
   }
   if (!audit.includes("| `bond_mira`") || !audit.includes("**RETARGET_IN_TREE**")) {

@@ -542,6 +542,12 @@ Work allowed now:
 
 **Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public itch, price, Steam.
 
+### Playtest response (post-0.35, pre-0.36)
+
+Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
+
+**Hard holds:** PR 45/46; do not mint 0.36; no certify; last certified `0.28.1d`; NO-PUBLISH; live Netlify pin `a91a26d` (no PIN-02 remint); L-025–L-028 not reopened here.
+
 ### 0.36 — PC Readiness
 
 **Purpose:** give the same static browser game a second composition that a keyboard-and-mouse stranger can finish.
@@ -693,6 +699,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | 0.33 | Named playtest active at `685d400`; bugs stay here; ART-R2 held |
 | 0.34 | Phone a11y/perf matrix passes |
 | 0.35 | Private package + private itch path proven; no publication |
+| Playtest response | Post-0.35 / pre-0.36 version-lane follow-ups; see `SUN_PLAYTEST_RESPONSE_PLAN.md`; 0.36 not opened |
 | 0.36 | Same browser game works on PC without phone regression |
 | 0.37 | Independent pilot findings ranked and retested |
 | 0.38 | Cohort evidence supports product and commercial decisions |
@@ -700,6 +707,6 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | 0.40 | Frozen RC survives rehearsal |
 | 1.0 | Owner-authorized public release at exact verified identity |
 
-**Current next action:** finish the 0.33 playtest. File bugs as one-PR 0.33 tickets. Do not start 0.34 until Manraj closes the playtest window and classifies findings.
+**Current next action:** playtest response on the version lane (`SUN_PLAYTEST_RESPONSE_PLAN.md`). Do not mint or open 0.36.
 
 **Hard holds that survive every later version in this file:** leave PR 45/46; ART-R2 held; no certify; last certified `0.28.1d`; no auto-Netlify; no main close-out; no leftover drain.

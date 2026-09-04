@@ -5,9 +5,15 @@
 Owner standing brief rule, closed event→image table, and Grok stubs:
 `artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`,
 `artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`.
-Unique plate per beat; never official portrait as stand-in. Face + bodysuit
-identity refs; `body_ref` front/back NOT_APPROVED in-tree. PASS/HOLD/REJECT
-before wire. No new JPEG bytes in that ticket.
+Unique plate per beat; never official portrait as stand-in. Every
+NEEDS_GROK_PLATE stub carries a standing **portrait identity-lock**: official
+bodysuit portrait path as sole face reference; exact likeness (geometry, age,
+skin, hairline, eye shape, scars/marks; no beautify/age/ethnicity swap);
+bodysuit silhouette unless the beat changes clothes; named must-appear /
+must-not; scene verb + full event prose; REJECT if the face fails vs official
+at thumbnail size. Ban "generic crew." `body_ref` front/back NOT_APPROVED
+in-tree. PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket.
+Post-0.35 / pre-0.36 follow-ups: `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
 
 ## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets
 
