@@ -120,6 +120,13 @@
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
+        <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-confirm-copy">
+          <p id="new-run-confirm-copy">Start a new run? This will replace your saved progress.</p>
+          <div role="group" aria-label="New run confirm">
+            <button id="new-run-cancel" class="btn" type="button" onclick="cancelNewRun()">Cancel</button>
+            <button id="new-run-ok" class="btn btn-primary" type="button" onclick="confirmNewRun()">Confirm</button>
+          </div>
+        </div>
         <div class="save-transfer-actions" role="group" aria-label="Save transfer">
           <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
           <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
