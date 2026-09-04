@@ -167,6 +167,10 @@ function acknowledgeTone() {
   showTitleScreen();
 }
 
+function revisitTone() {
+  showScreen("tone");
+}
+
 function resetRunState() {
   cancelCinematic();
   loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
