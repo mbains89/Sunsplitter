@@ -1,0 +1,11 @@
+/* SUN-PLAYTEST-ART-DOUBLECLICK-01 — minimize vs maximize-only.
+   Loaded after css/style.css so desktop .minimized is compact again. */
+
+@media (min-width: 1024px) and (min-height: 640px) {
+  #scene-image-wrap.minimized,
+  #scene-image-wrap.intimate.minimized {
+    width: auto;
+    max-width: calc(100% - 28px);
+    max-height: min(26vh, 200px);
+  }
+}

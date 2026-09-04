@@ -8,16 +8,20 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export function playtestArtDoubleclickChecks(runtime) {
   const errors = [];
   const css = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const artCss = readFileSync(resolve(ROOT, "css/art-panel.css"), "utf8");
   const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
   const runtimeSrc = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   if (!css.includes("width: min(calc(100% - 32px), 48dvh, 430px)")) {
     errors.push("desktop expanded art sizing contract dropped");
   }
-  const desktop = css.split("@media (min-width: 1024px) and (min-height: 640px)")[1] || "";
+  const desktop = artCss.split("@media (min-width: 1024px) and (min-height: 640px)")[1] || "";
   const minBlock = desktop.split("#scene-image-wrap.minimized")[1] || "";
   if (!minBlock.includes("max-height: min(26vh, 200px)") || minBlock.slice(0, 280).includes("max-height: none")) {
     errors.push("desktop minimized art still maximize-only");
+  }
+  if (!html.includes('href="css/art-panel.css"')) {
+    errors.push("art-panel minimize stylesheet not linked");
   }
   if (!engine.includes('wrap.addEventListener("dblclick"') || !engine.includes("toggleImageSize")) {
     errors.push("engine lost desktop double-click art toggle");
