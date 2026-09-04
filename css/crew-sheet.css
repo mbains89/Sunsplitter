@@ -1,0 +1,83 @@
+/* Full-screen character sheet — playtest P2. Chip list stays the bounded #crew-panel. */
+#crew-sheet {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px calc(16px + var(--safe-bottom));
+  background: rgba(8, 9, 11, 0.97);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#crew-sheet.visible {
+  display: flex;
+}
+
+#crew-sheet-close {
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+#crew-sheet-portrait-wrap {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  background: #0d0d0f;
+  aspect-ratio: 784 / 1168;
+  max-height: min(62dvh, 640px);
+  overflow: hidden;
+}
+
+#crew-sheet-portrait-wrap.visible {
+  display: block;
+}
+
+#crew-sheet-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: saturate(0.82) contrast(1.06);
+}
+
+#crew-sheet-body {
+  flex-shrink: 0;
+  width: min(100%, 520px);
+  margin: 0 auto;
+}
+
+#crew-sheet-name {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+  margin-bottom: 4px;
+}
+
+#crew-sheet-role,
+#crew-sheet-facts,
+#crew-sheet-bio {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+#crew-sheet-role,
+#crew-sheet-facts {
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+#crew-sheet-bio {
+  color: var(--text);
+}
