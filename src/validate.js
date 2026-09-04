@@ -7,7 +7,6 @@
 
 (function () {
   const ALLOWED_KEYS = new Set(["text", "choices", "onEnter", "image"]);
-  // Exhaustive against current usage + tag (bond/private labels). onChoose removed 0.26.1.
   const ALLOWED_CHOICE_KEYS = new Set([
     "text", "next", "effects", "affinity", "flag", "lean", "requires",
     "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag"
@@ -319,7 +318,7 @@ function closeCrewSheet() {
   sheet.classList.add("hidden");
   sheet.classList.remove("visible");
   const img = document.getElementById("crew-sheet-image");
-  if (typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+  if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
   else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
   if (img) img.alt = "";
 }
@@ -359,23 +358,18 @@ function openCrewSheet(key) {
     "Romance: " + (romance.join("; ") || "None recorded")
   ];
   if (!dead && state.marks && state.marks[key]) factLines.push("Marks: " + String(state.marks[key]).replace(/_/g, " "));
-  if (factsEl) {
-    factsEl.innerHTML = factLines.map(line => {
-      const safe = typeof escapeHtml === "function" ? escapeHtml(line) : String(line).replace(/[&<>]/g, ch => ch === "&" ? "&" + "amp;" : ch === "<" ? "&" + "lt;" : "&" + "gt;");
-      return "<div>" + safe + "</div>";
-    }).join("");
-  }
+  if (factsEl) factsEl.textContent = factLines.join("\n");
   if (bioEl) bioEl.textContent = c.bio || "";
   const img = document.getElementById("crew-sheet-image");
   const wrap = document.getElementById("crew-sheet-portrait-wrap");
   const src = officialBodysuitSrc(key);
   if (src) {
-    if (typeof setManagedImageSource === "function") setManagedImageSource(img, src);
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, src);
     else if (img) img.src = src;
     if (img) img.alt = "Official bodysuit portrait of " + (c.first || c.name) + ".";
     if (wrap) wrap.classList.add("visible");
   } else {
-    if (typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
     if (img) img.alt = "";
     if (wrap) wrap.classList.remove("visible");
   }
