@@ -46,6 +46,7 @@ import { jiroVoiceChecks } from "./jiro-voice-checks.mjs";
 import { remainsLeanChecks } from "./remains-lean-checks.mjs";
 import { openingBackstoryChecks } from "./opening-backstory-checks.mjs";
 import { artR2PlaytestCloseChecks } from "./art-r2-playtest-close-checks.mjs";
+import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5592,6 +5593,10 @@ async function main() {
     const artR2PlaytestCloseErrors = artR2PlaytestCloseChecks(runtime);
     printCheck("SUN-V035-ART-R2-PLAYTEST-CLOSE-01 named-scene cluster already satisfied", artR2PlaytestCloseErrors);
     failures.push(...artR2PlaytestCloseErrors);
+
+    const playtestArtEventAuditErrors = playtestArtEventAuditChecks(runtime);
+    printCheck("SUN-PLAYTEST-ART-EVENT-AUDIT-01 mappings + Grok brief standing rule", playtestArtEventAuditErrors);
+    failures.push(...playtestArtEventAuditErrors);
 
     const renderPurityErrors = renderPurityChecks(runtime);
     printCheck("scene text render purity + one-shot entry writes", renderPurityErrors);

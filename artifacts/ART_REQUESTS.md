@@ -1,5 +1,14 @@
 # Sunsplitter — Art Requests
 
+## SUN-PLAYTEST-ART-EVENT-AUDIT-01 — Grok briefs + one retarget (2026-09-04)
+
+Owner standing brief rule, closed event→image table, and Grok stubs:
+`artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`,
+`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`.
+Unique plate per beat; never official portrait as stand-in. Face + bodysuit
+identity refs; `body_ref` front/back NOT_APPROVED in-tree. PASS/HOLD/REJECT
+before wire. No new JPEG bytes in that ticket.
+
 ## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets
 
 `SOURCE main@8d23109 · RUNTIME base@163d333 · TASK SUN-V035-PLAYTEST-ART-AUDIT-01 · MODE implementation`

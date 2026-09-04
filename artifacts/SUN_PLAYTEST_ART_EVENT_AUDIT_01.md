@@ -1,0 +1,128 @@
+SOURCE main@8d23109 · RUNTIME 1a8e8a5 · TASK SUN-PLAYTEST-ART-EVENT-AUDIT-01 · MODE implementation
+
+Build / launch node, sole isolated writer. Owner Sun Playtest closed 2026-09-03
+~9:16 PM CT; GitHub issue
+[148](https://github.com/mbains89/Sunsplitter/issues/148). ART-R2 / Grok plate
+gate opened by Orchestrator for this follow-up only. **NO-PUBLISH /
+NOT_CERTIFIED**. Last certified remains `0.28.1d`. Do not mint 0.36. Do not
+remint PIN-02 / Netlify pin `a91a26d`. Do not remint 107–147. Do not touch
+PR 45/46. Do not reopen L-025–L-028.
+
+## Authority
+
+- Main authority: `8d23109b63b844e0703fb36643f14b91b8800c90`.
+- Write-lane predecessor: `1a8e8a5cd2255350329f3861ef7d881c1a1aa6a6`
+  (`version/0.30.1-main-reconcile-ci.1`).
+- Files read this session: GitHub `main` AGENTS, ROADMAP, PROJECT_STATUS,
+  LOCKS; lane STATUS/LOCKS/ART_RULES/ART_REQUESTS; issue 148; named scene
+  modules; `src/state.js` image map; `src/engine.js` resolve + cinematics;
+  `src/scenes-55.js` living-cast; in-tree JPEG bytes for candidate plates.
+- Implementation authorized by the launch `/goal`. One concern: event→image
+  audit, one CONFIRMED in-tree retarget, Grok brief stubs. No crew UI, no
+  white-space, no tutorial, no binary generation.
+
+Documentation delta vs stale GitHub-main STATUS (2026-08-19 recovery
+bootstrap): lane STATUS is current; named here, not a stop.
+
+## Owner standing brief rule (2026-09-04)
+
+Unique plate per event beat — never official portrait as stand-in.
+
+Each Grok instruction must include:
+
+1. Identity refs: official face + bodysuit (+ body_ref front/back when approved)
+2. Style bible paragraph (consistent rendering)
+3. Full event prose / beat verb (who, where, action)
+4. **Body + facial language** that matches the event (posture, hands, gaze,
+   expression — grief/argument/intimacy/work/etc.). Ban neutral portrait pose
+   in event scenes.
+
+Canon still **PASS/HOLD/REJECT** before wire. This ticket does not wire
+any new plate. Grok briefs live in
+`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`. The STYLE/IDENTITY
+template and every `NEEDS_GROK_PLATE` stub repeat this rule.
+
+`body_ref` front/back: **NOT_APPROVED** in this tree (no `body_ref_*` files).
+Identity refs for this ticket are official face + bodysuit only. Do not invent
+a body_ref path.
+
+## Closed table
+
+Pixel inspection, not filename inference. Portrait stand-ins are
+`NEEDS_GROK_PLATE`, not invented retargets. Face-revealing Commander plates
+stay unwired (L-025). Discarded Vess identity plates stay on disk; this ticket
+does not unwire them as a campaign.
+
+| Scene id | Current living image | Disposition | Why |
+|---|---|---|---|
+| `romance_lena_1` | `images/observation_bridge_alt_2.jpg` | **NEEDS_GROK_PLATE** | Empty damaged blister. Event is Lena taking the Commander's hand in the observation blister, clinical/raw, line still intact. `romance_lena_1.jpg` remains face-revealing Commander; do not wire. |
+| `romance_mira_1` | `images/quiet_mira.jpg` | **NEEDS_GROK_PLATE** | Clothed Mira at a console, arms crossed — not clothes-off against the console. `romance_mira_1.jpg` remains face-revealing Commander; do not wire. Keep current stand-in until Grok plate PASSes. |
+| `romance_amara_1` | `images/hydroponics.jpg` | **NEEDS_GROK_PLATE** | Person-free grow trays (owner: empty bay). Searched unwired explicit Amara assets: `romance_amara_1.jpg` is wet-corridor kiss with a male Commander face (L-025 REJECT). `shower_amara.jpg` is shower linger, not tray sex. `hydroponics_amara.jpg` / `quiet_amara.jpg` are clothed leaf/tray work (pair_favor / quiet). No honest in-tree explicit-trays plate. |
+| `pursuit_lena` | `images/lingerie_lena.jpg` | **NEEDS_GROK_PLATE** | Nude blonde + stethoscope, not lingerie under an open medical coat at the regenerative drawer. Face/hair also drift from official `lena.jpg`. |
+| `pursuit_amara` | `images/lingerie_amara.jpg` | **NEEDS_GROK_PLATE** | Nude Amara with a glow rod, not work-lingerie locking the bay and opening the purge panel. |
+| `prom_make_lena_ag` | `images/afterglow_lena.jpg` | **NEEDS_GROK_PLATE** | Solo afterglow portrait looking at camera. Event is her head on the Commander's chest, listening to heartbeat, issuing the kill-line promise. |
+| `prom_r_amara` | `images/quiet_amara.jpg` | **ALREADY_OK** | Amara at trays with a leaf; promise response returns her to the trays. Art matches the beat. Romance-gate finding is separate (below). No retarget. |
+| `bond_mira` | `images/quiet_mira.jpg` (was `mira.jpg`) | **RETARGET_IN_TREE** | Official portrait stand-in. `quiet_mira.jpg` is living Mira at an engineering console — honest for the drive-schematic hour. Same bytes already used by `romance_mira_1` / `offshift_mira`; sharing is interim, not a unique intimate plate. |
+| `bond_tomas` | `images/bond_tomas.jpg` | **NEEDS_GROK_PLATE** | Cards + bottle match the event; identity does not match official `tomas.jpg`. Do not retarget to the portrait (loses the game). Regen the event composition from official face+bodysuit. |
+| `hold_bolts_again` | `images/vault.jpg` | **NEEDS_GROK_PLATE** | Empty vault racks / corridor stand-in. Event is Tomas still at the vault bolts answering whether he would sign the trade again. No Tomas-at-bolts plate in tree (`work_elias.jpg` is Elias; `quiet_tomas.jpg` is crate grief; `tomas_break.jpg` is bloodied). |
+| `warmth_meal` | `images/hydroponics.jpg` | **NEEDS_GROK_PLATE** | Empty trays, no meal, no people. Beat is Tomas serving a shared first grown meal (or paste at empty racks). Group honesty: ≤2 identifiable faces; Tomas is living-cast required. Do not invent a nine-face table. |
+| `vess_boarding` | `images/vess_boarding.jpg` | **NEEDS_GROK_PLATE** | Standing corridor portrait, not climbing through an ugly hard dock. L-029 discarded this file as porcelain Vess identity; this ticket does **not** unwire it as a campaign. Regen from official `vess.jpg` + `bodysuit_vess.jpg`. Keep current wiring until PASS. |
+| `past_leak` | `images/elias.jpg` | **NEEDS_GROK_PLATE** | Official portrait stand-in. Event is Elias waiting outside the blister with the ground-decision records, quiet threat. `work_elias.jpg` is panel repair, not this confrontation. |
+| `ending` / Landfall | `images/ending_landfall.jpg` | **NEEDS_GROK_PLATE** | In-tree plate is ship-over-cloud-planet, already selected for the Landfall title. Owner asked for cinematic ending art; this is orbital establishing, not landing. Keep current until a unique landfall cinematic PASSes. Commander faceless; no baked ending copy; roster-ambiguous. |
+| `cinematic:intro` frame 1 | `images/onboarding_background.jpg` | **NEEDS_GROK_PLATE** | All three intro slides share one empty-corridor bookend. Unique plate required. Prose: Earth failed in a cascade measured in hours. |
+| `cinematic:intro` frame 2 | `images/onboarding_background.jpg` | **NEEDS_GROK_PLATE** | Unique plate. Prose: colonization ark built for thousands; nine cleared the hatch. |
+| `cinematic:intro` frame 3 | `images/onboarding_background.jpg` | **NEEDS_GROK_PLATE** | Unique plate. Prose: faceless Commander; damaged ship; living already arguing what to save. |
+
+Images tree unchanged: `de4c3687cf4c89309d3422505dba4b45a32adc7e`. No new JPEG bytes.
+
+## In-tree retarget (this PR)
+
+| Scene | From | To | Living-cast / Continue |
+|---|---|---|---|
+| `bond_mira` | `images/mira.jpg` | `images/quiet_mira.jpg` | `requireLivingCast` entryOnly unchanged. Dead Mira still resolves `corridor_variant.jpg`. Resume does not replay entry. `romance_mira_1` stays on `quiet_mira.jpg`. Face-revealing `romance_mira_1.jpg` stays unwired. |
+
+`mira.jpg` SHA-256 `92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2`
+`quiet_mira.jpg` SHA-256 `27518fd30d22c578eca8fb2b3a775ca6a77c6b4da4486fb0b2a5a39d81d0cf3c`
+
+## Amara romance non-trigger (finding only)
+
+Owner note: `prom_r_amara` does not trigger Romance Amara.
+
+Intended scene map (no rewrite this ticket):
+
+- `prom_make_amara` → `prom_r_amara` writes `promises.amara` (`made` / `declined`) only.
+- Solo romance writes `romance.amara` in `romance_amara_1.onEnter` after
+  `intimacy_window` → `bond_amara` yes-path.
+- `romanceOpen("amara")` has no affinity/trust hard gate. It closes on
+  declined / held_only / `romance.amara_tomas` / dead / promise `broken`.
+
+Not a proven wiring break vs that map. PARKED as owner note. Do not rewrite
+Amara-route gates without repro beyond the note.
+
+## Wire gate (every new plate)
+
+Before any later ticket wires a Grok output:
+
+| Result | Meaning |
+|---|---|
+| **PASS** | Identity (face+bodysuit match), framing, rectangular interior, Commander-faceless, roster honesty, event body/face language, no baked text, unique to this beat. |
+| **HOLD** | Usable candidate; needs a controlled edit or owner look. Do not wire. |
+| **REJECT** | Portrait stand-in, wrong identity, Commander face, wrong beat, green-eyed Mira, porcelain Vess, or invented body_ref. Do not wire. Keep the current living stand-in. |
+
+This ticket performs no PASS. Briefs are instructions, not plates.
+
+## Prior ART-R2 cluster (do not remint)
+
+PLAYTEST_SUN shower-vs-setting mismatches on `romance_lena_1` /
+`romance_amara_1` / `romance_mira_1` remain **ALREADY_SATISFIED** as
+*wrong-shower* repairs (PRs 133–142). This audit is a different complaint:
+those living stand-ins still fail *event match*. Do not remint 133–142.
+Do not rewire shower linger plates onto first-offer sex beats.
+
+## Limits
+
+- No 0.36, certify, tag, deploy, Netlify, PIN-02 remint.
+- No broad ART-R2 binary regen batch.
+- No crew-UI / white-space / tutorial on this branch.
+- L-025–L-028 dispositions unchanged.
+- Required version-lane checks, then merge-commit. Not squash.
