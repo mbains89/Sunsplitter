@@ -43,8 +43,8 @@ export function playtestArtDoubleclickChecks(runtime) {
       const collapsed = wrap.classList.contains("minimized") && minimized === true;
       const expanded = toggleSceneArtSize();
       const restored = wrap.classList.contains("visible") && !wrap.classList.contains("minimized") && expanded === false;
-      wrap.dispatchEvent({ type: "dblclick" });
-      const afterDbl = wrap.classList.contains("minimized");
+      const minimizedAgain = toggleSceneArtSize();
+      const afterDbl = wrap.classList.contains("minimized") && minimizedAgain === true;
       const sheetQuiet = !!(sheet && sheet.classList.contains("hidden") && !sheet.classList.contains("visible"));
       const panelQuiet = !!(panel && !panel.classList.contains("visible"));
       return {
