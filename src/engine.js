@@ -1000,10 +1000,10 @@ function resolveSceneImage(id, scene) {
   if (id === "vent" || (["aftermath", "crisis", "priority_repairs"].includes(id) && state.flags.crisis === "vent")) {
     return "images/aftermath.jpg";
   }
-  if (["private_stores", "act3_lethal_elias_sealant", "prom_deck4_keep", "prom_deck4_break"].includes(id)) {
+  if (["private_stores", "prom_deck4_keep", "prom_deck4_break"].includes(id)) {
     return isAlive("elias") ? "images/elias.jpg" : "images/corridor_pressure_3.jpg";
   }
-  if (id === "act3_lethal_elias_order") {
+  if (id === "act3_lethal_elias_order" || id === "act3_lethal_elias_sealant") {
     return isAlive("elias") ? "images/work_elias.jpg" : "images/corridor_pressure_3.jpg";
   }
   if (id === "pregnancy_check") {

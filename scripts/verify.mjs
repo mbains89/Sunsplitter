@@ -2501,6 +2501,121 @@ function lethalEliasOrderImageTruthChecks(runtime) {
   return errors;
 }
 
+function lethalEliasSealantImageTruthChecks(runtime) {
+  const errors = [];
+  const expected = "images/work_elias.jpg";
+  const forbidden = "images/bond_elias.jpg";
+  const quietCup = "images/quiet_elias.jpg";
+  const officialPortrait = "images/elias.jpg";
+  const deadFallback = "images/corridor_pressure_3.jpg";
+  const expectedHashes = {
+    "images/work_elias.jpg": "9dfa81959aba082c192c1a9d0ea3c24383dc7695da0ccbe74bc1c3025af63ff2",
+    "images/bond_elias.jpg": "084655c278e2c398843a26885eceeab517117b0da8656a7ccb57029e514d1db8",
+    "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
+  };
+  const fixture = runtime.evaluate(`(() => {
+    resetRunState();
+    const id = "act3_lethal_elias_sealant";
+    const before = JSON.stringify(state);
+    const livingText = typeof scenes[id].text === "function" ? scenes[id].text() : scenes[id].text;
+    const row = {
+      mapped: sceneImages[id],
+      declared: scenes[id] && scenes[id].image,
+      resolved: resolveSceneImage(id, scenes[id]),
+      eliasAlive: isAlive("elias"),
+      livingText,
+      bondMapped: sceneImages.bond_elias,
+      bondDeclared: scenes.bond_elias && scenes.bond_elias.image,
+      bondResolved: resolveSceneImage("bond_elias", scenes.bond_elias),
+      lenaMapped: sceneImages.romance_lena_1,
+      lenaDeclared: scenes.romance_lena_1 && scenes.romance_lena_1.image,
+      lenaResolved: resolveSceneImage("romance_lena_1", scenes.romance_lena_1),
+      amaraMapped: sceneImages.romance_amara_1,
+      amaraDeclared: scenes.romance_amara_1 && scenes.romance_amara_1.image,
+      amaraResolved: resolveSceneImage("romance_amara_1", scenes.romance_amara_1),
+      eliasTetherMapped: sceneImages.act2_tether_hand_elias,
+      eliasTetherDeclared: scenes.act2_tether_hand_elias && scenes.act2_tether_hand_elias.image,
+      eliasTetherResolved: resolveSceneImage("act2_tether_hand_elias", scenes.act2_tether_hand_elias),
+      eliasLethalMapped: sceneImages.act3_lethal_elias_order,
+      eliasLethalDeclared: scenes.act3_lethal_elias_order && scenes.act3_lethal_elias_order.image,
+      eliasLethalResolved: resolveSceneImage("act3_lethal_elias_order", scenes.act3_lethal_elias_order),
+      miraMapped: sceneImages.romance_mira_1,
+      miraDeclared: scenes.romance_mira_1 && scenes.romance_mira_1.image,
+      miraResolved: resolveSceneImage("romance_mira_1", scenes.romance_mira_1)
+    };
+    return { ...row, wroteState: JSON.stringify(state) !== before };
+  })()`);
+  if (fixture.wroteState) errors.push("act3_lethal_elias_sealant image resolve wrote run state");
+  if (!fixture.eliasAlive) errors.push("fresh run lost living Elias before lethal-sealant resolve");
+  if (!String(fixture.livingText || "").includes("cartridges")) {
+    errors.push("act3_lethal_elias_sealant living text no longer fires the sealant cartridges");
+  }
+  if (!String(fixture.livingText || "").includes("Elias")) {
+    errors.push("act3_lethal_elias_sealant living roster text is no longer Elias");
+  }
+  for (const field of ["mapped", "declared", "resolved"]) {
+    if (fixture[field] === forbidden) {
+      errors.push(`act3_lethal_elias_sealant ${field} still uses the quiet seated cup plate ${forbidden}`);
+    }
+    if (fixture[field] === quietCup) {
+      errors.push(`act3_lethal_elias_sealant ${field} still uses the seated rest plate ${quietCup}`);
+    }
+    if (fixture[field] === officialPortrait) {
+      errors.push(`act3_lethal_elias_sealant ${field} still uses the standing portrait ${officialPortrait} for sealant work`);
+    }
+    if (fixture[field] !== expected) {
+      errors.push(`act3_lethal_elias_sealant ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
+    }
+  }
+  for (const field of ["bondMapped", "bondDeclared", "bondResolved"]) {
+    if (fixture[field] !== forbidden) {
+      errors.push(`bond_elias ${field} is ${fixture[field] || "missing"}; expected ${forbidden}`);
+    }
+  }
+  const prior = {
+    lenaMapped: "images/observation_bridge_alt_2.jpg",
+    lenaDeclared: "images/observation_bridge_alt_2.jpg",
+    lenaResolved: "images/observation_bridge_alt_2.jpg",
+    amaraMapped: "images/hydroponics.jpg",
+    amaraDeclared: "images/hydroponics.jpg",
+    amaraResolved: "images/hydroponics.jpg",
+    eliasTetherMapped: "images/tether_ride.jpg",
+    eliasTetherDeclared: "images/tether_ride.jpg",
+    eliasTetherResolved: "images/tether_ride.jpg",
+    eliasLethalMapped: "images/work_elias.jpg",
+    eliasLethalDeclared: "images/work_elias.jpg",
+    eliasLethalResolved: "images/work_elias.jpg",
+    miraMapped: "images/quiet_mira.jpg",
+    miraDeclared: "images/quiet_mira.jpg",
+    miraResolved: "images/quiet_mira.jpg"
+  };
+  for (const [field, image] of Object.entries(prior)) {
+    if (fixture[field] !== image) {
+      errors.push(`prior ART-R2 ${field} is ${fixture[field] || "missing"}; expected ${image}`);
+    }
+  }
+  const dead = runtime.evaluate(`(() => {
+    resetRunState();
+    state.dead.push("elias");
+    const before = JSON.stringify(state);
+    const resolved = resolveSceneImage("act3_lethal_elias_sealant", scenes.act3_lethal_elias_sealant);
+    return { resolved, wroteState: JSON.stringify(state) !== before, eliasAlive: isAlive("elias") };
+  })()`);
+  if (dead.wroteState) errors.push("dead Elias lethal-sealant resolve wrote run state");
+  if (dead.eliasAlive) errors.push("dead Elias lethal-sealant fixture still reports living Elias");
+  if (dead.resolved !== deadFallback) {
+    errors.push(`dead Elias lethal-sealant resolved to ${dead.resolved || "missing"}; expected ${deadFallback}`);
+  }
+  if (dead.resolved === expected || dead.resolved === forbidden) {
+    errors.push("dead Elias lethal-sealant still shows a living Elias plate");
+  }
+  for (const [image, expectedHash] of Object.entries(expectedHashes)) {
+    const actualHash = createHash("sha256").update(readFileSync(resolve(ROOT, image))).digest("hex");
+    if (actualHash !== expectedHash) errors.push(`locked Elias sealant leftover plate drifted: ${image} sha256=${actualHash}`);
+  }
+  return errors;
+}
+
 function romanceMira1ImageTruthChecks(runtime) {
   const errors = [];
   const expected = "images/quiet_mira.jpg";
@@ -5293,6 +5408,10 @@ async function main() {
     const romanceMira1ImageTruthErrors = romanceMira1ImageTruthChecks(runtime);
     printCheck("SUN-V035-ART-R2-MIRA-01 engineering console plate", romanceMira1ImageTruthErrors);
     failures.push(...romanceMira1ImageTruthErrors);
+
+    const lethalEliasSealantImageTruthErrors = lethalEliasSealantImageTruthChecks(runtime);
+    printCheck("SUN-V035-ART-R2-ELIAS-SEALANT-01 station work plate", lethalEliasSealantImageTruthErrors);
+    failures.push(...lethalEliasSealantImageTruthErrors);
 
     const lenaIntimacyImageTruthErrors = lenaIntimacyImageTruthChecks(runtime);
     printCheck("0.33 Lena intimacy locked-plate truth", lenaIntimacyImageTruthErrors);
