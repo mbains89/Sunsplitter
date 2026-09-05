@@ -149,7 +149,7 @@ Emit the token and halt. Do not invent a workaround.
 
 ### Receipts
 
-PR body must include the PROOF block from `.github/PULL_REQUEST_TEMPLATE.md`. `FILES TOUCHED:` in that block must match the goal `touch:` list. A gap is a fail.
+PR body must include the PROOF block from `.github/PULL_REQUEST_TEMPLATE.md`. `FILES TOUCHED:` in that block must match the goal `touch:` list. `DIFF STAT:` is required in the same block (short `+/-` / files summary from `git diff --stat`) so wholesale regenerations (validate.js-class) surface. A missing `FILES TOUCHED:` or `DIFF STAT:` line is a fail.
 
 Orchestrator treats a merged PR plus the `MERGED_TIP` comment as the receipt. Do not require Orchestrator to re-read the diff or CI logs when those receipts exist.
 

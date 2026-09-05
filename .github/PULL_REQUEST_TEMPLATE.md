@@ -30,9 +30,16 @@ RECEIPT:
 
 FILES TOUCHED:
 -
+
+DIFF STAT:
+- files changed:
+- insertions:
+- deletions:
 ```
 
 `FILES TOUCHED:` must match the `/goal` `touch:` list. A gap is a fail.
+
+`DIFF STAT:` is required. Use a short `git diff --stat` summary (`N files changed, +X, -Y`). Wholesale regenerations (validate.js-class) must be visible here. A missing line is a fail.
 
 ## After merge
 
