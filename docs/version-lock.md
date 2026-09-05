@@ -25,4 +25,4 @@ After a ticket PR merge-commits into the lane, the implementer posts on that PR:
 - `<p1> <p2>` are that merge commit's two parents.
 - `<string>` is the current `VERSION.md` paint plus the lock line above. Do not invent a new product version to fill the field.
 
-Orchestrator treats that comment plus this lock note as the receipt. Do not re-read the full diff or CI logs unless the receipt is missing or the lock line is contradicted.
+PR PROOF must include `FILES TOUCHED:` and `DIFF STAT:` as defined in `.github/PULL_REQUEST_TEMPLATE.md`. Orchestrator treats that comment plus this lock note as the receipt. Do not re-read the full diff or CI logs unless the receipt is missing, `DIFF STAT:` is missing, or the lock line is contradicted.

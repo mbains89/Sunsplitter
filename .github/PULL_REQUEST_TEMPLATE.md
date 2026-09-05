@@ -30,9 +30,17 @@ RECEIPT:
 
 FILES TOUCHED:
 -
+
+DIFF STAT:
+ <n> files changed, <ins> insertions(+), <del> deletions(-)
+ <path> | <added|deleted|±N>
 ```
 
 `FILES TOUCHED:` must match the `/goal` `touch:` list. A gap is a fail.
+
+`DIFF STAT:` must be exact `git diff --stat` (or GitHub Files changed totals) against BASE. No `~` estimates when exact numbers exist. Every path line must match `FILES TOUCHED:`. Extra or missing path is a fail. Placeholder `<n>` / `<path>` left unchanged is a fail.
+
+A wholesale single-file regeneration (`validate.js`-class rewrite, full-file replace) must still list that path with its full insertions and deletions. Do not hide it as "1 file changed" without per-path ±. Totals that disagree with GitHub Files changed are a fail.
 
 ## After merge
 
