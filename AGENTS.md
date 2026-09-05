@@ -151,6 +151,8 @@ Emit the token and halt. Do not invent a workaround.
 
 PR body must include the PROOF block from `.github/PULL_REQUEST_TEMPLATE.md`. `FILES TOUCHED:` in that block must match the goal `touch:` list. `DIFF STAT:` is required in the same block (short `+/-` / files summary from `git diff --stat`) so wholesale regenerations (validate.js-class) surface. A missing `FILES TOUCHED:` or `DIFF STAT:` line is a fail.
 
+Job `version-lock-ci` on `.github/workflows/release-policy.yml` refuses 0.36 mint/paint and checks the lock line. Do not invent a second orchestrator or a third workflow file for that refusal.
+
 Orchestrator treats a merged PR plus the `MERGED_TIP` comment as the receipt. Do not require Orchestrator to re-read the diff or CI logs when those receipts exist.
 
 Version lock string for this lane (do not invent a second product version here):
