@@ -27,4 +27,6 @@ After a ticket PR merge-commits into the lane, the implementer posts on that PR:
 - `<p1> <p2>` are that merge commit's two parents.
 - `<string>` is the current `VERSION.md` paint plus the lock line above. Do not invent a new product version to fill the field.
 
+Post-merge floor wakes echo that same `MERGED_TIP` line (sha + parents + paint) and keep the `DIFF STAT:` / `version-lock-ci` pointers above. Do not invent a second orchestrator.
+
 Orchestrator treats that comment plus this lock note as the receipt. Do not re-read the full diff or CI logs unless the receipt is missing or the lock line is contradicted.
