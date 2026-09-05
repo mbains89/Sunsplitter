@@ -40,6 +40,8 @@ DIFF STAT:
 
 `DIFF STAT:` must be exact `git diff --stat` (or GitHub Files changed totals) against BASE. No `~` estimates when exact numbers exist. Every path line must match `FILES TOUCHED:`. Extra or missing path is a fail. Placeholder `<n>` / `<path>` left unchanged is a fail.
 
+A wholesale single-file regeneration (`validate.js`-class rewrite, full-file replace) must still list that path with its full insertions and deletions. Do not hide it as "1 file changed" without per-path ±. Totals that disagree with GitHub Files changed are a fail.
+
 ## After merge
 
 Post a PR comment, exactly:
