@@ -52,6 +52,30 @@ jobs:
           node scripts/release-policy.mjs --self-test
           node scripts/release-policy.mjs
 
+  version_lock_ci:
+    name: version-lock-ci
+    if: ${{ startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Refuse 0.36 mint and keep lane lock
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/version-lock-ci.mjs --self-test
+          node scripts/version-lock-ci.mjs
+
   main_release_policy:
     name: main-release-policy
     if: ${{ github.base_ref == 'main' }}
