@@ -420,12 +420,18 @@ function cancelNewRun() { hideNewRunConfirm(); return false; }
   if (typeof startGame === "function") {
     startGame = function() {
       if (typeof hasSave === "function" && hasSave()) {
-        const opened = showNewRunConfirm();
-        const confirmFn = typeof window !== "undefined" ? window.confirm : null;
-        const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
-        if (opened && confirmIsNative) return false;
-        const ok = typeof confirmFn === "function" ? confirmFn("Start a new run? This will replace your saved progress.") : true;
-        if (!ok) { hideNewRunConfirm(); return false; }
+        if (showNewRunConfirm()) {
+          const confirmFn = typeof window !== "undefined" ? window.confirm : null;
+          const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
+          if (!confirmIsNative && typeof confirmFn === "function") {
+            try { confirmFn("Start a new run? This will replace your saved progress."); } catch (e) {}
+          }
+          return false;
+        }
+        const ok = typeof window !== "undefined" && typeof window.confirm === "function"
+          ? window.confirm("Start a new run? This will replace your saved progress.")
+          : true;
+        if (!ok) return false;
       }
       return commitNewRun();
     };
