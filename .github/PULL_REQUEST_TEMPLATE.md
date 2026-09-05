@@ -30,9 +30,15 @@ RECEIPT:
 
 FILES TOUCHED:
 -
+
+DIFF STAT:
+ <n> files changed, <ins> insertions(+), <del> deletions(-)
+ <path> | <added|deleted|±N>
 ```
 
 `FILES TOUCHED:` must match the `/goal` `touch:` list. A gap is a fail.
+
+`DIFF STAT:` must be exact `git diff --stat` (or GitHub Files changed totals) against BASE. No `~` estimates when exact numbers exist. Every path line must match `FILES TOUCHED:`. Extra or missing path is a fail. Placeholder `<n>` / `<path>` left unchanged is a fail.
 
 ## After merge
 
