@@ -29,16 +29,12 @@ She does not soften the prognosis. She softens nothing. The offer is presence â€
     }
   },
 
-  // PRE: Amara and recovered Tomas alive; hydroponics full; offered once from intimacy_window / act3_spine_next
-  // WRITES: living entry closes romance.amara_tomas so privacy leave cannot re-offer Walk-in; leave keeps +3 cohesion/affinity then debt_notice
+  // PRE: Amara and recovered Tomas alive; hydroponics full; offered from intimacy_window / act3_spine_next
+  // WRITES: privacy leave applies +3 cohesion/affinity, marks privacy_left, does NOT set romance.amara_tomas
+  // Stay/sex remains the only writer of romance.amara_tomas. Interrupt does not write romance.
   // DEATH: no death writes | DEAD SPEECH/APPEARANCE: empty-bay fallback requires both alive
   // IMAGE: REUSE images/romance_amara_tomas.jpg; no new art request
   romance_amara_tomas: {
-    onEnter: () => {
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas) {
-        state.romance.amara_tomas = true;
-      }
-    },
     get text() {
       if (!isAlive("amara") || !isAlive("tomas")) return `The bay is empty. Whatever might have been shared here is gone.`;
       return `You find them together among the trays.
@@ -50,7 +46,7 @@ Amara looks over Tomas's shoulder and does not look away. There is an invitation
     get choices() {
       if (!isAlive("amara") || !isAlive("tomas")) return [{ text: "Move on.", next: "intimacy_window" }];
       return [
-        { text: "Leave them the privacy they have claimed.", next: "debt_notice", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 } },
+        { text: "Leave them the privacy they have claimed.", next: "debt_notice", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 }, mark: { amara: "privacy_left" } },
         { text: "Stay. Join what they are offering.", next: "romance_amara_tomas_sex", effects: { cohesion: 4 } },
         { text: "Ask them to stop. This is a complication the ship cannot afford.", next: "intimacy_window", effects: { cohesion: -3 }, affinity: { amara: -4, tomas: -4 }, mark: { amara: "interrupted" } }
       ];
@@ -69,10 +65,6 @@ Amara looks over Tomas's shoulder and does not look away. There is an invitation
       if (!isAlive("amara") || !isAlive("tomas")) return "intimacy_window";
       if (!state.romance.amara_tomas) {
         state.romance.amara_tomas = true;
-        addAffinity("amara", 25);
-        addAffinity("tomas", 25);
-        remember("You shared the hydroponics bay with Amara and Tomas. The crew will invent a version if you do not own one.");
-      } else if (!state.memories || state.memories.indexOf("You shared the hydroponics bay with Amara and Tomas. The crew will invent a version if you do not own one.") === -1) {
         addAffinity("amara", 25);
         addAffinity("tomas", 25);
         remember("You shared the hydroponics bay with Amara and Tomas. The crew will invent a version if you do not own one.");
