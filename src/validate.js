@@ -420,11 +420,12 @@ function cancelNewRun() { hideNewRunConfirm(); return false; }
   if (typeof startGame === "function") {
     startGame = function() {
       if (typeof hasSave === "function" && hasSave()) {
+        const opened = showNewRunConfirm();
         const confirmFn = typeof window !== "undefined" ? window.confirm : null;
         const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
-        if (confirmIsNative && showNewRunConfirm()) return false;
+        if (opened && confirmIsNative) return false;
         const ok = typeof confirmFn === "function" ? confirmFn("Start a new run? This will replace your saved progress.") : true;
-        if (!ok) return false;
+        if (!ok) { hideNewRunConfirm(); return false; }
       }
       return commitNewRun();
     };
