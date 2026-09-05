@@ -44,8 +44,8 @@ registerScenes({
       if (isAlive("tomas") && !state.flags.quiet_tomas_done) {
         opts.push({ text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas", tag: "bond" });
       }
-      // 0.28.1b: Amara+Tomas private — intimacy_window can fire before Tomas recovery
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && state.flags.hydro === "full") {
+      // 0.28.1b: Amara+Tomas private — closed by shared encounter OR privacy leave (not a fabricated relationship)
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && state.flags.hydro === "full") {
         opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
       }
       if (isAlive("jiro") && !hasMark("jiro", "bonded") && !hasMark("jiro", "bond_skipped")) {
@@ -84,11 +84,11 @@ registerScenes({
     }
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
   // 0.24 — Vess Arrival + short asymmetric 5th romance
   // Structural asymmetry: informed run-reading offer, transmission currency,
   // power stays hers, fewer beats, one explicit sufficient. Not a fifth ladder.
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════
 
   vess_signal: {
     image: "images/transmission.jpg",
@@ -100,11 +100,7 @@ registerScenes({
       } else {
         t += `The automatic filters finally pull a clean string.`;
       }
-      t += `
-
-Authentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.
-
-The voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
+      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
       if (isAlive("mira")) {
         t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
       } else {
@@ -128,11 +124,7 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
       remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
       remember("Environmental bus runs degraded for her relay core.");
     },
-    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.
-
-The window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.
-
-She is coming aboard.`,
+    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
     choices: [
       { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } },
       { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding" }
