@@ -17,7 +17,6 @@
     manifest: new Set(["read", "declined"]),
     changeorders: new Set(["logged", "buried"])
   };
-
   function shouldRun() {
     try {
       if (typeof location !== "undefined" && /[?&]validate=1\b/.test(location.search)) return true;
@@ -25,7 +24,6 @@
     } catch (_) {}
     return false;
   }
-
   function collectChoiceLists(sc, id, warnings) {
     let choiceList = [];
     try {
@@ -52,17 +50,14 @@
     }
     return choiceList;
   }
-
   function propertySource(object, key) {
     const descriptor = Object.getOwnPropertyDescriptor(object, key);
     const source = d => d?.get ? d.get.toString() : String(d?.value || "");
     return source(descriptor) + "\n" + source(livingCastOriginals.get(object)?.[key]);
   }
-
   function validate() {
     const errors = [];
     const warnings = [];
-
     if (typeof ROMANCEABLE !== "undefined") {
       const runtimeIds = [...ROMANCEABLE].sort();
       const validatorIds = [...ROMANCE_IDS].sort();
@@ -70,73 +65,45 @@
         errors.push(`romance validator IDs ${validatorIds.join(",")} != runtime IDs ${runtimeIds.join(",")}`);
       }
     }
-
     if (typeof scenes === "undefined" || !scenes || typeof scenes !== "object") {
       console.error("[Sunsplitter validate] scenes object missing");
       return { errors: ["scenes missing"], warnings: [], count: 0 };
     }
-
     const ids = Object.keys(scenes);
     if (ids.length === 0) errors.push("no scenes registered");
-
     const nextGraph = {};
     const writtenFlags = new Set();
     const readFlags = new Set();
     const allNexts = new Set();
-
     for (const id of ids) {
       const sc = scenes[id];
-      if (!sc || typeof sc !== "object") {
-        errors.push(`${id}: not an object`);
-        continue;
-      }
-
+      if (!sc || typeof sc !== "object") { errors.push(`${id}: not an object`); continue; }
       const desc = Object.getOwnPropertyDescriptor(sc, "text");
       if (!desc && sc.text === undefined) errors.push(`${id}: missing text`);
-
       for (const k of Object.keys(sc)) {
-        if (!ALLOWED_KEYS.has(k)) {
-          errors.push(`${id}: illegal key "${k}" (allowed: text, choices, onEnter, image)`);
-        }
+        if (!ALLOWED_KEYS.has(k)) errors.push(`${id}: illegal key "${k}" (allowed: text, choices, onEnter, image)`);
       }
-
       const choiceList = collectChoiceLists(sc, id, warnings);
       nextGraph[id] = new Set();
-
       choiceList.forEach((c, i) => {
-        if (!c || typeof c !== "object") {
-          errors.push(`${id}: choice[${i}] not an object`);
-          return;
-        }
+        if (!c || typeof c !== "object") { errors.push(`${id}: choice[${i}] not an object`); return; }
         for (const ck of Object.keys(c)) {
-          if (!ALLOWED_CHOICE_KEYS.has(ck)) {
-            errors.push(`${id}: choice[${i}] illegal key "${ck}" (allowed: ${[...ALLOWED_CHOICE_KEYS].join(", ")})`);
-          }
+          if (!ALLOWED_CHOICE_KEYS.has(ck)) errors.push(`${id}: choice[${i}] illegal key "${ck}" (allowed: ${[...ALLOWED_CHOICE_KEYS].join(", ")})`);
         }
         if (!c.text) warnings.push(`${id}: choice[${i}] missing text`);
-        if (!c.next) {
-          errors.push(`${id}: choice[${i}] missing next`);
-          return;
-        }
+        if (!c.next) { errors.push(`${id}: choice[${i}] missing next`); return; }
         nextGraph[id].add(c.next);
         allNexts.add(c.next);
-        if (c.next !== "ending_check" && !scenes[c.next]) {
-          errors.push(`${id}: choice[${i}] next "${c.next}" does not exist`);
-        }
+        if (c.next !== "ending_check" && !scenes[c.next]) errors.push(`${id}: choice[${i}] next "${c.next}" does not exist`);
         if (c.flag && typeof c.flag === "object") {
           Object.keys(c.flag).forEach(fk => {
             writtenFlags.add(fk);
             const domain = LOCKED_FLAG_VALUES[fk];
-            if (domain && !domain.has(c.flag[fk])) {
-              errors.push(`${id}: choice[${i}] invalid ${fk} value ${JSON.stringify(c.flag[fk])}`);
-            }
+            if (domain && !domain.has(c.flag[fk])) errors.push(`${id}: choice[${i}] invalid ${fk} value ${JSON.stringify(c.flag[fk])}`);
           });
         }
-        if (c.mark && typeof c.mark === "object") {
-          Object.keys(c.mark).forEach(mk => writtenFlags.add("mark:" + mk));
-        }
+        if (c.mark && typeof c.mark === "object") Object.keys(c.mark).forEach(mk => writtenFlags.add("mark:" + mk));
       });
-
       try {
         const src = propertySource(sc, "text");
         const onSrc = propertySource(sc, "onEnter");
@@ -146,14 +113,10 @@
         for (const m of blob.matchAll(/flags\[['\" ]([a-zA-Z0-9_]+)['\"]\]/g)) readFlags.add(m[1]);
         for (const m of blob.matchAll(/marks\.([a-zA-Z0-9_]+)/g)) readFlags.add("mark:" + m[1]);
       } catch (_) {}
-
       if (sc.image && typeof sc.image === "string") {
-        if (!sc.image.startsWith("images/") && !sc.image.startsWith("./images/")) {
-          warnings.push(`${id}: image path "${sc.image}" looks nonstandard`);
-        }
+        if (!sc.image.startsWith("images/") && !sc.image.startsWith("./images/")) warnings.push(`${id}: image path "${sc.image}" looks nonstandard`);
       }
     }
-
     let allSource = "";
     try {
       for (const id of ids) {
@@ -167,50 +130,27 @@
       if (allSource.includes('"' + id + '"') || allSource.includes("'" + id + "'")) continue;
       warnings.push(`graph: "${id}" is never referenced as next/onEnter target`);
     }
-
     const imagePaths = new Set();
     if (typeof sceneImages === "object" && sceneImages) {
       for (const [sid, path] of Object.entries(sceneImages)) {
-        if (typeof path !== "string" || !path.length) {
-          errors.push(`sceneImages["${sid}"] empty`);
-        } else {
+        if (typeof path !== "string" || !path.length) errors.push(`sceneImages["${sid}"] empty`);
+        else {
           imagePaths.add(path);
           if (!path.includes("/")) warnings.push(`sceneImages["${sid}"] path has no directory: ${path}`);
         }
-        if (sid !== "ending_check" && !scenes[sid] && !sid.startsWith("ending_")) {
-          warnings.push(`sceneImages["${sid}"] has no matching scene id`);
-        }
+        if (sid !== "ending_check" && !scenes[sid] && !sid.startsWith("ending_")) warnings.push(`sceneImages["${sid}"] has no matching scene id`);
       }
-    } else {
-      warnings.push("sceneImages map missing");
-    }
-
-    for (const id of ids) {
-      const sc = scenes[id];
-      if (sc && typeof sc.image === "string" && imagePaths.size && !imagePaths.has(sc.image)) {
-      }
-    }
-
+    } else warnings.push("sceneImages map missing");
     if (scenes.intimacy_window) {
       try {
-        const src = [
-          propertySource(scenes.intimacy_window, "choices"),
-          propertySource(scenes.intimacy_window, "text")
-        ].filter(Boolean).join("\n");
+        const src = [propertySource(scenes.intimacy_window, "choices"), propertySource(scenes.intimacy_window, "text")].filter(Boolean).join("\n");
         const affinityGate = new RegExp(`affinity\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
         const trustGate = new RegExp(`trust\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
-        if (affinityGate.test(src)) {
-          warnings.push("romance: intimacy_window still has numeric affinity gates (expected default-offer)");
-        }
-        if (trustGate.test(src)) {
-          warnings.push("romance: intimacy_window still has numeric trust gates (expected default-offer)");
-        }
-        if (!/declined/.test(src) && !/hasMark\(/.test(src)) {
-          warnings.push("romance: intimacy_window may not check marks.*.declined");
-        }
+        if (affinityGate.test(src)) warnings.push("romance: intimacy_window still has numeric affinity gates (expected default-offer)");
+        if (trustGate.test(src)) warnings.push("romance: intimacy_window still has numeric trust gates (expected default-offer)");
+        if (!/declined/.test(src) && !/hasMark\(/.test(src)) warnings.push("romance: intimacy_window may not check marks.*.declined");
       } catch (_) {}
     }
-
     const deadWrites = [...writtenFlags].filter(f => !readFlags.has(f) && !f.startsWith("mark:"));
     const engineFlags = new Set([
       "crisis", "vault_sacrifice", "mid_arc", "final", "planet", "leadership", "reckon",
@@ -232,10 +172,7 @@
       "warmth_meal", "warmth_laughter", "warmth_music",
       "manifest", "changeorders"
     ]);
-    deadWrites.forEach(f => {
-      if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`);
-    });
-
+    deadWrites.forEach(f => { if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`); });
     const reachable = new Set();
     const queue = ["wake"];
     while (queue.length) {
@@ -249,69 +186,39 @@
       if (reachable.has(id)) continue;
       if (allSource.includes('"' + id + '"') || allSource.includes("'" + id + "'")) reachable.add(id);
     }
-    const unreachable = ids.filter(id => id !== "ending_check" && !reachable.has(id));
-    unreachable.forEach(id => warnings.push(`reachability: "${id}" not reachable from wake (static+source)`));
-
+    ids.filter(id => id !== "ending_check" && !reachable.has(id)).forEach(id => warnings.push(`reachability: "${id}" not reachable from wake (static+source)`));
     if (!scenes.ending_check) errors.push("missing required scene ending_check");
     if (!scenes.wake) errors.push("missing required scene wake");
     for (const id of ["act3_lethal_lena_clock", "act3_lethal_tomas_cost", "act3_lethal_elias_order", "act3_lethal_mira_board"]) {
       if (!scenes[id]) errors.push("missing required 0.25 scene " + id);
     }
-
     const summary = `[Sunsplitter validate] ${ids.length} scenes — ${errors.length} error(s), ${warnings.length} warning(s)`;
     if (errors.length) console.error(summary, errors);
     else if (warnings.length) console.warn(summary, warnings);
     else console.log(summary + " — clean");
-
     return {
-      errors,
-      warnings,
-      count: ids.length,
+      errors, warnings, count: ids.length,
       flags: { written: [...writtenFlags].sort(), read: [...readFlags].sort(), deadWrites },
       graph: Object.fromEntries(Object.entries(nextGraph).map(([k, v]) => [k, [...v]]))
     };
   }
-
-  if (typeof window !== "undefined") {
-    window.validateSunsplitter = validate;
-  }
-
+  if (typeof window !== "undefined") window.validateSunsplitter = validate;
   function boot() {
     if (!shouldRun()) return;
-    try {
-      validate();
-    } catch (e) {
-      console.error("[Sunsplitter validate] crashed", e);
-    }
+    try { validate(); } catch (e) { console.error("[Sunsplitter validate] crashed", e); }
   }
-
   if (typeof document !== "undefined") {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", boot);
-    } else {
-      boot();
-    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
   }
 })();
 
-// SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 — full-screen sheet over existing crew chips.
-// Loaded after engine.js. Does not invent stats or generate art.
 const OFFICIAL_BODYSUIT = {
-  lena: "images/bodysuit_lena.jpg",
-  elias: "images/bodysuit_elias.jpg",
-  mira: "images/bodysuit_mira.jpg",
-  tomas: "images/bodysuit_tomas.jpg",
-  amara: "images/bodysuit_amara.jpg",
-  jiro: "images/bodysuit_jiro.jpg",
-  sela: "images/bodysuit_sela.jpg",
-  vess: "images/bodysuit_vess.jpg",
-  rourke: "images/bodysuit_rourke.jpg"
+  lena: "images/bodysuit_lena.jpg", elias: "images/bodysuit_elias.jpg", mira: "images/bodysuit_mira.jpg",
+  tomas: "images/bodysuit_tomas.jpg", amara: "images/bodysuit_amara.jpg", jiro: "images/bodysuit_jiro.jpg",
+  sela: "images/bodysuit_sela.jpg", vess: "images/bodysuit_vess.jpg", rourke: "images/bodysuit_rourke.jpg"
 };
-
-function officialBodysuitSrc(key) {
-  return OFFICIAL_BODYSUIT[key] || "";
-}
-
+function officialBodysuitSrc(key) { return OFFICIAL_BODYSUIT[key] || ""; }
 function closeCrewSheet() {
   const sheet = document.getElementById("crew-sheet");
   if (!sheet) return;
@@ -322,13 +229,9 @@ function closeCrewSheet() {
   else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
   if (img) img.alt = "";
 }
-
 function openCrewSheet(key) {
   const sheet = document.getElementById("crew-sheet");
-  if (!sheet || typeof crew === "undefined" || !crew[key]) {
-    closeCrewSheet();
-    return;
-  }
+  if (!sheet || typeof crew === "undefined" || !crew[key]) { closeCrewSheet(); return; }
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
@@ -338,11 +241,8 @@ function openCrewSheet(key) {
   const affinityText = Number.isFinite(affinity) ? (affinity + "/100") : "Not recorded";
   const romance = [];
   if (state.romance && state.romance[key]) romance.push("Recorded this run");
-  if ((key === "amara" || key === "tomas") && state.romance && state.romance.amara_tomas) {
-    romance.push("Shared Amara-Tomas encounter recorded");
-  }
-  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone")
-    : (state.dying && state.dying[key]);
+  if ((key === "amara" || key === "tomas") && state.romance && state.romance.amara_tomas) romance.push("Shared Amara-Tomas encounter recorded");
+  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
   const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
   const lean = (typeof crewLean === "object" && crewLean[key]) ? crewLean[key] : "";
   const nameEl = document.getElementById("crew-sheet-name");
@@ -376,7 +276,6 @@ function openCrewSheet(key) {
   sheet.classList.remove("hidden");
   sheet.classList.add("visible");
 }
-
 (function wireCrewCharacterSheet() {
   if (typeof renderCrewPanel === "function") {
     const previous = renderCrewPanel;
@@ -404,16 +303,12 @@ function openCrewSheet(key) {
     if (typeof event.stopPropagation === "function") event.stopPropagation();
     closeCrewSheet();
     const panel = document.getElementById("crew-panel");
-    if (panel) {
-      panel.classList.add("visible");
-      panel.classList.remove("hidden");
-    }
+    if (panel) { panel.classList.add("visible"); panel.classList.remove("hidden"); }
     const toggle = document.getElementById("btn-crew");
     if (toggle) toggle.setAttribute("aria-expanded", "true");
   });
 })();
 
-// SUN-PLAYTEST-ART-DOUBLECLICK-01 — documented minimize/expand (desktop dblclick stays in engine).
 function toggleSceneArtSize() {
   const wrap = document.getElementById("scene-image-wrap");
   if (!wrap || !wrap.classList.contains("visible")) return false;
@@ -422,38 +317,15 @@ function toggleSceneArtSize() {
   return wrap.classList.contains("minimized");
 }
 
-// SUN-PLAYTEST-INTRO-BACK-ART-01 — Back on all 3 intro slides + in-tree slide art.
-// Loaded after engine.js. Does not invent plates or opening prose.
-const INTRO_SLIDE_ART = [
-  "images/cascade_records.jpg",
-  "images/ship_exterior_2.jpg",
-  "images/arc_living_conflict.jpg"
-];
-const INTRO_SLIDE_ALT = [
-  "Records of Earth's cascade.",
-  "The Sunsplitter colonization ark.",
-  "The living already arguing what to save."
-];
-
-function introSlideArt(index) {
-  return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0];
-}
-
+const INTRO_SLIDE_ART = ["images/cascade_records.jpg", "images/ship_exterior_2.jpg", "images/arc_living_conflict.jpg"];
+const INTRO_SLIDE_ALT = ["Records of Earth's cascade.", "The Sunsplitter colonization ark.", "The living already arguing what to save."];
+function introSlideArt(index) { return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0]; }
 function retreatCinematic() {
   if (!currentCinematic) return false;
-  if (currentCinematic.index > 0) {
-    currentCinematic.index -= 1;
-    renderCinematicFrame(true);
-    return true;
-  }
-  if (currentCinematic.kind === "intro") {
-    cancelCinematic();
-    showTitleScreen();
-    return true;
-  }
+  if (currentCinematic.index > 0) { currentCinematic.index -= 1; renderCinematicFrame(true); return true; }
+  if (currentCinematic.kind === "intro") { cancelCinematic(); showTitleScreen(); return true; }
   return false;
 }
-
 (function overlayIntroBackArt() {
   if (typeof renderCinematicFrame !== "function" || typeof showCinematic !== "function") return;
   const previousRender = renderCinematicFrame;
@@ -472,61 +344,35 @@ function retreatCinematic() {
     }
   };
   const previousShow = showCinematic;
-  showCinematic = function(kind) {
-    previousShow(kind);
-    if (kind === "intro") renderCinematicFrame(false);
-  };
+  showCinematic = function(kind) { previousShow(kind); if (kind === "intro") renderCinematicFrame(false); };
 })();
 
-// SUN-PLAYTEST-TUTORIAL-TOPFIELDS-01 — first-run overlay for Crew/Hull/Coh/Sup/Emb.
 const TUTORIAL_SEEN_KEY = "sunsplitter_tutorial_seen_v1";
 const TUTORIAL_TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
-
-function tutorialSeen() {
-  try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1"; }
-  catch (_) { return false; }
-}
-
-function markTutorialSeen() {
-  try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); }
-  catch (_) {}
-}
-
+function tutorialSeen() { try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1"; } catch (_) { return false; } }
+function markTutorialSeen() { try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); } catch (_) {} }
 function isTutorialOpen() {
   const overlay = document.getElementById("tutorial-overlay");
   return !!(overlay && !overlay.classList.contains("hidden"));
 }
-
 function dismissTutorial() {
   const overlay = document.getElementById("tutorial-overlay");
-  if (overlay) {
-    overlay.classList.add("hidden");
-    overlay.classList.remove("visible");
-  }
+  if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
   markTutorialSeen();
   return true;
 }
-
-function skipTutorial() {
-  return dismissTutorial();
-}
-
+function skipTutorial() { return dismissTutorial(); }
 function showTutorialOverlay() {
   const overlay = document.getElementById("tutorial-overlay");
   if (!overlay) return false;
   const copy = document.getElementById("tutorial-copy");
-  if (copy && !copy.textContent) {
-    copy.textContent = "The status bar is live. Crew, Hull, Coh, Sup, and Emb are the only numbers that gate what you can order.";
-  }
+  if (copy && !copy.textContent) copy.textContent = "The status bar is live. Crew, Hull, Coh, Sup, and Emb are the only numbers that gate what you can order.";
   const list = document.getElementById("tutorial-topfields");
-  if (list && !list.textContent) {
-    list.textContent = TUTORIAL_TOPFIELDS.join(" ");
-  }
+  if (list && !list.textContent) list.textContent = TUTORIAL_TOPFIELDS.join(" ");
   overlay.classList.remove("hidden");
   overlay.classList.add("visible");
   return true;
 }
-
 (function overlayTutorialTopfields() {
   if (typeof finishCinematic === "function") {
     const previousFinish = finishCinematic;
@@ -543,11 +389,58 @@ function showTutorialOverlay() {
       previousShow(id);
       if (id !== "game" && isTutorialOpen()) {
         const overlay = document.getElementById("tutorial-overlay");
-        if (overlay) {
-          overlay.classList.add("hidden");
-          overlay.classList.remove("visible");
-        }
+        if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
       }
+    };
+  }
+})();
+
+function hideNewRunConfirm() {
+  const panel = document.getElementById("new-run-confirm");
+  if (!panel) return;
+  panel.classList.add("hidden");
+  panel.classList.remove("visible");
+}
+function showNewRunConfirm() {
+  const panel = document.getElementById("new-run-confirm");
+  if (!panel) return false;
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+  return true;
+}
+function commitNewRun() {
+  hideNewRunConfirm();
+  const started = beginFreshCampaign({ persist: true });
+  if (started) showCinematic("intro");
+  return started;
+}
+function confirmNewRun() { return commitNewRun(); }
+function cancelNewRun() { hideNewRunConfirm(); return false; }
+(function overlayNewRunConfirm() {
+  if (typeof startGame === "function") {
+    startGame = function() {
+      if (typeof hasSave === "function" && hasSave()) {
+        if (showNewRunConfirm()) {
+          const confirmFn = typeof window !== "undefined" ? window.confirm : null;
+          const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
+          if (!confirmIsNative && typeof confirmFn === "function") {
+            try { confirmFn("Start a new run? This will replace your saved progress."); } catch (e) {}
+          }
+          return false;
+        }
+        const ok = typeof window !== "undefined" && typeof window.confirm === "function"
+          ? window.confirm("Start a new run? This will replace your saved progress.")
+          : true;
+        if (!ok) return false;
+      }
+      return commitNewRun();
+    };
+  }
+  if (typeof refreshTitleResumeUI === "function") {
+    const previous = refreshTitleResumeUI;
+    refreshTitleResumeUI = function() {
+      hideNewRunConfirm();
+      return previous();
     };
   }
 })();

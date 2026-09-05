@@ -21,11 +21,11 @@ export function playtestNewRunChecks(runtime) {
   if (!engine.includes("function startGame") || !engine.includes("beginFreshCampaign({ persist: true })")) {
     errors.push("engine lost persist-true new run");
   }
+  if (!runtimeSrc.includes("function confirmNewRun") || !runtimeSrc.includes("function cancelNewRun") || !runtimeSrc.includes("function commitNewRun")) {
+    errors.push("confirmNewRun/cancelNewRun/commitNewRun handlers missing");
+  }
   if (!runtimeSrc.includes('showCinematic("intro")')) {
     errors.push("new run no longer reaches intro cinematic");
-  }
-  if (!runtimeSrc.includes("Start a new run? This will replace your saved progress.")) {
-    errors.push("new-run confirm copy missing");
   }
 
   try {
@@ -34,60 +34,61 @@ export function playtestNewRunChecks(runtime) {
         try { return localStorage.getItem("sunsplitter_save_v3"); } catch (e) { return null; }
       };
       const begin = document.getElementById("btn-begin");
-      const nativeConfirm = window.confirm;
+      const panel = document.getElementById("new-run-confirm");
       const results = {};
+      localStorage.clear();
+      resetRunState();
+      const noSaveStart = startGame();
+      results.noSave = {
+        started: noSaveStart,
+        intro: !!(currentCinematic && currentCinematic.kind === "intro"),
+        scene: state.scene
+      };
+      if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
+
+      resetRunState();
+      state.scene = "hydroponics";
+      state.survivors = 6;
+      persistSave({ silent: true });
+      const savedRaw = rawSave();
+      showTitleScreen();
+      results.labeled = begin && begin.textContent === "New run";
+
+      const opened = startGame();
+      results.panelOpen = {
+        opened,
+        visible: !!(panel && !panel.classList.contains("hidden"))
+      };
+
+      const cancelled = cancelNewRun();
+      results.afterCancel = {
+        cancelled,
+        scene: state.scene,
+        saveKept: rawSave() === savedRaw,
+        hidden: !!(panel && panel.classList.contains("hidden"))
+      };
+
+      const resumed = resumeGame();
+      results.afterResume = {
+        resumed,
+        scene: state.scene,
+        cinematic: !!(currentCinematic && currentCinematic.kind)
+      };
+
+      showTitleScreen();
+      startGame();
+      const confirmed = confirmNewRun();
+      let saveIsWake = false;
       try {
-        localStorage.clear();
-        resetRunState();
-        window.confirm = () => true;
-        const noSaveStart = startGame();
-        results.noSave = {
-          started: noSaveStart,
-          intro: !!(currentCinematic && currentCinematic.kind === "intro"),
-          scene: state.scene
-        };
-        if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
-
-        resetRunState();
-        state.scene = "hydroponics";
-        state.survivors = 6;
-        persistSave({ silent: true });
-        const savedRaw = rawSave();
-        showTitleScreen();
-        results.labeled = begin && begin.textContent === "New run";
-
-        window.confirm = () => false;
-        const cancelled = startGame();
-        results.afterCancel = {
-          cancelled,
-          scene: state.scene,
-          saveKept: rawSave() === savedRaw
-        };
-
-        const resumed = resumeGame();
-        results.afterResume = {
-          resumed,
-          scene: state.scene,
-          cinematic: !!(currentCinematic && currentCinematic.kind)
-        };
-
-        showTitleScreen();
-        window.confirm = () => true;
-        const confirmed = startGame();
-        let saveIsWake = false;
-        try {
-          const live = JSON.parse(rawSave() || "null");
-          saveIsWake = !!(live && live.scene === "wake");
-        } catch (e) { saveIsWake = false; }
-        results.afterConfirm = {
-          confirmed,
-          intro: !!(currentCinematic && currentCinematic.kind === "intro"),
-          scene: state.scene,
-          saveIsWake
-        };
-      } finally {
-        window.confirm = nativeConfirm;
-      }
+        const live = JSON.parse(rawSave() || "null");
+        saveIsWake = !!(live && live.scene === "wake");
+      } catch (e) { saveIsWake = false; }
+      results.afterConfirm = {
+        confirmed,
+        intro: !!(currentCinematic && currentCinematic.kind === "intro"),
+        scene: state.scene,
+        saveIsWake
+      };
       return results;
     })()`);
 
@@ -97,7 +98,10 @@ export function playtestNewRunChecks(runtime) {
     if (!fixture.labeled) {
       errors.push("btn-begin did not relabel to New run when a save exists");
     }
-    if (!fixture.afterCancel || fixture.afterCancel.cancelled || fixture.afterCancel.scene !== "hydroponics" || !fixture.afterCancel.saveKept) {
+    if (!fixture.panelOpen || fixture.panelOpen.opened || !fixture.panelOpen.visible) {
+      errors.push("NEW RUN with a save did not open the in-page confirm panel");
+    }
+    if (!fixture.afterCancel || fixture.afterCancel.cancelled || fixture.afterCancel.scene !== "hydroponics" || !fixture.afterCancel.saveKept || !fixture.afterCancel.hidden) {
       errors.push("Cancel confirm did not leave the existing save intact");
     }
     if (!fixture.afterResume || !fixture.afterResume.resumed || fixture.afterResume.scene !== "hydroponics" || fixture.afterResume.cinematic) {
