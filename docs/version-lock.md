@@ -13,7 +13,9 @@ lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 HOLD
 - **Release:** `NO-PUBLISH` / `NOT_CERTIFIED`
 - **0.36:** HOLD — do not mint, open, or paint 0.36
 
-Existing CI already covers version-route policy via `.github/workflows/release-policy.yml` job `version-release-policy`. This note does not add a new workflow and does not change rulesets.
+Existing CI covers version-route policy via `.github/workflows/release-policy.yml` job `version-release-policy`. The same workflow file also runs job `version-lock-ci` (`scripts/version-lock-ci.mjs`), which refuses 0.36 mint/paint and requires the lock line above. This note does not add a third workflow file and does not change rulesets.
+
+PR / PROOF receipts must include `DIFF STAT:` (see `.github/PULL_REQUEST_TEMPLATE.md` and `AGENTS.md` § Receipts).
 
 ## After-merge receipt
 
