@@ -76,7 +76,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
         return [{ text: "Return to the watch.", next: "act3_spine_next" }];
       }
       return [
-        { text: "Accept the offer. Power stays with her.", next: "vess_transmission", tag: "private", affinity: { vess: 6 }, trust: { vess: 4 } },
+        { text: "Accept the offer. Power stays with her.", next: "vess_transmission", tag: "private", mark: { vess: "accepted" }, affinity: { vess: 6 }, trust: { vess: 4 } },
         { text: "Decline. Log it clean.", next: "act3_spine_next", mark: { vess: "declined" }, affinity: { vess: 1 } }
       ];
     }
