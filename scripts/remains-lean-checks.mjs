@@ -125,7 +125,7 @@ function exerciseRemainsLean() {
     for (const [id, image] of Object.entries(ART_R2)) {
       expect(sceneImages[id] === image, id + " mapping drifted");
       expect(scenes[id] && scenes[id].image === image, id + " declaration drifted");
-      expect(resolveSceneImage[id] === image, id + " resolve drifted");
+      expect(resolveSceneImage(id, scenes[id]) === image, id + " resolve drifted");
     }
     expect(snapshot() === before, "ART-R2 resolve wrote run state");
   } catch (error) {
