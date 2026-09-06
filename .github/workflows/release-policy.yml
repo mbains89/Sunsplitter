@@ -40,13 +40,23 @@ jobs:
           check-latest: false
 
       - name: Run release-policy positive and negative fixtures
+        env:
+          GIT_CONFIG_GLOBAL: /dev/null
+          GIT_CONFIG_NOSYSTEM: "1"
+          GIT_OPTIONAL_LOCKS: "0"
+          GIT_TERMINAL_PROMPT: "0"
         run: |
           set -euo pipefail
           test "$(node --version)" = "v${NODE_VERSION}"
+          node scripts/release-policy.mjs --github-actions-git-environment-fixture
           node scripts/release-policy.mjs --self-test
 
       - name: Enforce recovery route and NO-PUBLISH
         env:
+          GIT_CONFIG_GLOBAL: /dev/null
+          GIT_CONFIG_NOSYSTEM: "1"
+          GIT_OPTIONAL_LOCKS: "0"
+          GIT_TERMINAL_PROMPT: "0"
           POLICY_EVENT_NAME: ${{ github.event_name }}
           POLICY_REPOSITORY: ${{ github.repository }}
           POLICY_SHA: ${{ github.sha }}

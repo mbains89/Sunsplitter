@@ -1,22 +1,25 @@
 #!/usr/bin/env node
 
-// REC-RATCHET-02 immutable-fixture policy successor R8 / C10
+// REC-RATCHET-02 trusted GitHub Actions Git-environment successor R12 / C14
 //
-// Immutable Gate A and landed C9/Q evidence, one exact C10 correction route,
-// one structurally exact protected correction merge, one exact REC-02 r2
-// activation route, and one structurally exact closure merge. Each active
-// route consumes itself. The policy never publishes, deploys, tags, releases,
-// certifies, changes rulesets, or supplies credentials.
+// Immutable Gate A/C9/C10/S evidence, permanently consumed C11/C12/C13
+// topology, one exact C14 correction route, one structurally exact protected
+// correction merge, one exact REC-02 r2 activation route, and one structurally
+// exact closure merge. Each active route consumes itself. The policy never
+// publishes, deploys, tags, releases, certifies, changes rulesets, or supplies
+// credentials.
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   appendFileSync,
+  closeSync,
   existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
   readdirSync,
   realpathSync,
@@ -31,6 +34,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const ABSOLUTE_GIT = "/usr/bin/git";
 
 const EXPECTED_REPOSITORY = "mbains89/Sunsplitter";
 const RECOVERY_BRANCH = "recovery/e4f8440-nopub";
@@ -45,6 +49,10 @@ const FAILED_POLICY_CORRECTION_BRANCHES = Object.freeze([
 ]);
 const C9_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r7";
 const POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r8";
+const C11_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r9";
+const C12_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r10";
+const C13_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r11";
+const C14_POLICY_CORRECTION_BRANCH = "ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12";
 const FUTURE_BRANCH = "ticket/0.30.1-rec-02-r2";
 const AUTHORIZED_PATCH_TARGET_BRANCH = "ticket/0.30.1-rec-02-r1";
 const RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
@@ -62,6 +70,32 @@ const C9_MANIFEST_SHA256 = "ae2e4309600269afc3ef9a81ce9eec0e9b0c02e7caed6feebbf7
 const C9_MERGE_SHA = "31642c3644a58e9f5fc007bff648dc6146dabcfb";
 const C9_MERGE_TREE = "103a4ccf5c1511d225d67870e6fb87e64b992de4";
 const C9_MERGE_RAW_SHA256 = "41b8269ef543b5177430ac5e9bd1aeba07f1a4b0f40bd83d96435326e67a9322";
+const C10_HEAD_SHA = "800ccc876d6d784a6851ca8ff74dbff7467bd1ff";
+const C10_HEAD_TREE = "ea2c992bbb083eecf32404b21a11afc436a5f3c3";
+const C10_HEAD_RAW_SHA256 = "d4a995a8f8317cb99f4cc1d85976f0b0da446b9196494cc93500f27635732f9e";
+const C10_MANIFEST_SHA256 = "6679fedec181ab750195761ad510dd010cf1bdd209dfa8c89ed469b63413425d";
+const C10_MERGE_SHA = "5995e344dbdbc18ce83186359ba9838fcf69c37e";
+const C10_MERGE_TREE = "ea2c992bbb083eecf32404b21a11afc436a5f3c3";
+const C10_MERGE_RAW_SHA256 = "3740cabe584ceb7f7663ab3186b1bc87a947add89a440860a4c32a67b198839e";
+
+const C11_HEAD_SHA = "8a6dcc0fd99e7ace4cd3cea2e6d2030179f681e5";
+const C11_HEAD_TREE = "78021c8d4a766bb4928226494dcbaab9c978e32c";
+const C11_MERGE_SHA = "34483057eafed92bcc091215bd6854f0bf37d83a";
+const C11_REVIEW_MERGE_SHA = "5ad492ae49197bec85fb68b4dbd64ee6918bffca";
+const C11_REVIEW_MERGE_TREE = "77b45e46340a286d456098a831c402034bce4bca";
+const C11_TRANSITION_SHA = "12345903c07a612431f3a05de69cc97c6b1cab60";
+const C12_HEAD_SHA = "9612d4bbbcdbf91344b0852ee512a93c7ea5d1ae";
+const C12_HEAD_TREE = "95438204b89cfcf9bc53d899dd40fc34836ce332";
+const C12_MERGE_SHA = "e2872b2f3e7d37d7c024bbb6943cf008c2942e69";
+const C12_REVIEW_MERGE_SHA = "de65821d54d197209e975f428706754de730ee3e";
+const C12_REVIEW_MERGE_TREE = "ea2bcfa7d3bd2123bc2f582580d50debf73d3877";
+const C12_TRANSITION_SHA = "2fd56a0f18c1f3947b6ce198376a96f26f5c1f64";
+const C13_HEAD_SHA = "1dc0f80519db4b42add7010c5b3a6749b059019c";
+const C13_HEAD_TREE = "f11bd7bf46099f9579af3fb031361f3b4105405f";
+const C13_REVIEW_MERGE_SHA = "abcf29245e387a744a7b3810b956fa7164ac7f39";
+const C13_FUTURE_SHA = "aedb8526ab0de685a037fc22c341e8f0b6f041d3";
+const C13_FUTURE_TREE = "10bc158a1c8f66cfea0f1937149d20f7a32dfa54";
+const C13_TRANSITION_SHA = "d5628b1f4e9c5e642c5922070e4e6e10bcbd8b5e";
 const ACTIVE_BASELINE_PATH = "scripts/fixtures/pipe-boot-r1-simulation-baseline.json";
 const INACTIVE_BASELINE_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_BASELINE.json";
 const PATCH_ARTIFACT_PATH = "artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json";
@@ -76,11 +110,33 @@ const NO_PUBLISH_TOKEN = "NO-PUBLISH / NOT CERTIFIED";
 const GATE_A_COMMIT_TITLE = "REC-RATCHET-02: pin exact REC-02 recovery projection";
 const C9_POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: retire C8 with receipt-safe verifier handoff";
 const POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: seal immutable correction fixtures";
+const C14_POLICY_CORRECTION_COMMIT_TITLE = "REC-RATCHET-02: bind trusted GitHub Actions Git environment";
 const FUTURE_COMMIT_TITLE = "REC-02: apply authorized zero-exit projection";
 const GATE_A_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787443200 -0500";
 const C9_POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787792400 -0500";
 const POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1787965200 -0500";
+const C14_POLICY_CORRECTION_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1788656400 -0500";
 const FUTURE_AUTHOR = "Sunsplitter Recovery Build <noreply@openai.com> 1788051600 -0500";
+
+const C14_CHANGED_PATHS = Object.freeze([
+  RELEASE_WORKFLOW_PATH,
+  STATUS_PATH,
+  POLICY_CORRECTION_RECORD_PATH,
+  PATCH_ARTIFACT_PATH,
+  POLICY_PATH
+].sort());
+
+const C14_POLICY_PROJECTION_SHA256 = "b36b21a9be35969ca6b1f06a8b0ff2745b2329cfd444d5b589cd8abc9961772c";
+const C14_CANDIDATE_INVENTORY_SHA256 = "1c76ef4f8ddb6c79b818ac140836d6494620934c620d97e27c2c3374d815cd02";
+const C14_FUTURE_INVENTORY_SHA256 = "96fba426ad3f5a72a4689ae0ab70d76573c9114eaea9544a4f23b796016d295f";
+const C14_RELEASE_WORKFLOW_SHA256 = "2107c374e43e42fb808908d770439fe15803f9ee1dd55c162a41779d764ef7e1";
+const C14_RELEASE_WORKFLOW_BLOB = "830c93e93aac72d555b163931f141839cf452422";
+const C14_RELEASE_WORKFLOW_BYTES = 2402;
+const C14_STATUS_SHA256 = "d948c3259f037393ca7b76cc0c5f932b96d950d69ba9169ec01cd8f2f5aef0b3";
+const C14_RECORD_SHA256 = "e0c6bb7ff53e930e3f73b618764d15d6797f3dc69c1efc643ea0cf93f31c75f1";
+const C14_PATCH_SHA256 = "9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551";
+const C14_PATCH_BLOB = "00f53e6fe2dc3787ccde36cb9e85f63d24c02950";
+const C14_PATCH_BYTES = 37735;
 
 const GATE_A_POLICY_PROJECTION_SHA256 = "02bd44d53b1160a992071de4add1774cd9062f0a1949b9b9985adb301387e4a5";
 const C9_POLICY_PROJECTION_SHA256 = "6e44343fc7f892494c4477991b2a11e0f150215ae2a9bf955508a225a3014f27";
@@ -139,6 +195,36 @@ const ART_R2_COMBINED_VERIFY_BLOB = "b1cbd17b732c7c3b8d72d123dbed7874791f5906";
 const ART_R2_COMBINED_TREE = "558a4d6d1fb491d6bd7cd3c07f0482ad6e35a482";
 const ART_R2_COMBINED_MANIFEST_SHA256 = "0973fcfeaab8370fd5e7e36ddef089b6f7eedaa4ed386b5e6f2bf3a83c116609";
 const ART_R2_TRANSFORM_FUNCTION_SHA256 = "aedfce193f9fe9ed3ec975b848cea82d2aac70943dad2ea2d628b63ed40c51e7";
+
+const HISTORICAL_REC02_SEAL = Object.freeze({
+  id: "gate-a-through-c10",
+  targetBranch: AUTHORIZED_PATCH_TARGET_BRANCH,
+  patchArtifactSha256: PATCH_ARTIFACT_SHA256,
+  embeddedPatchSha256: EMBEDDED_PATCH_SHA256,
+  functionalTree: FUNCTIONAL_TREE,
+  functionalManifestSha256: FUNCTIONAL_MANIFEST_SHA256,
+  verifySha256: REC_02_VERIFY_SHA256,
+  verifyBlob: REC_02_VERIFY_BLOB,
+  combinedVerifySha256: ART_R2_COMBINED_VERIFY_SHA256,
+  combinedVerifyBlob: ART_R2_COMBINED_VERIFY_BLOB,
+  combinedTree: ART_R2_COMBINED_TREE,
+  combinedManifestSha256: ART_R2_COMBINED_MANIFEST_SHA256
+});
+
+const ACTIVE_REC02_SEAL = Object.freeze({
+  id: "c14-r12-active",
+  targetBranch: FUTURE_BRANCH,
+  patchArtifactSha256: C14_PATCH_SHA256,
+  embeddedPatchSha256: "cee97660f7e472aeefee119c9e3679a6f10a7614541e283a80d70a47377665fb",
+  functionalTree: "b0f2be69ef549e4ccf65005b8298056294c14716",
+  functionalManifestSha256: "cf8510273f64c63f8c423c5049b0b3d7b724d11ddc9b5c0ed5eebacb5402cebb",
+  verifySha256: "654548f791ceebd842126ea06e603a452ffb54ba1db7a2363c68fd351ddd4f0c",
+  verifyBlob: "3b06c7164e1da5f1d1c080bc016aa349f984d31e",
+  combinedVerifySha256: "46f5504c5362e464726b6dc881e9aa024b54542767f065797dec1cbc6e491b08",
+  combinedVerifyBlob: "595c3f018716d244735adb39084ed0a9623a4db5",
+  combinedTree: "1ed5bffeebc01b6cbdacd886c26044db34ba1000",
+  combinedManifestSha256: "07498803ed5d2a41bbfd557d57e3b88e6a6f73f195a7cbda0d6969557a8973c2"
+});
 
 const FAILED_REC_02_R1_HEAD = "bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e";
 const FAILED_REC_02_R1_TREE = "34fa0adbfb027e01448a1a0771c8ff5af3997e26";
@@ -243,6 +329,37 @@ const FORBIDDEN_DERIVED_OBJECTS = Object.freeze([
   ART_R2_COMBINED_VERIFY_BLOB
 ]);
 const FORBIDDEN_OBJECT_INVENTORY_SHA256 = "d6361bf849be1e2721c1871d84c1f8f569348edc401e08650ca6550bcc5d62d8";
+
+const ACTIVE_FORBIDDEN_DERIVED_OBJECTS = Object.freeze([
+  ACTIVE_REC02_SEAL.functionalTree,
+  ACTIVE_REC02_SEAL.combinedTree,
+  ACTIVE_REC02_SEAL.verifyBlob,
+  ACTIVE_REC02_SEAL.combinedVerifyBlob
+]);
+const CONSUMED_C11_OBJECTS = Object.freeze([
+  C11_HEAD_SHA,
+  C11_HEAD_TREE,
+  C11_MERGE_SHA,
+  C11_REVIEW_MERGE_SHA,
+  C11_REVIEW_MERGE_TREE,
+  C11_TRANSITION_SHA
+]);
+const CONSUMED_C12_OBJECTS = Object.freeze([
+  C12_HEAD_SHA,
+  C12_HEAD_TREE,
+  C12_MERGE_SHA,
+  C12_REVIEW_MERGE_SHA,
+  C12_REVIEW_MERGE_TREE,
+  C12_TRANSITION_SHA
+]);
+const CONSUMED_C13_OBJECTS = Object.freeze([
+  C13_HEAD_SHA,
+  C13_HEAD_TREE,
+  C13_REVIEW_MERGE_SHA,
+  C13_FUTURE_SHA,
+  C13_FUTURE_TREE,
+  C13_TRANSITION_SHA
+]);
 
 const ART_R2_SEALED_MANIFEST = `100644 25bae8f0f4fb2a031890aa8c81b58c7d611b71e2 d4512affd47ae29e6e8d9e711fd095b8273767de02f7bec06d1d4c5a9a33f29f\tartifacts/ART-INTEGRATION-R2-55_RECORD.json
 100644 a5fbd220d7dcec9182ef22a5dcc4124ac30921e5 aef2f5bfa39b24a4e7b34fcd638bb0c9f17cd3d7f70152c2a13b84c890e4fb38\timages/act2_tether_dock.jpg
@@ -367,7 +484,16 @@ const GATE_A_FIXED_SHA256 = Object.freeze({
   [TRANSITION_PATH]: TRANSITION_SHA256
 });
 
+const LEGACY_PROJECTION_CONSTANT_NAMES = Object.freeze([
+  "POLICY_PROJECTION_SHA256",
+  "TRANSITION_SHA256"
+]);
 const PROJECTION_CONSTANT_NAMES = Object.freeze([
+  "C14_POLICY_PROJECTION_SHA256",
+  "C14_CANDIDATE_INVENTORY_SHA256",
+  "C14_FUTURE_INVENTORY_SHA256",
+  "C14_STATUS_SHA256",
+  "C14_RECORD_SHA256",
   "POLICY_PROJECTION_SHA256",
   "TRANSITION_SHA256"
 ]);
@@ -443,6 +569,76 @@ function gitObjectOid(type, bytes) {
 
 let gitInvocationObserver = null;
 
+const REQUIRED_REPOSITORY_GIT_ENVIRONMENT = Object.freeze({
+  GIT_CONFIG_GLOBAL: "/dev/null",
+  GIT_CONFIG_NOSYSTEM: "1",
+  GIT_OPTIONAL_LOCKS: "0",
+  GIT_TERMINAL_PROMPT: "0"
+});
+const POLICY_CHILD_GIT_ENVIRONMENT = Object.freeze({
+  GIT_CONFIG_SYSTEM: "/dev/null",
+  GIT_NO_LAZY_FETCH: "1"
+});
+
+export function assertSafeGitEnvironment(environment = process.env) {
+  const source = environment && typeof environment === "object" ? environment : {};
+  const names = Object.keys(source).filter(name => name.startsWith("GIT_")).sort();
+  const unsafe = [];
+  for (const [name, expected] of Object.entries(REQUIRED_REPOSITORY_GIT_ENVIRONMENT)) {
+    if (!Object.hasOwn(source, name) || source[name] !== expected) unsafe.push(name);
+  }
+  for (const name of names) {
+    if (Object.hasOwn(REQUIRED_REPOSITORY_GIT_ENVIRONMENT, name)) continue;
+    if (name !== "GIT_PAGER" || source[name] !== "cat") unsafe.push(name);
+  }
+  const uniqueUnsafe = [...new Set(unsafe)].sort();
+  if (uniqueUnsafe.length) {
+    throw new Error(`unsafe Git environment: ${uniqueUnsafe.join(", ")}`);
+  }
+  return Object.freeze({
+    ...REQUIRED_REPOSITORY_GIT_ENVIRONMENT,
+    ...(source.GIT_PAGER === "cat" ? { GIT_PAGER: "cat" } : {})
+  });
+}
+
+function sanitizedChildGitEnvironment(overrides = {}) {
+  const validated = assertSafeGitEnvironment(process.env);
+  const source = overrides && typeof overrides === "object" ? overrides : {};
+  const child = { ...process.env };
+  for (const name of Object.keys(child)) {
+    if (name.startsWith("GIT_")) delete child[name];
+  }
+  Object.assign(child, REQUIRED_REPOSITORY_GIT_ENVIRONMENT, POLICY_CHILD_GIT_ENVIRONMENT);
+  if (validated.GIT_PAGER === "cat") child.GIT_PAGER = "cat";
+
+  for (const [name, value] of Object.entries(source)) {
+    if (!name.startsWith("GIT_")) {
+      child[name] = value;
+      continue;
+    }
+    if (Object.hasOwn(REQUIRED_REPOSITORY_GIT_ENVIRONMENT, name)) {
+      if (value !== REQUIRED_REPOSITORY_GIT_ENVIRONMENT[name]) {
+        throw new Error(`policy Git child override is unsafe: ${name}`);
+      }
+      child[name] = value;
+      continue;
+    }
+    if (Object.hasOwn(POLICY_CHILD_GIT_ENVIRONMENT, name)) {
+      if (value !== POLICY_CHILD_GIT_ENVIRONMENT[name]) {
+        throw new Error(`policy Git child override is unsafe: ${name}`);
+      }
+      child[name] = value;
+      continue;
+    }
+    if (name === "GIT_PAGER" && value === "cat") {
+      child[name] = value;
+      continue;
+    }
+    throw new Error(`policy Git child override is unsafe: ${name}`);
+  }
+  return child;
+}
+
 function withGitInvocationAudit(callback) {
   assert.equal(gitInvocationObserver, null, "nested Git invocation audit is forbidden");
   const calls = [];
@@ -454,23 +650,76 @@ function withGitInvocationAudit(callback) {
   }
 }
 
-function runGit(args, { input, env, allowFailure = false, cwd = ROOT } = {}) {
-  gitInvocationObserver?.({ args: [...args], cwd });
-  const result = spawnSync("git", args, {
+function runGit(args, {
+  input,
+  inputPath,
+  outputPath,
+  env,
+  allowFailure = false,
+  cwd = ROOT
+} = {}) {
+  const childEnvironment = sanitizedChildGitEnvironment(env);
+  const gitEnvironmentNames = Object.keys(childEnvironment).filter(name => name.startsWith("GIT_")).sort();
+  const expectedGitEnvironmentNames = [
+    ...Object.keys(REQUIRED_REPOSITORY_GIT_ENVIRONMENT),
+    ...Object.keys(POLICY_CHILD_GIT_ENVIRONMENT),
+    ...(process.env.GIT_PAGER === "cat" ? ["GIT_PAGER"] : [])
+  ].sort();
+  assert.deepEqual(
+    gitEnvironmentNames,
+    expectedGitEnvironmentNames,
+    "policy-owned Git child environment differs from the exact authorized inventory"
+  );
+  gitInvocationObserver?.({
+    args: [...args],
     cwd,
-    env: env ? { ...process.env, ...env } : process.env,
-    input,
-    encoding: null,
-    maxBuffer: 32 * 1024 * 1024
+    executable: ABSOLUTE_GIT,
+    gitEnvironmentNames
   });
-  if (!allowFailure && result.status !== 0) {
-    const detail = Buffer.concat([
-      Buffer.from(result.stdout || ""),
-      Buffer.from(result.stderr || "")
-    ]).toString("utf8").trim();
-    throw new Error(`git ${args.join(" ")} failed (${result.status}): ${detail}`);
+  let temporaryInputRoot = null;
+  let inputFd = null;
+  let outputFd = null;
+  try {
+    if (input !== undefined && inputPath !== undefined) {
+      throw new Error("Git input bytes and input path are mutually exclusive");
+    }
+    if (input !== undefined) {
+      temporaryInputRoot = mkdtempSync(join(tmpdir(), "sunsplitter-c14-git-input-"));
+      const temporaryInputPath = join(temporaryInputRoot, "stdin");
+      writeFileSync(temporaryInputPath, input, { flag: "wx", mode: 0o600 });
+      inputFd = openSync(temporaryInputPath, "r");
+    } else if (inputPath !== undefined) {
+      const physicalInput = realpathSync(inputPath);
+      if (physicalInput !== inputPath || !lstatSync(physicalInput).isFile()) {
+        throw new Error("Git input path is not one physical regular file");
+      }
+      inputFd = openSync(physicalInput, "r");
+    }
+    if (outputPath !== undefined) outputFd = openSync(outputPath, "wx", 0o600);
+    const options = {
+      cwd,
+      env: childEnvironment,
+      encoding: null,
+      maxBuffer: 32 * 1024 * 1024,
+      shell: false
+    };
+    if (inputFd !== null || outputFd !== null) {
+      options.stdio = [inputFd ?? "ignore", outputFd ?? "pipe", "pipe"];
+    }
+    const result = spawnSync(ABSOLUTE_GIT, args, options);
+    if (!allowFailure && (result.error || result.status !== 0)) {
+      const detail = Buffer.concat([
+        Buffer.from(result.stdout || ""),
+        Buffer.from(result.stderr || "")
+      ]).toString("utf8").trim();
+      throw new Error(`git ${args.join(" ")} failed (${result.status}): ${detail || result.error?.message || "unknown failure"}`);
+    }
+    return result;
+  } finally {
+    if (inputFd !== null) closeSync(inputFd);
+    if (outputFd !== null) closeSync(outputFd);
+    if (temporaryInputRoot !== null) rmSync(temporaryInputRoot, { recursive: true, force: true });
   }
-  return result;
 }
 
 function gitBytes(args, options) {
@@ -522,13 +771,13 @@ function commitHeaders(ref, repoRoot = ROOT) {
   return { ...raw, tree, parents, headerLines, message: text.slice(split + 2) };
 }
 
-function fileIdentity(ref, path) {
-  const result = runGit(["ls-tree", "-z", ref, "--", path], { allowFailure: true });
+function fileIdentity(ref, path, repoRoot = ROOT) {
+  const result = runGit(["ls-tree", "-z", ref, "--", path], { allowFailure: true, cwd: repoRoot });
   if (result.status !== 0) return null;
   const raw = Buffer.from(result.stdout);
   const match = raw.toString("utf8").match(/^(\d{6}) blob ([0-9a-f]{40})\t([^\0]+)\0$/);
   if (!match || match[3] !== path) return null;
-  const bytesResult = runGit(["cat-file", "blob", match[2]], { allowFailure: true });
+  const bytesResult = runGit(["cat-file", "blob", match[2]], { allowFailure: true, cwd: repoRoot });
   if (bytesResult.status !== 0) return null;
   const bytes = Buffer.from(bytesResult.stdout);
   if (gitObjectOid("blob", bytes) !== match[2]) return null;
@@ -555,8 +804,8 @@ function sameList(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
-function canonicalRecords(ref, paths) {
-  return paths.map(path => fileIdentity(ref, path));
+function canonicalRecords(ref, paths, repoRoot = ROOT) {
+  return paths.map(path => fileIdentity(ref, path, repoRoot));
 }
 
 function canonicalManifest(records) {
@@ -588,7 +837,10 @@ function canonicalRawCommit(tree, parent, author, title, records) {
 function normalizedPolicyBytes(bytes) {
   let text = bytes.toString("utf8");
   if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("policy source is not lossless UTF-8");
-  for (const name of PROJECTION_CONSTANT_NAMES) {
+  const names = text.includes("const C14_POLICY_PROJECTION_SHA256 =")
+    ? PROJECTION_CONSTANT_NAMES
+    : LEGACY_PROJECTION_CONSTANT_NAMES;
+  for (const name of names) {
     const pattern = new RegExp(`(const ${name} = \")[0-9a-f]{64}(\";)`, "g");
     const matches = [...text.matchAll(pattern)];
     if (matches.length !== 1) throw new Error(`${name} must occur exactly once`);
@@ -616,26 +868,14 @@ function parseJson(bytes, label, errors) {
   }
 }
 
-function stagedIdentity(indexPath, path) {
-  const env = { GIT_INDEX_FILE: indexPath };
-  const row = gitText(["ls-files", "-s", "--", path], { env });
-  const match = row.match(/^(\d{6}) ([0-9a-f]{40}) 0\t(.+)$/);
-  if (!match || match[3] !== path) return null;
-  const bytes = gitBytes(["cat-file", "blob", match[2]]);
-  return { mode: match[1], blob: match[2], sha256: sha256(bytes), byteLength: bytes.length };
-}
-
-function updateIndexBytes(indexPath, path, bytes, mode = "100644") {
+function identityFromBytes(bytes, mode = "100644") {
   const blob = gitText(["hash-object", "-w", "--stdin"], { input: bytes });
-  runGit(["update-index", "--add", "--cacheinfo", `${mode},${blob},${path}`], {
-    env: { GIT_INDEX_FILE: indexPath }
-  });
-  return blob;
+  return { mode, blob, sha256: sha256(bytes), byteLength: bytes.length };
 }
 
 const projectionCache = new Map();
 
-function validateProjectionArtifacts(ref) {
+function validateProjectionArtifacts(ref, seal = HISTORICAL_REC02_SEAL) {
   const errors = [];
   const baselineIdentity = fileIdentity(ref, INACTIVE_BASELINE_PATH);
   const patchIdentity = fileIdentity(ref, PATCH_ARTIFACT_PATH);
@@ -644,11 +884,11 @@ function validateProjectionArtifacts(ref) {
     if (!patchIdentity) errors.push("authorized REC-02 patch artifact is missing");
     return { errors };
   }
-  const cacheKey = `${baselineIdentity.blob}:${patchIdentity.blob}`;
+  const cacheKey = `${seal.id}:${baselineIdentity.blob}:${patchIdentity.blob}`;
   if (projectionCache.has(cacheKey)) return structuredClone(projectionCache.get(cacheKey));
 
   if (baselineIdentity.sha256 !== INACTIVE_BASELINE_SHA256) errors.push("inactive REC-02 baseline bytes drifted");
-  if (patchIdentity.sha256 !== PATCH_ARTIFACT_SHA256) errors.push("authorized REC-02 patch artifact bytes drifted");
+  if (patchIdentity.sha256 !== seal.patchArtifactSha256) errors.push("authorized REC-02 patch artifact bytes drifted");
   const baseline = parseJson(baselineIdentity.bytes, "inactive baseline", errors);
   const artifact = parseJson(patchIdentity.bytes, "patch artifact", errors);
 
@@ -712,15 +952,15 @@ function validateProjectionArtifacts(ref) {
     if (artifact.authority?.baseCommit !== GATE_A_BASE_SHA || artifact.authority?.baseTree !== GATE_A_BASE_TREE) {
       errors.push("patch artifact base identity drifted");
     }
-    if (artifact.authority?.targetBranch !== AUTHORIZED_PATCH_TARGET_BRANCH) errors.push("patch artifact target branch drifted");
+    if (artifact.authority?.targetBranch !== seal.targetBranch) errors.push("patch artifact target branch drifted");
     const governed = [
       "cut_out", "vent", "past_leak", "vault_voice", "arc_future_1",
       "act3_reckoning_heading", "pregnancy_check", "custody_possession", "custody_thaw"
     ];
     if (!sameList(artifact.authority?.governedScenes || [], governed)) errors.push("patch artifact governed-scene inventory drifted");
     const patchBytes = Buffer.from(artifact.patch?.unifiedDiff || "", "utf8");
-    if (patchBytes.length !== artifact.patch?.byteLength || sha256(patchBytes) !== EMBEDDED_PATCH_SHA256
-      || artifact.patch?.sha256 !== EMBEDDED_PATCH_SHA256) {
+    if (patchBytes.length !== artifact.patch?.byteLength || sha256(patchBytes) !== seal.embeddedPatchSha256
+      || artifact.patch?.sha256 !== seal.embeddedPatchSha256) {
       errors.push("embedded full-index patch bytes drifted");
     }
     const filePaths = (artifact.files || []).map(row => row.path);
@@ -760,44 +1000,34 @@ function validateProjectionArtifacts(ref) {
     }
 
     if (errors.length === 0) {
-      const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-projection-"));
-      const indexPath = join(parent, "index");
-      const env = { GIT_INDEX_FILE: indexPath };
-      runGit(["read-tree", GATE_A_BASE_SHA], { env });
-      const applied = runGit(["apply", "--cached", "--whitespace=error-all", "--verbose", "-"], {
-        env,
-        input: patchBytes,
-        allowFailure: true
-      });
-      const transcript = Buffer.concat([
-        Buffer.from(applied.stdout || ""), Buffer.from(applied.stderr || "")
-      ]).toString("utf8");
-      if (applied.status !== 0) errors.push(`strict patch reconstruction failed: ${transcript.trim()}`);
-      if (/\b(?:offset|fuzz)\b/i.test(transcript)) errors.push("strict patch reconstruction reported offset or fuzz");
-      if (applied.status === 0) {
+      try {
+        const reconstructed = reconstructPatchTree(GATE_A_BASE_SHA, artifact, {
+          [ACTIVE_BASELINE_PATH]: { bytes: baselineIdentity.bytes, mode: baselineIdentity.mode }
+        });
         for (const row of artifact.files || []) {
-          const staged = stagedIdentity(indexPath, row.path);
-          if (!staged || staged.mode !== row.output?.mode || staged.blob !== row.output?.blob
-            || staged.sha256 !== row.output?.sha256 || staged.byteLength !== row.output?.byteLength) {
+          const output = reconstructed.records.find(record => record.path === row.path);
+          if (!output || output.mode !== row.output?.mode || output.blob !== row.output?.blob
+            || output.sha256 !== row.output?.sha256 || output.byteLength !== row.output?.byteLength) {
             errors.push(`${row.path}: reconstructed output identity drifted`);
           }
         }
-        updateIndexBytes(indexPath, ACTIVE_BASELINE_PATH, baselineIdentity.bytes, baselineIdentity.mode);
-        const tree = gitText(["write-tree"], { env });
-        if (tree !== FUNCTIONAL_TREE || tree !== artifact.functionalProjection?.tree) {
-          errors.push(`functional projection tree ${tree || "missing"} != ${FUNCTIONAL_TREE}`);
+        const tree = reconstructed.tree;
+        if (tree !== seal.functionalTree || tree !== artifact.functionalProjection?.tree) {
+          errors.push(`functional projection tree ${tree || "missing"} != ${seal.functionalTree}`);
         }
         const manifestRows = [
-          { path: ACTIVE_BASELINE_PATH, ...stagedIdentity(indexPath, ACTIVE_BASELINE_PATH) },
-          ...(artifact.files || []).map(row => ({ path: row.path, ...stagedIdentity(indexPath, row.path) }))
+          { path: ACTIVE_BASELINE_PATH, ...identityFromBytes(baselineIdentity.bytes, baselineIdentity.mode) },
+          ...reconstructed.records
         ].sort((left, right) => left.path.localeCompare(right.path));
         const manifest = manifestRows.map(row => `${row.mode} ${row.blob} ${row.sha256}\t${row.path}\n`).join("");
-        if (sha256(Buffer.from(manifest)) !== FUNCTIONAL_MANIFEST_SHA256
-          || artifact.functionalProjection?.canonicalManifestSha256 !== FUNCTIONAL_MANIFEST_SHA256
+        if (sha256(Buffer.from(manifest)) !== seal.functionalManifestSha256
+          || artifact.functionalProjection?.canonicalManifestSha256 !== seal.functionalManifestSha256
           || artifact.functionalProjection?.canonicalManifest !== manifest) {
           errors.push("functional projection canonical manifest drifted");
         }
-        functional = { tree, transcript, manifest, records: manifestRows };
+        functional = { tree, transcript: reconstructed.transcript, manifest, records: manifestRows };
+      } catch (error) {
+        errors.push(error.message);
       }
     }
   }
@@ -883,7 +1113,7 @@ function sealedManifestRecords(source = ART_R2_SEALED_MANIFEST) {
   return records;
 }
 
-export function forbiddenObjectInventory(source = ART_R2_SEALED_MANIFEST) {
+function legacyForbiddenObjectInventory(source = ART_R2_SEALED_MANIFEST) {
   const bytes = Buffer.from(source, "utf8");
   assert.equal(bytes.length, ART_R2_SEALED_MANIFEST_BYTES, "sealed ART-R2 manifest byte length drifted");
   assert.equal(sha256(bytes), ART_R2_SEALED_MANIFEST_SHA256, "sealed ART-R2 manifest SHA-256 drifted");
@@ -919,10 +1149,77 @@ export function forbiddenObjectInventory(source = ART_R2_SEALED_MANIFEST) {
   };
 }
 
-function assertForbiddenObjectInventoryIdentity(actual) {
+export function forbiddenObjectInventory(route = "c14", source = ART_R2_SEALED_MANIFEST) {
+  assert.ok(route === "c14" || route === "rec-02", `unsupported forbidden-object route ${route}`);
+  const bytes = Buffer.from(source, "utf8");
+  assert.equal(bytes.length, ART_R2_SEALED_MANIFEST_BYTES, "sealed ART-R2 manifest byte length drifted");
+  assert.equal(sha256(bytes), ART_R2_SEALED_MANIFEST_SHA256, "sealed ART-R2 manifest SHA-256 drifted");
+
+  const activeDerived = route === "c14"
+    ? ACTIVE_FORBIDDEN_DERIVED_OBJECTS
+    : ACTIVE_FORBIDDEN_DERIVED_OBJECTS.filter(oid => oid !== ACTIVE_REC02_SEAL.verifyBlob);
+  const groups = {
+    failedIdentityObjects: FAILED_IDENTITIES.flatMap(identity => [identity.head, identity.tree]),
+    artRoots: [ART_R2_HEAD, ART_R2_TREE],
+    artBlobs: sealedManifestRecords(source).map(record => record.blob),
+    consumedC11Objects: [...CONSUMED_C11_OBJECTS],
+    consumedC12Objects: [...CONSUMED_C12_OBJECTS],
+    consumedC13Objects: [...CONSUMED_C13_OBJECTS],
+    derived: [...FORBIDDEN_DERIVED_OBJECTS, ...activeDerived]
+  };
+  const expected = {
+    failedIdentityObjects: 18,
+    artRoots: 2,
+    artBlobs: 79,
+    consumedC11Objects: 6,
+    consumedC12Objects: 6,
+    consumedC13Objects: 6,
+    derived: route === "c14" ? 8 : 7
+  };
+  for (const [group, count] of Object.entries(expected)) {
+    assert.equal(groups[group].length, count, `${group} count drifted`);
+    assert.ok(groups[group].every(oid => FULL_SHA_RE.test(oid)), `${group} contains an invalid SHA-1`);
+  }
+  const objects = Object.values(groups).flat().sort();
+  assert.equal(new Set(objects).size, objects.length, "forbidden-object inventory has duplicate OIDs");
+  assert.equal(objects.length, route === "c14" ? 125 : 124, "forbidden-object inventory count drifted");
+  return {
+    counts: {
+      artBlobs: groups.artBlobs.length,
+      artRoots: groups.artRoots.length,
+      consumedC11Objects: groups.consumedC11Objects.length,
+      consumedC12Objects: groups.consumedC12Objects.length,
+      consumedC13Objects: groups.consumedC13Objects.length,
+      derived: groups.derived.length,
+      failedIdentityObjects: groups.failedIdentityObjects.length,
+      total: objects.length
+    },
+    objects,
+    route,
+    sealedManifest: {
+      byteLength: bytes.length,
+      sha256: ART_R2_SEALED_MANIFEST_SHA256
+    },
+    schemaVersion: 2
+  };
+}
+
+export function forbiddenObjectInventories(source = ART_R2_SEALED_MANIFEST) {
+  return {
+    c14: forbiddenObjectInventory("c14", source),
+    "rec-02": forbiddenObjectInventory("rec-02", source)
+  };
+}
+
+function legacyAssertForbiddenObjectInventoryIdentity(actual) {
   if (actual !== FORBIDDEN_OBJECT_INVENTORY_SHA256) {
     throw new Error(`forbidden-object inventory ${actual} != ${FORBIDDEN_OBJECT_INVENTORY_SHA256}`);
   }
+}
+
+function assertForbiddenObjectInventoryIdentity(route, actual) {
+  const expected = route === "c14" ? C14_CANDIDATE_INVENTORY_SHA256 : C14_FUTURE_INVENTORY_SHA256;
+  if (actual !== expected) throw new Error(`forbidden-object inventory ${route} ${actual} != ${expected}`);
 }
 
 function objectTypes(oids, repoRoot = ROOT) {
@@ -1050,20 +1347,8 @@ function assertDirectoryHasNoSymlink(root, label) {
   }
 }
 
-export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment = process.env } = {}) {
-  const gitEnvironmentNames = [...new Set([
-    ...Object.keys(process.env),
-    ...Object.keys(environment)
-  ])].filter(name => name.startsWith("GIT_")).sort();
-  const safeGitEnvironment = new Map([["GIT_PAGER", "cat"]]);
-  const unsafeEnvironment = gitEnvironmentNames.filter(name => {
-    const allowed = safeGitEnvironment.get(name);
-    if (allowed === undefined) return true;
-    return [process.env[name], environment[name]]
-      .filter(value => value !== undefined)
-      .some(value => value !== allowed);
-  });
-  if (unsafeEnvironment.length) throw new Error(`candidate-only checkout has unsafe Git environment: ${unsafeEnvironment.join(", ")}`);
+function legacyCandidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment = process.env } = {}) {
+  assertSafeGitEnvironment({ ...process.env, ...environment });
 
   const requestedRoot = resolve(repoRoot);
   const physicalRoot = realpathSync(requestedRoot);
@@ -1189,6 +1474,140 @@ export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment =
   };
 }
 
+export function candidateOnlyObjectStoreReceipt({ repoRoot = ROOT, environment = process.env } = {}) {
+  assertSafeGitEnvironment(environment);
+
+  const requestedRoot = resolve(repoRoot);
+  const physicalRoot = realpathSync(requestedRoot);
+  if (requestedRoot !== physicalRoot) throw new Error("candidate-only checkout root is symlinked or redirected");
+
+  const dotGit = join(physicalRoot, ".git");
+  if (!existsSync(dotGit) || lstatSync(dotGit).isSymbolicLink() || !lstatSync(dotGit).isDirectory()) {
+    throw new Error("candidate-only checkout .git entry is not a direct directory");
+  }
+  assertDirectoryHasNoSymlink(dotGit, "Git directory");
+  for (const legacyName of ["branches", "remotes"]) {
+    const legacyPath = join(dotGit, legacyName);
+    if (existsSync(legacyPath)
+      && (!lstatSync(legacyPath).isDirectory() || readdirSync(legacyPath).length > 0)) {
+      throw new Error(`candidate-only repository contains legacy Git ${legacyName}`);
+    }
+  }
+  for (const pseudoRef of [
+    "AUTO_MERGE", "BISECT_HEAD", "CHERRY_PICK_HEAD", "FETCH_HEAD", "MERGE_AUTOSTASH",
+    "MERGE_HEAD", "ORIG_HEAD", "REBASE_HEAD", "REVERT_HEAD"
+  ]) {
+    if (existsSync(join(dotGit, pseudoRef))) {
+      throw new Error(`candidate-only repository contains Git pseudoref ${pseudoRef}`);
+    }
+  }
+  if (existsSync(join(dotGit, "info", "grafts")) || existsSync(join(dotGit, "info", "refs"))) {
+    throw new Error("candidate-only repository contains legacy Git object/ref metadata");
+  }
+
+  const topLevel = realpathSync(resolve(requestedRoot, gitText(["rev-parse", "--show-toplevel"], { cwd: requestedRoot })));
+  if (topLevel !== physicalRoot) throw new Error("candidate-only repository does not match policy checkout root");
+  const gitDirPath = resolve(requestedRoot, gitText(["rev-parse", "--absolute-git-dir"], { cwd: requestedRoot }));
+  const commonDirPath = resolve(requestedRoot, gitText(["rev-parse", "--git-common-dir"], { cwd: requestedRoot }));
+  const objectsPath = resolve(requestedRoot, gitText(["rev-parse", "--git-path", "objects"], { cwd: requestedRoot }));
+  if (lstatSync(gitDirPath).isSymbolicLink() || lstatSync(objectsPath).isSymbolicLink()) {
+    throw new Error("candidate-only Git directory or object store is symlinked");
+  }
+  const gitDir = realpathSync(gitDirPath);
+  const commonDir = realpathSync(commonDirPath);
+  const objects = realpathSync(objectsPath);
+  if (realpathSync(dotGit) !== gitDir) throw new Error("candidate-only checkout .git directory is redirected");
+  if (commonDir !== gitDir || existsSync(join(gitDir, "commondir"))) throw new Error("candidate-only repository uses a common Git directory");
+  if (objects !== join(gitDir, "objects")) throw new Error("candidate-only repository redirects its object store");
+  if (existsSync(join(gitDir, "shallow"))) throw new Error("candidate-only repository is shallow");
+  if (existsSync(join(objects, "info", "alternates")) || existsSync(join(objects, "info", "http-alternates"))) {
+    throw new Error("candidate-only repository has object alternates");
+  }
+  const packDir = join(objects, "pack");
+  if (existsSync(packDir) && readdirSync(packDir).some(name => name.toLowerCase().endsWith(".promisor"))) {
+    throw new Error("candidate-only repository contains a promisor pack");
+  }
+  if (gitText(["rev-parse", "--show-object-format"], { cwd: requestedRoot }) !== "sha1") {
+    throw new Error("candidate-only repository is not SHA-1");
+  }
+  if (gitText(["for-each-ref", "--format=%(refname)"], { cwd: requestedRoot })) {
+    throw new Error("candidate-only repository contains refs or tags");
+  }
+  if (gitText(["remote"], { cwd: requestedRoot })) throw new Error("candidate-only repository contains a remote");
+
+  const config = runGit(
+    ["config", "--local", "--no-includes", "--null", "--name-only", "--list"],
+    { allowFailure: true, cwd: requestedRoot }
+  );
+  if (config.status !== 0) throw new Error("candidate-only repository configuration cannot be inspected");
+  if (existsSync(join(gitDir, "config.worktree"))) {
+    throw new Error("candidate-only repository has worktree-scoped Git configuration");
+  }
+  const unsafeConfig = Buffer.from(config.stdout).toString("utf8").split("\0").filter(Boolean).filter(raw => {
+    const name = raw.toLowerCase();
+    return /^extensions\./.test(name)
+      || name === "core.alternaterefscommand"
+      || name === "diff.external"
+      || /^diff\..*\.command$/.test(name)
+      || /^fsck\./.test(name)
+      || name === "include.path"
+      || /^includeif\..*\.path$/.test(name)
+      || /^remote\..*\.(promisor|partialclonefilter|fetch)$/.test(name);
+  }).sort();
+  if (unsafeConfig.length) throw new Error(`candidate-only repository has unsafe Git configuration: ${unsafeConfig.join(", ")}`);
+
+  const head = commitHeaders("HEAD", requestedRoot);
+  if (!head) throw new Error("candidate-only HEAD is not an independently framed commit");
+  if (!sameList(head.parents, [C10_MERGE_SHA])) throw new Error("candidate-only HEAD is not a direct child of exact S");
+  if (!sameList(changedPaths(C10_MERGE_SHA, head.oid, requestedRoot), C14_CHANGED_PATHS)) {
+    throw new Error("candidate-only HEAD does not have the exact five-path C14 scope");
+  }
+  for (const path of C14_CHANGED_PATHS) {
+    const identity = fileIdentity(head.oid, path, requestedRoot);
+    if (!identity || identity.mode !== "100644") throw new Error(`candidate-only ${path} is missing or not mode 100644`);
+  }
+
+  const controls = [
+    [RECOVERY_BASE_SHA, "commit"],
+    [GATE_A_BASE_SHA, "commit"],
+    [GATE_A_BASE_TREE, "tree"],
+    [GATE_A_HEAD_SHA, "commit"],
+    [GATE_A_MERGE_SHA, "commit"],
+    [GATE_A_MERGE_TREE, "tree"],
+    [C9_HEAD_SHA, "commit"],
+    [C9_MERGE_SHA, "commit"],
+    [C9_MERGE_TREE, "tree"],
+    [C10_HEAD_SHA, "commit"],
+    [C10_MERGE_SHA, "commit"],
+    [C10_MERGE_TREE, "tree"]
+  ];
+  const controlRows = objectTypes(controls.map(([oid]) => oid), requestedRoot);
+  for (let index = 0; index < controls.length; index += 1) {
+    if (controlRows[index].type !== controls[index][1]) {
+      throw new Error(`required control ${controlRows[index].oid} is ${controlRows[index].type}, expected ${controls[index][1]}`);
+    }
+  }
+
+  const inventory = forbiddenObjectInventory("c14");
+  const inventorySha256 = sha256(canonicalJsonBytes(inventory));
+  assertForbiddenObjectInventoryIdentity("c14", inventorySha256);
+  const forbiddenRows = objectTypes(inventory.objects, requestedRoot);
+  const present = forbiddenRows.filter(row => row.type !== "missing");
+  if (present.length) throw new Error(`forbidden objects present: ${present.map(row => `${row.oid}:${row.type}`).join(", ")}`);
+
+  const objectInventory = exactObjectInventory(requestedRoot);
+  return {
+    absent: forbiddenRows.length,
+    controlsPresent: controlRows.length,
+    head: head.oid,
+    inventorySha256,
+    objectInventory,
+    result: "PASS",
+    route: "c14",
+    schemaVersion: 3
+  };
+}
+
 function flatTreeRecords(ref) {
   const raw = gitBytes(["ls-tree", "-r", "-z", ref]);
   return raw.toString("utf8").split("\0").filter(Boolean).map(row => {
@@ -1298,9 +1717,9 @@ function sealedArtRawCommit() {
   ].join("\n"), "utf8");
 }
 
-function validateArtCompatibility(ref) {
+function validateArtCompatibility(ref, seal = HISTORICAL_REC02_SEAL) {
   const patchIdentity = fileIdentity(ref, PATCH_ARTIFACT_PATH);
-  const cacheKey = patchIdentity?.blob || "missing";
+  const cacheKey = `${seal.id}:${patchIdentity?.blob || "missing"}`;
   if (artCompatibilityCache.has(cacheKey)) return structuredClone(artCompatibilityCache.get(cacheKey));
   const errors = [];
   const sealedBytes = Buffer.from(ART_R2_SEALED_MANIFEST, "utf8");
@@ -1369,14 +1788,14 @@ function validateArtCompatibility(ref) {
     errors.push(`held ART verifier reconstruction failed closed: ${error.message}`);
   }
 
-  const projection = validateProjectionArtifacts(ref);
+  const projection = validateProjectionArtifacts(ref, seal);
   let recVerify = null;
   if (projection.errors.length) {
     errors.push(...projection.errors.map(error => `ART functional projection: ${error}`));
   } else if (projection.functional?.tree) {
     recVerify = fileIdentity(projection.functional.tree, "scripts/verify.mjs");
   }
-  if (!recVerify || recVerify.blob !== REC_02_VERIFY_BLOB || recVerify.sha256 !== REC_02_VERIFY_SHA256) {
+  if (!recVerify || recVerify.blob !== seal.verifyBlob || recVerify.sha256 !== seal.verifySha256) {
     errors.push("REC-02 verifier output identity drifted before ART transform");
   }
   try {
@@ -1384,8 +1803,8 @@ function validateArtCompatibility(ref) {
   } catch (error) {
     errors.push(`combined ART verifier reconstruction failed closed: ${error.message}`);
   }
-  if (!combinedVerify || gitObjectOid("blob", combinedVerify) !== ART_R2_COMBINED_VERIFY_BLOB
-    || sha256(combinedVerify) !== ART_R2_COMBINED_VERIFY_SHA256) {
+  if (!combinedVerify || gitObjectOid("blob", combinedVerify) !== seal.combinedVerifyBlob
+    || sha256(combinedVerify) !== seal.combinedVerifySha256) {
     errors.push("combined REC-02 + ART-R2 verifier identity drifted");
   }
 
@@ -1396,8 +1815,8 @@ function validateArtCompatibility(ref) {
       const functionalRecords = flatTreeRecords(projection.functional.tree);
       const combinedRecord = {
         mode: "100644",
-        blob: ART_R2_COMBINED_VERIFY_BLOB,
-        sha256: ART_R2_COMBINED_VERIFY_SHA256,
+        blob: seal.combinedVerifyBlob,
+        sha256: seal.combinedVerifySha256,
         path: "scripts/verify.mjs"
       };
       const combinedRecords = overlayTreeRecords(overlayTreeRecords(functionalRecords, sealedRecords), [combinedRecord]);
@@ -1414,8 +1833,8 @@ function validateArtCompatibility(ref) {
       const manifestRows = combinedPaths.map(path => evidenceByPath.get(path)).filter(Boolean);
       if (manifestRows.length !== combinedPaths.length) throw new Error("combined ART manifest lacks a changed-path identity");
       combinedManifest = contentManifestFromRecords(manifestRows);
-      if (combinedTree !== ART_R2_COMBINED_TREE) errors.push(`combined ART projection tree ${combinedTree} != ${ART_R2_COMBINED_TREE}`);
-      if (combinedManifest !== ART_R2_COMBINED_MANIFEST_SHA256) errors.push("combined ART projection manifest drifted");
+      if (combinedTree !== seal.combinedTree) errors.push(`combined ART projection tree ${combinedTree} != ${seal.combinedTree}`);
+      if (combinedManifest !== seal.combinedManifestSha256) errors.push("combined ART projection manifest drifted");
     } catch (error) {
       errors.push(`combined ART projection reconstruction failed: ${error.message}`);
     }
@@ -1431,14 +1850,14 @@ function validateArtCompatibility(ref) {
   return result;
 }
 
-function workflowSecurityErrors(ref) {
+function workflowSecurityErrors(ref, releaseWorkflowSha256 = RELEASE_WORKFLOW_SHA256) {
   const errors = [];
   const listing = gitText(["ls-tree", "-r", "--name-only", ref, "--", ".github/workflows"]);
   const names = listing ? listing.split(/\r?\n/).filter(Boolean).sort() : [];
   const expectedNames = [RELEASE_WORKFLOW_PATH, VERIFY_WORKFLOW_PATH].sort();
   if (!sameList(names, expectedNames)) errors.push(`workflow allowlist mismatch: ${names.join(", ") || "<none>"}`);
   const expectedHashes = {
-    [RELEASE_WORKFLOW_PATH]: RELEASE_WORKFLOW_SHA256,
+    [RELEASE_WORKFLOW_PATH]: releaseWorkflowSha256,
     [VERIFY_WORKFLOW_PATH]: VERIFY_WORKFLOW_SHA256
   };
   for (const path of names) {
@@ -2002,21 +2421,12 @@ function buildFutureTree(protectedMerge) {
   const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
   if (!patchIdentity || !baselineIdentity) throw new Error("future projection artifacts are missing");
   const artifact = JSON.parse(patchIdentity.bytes.toString("utf8"));
-  const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-future-"));
-  const indexPath = join(parent, "index");
-  const env = { GIT_INDEX_FILE: indexPath };
-  runGit(["read-tree", protectedMerge], { env });
-  const applied = runGit(["apply", "--cached", "--whitespace=error-all", "--verbose", "-"], {
-    env,
-    input: Buffer.from(artifact.patch.unifiedDiff, "utf8"),
-    allowFailure: true
+  const status = expectedFutureStatus(protectedMerge);
+  const reconstructed = reconstructPatchTree(protectedMerge, artifact, {
+    [ACTIVE_BASELINE_PATH]: { bytes: baselineIdentity.bytes, mode: baselineIdentity.mode },
+    [STATUS_PATH]: { bytes: status, mode: "100644" }
   });
-  const transcript = Buffer.concat([Buffer.from(applied.stdout || ""), Buffer.from(applied.stderr || "")]).toString("utf8");
-  if (applied.status !== 0 || /\b(?:offset|fuzz)\b/i.test(transcript)) throw new Error(`future strict patch application failed: ${transcript.trim()}`);
-  updateIndexBytes(indexPath, ACTIVE_BASELINE_PATH, baselineIdentity.bytes);
-  updateIndexBytes(indexPath, STATUS_PATH, expectedFutureStatus(protectedMerge));
-  const tree = gitText(["write-tree"], { env });
-  const result = { tree, transcript, status: expectedFutureStatus(protectedMerge) };
+  const result = { tree: reconstructed.tree, transcript: reconstructed.transcript, status };
   futureTreeCache.set(protectedMerge, result);
   return result;
 }
@@ -2105,7 +2515,7 @@ function futureMergeEvidence(ref, protectedMerge) {
   return mergeEvidence(merge.oid, protectedMerge, candidate);
 }
 
-export function evaluatePolicy(facts) {
+export function legacyEvaluatePolicy(facts) {
   const errors = [];
   const notices = [
     "NO-PUBLISH / NOT CERTIFIED remains active.",
@@ -2203,7 +2613,7 @@ function environmentFacts(environment = {}, checkedOutShaReader = () => "") {
     beforeSha: environment.POLICY_BEFORE_SHA || "",
     afterSha: environment.POLICY_AFTER_SHA || ""
   };
-  if (!failedIdentityByHead(presentedCandidateHead(facts))) {
+  if (!failedIdentityByHead(presentedCandidateHead(facts)) && !terminalC14RouteError(facts)) {
     facts.checkedOutSha = checkedOutShaReader();
   }
   return facts;
@@ -2231,20 +2641,121 @@ function writeRawTag(bytes) {
   return oid;
 }
 
+function recursiveTreeEntries(baseRef) {
+  const output = gitBytes(["ls-tree", "-r", "-z", "--full-tree", baseRef]);
+  const entries = new Map();
+  for (const row of output.toString("utf8").split("\0").filter(Boolean)) {
+    const match = row.match(/^([0-7]{6}) ([a-z]+) ([0-9a-f]{40})\t(.+)$/s);
+    if (!match) throw new Error(`malformed recursive tree row: ${row}`);
+    entries.set(match[4], { mode: match[1], type: match[2], oid: match[3] });
+  }
+  return entries;
+}
+
+function writeTreeFromEntries(entries) {
+  const root = { directories: new Map(), entries: new Map() };
+  for (const [path, entry] of entries) {
+    const parts = path.split("/");
+    if (!parts.length || parts.some(part => !part || part === "." || part === "..")) {
+      throw new Error(`unsafe tree path: ${path}`);
+    }
+    let node = root;
+    for (const part of parts.slice(0, -1)) {
+      if (!node.directories.has(part)) node.directories.set(part, { directories: new Map(), entries: new Map() });
+      node = node.directories.get(part);
+    }
+    const name = parts.at(-1);
+    if (node.entries.has(name) || node.directories.has(name)) throw new Error(`tree path collision: ${path}`);
+    node.entries.set(name, entry);
+  }
+  const writeNode = node => {
+    const rows = [];
+    for (const [name, child] of node.directories) {
+      rows.push(Buffer.from(`040000 tree ${writeNode(child)}\t${name}\0`, "utf8"));
+    }
+    for (const [name, entry] of node.entries) {
+      rows.push(Buffer.from(`${entry.mode} ${entry.type} ${entry.oid}\t${name}\0`, "utf8"));
+    }
+    return gitText(["mktree", "-z"], { input: Buffer.concat(rows) });
+  };
+  return writeNode(root);
+}
+
 function treeWithOverrides(baseRef, overrides) {
-  const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-tree-"));
-  const indexPath = join(parent, "index");
-  const env = { GIT_INDEX_FILE: indexPath };
-  runGit(["read-tree", baseRef], { env });
+  const entries = recursiveTreeEntries(baseRef);
   for (const [path, value] of Object.entries(overrides)) {
     if (value === null) {
-      runGit(["update-index", "--force-remove", "--", path], { env });
+      entries.delete(path);
       continue;
     }
     const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value.bytes);
-    updateIndexBytes(indexPath, path, bytes, value.mode || "100644");
+    const mode = Buffer.isBuffer(value) ? "100644" : value.mode || "100644";
+    entries.set(path, { mode, oid: writeBlob(bytes), type: "blob" });
   }
-  return gitText(["write-tree"], { env });
+  return writeTreeFromEntries(entries);
+}
+
+function physicalFiles(root, relative = "") {
+  const files = [];
+  for (const name of readdirSync(join(root, relative)).sort()) {
+    const childRelative = relative ? `${relative}/${name}` : name;
+    const child = join(root, childRelative);
+    const metadata = lstatSync(child);
+    if (metadata.isSymbolicLink()) throw new Error(`patch workspace contains symlink: ${childRelative}`);
+    if (metadata.isDirectory()) files.push(...physicalFiles(root, childRelative));
+    else if (metadata.isFile()) files.push(childRelative);
+    else throw new Error(`patch workspace contains non-file: ${childRelative}`);
+  }
+  return files;
+}
+
+function reconstructPatchTree(baseRef, artifact, extraOverrides = {}) {
+  const parent = mkdtempSync(join(tmpdir(), "sunsplitter-policy-patch-"));
+  try {
+    const rows = artifact.files || [];
+    const paths = rows.map(row => row.path).sort();
+    for (const path of paths) {
+      if (path.startsWith("/") || path.split("/").some(part => !part || part === "." || part === "..")) {
+        throw new Error(`unsafe patch path: ${path}`);
+      }
+      const input = fileIdentity(baseRef, path);
+      if (!input) throw new Error(`${path}: patch input is missing from ${baseRef}`);
+      const destination = join(parent, path);
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(destination, input.bytes, {
+        flag: "wx",
+        mode: Number.parseInt(input.mode, 8) & 0o777
+      });
+    }
+    const applied = runGit(["apply", "--whitespace=error-all", "--verbose", "-"], {
+      cwd: parent,
+      input: Buffer.from(artifact.patch.unifiedDiff, "utf8"),
+      allowFailure: true
+    });
+    const transcript = Buffer.concat([
+      Buffer.from(applied.stdout || ""), Buffer.from(applied.stderr || "")
+    ]).toString("utf8");
+    if (applied.status !== 0 || applied.error || applied.signal) {
+      throw new Error(`strict patch reconstruction failed: ${transcript.trim() || applied.error?.message || applied.signal}`);
+    }
+    if (/\b(?:offset|fuzz)\b/i.test(transcript)) throw new Error("strict patch reconstruction reported offset or fuzz");
+    assert.deepEqual(physicalFiles(parent), paths, "patch reconstruction changed an unexpected path");
+    const overrides = { ...extraOverrides };
+    const records = [];
+    for (const row of rows) {
+      const bytes = readFileSync(join(parent, row.path));
+      const identity = identityFromBytes(bytes, row.output.mode);
+      overrides[row.path] = { bytes, mode: row.output.mode };
+      records.push({ path: row.path, ...identity });
+    }
+    return {
+      records,
+      transcript,
+      tree: treeWithOverrides(baseRef, overrides)
+    };
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
 }
 
 function historicalGateAFixture() {
@@ -2421,19 +2932,28 @@ function expectPolicyFailure(facts, mutate, needle) {
   assert.ok(result.errors.some(error => error.includes(needle)), `missing ${needle}: ${result.errors.join(" | ")}`);
 }
 
-function selfTest() {
+function expectLegacyPolicyFailure(facts, mutate, needle) {
+  const altered = structuredClone(facts);
+  mutate(altered);
+  const result = legacyEvaluatePolicy(altered);
+  assert.equal(result.passed, false, `legacy policy unexpectedly accepted ${needle}`);
+  assert.ok(result.errors.some(error => error.includes(needle)), `legacy missing ${needle}: ${result.errors.join(" | ")}`);
+}
+
+function legacySelfTest() {
+  const readExactC10 = path => gitBytes(["show", `${C10_HEAD_SHA}:${path}`]);
   assert.ok(FULL_SHA256_RE.test(POLICY_PROJECTION_SHA256) && !/^0+$/.test(POLICY_PROJECTION_SHA256));
   assert.ok(FULL_SHA256_RE.test(TRANSITION_SHA256) && !/^0+$/.test(TRANSITION_SHA256));
-  assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), POLICY_PROJECTION_SHA256);
-  const executionEnvelope = currentSelfTestStatusEnvelope();
-  assert.match(executionEnvelope.state, /^(?:C10|REC-02)$/);
+  assert.equal(sha256(normalizedPolicyBytes(readExactC10(POLICY_PATH))), POLICY_PROJECTION_SHA256);
+  assert.deepEqual(policySuccessorEvidence(C10_HEAD_SHA).errors, [], "exact historical C10 evidence drifted");
+  assert.ok(readExactC10(STATUS_PATH).equals(expectedPolicySuccessorStatus()));
   assert.deepEqual(GATE_A_CHANGED_PATHS, [
     VERIFY_WORKFLOW_PATH, STATUS_PATH, INACTIVE_BASELINE_PATH, PATCH_ARTIFACT_PATH, TRANSITION_PATH, POLICY_PATH
   ].sort());
   assert.deepEqual(POLICY_CORRECTION_CHANGED_PATHS, [STATUS_PATH, POLICY_CORRECTION_RECORD_PATH, POLICY_PATH].sort());
   assert.equal(FUTURE_CHANGED_PATHS.length, 10);
 
-  const inventoryAudit = withGitInvocationAudit(() => forbiddenObjectInventory());
+  const inventoryAudit = withGitInvocationAudit(() => legacyForbiddenObjectInventory());
   assert.deepEqual(inventoryAudit.calls, []);
   const inventory = inventoryAudit.result;
   const inventoryBytes = canonicalJsonBytes(inventory);
@@ -2448,9 +2968,9 @@ function selfTest() {
   });
   assert.deepEqual(inventory.objects, [...inventory.objects].sort());
   assert.equal(new Set(inventory.objects).size, 103);
-  assert.throws(() => forbiddenObjectInventory(`${ART_R2_SEALED_MANIFEST}\n`), /byte length drifted/);
+  assert.throws(() => legacyForbiddenObjectInventory(`${ART_R2_SEALED_MANIFEST}\n`), /byte length drifted/);
   assert.throws(
-    () => forbiddenObjectInventory(ART_R2_SEALED_MANIFEST.replace("100644", "100755")),
+    () => legacyForbiddenObjectInventory(ART_R2_SEALED_MANIFEST.replace("100644", "100755")),
     /SHA-256 drifted/
   );
 
@@ -2570,7 +3090,7 @@ function selfTest() {
     error => error?.message === `immutable C9/Q fixture source must be literal exact Q ${C9_MERGE_SHA}`
   );
 
-  const correction = policySuccessorFixture();
+  const correction = policySuccessorFixture(readExactC10);
   const correctionEvidenceResult = policySuccessorEvidence(correction.oid);
   assert.deepEqual(correctionEvidenceResult.errors, []);
   const cleanFixtureInputs = correction.inputs;
@@ -2586,7 +3106,7 @@ function selfTest() {
         Buffer.concat([originalBytes, Buffer.from(`<!-- C10 worktree poison: ${targetPath} -->\n`, "utf8")])
       );
       assert.equal(readFileSync(physicalPath).equals(indexBytes), false, `${targetPath}: poison did not change worktree bytes`);
-      poisonedWorktreeInputs.push(bindPolicySuccessorInputs(cleanFixtureInputs.status));
+      poisonedWorktreeInputs.push(bindPolicySuccessorInputs(cleanFixtureInputs.status, readExactC10));
     } finally {
       writeFileSync(physicalPath, originalBytes);
     }
@@ -2604,22 +3124,22 @@ function selfTest() {
     headRef: POLICY_CORRECTION_BRANCH
   });
   const correctionPush = pushFacts({ before: C9_MERGE_SHA, after: correctionSynthetic.oid });
-  assert.deepEqual(evaluatePolicy(correctionPr).errors, []);
-  assert.deepEqual(evaluatePolicy(correctionPush).errors, []);
-  expectPolicyFailure(correctionPr, facts => { facts.repository = "attacker/Sunsplitter"; }, "repository attacker/Sunsplitter");
-  expectPolicyFailure(correctionPr, facts => { facts.baseRef = "main"; }, "pull requests to main");
-  expectPolicyFailure(correctionPr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route");
-  expectPolicyFailure(correctionPr, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
-  expectPolicyFailure(correctionPr, facts => { facts.checkedOutSha = correction.oid; }, "checked-out SHA");
-  expectPolicyFailure(correctionPr, facts => { facts.ref = "refs/tags/sun-v0.30.1"; facts.refType = "tag"; }, "tag creation");
-  expectPolicyFailure(correctionPr, facts => { facts.prBaseSha = GATE_A_MERGE_SHA; }, "C10 pull-request base");
+  assert.deepEqual(legacyEvaluatePolicy(correctionPr).errors, []);
+  assert.deepEqual(legacyEvaluatePolicy(correctionPush).errors, []);
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.repository = "attacker/Sunsplitter"; }, "repository attacker/Sunsplitter");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.baseRef = "main"; }, "pull requests to main");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.prHeadRepository = "fork/Sunsplitter"; }, "pull-request head repository");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.checkedOutSha = correction.oid; }, "checked-out SHA");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.ref = "refs/tags/sun-v0.30.1"; facts.refType = "tag"; }, "tag creation");
+  expectLegacyPolicyFailure(correctionPr, facts => { facts.prBaseSha = GATE_A_MERGE_SHA; }, "C10 pull-request base");
   const consumedGateAPr = prFacts({
     sha: genericMerge(gateA.tree, [GATE_A_BASE_SHA, gateA.oid], "consumed historical Gate A PR fixture").oid,
     base: GATE_A_BASE_SHA,
     head: gateA.oid,
     headRef: GATE_A_BRANCH
   });
-  assert.ok(evaluatePolicy(consumedGateAPr).errors.some(error => error.includes("historical Gate A route is consumed")));
+  assert.ok(legacyEvaluatePolicy(consumedGateAPr).errors.some(error => error.includes("historical Gate A route is consumed")));
 
   let zeroGitRejected = 0;
   const exactRejectedResult = (result, identity, label) => {
@@ -2632,10 +3152,10 @@ function selfTest() {
       const routes = [
         ["direct correction", () => policySuccessorEvidence(spelling)],
         ["direct future", () => futureEvidence(spelling, correctionSynthetic.oid)],
-        ["full correction PR", () => evaluatePolicy(prFacts({
+        ["full correction PR", () => legacyEvaluatePolicy(prFacts({
           sha: "0".repeat(40), base: C9_MERGE_SHA, head: spelling, headRef: POLICY_CORRECTION_BRANCH
         }))],
-        ["full future PR", () => evaluatePolicy(prFacts({
+        ["full future PR", () => legacyEvaluatePolicy(prFacts({
           sha: "0".repeat(40), base: correctionSynthetic.oid, head: spelling, headRef: FUTURE_BRANCH
         }))],
         ["CLI correction PR", () => {
@@ -2654,7 +3174,7 @@ function selfTest() {
             POLICY_PR_HEAD_SHA: spelling
           }, () => { readerCalls += 1; return "0".repeat(40); });
           assert.equal(readerCalls, 0);
-          return evaluatePolicy(facts);
+          return legacyEvaluatePolicy(facts);
         }],
         ["CLI future PR", () => {
           let readerCalls = 0;
@@ -2672,7 +3192,7 @@ function selfTest() {
             POLICY_PR_HEAD_SHA: spelling
           }, () => { readerCalls += 1; return "0".repeat(40); });
           assert.equal(readerCalls, 0);
-          return evaluatePolicy(facts);
+          return legacyEvaluatePolicy(facts);
         }]
       ];
       for (const [label, callback] of routes) {
@@ -2913,7 +3433,7 @@ function selfTest() {
 
   const rejectCorrectionTopology = (fixture, head = correction.oid) => {
     const facts = prFacts({ sha: fixture.oid, base: C9_MERGE_SHA, head, headRef: POLICY_CORRECTION_BRANCH });
-    countFailure(evaluatePolicy(facts).passed === false, "invalid correction topology accepted");
+    countFailure(legacyEvaluatePolicy(facts).passed === false, "invalid correction topology accepted");
   };
   rejectCorrectionTopology(genericMerge(correction.tree, [C9_MERGE_SHA], "C10 one-parent fixture"));
   rejectCorrectionTopology(genericMerge(correction.tree, [correction.oid, C9_MERGE_SHA], "C10 swapped fixture"));
@@ -2945,7 +3465,7 @@ function selfTest() {
     "repeated correction fixture"
   );
   countExactRouteFailure(
-    evaluatePolicy(pushFacts({ before: correctionSynthetic.oid, after: repeatedCorrectionSuccessor.oid })),
+    legacyEvaluatePolicy(pushFacts({ before: correctionSynthetic.oid, after: repeatedCorrectionSuccessor.oid })),
     "rec-02-merge",
     "candidate: future REC-02 candidate is not one direct child of the exact protected policy-correction successor",
     "repeated correction successor"
@@ -2954,19 +3474,19 @@ function selfTest() {
   for (const branch of FAILED_POLICY_CORRECTION_BRANCHES) {
     const facts = structuredClone(correctionPr);
     facts.headRef = branch;
-    countFailure(evaluatePolicy(facts).errors.some(error => error.includes("failed, frozen, and non-reusable")), `frozen branch accepted: ${branch}`);
+    countFailure(legacyEvaluatePolicy(facts).errors.some(error => error.includes("failed, frozen, and non-reusable")), `frozen branch accepted: ${branch}`);
   }
   const consumedC9Facts = structuredClone(correctionPr);
   consumedC9Facts.headRef = C9_POLICY_CORRECTION_BRANCH;
   consumedC9Facts.prBaseSha = GATE_A_MERGE_SHA;
   consumedC9Facts.prHeadSha = C9_HEAD_SHA;
   countFailure(
-    evaluatePolicy(consumedC9Facts).errors.some(error => error.includes("landed, consumed, and non-reusable")),
+    legacyEvaluatePolicy(consumedC9Facts).errors.some(error => error.includes("landed, consumed, and non-reusable")),
     "consumed r7/C9 branch accepted"
   );
   const oldRec02Facts = structuredClone(correctionPr);
   oldRec02Facts.headRef = AUTHORIZED_PATCH_TARGET_BRANCH;
-  countFailure(evaluatePolicy(oldRec02Facts).errors.some(error => error.includes("REC-02 r1 route")), "old REC-02 r1 route accepted");
+  countFailure(legacyEvaluatePolicy(oldRec02Facts).errors.some(error => error.includes("REC-02 r1 route")), "old REC-02 r1 route accepted");
 
   for (const identity of FAILED_IDENTITIES) {
     const placeholderRaw = Buffer.from([
@@ -3004,7 +3524,7 @@ function selfTest() {
     [C9_MERGE_SHA, correction.oid],
     "direct Q to REC-02 fixture"
   );
-  const directQFutureResult = evaluatePolicy(prFacts({
+  const directQFutureResult = legacyEvaluatePolicy(prFacts({
     sha: directQFuture.oid,
     base: C9_MERGE_SHA,
     head: correction.oid,
@@ -3022,8 +3542,8 @@ function selfTest() {
   const futureSynthetic = genericMerge(future.tree, [protectedMerge, future.oid], "Synthetic REC-02 r2 merge fixture");
   const futurePr = prFacts({ sha: futureSynthetic.oid, base: protectedMerge, head: future.oid, headRef: FUTURE_BRANCH });
   const futurePush = pushFacts({ before: protectedMerge, after: futureSynthetic.oid });
-  assert.deepEqual(evaluatePolicy(futurePr).errors, []);
-  assert.deepEqual(evaluatePolicy(futurePush).errors, []);
+  assert.deepEqual(legacyEvaluatePolicy(futurePr).errors, []);
+  assert.deepEqual(legacyEvaluatePolicy(futurePush).errors, []);
 
   const futureStatus = fileIdentity(future.tree, STATUS_PATH).bytes;
   const futureStatusText = futureStatus.toString("utf8");
@@ -3080,17 +3600,17 @@ function selfTest() {
     genericMerge(correction.tree, [protectedMerge, future.oid], "future wrong-tree fixture")
   ];
   for (const fixture of futureMergeVariants) {
-    countFailure(evaluatePolicy(pushFacts({ before: protectedMerge, after: fixture.oid })).passed === false, "future bad merge accepted");
+    countFailure(legacyEvaluatePolicy(pushFacts({ before: protectedMerge, after: fixture.oid })).passed === false, "future bad merge accepted");
   }
   const consumedPr = prFacts({ sha: futureSynthetic.oid, base: futureSynthetic.oid, head: future.oid, headRef: FUTURE_BRANCH });
   countExactRouteFailure(
-    evaluatePolicy(consumedPr),
+    legacyEvaluatePolicy(consumedPr),
     "rec-02",
     "candidate: future base: protected C10 successor is not an exact two-parent merge from Q",
     "consumed future PR"
   );
   countExactRouteFailure(
-    evaluatePolicy(pushFacts({ before: futureSynthetic.oid, after: futureSynthetic.oid })),
+    legacyEvaluatePolicy(pushFacts({ before: futureSynthetic.oid, after: futureSynthetic.oid })),
     null,
     "push before SHA is not the one unconsumed exact C10 policy successor",
     "consumed future push"
@@ -3101,7 +3621,7 @@ function selfTest() {
     "repeated future fixture"
   );
   countExactRouteFailure(
-    evaluatePolicy(pushFacts({ before: futureSynthetic.oid, after: repeatedFutureSuccessor.oid })),
+    legacyEvaluatePolicy(pushFacts({ before: futureSynthetic.oid, after: repeatedFutureSuccessor.oid })),
     null,
     "push before SHA is not the one unconsumed exact C10 policy successor",
     "repeated future successor"
@@ -3112,14 +3632,15 @@ function selfTest() {
   const evaluateInColdProcess = facts => {
     const moduleUrl = pathToFileURL(resolve(ROOT, POLICY_PATH)).href;
     const source = [
-      `import { evaluatePolicy } from ${JSON.stringify(moduleUrl)};`,
-      "const result = evaluatePolicy(JSON.parse(process.argv[1]));",
+      `import { legacyEvaluatePolicy } from ${JSON.stringify(moduleUrl)};`,
+      "const result = legacyEvaluatePolicy(JSON.parse(process.argv[1]));",
       "process.stdout.write(JSON.stringify(result));"
     ].join("\n");
     const child = spawnSync(process.execPath, ["--input-type=module", "--eval", source, JSON.stringify(facts)], {
       cwd: ROOT,
       encoding: "utf8",
-      maxBuffer: 32 * 1024 * 1024
+      maxBuffer: 32 * 1024 * 1024,
+      shell: false
     });
     assert.equal(child.status, 0, child.stderr);
     return JSON.parse(child.stdout);
@@ -3135,12 +3656,14 @@ function selfTest() {
     assert.equal(cold.route, route);
   }
 
-  const storeUnitRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-c10-store-unit-")));
-  const storeUnitTransferRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-c10-object-transfer-")));
+  const storeCandidate = c14Fixture();
+  const exactStoreEnvironment = { ...REQUIRED_REPOSITORY_GIT_ENVIRONMENT };
+  const storeUnitRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-c14-store-unit-")));
+  const storeUnitTransferRoot = realpathSync(mkdtempSync(join(tmpdir(), "sunsplitter-c14-object-transfer-")));
   try {
     runGit(["init", "--quiet"], { cwd: storeUnitRoot });
     const reachableOids = gitText([
-      "rev-list", "--objects", "--no-object-names", correction.oid
+      "rev-list", "--objects", "--no-object-names", storeCandidate.oid
     ]).split("\n").filter(Boolean);
     assert.equal(new Set(reachableOids).size, reachableOids.length, "store unit reachable inventory contains duplicates");
     for (const oid of reachableOids) {
@@ -3155,12 +3678,12 @@ function selfTest() {
       unlinkSync(transferPath);
       assert.equal(copied, oid, `store unit object ${oid} changed while copying`);
     }
-    runGit(["update-ref", "--no-deref", "HEAD", correction.oid], { cwd: storeUnitRoot });
-    const storePass = candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} });
-    assert.equal(storePass.absent, 103);
-    assert.equal(storePass.controlsPresent, 9);
-    assert.equal(storePass.head, correction.oid);
-    assert.equal(storePass.inventorySha256, FORBIDDEN_OBJECT_INVENTORY_SHA256);
+    runGit(["update-ref", "--no-deref", "HEAD", storeCandidate.oid], { cwd: storeUnitRoot });
+    const storePass = candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment });
+    assert.equal(storePass.absent, 125);
+    assert.equal(storePass.controlsPresent, 12);
+    assert.equal(storePass.head, storeCandidate.oid);
+    assert.equal(storePass.inventorySha256, C14_CANDIDATE_INVENTORY_SHA256);
     const expectedStoredRows = [...reachableOids].sort().map(oid => (
       `${oid} ${gitText(["cat-file", "-t", oid])} ${gitText(["cat-file", "-s", oid])}`
     ));
@@ -3177,9 +3700,10 @@ function selfTest() {
       strictFsck: "PASS"
     });
     assert.equal(storePass.result, "PASS");
-    assert.equal(storePass.schemaVersion, 2);
+    assert.equal(storePass.route, "c14");
+    assert.equal(storePass.schemaVersion, 3);
     assert.throws(
-      () => assertForbiddenObjectInventoryIdentity("0".repeat(64)),
+      () => assertForbiddenObjectInventoryIdentity("c14", "0".repeat(64)),
       /forbidden-object inventory/
     );
 
@@ -3188,15 +3712,15 @@ function selfTest() {
     const storeUnitAlias = `${storeUnitRoot}-alias`;
     symlinkSync(storeUnitRoot, storeUnitAlias);
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitAlias, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitAlias, environment: exactStoreEnvironment }),
       /checkout root is symlinked or redirected/
     );
     unlinkSync(storeUnitAlias);
 
     const fetchHeadPath = join(gitDirectory, "FETCH_HEAD");
-    writeFileSync(fetchHeadPath, `${correction.oid}\n`, { flag: "wx" });
+    writeFileSync(fetchHeadPath, `${storeCandidate.oid}\n`, { flag: "wx" });
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
       /Git pseudoref FETCH_HEAD/
     );
     unlinkSync(fetchHeadPath);
@@ -3204,20 +3728,20 @@ function selfTest() {
     const gitInfoDirectory = join(gitDirectory, "info");
     for (const legacyMetadataName of ["grafts", "refs"]) {
       const legacyMetadataPath = join(gitInfoDirectory, legacyMetadataName);
-      writeFileSync(legacyMetadataPath, `${correction.oid}\n`, { flag: "wx" });
+      writeFileSync(legacyMetadataPath, `${storeCandidate.oid}\n`, { flag: "wx" });
       assert.throws(
-        () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+        () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
         /legacy Git object\/ref metadata/
       );
       unlinkSync(legacyMetadataPath);
     }
 
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: { GIT_DIR: "/unsafe" } }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: { ...exactStoreEnvironment, GIT_DIR: "/unsafe" } }),
       /unsafe Git environment/
     );
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: { GIT_REFERENCE_BACKEND: "files" } }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: { ...exactStoreEnvironment, GIT_REFERENCE_BACKEND: "files" } }),
       /unsafe Git environment/
     );
     const storeCheckerModuleUrl = pathToFileURL(resolve(ROOT, POLICY_PATH)).href;
@@ -3241,21 +3765,22 @@ function selfTest() {
         cwd: ROOT,
         encoding: "utf8",
         env: { ...process.env, GIT_EXTERNAL_DIFF: "/definitely/not-executed" },
-        maxBuffer: 32 * 1024 * 1024
+        maxBuffer: 32 * 1024 * 1024,
+        shell: false
       }
     );
     assert.equal(coldUnsafeEnvironment.status, 0, coldUnsafeEnvironment.stderr);
 
-    runGit(["update-ref", "refs/heads/forbidden", correction.oid], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /contains refs or tags/);
+    runGit(["update-ref", "refs/heads/forbidden", storeCandidate.oid], { cwd: storeUnitRoot });
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /contains refs or tags/);
     runGit(["update-ref", "-d", "refs/heads/forbidden"], { cwd: storeUnitRoot });
 
-    runGit(["update-ref", "refs/tags/forbidden", correction.oid], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /contains refs or tags/);
+    runGit(["update-ref", "refs/tags/forbidden", storeCandidate.oid], { cwd: storeUnitRoot });
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /contains refs or tags/);
     runGit(["update-ref", "-d", "refs/tags/forbidden"], { cwd: storeUnitRoot });
 
     runGit(["remote", "add", "origin", "https://invalid.example/Sunsplitter.git"], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /contains a remote/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /contains a remote/);
     runGit(["remote", "remove", "origin"], { cwd: storeUnitRoot });
 
     for (const legacyName of ["branches", "remotes"]) {
@@ -3264,7 +3789,7 @@ function selfTest() {
       const legacyMarker = join(legacyPath, "forbidden");
       writeFileSync(legacyMarker, "https://invalid.example/Sunsplitter.git\n", { flag: "wx" });
       assert.throws(
-        () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+        () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
         new RegExp(`legacy Git ${legacyName}`)
       );
       rmSync(legacyPath, { recursive: true });
@@ -3275,7 +3800,7 @@ function selfTest() {
     renameSync(refsPath, parkedRefsPath);
     symlinkSync(parkedRefsPath, refsPath);
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
       /Git directory contains symlink/
     );
     unlinkSync(refsPath);
@@ -3285,72 +3810,72 @@ function selfTest() {
     mkdirSync(infoDirectory, { recursive: true });
     const alternatesPath = join(infoDirectory, "alternates");
     writeFileSync(alternatesPath, "/definitely/missing/objects\n", { flag: "wx" });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /object alternates/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /object alternates/);
     unlinkSync(alternatesPath);
     const httpAlternatesPath = join(infoDirectory, "http-alternates");
     writeFileSync(httpAlternatesPath, "https://invalid.example/objects\n", { flag: "wx" });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /object alternates/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /object alternates/);
     unlinkSync(httpAlternatesPath);
 
     const shallowPath = join(gitDirectory, "shallow");
-    writeFileSync(shallowPath, `${correction.oid}\n`, { flag: "wx" });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /is shallow/);
+    writeFileSync(shallowPath, `${storeCandidate.oid}\n`, { flag: "wx" });
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /is shallow/);
     unlinkSync(shallowPath);
 
     const commonPath = join(gitDirectory, "commondir");
     writeFileSync(commonPath, ".\n", { flag: "wx" });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /common Git directory/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /common Git directory/);
     unlinkSync(commonPath);
 
     const packDirectory = join(objectsDirectory, "pack");
     mkdirSync(packDirectory, { recursive: true });
     const promisorPath = join(packDirectory, "forbidden.PROMISOR");
     writeFileSync(promisorPath, "", { flag: "wx" });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /promisor pack/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /promisor pack/);
     unlinkSync(promisorPath);
 
     runGit(["config", "extensions.partialClone", "origin"], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /unsafe Git configuration/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /unsafe Git configuration/);
     runGit(["config", "--unset", "extensions.partialClone"], { cwd: storeUnitRoot });
 
     runGit(["config", "diff.external", "/definitely/not-executed"], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /unsafe Git configuration/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /unsafe Git configuration/);
     runGit(["config", "--unset", "diff.external"], { cwd: storeUnitRoot });
 
     runGit(["config", "fsck.missingEmail", "ignore"], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /unsafe Git configuration/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /unsafe Git configuration/);
     runGit(["config", "--unset", "fsck.missingEmail"], { cwd: storeUnitRoot });
 
     const worktreeConfigPath = join(gitDirectory, "config.worktree");
     runGit(["config", "extensions.worktreeConfig", "true"], { cwd: storeUnitRoot });
     runGit(["config", "--worktree", "fsck.missingEmail", "ignore"], { cwd: storeUnitRoot });
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
       /unsafe Git configuration|worktree-scoped Git configuration/
     );
     runGit(["config", "--worktree", "--unset", "fsck.missingEmail"], { cwd: storeUnitRoot });
     runGit(["config", "--unset", "extensions.worktreeConfig"], { cwd: storeUnitRoot });
     assert.equal(existsSync(worktreeConfigPath), true, "worktree config fixture was not created");
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
       /worktree-scoped Git configuration/
     );
     unlinkSync(worktreeConfigPath);
-    assert.equal(candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }).result, "PASS");
+    assert.equal(candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }).result, "PASS");
 
     runGit(["config", "include.path", "/definitely/missing-config"], { cwd: storeUnitRoot });
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /unsafe Git configuration/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /unsafe Git configuration/);
     runGit(["config", "--unset", "include.path"], { cwd: storeUnitRoot });
 
     const objectSymlink = join(objectsDirectory, "forbidden-symlink");
     symlinkSync(gitDirectory, objectSymlink);
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /Git directory contains symlink/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /Git directory contains symlink/);
     unlinkSync(objectSymlink);
 
     const missingControlPath = join(objectsDirectory, RECOVERY_BASE_SHA.slice(0, 2), RECOVERY_BASE_SHA.slice(2));
     const parkedControlPath = `${missingControlPath}.missing`;
     renameSync(missingControlPath, parkedControlPath);
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /required control/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /required control/);
     renameSync(parkedControlPath, missingControlPath);
 
     const forbiddenBytes = gitBytes(["cat-file", "tree", FUNCTIONAL_TREE]);
@@ -3359,21 +3884,21 @@ function selfTest() {
       input: forbiddenBytes
     });
     assert.equal(copiedForbidden, FUNCTIONAL_TREE);
-    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }), /forbidden objects present/);
+    assert.throws(() => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }), /forbidden objects present/);
     unlinkSync(join(objectsDirectory, FUNCTIONAL_TREE.slice(0, 2), FUNCTIONAL_TREE.slice(2)));
 
-    const unrelatedBytes = Buffer.from("C10 unrelated unreachable object\n", "utf8");
+    const unrelatedBytes = Buffer.from("C14 unrelated unreachable object\n", "utf8");
     const unrelatedOid = gitText(["hash-object", "-w", "--stdin"], {
       cwd: storeUnitRoot,
       input: unrelatedBytes
     });
     assert.equal(reachableOids.includes(unrelatedOid), false, "unreachable fixture unexpectedly belongs to candidate history");
     assert.throws(
-      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }),
+      () => candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }),
       new RegExp(`unreachable stored objects: ${unrelatedOid}`)
     );
     unlinkSync(join(objectsDirectory, unrelatedOid.slice(0, 2), unrelatedOid.slice(2)));
-    assert.equal(candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: {} }).result, "PASS");
+    assert.equal(candidateOnlyObjectStoreReceipt({ repoRoot: storeUnitRoot, environment: exactStoreEnvironment }).result, "PASS");
   } finally {
     rmSync(storeUnitRoot, { recursive: true, force: true });
     rmSync(storeUnitTransferRoot, { recursive: true, force: true });
@@ -3385,10 +3910,958 @@ function selfTest() {
   console.log(`FIXTURE future-head=${future.oid} tree=${future.tree} synthetic=${futureSynthetic.oid}`);
 }
 
-function taskForRoute(route) {
-  if (route?.startsWith("rec-ratchet-02-policy-successor")) {
-    return "REC-RATCHET-02-POLICY-SELFTEST-CORRECTION-R8-C10";
+function c14WorkflowDeltaStripped(bytes) {
+  let text = bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("C14 workflow is not lossless UTF-8");
+  const firstEnvironment = [
+    "      - name: Run release-policy positive and negative fixtures\n",
+    "        env:\n",
+    "          GIT_CONFIG_GLOBAL: /dev/null\n",
+    "          GIT_CONFIG_NOSYSTEM: \"1\"\n",
+    "          GIT_OPTIONAL_LOCKS: \"0\"\n",
+    "          GIT_TERMINAL_PROMPT: \"0\"\n"
+  ].join("");
+  text = replaceOnce(
+    text,
+    firstEnvironment,
+    "      - name: Run release-policy positive and negative fixtures\n",
+    "C14 first policy-step Git environment"
+  );
+  text = replaceOnce(
+    text,
+    "          node scripts/release-policy.mjs --github-actions-git-environment-fixture\n",
+    "",
+    "C14 focused Actions fixture command"
+  );
+  const enforcementEnvironment = [
+    "        env:\n",
+    "          GIT_CONFIG_GLOBAL: /dev/null\n",
+    "          GIT_CONFIG_NOSYSTEM: \"1\"\n",
+    "          GIT_OPTIONAL_LOCKS: \"0\"\n",
+    "          GIT_TERMINAL_PROMPT: \"0\"\n",
+    "          POLICY_EVENT_NAME:"
+  ].join("");
+  text = replaceOnce(
+    text,
+    enforcementEnvironment,
+    "        env:\n          POLICY_EVENT_NAME:",
+    "C14 enforcement-step Git environment"
+  );
+  return Buffer.from(text, "utf8");
+}
+
+function c14WorkflowContractErrors(ref) {
+  const errors = [];
+  const workflow = fileIdentity(ref, RELEASE_WORKFLOW_PATH);
+  const historical = fileIdentity(C10_MERGE_SHA, RELEASE_WORKFLOW_PATH);
+  if (!workflow) return [`${RELEASE_WORKFLOW_PATH}: C14 workflow is missing`];
+  if (workflow.mode !== "100644"
+    || workflow.blob !== C14_RELEASE_WORKFLOW_BLOB
+    || workflow.sha256 !== C14_RELEASE_WORKFLOW_SHA256
+    || workflow.byteLength !== C14_RELEASE_WORKFLOW_BYTES) {
+    errors.push(`${RELEASE_WORKFLOW_PATH}: C14 exact identity drifted`);
   }
+  try {
+    if (!historical || !c14WorkflowDeltaStripped(workflow.bytes).equals(historical.bytes)) {
+      errors.push(`${RELEASE_WORKFLOW_PATH}: bytes outside the bounded C14 additions differ from exact S`);
+    }
+  } catch (error) {
+    errors.push(error.message);
+  }
+
+  const text = workflow.bytes.toString("utf8");
+  const lines = text.split("\n");
+  const stepStarts = lines.flatMap((line, index) => /^      - name: /.test(line) ? [index] : []);
+  const steps = stepStarts.map((start, index) => ({
+    start,
+    text: lines.slice(start, stepStarts[index + 1] ?? lines.length).join("\n")
+  }));
+  const policySteps = steps.filter(step => /^        run:/m.test(step.text));
+  if (policySteps.length !== 2) errors.push(`C14 policy run-step count ${policySteps.length} != 2`);
+  const requiredLiteralLines = Object.freeze({
+    GIT_CONFIG_GLOBAL: "          GIT_CONFIG_GLOBAL: /dev/null",
+    GIT_CONFIG_NOSYSTEM: "          GIT_CONFIG_NOSYSTEM: \"1\"",
+    GIT_OPTIONAL_LOCKS: "          GIT_OPTIONAL_LOCKS: \"0\"",
+    GIT_TERMINAL_PROMPT: "          GIT_TERMINAL_PROMPT: \"0\""
+  });
+  for (const [name, literal] of Object.entries(requiredLiteralLines)) {
+    const count = lines.filter(line => line === literal).length;
+    if (count !== 2) errors.push(`${name}: literal step-local occurrence count ${count} != 2`);
+    for (const step of policySteps) {
+      if (!step.text.split("\n").includes(literal)) errors.push(`${name}: missing from one policy run step`);
+    }
+  }
+  if (lines.some(line => /^env:$/.test(line) && line !== "env:")
+    || lines.some(line => /^    env:/.test(line))) {
+    errors.push("C14 Git environment leaked to workflow or job scope");
+  }
+  const actionSteps = steps.filter(step => /actions\/(?:checkout|setup-node)@/.test(step.text));
+  if (actionSteps.some(step => Object.keys(requiredLiteralLines).some(name => step.text.includes(name)))) {
+    errors.push("checkout/setup received the C14 Git environment");
+  }
+  const first = policySteps[0]?.text || "";
+  const fixtureIndex = first.indexOf("node scripts/release-policy.mjs --github-actions-git-environment-fixture");
+  const selfTestIndex = first.indexOf("node scripts/release-policy.mjs --self-test");
+  if (fixtureIndex < 0 || selfTestIndex < 0 || fixtureIndex >= selfTestIndex) {
+    errors.push("focused Actions fixture is not before the full self-test in the first policy step");
+  }
+  if (!/^        run: node scripts\/release-policy\.mjs$/m.test(policySteps[1]?.text || "")) {
+    errors.push("C14 enforcement step command drifted");
+  }
+  const policyMappings = [...(policySteps[1]?.text || "").matchAll(/^          (POLICY_[A-Z_]+):/gm)]
+    .map(match => match[1]);
+  const expectedPolicyMappings = [
+    "POLICY_EVENT_NAME", "POLICY_REPOSITORY", "POLICY_SHA", "POLICY_REF", "POLICY_REF_NAME",
+    "POLICY_REF_TYPE", "POLICY_BASE_REF", "POLICY_HEAD_REF", "POLICY_PR_BASE_SHA",
+    "POLICY_PR_HEAD_SHA", "POLICY_PR_HEAD_REPOSITORY", "POLICY_BEFORE_SHA", "POLICY_AFTER_SHA"
+  ];
+  if (!sameList(policyMappings, expectedPolicyMappings)) errors.push("C14 enforcement POLICY_* mapping inventory or order drifted");
+  return errors;
+}
+
+function c14RawCommit(tree) {
+  return Buffer.from([
+    `tree ${tree}`,
+    `parent ${C10_MERGE_SHA}`,
+    `author ${C14_POLICY_CORRECTION_AUTHOR}`,
+    `committer ${C14_POLICY_CORRECTION_AUTHOR}`,
+    "",
+    C14_POLICY_CORRECTION_COMMIT_TITLE
+  ].join("\n") + "\n", "utf8");
+}
+
+function c14CandidateEvidence(ref) {
+  const errors = [];
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: ["C14 candidate is not an independently framed commit object"] };
+  if (!sameList(commit.parents, [C10_MERGE_SHA])) errors.push("C14 candidate is not one direct child of exact S");
+  if (!sameList(changedPaths(C10_MERGE_SHA, commit.oid), C14_CHANGED_PATHS)) {
+    errors.push("C14 changed paths differ from the exact five-path scope");
+  }
+  for (const path of C14_CHANGED_PATHS) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity) errors.push(`${path}: C14 path is missing`);
+    else if (identity.mode !== "100644") errors.push(`${path}: C14 mode ${identity.mode} != 100644`);
+  }
+  const exactIdentities = {
+    [RELEASE_WORKFLOW_PATH]: [C14_RELEASE_WORKFLOW_BLOB, C14_RELEASE_WORKFLOW_SHA256, C14_RELEASE_WORKFLOW_BYTES],
+    [PATCH_ARTIFACT_PATH]: [C14_PATCH_BLOB, C14_PATCH_SHA256, C14_PATCH_BYTES]
+  };
+  for (const [path, [blob, digest, byteLength]] of Object.entries(exactIdentities)) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity || identity.blob !== blob || identity.sha256 !== digest || identity.byteLength !== byteLength) {
+      errors.push(`${path}: C14 exact identity drifted`);
+    }
+  }
+  for (const [path, digest] of [
+    [STATUS_PATH, C14_STATUS_SHA256],
+    [POLICY_CORRECTION_RECORD_PATH, C14_RECORD_SHA256]
+  ]) {
+    const identity = fileIdentity(commit.oid, path);
+    if (!identity || identity.sha256 !== digest) errors.push(`${path}: C14 exact identity drifted`);
+  }
+  const projection = policyProjection(commit.oid);
+  if (projection !== C14_POLICY_PROJECTION_SHA256) {
+    errors.push(`C14 policy projection ${projection || "missing"} != ${C14_POLICY_PROJECTION_SHA256}`);
+  }
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  errors.push(...workflowSecurityErrors(commit.oid, C14_RELEASE_WORKFLOW_SHA256));
+  errors.push(...c14WorkflowContractErrors(commit.oid));
+  const projectionEvidence = validateProjectionArtifacts(commit.oid, ACTIVE_REC02_SEAL);
+  errors.push(...projectionEvidence.errors);
+  const artEvidence = validateArtCompatibility(commit.oid, ACTIVE_REC02_SEAL);
+  errors.push(...artEvidence.errors);
+
+  const records = canonicalRecords(commit.tree, C14_CHANGED_PATHS);
+  let manifest = null;
+  let expectedRaw = null;
+  let expectedOid = null;
+  if (records.some(record => !record)) {
+    errors.push("C14 canonical manifest contains an unreadable path");
+  } else {
+    manifest = canonicalManifest(records);
+    expectedRaw = c14RawCommit(commit.tree);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("C14 raw commit payload differs from the exact subject-only frame");
+    if (commit.oid !== expectedOid) errors.push(`C14 OID ${commit.oid} != independently framed ${expectedOid}`);
+    if (!sameList(commit.headerLines, [
+      `tree ${commit.tree}`,
+      `parent ${C10_MERGE_SHA}`,
+      `author ${C14_POLICY_CORRECTION_AUTHOR}`,
+      `committer ${C14_POLICY_CORRECTION_AUTHOR}`
+    ])) errors.push("C14 raw header order or inventory drifted");
+    if (commit.message !== `${C14_POLICY_CORRECTION_COMMIT_TITLE}\n`) errors.push("C14 commit message bytes drifted");
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: commit.parents[0],
+    rawSha256: sha256(commit.bytes),
+    rawByteLength: commit.bytes.length,
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null,
+    projectionEvidence,
+    artEvidence
+  };
+}
+
+function c14MergeEvidence(ref) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== C10_MERGE_SHA) {
+    return { errors: ["protected C14 successor is not an exact two-parent merge from S"] };
+  }
+  return mergeEvidence(merge.oid, C10_MERGE_SHA, c14CandidateEvidence(merge.parents[1]));
+}
+
+function expectedC14FutureStatus(protectedMerge) {
+  const merge = commitHeaders(protectedMerge);
+  if (!merge) throw new Error("future STATUS base is not a commit");
+  const base = c14MergeEvidence(protectedMerge);
+  if (base.errors.length) throw new Error(`future STATUS base is not exact X: ${base.errors.join(" | ")}`);
+  const c14 = c14CandidateEvidence(merge.parents[1]);
+  const status = fileIdentity(merge.parents[1], STATUS_PATH);
+  if (c14.errors.length || !status
+    || status.sha256 !== C14_STATUS_SHA256) {
+    throw new Error("future STATUS source is not the exact C14 STATUS");
+  }
+  let text = status.bytes.toString("utf8");
+  text = replaceUniqueStatusField(text, "updated_utc", "2026-08-25");
+  text = replaceUniqueStatusField(text, "governed_recovery_successor_sha", protectedMerge);
+  text = replaceUniqueStatusField(
+    text,
+    "tested_runtime_sha",
+    `${protectedMerge} — exact protected C14 policy successor; recovery evidence, not certification`
+  );
+  text = replaceUniqueStatusField(text, "milestone", "REC-02-R2 — exact active projection from protected C14 successor X");
+  text = replaceUniqueStatusField(text, "ticket", "REC-02 / issue #24 — governed zero-exit implementation r2");
+  text = replaceUniqueStatusField(
+    text,
+    "state",
+    `REC-02 R2 CANDIDATE — exact protected C14 successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED`
+  );
+  text = replaceUniqueStatusField(text, "implementation_branch", FUTURE_BRANCH);
+  text = replaceUniqueStatusField(text, "dispatch_base_sha", protectedMerge);
+  text = replaceUniqueStatusField(text, "dispatch_base_tree", merge.tree);
+  text = replaceUniqueStatusField(
+    text,
+    "rec_ratchet_02_control_state",
+    `GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 CLOSED/LANDED/CONSUMED at exact protected successor ${protectedMerge}; NO-PUBLISH / NOT CERTIFIED remains active`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "c14_candidate_identity",
+    `LANDED PRECURSOR — protected successor ${protectedMerge}; correction head ${merge.parents[1]}; tree ${merge.tree}; ordered parents [${merge.parents.join(",")}]`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "fresh_rec_02_branch",
+    `${FUTURE_BRANCH} — CONSTRUCTED FROM exact protected C14 successor ${protectedMerge}`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "issue_24_repin_requirement",
+    `REQUIRED EXTERNAL PRECONDITION / NOT VERIFIED BY REPOSITORY POLICY — owner-authenticated readback must show issue #24 repinned to exact ${protectedMerge}; external receipt must accompany candidate`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "active_simulation_baseline_sha256",
+    `${INACTIVE_BASELINE_SHA256} — exact REC-02 baseline activated from the landed Gate A artifact`
+  );
+  text = replaceUniqueStatusField(
+    text,
+    "functional_projection_state",
+    "ACTIVATED — exact pinned patch and baseline applied; full exact-head verifier and locked simulations must pass again"
+  );
+  text = replaceOnce(
+    text,
+    "- C14 has no known design blocker before identity freeze. Any required failure after freeze permanently retires that exact identity and requires a fresh owner-dispatched successor.",
+    `- C14 landed at exact protected successor \`${protectedMerge}\`; that route and protected-merge authorization are consumed.`,
+    "future STATUS C14 blocker transition"
+  );
+  text = replaceOnce(
+    text,
+    "- REC-02 r2 remains blocked until C14 lands under separate authorization and issue #24 is freshly repinned to exact X.",
+    `- REC-02 r2 is an exact candidate from \`${protectedMerge}\` after the required issue #24 repin. Its protected merge remains unauthorized pending exact-head checks, attributable CI, independent PASS, fresh ruleset/bypass/ref readback, and separate owner authorization.`,
+    "future STATUS REC-02 blocker transition"
+  );
+  text = replaceOnce(
+    text,
+    "**Build / GPT-Codex:** complete C14 pre-freeze validation and independent exact-byte review; only total PASS permits one freeze and the one-shot 13-gate runner. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "**Build / GPT-Codex:** after complete local PASS, push this exact REC-02 r2 identity once, open one draft PR against the protected recovery branch, monitor attributable attempt-1 CI, and hand the immutable packet to independent review. Do not mark ready or merge. `NO-PUBLISH / NOT CERTIFIED` remains active.",
+    "future STATUS next action"
+  );
+  return Buffer.from(text, "utf8");
+}
+
+const c14FutureTreeCache = new Map();
+
+function buildC14FutureTree(protectedMerge) {
+  if (c14FutureTreeCache.has(protectedMerge)) return c14FutureTreeCache.get(protectedMerge);
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  if (!patchIdentity || !baselineIdentity) throw new Error("future projection artifacts are missing");
+  if (patchIdentity.sha256 !== C14_PATCH_SHA256 || patchIdentity.byteLength !== C14_PATCH_BYTES) {
+    throw new Error("future projection patch identity drifted");
+  }
+  const artifact = JSON.parse(patchIdentity.bytes.toString("utf8"));
+  const futureStatus = expectedC14FutureStatus(protectedMerge);
+  const reconstructed = reconstructPatchTree(protectedMerge, artifact, {
+    [ACTIVE_BASELINE_PATH]: { bytes: baselineIdentity.bytes, mode: baselineIdentity.mode },
+    [STATUS_PATH]: { bytes: futureStatus, mode: "100644" }
+  });
+  const result = { tree: reconstructed.tree, transcript: reconstructed.transcript, status: futureStatus };
+  c14FutureTreeCache.set(protectedMerge, result);
+  return result;
+}
+
+function c14FutureEvidence(ref, protectedMerge) {
+  const errors = [];
+  const commit = commitHeaders(ref);
+  if (!commit) return { errors: ["future REC-02 candidate is not an independently framed commit object"] };
+  const base = c14MergeEvidence(protectedMerge);
+  if (base.errors.length) errors.push(...base.errors.map(error => `future base: ${error}`));
+  if (!sameList(commit.parents, [protectedMerge])) {
+    errors.push("future REC-02 candidate is not one direct child of exact X");
+  }
+  if (!sameList(changedPaths(protectedMerge, commit.oid), FUTURE_CHANGED_PATHS)) {
+    errors.push("future REC-02 changed paths differ from the exact ten-path activation scope");
+  }
+  let projected = null;
+  try {
+    projected = buildC14FutureTree(protectedMerge);
+    if (commit.tree !== projected.tree) {
+      errors.push(`future REC-02 tree ${commit.tree} != mechanically projected ${projected.tree}`);
+    }
+  } catch (error) {
+    errors.push(error.message);
+  }
+
+  const patchIdentity = fileIdentity(protectedMerge, PATCH_ARTIFACT_PATH);
+  const baselineIdentity = fileIdentity(protectedMerge, INACTIVE_BASELINE_PATH);
+  let artifact = null;
+  try {
+    artifact = patchIdentity ? JSON.parse(patchIdentity.bytes.toString("utf8")) : null;
+  } catch {
+    errors.push("future patch artifact is not valid JSON");
+  }
+  for (const row of artifact?.files || []) {
+    const output = fileIdentity(commit.oid, row.path);
+    if (!output || output.mode !== row.output?.mode || output.blob !== row.output?.blob
+      || output.sha256 !== row.output?.sha256 || output.byteLength !== row.output?.byteLength) {
+      errors.push(`${row.path}: future exact output identity drifted`);
+    }
+  }
+  const active = fileIdentity(commit.oid, ACTIVE_BASELINE_PATH);
+  if (!active || !baselineIdentity || active.mode !== baselineIdentity.mode || active.blob !== baselineIdentity.blob
+    || active.sha256 !== baselineIdentity.sha256 || active.byteLength !== baselineIdentity.byteLength) {
+    errors.push("future active baseline is not the exact authorized inactive baseline bytes");
+  }
+  const status = fileIdentity(commit.oid, STATUS_PATH);
+  if (!status || !projected || !status.bytes.equals(projected.status)) {
+    errors.push("future STATUS is not the exact mechanically derived transition");
+  }
+  if (status) errors.push(...noPublishStatusErrors(status.bytes));
+  if (policyProjection(commit.oid) !== C14_POLICY_PROJECTION_SHA256) errors.push("future REC-02 policy projection drifted");
+  errors.push(...workflowSecurityErrors(commit.oid, C14_RELEASE_WORKFLOW_SHA256));
+  errors.push(...c14WorkflowContractErrors(commit.oid));
+  errors.push(...validateProjectionArtifacts(commit.oid, ACTIVE_REC02_SEAL).errors);
+  errors.push(...validateArtCompatibility(commit.oid, ACTIVE_REC02_SEAL).errors);
+
+  const records = canonicalRecords(commit.tree, FUTURE_CHANGED_PATHS);
+  let manifest = null;
+  let expectedRaw = null;
+  let expectedOid = null;
+  if (records.some(record => !record)) {
+    errors.push("future REC-02 canonical manifest contains an unreadable path");
+  } else {
+    manifest = canonicalManifest(records);
+    expectedRaw = canonicalRawCommit(commit.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+    expectedOid = gitObjectOid("commit", expectedRaw);
+    if (!commit.bytes.equals(expectedRaw)) errors.push("future REC-02 raw commit payload differs from the exact canonical frame");
+    if (commit.oid !== expectedOid) errors.push(`future REC-02 OID ${commit.oid} != independently framed ${expectedOid}`);
+  }
+  return {
+    errors,
+    oid: commit.oid,
+    tree: commit.tree,
+    parent: protectedMerge,
+    rawSha256: sha256(commit.bytes),
+    expectedOid,
+    manifest,
+    manifestSha256: manifest ? sha256(Buffer.from(manifest)) : null
+  };
+}
+
+function c14FutureMergeEvidence(ref, protectedMerge) {
+  const merge = commitHeaders(ref);
+  if (!merge || merge.parents.length !== 2 || merge.parents[0] !== protectedMerge) {
+    return { errors: ["protected REC-02 successor is not an exact two-parent merge from X"] };
+  }
+  return mergeEvidence(merge.oid, protectedMerge, c14FutureEvidence(merge.parents[1], protectedMerge));
+}
+
+const TERMINAL_CORRECTION_BRANCHES = Object.freeze([
+  ...FAILED_POLICY_CORRECTION_BRANCHES,
+  C9_POLICY_CORRECTION_BRANCH,
+  POLICY_CORRECTION_BRANCH,
+  C11_POLICY_CORRECTION_BRANCH,
+  C12_POLICY_CORRECTION_BRANCH,
+  C13_POLICY_CORRECTION_BRANCH,
+  GATE_A_BRANCH,
+  AUTHORIZED_PATCH_TARGET_BRANCH
+]);
+const TERMINAL_SUCCESSOR_OBJECTS = Object.freeze(new Map([
+  [C9_HEAD_SHA, "C9/r7 is landed, consumed, and non-reusable"],
+  [C10_HEAD_SHA, "C10/r8 is landed, consumed, and non-reusable"],
+  [C11_HEAD_SHA, "C11/r9 is terminal and non-reusable"],
+  [C12_HEAD_SHA, "C12/r10 is terminal and non-reusable"],
+  [C13_HEAD_SHA, "C13/r11 is terminal and non-reusable"],
+  [C11_MERGE_SHA, "C11 terminal topology is non-reusable"],
+  [C11_REVIEW_MERGE_SHA, "C11 terminal topology is non-reusable"],
+  [C11_TRANSITION_SHA, "C11 terminal topology is non-reusable"],
+  [C12_MERGE_SHA, "C12 terminal topology is non-reusable"],
+  [C12_REVIEW_MERGE_SHA, "C12 terminal topology is non-reusable"],
+  [C12_TRANSITION_SHA, "C12 terminal topology is non-reusable"],
+  [C13_REVIEW_MERGE_SHA, "C13 terminal topology is non-reusable"],
+  [C13_FUTURE_SHA, "C13 terminal topology is non-reusable"],
+  [C13_TRANSITION_SHA, "C13 terminal topology is non-reusable"]
+]));
+
+function terminalC14RouteError(facts) {
+  const head = presentedCandidateHead(facts);
+  if (TERMINAL_SUCCESSOR_OBJECTS.has(head)) return TERMINAL_SUCCESSOR_OBJECTS.get(head);
+  if (TERMINAL_SUCCESSOR_OBJECTS.has(facts.beforeSha)) return TERMINAL_SUCCESSOR_OBJECTS.get(facts.beforeSha);
+  if (facts.eventName === "pull_request" && TERMINAL_CORRECTION_BRANCHES.includes(facts.headRef)) {
+    return `correction branch ${facts.headRef} is consumed or terminal and non-reusable`;
+  }
+  return null;
+}
+
+export function evaluatePolicy(facts) {
+  const notices = [
+    "NO-PUBLISH / NOT CERTIFIED remains active.",
+    "Ruleset 21051662, explicit bypass_actors: [], required checks, issue #24, and merge-time ref identity require a fresh owner-authenticated read before any separately authorized protected merge.",
+    "This workflow grants no merge, ready-for-review, rerun, deployment, release, tag, publication, certification, or external-write authority."
+  ];
+  const errors = [];
+  let route = null;
+  let evidence = null;
+
+  const failed = failedIdentityByHead(presentedCandidateHead(facts));
+  if (failed) {
+    evidence = rejectedIdentityEvidence(failed);
+    return { passed: false, errors: [...evidence.errors], notices, route, evidence };
+  }
+  const terminal = terminalC14RouteError(facts);
+  if (terminal) {
+    evidence = { errors: [terminal], rejectedBeforeGit: true, terminalFailure: true };
+    return { passed: false, errors: [terminal], notices, route, evidence };
+  }
+
+  if (facts.repository !== EXPECTED_REPOSITORY) errors.push(`repository ${facts.repository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
+  if (!FULL_SHA_RE.test(facts.sha || "")) errors.push("event SHA is not a full SHA-1");
+  if (facts.checkedOutSha !== facts.sha) {
+    errors.push(`checked-out SHA ${facts.checkedOutSha || "<missing>"} != event SHA ${facts.sha || "<missing>"}`);
+  }
+  if (facts.refType === "tag" || (facts.ref || "").startsWith("refs/tags/")) errors.push("tag creation or evaluation is forbidden");
+
+  if (facts.eventName === "pull_request") {
+    if (facts.baseRef === "main") errors.push("all pull requests to main are blocked while NO-PUBLISH is active");
+    if (facts.baseRef !== RECOVERY_BRANCH) errors.push(`pull-request base ${facts.baseRef || "<missing>"} != ${RECOVERY_BRANCH}`);
+    if (facts.prHeadRepository !== EXPECTED_REPOSITORY) {
+      errors.push(`pull-request head repository ${facts.prHeadRepository || "<missing>"} != ${EXPECTED_REPOSITORY}`);
+    }
+    if (!FULL_SHA_RE.test(facts.prBaseSha || "") || !FULL_SHA_RE.test(facts.prHeadSha || "")) {
+      errors.push("pull-request base/head SHA is not a full SHA-1 pair");
+    }
+    if (facts.headRef === C14_POLICY_CORRECTION_BRANCH) {
+      route = "rec-ratchet-02-c14";
+      if (facts.prBaseSha !== C10_MERGE_SHA) {
+        errors.push(`C14 pull-request base ${facts.prBaseSha || "<missing>"} != exact S ${C10_MERGE_SHA}`);
+      }
+      evidence = c14CandidateEvidence(facts.prHeadSha);
+      errors.push(...mergeEvidence(facts.sha, C10_MERGE_SHA, evidence).errors);
+    } else if (facts.headRef === FUTURE_BRANCH) {
+      route = "rec-02";
+      evidence = c14FutureEvidence(facts.prHeadSha, facts.prBaseSha);
+      errors.push(...mergeEvidence(facts.sha, facts.prBaseSha, evidence).errors);
+    } else {
+      errors.push(`pull-request head ${facts.headRef || "<missing>"} is not an armed recovery route`);
+    }
+  } else if (facts.eventName === "push") {
+    if (facts.ref !== `refs/heads/${RECOVERY_BRANCH}`
+      || facts.refName !== RECOVERY_BRANCH
+      || facts.refType !== "branch") {
+      errors.push("push is not an exact protected recovery-branch event");
+    }
+    if (facts.sha !== facts.afterSha) errors.push("push event SHA differs from after SHA");
+    if (facts.beforeSha === C10_MERGE_SHA) {
+      route = "rec-ratchet-02-c14-merge";
+      evidence = c14MergeEvidence(facts.afterSha);
+      errors.push(...evidence.errors);
+    } else {
+      const base = c14MergeEvidence(facts.beforeSha);
+      if (base.errors.length === 0) {
+        route = "rec-02-merge";
+        evidence = c14FutureMergeEvidence(facts.afterSha, facts.beforeSha);
+        errors.push(...evidence.errors);
+      } else {
+        errors.push("push before SHA is not exact S or the one unconsumed exact C14 successor X");
+      }
+    }
+  } else {
+    errors.push(`event ${facts.eventName || "<missing>"} is not authorized`);
+  }
+  return { passed: errors.length === 0, errors, notices, route, evidence };
+}
+
+function runGithubActionsGitEnvironmentFixture() {
+  const exact = { ...REQUIRED_REPOSITORY_GIT_ENVIRONMENT };
+  const positives = [
+    { label: "exact-four", environment: { ...exact } },
+    { label: "exact-four-plus-pager", environment: { ...exact, GIT_PAGER: "cat" } }
+  ];
+  for (const testCase of positives) {
+    const audit = withGitInvocationAudit(() => assertSafeGitEnvironment(testCase.environment));
+    assert.equal(audit.calls.length, 0, `${testCase.label} invoked Git`);
+    assert.deepEqual(audit.result, testCase.environment, `${testCase.label} normalized or changed an exact value`);
+  }
+
+  const negatives = [];
+  const wrongValues = {
+    GIT_CONFIG_GLOBAL: "/tmp/attacker-config",
+    GIT_CONFIG_NOSYSTEM: "0",
+    GIT_OPTIONAL_LOCKS: "1",
+    GIT_TERMINAL_PROMPT: "1"
+  };
+  for (const name of Object.keys(exact)) {
+    const missing = { ...exact };
+    delete missing[name];
+    negatives.push({ label: `${name}-missing`, environment: missing, names: [name] });
+    negatives.push({ label: `${name}-empty`, environment: { ...exact, [name]: "" }, names: [name] });
+    negatives.push({ label: `${name}-wrong`, environment: { ...exact, [name]: wrongValues[name] }, names: [name] });
+  }
+  negatives.push({ label: "pager-wrong", environment: { ...exact, GIT_PAGER: "less" }, names: ["GIT_PAGER"] });
+  const sampledExtras = [
+    "GIT_CEILING_DIRECTORIES",
+    "GIT_CONFIG_SYSTEM",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_KEY_0",
+    "GIT_CONFIG_VALUE_0",
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_EXTERNAL_DIFF",
+    "GIT_DIFF_OPTS",
+    "GIT_SSH",
+    "GIT_SSH_COMMAND",
+    "GIT_ASKPASS",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_ATTR_NOSYSTEM",
+    "GIT_PROTOCOL_FROM_USER",
+    "GIT_FLUSH",
+    "GIT_TRACE",
+    "GIT_TRACE2",
+    "GIT_NAMESPACE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE"
+  ];
+  for (const name of sampledExtras) {
+    negatives.push({ label: `${name}-extra`, environment: { ...exact, [name]: "attacker" }, names: [name] });
+  }
+  negatives.push({
+    label: "coherent-command-scope-config",
+    environment: {
+      ...exact,
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "core.fsmonitor",
+      GIT_CONFIG_VALUE_0: "!attacker-command"
+    },
+    names: ["GIT_CONFIG_COUNT", "GIT_CONFIG_KEY_0", "GIT_CONFIG_VALUE_0"]
+  });
+  negatives.push({
+    label: "github-marker-missing",
+    environment: {
+      ...Object.fromEntries(Object.entries(exact).filter(([name]) => name !== "GIT_TERMINAL_PROMPT")),
+      GITHUB_ACTIONS: "true",
+      CI: "true",
+      RUNNER_ENVIRONMENT: "github-hosted"
+    },
+    names: ["GIT_TERMINAL_PROMPT"]
+  });
+  negatives.push({
+    label: "github-marker-wrong",
+    environment: { ...exact, GIT_OPTIONAL_LOCKS: "1", GITHUB_ACTIONS: "true", CI: "true" },
+    names: ["GIT_OPTIONAL_LOCKS"]
+  });
+  negatives.push({
+    label: "github-marker-extra",
+    environment: { ...exact, GIT_CEILING_DIRECTORIES: "/runner/work", GITHUB_ACTIONS: "true", CI: "true" },
+    names: ["GIT_CEILING_DIRECTORIES"]
+  });
+
+  const sentinelRoot = mkdtempSync(join(tmpdir(), "sunsplitter-c14-git-sentinel-"));
+  const sentinelMarker = join(sentinelRoot, "CALLED");
+  try {
+    writeFileSync(
+      join(sentinelRoot, "git"),
+      `#!/bin/sh\nprintf called > '${sentinelMarker}'\nexit 99\n`,
+      { flag: "wx", mode: 0o700 }
+    );
+    let zeroGitRejections = 0;
+    for (const testCase of negatives) {
+      const audit = withGitInvocationAudit(() => {
+        try {
+          assertSafeGitEnvironment({ ...testCase.environment, PATH: sentinelRoot });
+          return null;
+        } catch (error) {
+          return error;
+        }
+      });
+      assert.equal(audit.calls.length, 0, `${testCase.label} reached repository Git`);
+      assert.ok(audit.result instanceof Error, `${testCase.label} unexpectedly passed`);
+      const expectedNames = [...testCase.names].sort();
+      const suffix = audit.result.message.slice(audit.result.message.indexOf(":") + 1).trim();
+      assert.deepEqual(suffix.split(", ").filter(Boolean), expectedNames, `${testCase.label} error names drifted`);
+      for (const value of Object.values(testCase.environment)) {
+        if (typeof value === "string" && value.includes("attacker")) {
+          assert.equal(audit.result.message.includes(value), false, `${testCase.label} printed an attacker value`);
+        }
+      }
+      zeroGitRejections += 1;
+    }
+    assert.equal(existsSync(sentinelMarker), false, "sentinel Git executable was called");
+    return {
+      expectedGitEnvironment: exact,
+      mode: "github-actions-git-environment-fixture",
+      negativeCases: negatives.length,
+      optionalPagerCases: 1,
+      positiveCases: positives.length,
+      result: "PASS",
+      schemaVersion: 1,
+      sentinelGitCalls: 0,
+      zeroGitRejections
+    };
+  } finally {
+    rmSync(sentinelRoot, { recursive: true, force: true });
+  }
+}
+
+export function githubActionsGitEnvironmentFixture() {
+  return runGithubActionsGitEnvironmentFixture();
+}
+
+function currentC14Inputs() {
+  const inputs = {};
+  for (const path of C14_CHANGED_PATHS) {
+    const physicalPath = resolve(ROOT, path);
+    const metadata = lstatSync(physicalPath);
+    if (!metadata.isFile() || metadata.isSymbolicLink()) throw new Error(`self-test ${path} is not one regular file`);
+    const worktree = readFileSync(physicalPath);
+    const index = gitBytes(["show", `:${path}`]);
+    if (!worktree.equals(index)) throw new Error(`self-test ${path} has unstaged worktree drift`);
+    const text = worktree.toString("utf8");
+    if (!Buffer.from(text, "utf8").equals(worktree)) throw new Error(`self-test ${path} is not lossless UTF-8`);
+    if (text.includes("\r")) throw new Error(`self-test ${path} contains CR bytes`);
+    if (!text.endsWith("\n") || text.endsWith("\n\n")) throw new Error(`self-test ${path} does not have exactly one terminal LF`);
+    inputs[path] = worktree;
+  }
+  const patchBytes = inputs[PATCH_ARTIFACT_PATH];
+  const parsedPatch = JSON.parse(patchBytes.toString("utf8"));
+  const formattedPatch = Buffer.from(`${JSON.stringify(parsedPatch, null, 2)}\n`, "utf8");
+  if (!formattedPatch.equals(patchBytes)) throw new Error("active patch artifact is not canonical two-space JSON with one terminal LF");
+  return inputs;
+}
+
+function c14Fixture(inputs = currentC14Inputs()) {
+  const tree = treeWithOverrides(C10_MERGE_SHA, Object.fromEntries(
+    C14_CHANGED_PATHS.map(path => [path, inputs[path]])
+  ));
+  const records = canonicalRecords(tree, C14_CHANGED_PATHS);
+  assert.ok(records.every(Boolean), "C14 fixture manifest contains a missing record");
+  const raw = c14RawCommit(tree);
+  const oid = writeRawCommit(raw);
+  return { oid, tree, raw, records, inputs };
+}
+
+function c14FutureFixture(protectedMerge) {
+  const projected = buildC14FutureTree(protectedMerge);
+  const records = canonicalRecords(projected.tree, FUTURE_CHANGED_PATHS);
+  assert.ok(records.every(Boolean), "future C14 fixture manifest contains a missing record");
+  const raw = canonicalRawCommit(projected.tree, protectedMerge, FUTURE_AUTHOR, FUTURE_COMMIT_TITLE, records);
+  return { oid: writeRawCommit(raw), raw, tree: projected.tree, records };
+}
+
+function expectC14PolicyFailure(facts, mutate, needle) {
+  const altered = structuredClone(facts);
+  mutate(altered);
+  const result = evaluatePolicy(altered);
+  assert.equal(result.passed, false, `policy unexpectedly accepted ${needle}`);
+  assert.ok(result.errors.some(error => error.includes(needle)), `missing ${needle}: ${result.errors.join(" | ")}`);
+}
+
+function selfTest() {
+  assertSafeGitEnvironment(process.env);
+  assert.ok(FULL_SHA256_RE.test(C14_POLICY_PROJECTION_SHA256) && !/^0+$/.test(C14_POLICY_PROJECTION_SHA256));
+  assert.ok(FULL_SHA256_RE.test(C14_CANDIDATE_INVENTORY_SHA256) && !/^0+$/.test(C14_CANDIDATE_INVENTORY_SHA256));
+  assert.ok(FULL_SHA256_RE.test(C14_FUTURE_INVENTORY_SHA256) && !/^0+$/.test(C14_FUTURE_INVENTORY_SHA256));
+  assert.equal(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))), C14_POLICY_PROJECTION_SHA256);
+
+  const environmentReceipt = runGithubActionsGitEnvironmentFixture();
+  assert.equal(environmentReceipt.result, "PASS");
+  const childProbe = sanitizedChildGitEnvironment({ C14_NON_GIT_PROBE: "preserved" });
+  assert.equal(childProbe.C14_NON_GIT_PROBE, "preserved", "ordinary non-Git child environment did not survive");
+  const childGitNames = Object.keys(childProbe).filter(name => name.startsWith("GIT_")).sort();
+  const expectedChildGitNames = [
+    ...Object.keys(REQUIRED_REPOSITORY_GIT_ENVIRONMENT),
+    ...Object.keys(POLICY_CHILD_GIT_ENVIRONMENT),
+    ...(process.env.GIT_PAGER === "cat" ? ["GIT_PAGER"] : [])
+  ].sort();
+  assert.deepEqual(childGitNames, expectedChildGitNames, "policy Git child environment inventory drifted");
+  const childAudit = withGitInvocationAudit(() => gitText(["--version"], { env: { C14_NON_GIT_PROBE: "preserved" } }));
+  assert.match(childAudit.result, /^git version /);
+  assert.equal(childAudit.calls.length, 1);
+  assert.equal(childAudit.calls[0].executable, ABSOLUTE_GIT);
+  assert.deepEqual(childAudit.calls[0].gitEnvironmentNames, expectedChildGitNames);
+
+  legacySelfTest();
+
+  const candidateInventory = forbiddenObjectInventory("c14");
+  const futureInventory = forbiddenObjectInventory("rec-02");
+  assert.deepEqual(candidateInventory.counts, {
+    artBlobs: 79,
+    artRoots: 2,
+    consumedC11Objects: 6,
+    consumedC12Objects: 6,
+    consumedC13Objects: 6,
+    derived: 8,
+    failedIdentityObjects: 18,
+    total: 125
+  });
+  assert.deepEqual(futureInventory.counts, {
+    artBlobs: 79,
+    artRoots: 2,
+    consumedC11Objects: 6,
+    consumedC12Objects: 6,
+    consumedC13Objects: 6,
+    derived: 7,
+    failedIdentityObjects: 18,
+    total: 124
+  });
+  assertForbiddenObjectInventoryIdentity("c14", sha256(canonicalJsonBytes(candidateInventory)));
+  assertForbiddenObjectInventoryIdentity("rec-02", sha256(canonicalJsonBytes(futureInventory)));
+  for (const [label, objects] of [
+    ["C11", CONSUMED_C11_OBJECTS],
+    ["C12", CONSUMED_C12_OBJECTS],
+    ["C13", CONSUMED_C13_OBJECTS]
+  ]) {
+    for (const oid of objects) {
+      assert.ok(candidateInventory.objects.includes(oid), `${label} object is absent from the C14 inventory`);
+      assert.ok(futureInventory.objects.includes(oid), `${label} object is absent from the future inventory`);
+    }
+  }
+
+  const gateA = historicalGateAFixture();
+  const c9 = policyCorrectionFixture();
+  const c10 = policySuccessorEvidence(C10_HEAD_SHA);
+  assert.deepEqual(c10.errors, [], `historical C10 evidence drifted: ${c10.errors.join(" | ")}`);
+  const s = policySuccessorMergeEvidence(C10_MERGE_SHA);
+  assert.deepEqual(s.errors, [], `historical S evidence drifted: ${s.errors.join(" | ")}`);
+  assert.equal(s.oid, C10_MERGE_SHA);
+  assert.equal(s.tree, C10_MERGE_TREE);
+  assert.equal(sha256(commitHeaders(C10_MERGE_SHA).bytes), C10_MERGE_RAW_SHA256);
+  assert.equal(c10.oid, C10_HEAD_SHA);
+  assert.equal(c10.tree, C10_HEAD_TREE);
+  assert.equal(c10.rawSha256, C10_HEAD_RAW_SHA256);
+  assert.equal(c10.manifestSha256, C10_MANIFEST_SHA256);
+
+  const candidate = c14Fixture();
+  const candidateEvidence = c14CandidateEvidence(candidate.oid);
+  assert.deepEqual(candidateEvidence.errors, [], `C14 fixture failed: ${candidateEvidence.errors.join(" | ")}`);
+  let structuredRejected = 0;
+  const countC14Rejection = (condition, label) => {
+    assert.ok(condition, label);
+    structuredRejected += 1;
+  };
+  const candidateText = candidate.raw.toString("utf8");
+  const candidateRawMutations = [
+    [candidate.raw.subarray(0, candidate.raw.length - 1), "missing terminal LF"],
+    [Buffer.concat([candidate.raw, Buffer.from("\n")]), "extra terminal LF"],
+    [Buffer.from(candidateText.replaceAll("\n", "\r\n")), "CRLF raw frame"],
+    [Buffer.from(candidateText.replace(C14_POLICY_CORRECTION_COMMIT_TITLE, `${C14_POLICY_CORRECTION_COMMIT_TITLE}.`)), "title drift"],
+    [Buffer.from(candidateText.replace(`author ${C14_POLICY_CORRECTION_AUTHOR}`, "author Altered <noreply@openai.com> 1788656400 -0500")), "author drift"],
+    [Buffer.from(candidateText.replace(`committer ${C14_POLICY_CORRECTION_AUTHOR}`, "committer Altered <noreply@openai.com> 1788656400 -0500")), "committer drift"],
+    [Buffer.from(candidateText.replace("1788656400", "1788656401")), "timestamp drift"],
+    [Buffer.from(candidateText.replaceAll("-0500", "+0000")), "timezone drift"],
+    [Buffer.from(candidateText.replace(`parent ${C10_MERGE_SHA}`, `parent ${C9_MERGE_SHA}`)), "parent drift"],
+    [Buffer.from(candidateText.replace(`parent ${C10_MERGE_SHA}`, `parent ${C10_MERGE_SHA}\nparent ${C9_MERGE_SHA}`)), "extra parent"],
+    [Buffer.from(candidateText.replace(`tree ${candidate.tree}`, `tree ${C10_MERGE_TREE}`)), "tree drift"],
+    [Buffer.from(candidateText.replace("author ", "encoding UTF-8\nauthor ")), "encoding header"],
+    [Buffer.from(candidateText.replace("author ", "gpgsig counterfeit\nauthor ")), "signature header"],
+    [Buffer.from(candidateText.replace(`author ${C14_POLICY_CORRECTION_AUTHOR}\ncommitter ${C14_POLICY_CORRECTION_AUTHOR}`, `committer ${C14_POLICY_CORRECTION_AUTHOR}\nauthor ${C14_POLICY_CORRECTION_AUTHOR}`)), "header order"],
+    [Buffer.from(candidateText.replace(`committer ${C14_POLICY_CORRECTION_AUTHOR}\n\n`, `committer ${C14_POLICY_CORRECTION_AUTHOR}\n`)), "header/message boundary"]
+  ];
+  for (const [bytes, label] of candidateRawMutations) {
+    countC14Rejection(c14CandidateEvidence(writeRawCommit(bytes)).errors.length > 0, `C14 raw mutation accepted: ${label}`);
+  }
+
+  const exactOverrides = Object.fromEntries(C14_CHANGED_PATHS.map(path => [path, candidate.inputs[path]]));
+  const treeMutations = [
+    ["workflow bytes", { ...exactOverrides, [RELEASE_WORKFLOW_PATH]: Buffer.concat([candidate.inputs[RELEASE_WORKFLOW_PATH], Buffer.from("\n")]) }],
+    ["STATUS bytes", { ...exactOverrides, [STATUS_PATH]: Buffer.concat([candidate.inputs[STATUS_PATH], Buffer.from("\n")]) }],
+    ["record bytes", { ...exactOverrides, [POLICY_CORRECTION_RECORD_PATH]: Buffer.concat([candidate.inputs[POLICY_CORRECTION_RECORD_PATH], Buffer.from("\n")]) }],
+    ["patch bytes", { ...exactOverrides, [PATCH_ARTIFACT_PATH]: Buffer.concat([candidate.inputs[PATCH_ARTIFACT_PATH], Buffer.from("\n")]) }],
+    ["policy bytes", { ...exactOverrides, [POLICY_PATH]: Buffer.concat([candidate.inputs[POLICY_PATH], Buffer.from("\n")]) }],
+    ["workflow mode", { ...exactOverrides, [RELEASE_WORKFLOW_PATH]: { bytes: candidate.inputs[RELEASE_WORKFLOW_PATH], mode: "100755" } }],
+    ["extra path", { ...exactOverrides, "artifacts/C14-UNAUTHORIZED": Buffer.from("unauthorized\n") }],
+    ["missing path", { ...exactOverrides, [POLICY_CORRECTION_RECORD_PATH]: null }]
+  ];
+  for (const [label, overrides] of treeMutations) {
+    const alteredTree = treeWithOverrides(C10_MERGE_SHA, overrides);
+    const alteredHead = writeRawCommit(c14RawCommit(alteredTree));
+    countC14Rejection(c14CandidateEvidence(alteredHead).errors.length > 0, `C14 tree mutation accepted: ${label}`);
+  }
+
+  const x = genericMerge(candidate.tree, [C10_MERGE_SHA, candidate.oid], "C14 protected successor fixture");
+  const xEvidence = c14MergeEvidence(x.oid);
+  assert.deepEqual(xEvidence.errors, [], `X fixture failed: ${xEvidence.errors.join(" | ")}`);
+  for (const fixture of [
+    genericMerge(candidate.tree, [C10_MERGE_SHA], "C14 one-parent X fixture"),
+    genericMerge(candidate.tree, [candidate.oid, C10_MERGE_SHA], "C14 swapped X fixture"),
+    genericMerge(candidate.tree, [C10_MERGE_SHA, candidate.oid, C9_MERGE_SHA], "C14 octopus X fixture"),
+    genericMerge(C10_MERGE_TREE, [C10_MERGE_SHA, candidate.oid], "C14 wrong-tree X fixture")
+  ]) countC14Rejection(c14MergeEvidence(fixture.oid).errors.length > 0, "invalid C14 X topology accepted");
+
+  const future = c14FutureFixture(x.oid);
+  const futureEvidence = c14FutureEvidence(future.oid, x.oid);
+  assert.deepEqual(futureEvidence.errors, [], `future fixture failed: ${futureEvidence.errors.join(" | ")}`);
+  const futureStatusText = fileIdentity(future.oid, STATUS_PATH).bytes.toString("utf8");
+  assert.match(
+    futureStatusText,
+    new RegExp(`rec_ratchet_02_control_state: [^\n]*C14/r12 CLOSED/LANDED/CONSUMED at exact protected successor ${x.oid}`)
+  );
+  assert.doesNotMatch(futureStatusText, /rec_ratchet_02_control_state:[^\n]*C14\/r12 PRE-IDENTITY/);
+  const futureText = future.raw.toString("utf8");
+  for (const [bytes, label] of [
+    [future.raw.subarray(0, future.raw.length - 1), "missing terminal LF"],
+    [Buffer.concat([future.raw, Buffer.from("\n")]), "extra terminal LF"],
+    [Buffer.from(futureText.replace(FUTURE_COMMIT_TITLE, `${FUTURE_COMMIT_TITLE}.`)), "title drift"],
+    [Buffer.from(futureText.replace(`parent ${x.oid}`, `parent ${C10_MERGE_SHA}`)), "parent drift"],
+    [Buffer.from(futureText.replace(`parent ${x.oid}`, `parent ${x.oid}\nparent ${C10_MERGE_SHA}`)), "extra parent"],
+    [Buffer.from(futureText.replace(`tree ${future.tree}`, `tree ${candidate.tree}`)), "tree drift"]
+  ]) countC14Rejection(c14FutureEvidence(writeRawCommit(bytes), x.oid).errors.length > 0, `future raw mutation accepted: ${label}`);
+
+  const t = genericMerge(future.tree, [x.oid, future.oid], "REC-02 protected successor fixture");
+  const tEvidence = c14FutureMergeEvidence(t.oid, x.oid);
+  assert.deepEqual(tEvidence.errors, [], `T fixture failed: ${tEvidence.errors.join(" | ")}`);
+  for (const fixture of [
+    genericMerge(future.tree, [x.oid], "future one-parent T fixture"),
+    genericMerge(future.tree, [future.oid, x.oid], "future swapped T fixture"),
+    genericMerge(future.tree, [x.oid, future.oid, C10_MERGE_SHA], "future octopus T fixture"),
+    genericMerge(candidate.tree, [x.oid, future.oid], "future wrong-tree T fixture")
+  ]) countC14Rejection(c14FutureMergeEvidence(fixture.oid, x.oid).errors.length > 0, "invalid future T topology accepted");
+
+  const c14Pr = prFacts({
+    sha: x.oid,
+    base: C10_MERGE_SHA,
+    head: candidate.oid,
+    headRef: C14_POLICY_CORRECTION_BRANCH
+  });
+  const c14Push = pushFacts({ before: C10_MERGE_SHA, after: x.oid });
+  const futurePr = prFacts({ sha: t.oid, base: x.oid, head: future.oid, headRef: FUTURE_BRANCH });
+  const futurePush = pushFacts({ before: x.oid, after: t.oid });
+  for (const [label, facts] of [
+    ["C14 PR", c14Pr],
+    ["C14 push", c14Push],
+    ["future PR", futurePr],
+    ["future push", futurePush]
+  ]) {
+    const result = evaluatePolicy(facts);
+    assert.equal(result.passed, true, `${label} failed: ${result.errors.join(" | ")}`);
+  }
+
+  const structuredCases = [
+    [c14Pr, facts => { facts.repository = "attacker/repository"; }, "repository"],
+    [c14Pr, facts => { facts.checkedOutSha = C10_MERGE_SHA; }, "checked-out SHA"],
+    [c14Pr, facts => { facts.refType = "tag"; }, "tag creation"],
+    [c14Pr, facts => { facts.baseRef = "main"; }, "pull requests to main"],
+    [c14Pr, facts => { facts.prHeadRepository = "fork/repository"; }, "pull-request head repository"],
+    [c14Pr, facts => { facts.prBaseSha = GATE_A_MERGE_SHA; }, "C14 pull-request base"],
+    [c14Pr, facts => { facts.headRef = "ticket/unarmed"; }, "not an armed recovery route"],
+    [c14Pr, facts => { facts.eventName = "workflow_dispatch"; }, "event workflow_dispatch"],
+    [c14Push, facts => { facts.ref = "refs/heads/main"; }, "not an exact protected recovery-branch event"],
+    [c14Push, facts => { facts.refName = "main"; }, "not an exact protected recovery-branch event"],
+    [c14Push, facts => { facts.refType = "tag"; }, "tag creation"],
+    [c14Push, facts => { facts.sha = candidate.oid; }, "push event SHA differs"],
+    [c14Push, facts => { facts.beforeSha = GATE_A_MERGE_SHA; }, "push before SHA"],
+    [futurePr, facts => { facts.prBaseSha = C10_MERGE_SHA; }, "future base"],
+    [futurePush, facts => { facts.afterSha = future.oid; facts.sha = future.oid; }, "protected REC-02 successor"]
+  ];
+  for (const [facts, mutate, needle] of structuredCases) {
+    expectC14PolicyFailure(facts, mutate, needle);
+    structuredRejected += 1;
+  }
+  countC14Rejection(
+    evaluatePolicy(prFacts({ sha: x.oid, base: x.oid, head: candidate.oid, headRef: C14_POLICY_CORRECTION_BRANCH })).passed === false,
+    "replayed C14 pull request route accepted"
+  );
+  countC14Rejection(
+    evaluatePolicy(pushFacts({ before: x.oid, after: x.oid })).passed === false,
+    "replayed protected successor accepted"
+  );
+
+  let zeroGitRejected = 0;
+  const terminalFacts = [
+    ...FAILED_IDENTITIES.map(identity => prFacts({
+      sha: identity.head,
+      base: C10_MERGE_SHA,
+      head: identity.head,
+      headRef: C14_POLICY_CORRECTION_BRANCH
+    })),
+    ...[...TERMINAL_SUCCESSOR_OBJECTS.keys()].map(oid => prFacts({
+      sha: oid,
+      base: C10_MERGE_SHA,
+      head: oid,
+      headRef: C14_POLICY_CORRECTION_BRANCH
+    })),
+    ...TERMINAL_CORRECTION_BRANCHES.map(headRef => prFacts({
+      sha: candidate.oid,
+      base: C10_MERGE_SHA,
+      head: candidate.oid,
+      headRef
+    }))
+  ];
+  for (const facts of terminalFacts) {
+    const audit = withGitInvocationAudit(() => evaluatePolicy(facts));
+    assert.equal(audit.result.passed, false, "terminal route unexpectedly passed");
+    assert.equal(audit.calls.length, 0, "terminal route was rejected after repository Git");
+    zeroGitRejected += 1;
+  }
+  assert.equal(zeroGitRejected, 36, "active C14 zero-Git terminal-route count drifted");
+  assert.equal(structuredRejected, 54, "active C14 structured adversarial count drifted");
+  assert.equal(environmentReceipt.positiveCases, 2, "focused environment positive count drifted");
+  assert.equal(environmentReceipt.negativeCases, 41, "focused environment negative count drifted");
+  assert.equal(environmentReceipt.zeroGitRejections, 41, "focused environment zero-Git count drifted");
+
+  console.log(
+    `PASS release-policy self-test — ${zeroGitRejected} zero-Git terminal-route rejections; `
+    + `${structuredRejected} structured adversarial rejections; ${environmentReceipt.negativeCases} environment negatives; `
+    + `immutable Gate A/C9/C10/S, one self-consuming C14 route, and one self-consuming REC-02 r2 route accepted; NO-PUBLISH remains active`
+  );
+  console.log(`FIXTURE gate-a-head=${gateA.oid} tree=${gateA.tree}`);
+  console.log(`FIXTURE c9-head=${c9.oid} tree=${c9.tree}`);
+  console.log(`FIXTURE c14-head=${candidate.oid} tree=${candidate.tree} x=${x.oid}`);
+  console.log(`FIXTURE future-head=${future.oid} tree=${future.tree} t=${t.oid}`);
+  console.log(`INVENTORY c14=${candidateInventory.objects.length}/${C14_CANDIDATE_INVENTORY_SHA256} future=${futureInventory.objects.length}/${C14_FUTURE_INVENTORY_SHA256}`);
+}
+
+function taskForRoute(route) {
+  if (route?.startsWith("rec-ratchet-02-c14")) return "REC-RATCHET-02-C14-R12";
   if (route?.startsWith("rec-ratchet-02")) return "REC-RATCHET-02/#24";
   if (route?.startsWith("rec-02")) return "REC-02/#24";
   return "GOVERNED-RECOVERY";
@@ -3412,7 +4885,7 @@ function writeSummary(facts, result) {
   appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 }
 
-function main() {
+function legacyMain() {
   if (process.argv.length === 3 && process.argv[2] === "--forbidden-object-inventory") {
     process.stdout.write(canonicalJsonBytes(forbiddenObjectInventory()));
     return;
@@ -3431,6 +4904,52 @@ function main() {
   }
   if (process.argv.length !== 2) {
     throw new Error("Usage: node scripts/release-policy.mjs [--forbidden-object-inventory|--check-candidate-only-object-store|--self-test|--projection]");
+  }
+  const facts = environmentFromProcess();
+  const result = evaluatePolicy(facts);
+  const shortSha = (facts.sha || "unknown").slice(0, 7);
+  console.log(`SOURCE ${shortSha} · RUNTIME ${shortSha} · TASK ${taskForRoute(result.route)} · MODE verification`);
+  console.log(`exact tested SHA: ${facts.sha || "missing"}`);
+  if (facts.prHeadSha) console.log(`pull-request head SHA: ${facts.prHeadSha}`);
+  if (facts.prBaseSha) console.log(`pull-request base SHA: ${facts.prBaseSha}`);
+  result.notices.forEach(notice => console.log(`NOTICE ${notice}`));
+  writeSummary(facts, result);
+  if (!result.passed) {
+    result.errors.forEach(error => console.error(`FAIL ${error}`));
+    process.exitCode = 1;
+  } else {
+    console.log("PASS governed recovery release policy; NO-PUBLISH / NOT CERTIFIED remains active");
+  }
+}
+
+function main() {
+  // This is the first trust decision for every CLI mode. It is deliberately
+  // before environment-derived facts and before every repository Git read.
+  assertSafeGitEnvironment(process.env);
+  if (process.argv.length === 3 && process.argv[2] === "--github-actions-git-environment-fixture") {
+    process.stdout.write(canonicalJsonBytes(githubActionsGitEnvironmentFixture()));
+    return;
+  }
+  if (process.argv.length === 3 && process.argv[2] === "--forbidden-object-inventory") {
+    process.stdout.write(canonicalJsonBytes(forbiddenObjectInventories()));
+    return;
+  }
+  if (process.argv.length === 3 && process.argv[2] === "--check-candidate-only-object-store") {
+    process.stdout.write(canonicalJsonBytes(candidateOnlyObjectStoreReceipt()));
+    return;
+  }
+  if (process.argv.length === 3 && process.argv[2] === "--self-test") {
+    selfTest();
+    return;
+  }
+  if (process.argv.length === 3 && process.argv[2] === "--projection") {
+    console.log(sha256(normalizedPolicyBytes(readFileSync(resolve(ROOT, POLICY_PATH)))));
+    return;
+  }
+  if (process.argv.length !== 2) {
+    throw new Error(
+      "Usage: node scripts/release-policy.mjs [--github-actions-git-environment-fixture|--forbidden-object-inventory|--check-candidate-only-object-store|--self-test|--projection]"
+    );
   }
   const facts = environmentFromProcess();
   const result = evaluatePolicy(facts);
