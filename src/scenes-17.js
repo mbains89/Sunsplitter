@@ -50,7 +50,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
         let list;
         if (deadNamed.length === 1) list = deadNamed[0];
         else if (deadNamed.length === 2) list = deadNamed[0] + " and " + deadNamed[1];
-        else list = deadNamed.slice(0, 2).join(", ") + ", and others";
+        else list = deadNamed.slice(0, -1).join(", ") + ", and " + deadNamed[deadNamed.length - 1];
         t += `\n\n"I heard the casualty list. ${list}. I said their names once when the beacon logged the update. That is all I can offer the dead."`;
       }
       // Minimal cross-route seed: awareness as witnessed fact only

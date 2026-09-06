@@ -5,6 +5,7 @@ registerScenes({
 
   // PRE: post-transmission vault route | WRITES: onEnter may write past_known_by.lena; paid choices affect resources/flag/lean; governed floor writes nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Tomas/Amara/Elias text and Mira choice are living-gated
+  // SPEECH TAG: presence-line is Mira if living, else Tomas if living; never unattributed
   // IMAGE: REUSE images/vault_voice.jpg; no new art request
   vault_voice: {
     get text() {
@@ -30,6 +31,13 @@ Not an alarm. A voice. Soft, almost childlike, cycling through fragments of the 
 `;
       }
       if (isAlive("mira") || isAlive("tomas")) {
+        t += isAlive("mira")
+          ? `Mira does not look away from the panel.
+
+`
+          : `Tomas keeps his voice low.
+
+`;
         t += `"Some of the crew have started treating it as a presence.`;
         if (isAlive("amara")) t += ` Amara left a plant cutting on the hatch.`;
         if (isAlive("elias")) t += ` Elias wants the audio disabled.`;
