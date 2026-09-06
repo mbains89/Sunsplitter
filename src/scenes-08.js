@@ -19,10 +19,21 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara" },
-      { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara" },
+        { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 } }
+      ];
+      const enabled = routes.some(choice =>
+        (!choice.alive || isAlive(choice.alive)) &&
+        (!choice.requires || meetsRequirements(choice.requires)) &&
+        (!choice.effects || canAffordEffects(choice.effects))
+      );
+      if (!enabled) {
+        routes.push({ text: "Leave the trays as they are.", next: "arc_living_2" });
+      }
+      return routes;
+    }
   },
 
   // SUN-V035-PLAYTEST-SELA-ANSWER-01: only the Ask destination changes.
@@ -30,6 +41,7 @@ registerScenes({
   // WRITES: original cohesion/supplies/integrity, lean, affinity/trust, spoken
   // marks and sela_attention choices; entry retains its original memory/mark.
   // DEATH: none. IMAGE: existing sela_ritual / absent-Sela resolver unchanged.
+  // LOCK: static four-button array. Verify indexes 0, 2, 3 and requires .next on each.
   arc_living_2: {
     get text() {
       let t = ``;
@@ -51,17 +63,12 @@ registerScenes({
       }
       return t;
     },
-    get choices() {
-      const routes = [
-        { text: "Tell her refusal is a kind of navigation. Keep the ritual protected.", next: "arc_living_3", effects: { cohesion: 4, supplies: -1 }, lean: { living: 3 }, affinity: { sela: 12, jiro: 6 }, trust: { sela: 10 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, alive: "sela" },
-        { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_sela_answer", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
-        { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" }
-      ];
-      if (!isAlive("sela")) {
-        return [{ text: "Leave the marks where they are.", next: "arc_living_3" }];
-      }
-      return routes;
-    },
+    choices: [
+      { text: "Tell her refusal is a kind of navigation. Keep the ritual protected.", next: "arc_living_3", effects: { cohesion: 4, supplies: -1 }, lean: { living: 3 }, affinity: { sela: 12, jiro: 6 }, trust: { sela: 10 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, alive: "sela" },
+      { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_sela_answer", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
+      { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" },
+      { text: "Leave the marks where they are.", next: "arc_living_3" }
+    ],
     onEnter: () => {
       if (isAlive("sela")) {
         remember("Sela said refusal is half of what the yellow is for.");
