@@ -1,23 +1,21 @@
 # Sunsplitter — Current Status
 
 `schema_version: 2`
-`updated_utc: 2026-09-04`
-`source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
-`source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
-`runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
-`runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
-`audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
-`protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 1a8e8a5cd2255350329f3861ef7d881c1a1aa6a6`
-`owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
+`updated_utc: 2026-09-05`
+`status_lock: Fable DO · 2026-09-05`
+`version_lane_sha: 24bc29dc17031e71eb7008b13636c3be383b821a`
+`version_lane_tip_short: 24bc29dc`
+`last_merged_privacy_pr: 170`
+`owner_playtest_pin_sha: REPIN_OWED_GE_24bc29dc`
+`source_main_sha: observe-on-next-boundary · do not invent`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
 
 ## Release and authority state
 
-`observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 1a8e8a5 — LANDED ON VERSION LANE after PR 147; not SHIPPED; not CERTIFIED`
-`audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
+`observed_runtime: version lane @24bc29dc — LANDED ON VERSION LANE after PR 170 privacy; not SHIPPED; not CERTIFIED`
+`version_lane_head: 24bc29dc17031e71eb7008b13636c3be383b821a — PR 170 privacy merged; LANDED ON VERSION LANE only`
+`player_facing_paint: ~0.33`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
 `release_state: NO-PUBLISH`
@@ -26,65 +24,51 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: not opened`
 
-Main's `src` tree is byte-identical to protected recovery head `41d43f7` (`992f7c57e18709acc08c8ee3cddcfdea816a6acf`). Main and that protected head are not repository-equivalent: their art, pipeline, and authority-document trees differ. The audited recovery base `e4f8440` remains provenance, not the current observed runtime and not a release candidate. Version-lane `src` has advanced past that pin; those bytes are LANDED ON VERSION LANE only.
-
-Current main art is **PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT**. No art decision, wiring approval, roster approval, publication right, or release credit is implied by image presence.
-
-PIPE-BOOT and PIPE-BOOT-R1 were accepted and closed in the protected recovery lineage (`93ccb43e141da544b999ba2c45f664a19428a5e3`, then `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`). They are protected governance/pipeline evidence only; they grant no gameplay, release, certification, publication, deployment, or sequential-gate credit.
-
-Owner playtesting uses Netlify pin `a91a26d`. This file does not remint PIN-02 and does not authorize a new Netlify pin.
+Owner playtesting requires a Netlify re-pin **≥ `24bc29dc`**. This file records pin **debt**; it does not remint PIN-02 and does not authorize a deploy by itself. Until that re-pin lands under separate owner authority, hosted playtest is not current to this tip.
 
 PR 45 and draft PR 46 remain held and untouched.
 
+Do not remint ticket/PR identities **107–170**.
+
 ## Current work
 
-`milestone: SUN-PLAYTEST-ART-EVENT-AUDIT-01 — owner playtest art↔event follow-up`
-`state: VERSION-LANE AUDIT + ONE RETARGET + GROK BRIEFS — 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: Fable DO lock 2026-09-05 — version-lane implement queue`
+`state: IN IMPLEMENT — 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
+`default: Fable`
 
 Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
 
-### Drained on the version lane (do not reopen as a new queue)
+### Fable DO — ordered current work (do these)
+
+1. **Finish `SUN-VERIFY-MAIN-POSTURE-LANE`** — IN_FLIGHT close-out on current tip; privacy PR 170 is DONE at `24bc29dc`; posture verify is not certification.
+2. **`SUN-VOICE-HYGIENE-01`** — confirmed defects only (`vault_voice` tags; Vess dead list no truncation; Tomas Captain→Commander). JOB_SWAP only after live-tip reverify. Do not broaden into unconfirmed voice sweeps.
+3. **Art Honesty** — amend **4** brief cells **before** any regen; then queue **6** REJECT regenerations. HOLD rows stay HOLD. No Canon wake; no soft prose wake this lock.
+4. **Ending-citation docs** — truth table + negative fixtures (Fable session-2 / verifier law); review/docs first. Not a story rewrite campaign.
+
+### Soft later (not this lock)
+
+Soft / Canon art and soft prose (crisis-declare, offshift-lena, debt-line, neglect-pair, plate soft) remain HOLD until the owner resumes bots. Do not wake Canon from this status.
+
+### Drained / done on the version lane (do not reopen as a new queue)
 
 - **0.30.1–0.32:** previously recorded drain/exit on the lane. Still `NOT_CERTIFIED`.
-- **0.33 playtest tickets:** one-PR playtest repairs and named ART-R2 one-scene retargets landed through PR 142. Player-facing label remains `0.33`. Playtest-closed ledger is a later ticket identity, not this branch.
-- **0.34 Mobile UX / a11y / perf:** PRs 107–109 (`SUN-V034-MOBILE-UX-01`, `SUN-V034-A11Y-01`, `SUN-V034-PERF-01`) merge-committed on the lane. Drain recorded. Not certified.
-- **0.35 Packaging and private itch:** PRs 110–113 (`SUN-V035-PRIVATE-PACKAGE-01`, `SUN-V035-CONTENT-NOTICE-01`, `SUN-V035-PHONE-RESUME-01`, `SUN-V035-PRIVATE-DRAFTS-01`) merge-committed on the lane. Refresh PRs 143–145 rebind package and non-public drafts to playtest pin `a91a26d` / archive SHA-256 `47d8d9c9fdea11971e8e62763344ff5308453358d6ada42fb14e88b102408a58`. Drain recorded. Not publication. Not certified.
-
-### Recently landed (PRs 141–147)
-
-| PR | Ticket | Lane meaning |
-|---|---|---|
-| 141 | `SUN-V035-ART-R2-ELIAS-SEALANT-01` | Sealant beat retarget off the cup plate. LANDED ON VERSION LANE. |
-| 142 | `SUN-V035-ART-R2-PLAYTEST-CLOSE-01` | Named PLAYTEST_SUN art cluster proved **ALREADY_SATISFIED** after PRs 133–141. Proof only. |
-| 143 | `SUN-V035-PRIVATE-PACKAGE-REFRESH-01` | Private package refresh to `a91a26d`. Not a remint of 107–142 as a new identity. |
-| 144 | `SUN-V035-CONTENT-NOTICE-REVISIT-01` | Reopen existing content notice from title utilities. Not a settings dashboard. Not L-040. |
-| 145 | `SUN-V035-PRIVATE-DRAFTS-REFRESH-01` | Non-public drafts bound to the PR 143 digest. No public page. |
-| 146 | `SUN-V035-STATUS-DOCS-01` | Planning-docs sync. LANDED ON VERSION LANE. |
-| 147 | `SUN-V035-PLAYTEST-CLOSED-LEDGER-01` | PLAYTEST_SUN findings closed to PRs. LANDED ON VERSION LANE. |
-
-This ticket (`SUN-PLAYTEST-ART-EVENT-AUDIT-01`) is the owner playtest art↔event
-audit: one in-tree retarget (`bond_mira` → `quiet_mira.jpg`), Grok brief stubs
-with a standing **portrait identity-lock**, pack note `SUN-ART-BODY-REFERENCE-01`
-(front/back body refs planned; no bytes here), and a **draft** style bible
-`artifacts/SUN_ART_STYLE_BIBLE.md` (owner must lock it before grok.com loops;
-body_ref pack is after that lock). No event-plate generation in Cursor.
-Ordered post-0.35 / pre-0.36 follow-ups live in
-`artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. It is not a remint of PR 142.
-**0.36 is not opened.**
-
-Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is an ancestor of `1a8e8a5`. Private-package phone-resume guide/server/manifest checks already exist. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry. Owner physical play remains playtesting evidence, not certification.
+- **0.33 playtest tickets:** one-PR playtest repairs and named ART-R2 one-scene retargets landed through the prior playtest window. Player-facing label remains `~0.33`.
+- **0.34 Mobile UX / a11y / perf:** PRs 107–109 merge-committed on the lane. Drain recorded. Not certified.
+- **0.35 Packaging and private itch:** packaging and refresh identities on the lane. Drain recorded. Not publication. Not certified.
+- **Privacy PR 170** at tip `24bc29dc`: DONE. Remint ban extends through **170**.
 
 ### Holds (unchanged)
 
 - **0.36 not opened.** Do not mint PC-readiness work from this file.
-- ART-R2 **broad campaign** (binary regen batch) remains held. Named Grok brief stubs from this ticket are instructions, not a campaign reopen and not wiring authority.
+- ART-R2 **broad campaign** (binary regen batch) remains held. Named confirmed-only voice/art honesty work above is not a campaign reopen and not wiring authority.
 - Amara-route parked.
 - PR 45 / draft PR 46 untouched.
 - No main close-out, tag, Release, deploy, or certification language.
-- No remint of PRs 107–147. No Netlify pin remint / PIN-02 remint.
+- No remint of PRs **107–170**. No Netlify pin remint / PIN-02 remint invented here — only the owed re-pin **≥ `24bc29dc`** under owner authority.
 - L-025–L-028 are not reopened here. LOCKS dispositions are unchanged. ROADMAP digest in LOCKS may be rewritten if current-work bullets change; that is not a lock ruling.
+- **SKIP this lock:** Blender / Imagine MCP as runtime; any certify claim; any 0.36 mint.
 
 ## L-025–L-028 dispositions
 
@@ -99,22 +83,23 @@ L-020 through L-024 remain ruled. This handoff does not reopen L-004, art govern
 
 The version lane carries dependency-free `scripts/verify.mjs` and `scripts/simulate.mjs` plus version/main Actions workflows. Green version-lane checks are candidate evidence only. They do not certify, ship, or close a sequential gate. Known remaining findings stay attributable and may not be accepted, weakened, or ratcheted into certification.
 
-Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` and requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`; `21894561` covers `main` and requires `main-release-policy`, `main-verify`, and `main-simulation-gate`; `21051662` covers only `recovery/e4f8440-nopub` and still requires legacy `release-policy`, `verify`, and `simulation-gate`. This ticket has no ruleset-mutation authority and does not change those rulesets.
+This ticket set has no ruleset-mutation authority.
 
 ## Blockers
 
 - `NO-PUBLISH / NOT_CERTIFIED` remains controlling; no release artifact or deployment authority exists.
 - Last certified baseline remains `0.28.1d`. The version lane is not certified.
-- L-025–L-027 gameplay/coverage work is not implemented by this docs ticket; L-028 remains deferred.
+- Netlify re-pin **≥ `24bc29dc`** is owed before hosted playtest matches this tip.
+- L-025–L-027 gameplay/coverage work is not implemented by this docs handoff; L-028 remains deferred.
 - Strict candidate simulation must reach zero at its locked thresholds; current known failures remain blockers, not an accepted baseline.
-- This ticket has no merge-to-main, tag, release, Netlify, or deploy authority.
+- This handoff has no merge-to-main, tag, release, or certify authority.
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-PLAYTEST-ART-EVENT-AUDIT-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not generate event-plate or `body_ref` JPEGs in Cursor, and do not start crew-UI, white-space, tutorial, or 0.36 work on this branch.
+**Implementers (`$ S1` / version lane):** execute the Fable DO order above from tip `24bc29dc` (refresh HEAD after each prior merge). One concern per PR into `version/0.30.1-main-reconcile-ci.1`. Do not mint 0.36. Do not remint 107–170.
 
-**Grok / orchestrator (`$ S1`):** after this merge, follow `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. First: owner-lock `artifacts/SUN_ART_STYLE_BIBLE.md`. Then `SUN-ART-BODY-REFERENCE-01` in grok.com (front/back). Then the NEEDS_GROK_PLATE event loop in grok.com, one beat at a time. Wire only owner-approved assets after Canon PASS/HOLD/REJECT. Do not mint 0.36.
+**Grok / orchestrator:** keep live floor tips current; treat this file as boundary truth only. Soft/Canon wake is owner-gated later.
 
-**Manraj:** remains sole publish authority. Approves the style bible, then each grok.com plate personally. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or PIN-02 remint.
+**Manraj:** remains sole publish authority. Approves any Netlify re-pin ≥ `24bc29dc` personally. Green CI is not merge-to-main authority and is not certification. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or invented PIN-02 remint.
 
 <!-- STATUS_COMPLETE -->

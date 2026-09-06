@@ -1,79 +1,144 @@
-# Sunsplitter ticket queue — next packs after lane 0.30.1
+# Sunsplitter — Ticket Queue (Fable DO · 2026-09-05)
 
-SOURCE lane@a5e52b0 · TASK SUN-ROADMAP-NEXT-PACKS-01 · MODE proposal
+Docs-only planner output for Orchestrator / Cursor `$ S1`.
+Written: 2026-09-05. No checkout edits, no merges, no certify from this file.
 
-Docs only. This file does not mint a product version, open 0.36, remint
-PRs 107–163, touch Netlify, certify, or start gameplay.
+**Default = Fable.** Tip authority: version lane `24bc29dc17031e71eb7008b13636c3be383b821a` (PR **170** privacy).
+**Paint:** ~0.33 · **Certified:** 0.28.1d · **Posture:** NO-PUBLISH / NOT_CERTIFIED · **Mint:** no 0.36.
+**Pin debt:** re-pin Netlify **≥ `24bc29dc`** owed (owner authority). **Remint ban:** 107–170.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `a5e52b077213a9f15a73b2ba3263b963dcc1e2f9`
-(PR 163 merge tip). Player-facing paint stays `VERSION.md` = `0.33`.
+---
 
-Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 HOLD`
+## 1. Status snapshot
 
-Pack labels `0.30.2` / `0.30.3` / `0.30.4` are **planning ids** for builders.
-They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
-
-Full /goal stubs: `docs/SUN_ROADMAP_NEXT_PACKS_01.md`.
-
-## Holds (explicit)
-
-- **0.36 HOLD** until owner **OPEN**. Do not mint, open, or paint 0.36.
-- **Last certified:** `0.28.1d`. Lane work is LANDED ON VERSION LANE only.
-- **NO-PUBLISH / NOT_CERTIFIED.**
-- **Netlify pin** `a91a26d` is owner-only. Do not remint PIN-02.
-- **Amara-route PARKED.** Narrow repro only if a later /goal names it.
-- PR 45 / draft PR 46 untouched. No remint of spent PRs 107–163.
-
-## Current lane (do not reopen as a pack)
-
-| Id | State |
+| Surface | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active lane. Tip `a5e52b0` after PR 163 New Run handlers. |
-| 0.30.1–0.35 drain recorded in STATUS | Do not remint 107–147 / 163 as new identities. |
+| Write lane | `version/0.30.1-main-reconcile-ci.1` |
+| Live tip | `24bc29dc` (PR 170 privacy merged) |
+| Release posture | **NO-PUBLISH / NOT_CERTIFIED**. Last certified: **0.28.1d** |
+| Do not mint | **0.36** |
+| Do not remint | PR / ticket identities **107–170** |
+| Locks | **L-025–L-028 do not reopen** |
+| Amara-route | **PARKED** |
+| PR 45 / draft 46 | **Leave untouched** |
+| Soft / Canon wake | **HOLD** until owner resumes bots |
 
-## Pack 0.30.2 — playtest UI leftovers (post-P2)
+**Zero-downtime rule:** refresh write-lane HEAD after each prior merge before branching. Do not invent 0.36 work to fill idle time.
 
-Ordered leftovers 5–9 from `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
+---
 
-| Ticket | One-line objective | Suggested touch |
-|---|---|---|
-| `SUN-PLAYTEST-CREW-SHEET-FLEX-01` | Crew count + flex name buttons + full-screen crew character sheet. | `src/validate.js`, `index.html`, `css/style.css`, `scripts/*crew*` |
-| `SUN-PLAYTEST-ART-DOUBLECLICK-01` | Art double-click minimize restore. | `src/engine.js` / `src/validate.js`, `scripts/playtest-art-doubleclick-checks.mjs` |
-| `SUN-PLAYTEST-TITLE-WHITESPACE-01` | Title white-space + rotating ship background. | `index.html`, `css/style.css`, title cinematic surfaces |
-| `SUN-PLAYTEST-INTRO-BACK-ART-01` | Intro slides back button + intro art. | `src/validate.js` `INTRO_SLIDE_ART`, `index.html`, `scripts/playtest-intro-back-art-checks*` |
-| `SUN-PLAYTEST-TUTORIAL-TOPFIELDS-01` | Tutorial covers 5 top fields (skip kept). | tutorial overlay + `scripts/playtest-tutorial-topfields-checks.mjs` |
+## 2. Ordered Fable DO queue (version lane)
 
-## Pack 0.30.3 — playtest design leftovers (paper already in-tree)
+Base for every ticket: `version/0.30.1-main-reconcile-ci.1` @ tip ≥ `24bc29dc`.
 
-Items 11–13. Design pages exist. Implement tickets stay unopened until a later /goal.
+| # | Ticket | State | One-line objective |
+|---|---|---|---|
+| 0 | **Netlify re-pin ≥ `24bc29dc`** | OWED (owner) | Hosted playtest matches tip; NOT_CERTIFIED only |
+| 1 | **SUN-VERIFY-MAIN-POSTURE-LANE** | FINISH / IN_FLIGHT | Close main-posture verify on current tip; privacy DONE; not certify |
+| 2 | **SUN-VOICE-HYGIENE-01** | READY | Confirmed defects only: `vault_voice` tags; Vess dead list no truncation; Tomas Captain→Commander. JOB_SWAP only after live-tip reverify |
+| 3 | **ART-HONESTY-AMEND-THEN-REGEN** | READY | Amend **4** brief cells first; then queue **6** REJECT regenerations; HOLD stays HOLD |
+| 4 | **STORYLINE-CITATION-TRUTH** | READY | Ending-citation truth table + negative fixtures; review/docs first |
 
-| Ticket | One-line objective | Suggested touch |
-|---|---|---|
-| `SUN-PLAYTEST-CREW-CONFLICT-01` | One bounded crew-conflict attach on existing offer sites. | `docs/SUN_PLAYTEST_CREW_CONFLICT_DESIGN.md` then (later) `src/scenes-16.js` / `src/scenes-40.js` |
-| `SUN-PLAYTEST-COMMANDER-CREATION-01` | Light hybrid only: callsign + seal + oath. No full chargen. | `docs/SUN_PLAYTEST_COMMANDER_CREATION_DESIGN.md` then (later) title panel / save-optional strings |
-| `SUN-PLAYTEST-ENDING-CINEMATIC-ART-01` | Ending cinematic bookend vs ending screen; reuse-first. | `docs/SUN_PLAYTEST_ENDING_CINEMATIC_ART_DESIGN.md` then (later) `showCinematic("ending")` + `scripts/cinematic-checks.mjs` |
+### Soft later (not in this queue fire order)
 
-## Pack 0.30.4 — art follow-through (still pre-0.36)
+Soft / Canon art & soft prose remain HOLD. Do not pull into this lane window.
 
-Items 2–4. No Cursor/Grok-Bot JPEG generation. Owner approves in grok.com.
+---
 
-| Ticket | One-line objective | Suggested touch |
-|---|---|---|
-| `SUN-ART-STYLE-BIBLE-LOCK-01` | Owner lock of `artifacts/SUN_ART_STYLE_BIBLE.md` (docs/status only). | `artifacts/SUN_ART_STYLE_BIBLE.md`, STATUS if owner records the lock |
-| `SUN-ART-BODY-REFERENCE-01` | Front/back living-cast body_ref pack plan; no bytes in the first ticket. | `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md` living-cast table |
-| `SUN-PLAYTEST-ART-PLATE-LOOP-01` | Dispatch one `NEEDS_GROK_PLATE` beat at a time after style lock. | `artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md` |
+## 3. Ticket briefs
 
-## Not in any pack
+### Ticket 1 — SUN-VERIFY-MAIN-POSTURE-LANE (finish)
 
-- 0.36 PC-readiness.
-- Amara-route expansion (PARKED).
-- ART-R2 broad binary regen campaign.
-- Main close-out, tag, Release, deploy, PIN-02 remint.
-- Dual-write / From the Ashes.
+**Objective:** Finish the in-flight main-posture verify lane against tip `24bc29dc` / PR 170 privacy. Produce attributable verify evidence only.
 
-## Dispatch order for orchestrator
+**Success proof:** posture checks recorded against exact tip; no certify/tag/deploy language; remint 107–170 untouched.
 
-1. One ticket from Pack 0.30.2 at a time (UI leftovers keep builders busy without opening 0.36).
-2. Pack 0.30.3 implement tickets only after owner greenlight (design pages are not that greenlight).
-3. Pack 0.30.4 only after Manraj locks the style bible.
-4. Stop after each merged ticket. Do not start the next unbidden.
+**Prohibitions:** mint 0.36; remint 107–170; Netlify without owner pin; Amara-route; touch 45/46; reopen L-025–028; claim CERTIFIED.
+
+**Stop:** PR or ALREADY_SATISFIED receipt into the version lane; wait for owner merge-commit.
+
+```text
+/goal
+repo: mbains89/Sunsplitter
+ticket: SUN-VERIFY-MAIN-POSTURE-LANE
+base: version/0.30.1-main-reconcile-ci.1 @ ≥24bc29dc
+authority: Fable DO lock 2026-09-05. Last certified 0.28.1d. NO-PUBLISH.
+objective: finish main-posture verify on current tip; privacy PR170 is DONE; do not certify.
+prohibitions: merge, auto-Netlify, certify, remint 107-170, mint 0.36, Amara-route, touch 45/46, reopen L-025-028
+stop: one PR or ALREADY_SATISFIED into version lane; wait. Do not merge.
+```
+
+### Ticket 2 — SUN-VOICE-HYGIENE-01
+
+**Objective:** Repair only confirmed voice defects: `vault_voice` tags; Vess dead-list truncation; Tomas Captain→Commander. Reverify JOB_SWAP against live tip before any swap ticket.
+
+**Success proof:** each confirmed defect closed or ALREADY_SATISFIED on exact HEAD; no unconfirmed prose campaign.
+
+**Prohibitions:** broad voice sweep; soft/Canon wake; remint 107–170; 0.36; certify.
+
+**Stop:** one PR; wait.
+
+```text
+/goal
+repo: mbains89/Sunsplitter
+ticket: SUN-VOICE-HYGIENE-01
+base: version/0.30.1-main-reconcile-ci.1 (refresh after Ticket 1)
+authority: Fable DO — confirmed-only voice hygiene. NO-PUBLISH. Certified 0.28.1d.
+objective: fix only confirmed vault_voice / Vess dead-list truncation / Tomas Captain→Commander; JOB_SWAP only after live-tip reverify.
+prohibitions: unconfirmed voice campaign, soft/Canon wake, remint 107-170, mint 0.36, certify, Netlify, Amara-route
+stop: one PR into version lane; wait. Do not merge.
+```
+
+### Ticket 3 — ART-HONESTY-AMEND-THEN-REGEN
+
+**Objective:** Amend **4** brief cells before regen; then queue **6** REJECT regenerations. HOLD rows stay HOLD.
+
+**Success proof:** four amended brief cells recorded; six REJECT items queued with identity locks; no HOLD→regen; no Cursor event-plate generation beyond owner-approved path.
+
+**Prohibitions:** broad ART-R2 campaign; Canon wake; remint 107–170; 0.36; certify; wiring without Canon PASS.
+
+**Stop:** docs/brief amend PR and/or REJECT queue receipt; wait.
+
+```text
+/goal
+repo: mbains89/Sunsplitter
+ticket: ART-HONESTY-AMEND-THEN-REGEN
+base: version/0.30.1-main-reconcile-ci.1 (refresh after Ticket 2)
+authority: Fable DO Art Honesty. Amend 4 briefs before regen; queue 6 REJECT regens; HOLD stays HOLD.
+objective: honesty amend then REJECT queue only; no soft/Canon wake; no broad ART-R2.
+prohibitions: remint 107-170, mint 0.36, certify, Amara-route, HOLD regen, unapproved wiring
+stop: amend + REJECT queue evidence; wait. Do not merge.
+```
+
+### Ticket 4 — STORYLINE-CITATION-TRUTH
+
+**Objective:** Ending-citation truth table + negative fixtures (Fable session-2 / verifier law). Review/docs first.
+
+**Success proof:** truth table and negative fixtures land as docs/tests without inventing endings; no mint 0.36.
+
+**Prohibitions:** story rewrite campaign; remint 107–170; certify; Netlify; Amara-route.
+
+**Stop:** one docs/fixtures PR; wait.
+
+```text
+/goal
+repo: mbains89/Sunsplitter
+ticket: STORYLINE-CITATION-TRUTH
+base: version/0.30.1-main-reconcile-ci.1 (refresh after Ticket 3)
+authority: Fable DO ending-citation docs. NO-PUBLISH. Certified 0.28.1d.
+objective: ending-citation truth table + negative fixtures; review/docs first.
+prohibitions: remint 107-170, mint 0.36, certify, story rewrite campaign, Amara-route, touch 45/46
+stop: one PR into version lane; wait. Do not merge.
+```
+
+---
+
+## 4. Explicit non-goals
+
+- No **0.36** mint / PC-readiness open
+- No remint **107–170**
+- No G-2 / Ashes tickets on this queue
+- No soft/Canon wake; no Blender / Imagine MCP runtime
+- No certify, tag, Release, main close-out, or invented PIN-02 remint
+
+**Next after this lock:** owner re-pin ≥ `24bc29dc`, then fire §2 in order. Soft later under a separate owner open.

@@ -542,12 +542,6 @@ Work allowed now:
 
 **Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public itch, price, Steam.
 
-### Playtest response (post-0.35, pre-0.36)
-
-Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). Pack note `SUN-ART-BODY-REFERENCE-01` is documented in that plan; the audit PR does not generate `body_ref` bytes or wire them. Style bible draft `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before grok.com event or body_ref chats; generation is offloaded off Grok Bot / Cursor. ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
-
-**Hard holds:** PR 45/46; do not mint 0.36; no certify; last certified `0.28.1d`; NO-PUBLISH; live Netlify pin `a91a26d` (no PIN-02 remint); L-025–L-028 not reopened here.
-
 ### 0.36 — PC Readiness
 
 **Purpose:** give the same static browser game a second composition that a keyboard-and-mouse stranger can finish.
@@ -699,7 +693,6 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | 0.33 | Named playtest active at `685d400`; bugs stay here; ART-R2 held |
 | 0.34 | Phone a11y/perf matrix passes |
 | 0.35 | Private package + private itch path proven; no publication |
-| Playtest response | Post-0.35 / pre-0.36 version-lane follow-ups; see `SUN_PLAYTEST_RESPONSE_PLAN.md`; 0.36 not opened |
 | 0.36 | Same browser game works on PC without phone regression |
 | 0.37 | Independent pilot findings ranked and retested |
 | 0.38 | Cohort evidence supports product and commercial decisions |
@@ -707,6 +700,39 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | 0.40 | Frozen RC survives rehearsal |
 | 1.0 | Owner-authorized public release at exact verified identity |
 
-**Current next action:** playtest response on the version lane (`SUN_PLAYTEST_RESPONSE_PLAN.md`). Do not mint or open 0.36.
+**Current next action:** finish the 0.33 playtest. File bugs as one-PR 0.33 tickets. Do not start 0.34 until Manraj closes the playtest window and classifies findings.
 
 **Hard holds that survive every later version in this file:** leave PR 45/46; ART-R2 held; no certify; last certified `0.28.1d`; no auto-Netlify; no main close-out; no leftover drain.
+
+---
+
+## Near-term Fable DO (2026-09-05)
+
+Default = Fable. Append or replace the near-term / current-next block in `artifacts/ROADMAP.md` with this section. Planning only — authorizes no certify, tag, main close-out, or auto-Netlify.
+
+**Tip:** version lane `24bc29dc17031e71eb7008b13636c3be383b821a` (PR **170** privacy).
+**Paint:** ~0.33 · **Last certified:** 0.28.1d · **Posture:** NO-PUBLISH / NOT_CERTIFIED.
+**Pin debt:** re-pin Netlify **≥ `24bc29dc`** owed (owner authority).
+**Remint ban:** do not remint **107–170**.
+**Mint:** **0.36 not opened.**
+
+### Implement (version lane order)
+
+1. Owner Netlify re-pin **≥ `24bc29dc`** (NOT_CERTIFIED playtest only).
+2. Finish **SUN-VERIFY-MAIN-POSTURE-LANE** — posture verify on current tip; privacy DONE; not certification.
+3. **SUN-VOICE-HYGIENE-01** — confirmed defects only (`vault_voice` tags; Vess dead list no truncation; Tomas Captain→Commander). JOB_SWAP only after live-tip reverify.
+4. **Art Honesty** — amend **4** brief cells **before** regen; then queue **6** REJECT regenerations. HOLD rows stay HOLD.
+5. **Ending-citation docs** — truth table + negative fixtures (Fable session-2 / verifier law); review/docs first.
+
+### Soft later
+
+Soft / Canon art and soft prose (crisis-declare, offshift-lena, debt-line, neglect-pair, plate soft) remain HOLD until the owner resumes bots. Do not wake Canon from this near-term block.
+
+### SKIP / HOLD
+
+- **SKIP:** Blender / Imagine MCP as runtime; any **0.36** mint; any certify claim from green CI
+- **HOLD:** Amara-route; PR 45 / draft 46 untouched; ART-R2 broad campaign; L-025–L-028 unchanged (do not reopen)
+
+### Explicit non-goals
+
+No main close-out. No tag. No Release. No invented PIN-02 remint. Green version-lane checks are candidate evidence only — they do not certify, ship, or close a sequential gate. Last certified remains **0.28.1d**.
