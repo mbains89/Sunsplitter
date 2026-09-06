@@ -37,31 +37,29 @@ function exerciseRemainsLean() {
     localStorage.clear();
     resetRunState();
     display("vault_reveal");
-    click("Future priority");
-    expect(state.flags.vault_priority === "future" && state.ideology.future === 6 && state.ideology.living === 0,
-      "Future vault_reveal lean drifted");
-    click("Ration immediately.");
-    expect(state.flags.priority === "ration" && state.ideology.future === 8,
-      "ration lean drifted");
+    click("Living priority");
+    expect(state.flags.vault_priority === "living" && state.ideology.future === 0 && state.ideology.living === 6,
+      "Living vault_reveal lean drifted");
     display("vault_sacrifice");
     state.cohesion = 11;
     display("vault_sacrifice");
     const futureBtn = button("Divert everything to the vault");
-    const splitBtn = button("Split the difference");
+    const livingBtn = button("Divert everything to life support");
     expect(futureBtn && futureBtn.disabled, "full Future vault divert was still affordable at cohesion 11");
     expect((futureBtn.innerHTML || "").includes("Needs 12 Cohesion"),
       "one-cohesion Future gate reason drifted");
-    expect(splitBtn && !splitBtn.disabled, "split vault exit vanished");
-    click("Split the difference");
-    expect(state.flags.vault_sacrifice === "split", "split vault flag drifted");
-    expect(state.ideology.future === 11 && state.ideology.living === 3,
-      "recorded order weights after forced split drifted");
-    expect(ideologyShape() === "split", "ideologyShape lost vault override used by endings");
+    expect(livingBtn && !livingBtn.disabled, "living vault exit vanished");
+    expect(!button("Split the difference"), "always-on split third returned");
+    click("Divert everything to life support");
+    expect(state.flags.vault_sacrifice === "living", "living vault flag drifted");
+    expect(state.ideology.future === 0 && state.ideology.living === 16,
+      "recorded order weights after forced living vault drifted");
+    expect(ideologyShape() === "living", "ideologyShape lost vault override used by endings");
     const afterSplit = snapshot();
     const ending = endingFingerprint();
     expect(ending, "named path failed to resolve an ending");
-    expect(remainsLine() === FUTURE_LINE, "WHAT REMAINS still classified Future-leaning weights as split");
-    expect(ideologyShape() === "split", "ending shape mutated after What Remains");
+    expect(remainsLine() === LIVING_LINE, "WHAT REMAINS still classified Living-leaning weights as split");
+    expect(ideologyShape() === "living", "ending shape mutated after What Remains");
     const afterEnding = snapshot();
 
     for (const legacy of [false, true]) {
@@ -82,7 +80,7 @@ function exerciseRemainsLean() {
         state.supplies = 1;
         document.getElementById("choices").children = [];
         expect(resumeGame() && snapshot() === afterEnding, "Continue changed named-path state");
-        expect(remainsLine() === FUTURE_LINE, "Continue lost weight-true What Remains lean");
+        expect(remainsLine() === LIVING_LINE, "Continue lost weight-true What Remains lean");
         expect(endingFingerprint() === ending, "Continue changed ending destination or prose");
         if (!legacy) expect(readRawSave() === raw, "current Continue bytes changed");
         if (i) expect(readRawSave() === adopted, "repeat Continue rewrote adopted slot");
