@@ -15,7 +15,8 @@ registerScenes({
   // DEAD-SPEECH CHECK: both nodes redirect when !isAlive("mira")
   // IMAGE: REUSE images/cascade_records.jpg; NO ART_REQUEST
   // LANE RULE: never reference Jiro's contingency file here
-  // ═════════════════════════════════════════════════
+  // LOCK: verify cascadeAndMirrorChecks requires three records_changeorders hosts.
+  // ═════════════════════════════════
 
   arc_future_3: {
     get text() {
@@ -34,6 +35,7 @@ registerScenes({
     },
     choices: [
       { text: "Seal the records. The crew cannot use this truth yet.", next: "records_changeorders", effects: { cohesion: 2, integrity: 1 }, flag: { cascade_truth: "sealed" }, lean: { future: 2 }, affinity: { elias: 5 } },
+      { text: "Tell the senior crew. No more official stories between us.", next: "records_changeorders", effects: { cohesion: -5, supplies: -1 }, flag: { cascade_truth: "senior" }, lean: { living: 1 }, affinity: { lena: 4, tomas: 4, jiro: 3 } },
       { text: "Broadcast it. The empty ship already knows. The living should too.", next: "records_changeorders", effects: { cohesion: -10, integrity: -2 }, flag: { cascade_truth: "open" }, lean: { living: 2 }, affinity: { tomas: 6, elias: -6 }, trust: { elias: -8, tomas: 6 } }
     ]
   },
