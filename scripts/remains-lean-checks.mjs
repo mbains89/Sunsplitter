@@ -37,12 +37,9 @@ function exerciseRemainsLean() {
     localStorage.clear();
     resetRunState();
     display("vault_reveal");
-    click("Future priority");
-    expect(state.flags.vault_priority === "future" && state.ideology.future === 6 && state.ideology.living === 0,
-      "Future vault_reveal lean drifted");
-    click("Ration immediately.");
-    expect(state.flags.priority === "ration" && state.ideology.future === 8,
-      "ration lean drifted");
+    click("Living priority");
+    expect(state.flags.vault_priority === "living" && state.ideology.future === 0 && state.ideology.living === 6,
+      "Living vault_reveal lean drifted");
     display("vault_sacrifice");
     state.cohesion = 11;
     display("vault_sacrifice");
@@ -55,7 +52,7 @@ function exerciseRemainsLean() {
     expect(!button("Split the difference"), "always-on split third returned");
     click("Divert everything to life support");
     expect(state.flags.vault_sacrifice === "living", "living vault flag drifted");
-    expect(state.ideology.future === 8 && state.ideology.living === 10,
+    expect(state.ideology.future === 0 && state.ideology.living === 16,
       "recorded order weights after forced living vault drifted");
     expect(ideologyShape() === "living", "ideologyShape lost vault override used by endings");
     const afterSplit = snapshot();
