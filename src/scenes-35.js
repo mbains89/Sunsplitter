@@ -35,42 +35,33 @@ registerScenes({
       t += `\n\nThe tank is not big enough for both uses.`;
       return t;
     },
-    get choices() {
-      const routes = [
-        {
-          text: "Give it to the loop. Keep the ship from shaking apart.",
-          next: "seal_or_food",
-          effects: { integrity: 8, supplies: -2, cohesion: -3 },
-          flag: { coolant: "loop" },
-          lean: { future: 1 },
-          requires: { trust: { mira: 30 } },
-          alive: "mira"
-        },
-        {
-          text: "Give it to medical. Keep the option to cut and sew.",
-          next: "seal_or_food",
-          effects: { cohesion: 4, integrity: -4, supplies: -2 },
-          flag: { coolant: "medical" },
-          lean: { living: 1 },
-          requires: { trust: { lena: 30 } },
-          alive: "lena"
-        }
-      ];
-      const enabled = routes.some(choice =>
-        (!choice.alive || isAlive(choice.alive)) &&
-        (!choice.requires || meetsRequirements(choice.requires)) &&
-        (!choice.effects || canAffordEffects(choice.effects))
-      );
-      if (!enabled) {
-        routes.push({
-          text: "Split it. Both systems degrade slower — neither is saved.",
-          next: "seal_or_food",
-          effects: { integrity: 2, cohesion: 1, supplies: -3 },
-          flag: { coolant: "split" }
-        });
+    choices: [
+      // Edit A: keep only original/shipped requires (trust) so split remains ungated
+      {
+        text: "Give it to the loop. Keep the ship from shaking apart.",
+        next: "seal_or_food",
+        effects: { integrity: 8, supplies: -2, cohesion: -3 },
+        flag: { coolant: "loop" },
+        lean: { future: 1 },
+        requires: { trust: { mira: 30 } },
+        alive: "mira"
+      },
+      {
+        text: "Give it to medical. Keep the option to cut and sew.",
+        next: "seal_or_food",
+        effects: { cohesion: 4, integrity: -4, supplies: -2 },
+        flag: { coolant: "medical" },
+        lean: { living: 1 },
+        requires: { trust: { lena: 30 } },
+        alive: "lena"
+      },
+      {
+        text: "Split it. Both systems degrade slower — neither is saved.",
+        next: "seal_or_food",
+        effects: { integrity: 2, cohesion: 1, supplies: -3 },
+        flag: { coolant: "split" }
       }
-      return routes;
-    },
+    ],
     image: "images/corridor_variant.jpg"
   },
 
@@ -93,43 +84,34 @@ registerScenes({
       t += `\n\nEvery claim on the table is correct. Whatever you choose will stay in the bulkhead. The ship does not forget structural decisions the way people forget arguments.`;
       return t;
     },
-    get choices() {
-      const routes = [
-        {
-          text: "Patch the seal properly. A dead crew does not need calories.",
-          next: "time_pass",
-          effects: { integrity: 7, supplies: -6, cohesion: -2 },
-          flag: { feedstock: "seal", ship_memory: "proper_seal" },
-          lean: { future: 1 },
-          requires: { integrity: { min: 20 } },
-          remember: "You spent the feedstock on a proper Deck 4 seal. The ship will hold that line — or fail louder if something else gives."
-        },
-        {
-          text: "Render the paste. People eat every day; the seal might hold.",
-          next: "time_pass",
-          effects: { supplies: 9, integrity: -5, cohesion: 3 },
-          flag: { feedstock: "food", ship_memory: "open_wound" },
-          lean: { living: 1 },
-          alive: "amara",
-          remember: "You left Deck 4's seal to chance for food. The open wound stays on the schematic."
-        }
-      ];
-      const enabled = routes.some(choice =>
-        (!choice.alive || isAlive(choice.alive)) &&
-        (!choice.requires || meetsRequirements(choice.requires)) &&
-        (!choice.effects || canAffordEffects(choice.effects))
-      );
-      if (!enabled) {
-        routes.push({
-          text: "Jury-rig a thin patch and stretch half-rations. Both problems deferred.",
-          next: "time_pass",
-          effects: { integrity: 2, supplies: 2, cohesion: -1 },
-          flag: { feedstock: "thin", ship_memory: "jury_rig" },
-          remember: "Deck 4 is a jury-rig. It will ask to be paid later."
-        });
+    choices: [
+      // Edit A: retain original/shipped requires only (first has integrity gate; third ungated)
+      {
+        text: "Patch the seal properly. A dead crew does not need calories.",
+        next: "time_pass",
+        effects: { integrity: 7, supplies: -6, cohesion: -2 },
+        flag: { feedstock: "seal", ship_memory: "proper_seal" },
+        lean: { future: 1 },
+        requires: { integrity: { min: 20 } },
+        remember: "You spent the feedstock on a proper Deck 4 seal. The ship will hold that line — or fail louder if something else gives."
+      },
+      {
+        text: "Render the paste. People eat every day; the seal might hold.",
+        next: "time_pass",
+        effects: { supplies: 9, integrity: -5, cohesion: 3 },
+        flag: { feedstock: "food", ship_memory: "open_wound" },
+        lean: { living: 1 },
+        alive: "amara",
+        remember: "You left Deck 4's seal to chance for food. The open wound stays on the schematic."
+      },
+      {
+        text: "Jury-rig a thin patch and stretch half-rations. Both problems deferred.",
+        next: "time_pass",
+        effects: { integrity: 2, supplies: 2, cohesion: -1 },
+        flag: { feedstock: "thin", ship_memory: "jury_rig" },
+        remember: "Deck 4 is a jury-rig. It will ask to be paid later."
       }
-      return routes;
-    },
+    ],
     image: "images/corridor_variant.jpg"
   },
 
