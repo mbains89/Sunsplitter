@@ -1,14 +1,14 @@
 # Sunsplitter — Current Status
 
 `schema_version: 2`
-`updated_utc: 2026-09-04`
+`updated_utc: 2026-09-06`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
 `runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 1a8e8a5cd2255350329f3861ef7d881c1a1aa6a6`
+`version_lane_sha: 9e9025ebccef2a99daffcd615ecc42d82b6f38bd`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 1a8e8a5 — LANDED ON VERSION LANE after PR 147; not SHIPPED; not CERTIFIED`
+`version_lane_head: 9e9025e — LANDED ON VERSION LANE after PR 171; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,10 +38,26 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-PLAYTEST-ART-EVENT-AUDIT-01 — owner playtest art↔event follow-up`
-`state: VERSION-LANE AUDIT + ONE RETARGET + GROK BRIEFS — 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-VERIFY-MAIN-POSTURE-LANE-01 — verify main vs version-lane identity pins`
+`state: MAIN-POSTURE VERIFY ON TIP 9e9025e — 0.36 not opened; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
+
+### SUN-VERIFY-MAIN-POSTURE-LANE-01 (this tip)
+
+Verified on lane tip `9e9025e` after PR 171 (`SUN-VOICE-HYGIENE-01`). Privacy-loop and voice hygiene are DONE. This ticket does not certify.
+
+| Pin | Live value | Meaning |
+|---|---|---|
+| `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. |
+| `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and `scripts/fixtures/main-reconcile-ci-pr-baseline.json`. |
+| `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
+| Lane `HEAD` | `9e9025ebccef2a99daffcd615ecc42d82b6f38bd` | LANDED ON VERSION LANE only. |
+| Fixture `certification` | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
+
+`identityAndAuthorityChecks` still requires this file to keep `release_state: NO-PUBLISH`, `version_integrity: NOT_CERTIFIED`, art posture `PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT`, and L-025–L-028 tokens. Those strings are preserved. Lane `src` may differ from `992f7c5`; the src-equality gate applies only to the original main-reconcile ticket route.
+
+Proof note: `artifacts/SUN_VERIFY_MAIN_POSTURE_LANE_01.md`.
 
 Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
 
@@ -83,7 +99,7 @@ Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) is a
 - Amara-route parked.
 - PR 45 / draft PR 46 untouched.
 - No main close-out, tag, Release, deploy, or certification language.
-- No remint of PRs 107–147. No Netlify pin remint / PIN-02 remint.
+- No remint of PRs 107–171. No Netlify pin remint / PIN-02 remint.
 - L-025–L-028 are not reopened here. LOCKS dispositions are unchanged. ROADMAP digest in LOCKS may be rewritten if current-work bullets change; that is not a lock ruling.
 
 ## L-025–L-028 dispositions
@@ -111,7 +127,7 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-PLAYTEST-ART-EVENT-AUDIT-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not generate event-plate or `body_ref` JPEGs in Cursor, and do not start crew-UI, white-space, tutorial, or 0.36 work on this branch.
+**This ticket:** merge-commit `SUN-VERIFY-MAIN-POSTURE-LANE-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/proof only. Do not close out to `main`, tag, certify, deploy, or mint 0.36.
 
 **Grok / orchestrator (`$ S1`):** after this merge, follow `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. First: owner-lock `artifacts/SUN_ART_STYLE_BIBLE.md`. Then `SUN-ART-BODY-REFERENCE-01` in grok.com (front/back). Then the NEEDS_GROK_PLATE event loop in grok.com, one beat at a time. Wire only owner-approved assets after Canon PASS/HOLD/REJECT. Do not mint 0.36.
 
