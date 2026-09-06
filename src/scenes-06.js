@@ -48,12 +48,16 @@ registerScenes({
       if (isAlive("elias")) t += `Elias stands at the hatch. "Every hour we spend on comfort is an hour the package spends closer to a dead battery."`;
       return t;
     },
-    choices: [
-      { text: "Cannibalize habitation relays. Get the drive to answer, even partially.", next: "arc_future_2", effects: { integrity: 6, cohesion: -6, supplies: -3 }, lean: { future: 3 }, affinity: { mira: 6, elias: 6, lena: -4 }, trust: { mira: 4, elias: 5, lena: -4 } },
-      { text: "Leave habitation alone. Find another path that does not steal breath.", next: "arc_future_2", effects: { cohesion: 4, integrity: -2, supplies: -5 }, lean: { living: 2 }, affinity: { lena: 5, mira: 2 }, requires: { supplies: { min: 10 } } },
-      { text: "Order a limited pull — enough for diagnostics, not a full restart.", next: "arc_future_2", effects: { integrity: 2, supplies: -4, cohesion: -1 }, lean: { future: 1 }, affinity: { mira: 4 } },
-      { text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2" }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Cannibalize habitation relays. Get the drive to answer, even partially.", next: "arc_future_2", effects: { integrity: 6, cohesion: -6, supplies: -3 }, lean: { future: 3 }, affinity: { mira: 6, elias: 6, lena: -4 }, trust: { mira: 4, elias: 5, lena: -4 } },
+        { text: "Leave habitation alone. Find another path that does not steal breath.", next: "arc_future_2", effects: { cohesion: 4, integrity: -2, supplies: -5 }, lean: { living: 2 }, affinity: { lena: 5, mira: 2 }, requires: { supplies: { min: 10 } } }
+      ];
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({ text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2" });
+      }
+      return routes;
+    }
   },
 
   arc_future_2: {
@@ -80,12 +84,16 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      { text: "Lock conservation mode. Habitation takes the brownouts.", next: "arc_future_3", effects: { embryos: 5, cohesion: -9, integrity: -4, supplies: -3 }, lean: { future: 4 }, affinity: { jiro: 8, elias: 6, tomas: -8, lena: -4 }, trust: { jiro: 6, tomas: -6 }, requires: { embryos: { min: 55 } } },
-      { text: "Refuse the brownouts. Accept the permanent vault bleed.", next: "arc_future_3", effects: { embryos: -10, cohesion: 6, supplies: -2 }, lean: { living: 3 }, affinity: { tomas: 7, lena: 5, jiro: -6 }, flag: { embryo_ceiling: "lowered" } },
-      { text: "Split the pain on a schedule. Publish the numbers to the crew.", next: "arc_future_3", effects: { embryos: -3, cohesion: 2, supplies: -4 }, lean: { future: 1, living: 1 }, requires: { cohesion: { min: 28 } } },
-      { text: "There are no parts left. Let the vault bleed and record the lower ceiling.", next: "arc_future_3", flag: { embryo_ceiling: "lowered" }, lean: { living: 2 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Lock conservation mode. Habitation takes the brownouts.", next: "arc_future_3", effects: { embryos: 5, cohesion: -9, integrity: -4, supplies: -3 }, lean: { future: 4 }, affinity: { jiro: 8, elias: 6, tomas: -8, lena: -4 }, trust: { jiro: 6, tomas: -6 }, requires: { embryos: { min: 55 } } },
+        { text: "Refuse the brownouts. Accept the permanent vault bleed.", next: "arc_future_3", effects: { embryos: -10, cohesion: 6, supplies: -2 }, lean: { living: 3 }, affinity: { tomas: 7, lena: 5, jiro: -6 }, flag: { embryo_ceiling: "lowered" } }
+      ];
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({ text: "There are no parts left. Let the vault bleed and record the lower ceiling.", next: "arc_future_3", flag: { embryo_ceiling: "lowered" }, lean: { living: 2 } });
+      }
+      return routes;
+    }
   },
 
 });
