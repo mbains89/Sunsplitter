@@ -124,11 +124,45 @@ function exerciseRemainsLean() {
     for (const [id, image] of Object.entries(ART_R2)) {
       expect(sceneImages[id] === image, id + " mapping drifted");
       expect(scenes[id] && scenes[id].image === image, id + " declaration drifted");
-      expect(resolveSceneImage(id, scenes[id]) === image, id + " resolve drifted");
+      expect(resolveSceneImage[id] === image, id + " resolve drifted");
     }
     expect(snapshot() === before, "ART-R2 resolve wrote run state");
   } catch (error) {
     errors.push("ART-R2: " + error.message);
+  }
+
+  // SUN-STORYLINE-CITATION-TRUTH-01 — negative fixtures only.
+  // Do not invent endings. Do not rewrite scenes.
+  try {
+    const BAN = /would have|if you had|should have|high score|low score|ending rating|points awarded/i;
+    resetRunState();
+    state.ideology.future = 9;
+    state.ideology.living = 9;
+    kill("rourke", "died with company");
+    kill("lena", "not_a_logged_event_string");
+    const facts = whatRemainsFacts();
+    const blob = facts.join("\n");
+    expect(!BAN.test(blob), "What Remains cited a counterfactual or score: " + blob);
+    expect(facts.some(line => line.includes("Rourke died with company")),
+      "logged Rourke cause missing");
+    expect(facts.some(line => /\bLena died\b/.test(line)),
+      "unknown deathCause must fall back to name + died, not an invented clause");
+    expect(!/would have lived|if treatment/.test(blob),
+      "unknown cause invented a story");
+
+    resetRunState();
+    state.deathCause = { lena: "ordered to stop treatment" };
+    const noDead = whatRemainsFacts().join("\n");
+    expect(!/Lena died/.test(noDead),
+      "deathCause without state.dead still cited Lena");
+
+    resetRunState();
+    state.promises.amara = "made";
+    const untested = whatRemainsFacts().join("\n");
+    expect(!/service-pocket test/.test(untested),
+      "untested Amara promise appeared in What Remains");
+  } catch (error) {
+    errors.push("citation-truth negatives: " + error.message);
   }
 
   return errors;
