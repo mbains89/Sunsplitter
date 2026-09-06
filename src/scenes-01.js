@@ -6,9 +6,7 @@ registerScenes({
 
   time_pass: {
     get text() {
-      let base = `Days pass. Or what pass for days on a ship with no sun.
-
-The hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections. The daylight panels still rise and set on a schedule that no longer means anything.`;
+      let base = `Days pass. Or what pass for days on a ship with no sun.\n\nThe hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections. The daylight panels still rise and set on a schedule that no longer means anything.`;
 
       if (state.flags.priority === "repairs") {
         if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. The temporary patches hold better than expected. She has begun sleeping in engineering rather than the common area.`;
@@ -78,8 +76,7 @@ The hull produces a recurring metallic knock that people initially mistake for a
       return base;
     },
     choices: [
-      { text: "Go to the alarm yourself.", next: "crisis", effects: { cohesion: 2 } },
-      { text: "Order Mira and Elias ahead. You follow.", next: "crisis", effects: { integrity: 1 }, aliveAll: ["mira", "elias"] }
+      { text: "Answer the alarm.", next: "crisis" }
     ]
   },
   crisis: {
@@ -90,11 +87,7 @@ The hull produces a recurring metallic knock that people initially mistake for a
       if (isAlive("jiro")) trapped.push("Jiro Okada");
       if (isAlive("sela")) trapped.push("Sela");
       const countWord = ["No", "One", "Two", "Three"][trapped.length];
-      let t = `The alarm is not loud. It does not need to be.
-
-Life support on the lower habitation ring is failing. CO₂ climbing. ${countWord} ${trapped.length === 1 ? "person is" : "people are"} trapped behind a warped bulkhead: ${trapped.join(", ")}.
-
-${isAlive("mira") ? "Mira is already at the panel." : ""}`;
+      let t = `The alarm is not loud. It does not need to be.\n\nLife support on the lower habitation ring is failing. CO₂ climbing. ${countWord} ${trapped.length === 1 ? "person is" : "people are"} trapped behind a warped bulkhead: ${trapped.join(", ")}.\n\n${isAlive("mira") ? "Mira is already at the panel." : ""}`;
 
       if (isAlive("mira") && state.flags.priority === "repairs") {
         t += `\n\n"The seals we reinforced earlier are buying us minutes. I can try to cut them out. The risk of cascade is lower than it would have been."`;
