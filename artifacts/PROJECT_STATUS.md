@@ -53,9 +53,9 @@ Verified on lane tip `9e9025e` after PR 171 (`SUN-VOICE-HYGIENE-01`). Privacy-lo
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and `scripts/fixtures/main-reconcile-ci-pr-baseline.json`. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
 | Lane `HEAD` | `9e9025ebccef2a99daffcd615ecc42d82b6f38bd` | LANDED ON VERSION LANE only. |
-| Fixture `certification` | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
+| Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 
-`identityAndAuthorityChecks` still requires this file to keep `release_state: NO-PUBLISH`, `version_integrity: NOT_CERTIFIED`, art posture `PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT`, and L-025–L-028 tokens. Those strings are preserved. Lane `src` may differ from `992f7c5`; the src-equality gate applies only to the original main-reconcile ticket route.
+`identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only. Lane `src` may differ from the main src pin; the src-equality gate applies only to the original main-reconcile ticket route.
 
 Proof note: `artifacts/SUN_VERIFY_MAIN_POSTURE_LANE_01.md`.
 
