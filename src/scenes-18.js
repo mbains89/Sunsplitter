@@ -6,8 +6,10 @@ registerScenes({
   vess_transmission: {
     image: "images/vess_signal.jpg",
     onEnter: () => {
-      if (!isAlive("vess") || state.flags.last_tx_spent) return "act3_spine_next";
+      if (!isAlive("vess")) return "act3_spine_next";
+      // Accept already chose the pair-bond. Do not bind romance.vess to last_tx.
       state.romance.vess = true;
+      if (state.flags.last_tx_spent) return "act3_spine_next";
     },
     text: () => {
       let t = `She does not celebrate the yes. She opens a second request the same way she opened the first — as procedure.
