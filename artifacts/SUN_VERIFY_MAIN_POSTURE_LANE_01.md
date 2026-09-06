@@ -7,6 +7,7 @@ Docs/proof only. Not certification. Not a close-out to `main`.
 - Lane: `version/0.30.1-main-reconcile-ci.1`
 - Base tip: `9e9025ebccef2a99daffcd615ecc42d82b6f38bd` (merge of PR 171 `SUN-VOICE-HYGIENE-01`)
 - Prior DONE on this tip: privacy-loop (PR 170), voice hygiene (PR 171)
+- Proof PR: 172 on `ticket/0.30.1-verify-main-posture-lane-01-r2`
 
 ## Main posture pins (live)
 
