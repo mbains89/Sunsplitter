@@ -45,11 +45,20 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      { text: "Back down a step. Adjust the rule that caused this.", next: "arc_living_4", effects: { cohesion: 6, integrity: -2, supplies: -2 }, lean: { living: 2 }, affinity: { tomas: 8, lena: 4 }, trust: { tomas: 10 }, mark: { conflict: "backed" } },
-      { text: "Hold the line. Refusal does not rewrite orders.", next: "arc_living_4", effects: { cohesion: -8, integrity: 3 }, lean: { future: 2 }, affinity: { elias: 8, tomas: -8 }, trust: { elias: 8, tomas: -12 }, mark: { conflict: "held" } },
-      { text: "Take the argument private. Do not let the corridor become a stage.", next: "arc_living_4", effects: { cohesion: 1, supplies: -1 }, mark: { conflict: "private" }, requires: { trust: { tomas: 40 } } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Back down a step. Adjust the rule that caused this.", next: "arc_living_4", effects: { cohesion: 6, integrity: -2, supplies: -2 }, lean: { living: 2 }, affinity: { tomas: 8, lena: 4 }, trust: { tomas: 10 }, mark: { conflict: "backed" } },
+        { text: "Hold the line. Refusal does not rewrite orders.", next: "arc_living_4", effects: { cohesion: -8, integrity: 3 }, lean: { future: 2 }, affinity: { elias: 8, tomas: -8 }, trust: { elias: 8, tomas: -12 }, mark: { conflict: "held" } }
+      ];
+      const enabled = routes.some(choice =>
+        (!choice.requires || meetsRequirements(choice.requires)) &&
+        (!choice.effects || canAffordEffects(choice.effects))
+      );
+      if (!enabled) {
+        routes.push({ text: "Walk past. Do not answer the corridor.", next: "arc_living_4" });
+      }
+      return routes;
+    }
   },
 
   arc_living_4: {
@@ -68,11 +77,20 @@ registerScenes({
       t += `There is no clean package. Only which shortage you schedule first.`;
       return t;
     },
-    choices: [
-      { text: "Burn supplies to keep the ring warm and lit.", next: "vault_sacrifice", effects: { supplies: -8, cohesion: 5, integrity: 3 }, lean: { living: 3 }, affinity: { amara: 4, lena: 4 }, requires: { supplies: { min: 10 } } },
-      { text: "Protect the margin. Accept colder habitation.", next: "vault_sacrifice", effects: { supplies: 3, cohesion: -6, integrity: 2 }, lean: { future: 2 }, affinity: { elias: 5, jiro: 3 } },
-      { text: "Double cycle the crew for a temporary patch. Borrow time.", next: "vault_sacrifice", effects: { cohesion: -4, integrity: 5, supplies: -2 }, lean: { living: 1 }, affinity: { mira: 4 }, requires: { cohesion: { min: 25 } } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Burn supplies to keep the ring warm and lit.", next: "vault_sacrifice", effects: { supplies: -8, cohesion: 5, integrity: 3 }, lean: { living: 3 }, affinity: { amara: 4, lena: 4 }, requires: { supplies: { min: 10 } } },
+        { text: "Protect the margin. Accept colder habitation.", next: "vault_sacrifice", effects: { supplies: 3, cohesion: -6, integrity: 2 }, lean: { future: 2 }, affinity: { elias: 5, jiro: 3 } }
+      ];
+      const enabled = routes.some(choice =>
+        (!choice.requires || meetsRequirements(choice.requires)) &&
+        (!choice.effects || canAffordEffects(choice.effects))
+      );
+      if (!enabled) {
+        routes.push({ text: "Leave the board as it stands.", next: "vault_sacrifice" });
+      }
+      return routes;
+    }
   },
   vault_sacrifice: {
     get text() {
@@ -85,7 +103,6 @@ registerScenes({
       } else {
         t += `You tried to protect both. The ship is no longer offering that luxury.\n\n`;
       }
-      // Personal voices — Future vs Living embodied
       if (isAlive("elias")) t += `Elias: "If the vault dies, this was just a slow funeral with better lighting. Feed the future."\n\n`;
       if (isAlive("jiro")) t += `Jiro: "The trajectory was always for the package. We were the escort."\n\n`;
       if (isAlive("lena")) t += `Lena: "I can treat the people in this room. I cannot treat a percentage on a screen."\n\n`;

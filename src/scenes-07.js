@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: records_changeorders; records_changeorders_after (legacy save compatibility only)
   // VERSION: 0.29        TICKET: Cascade Allusive 2/6
   // PACKAGE: The Unsigned Pages
@@ -15,7 +15,8 @@ registerScenes({
   // DEAD-SPEECH CHECK: both nodes redirect when !isAlive("mira")
   // IMAGE: REUSE images/cascade_records.jpg; NO ART_REQUEST
   // LANE RULE: never reference Jiro's contingency file here
-  // ═════════════════════════════════════════════════════════════════
+  // LOCK: verify cascadeAndMirrorChecks requires three records_changeorders hosts.
+  // ═════════════════════════════════
 
   arc_future_3: {
     get text() {
@@ -85,8 +86,7 @@ registerScenes({
     },
     choices: [
       { text: "Open it. Take what the future can use.", next: "vault_sacrifice", effects: { supplies: 8, integrity: -8, embryos: 3 }, flag: { abandoned: "opened" }, lean: { future: 3 }, requires: { integrity: { min: 28 } } },
-      { text: "Leave it sealed. Some risks are not worth the parts.", next: "vault_sacrifice", effects: { cohesion: 3, integrity: 2 }, flag: { abandoned: "sealed" }, lean: { living: 1 } },
-      { text: "Remote scan only. Spend power, not hull.", next: "vault_sacrifice", effects: { supplies: -5, integrity: -1, cohesion: 1 }, flag: { abandoned: "scanned" }, requires: { supplies: { min: 8 }, trust: { mira: 35 } }, alive: "mira" }
+      { text: "Leave it sealed. Some risks are not worth the parts.", next: "vault_sacrifice", effects: { cohesion: 3, integrity: 2 }, flag: { abandoned: "sealed" }, lean: { living: 1 } }
     ]
   },
 
