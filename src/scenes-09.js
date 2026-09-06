@@ -112,10 +112,19 @@ registerScenes({
       if (isAlive("mira")) t += `Mira waits on the switch. "I need an order."`;
       return t;
     },
-    choices: [
-      { text: "Divert everything to the vault. Protect the embryos and the restart package.", next: "intimacy_window", effects: { integrity: -10, cohesion: -12, supplies: -6 }, flag: { vault_sacrifice: "future" }, lean: { future: 10 }, affinity: { elias: 12, jiro: 10, lena: -10, tomas: -12, amara: -8 }, trust: { elias: 15, jiro: 12, lena: -12, tomas: -15 }, requires: { integrity: { min: 15 }, supplies: { min: 8 } } },
-      { text: "Divert everything to life support and habitation. Protect the living.", next: "intimacy_window", effects: { embryos: -28, integrity: 5, cohesion: 8, supplies: 4 }, flag: { vault_sacrifice: "living" }, lean: { living: 10 }, affinity: { lena: 12, tomas: 12, amara: 10, elias: -12, jiro: -10 }, trust: { lena: 14, tomas: 15, elias: -14, jiro: -12 } },
-      { text: "Split the difference. Both systems degrade.", next: "intimacy_window", effects: { embryos: -12, integrity: -5, cohesion: -4 }, flag: { vault_sacrifice: "split" }, lean: { future: 3, living: 3 }, affinity: { mira: 6 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Divert everything to the vault. Protect the embryos and the restart package.", next: "intimacy_window", effects: { integrity: -10, cohesion: -12, supplies: -6 }, flag: { vault_sacrifice: "future" }, lean: { future: 10 }, affinity: { elias: 12, jiro: 10, lena: -10, tomas: -12, amara: -8 }, trust: { elias: 15, jiro: 12, lena: -12, tomas: -15 }, requires: { integrity: { min: 15 }, supplies: { min: 8 } } },
+        { text: "Divert everything to life support and habitation. Protect the living.", next: "intimacy_window", effects: { embryos: -28, integrity: 5, cohesion: 8, supplies: 4 }, flag: { vault_sacrifice: "living" }, lean: { living: 10 }, affinity: { lena: 12, tomas: 12, amara: 10, elias: -12, jiro: -10 }, trust: { lena: 14, tomas: 15, elias: -14, jiro: -12 } }
+      ];
+      const enabled = routes.some(choice =>
+        (!choice.requires || meetsRequirements(choice.requires)) &&
+        (!choice.effects || canAffordEffects(choice.effects))
+      );
+      if (!enabled) {
+        routes.push({ text: "No grid can take a full divert. Let both degrade.", next: "intimacy_window", effects: { embryos: -12, integrity: -5, cohesion: -4 }, flag: { vault_sacrifice: "split" }, lean: { future: 3, living: 3 }, affinity: { mira: 6 } });
+      }
+      return routes;
+    }
   }
 });
