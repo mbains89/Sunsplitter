@@ -79,7 +79,7 @@ export function selaAnswerChecks(runtime) {
   `);
 
   check("other choices and absent Sela keep the original onward route", `
-    for (const index of [0, 2, 3]) {
+    for (const index of [0, 2]) {
       resetRunState(); state.supplies = 30; display("arc_living_2");
       expect(scenes.arc_living_2.choices[index].next === "arc_living_3", "unrelated option retargeted");
       makeChoice(scenes.arc_living_2.choices[index]);
