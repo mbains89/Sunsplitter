@@ -78,7 +78,7 @@ The order will reallocate power now and set which crisis options remain open. It
   },
   status: {
     get text() {
-      const n = state.survivors;
+      const n = visibleLivingCrewCount();
       let t = `You gather what remains of your people in the corridor outside medical.\n\n`;
       t += `${n} living.`;
       if (!isAlive("rourke")) t += ` One body already cooling.`;
