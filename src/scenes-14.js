@@ -93,6 +93,7 @@ The burn goes a full cycle late, on ${isAlive("mira") ? "Mira's verified solutio
         t += `\n\nTomas doesn't come down for it. The absence stands in the corridor like a posted notice.`;
       }
       t += `\n\nJiro straightens as much as nineteen days will let him, logs against his chest.\n\n"I know exactly where we are now. You won't like how far that is."`;
+      t += `\n\nHis name is on the board before the briefing starts.`;
       return t;
     },
     choices: [
