@@ -4,7 +4,6 @@
 registerScenes({
 
   arc_living_3: {
-    onEnter: () => doctrinePackRedirect("living"),
     get text() {
       // Reactive crew conflict — branches on prior behavior
       let t = `The conflict does not wait for a meeting.\n\n`;
@@ -63,7 +62,6 @@ registerScenes({
   },
 
   arc_living_4: {
-    onEnter: () => doctrinePackRedirect("living"),
     get text() {
       let t = `Power, food, and hull come due on the same board.\n\n`;
       t += `You can stabilize the ring for another stretch by burning supply margin. You can protect the margin and accept colder corridors. You can ask the crew to work a double cycle for a temporary patch that will fail later.\n\n`;

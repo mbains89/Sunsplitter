@@ -4,7 +4,6 @@
 registerScenes({
 
   arc_living_1: {
-    onEnter: () => doctrinePackRedirect("living"),
     get text() {
       let t = `The habitation ring is warmer than the rest of the ship — and failing in smaller, meaner ways.\n\n`;
       if (isAlive("amara")) {
@@ -73,8 +72,6 @@ registerScenes({
       return routes;
     },
     onEnter: () => {
-      const bounce = doctrinePackRedirect("living");
-      if (bounce) return bounce;
       if (isAlive("sela")) {
         remember("Sela said refusal is half of what the yellow is for.");
         mark("sela", "spoken");
@@ -90,7 +87,6 @@ registerScenes({
   // IMAGE: REUSE images/sela_ritual.jpg; absent guard uses existing corridor.
   // PROSE: exact existing quiet_sela sentence, not a new price or story chapter.
   arc_living_sela_answer: {
-    onEnter: () => doctrinePackRedirect("living"),
     text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."`,
     choices: [{ text: "Continue.", next: "arc_living_3" }],
     image: "images/sela_ritual.jpg"
