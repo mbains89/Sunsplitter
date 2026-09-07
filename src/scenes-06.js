@@ -1,12 +1,23 @@
 // Sunsplitter — scenes-06.js
 // 0.28.1c size hygiene. Pure mechanical. mid-a: arc_fork + future_1 + future_2
 // Strict scene shape only: text | choices | onEnter | image
+function doctrinePackRedirect(pack) {
+  const hat = state.flags.mid_arc;
+  if (!hat) return;
+  if (pack === "future" && hat === "living") return "arc_living_1";
+  if (pack === "living" && hat === "future") return "arc_future_1";
+}
+
 registerScenes({
 
   // PRE: vault_voice exit | WRITES: mid_arc, immediate resource cost, lean, affinity; degraded floor preserves L-021
   // DEATH: none | DEAD SPEECH/APPEARANCE: none
   // IMAGE: REUSE observation_reckon.jpg; ART-R2 remains separate
   arc_fork: {
+    onEnter: () => {
+      if (state.flags.mid_arc === "living") return "arc_living_1";
+      if (state.flags.mid_arc === "future") return "arc_future_1";
+    },
     get text() {
       const shape = ideologyShape();
       let t = `The quiet after the vault voice does not last.\n\n`;
@@ -35,6 +46,7 @@ registerScenes({
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira/Elias text is living-gated
   // IMAGE: REUSE existing resolver images/power_stress_2.jpg; ART-R2 overlay remains separate
   arc_future_1: {
+    onEnter: () => doctrinePackRedirect("future"),
     get text() {
       let t = `Engineering smells of ozone and overheated insulation.\n\n`;
       if (isAlive("mira")) {
@@ -65,6 +77,7 @@ registerScenes({
   },
 
   arc_future_2: {
+    onEnter: () => doctrinePackRedirect("future"),
     get text() {
       let t = ``;
       const emb = state.embryos || 100;
