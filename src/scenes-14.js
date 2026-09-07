@@ -12,9 +12,7 @@ registerScenes({
       remember("Committed the correction burn on unverified blister telemetry.");
     },
     text: () => {
-      let t = `The burn goes at the top of the hour, on numbers eleven days old, written by a man breathing his own exhaust. Ninety seconds of thrust. The margin gauge falls and does not come back.
-
-Nothing feels wrong. That is the honest description: nothing feels wrong.`;
+      let t = `The burn goes at the top of the hour, on numbers eleven days old, written by a man breathing his own exhaust. Ninety seconds of thrust. The margin gauge falls and does not come back.\n\nNothing feels wrong. That is the honest description: nothing feels wrong.`;
       if (isAlive("mira")) {
         t += `\n\nMira finishes her verification anyway, after, because that's who she is. She reads the result once, closes the pane, and says two words to nobody in particular. "Solution archived." She doesn't offer it, and you don't ask.`;
       }
@@ -32,9 +30,7 @@ Nothing feels wrong. That is the honest description: nothing feels wrong.`;
       remember("Committed the verified correction burn; spent the insertion margin.");
     },
     text: () => {
-      let t = `Mira takes thirty-eight of her forty minutes.
-
-"Ninety-four percent confidence," she says. "The other six belongs to the universe, not to me." The heading goes on the log with her number beside it, and the burn goes at the top of the hour. Ninety seconds of thrust. The margin gauge falls and does not come back.`;
+      let t = `Mira takes thirty-eight of her forty minutes.\n\n"Ninety-four percent confidence," she says. "The other six belongs to the universe, not to me." The heading goes on the log with her number beside it, and the burn goes at the top of the hour. Ninety seconds of thrust. The margin gauge falls and does not come back.`;
       if (isAlive("tomas") && state.recovered.tomas) {
         t += `\n\nTomas watches the gauge the whole time. "You heard me and you spent it anyway," he says afterward, without heat. "That's your job. Mine is remembering the price every time we sit down to eat, and I'm good at my job too."`;
       }
@@ -57,9 +53,7 @@ Nothing feels wrong. That is the honest description: nothing feels wrong.`;
       if (isAlive("amara")) {
         t += `\n\n"He's not wrong," Amara says at the end of it, "and neither are you, which is why this one's yours and not a vote. Just so we're clear that everyone in this room knows exactly what's being bought and who's owed for it."`;
       }
-      t += `\n\nAnd through the whole argument, every six hours to the second, the ring corrects. Four adjustments. A pause. Four more. A man you cannot hear, keeping his appointment.
-
-The burn goes a full cycle late, on ${isAlive("mira") ? "Mira's verified solution" : "the best solution the boards can make"}, and the correction for the wait costs margin the original plot never owed. The gauge falls further than it should have. Everyone watches it do it.`;
+      t += `\n\nAnd through the whole argument, every six hours to the second, the ring corrects. Four adjustments. A pause. Four more. A man you cannot hear, keeping his appointment.\n\nThe burn goes a full cycle late, on ${isAlive("mira") ? "Mira's verified solution" : "the best solution the boards can make"}, and the correction for the wait costs margin the original plot never owed. The gauge falls further than it should have. Everyone watches it do it.`;
       return t;
     },
     choices: [
@@ -93,6 +87,7 @@ The burn goes a full cycle late, on ${isAlive("mira") ? "Mira's verified solutio
         t += `\n\nTomas doesn't come down for it. The absence stands in the corridor like a posted notice.`;
       }
       t += `\n\nJiro straightens as much as nineteen days will let him, logs against his chest.\n\n"I know exactly where we are now. You won't like how far that is."`;
+      t += `\n\nHis name is on the board before the briefing starts.`;
       return t;
     },
     choices: [
