@@ -42,6 +42,11 @@ export function playtestTitleBodyFollowChecks(runtime) {
   try {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
+      const heading = document.getElementById("title-heading");
+      if (heading) {
+        heading.textContent = "Sunsplitter";
+        heading.className = "game-title";
+      }
       acknowledgeTone();
       const title = document.getElementById("title-screen");
       const word = document.getElementById("title-heading");
