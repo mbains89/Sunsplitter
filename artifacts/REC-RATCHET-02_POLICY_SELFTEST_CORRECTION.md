@@ -373,3 +373,64 @@ Only reconciled 13/13 PASS permits one shell-free `/usr/bin/git` push with liter
 ## 11. C14 next action
 
 **Build / GPT-Codex:** finish the bounded pre-freeze repair and exact-byte component validation, obtain one independent review, then freeze only on total PASS. `NO-PUBLISH / NOT CERTIFIED` remains active.
+
+## 12. r13 immutable landed-C14 fixture-source supplement
+
+Sections 1–11 above are immutable historical receipts. They preserve the C14/r12 frame, its exact local/remote evidence, and the authority that existed before C14 landed. Nothing in this supplement edits, retries, reinterprets, or reuses those identities.
+
+### Landed C14 and protected X
+
+- C14 head: `a42fcf9da045e34f456652dfa13e5a890cd216f4`.
+- C14 tree: `35388f974a6175a9a8b791879989f3a33a69c1fe`.
+- C14 sole parent: `5995e344dbdbc18ce83186359ba9838fcf69c37e`.
+- C14 raw payload: 302 bytes / SHA-256 `b87ef55e4cfff85892ff78c4d6ed58591454f46579d536e7eb4fbc16375d4b4f`.
+- C14 five-path manifest: 766 bytes / SHA-256 `86e88012deca29100b43dea8b8fc57f6e4f05aaa1d1ac6009ff329aadc809982`.
+- Protected X: `d78c453004100894fc523866b8010b40987752f6`.
+- X tree: `35388f974a6175a9a8b791879989f3a33a69c1fe`.
+- X ordered parents: `[5995e344dbdbc18ce83186359ba9838fcf69c37e,a42fcf9da045e34f456652dfa13e5a890cd216f4]`.
+- X raw payload: 1,262 bytes / SHA-256 `636c443f63215d29bc9dd09ebfccc8c6b3cbe4987125e8e54c1270d8c67ce1c1`.
+- PR #38 is merged and its r12 route is closed/landed/consumed.
+
+Historical C14 path identities remain exact: workflow blob `830c93e93aac72d555b163931f141839cf452422`, SHA-256 `2107c374e43e42fb808908d770439fe15803f9ee1dd55c162a41779d764ef7e1`, 2,402 bytes; STATUS blob `3ef6b8fc994aee5e9e8a5520d09355c2bf8723c1`, SHA-256 `d948c3259f037393ca7b76cc0c5f932b96d950d69ba9169ec01cd8f2f5aef0b3`, 26,522 bytes; record blob `e12fa624d31fd63c9e31a442bb9b3095dc4e638b`, SHA-256 `e0c6bb7ff53e930e3f73b618764d15d6797f3dc69c1efc643ea0cf93f31c75f1`, 51,162 bytes; patch blob `00f53e6fe2dc3787ccde36cb9e85f63d24c02950`, SHA-256 `9c1158ef758f41c52d749e22c53b736c0aa7fc782765921e5dbb606f84b64551`, 37,735 bytes; policy blob `66bb3b608005b468e2222b29bebe4e07d5074780`, SHA-256 `f3ca30f5ee40d9c63bd84b9e6bac238a1bad475fe9defe3f842b2d3612d75ae4`, 260,343 bytes. All five modes are `100644`.
+
+### Terminal REC-02 r2 receipt
+
+- Branch `ticket/0.30.1-rec-02-r2`, head `caf42d891cd3e19b9977ffdc40cfa30c992e5042`, tree `c012e16cc411656036df1adb13fc32a4d6c8a072`, sole parent X, synthetic merge `4d1d56b6b2d32bcfd54c524d3e01c040e4267e33`, and draft PR #39 are frozen, unmerged, and non-reusable.
+- Recovery Release Policy attempt 1 run `32889720839`, job `97938526648`, failed with `artifacts/PROJECT_STATUS.md: C14 exact identity drifted`.
+- Recovery Verify attempt 1 run `32889720781` succeeded. That success does not cure the required policy failure.
+- No rerun, amend, branch reuse, PR edit, ready transition, merge, deployment, publication, release, tag, or certification is authorized.
+
+The exact root cause is mutable historical-fixture sourcing: `currentC14Inputs()` at X read the current worktree/index five-path set. REC-02 r2 legitimately changed current STATUS to blob `1c0b1691b73dd2973704e5ca5231a480e03ba9b0`, SHA-256 `e71925adb826079388548bc89890626c8b06952c9bc9779113da8441913911ca`, 26,981 bytes, while historical C14 requires the STATUS identity recorded above. The exact-identity validator correctly failed. The correction must change the fixture source, never weaken that validator.
+
+### Fresh r13 correction contract
+
+- Issue #40 defines the exact correction envelope; Manraj's separate Build authorization permits one fully validated local candidate only.
+- Exact base and sole parent: X `d78c453004100894fc523866b8010b40987752f6`.
+- Reserved local/future route: `ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r13`.
+- Exact subject-only commit message: `REC-RATCHET-02: bind immutable landed-C14 fixtures` plus one terminal LF.
+- Exact author and committer: `Sunsplitter Recovery Build <noreply@openai.com> 1788742800 -0500`.
+- Exact four-path mode-`100644` scope: `artifacts/PROJECT_STATUS.md`; `artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`; `artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json`; `scripts/release-policy.mjs`.
+- Every other path, including `.github/workflows/release-policy.yml`, remains byte-identical to X. The inherited workflow remains 2,402 bytes / SHA-256 `2107c374e43e42fb808908d770439fe15803f9ee1dd55c162a41779d764ef7e1` with the exact two-step/four-variable Git boundary.
+- r13 head, tree, raw payload, manifest, bundle, pushed ref, PR, synthetic merge, and CI identities remain explicitly `UNFROZEN` until final reviewed bytes pass locally.
+
+Historical C14 inputs resolve only through the literal lowercase X string before any Git call, then through exact X and C14 Git objects. Exact OIDs, trees, ordered parents, raw payloads, path identities, and manifest are verified before the five historical bytes are returned. Current worktree/index hygiene is checked separately for the four r13 files and can never supply historical C14 bytes. Future r3 self-test accepts only an exact direct r3 candidate or exact two-parent r3 successor whose first parent is an exact r13 protected successor, requires the current four-path envelope to equal that checkout, and resolves historical r13 bytes from the protected successor's exact second-parent candidate. A transitioned r3 STATUS therefore cannot poison either historical fixture.
+
+The authorized patch artifact remains canonical two-space JSON with one terminal LF. Relative to exact X, its only semantic change is `/authority/targetBranch` from `ticket/0.30.1-rec-02-r2` to `ticket/0.30.1-rec-02-r3`. The resulting artifact is 37,735 bytes, blob `5d7315495fa220fed362bf7d580c69c1141385c0`, SHA-256 `74bd104be7fbb46dc15a4242f03b8402e7267bad19c3de430f4e10aa403027b7`. Its embedded unified diff SHA-256 `cee97660f7e472aeefee119c9e3679a6f10a7614541e283a80d70a47377665fb`, replacement manifest, baseline copy, exact file identities, functional tree `b0f2be69ef549e4ccf65005b8298056294c14716`, and functional manifest SHA-256 `cf8510273f64c63f8c423c5049b0b3d7b724d11ddc9b5c0ed5eebacb5402cebb` remain unchanged.
+
+The r13 normalized policy projection is `0b8a602116b010b96d8299bcf689900aa116e8a96e40a54e1e2a259dd6188957`. The active candidate inventory is 128 unique objects / SHA-256 `d5782849d72e70ed9ce8b47eab5739764590d4da63e2fec8fc7e9e302654403a`; the future r3 inventory is 127 unique objects / SHA-256 `c0857eccc3b84d44dca02e39a5650bc542c3144b2ac68709766ad74e89d902bc`. The three added terminal objects are exact r2 head, r2 tree, and r2 synthetic merge. Historical C14 125/124 and C9 103 inventories remain independently frozen and asserted. Candidate-only closure requires 15 unique controls: the prior 12 plus exact C14 head, X, and their shared tree.
+
+The focused Git-environment suite remains exactly 2 positives, 41 negatives, and 41 zero-Git rejections. Historical policy counts remain 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, and 104 structured adversarial fixtures. The active terminal-route suite is 41 counted zero-Git rejections plus 12 uppercase/padded r2 head/tree/synthetic-merge spelling rejections, with exact landed-C14 head custody additionally asserted. One disposable PR #39 regression derives the exact 26,981-byte r2 STATUS and reproduces only `artifacts/PROJECT_STATUS.md: C14 exact identity drifted`; staged pre-freeze, direct-candidate, and two-parent-successor r3 checkout replays all reconstruct the exact r13 fixture from immutable Git objects. Pinned Node.js is `v22.16.0`; `/usr/bin/git` and the six-name child Git-environment boundary remain mandatory.
+
+### r13/r3 routing and stop state
+
+Only exact r13 from X may pass the correction PR route. Only an exact two-parent protected successor `[X,r13-head]` with the r13 tree may pass the corresponding push route. The r12 and r2 branches and all terminal objects reject before repository Git where their identity is available. X remains a valid r13 base and must not be blanket-forbidden.
+
+The later branch `ticket/0.30.1-rec-02-r3` is reserved but `UNFROZEN`. It cannot be constructed until an exact r13 successor lands under separate owner authorization and Issue #24 is separately and freshly repinned to that exact successor. Any r3 head, tree, commit, PR, synthetic merge, or future evidence shown by self-test is synthetic only and is not a frozen production identity.
+
+The Build authorization stops after exact four-path local validation, one local candidate freeze, independent review, and evidence report. It does not authorize a branch push, PR creation, workflow rerun, ready transition, merge, deployment, publication, release, tag, certification, ruleset change, bypass change, Issue #24 write, or Netlify/cloud mutation.
+
+`NO-PUBLISH / NOT CERTIFIED` remains active.
+
+## 13. r13 next action
+
+**Build / GPT-Codex:** complete exact local validation and independent review, freeze one local candidate identity only on total PASS, report it, and stop before any push or PR. `NO-PUBLISH / NOT CERTIFIED` remains active.

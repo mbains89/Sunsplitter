@@ -6,7 +6,7 @@
     "lock": "L-021",
     "baseCommit": "23951012655b0037a55e82c755b66dd4d852f20b",
     "baseTree": "96829ad0e01619f56bed2121a666645b3f9b5259",
-    "targetBranch": "ticket/0.30.1-rec-02-r2",
+    "targetBranch": "ticket/0.30.1-rec-02-r3",
     "governedScenes": [
       "cut_out",
       "vent",

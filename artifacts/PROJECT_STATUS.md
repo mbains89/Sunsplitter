@@ -1,7 +1,7 @@
 # Sunsplitter — Current Status
 
 `schema_version: 1`
-`updated_utc: 2026-08-24`
+`updated_utc: 2026-08-25`
 `authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
 `authority_source_main_sha: 792e202297111d59050e2ea00da0b959c9d1ca75`
 
@@ -31,9 +31,9 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `rec_ratchet_02_gate_a_head_sha: f23c4bed1555c7ad6bcb3b42ca5c6ea3a92e37ab`
 `rec_ratchet_02_gate_a_head_tree: f458b021bc9a9a36cb28c24fd7dee165c2bbaac5`
 `rec_ratchet_02_gate_a_merge_sha: 31aca17b807c4dc8edef3683e30d5fefdd47ad7a`
-`rec_ratchet_02_control_state: GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 PRE-IDENTITY; NO-PUBLISH / NOT CERTIFIED remains active`
-`governed_recovery_successor_sha: 5995e344dbdbc18ce83186359ba9838fcf69c37e`
-`tested_runtime_sha: 5995e344dbdbc18ce83186359ba9838fcf69c37e — exact protected C10/S recovery successor; recovery evidence, not certification`
+`rec_ratchet_02_control_state: GATE A CLOSED at P; C9 CLOSED/CONSUMED at Q; C10/r8 CLOSED/CONSUMED at S; C11/r9, C12/r10, and C13/r11 TERMINAL/NON-REUSABLE; C14/r12 CLOSED/LANDED/CONSUMED at X; REC-02 r2 / PR #39 TERMINAL/NON-REUSABLE; r13 PRE-IDENTITY; NO-PUBLISH / NOT CERTIFIED remains active`
+`governed_recovery_successor_sha: d78c453004100894fc523866b8010b40987752f6`
+`tested_runtime_sha: d78c453004100894fc523866b8010b40987752f6 — exact protected C14/X recovery successor; recovery evidence, not certification`
 `verify_mjs: present on tree`
 `simulate_mjs: present on tree`
 `recovery_required_checks: ACTIVE — ruleset 21051662 requires release-policy, verify, and simulation-gate with the branch up to date`
@@ -46,16 +46,16 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 
 ## Active work
 
-`milestone: REC-RATCHET-02-C14-R12 — trusted GitHub Actions Git-environment successor`
-`ticket: Manraj-authorized REC-RATCHET-02-C14-R12 sealed dispatch`
+`milestone: REC-RATCHET-02-R13 — immutable landed-C14 fixture-source correction`
+`ticket: GitHub issue #40 scope + Manraj's separate Build authorization — local r13 candidate`
 `owner: Build / GPT-Codex; independent verification is separate; every protected merge requires a fresh exact owner authorization`
-`state: POLICY CORRECTION C14 PRE-IDENTITY — exact-S reconstruction in bounded repair; no C14 identity, push, pull request, ready transition, or protected merge exists`
+`state: POLICY CORRECTION R13 PRE-IDENTITY — exact-X local reconstruction in bounded repair; no r13 identity, push, pull request, ready transition, or protected merge exists`
 `governed_branch: recovery/e4f8440-nopub`
-`implementation_branch: ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r12`
-`dispatch_base_sha: 5995e344dbdbc18ce83186359ba9838fcf69c37e`
-`dispatch_base_tree: ea2c992bbb083eecf32404b21a11afc436a5f3c3`
+`implementation_branch: ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r13`
+`dispatch_base_sha: d78c453004100894fc523866b8010b40987752f6`
+`dispatch_base_tree: 35388f974a6175a9a8b791879989f3a33a69c1fe`
 `gate_a_scope: LANDED PRECURSOR — exact six-path Gate A envelope retained as immutable evidence`
-`policy_correction_scope: exactly .github/workflows/release-policy.yml; artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; scripts/release-policy.mjs`
+`policy_correction_scope: exactly artifacts/PROJECT_STATUS.md; artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md; artifacts/REC-RATCHET-02_AUTHORIZED_REC-02.patch.json; scripts/release-policy.mjs`
 `policy_correction_record: artifacts/REC-RATCHET-02_POLICY_SELFTEST_CORRECTION.md`
 `c9_candidate_identity: LANDED PRECURSOR — protected successor 31642c3644a58e9f5fc007bff648dc6146dabcfb; correction head f6b8e050717a6b9420bd3ec2dae0d65abcc57427; tree 103a4ccf5c1511d225d67870e6fb87e64b992de4; ordered parents [31aca17b807c4dc8edef3683e30d5fefdd47ad7a,f6b8e050717a6b9420bd3ec2dae0d65abcc57427]`
 `c9_immutable_receipt: sole parent 31aca17b807c4dc8edef3683e30d5fefdd47ad7a; raw payload 825 bytes / SHA-256 1dea7f018883c68ef1368950ad7ac1ec7ac787ebbe8c53a86d71e5930ca8390b; three-path manifest SHA-256 ae2e4309600269afc3ef9a81ce9eec0e9b0c02e7caed6feebbf76769f98a98fd; active projection 6e44343fc7f892494c4477991b2a11e0f150215ae2a9bf955508a225a3014f27`
@@ -81,7 +81,8 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `c12_terminal_identity: TERMINAL / NON-REUSABLE — head 9612d4bbbcdbf91344b0852ee512a93c7ea5d1ae; tree 95438204b89cfcf9bc53d899dd40fc34836ce332; 13/13 local PASS; sole push failed before remote contact; no PR`
 `c13_terminal_identity: TERMINAL / NON-REUSABLE — head 1dc0f80519db4b42add7010c5b3a6749b059019c; tree f11bd7bf46099f9579af3fb031361f3b4105405f; W abcf29245e387a744a7b3810b956fa7164ac7f39; R aedb8526ab0de685a037fc22c341e8f0b6f041d3; R tree 10bc158a1c8f66cfea0f1937149d20f7a32dfa54; T d5628b1f4e9c5e642c5922070e4e6e10bcbd8b5e; 13/13 local PASS; branch push and draft PR #37 PASS; attempt-1 Release Policy failed; Recovery Verify passed`
 `c13_terminal_diagnosis: exact four-variable Git boundary was not declared on the policy run steps; the process rejected the missing-or-non-exact boundary before repository Git; no C13 rerun or repair is authorized`
-`c14_candidate_identity: UNFROZEN — head/tree/raw payload/manifest/bundles are mechanically derived only after final reviewed bytes`
+`c14_candidate_identity: LANDED / CONSUMED — head a42fcf9da045e34f456652dfa13e5a890cd216f4; tree 35388f974a6175a9a8b791879989f3a33a69c1fe; sole parent 5995e344dbdbc18ce83186359ba9838fcf69c37e; protected X d78c453004100894fc523866b8010b40987752f6; ordered parents [5995e344dbdbc18ce83186359ba9838fcf69c37e,a42fcf9da045e34f456652dfa13e5a890cd216f4]`
+`c14_landed_receipt: PR #38 merged 2026-08-25; head raw payload 302 bytes / SHA-256 b87ef55e4cfff85892ff78c4d6ed58591454f46579d536e7eb4fbc16375d4b4f; five-path manifest 766 bytes / SHA-256 86e88012deca29100b43dea8b8fc57f6e4f05aaa1d1ac6009ff329aadc809982; X raw payload 1,262 bytes / SHA-256 636c443f63215d29bc9dd09ebfccc8c6b3cbe4987125e8e54c1270d8c67ce1c1`
 `c14_commit_contract: sole parent 5995e344dbdbc18ce83186359ba9838fcf69c37e; subject-only message REC-RATCHET-02: bind trusted GitHub Actions Git environment; author and committer Sunsplitter Recovery Build <noreply@openai.com> 1788656400 -0500`
 `c14_actions_git_environment_contract: exactly GIT_CONFIG_GLOBAL=/dev/null; GIT_CONFIG_NOSYSTEM=1; GIT_OPTIONAL_LOCKS=0; GIT_TERMINAL_PROMPT=0 on exactly two post-checkout policy run steps; optional ambient GIT_PAGER=cat only; every other ambient GIT_* rejected before Git`
 `c14_actions_fixture_contract: first policy run step invokes --github-actions-git-environment-fixture before --self-test; second preserves every POLICY_* mapping; checkout/setup receive no ticket Git environment at workflow or job scope`
@@ -96,8 +97,18 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `r2_prefreeze_hold: PRESERVED / UNFROZEN — tree 0970dc606b63a84dd38ab46541b2a359ef95674f; STATUS blob 742ae69f94bdac92cd4ccce8267508ef0693c62a / SHA-256 9cb1f4b42f9e8393f96f176fd0252682616afca09f8adfa9f9044a7575122aa6 / 18,008 bytes; static fail-closed determination before invocation: the mandatory policy self-test was not invoked, and its expected error was artifacts/PROJECT_STATUS.md: policy correction identity drifted`
 `r2_prefreeze_identity_receipt: manifest 1,351 bytes / SHA-256 469f6f5683acdeb8d34a81112c71d2409344032504335bef6e956dd6149680de; raw frame 1,712 bytes / SHA-256 15f8128f63145990f0323622744f54b0c23f994b4bfb2e4aead667351c133bd9; predicted OID f5ab37d4845156d7b80678e4492d5fdece1c4458 absent; local branch remained Q; remote branch absent; no PR`
 `r2_prefreeze_diagnostic_receipt: two diagnostic verifier/simulation repetitions passed with stdout SHA-256 f2e67e934b18e9dbc6464d9b7d502404b7c7e34b02307bb8056e3e8e94bfc69d and normalized core c1969e553a03fd80c9ce220a511e3ed6393c9c7b72ef0ca3ab4edb4dcfc78c08; no candidate PASS was claimed and no identity was frozen, committed, pushed, or opened as a PR`
-`fresh_rec_02_branch: ticket/0.30.1-rec-02-r2 — BLOCKED until exact C14 lands through a separately authorized protected merge X and issue #24 is freshly repinned to X`
-`issue_24_repin_requirement: REQUIRED EXTERNAL PRECONDITION — after exact C14 protected merge X and before reconstructing REC-02 r2, issue #24 must be repinned to exact X under separate owner authorization`
+`rec_02_r2_terminal_identity: TERMINAL / NON-REUSABLE — branch ticket/0.30.1-rec-02-r2; head caf42d891cd3e19b9977ffdc40cfa30c992e5042; tree c012e16cc411656036df1adb13fc32a4d6c8a072; sole parent d78c453004100894fc523866b8010b40987752f6; synthetic merge 4d1d56b6b2d32bcfd54c524d3e01c040e4267e33; draft PR #39 remains open/unmerged/frozen`
+`rec_02_r2_attempt_1_receipt: Recovery Release Policy run 32889720839 / job 97938526648 FAILURE — artifacts/PROJECT_STATUS.md: C14 exact identity drifted; Recovery Verify run 32889720781 SUCCESS; no rerun, amend, ready transition, or merge is authorized`
+`r13_candidate_identity: UNFROZEN — no head, tree, raw payload, manifest, bundle, branch push, PR, synthetic merge, or CI identity is embedded here`
+`r13_commit_contract: sole parent d78c453004100894fc523866b8010b40987752f6; subject-only message REC-RATCHET-02: bind immutable landed-C14 fixtures; author and committer Sunsplitter Recovery Build <noreply@openai.com> 1788742800 -0500`
+`r13_fixture_source_contract: historical C14 bytes resolve only from literal exact X d78c453004100894fc523866b8010b40987752f6 and exact head a42fcf9da045e34f456652dfa13e5a890cd216f4; future r3 self-test accepts only an exact direct or two-parent r3 route, requires its worktree/index envelope to equal the checkout, and resolves historical r13 bytes from the exact protected successor rather than transitioned STATUS`
+`r13_patch_identity: 37,735 bytes; blob 5d7315495fa220fed362bf7d580c69c1141385c0; SHA-256 74bd104be7fbb46dc15a4242f03b8402e7267bad19c3de430f4e10aa403027b7; semantic delta from X is only authority.targetBranch r2 to r3`
+`r13_policy_projection: 0b8a602116b010b96d8299bcf689900aa116e8a96e40a54e1e2a259dd6188957 — mechanically frozen after final four-path bytes stabilize`
+`r13_forbidden_inventory_contract: candidate route 128 unique objects / SHA-256 d5782849d72e70ed9ce8b47eab5739764590d4da63e2fec8fc7e9e302654403a; future r3 route 127 unique objects / SHA-256 c0857eccc3b84d44dca02e39a5650bc542c3144b2ac68709766ad74e89d902bc; historical C14 125/124 inventories remain unchanged`
+`r13_expected_policy_fixture_counts: historical 162 zero-Git rejected-head checks, 86 historical raw-frame fixtures, and 104 structured adversarial fixtures preserved; active terminal-route set 41 zero-Git rejections plus 12 uppercase/padded r2 spelling rejections; focused environment layer 2 positives and 41 zero-Git negatives; one exact PR #39 mutable-source regression and staged/direct/successor r3 non-poisoning replays`
+`r13_candidate_store_controls: 15 unique protected controls — prior 12 plus exact C14 head, X, and their shared tree; all 128 active candidate-forbidden objects absent`
+`fresh_rec_02_branch: ticket/0.30.1-rec-02-r3 — RESERVED / UNFROZEN / BLOCKED until an exact r13 protected successor lands under separate authorization and issue #24 is separately repinned to that exact successor`
+`issue_24_repin_requirement: REQUIRED EXTERNAL PRECONDITION — issue #24 must remain unchanged during r13 Build; after a separately authorized r13 protected merge, owner-approved exact readback must freshly bind it to that successor before any r3 construction`
 `active_simulation_baseline_sha256: 0633469f57971b9c00c877a33f9ccb818e53d5a8de8cc787e4ca2a25fdeda7f2 — unchanged Gate A input`
 `functional_projection_state: EVIDENCE ONLY — exact inactive REC-02 baseline, verifier, and seven source outputs; later exact-head verification must rerun`
 `rec_02_governed_scenes: cut_out; vent; past_leak; vault_voice; arc_future_1; act3_reckoning_heading; pregnancy_check; custody_possession; custody_thaw`
@@ -110,6 +121,14 @@ Every entry below is terminal, unmerged, and non-reusable. Exact receipts and im
 `failed_rec_02_r1_head: bd293bbe9fa9ed55eb0620bf85ef0a1316b2524e`
 `failed_rec_02_r1_tree: 34fa0adbfb027e01448a1a0771c8ff5af3997e26`
 `failed_rec_02_r1_disposition: FAILED REQUIRED GATE / LOCAL ONLY / UNPUSHED / NON-REUSABLE`
+
+`failed_rec_02_r2_head: caf42d891cd3e19b9977ffdc40cfa30c992e5042`
+`failed_rec_02_r2_tree: c012e16cc411656036df1adb13fc32a4d6c8a072`
+`failed_rec_02_r2_parent: d78c453004100894fc523866b8010b40987752f6`
+`failed_rec_02_r2_branch: ticket/0.30.1-rec-02-r2 — FROZEN`
+`failed_rec_02_r2_pr: #39 — OPEN / DRAFT / UNMERGED / FROZEN`
+`failed_rec_02_r2_synthetic_merge: 4d1d56b6b2d32bcfd54c524d3e01c040e4267e33`
+`failed_rec_02_r2_disposition: FAILED REQUIRED CI / REMOTE BRANCH FROZEN / DRAFT PR #39 FROZEN / UNMERGED / NON-REUSABLE`
 
 `failed_policy_correction_c1_head: b12ff37ef9153a509827d914b825dd51ec6de0ca`
 `failed_policy_correction_c1_tree: 14dcaa3fb6a92349b6bebf06a606d356456859e8`
@@ -167,6 +186,8 @@ Every entry below is terminal, unmerged, and non-reusable. Exact receipts and im
 `pr_31_state: OPEN / DRAFT / UNMERGED / FROZEN — branch ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r2; head 6441d5f7ad5df5870dbddcabce6243c3d23d09ca; tree f0f12d10bc406c320a1c9324249ee4f2d17332e5; synthetic merge bfea3326bcb2b18431c7d10fcb1f59f89b4b8235; Recovery Release Policy #49 run 32615874248 SUCCESS / release-policy job 97136388344; Recovery Verify #59 run 32615874238 SUCCESS / random 97136388297 / cheapest 97136388349 / verify 97136388352 / priciest 97136388419 / simulation-gate 97136711468; owner-approved HOLD https://github.com/mbains89/Sunsplitter/pull/31#issuecomment-5384470876`
 `pr_33_state: OPEN / DRAFT / UNMERGED / FROZEN — branch ticket/0.30.1-rec-ratchet-02-policy-selftest-correction-r4; head fb16fe160a416fc4a638c2ea7dcae83361c88764; tree 7dec1712c000578da6c1ec92b0e7ac8ff8f081bb; synthetic merge 87093fc887275f3473a88a8ff549fa93c74f34b5; Recovery Release Policy #50 run 32649075334 SUCCESS / release-policy job 97217749298; Recovery Verify #60 run 32649075335 SUCCESS / verify 97217749348 / priciest 97217749404 / random 97217749438 / cheapest 97217749484 / simulation-gate 97218162899; formal independent HOLD after Error: sealed manifest source not found`
 `pr_34_state: OPEN / DRAFT / UNMERGED / FROZEN — head c469a1a4220686f62b3934289b0add56bbdcfc5d; tree 973abf4822ed040a4c98ab746efe1f8da875fb16; synthetic merge de667c81df776fc661ea32bb458c516d1eeae641`
+`pr_38_state: MERGED / CLOSED / CONSUMED — head a42fcf9da045e34f456652dfa13e5a890cd216f4; tree 35388f974a6175a9a8b791879989f3a33a69c1fe; protected successor d78c453004100894fc523866b8010b40987752f6`
+`pr_39_state: OPEN / DRAFT / UNMERGED / FROZEN — branch ticket/0.30.1-rec-02-r2; head caf42d891cd3e19b9977ffdc40cfa30c992e5042; tree c012e16cc411656036df1adb13fc32a4d6c8a072; synthetic merge 4d1d56b6b2d32bcfd54c524d3e01c040e4267e33; Recovery Release Policy run 32889720839 / job 97938526648 FAILURE; Recovery Verify run 32889720781 SUCCESS; no retry or mutation authorized`
 
 Ruleset, bypass-actor, required-check, PR-state, and protected-ref facts are merge-time external facts. No omitted `bypass_actors` field may be normalized to an empty list. Fresh owner-authenticated readback is mandatory before any separately authorized protected merge.
 
@@ -176,8 +197,10 @@ Ruleset, bypass-actor, required-check, PR-state, and protected-ref facts are mer
 - C9 landed at exact protected successor `31642c3644a58e9f5fc007bff648dc6146dabcfb`; its route and protected-merge authorization are consumed.
 - C10 landed at exact protected successor `5995e344dbdbc18ce83186359ba9838fcf69c37e`; its r8 route is consumed.
 - C11, C12, and C13 are immutable terminal evidence. Their branches, objects, runners, receipts, and PR #37 may not be retried, repaired, resumed, edited, or reused.
-- C14 has no known design blocker before identity freeze. Any required failure after freeze permanently retires that exact identity and requires a fresh owner-dispatched successor.
-- REC-02 r2 remains blocked until C14 lands under separate authorization and issue #24 is freshly repinned to exact X.
+- C14 landed at exact protected successor `d78c453004100894fc523866b8010b40987752f6`; its r12 route and protected-merge authorization are consumed.
+- REC-02 r2, `caf42d891cd3e19b9977ffdc40cfa30c992e5042`, synthetic merge `4d1d56b6b2d32bcfd54c524d3e01c040e4267e33`, branch, attempt-1 runs, and PR #39 are terminal/non-reusable and may not be retried, repaired, rerun, edited, synchronized, marked ready, or merged.
+- r13 is authorized only through a fully validated local candidate and independent review. No push, PR, ready transition, merge, workflow rerun, deployment, publication, tag, release, or certification is authorized.
+- REC-02 r3 remains UNFROZEN and blocked until an exact r13 successor lands under separate authorization and issue #24 is separately repinned to that exact successor.
 - Protected-base ROADMAP/LOCKS/STATUS record the owner-approved dispositions at ruling commit `009fca7884e360486ddda172c389f480b62323a5`: L-025 — LOCKED: Commander identity Option B; rendered-path audit and synchronization remain pending. L-026 — LOCKED: retain zero/one branches solely as tested defensive save-recovery guards; coverage is not yet dispatched. L-027 — LOCKED: retire `vess_course_lost` and its promised downstream-course consequence; removal is not yet dispatched. L-028 — DEFERRED: default RETIRE unless mobile PX meets a pre-registered, Manraj-approved comprehension threshold; no indicator is authorized.
 - `main@792e202` has a documented authority lag: AGENTS agrees at blob `592d7428b83677ab4dfd002b7181fe7c298bc084`, but main ROADMAP/PROJECT_STATUS/LOCKS blobs `788b15255bec3c65ff433a2c299ed709a27d3fb2` / `2e5b3d38c594be429b6f723bdcf695669e943774` / `398afd1f6284b7f9223f89431017425b265a67b2` still show pre-ruling/pre-Gate-A state. At C9 dispatch, exact Gate-A protected base P had ROADMAP/PROJECT_STATUS/LOCKS blobs `4b80ef5d26fab3eda752eeb0902dc255bb127263` / `5684cf777304dcef176f115aa84ad310b28a2431` / `7b79cf7058e5bfa21f8429c405078c2364fcba44`. This lag does not downgrade protected-base dispositions. The already owner-approved post-recovery ROADMAP/LOCKS changes must later be rebuilt from the final recovery successor and land atomically with PROJECT_STATUS; C10 does not rule locks.
 - R5–R7 source, images, receipts, builds, evaluator/App work, and cloud resources remain frozen.
@@ -185,6 +208,6 @@ Ruleset, bypass-actor, required-check, PR-state, and protected-ref facts are mer
 
 ## Next action
 
-**Build / GPT-Codex:** complete C14 pre-freeze validation and independent exact-byte review; only total PASS permits one freeze and the one-shot 13-gate runner. `NO-PUBLISH / NOT CERTIFIED` remains active.
+**Build / GPT-Codex:** complete the exact four-path r13 local validation and independent review, freeze one local candidate identity only on total PASS, report its evidence, and stop before any push or PR. `NO-PUBLISH / NOT CERTIFIED` remains active.
 
 <!-- STATUS_COMPLETE -->
