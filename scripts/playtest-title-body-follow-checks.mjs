@@ -9,7 +9,7 @@ export function playtestTitleBodyFollowChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const startCss = readFileSync(resolve(ROOT, "css/title-start.css"), "utf8");
-  if (!html.includes('href="css/title-start.css"') || !html.includes('class="game-title"')) {
+  if (!html.includes('href="css/title-start.css"') || !html.includes('class="game-title"') || !html.includes('id="title-heading"')) {
     errors.push("title-start stylesheet or game-title wordmark missing");
   }
   if (!html.includes('id="title-save-status"') || !html.includes('id="new-run-confirm-copy"')) {
@@ -44,11 +44,12 @@ export function playtestTitleBodyFollowChecks(runtime) {
       localStorage.clear();
       acknowledgeTone();
       const title = document.getElementById("title-screen");
-      const word = document.querySelector("#title-screen .game-title");
+      const word = document.getElementById("title-heading");
       const begin = document.getElementById("btn-begin");
+      const label = word ? String(word.textContent || "").replace(/\\s+/g, " ").trim() : "";
       return {
         titleVisible: !!(title && !title.classList.contains("hidden")),
-        word: !!(word && word.textContent.trim() === "Sunsplitter"),
+        word: label.indexOf("Sunsplitter") !== -1,
         begin: !!begin
       };
     })()`);
