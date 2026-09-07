@@ -19,6 +19,7 @@ registerScenes({
   // ═════════════════════════════════
 
   arc_future_3: {
+    onEnter: () => doctrinePackRedirect("future"),
     get text() {
       let t = `The cascade records were not supposed to open without a dual command key.\n\n`;
       if (isAlive("mira")) {
@@ -43,6 +44,8 @@ registerScenes({
   records_changeorders: {
     image: "images/cascade_records.jpg",
     onEnter: () => {
+      const bounce = doctrinePackRedirect("future");
+      if (bounce) return bounce;
       if (!isAlive("mira") || state.flags.changeorders) return "arc_future_4";
     },
     text: `Mira has the commissioning log open — to the unsigned pages, the way she keeps it.\n\n"Schedule compressed twice in the last month. Change orders 4417 and 4491. Justification field empty on both. That is not a conclusion. It is a gap where a reason should be."\n\nShe sets the log where the record terminal can image it, or not. Her hands wait.`,
@@ -56,7 +59,7 @@ registerScenes({
   // A save already paused here skips onEnter and can still resume normally.
   records_changeorders_after: {
     image: "images/cascade_records.jpg",
-    onEnter: () => "arc_future_4",
+    onEnter: () => doctrinePackRedirect("future") || "arc_future_4",
     text: () => state.flags.changeorders === "logged"
       ? `"Entered. It proves the schedule moved. Nothing else. I want that on the same line."`
       : `"Understood."\n\nShe closes the log. She does not close it all the way.`,
@@ -66,6 +69,7 @@ registerScenes({
   },
 
   arc_future_4: {
+    onEnter: () => doctrinePackRedirect("future"),
     get text() {
       let t = `A pressure fault opens in the sealed cargo spine`;
       if (isAlive("mira")) t += ` — the abandoned section Mira has been warning about`;
