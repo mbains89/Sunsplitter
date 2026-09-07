@@ -9,13 +9,7 @@ registerScenes({
   // DEAD SPEECH/APPEARANCE: original living-gated entry; follow-through guards its own renders.
   // IMAGE: unchanged bond_elias.jpg. CHRONOLOGY: VC-02 / VC-09, same quiet interval.
   bond_elias: {
-    text: `Elias does not do small talk. He does, apparently, keep a sealed bulb of something that was never ship-issue.
-
-He pours two measures without asking whether you drink. The common area is empty enough that the silence is a choice, not an accident.
-
-"Rourke used to sit here after docking runs," he says. Not a eulogy. A coordinate. "He thought the ship would outlast every name on the roster. He was half right."
-
-He does not ask for your past. He does not offer his. He lets the shared quiet be the whole transaction — two people who have already made hard calls, not pretending the next ones will be easier.`,
+    text: `Elias does not do small talk. He does, apparently, keep a sealed bulb of something that was never ship-issue.\n\nHe pours two measures without asking whether you drink. The common area is empty enough that the silence is a choice, not an accident.\n\n"Rourke used to sit here after docking runs," he says. Not a eulogy. A coordinate. "He thought the ship would outlast every name on the roster. He was half right."\n\nHe does not ask for your past. He does not offer his. He lets the shared quiet be the whole transaction — two people who have already made hard calls, not pretending the next ones will be easier.`,
     get choices() {
       // 0.23.3: early exit stays lead_prompt; post-vault (recovered path) returns to act3_spine_next
       const next = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
@@ -29,13 +23,7 @@ He does not ask for your past. He does not offer his. He lets the shared quiet b
   },
 
   bond_tomas: {
-    text: `Tomas has a thin pack of cards that have survived more washes than sense.
-
-He deals without sermon. The game is simple enough that neither of you needs to pretend it matters. When he loses a hand he almost smiles.
-
-"Before the ship I sat with people who were dying slower than this," he says. "Different building. Same arithmetic. The ones who wanted a priest and the ones who wanted a witness were not always the same people."
-
-He does not recruit you. He plays the next card.`,
+    text: `Tomas has a thin pack of cards that have survived more washes than sense.\n\nHe deals without sermon. The game is simple enough that neither of you needs to pretend it matters. When he loses a hand he almost smiles.\n\n"Before the ship I sat with people who were dying slower than this," he says. "Different building. Same arithmetic. The ones who wanted a priest and the ones who wanted a witness were not always the same people."\n\nHe does not recruit you. He plays the next card.`,
     get choices() {
       return [
         { text: "Play until the deck runs out. Be a witness, not a commander.", next: "prom_make_tomas", affinity: { tomas: 12 }, trust: { tomas: 10 }, effects: { cohesion: 3 }, mark: { tomas: "bonded" }, lean: { living: 1 }, remember: "Tomas dealt cards and named the difference between a priest and a witness." },
@@ -52,13 +40,7 @@ He does not recruit you. He plays the next card.`,
   // DEAD SPEECH/APPEARANCE: original living-gated entry; follow-through guards its own renders.
   // IMAGE: unchanged bond_jiro.jpg. CHRONOLOGY: VC-09, same quiet interval; recovery ledger applies.
   bond_jiro: {
-    text: `Jiro is recalibrating the star tracker against a catalog that no longer matches the sky.
-
-He does not look up when you enter. After a stretch of clean silence he slides a second stool an inch with his foot — invitation without performance.
-
-"I trained for a longer mission with a full nav section," he says. "Eight people. We had arguments about proper motion that lasted weeks. Now I argue with a dead database and win by default."
-
-He shows you a fix that is almost elegant. Competence as company.`,
+    text: `Jiro is recalibrating the star tracker against a catalog that no longer matches the sky.\n\nHe does not look up when you enter. After a stretch of clean silence he slides a second stool an inch with his foot — invitation without performance.\n\n"I trained for a longer mission with a full nav section," he says. "Eight people. We had arguments about proper motion that lasted weeks. Now I argue with a dead database and win by default."\n\nHe shows you a fix that is almost elegant. Competence as company.`,
     get choices() {
       const next = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
       return [
@@ -82,31 +64,9 @@ He shows you a fix that is almost elegant. Competence as company.`,
       if (!isAlive("elias")) return "The chair is empty. There is no conversation to finish. The ship's work remains.";
       // Preserve the already-authored unmended-jacket consequence, not a new reconciliation.
       if (!isAlive("mira") && attributableDeath("mira")) {
-        return `A work jacket lies folded beside Elias. The cuff is split. A needle rests across the open seam.
-
-He sees you looking.
-
-"Not tonight, Commander."
-
-He folds the jacket over the needle. You leave it where it is.`;
+        return `A work jacket lies folded beside Elias. The cuff is split. A needle rests across the open seam.\n\nHe sees you looking.\n\n"Not tonight, Commander."\n\nHe folds the jacket over the needle. You leave it where it is.`;
       }
-      return `Before you leave, Elias draws a work jacket across his knees. The cuff has opened along an old seam. He puts the needle through where the previous stitches held.
-
-"Hold the edge, Commander."
-
-You hold it. His stitches are small and close, the knot buried where it will not catch on a hatch. He tests the seam with both thumbs.
-
-"You do all of them?" you ask.
-
-"The torn ones."
-
-There is no list beside the jacket. You have seen him keep lists for less.
-
-He folds it with the repaired cuff on top.
-
-"Leave it on the chair. They know where to look."
-
-For once, he has given you a task that ends when it is done.`;
+      return `Before you leave, Elias draws a work jacket across his knees. The cuff has opened along an old seam. He puts the needle through where the previous stitches held.\n\n"Hold the edge, Commander."\n\nYou hold it. His stitches are small and close, the knot buried where it will not catch on a hatch. He tests the seam with both thumbs.\n\n"You do all of them?" you ask.\n\n"The torn ones."\n\nThere is no list beside the jacket. You have seen him keep lists for less.\n\nHe folds it with the repaired cuff on top.\n\n"Leave it on the chair. They know where to look."\n\nFor once, he has given you a task that ends when it is done.`;
     },
     get choices() {
       return [{ text: "Return to the ship's work.", next: state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" }];
@@ -123,25 +83,7 @@ For once, he has given you a task that ends when it is done.`;
     get image() { return isAlive("jiro") ? "images/jiro.jpg" : "images/onboarding_background.jpg"; },
     text: () => {
       if (!isAlive("jiro")) return "The second stool is empty. The chart stays where it was left. There is no conversation to finish.";
-      return `As you get up, you ask Jiro how far it is to the common area.
-
-"Forty seconds. Fifty if the hatch sticks."
-
-You repeat the estimate. He looks up from the chart.
-
-"Most people ask for meters."
-
-"You don't."
-
-His thumb trembles against the paper. He presses it flat without comment.
-
-"Meters don't tell you whether someone will still be there."
-
-You leave the second stool pulled out. He reaches to put it away, then stops.
-
-"Forty seconds back," he says. "The hatch only sticks on the way out."
-
-It is the first route he has given you with the return journey included without being asked.`;
+      return `As you get up, you ask Jiro how far it is to the common area.\n\n"Forty seconds. Fifty if the hatch sticks."\n\nYou repeat the estimate. He looks up from the chart.\n\n"Most people ask for meters."\n\n"You don't."\n\nHis thumb trembles against the paper. He presses it flat without comment.\n\n"Meters don't tell you whether someone will still be there."\n\nYou leave the second stool pulled out. He reaches to put it away, then stops.\n\n"Forty seconds back," he says. "The hatch only sticks on the way out."\n\nIt is the first route he has given you with the return journey included without being asked.`;
     },
     get choices() {
       return [{ text: "Leave the second stool out. Return to duty.", next: state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" }];
@@ -149,9 +91,13 @@ It is the first route he has given you with the return journey included without 
   },
 
   lead_prompt: {
-    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.
-
-"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."` : ""}`; },
+    onEnter: () => {
+      const hat = state.flags.leadership;
+      if (hat === "together") return "lead_together";
+      if (hat === "hard") return "lead_hard";
+      if (hat === "watch") return isAlive("elias") ? "lead_watch" : "power_crisis";
+    },
+    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.\n\n"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."` : ""}`; },
     choices: [
       { text: "I will not rule by fear. We hold together or we die together.", next: "lead_together", effects: { cohesion: 10, integrity: -2 }, flag: { leadership: "together" } },
       { text: "Hard rules. Clear consequences. No debate.", next: "lead_hard", effects: { cohesion: -7, integrity: 6, supplies: 2 }, flag: { leadership: "hard" } },
@@ -159,41 +105,37 @@ It is the first route he has given you with the return journey included without 
     ]
   },
   lead_together: {
-    get text() { return `You say it loud enough for anyone nearby to hear.
-
-${isAlive("elias") ? `Elias studies you, then nods once. Not agreement — acknowledgment.` : ""}
-
-${isAlive("amara") ? `Amara catches your eye from the far hatch and does not look away.` : ""} The empty chairs stay empty.
-
-The ship does not become kinder. But the air feels less sharp.`; },
+    onEnter: () => {
+      const hat = state.flags.leadership;
+      if (hat === "hard") return "lead_hard";
+      if (hat === "watch") return isAlive("elias") ? "lead_watch" : "power_crisis";
+    },
+    get text() { return `You say it loud enough for anyone nearby to hear.\n\n${isAlive("elias") ? `Elias studies you, then nods once. Not agreement — acknowledgment.` : ""}\n\n${isAlive("amara") ? `Amara catches your eye from the far hatch and does not look away.` : ""} The empty chairs stay empty.\n\nThe ship does not become kinder. But the air feels less sharp.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
       { text: "Spend one more cycle with the crew before the next crisis.", next: "competence_watch", effects: { cohesion: 3, supplies: -2 } }
     ]
   },
   lead_hard: {
-    get text() { return `You draft the rules and post them.
-
-Rations enforced. Work mandatory. Disobedience punished by reduced shares.
-
-${isAlive("elias") ? `Elias smiles with half his mouth.` : ""} ${isAlive("mira") ? `Mira looks at the list and says nothing.` : ""}
-
-Two survivors stop speaking when you pass.
-
-Order returns. Trust does not.`; },
+    onEnter: () => {
+      const hat = state.flags.leadership;
+      if (hat === "together") return "lead_together";
+      if (hat === "watch") return isAlive("elias") ? "lead_watch" : "power_crisis";
+    },
+    get text() { return `You draft the rules and post them.\n\nRations enforced. Work mandatory. Disobedience punished by reduced shares.\n\n${isAlive("elias") ? `Elias smiles with half his mouth.` : ""} ${isAlive("mira") ? `Mira looks at the list and says nothing.` : ""}\n\nTwo survivors stop speaking when you pass.\n\nOrder returns. Trust does not.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis", effects: { integrity: 1 } },
       { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 } }
     ]
   },
   lead_watch: {
-    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}
-
-You do not act on them yet. The knowledge sits in your chest like a stone.
-
-Word spreads that you asked. The corridors grow quieter when you walk them.
-
-You have drawn a line. People are already deciding which side of it they stand on.`; },
+    onEnter: () => {
+      const hat = state.flags.leadership;
+      if (hat === "together") return "lead_together";
+      if (hat === "hard") return "lead_hard";
+      if (!isAlive("elias")) return "power_crisis";
+    },
+    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The knowledge sits in your chest like a stone.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
       { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
@@ -204,13 +146,7 @@ You have drawn a line. People are already deciding which side of it they stand o
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira text/choice retain living guards
   // IMAGE: existing images/power_stress_2.jpg binding; no art work
   power_crisis: {
-    get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.
-
-${isAlive("mira") ? `"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.
-
-Or we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : ""}
-
-The choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
+    get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.\n\n${isAlive("mira") ? `"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.\n\nOr we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : ""}\n\nThe choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
     choices: [
       { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" } },
       { text: "Burn the drive-repair capacitors. Keep systems running now.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 } },
@@ -238,13 +174,7 @@ The choice is simple and ugly: comfort and visibility now, or the possibility of
         if (coolantAvailable && Math.random() < 0.5) return "coolant_trade";
       }
     },
-    get text() { return `${isAlive("elias") ? `Elias reports a problem he has been watching.` : ""}
-
-Two of the remaining survivors have been holding back small private food stores. Not enough to change the math of the ship — enough to create a line between those who share and those who do not.
-
-${isAlive("elias") ? `"I can seize it and make an example. Or we can pretend we did not notice. Or you can address it yourself in front of everyone."` : ""}
-
-The food is almost irrelevant. What it represents is not. Cohesion will notice either way.`; },
+    get text() { return `${isAlive("elias") ? `Elias reports a problem he has been watching.` : ""}\n\nTwo of the remaining survivors have been holding back small private food stores. Not enough to change the math of the ship — enough to create a line between those who share and those who do not.\n\n${isAlive("elias") ? `"I can seize it and make an example. Or we can pretend we did not notice. Or you can address it yourself in front of everyone."` : ""}\n\nThe food is almost irrelevant. What it represents is not. Cohesion will notice either way.`; },
     choices: [
       { text: "Seize the stores and make the rule clear: no private reserves.", next: "coolant_trade", effects: { supplies: 6, cohesion: -9, integrity: 1 }, flag: { stores: "seize" }, lean: { future: 2 } },
       { text: "Ignore it. Some small secrets are the price of holding the group together.", next: "coolant_trade", effects: { cohesion: 3, supplies: -3 }, flag: { stores: "ignore" }, lean: { living: 1 } },
