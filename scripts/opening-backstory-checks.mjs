@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-checks.mjs";
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
+import { playtestTitleContrastChecks } from "./playtest-title-contrast-checks.mjs";
 import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 import { playtestTutorialTopfieldsChecks } from "./playtest-tutorial-topfields-checks.mjs";
 import { playtestAmaraRomanceReproChecks } from "./playtest-amara-romance-repro-checks.mjs";
@@ -160,6 +161,7 @@ export function openingBackstoryChecks(runtime) {
   const errors = sourceErrors();
   errors.push(...playtestTitleWhitespaceChecks(runtime));
   errors.push(...playtestTitleRotatingShipChecks(runtime));
+  errors.push(...playtestTitleContrastChecks(runtime));
   errors.push(...playtestIntroBackArtChecks(runtime));
   errors.push(...playtestTutorialTopfieldsChecks(runtime));
   errors.push(...playtestAmaraRomanceReproChecks(runtime));

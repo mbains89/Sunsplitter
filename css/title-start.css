@@ -1,5 +1,6 @@
 /* SUN-PLAYTEST-TITLE-WHITESPACE-01 — drop the leftover bottom band on notice/title.
    SUN-PLAYTEST-TITLE-ROTATING-SHIP-01 — slow in-tree ship plate behind title/start.
+   SUN-PLAYTEST-TITLE-CONTRAST-01 — title splash body-copy readable on dark hull.
    Loaded after css/style.css. Does not invent new ship art. */
 
 #tone-screen,
@@ -94,4 +95,18 @@
     justify-content: flex-start;
     padding-bottom: calc(12px + var(--safe-bottom, 0px));
   }
+}
+
+/* SUN-PLAYTEST-TITLE-CONTRAST-01 — body-copy readable over rotating hull on mobile.
+   Does not rewrite style.css tokens (HUD --dim stays). Overlay/ship plate unchanged. */
+#title-screen .game-subtitle,
+#title-screen .prologue,
+#title-screen .resume-meta {
+  color: var(--text);
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
+}
+
+#title-screen .title-contract {
+  color: #f0a0a0;
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
 }
