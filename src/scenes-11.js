@@ -91,6 +91,7 @@ The hatch opens on the smell of soil. Nobody aboard has smelled soil in a long t
       } else {
         t += `He puts a hand on the nearest rack on his way out, the way other men touch a doorframe of a house they are leaving.`;
       }
+      t += `\n\nHis name is on the board before anyone finds him a bunk.`;
       t += `\n\nHe looks at you before he looks at anyone else.\n\n"Count the trays before you thank me. Then decide whether you still want to."`;
       return t;
     },
