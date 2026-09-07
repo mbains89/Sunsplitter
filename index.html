@@ -252,5 +252,28 @@
 <script src="src/scenes-55.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js"></script>
+<script>
+(function wireMobileImageDoubleTap() {
+  function bind() {
+    const wrap = document.getElementById("scene-image-wrap");
+    if (!wrap) return;
+    let lastTapAt = 0;
+    wrap.addEventListener("touchend", function (e) {
+      if (!wrap.classList.contains("visible")) return;
+      if (e.touches && e.touches.length > 0) return;
+      if (!e.changedTouches || e.changedTouches.length !== 1) return;
+      var now = Date.now();
+      if (now - lastTapAt < 320) {
+        lastTapAt = 0;
+        if (typeof toggleSceneArtSize === "function") toggleSceneArtSize();
+        return;
+      }
+      lastTapAt = now;
+    }, { passive: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+})();
+</script>
 </body>
 </html>
