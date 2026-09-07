@@ -20,6 +20,7 @@ registerScenes({
 "Commander. Your hull ID has been in my night log for eleven months. I said the names of the Dawnbreak dead every night so somebody did. Yours I already knew."
 
 The flat voice cracks on the last word. She recovers it immediately, the way a log entry recovers from a dropped packet.`;
+      t += `\n\nHer name is on the board before the first watch turns.`;
       if (isAlive("lena")) {
         t += `\n\nLena is already moving toward the hatch with a med kit. "Six years closed-loop. Hypercapnia baseline, possible calcium loss, treatable. Let me see her before anyone else does."`;
       }
