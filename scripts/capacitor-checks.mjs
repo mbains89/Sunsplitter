@@ -18,7 +18,7 @@ export function capacitorChecks(runtime) {
   };
 
   check("fresh route renders the spent drive resource, not false protection", `
-    localStorage.clear(); startGame(); finishCinematic();
+    localStorage.clear(); startGame(); if (typeof advancePastCommanderCreate === "function") advancePastCommanderCreate(); finishCinematic();
     const legal = c => (!c.alive || isAlive(c.alive)) &&
       (!c.aliveAll || c.aliveAll.every(isAlive)) && (!c.aliveAny || c.aliveAny.some(isAlive)) &&
       (!c.requires || meetsRequirements(c.requires)) && canAffordEffects(c.effects);

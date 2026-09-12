@@ -12,7 +12,7 @@ export function maleCrewChecks(runtime) {
       (!c.aliveAll || c.aliveAll.every(isAlive)) && (!c.aliveAny || c.aliveAny.some(isAlive)) &&
       (!c.requires || meetsRequirements(c.requires)) && canAffordEffects(c.effects);
     for (const [who, beat] of [["elias", "bond_elias_mending"], ["jiro", "bond_jiro_distance"]]) {
-      localStorage.clear(); startGame(); finishCinematic();
+      localStorage.clear(); startGame(); if (typeof advancePastCommanderCreate === "function") advancePastCommanderCreate(); finishCinematic();
       const path = [], visits = new Map();
       for (let step = 0; step < 240 && state.scene !== beat; step++) {
         const id = state.scene, scene = scenes[id];

@@ -124,7 +124,7 @@ function openingPathErrors(runtime, lines) {
     localStorage.clear();
     resetRunState();
     for (let n = 1; n <= 3; n++) document.getElementById("intro-line-" + n).textContent = lines[n - 1];
-    if (!startGame() || !currentCinematic || currentCinematic.kind !== "intro") return false;
+    if (!(startGame() || (typeof advancePastCommanderCreate === "function" && advancePastCommanderCreate())) || !currentCinematic || currentCinematic.kind !== "intro") return false;
     if (currentCinematic.frames.length !== 3) return false;
     for (let i = 0; i < 3; i++) {
       if (currentCinematic.frames[i] !== lines[i]) return false;

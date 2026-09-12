@@ -1213,7 +1213,7 @@ function renderCrewPanel(selectedKey) {
 
 function snapshotState() {
   // Explicit allowlist — full run state 0.17.1+ relies on
-  return {
+  const snap = {
     v: SAVE_SCHEMA_VERSION,
     gameVersion: (typeof VERSION !== "undefined" ? VERSION : "0.19"),
     savedAt: Date.now(),
@@ -1243,7 +1243,12 @@ function snapshotState() {
     promises: Object.assign({}, state.promises || {}),
     crisisPath: state.crisisPath != null ? state.crisisPath : null
   };
+  if (typeof state.commanderCallsign === "string" && state.commanderCallsign) snap.commanderCallsign = state.commanderCallsign;
+  if (typeof state.commanderSeal === "string" && state.commanderSeal) snap.commanderSeal = state.commanderSeal;
+  if (typeof state.commanderOath === "string" && state.commanderOath) snap.commanderOath = state.commanderOath;
+  return snap;
 }
+
 
 function validSnapshotShape(data) {
   const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -1267,6 +1272,9 @@ function validSnapshotShape(data) {
   if (data.dying != null && typeof data.dying !== "string" && !isRecord(data.dying)) return false;
   if (data.past_known != null && typeof data.past_known !== "boolean") return false;
   if (data.crisisPath != null && typeof data.crisisPath !== "string") return false;
+  for (const key of ["commanderCallsign", "commanderSeal", "commanderOath"]) {
+    if (data[key] != null && (typeof data[key] !== "string" || data[key].length > 128)) return false;
+  }
   if (data.gameVersion != null && typeof data.gameVersion !== "string") return false;
   if (data.savedAt != null && (typeof data.savedAt !== "number" || !Number.isFinite(data.savedAt))) return false;
   if (data.sceneEntered != null && typeof data.sceneEntered !== "boolean") return false;
@@ -1313,6 +1321,9 @@ function applySnapshot(data) {
   state.recovered = Object.assign({ tomas: false, jiro: false, vess: false }, data.recovered || {});
   state.promises = Object.assign({}, data.promises || {});
   state.crisisPath = data.crisisPath != null ? data.crisisPath : null;
+  if (typeof data.commanderCallsign === "string" && data.commanderCallsign) state.commanderCallsign = data.commanderCallsign;
+  if (typeof data.commanderSeal === "string" && data.commanderSeal) state.commanderSeal = data.commanderSeal;
+  if (typeof data.commanderOath === "string" && data.commanderOath) state.commanderOath = data.commanderOath;
   return true;
 }
 
@@ -1353,7 +1364,7 @@ function validImportedSnapshot(data) {
   const allowedTopLevel = new Set([
     "v", "gameVersion", "savedAt", "sceneEntered", "survivors", "integrity", "cohesion", "supplies", "embryos",
     "flags", "dead", "deathCause", "scene", "affinity", "trust", "romance", "pursuit", "favors",
-    "past_known_by", "dying", "past_known", "marks", "memories", "ideology", "recovered", "promises", "crisisPath"
+    "past_known_by", "dying", "past_known", "marks", "memories", "ideology", "recovered", "promises", "crisisPath", "commanderCallsign", "commanderSeal", "commanderOath"
   ]);
   if (Object.keys(data).some(key => !allowedTopLevel.has(key))) return false;
   if (data.gameVersion != null && (!data.gameVersion.trim() || data.gameVersion.length > 32)) return false;

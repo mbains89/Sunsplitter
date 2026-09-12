@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// SUN-PLAYTEST-NEW-RUN-01 — title NEW RUN with a save must confirm then start wake/intro.
+// SUN-PLAYTEST-NEW-RUN-01 — title NEW RUN with a save must confirm then commander then wake/intro.
 export function playtestNewRunChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -18,11 +18,17 @@ export function playtestNewRunChecks(runtime) {
   if (!html.includes('id="new-run-confirm"') || !html.includes("confirmNewRun()") || !html.includes("cancelNewRun()")) {
     errors.push("in-page new-run confirm markup missing");
   }
+  if (!html.includes('id="commander-create"') || !html.includes("confirmCommanderCreate()") || !html.includes("cancelCommanderCreate()")) {
+    errors.push("commander creation markup missing");
+  }
   if (!engine.includes("function startGame") || !engine.includes("beginFreshCampaign({ persist: true })")) {
     errors.push("engine lost persist-true new run");
   }
   if (!runtimeSrc.includes("function confirmNewRun") || !runtimeSrc.includes("function cancelNewRun") || !runtimeSrc.includes("function commitNewRun")) {
     errors.push("confirmNewRun/cancelNewRun/commitNewRun handlers missing");
+  }
+  if (!runtimeSrc.includes("function confirmCommanderCreate") || !runtimeSrc.includes("function advancePastCommanderCreate")) {
+    errors.push("commander creation handlers missing");
   }
   if (!runtimeSrc.includes('showCinematic("intro")')) {
     errors.push("new run no longer reaches intro cinematic");
@@ -35,14 +41,20 @@ export function playtestNewRunChecks(runtime) {
       };
       const begin = document.getElementById("btn-begin");
       const panel = document.getElementById("new-run-confirm");
+      const commander = document.getElementById("commander-create");
       const results = {};
       localStorage.clear();
       resetRunState();
       const noSaveStart = startGame();
+      const commanderVisible = !!(commander && commander.classList.contains("visible"));
+      const afterCommander = typeof advancePastCommanderCreate === "function" ? advancePastCommanderCreate() : false;
       results.noSave = {
         started: noSaveStart,
+        commanderVisible,
+        afterCommander,
         intro: !!(currentCinematic && currentCinematic.kind === "intro"),
-        scene: state.scene
+        scene: state.scene,
+        callsign: state.commanderCallsign
       };
       if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
 
@@ -78,6 +90,8 @@ export function playtestNewRunChecks(runtime) {
       showTitleScreen();
       startGame();
       const confirmed = confirmNewRun();
+      const commanderAfterConfirm = !!(commander && commander.classList.contains("visible"));
+      const afterCommanderConfirm = typeof confirmCommanderCreate === "function" ? confirmCommanderCreate() : false;
       let saveIsWake = false;
       try {
         const live = JSON.parse(rawSave() || "null");
@@ -85,14 +99,17 @@ export function playtestNewRunChecks(runtime) {
       } catch (e) { saveIsWake = false; }
       results.afterConfirm = {
         confirmed,
+        commanderAfterConfirm,
+        afterCommanderConfirm,
         intro: !!(currentCinematic && currentCinematic.kind === "intro"),
         scene: state.scene,
-        saveIsWake
+        saveIsWake,
+        callsign: state.commanderCallsign
       };
       return results;
     })()`);
 
-    if (!fixture.noSave || !fixture.noSave.started || !fixture.noSave.intro || fixture.noSave.scene !== "wake") {
+    if (!fixture.noSave || fixture.noSave.started || !fixture.noSave.commanderVisible || !fixture.noSave.afterCommander || !fixture.noSave.intro || fixture.noSave.scene !== "wake" || !fixture.noSave.callsign) {
       errors.push("Begin with no save did not start a fresh intro/wake run");
     }
     if (!fixture.labeled) {
@@ -107,7 +124,7 @@ export function playtestNewRunChecks(runtime) {
     if (!fixture.afterResume || !fixture.afterResume.resumed || fixture.afterResume.scene !== "hydroponics" || fixture.afterResume.cinematic) {
       errors.push("Continue no longer loads the existing save");
     }
-    if (!fixture.afterConfirm || !fixture.afterConfirm.confirmed || !fixture.afterConfirm.intro || fixture.afterConfirm.scene !== "wake" || !fixture.afterConfirm.saveIsWake) {
+    if (!fixture.afterConfirm || fixture.afterConfirm.confirmed || !fixture.afterConfirm.commanderAfterConfirm || !fixture.afterConfirm.afterCommanderConfirm || !fixture.afterConfirm.intro || fixture.afterConfirm.scene !== "wake" || !fixture.afterConfirm.saveIsWake || !fixture.afterConfirm.callsign) {
       errors.push("Confirm NEW RUN did not call persist-true fresh campaign to intro/wake");
     }
   } catch (error) {

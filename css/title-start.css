@@ -127,3 +127,36 @@
   color: var(--text);
   text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
 }
+
+/* SUN-V036-COMMANDER-CREATION-01 — title-adjacent light hybrid panel */
+#title-screen #commander-create {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(242, 243, 245, 0.28);
+  background: rgba(8, 9, 11, 0.88);
+  text-align: left;
+  color: var(--text);
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94);
+}
+#title-screen #commander-create.hidden { display: none; }
+#title-screen #commander-create.visible { display: block; }
+#title-screen #commander-create .commander-create-help,
+#title-screen #commander-create .commander-field {
+  display: block;
+  margin: 0.45rem 0;
+  font-size: 0.92rem;
+}
+#title-screen #commander-create select {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+#title-screen #commander-create fieldset.commander-field {
+  border: 0;
+  padding: 0;
+  margin: 0.45rem 0;
+}
+#title-screen #commander-create fieldset.commander-field label {
+  display: block;
+  margin: 0.2rem 0;
+}

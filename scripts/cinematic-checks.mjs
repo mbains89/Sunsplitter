@@ -10,7 +10,7 @@ export function cinematicChecks(runtime) {
   check("Begin skip/completion preserve the committed fresh run and hide gameplay keys", `(() => {
     for (const skip of [true, false]) {
       localStorage.clear(); resetRunState();
-      if (!startGame() || currentCinematic.kind !== "intro") return false;
+      if (!(startGame() || (typeof advancePastCommanderCreate === "function" && advancePastCommanderCreate())) || !currentCinematic || currentCinematic.kind !== "intro") return false;
       const live = JSON.stringify(state), saved = localStorage.getItem(SAVE_KEY);
       if (!document.getElementById("game-screen").classList.contains("hidden")) return false;
       if (handleGameplayKeydown({ key: "1" })) return false;

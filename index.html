@@ -127,6 +127,39 @@
             <button id="new-run-ok" class="btn btn-primary" type="button" onclick="confirmNewRun()">Confirm</button>
           </div>
         </div>
+
+        <div id="commander-create" class="hidden" role="dialog" aria-modal="true" aria-labelledby="commander-create-title">
+          <p id="commander-create-title"><strong>Commander creation</strong> — light hybrid</p>
+          <p class="commander-create-help">Pick a callsign, optional seal, and oath. Role stays Commander.</p>
+          <label class="commander-field">Callsign
+            <select id="commander-callsign" aria-label="Callsign">
+              <option value="Ash">Ash</option>
+              <option value="Beacon">Beacon</option>
+              <option value="Harbor">Harbor</option>
+              <option value="Keel">Keel</option>
+              <option value="Vigil">Vigil</option>
+            </select>
+          </label>
+          <fieldset class="commander-field" id="commander-seal-group">
+            <legend>Seal (optional)</legend>
+            <label><input type="radio" name="commander-seal" value="" checked> Skip</label>
+            <label><input type="radio" name="commander-seal" value="images/sun_drawing.jpg"> Sun drawing</label>
+            <label><input type="radio" name="commander-seal" value="images/ship_exterior_2.jpg"> Hull exterior</label>
+            <label><input type="radio" name="commander-seal" value="images/abandoned_sealed.jpg"> Sealed hatch</label>
+          </fieldset>
+          <label class="commander-field">Oath
+            <select id="commander-oath" aria-label="Oath">
+              <option value="Keep the living breathing.">Keep the living breathing.</option>
+              <option value="Deliver what remains of the future.">Deliver what remains of the future.</option>
+              <option value="Hold the ship until the work is done.">Hold the ship until the work is done.</option>
+            </select>
+          </label>
+          <div role="group" aria-label="Commander creation actions">
+            <button id="commander-create-cancel" class="btn" type="button" onclick="cancelCommanderCreate()">Cancel</button>
+            <button id="commander-create-ok" class="btn btn-primary" type="button" onclick="confirmCommanderCreate()">Begin run</button>
+          </div>
+        </div>
+
         <div class="save-transfer-actions" role="group" aria-label="Save transfer">
           <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
           <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
