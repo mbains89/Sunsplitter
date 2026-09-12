@@ -9,6 +9,7 @@ import { playtestTitleBodyFollowChecks } from "./playtest-title-body-follow-chec
 import { playtestMobileReadFollow02Checks } from "./playtest-mobile-read-follow-02-checks.mjs";
 import { playtestCrewBoardFollow02Checks } from "./playtest-crew-board-follow-02-checks.mjs";
 import { playtestEventOrderMix01Checks } from "./playtest-event-order-mix-01-checks.mjs";
+import { playtestCacheBustFollow02Checks } from "./playtest-cache-bust-follow-02-checks.mjs";
 import { playtestCrewJoinFollow03Checks } from "./playtest-crew-join-follow-03-checks.mjs";
 import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 import { playtestTutorialTopfieldsChecks } from "./playtest-tutorial-topfields-checks.mjs";
@@ -171,6 +172,7 @@ export function openingBackstoryChecks(runtime) {
   errors.push(...playtestMobileReadFollow02Checks());
   errors.push(...playtestCrewBoardFollow02Checks());
   errors.push(...playtestEventOrderMix01Checks());
+  errors.push(...playtestCacheBustFollow02Checks());
   errors.push(...playtestCrewJoinFollow03Checks());
   errors.push(...playtestIntroBackArtChecks(runtime));
   errors.push(...playtestTutorialTopfieldsChecks(runtime));
