@@ -252,9 +252,10 @@ function startGame() {
 }
 
 function playAgain() {
-  // SUN-V036-PLAY-AGAIN-CLEAR-01: clear finished slot so title Resume does not ghost a completed run.
-  clearSave();
-  if (beginFreshCampaign({ persist: true })) showCinematic("intro");
+  // Ending / What Remains: start a fresh campaign in memory.
+  // Leave the completed slot on disk so Continue can still load it.
+  // SUN-V036-PLAY-AGAIN-CLEAR-01: ALREADY_SATISFIED — custody locks require preserveCompletedSlotUntilChoice until first choice (version-verify).
+  if (beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true })) showCinematic("intro");
 }
 
 function showTitleScreen() {
