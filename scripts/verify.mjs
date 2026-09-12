@@ -109,7 +109,7 @@ function retiredRuntimeFlagChecks(scripts) {
 
 function versionSurfaceChecks() {
   const errors = [];
-  const expectedVersion = "0.33";
+  const expectedVersion = "0.36";
   const versionFile = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
   const stateSource = readFileSync(resolve(ROOT, "src/state.js"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -1369,8 +1369,8 @@ async function saveTransferChecks(runtime) {
   if (!/^sunsplitter-save-v[^/]+-\d{4}-\d{2}-\d{2}\.json$/.test(fixture.exportCurrent.filename || "")) {
     errors.push(`export filename is not bounded/versioned: ${JSON.stringify(fixture.exportCurrent.filename)}`);
   }
-  if (fixture.exportCurrent.gameVersion !== "0.33" || !fixture.exportCurrent.filename?.includes("sunsplitter-save-v0.33-")) {
-    errors.push(`save/export identity is not painted to 0.33: ${JSON.stringify(fixture.exportCurrent)}`);
+  if (fixture.exportCurrent.gameVersion !== "0.36" || !fixture.exportCurrent.filename?.includes("sunsplitter-save-v0.36-")) {
+    errors.push(`save/export identity is not painted to 0.36: ${JSON.stringify(fixture.exportCurrent)}`);
   }
   if (!fixture.exportBackupExact) errors.push("export did not select the verified backup when the live slot was corrupt");
   if (fixture.cancelled.ok || fixture.cancelled.confirmCalls !== 1 ||
