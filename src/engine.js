@@ -1910,11 +1910,15 @@ function updateMetaSaveHint() {
   const meta = getSaveMeta();
   if (!meta || !meta.savedAt) {
     el.textContent = "";
+    el.removeAttribute("data-paint");
     return;
   }
   const d = new Date(meta.savedAt);
-  const t = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  el.textContent = "Slot · " + t;
+  const clock = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
+  el.textContent = (paint ? "v" + paint + " · " : "") + "Slot · " + clock;
+  if (paint) el.setAttribute("data-paint", paint);
+  else el.removeAttribute("data-paint");
 }
 
 function refreshTitleResumeUI() {
