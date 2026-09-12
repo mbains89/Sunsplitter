@@ -1182,3 +1182,15 @@ body::before {
     transform: none !important;
   }
 }
+
+
+/* SUN-V036-WHAT-REMAINS-ENTRY-01 */
+.ending-next-hint {
+  margin: 0.75rem 0 0.35rem;
+  color: var(--text, #e8dcc8);
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+#btn-what-remains {
+  min-width: 12rem;
+}

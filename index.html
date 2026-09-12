@@ -199,7 +199,8 @@
       </div>
       <h1 class="ending-title" id="ending-title" tabindex="-1"></h1>
       <div class="ending-text" id="ending-text"></div>
-      <button class="btn btn-primary" type="button" onclick="showWhatRemains()">What remains</button>
+      <p id="ending-next-hint" class="ending-next-hint">Next: read what remains of the run.</p>
+      <button id="btn-what-remains" class="btn btn-primary" type="button" onclick="showWhatRemains()" aria-describedby="ending-next-hint">What remains</button>
       <button class="btn" type="button" onclick="playAgain()">Play Again</button>
     </div>
 

@@ -798,8 +798,12 @@ function showWhatRemains() {
   const el = document.getElementById("what-remains-text");
   if (!el) return;
   const facts = typeof whatRemainsFacts === "function" ? whatRemainsFacts() : [];
-  el.textContent = facts.join("\n\n");
+  el.textContent = facts.length ? facts.join("\n\n") : "What remains of this run is thin — names, debts, and the corridor you just left.";
   showScreen("what-remains");
+  const heading = document.getElementById("what-remains-heading");
+  if (heading && typeof heading.focus === "function") {
+    try { heading.focus(); } catch (e) { /* ignore */ }
+  }
 }
 
 function canYellowCircle() {
