@@ -6,7 +6,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const LOCK_LINE = "lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 HOLD";
+const LOCK_LINE = "lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 BOUNDARY";
 const CERTIFIED = "0.28.1d";
 
 function readText(path, root = ROOT) {
@@ -22,13 +22,13 @@ export function evaluateVersionLock({ versionMd, lockMd }) {
   const paint = paintLine(versionMd);
   if (!paint) errors.push("VERSION.md paint line is missing");
   if (/^0\.36(?:\b|$)/.test(paint) || paint === "0.36") {
-    errors.push(`VERSION.md paints 0.36 (${paint}); 0.36 HOLD forbids mint/paint`);
+    errors.push(`VERSION.md paints 0.36 (${paint}); mint ticket required`);
   }
   if (/\bGAME_VERSION\b/.test(versionMd || "")) {
     errors.push("VERSION.md must not invent GAME_VERSION");
   }
-  if (/\b0\.36\b/.test(versionMd || "") && !/\b0\.36 HOLD\b/.test(versionMd || "")) {
-    errors.push("VERSION.md mentions 0.36 without HOLD; treat as mint/paint");
+  if (/\b0\.36\b/.test(versionMd || "") && !/\b0\.36 (?:HOLD|BOUNDARY)\b/.test(versionMd || "")) {
+    errors.push("VERSION.md mentions 0.36 without HOLD or BOUNDARY; treat as mint/paint");
   }
   if (!/Last certified baseline remains 0\.28\.1d/.test(versionMd || "")) {
     errors.push(`VERSION.md last certified must remain ${CERTIFIED}`);
@@ -43,7 +43,7 @@ export function evaluateVersionLock({ versionMd, lockMd }) {
     errors.push(`docs/version-lock.md missing lock line: ${LOCK_LINE}`);
   }
   if (/certified 0\.36/.test(lockMd || "") || /lane 0\.36/.test(lockMd || "")) {
-    errors.push("docs/version-lock.md must not certify or open 0.36");
+    errors.push("docs/version-lock.md must not certify or retitle the lane as 0.36");
   }
   return errors;
 }
@@ -59,7 +59,7 @@ function runSelfTest() {
     ["GAME_VERSION", { versionMd: "0.33\nGAME_VERSION\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "GAME_VERSION"],
     ["certified drift", { versionMd: "0.33\n\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.31.\n", lockMd }, "last certified"],
     ["missing lock", { versionMd, lockMd: "# lock\n" }, "missing lock line"],
-    ["lock opens 0.36", { versionMd, lockMd: lockMd + "\nlane 0.36\n" }, "open 0.36"]
+    ["lock opens 0.36", { versionMd, lockMd: lockMd + "\nlane 0.36\n" }, "retitle the lane"]
   ];
   for (const [label, docs, needle] of cases) {
     const errors = evaluateVersionLock(docs);
