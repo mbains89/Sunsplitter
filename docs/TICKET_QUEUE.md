@@ -77,3 +77,9 @@ Items 2–4. No Cursor/Grok-Bot JPEG generation. Owner approves in grok.com.
 2. Pack 0.30.3 implement tickets only after owner greenlight (design pages are not that greenlight).
 3. Pack 0.30.4 only after Manraj locks the style bible.
 4. Stop after each merged ticket. Do not start the next unbidden.
+
+## Post-V036 BOUNDARY (mint-blocking)
+
+- [ ] `SUN-V036-VERSION-PAINT-01`
+- [ ] `SUN-V036-PIN-PACKET-01`
+- [ ] `SUN-V036-ROADMAP-NEXT-01`
