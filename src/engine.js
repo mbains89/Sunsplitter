@@ -252,9 +252,9 @@ function startGame() {
 }
 
 function playAgain() {
-  // Ending / What Remains: start a fresh campaign in memory.
-  // Leave the completed slot on disk so Continue can still load it.
-  if (beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true })) showCinematic("intro");
+  // SUN-V036-PLAY-AGAIN-CLEAR-01: clear finished slot so title Resume does not ghost a completed run.
+  clearSave();
+  if (beginFreshCampaign({ persist: true })) showCinematic("intro");
 }
 
 function showTitleScreen() {
