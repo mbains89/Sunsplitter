@@ -13,6 +13,7 @@ import { playtestCacheBustFollow02Checks } from "./playtest-cache-bust-follow-02
 import { playtestCrewJoinFollow03Checks } from "./playtest-crew-join-follow-03-checks.mjs";
 import { playtestMobileReadReconfirm01Checks } from "./playtest-mobile-read-reconfirm-01-checks.mjs";
 import { playtestPaintHonestyFollow01Checks } from "./playtest-paint-honesty-follow-01-checks.mjs";
+import { playtestTitleContrastFollow02Checks } from "./playtest-title-contrast-follow-02-checks.mjs";
 import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 import { playtestTutorialTopfieldsChecks } from "./playtest-tutorial-topfields-checks.mjs";
 import { playtestAmaraRomanceReproChecks } from "./playtest-amara-romance-repro-checks.mjs";
@@ -178,6 +179,7 @@ export function openingBackstoryChecks(runtime) {
   errors.push(...playtestCrewJoinFollow03Checks());
   errors.push(...playtestMobileReadReconfirm01Checks());
   errors.push(...playtestPaintHonestyFollow01Checks());
+  errors.push(...playtestTitleContrastFollow02Checks());
   errors.push(...playtestIntroBackArtChecks(runtime));
   errors.push(...playtestTutorialTopfieldsChecks(runtime));
   errors.push(...playtestAmaraRomanceReproChecks(runtime));
