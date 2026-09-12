@@ -80,12 +80,21 @@ Items 2–4. No Cursor/Grok-Bot JPEG generation. Owner approves in grok.com.
 
 ## Post-V036 BOUNDARY (mint-blocking)
 
-- [ ] `SUN-V036-VERSION-PAINT-01`
-- [ ] `SUN-V036-PIN-PACKET-01`
-- [ ] `SUN-V036-ROADMAP-NEXT-01`
+- [x] `SUN-V036-VERSION-PAINT-01`
+- [x] `SUN-V036-PIN-PACKET-01`
+- [x] `SUN-V036-ROADMAP-NEXT-01`
 
 ## Post-0.36 PAINT (mint-blocking)
 
-- [ ] `SUN-V036-PIN-PACKET-01`
-- [ ] `SUN-V036-PLAYTEST-GATE-01`
-- [ ] `SUN-V036-PACK-NEXT-01`
+- [x] `SUN-V036-PIN-PACKET-01`
+- [x] `SUN-V036-PLAYTEST-GATE-01`
+- [x] `SUN-V036-PACK-NEXT-01` — paper in `docs/SUN_V036_PACK_NEXT_01.md` (this row is the queue name, not implement)
+
+## Pack V036-NEXT — two playable tickets (after PR211)
+
+Paint 0.36. Certified 0.28.1d. NO-PUBLISH. Art PARKED. Do not implement from this file.
+
+| Ticket | One-line objective | Suggested touch |
+|---|---|---|
+| `SUN-V036-CREW-CONFLICT-01` | One bounded crew-conflict attach on existing offer sites. | existing design doc + named offer scenes |
+| `SUN-V036-ENDING-CINEMATIC-01` | Ending cinematic bookend vs ending screen; reuse-first. | existing design doc + `showCinematic("ending")` |
