@@ -52,14 +52,15 @@ registerScenes({
         opts.push({ text: "Join Jiro on a competence hang at the star tracker.", next: "bond_jiro", effects: { cohesion: 1 }, alive: "jiro", tag: "bond" });
       }
       // 0.28: pair settle + warmth optional one-shots (gated)
+      // SUN-V036-CREW-CONFLICT-01: existing pair offers named as living-vs-living conflict. No new flags.
       if (isAlive("elias") && !isAlive("mira") && attributableDeath("mira") && !state.flags.pair_shield) {
-        opts.push({ text: "Elias is still at the board after the report.", next: "pair_shield_cold" });
+        opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
-        opts.push({ text: "The sound of two people working carries from the trunk.", next: "pair_grudge_settle" });
+        opts.push({ text: "Tomas and Jiro are working the same trunk and not speaking.", next: "pair_grudge_settle" });
       }
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
-        opts.push({ text: "Hydroponics wants a quiet word.", next: "pair_favor_confront" });
+        opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
@@ -84,11 +85,11 @@ registerScenes({
     }
   },
 
-  // ═════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════
   // 0.24 — Vess Arrival + short asymmetric 5th romance
   // Structural asymmetry: informed run-reading offer, transmission currency,
   // power stays hers, fewer beats, one explicit sufficient. Not a fifth ladder.
-  // ═════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════
 
   vess_signal: {
     image: "images/transmission.jpg",
