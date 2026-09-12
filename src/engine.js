@@ -1933,8 +1933,14 @@ function refreshTitleResumeUI() {
       const scene = m && m.scene ? m.scene : "run";
       const dead = m && m.deadCount ? m.deadCount + " lost" : "intact";
       const when = m && m.savedAt ? new Date(m.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-      resumeMeta.textContent = (m && m.survivors != null ? m.survivors + " alive · " : "") + dead + (when ? " · " + when : "");
+      const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
+      resumeMeta.textContent =
+        (paint ? "v" + paint + " · " : "") +
+        (m && m.survivors != null ? m.survivors + " alive · " : "") +
+        dead +
+        (when ? " · " + when : "");
       resumeMeta.classList.remove("hidden");
+      resumeMeta.setAttribute("data-paint", paint);
     } else {
       resumeMeta.classList.add("hidden");
       resumeMeta.textContent = "";
