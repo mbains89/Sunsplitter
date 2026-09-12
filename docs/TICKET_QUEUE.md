@@ -83,3 +83,9 @@ Items 2–4. No Cursor/Grok-Bot JPEG generation. Owner approves in grok.com.
 - [ ] `SUN-V036-VERSION-PAINT-01`
 - [ ] `SUN-V036-PIN-PACKET-01`
 - [ ] `SUN-V036-ROADMAP-NEXT-01`
+
+## Post-0.36 PAINT (mint-blocking)
+
+- [ ] `SUN-V036-PIN-PACKET-01`
+- [ ] `SUN-V036-PLAYTEST-GATE-01`
+- [ ] `SUN-V036-PACK-NEXT-01`
