@@ -54,7 +54,8 @@ export function playtestTutorialTopfieldsChecks(runtime) {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
       resetRunState();
-      const started = startGame();
+      let started = startGame();
+      if (!started && typeof advancePastCommanderCreate === "function") started = advancePastCommanderCreate();
       if (!started || !currentCinematic || currentCinematic.kind !== "intro") {
         return { started, kind: currentCinematic && currentCinematic.kind };
       }

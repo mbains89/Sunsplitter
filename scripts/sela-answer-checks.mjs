@@ -25,7 +25,7 @@ export function selaAnswerChecks(runtime) {
   };
 
   check("fresh New Run reaches the answer before the parts argument", `
-    localStorage.clear(); startGame(); finishCinematic();
+    localStorage.clear(); startGame(); if (typeof advancePastCommanderCreate === "function") advancePastCommanderCreate(); finishCinematic();
     const visits = new Map(), path = [];
     const legal = c => (!c.alive || isAlive(c.alive)) &&
       (!c.aliveAll || c.aliveAll.every(isAlive)) && (!c.aliveAny || c.aliveAny.some(isAlive)) &&

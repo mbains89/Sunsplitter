@@ -38,7 +38,7 @@ export function playtestIntroBackArtChecks(runtime) {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
       resetRunState();
-      const started = startGame();
+      const started = startGame() || (typeof advancePastCommanderCreate === "function" && advancePastCommanderCreate());
       const back = document.getElementById("cinematic-back");
       const title = document.getElementById("title-screen");
       const plates = ${JSON.stringify(INTRO_SLIDE_ART)};

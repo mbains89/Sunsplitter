@@ -408,11 +408,78 @@ function showNewRunConfirm() {
   panel.classList.add("visible");
   return true;
 }
+
+function hideCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (!panel) return;
+  panel.classList.add("hidden");
+  panel.classList.remove("visible");
+}
+function showCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (!panel) return false;
+  hideNewRunConfirm();
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+  return true;
+}
+function readCommanderCreateDraft() {
+  const callsignEl = document.getElementById("commander-callsign");
+  const oathEl = document.getElementById("commander-oath");
+  const sealEl = document.querySelector('input[name="commander-seal"]:checked');
+  return {
+    commanderCallsign: callsignEl && callsignEl.value ? String(callsignEl.value).slice(0, 32) : "Ash",
+    commanderSeal: sealEl && sealEl.value ? String(sealEl.value).slice(0, 128) : "",
+    commanderOath: oathEl && oathEl.value ? String(oathEl.value).slice(0, 128) : "Keep the living breathing."
+  };
+}
+function applyCommanderTokens(tokens) {
+  if (!tokens || typeof state === "undefined") return;
+  state.commanderCallsign = tokens.commanderCallsign || "";
+  state.commanderSeal = tokens.commanderSeal || "";
+  state.commanderOath = tokens.commanderOath || "";
+}
+function commitNewRunWithCommander() {
+  hideCommanderCreate();
+  const draft = readCommanderCreateDraft();
+  const started = beginFreshCampaign({ persist: true });
+  if (!started) return false;
+  applyCommanderTokens(draft);
+  if (typeof persistSave === "function") persistSave({ silent: true });
+  // Playable proof in intro line 3 when tokens exist
+  const line = document.getElementById("intro-line-3");
+  if (line && draft.commanderCallsign && line.setAttribute) {
+    line.setAttribute("data-commander-callsign", draft.commanderCallsign);
+  }
+  showCinematic("intro");
+  return true;
+}
+function confirmCommanderCreate() { return commitNewRunWithCommander(); }
+function advancePastCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (panel && panel.classList.contains("visible")) return confirmCommanderCreate();
+  return false;
+}
+function startGameThroughCommander() {
+  const opened = typeof startGame === "function" ? startGame() : false;
+  if (opened) return true;
+  if (typeof confirmNewRun === "function") {
+    const panel = document.getElementById("new-run-confirm");
+    if (panel && panel.classList.contains("visible")) confirmNewRun();
+  }
+  if (advancePastCommanderCreate()) return true;
+  return !!opened;
+}
+
+function cancelCommanderCreate() {
+  hideCommanderCreate();
+  return false;
+}
+
 function commitNewRun() {
   hideNewRunConfirm();
-  const started = beginFreshCampaign({ persist: true });
-  if (started) showCinematic("intro");
-  return started;
+  if (showCommanderCreate()) return false;
+  return commitNewRunWithCommander();
 }
 function confirmNewRun() { return commitNewRun(); }
 function cancelNewRun() { hideNewRunConfirm(); return false; }
@@ -440,6 +507,7 @@ function cancelNewRun() { hideNewRunConfirm(); return false; }
     const previous = refreshTitleResumeUI;
     refreshTitleResumeUI = function() {
       hideNewRunConfirm();
+      hideCommanderCreate();
       return previous();
     };
   }

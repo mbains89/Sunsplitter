@@ -50,6 +50,14 @@ export function newRunChecks(runtime) {
       persistSave({ silent: true });
     };
     const liveDigest = () => JSON.stringify(state);
+    const withoutCommander = value => {
+      const copy = JSON.parse(JSON.stringify(value));
+      delete copy.commanderCallsign;
+      delete copy.commanderSeal;
+      delete copy.commanderOath;
+      return copy;
+    };
+    const freshDigestOf = value => stableDigest(withoutCommander(value));
 
     localStorage.clear();
     distinctiveRun();
@@ -73,7 +81,8 @@ export function newRunChecks(runtime) {
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return true; };
     const acceptOpened = startGame();
-    const acceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : acceptOpened;
+    let acceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : acceptOpened;
+    if (!acceptResult && typeof advancePastCommanderCreate === "function") acceptResult = advancePastCommanderCreate();
     finishCinematic();
     const acceptedRaw = localStorage.getItem(SAVE_KEY);
     const accepted = JSON.parse(acceptedRaw);
@@ -86,8 +95,8 @@ export function newRunChecks(runtime) {
       result: acceptResult,
       confirmCalls,
       rawChanged: acceptedRaw !== priorRaw,
-      liveFresh: stableDigest(state) === expectedFreshDigest,
-      savedFresh: stableDigest(acceptedState) === expectedFreshDigest,
+      liveFresh: freshDigestOf(state) === expectedFreshDigest,
+      savedFresh: freshDigestOf(acceptedState) === expectedFreshDigest,
       liveScene: state.scene,
       savedScene: accepted.scene,
       liveCohesion: state.cohesion,
@@ -130,7 +139,8 @@ export function newRunChecks(runtime) {
     showTitleScreen();
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return false; };
-    const legacyResult = startGame();
+    let legacyResult = startGame();
+    if (!legacyResult && typeof advancePastCommanderCreate === "function") legacyResult = advancePastCommanderCreate();
     const legacyCancel = {
       result: legacyResult,
       confirmCalls,
@@ -142,12 +152,13 @@ export function newRunChecks(runtime) {
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return true; };
     const legacyOpened = startGame();
-    const legacyAcceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : legacyOpened;
+    let legacyAcceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : legacyOpened;
+    if (!legacyAcceptResult && typeof advancePastCommanderCreate === "function") legacyAcceptResult = advancePastCommanderCreate();
     const legacyAccept = {
       result: legacyAcceptResult,
       confirmCalls,
       legacyRetired: localStorage.getItem(SAVE_KEY_LEGACY) === null,
-      currentFresh: stableDigest(state) === expectedFreshDigest
+      currentFresh: freshDigestOf(state) === expectedFreshDigest
     };
     localStorage.removeItem(SAVE_KEY);
     legacyAccept.staleResurrected = hasSave();
