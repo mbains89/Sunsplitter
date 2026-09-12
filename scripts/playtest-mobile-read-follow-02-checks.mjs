@@ -18,7 +18,7 @@ export function playtestMobileReadFollow02Checks() {
     'class="game-subtitle"',
     'class="prologue"',
     'class="title-contract"',
-    'class="resume-meta"',
+    'class="resume-meta',
     'id="title-save-status"',
     'id="new-run-confirm-copy"'
   ];
