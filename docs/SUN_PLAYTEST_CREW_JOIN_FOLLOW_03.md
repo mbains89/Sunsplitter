@@ -1,6 +1,6 @@
 # SUN-PLAYTEST-CREW-JOIN-FOLLOW-03
 
-Lane: `version/0.30.1-main-reconcile-ci.1` @ `6a53270d79622d27dc3209d17b6bf469c5b05ad7` (post PR197).
+Lane: `version/0.30.1-main-reconcile-ci.1` @ `fc6ed5900c55dfdc2442905e38379c2013b4e55b (post PR198)` (post PR197).
 Paint: existing `VERSION.md` = `0.33`. NO-PUBLISH / NOT_CERTIFIED / 0.36 HOLD.
 
 Verdict: **ALREADY_SATISFIED.** Residual crew-join UX honesty after EVENT-ORDER-MIX. Docs only. No remint of Tomas / Jiro / Vess board lines.
@@ -17,4 +17,4 @@ Verdict: **ALREADY_SATISFIED.** Residual crew-join UX honesty after EVENT-ORDER-
 
 ## Out of scope
 
-No scene remint. No art. No remint of PRs 107–197. No 0.36.
+No scene remint. No art. No remint of PRs 107–198. No 0.36.
