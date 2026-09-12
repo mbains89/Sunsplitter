@@ -6,8 +6,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const LOCK_LINE = "lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 BOUNDARY";
+const LOCK_LINE = "lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT";
 const CERTIFIED = "0.28.1d";
+const PAINT = "0.36";
 
 function readText(path, root = ROOT) {
   return readFileSync(resolve(root, path), "utf8");
@@ -21,14 +22,11 @@ export function evaluateVersionLock({ versionMd, lockMd }) {
   const errors = [];
   const paint = paintLine(versionMd);
   if (!paint) errors.push("VERSION.md paint line is missing");
-  if (/^0\.36(?:\b|$)/.test(paint) || paint === "0.36") {
-    errors.push(`VERSION.md paints 0.36 (${paint}); mint ticket required`);
+  if (paint !== PAINT) {
+    errors.push(`VERSION.md paint must be ${PAINT} (got ${paint})`);
   }
   if (/\bGAME_VERSION\b/.test(versionMd || "")) {
     errors.push("VERSION.md must not invent GAME_VERSION");
-  }
-  if (/\b0\.36\b/.test(versionMd || "") && !/\b0\.36 (?:HOLD|BOUNDARY)\b/.test(versionMd || "")) {
-    errors.push("VERSION.md mentions 0.36 without HOLD or BOUNDARY; treat as mint/paint");
   }
   if (!/Last certified baseline remains 0\.28\.1d/.test(versionMd || "")) {
     errors.push(`VERSION.md last certified must remain ${CERTIFIED}`);
@@ -54,10 +52,9 @@ function runSelfTest() {
   assert.deepEqual(evaluateVersionLock({ versionMd, lockMd }), []);
 
   const cases = [
-    ["0.36 paint", { versionMd: "0.36\n\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "paints 0.36"],
-    ["0.36 mention", { versionMd: "0.33\n\nOpening 0.36 now.\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "mentions 0.36"],
-    ["GAME_VERSION", { versionMd: "0.33\nGAME_VERSION\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "GAME_VERSION"],
-    ["certified drift", { versionMd: "0.33\n\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.31.\n", lockMd }, "last certified"],
+    ["0.33 paint", { versionMd: "0.33\n\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "paint must be 0.36"],
+    ["GAME_VERSION", { versionMd: "0.36\nGAME_VERSION\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.28.1d.\n", lockMd }, "GAME_VERSION"],
+    ["certified drift", { versionMd: "0.36\n\nNO-PUBLISH / NOT_CERTIFIED. Last certified baseline remains 0.31.\n", lockMd }, "last certified"],
     ["missing lock", { versionMd, lockMd: "# lock\n" }, "missing lock line"],
     ["lock opens 0.36", { versionMd, lockMd: lockMd + "\nlane 0.36\n" }, "retitle the lane"]
   ];
@@ -78,15 +75,9 @@ function main() {
   });
   if (errors.length) {
     errors.forEach(error => console.error(`FAIL ${error}`));
-    process.exitCode = 1;
-    return;
+    process.exit(1);
   }
-  console.log(`PASS version-lock-ci — paint ${paintLine(readText("VERSION.md"))}; certified ${CERTIFIED}; ${LOCK_LINE}`);
+  console.log(`PASS version-lock-ci — paint ${PAINT}; ${LOCK_LINE}`);
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(`FAIL version-lock-ci crash: ${error.stack || error.message}`);
-  process.exitCode = 1;
-}
+main();

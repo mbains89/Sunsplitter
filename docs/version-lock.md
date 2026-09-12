@@ -4,16 +4,16 @@ This is the lane lock note. It does not invent `GAME_VERSION`. Player-facing pai
 
 ## Lock
 
-lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 BOUNDARY
+lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT
 
 ## Meaning
 
 - **Lane:** `version/0.30.1-main-reconcile-ci.1`
 - **Certified stays:** `0.28.1d`
 - **Release:** `NO-PUBLISH` / `NOT_CERTIFIED`
-- **0.36:** BOUNDARY — owner OPEN 2026-09-12. Mint ticket may paint 0.36. This note does not paint 0.36.
+- **0.36:** PAINT — owner OPEN mint ticket `SUN-V036-VERSION-PAINT-01`. No tag, no certify, no publish.
 
-Existing CI covers version-route policy via `.github/workflows/release-policy.yml` job `version-release-policy`. The same workflow file also runs job `version-lock-ci` (`scripts/version-lock-ci.mjs`), which requires the lock line above and still refuses a `VERSION.md` first-line paint of `0.36` until a mint ticket. This note does not add a third workflow file and does not change rulesets.
+Existing CI covers version-route policy via `.github/workflows/release-policy.yml` job `version-release-policy`. The same workflow file also runs job `version-lock-ci` (`scripts/version-lock-ci.mjs`), which requires the lock line above and requires `VERSION.md` first-line paint `0.36`. This note does not add a third workflow file and does not change rulesets.
 
 PR / PROOF receipts must include `DIFF STAT:` (see `.github/PULL_REQUEST_TEMPLATE.md` and `AGENTS.md` § Receipts).
 

@@ -12,10 +12,10 @@ export function playtestMobileReadReconfirm01Checks() {
   const note = resolve(ROOT, "docs/SUN_PLAYTEST_MOBILE_READ_RECONFIRM_01.md");
   if (!existsSync(note)) errors.push("mobile-read reconfirm note missing");
   const version = readFileSync(resolve(ROOT, "VERSION.md"), "utf8");
-  if (!version.startsWith("0.33\n")) errors.push("VERSION.md first line is not 0.33");
+  if (!version.startsWith("0.36\n")) errors.push("VERSION.md first line is not 0.36");
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   if (!html.includes('class="resume-meta')) errors.push("resume-meta class token missing");
-  if (!html.includes(">v0.33</div>")) errors.push("title subtitle lost v0.33");
+  if (!html.includes(">v0.36</div>")) errors.push("title subtitle lost v0.36");
   if (!html.includes("Earth failed in a cascade measured in hours.")) {
     errors.push("opening intro-line-1 is not the official account");
   }

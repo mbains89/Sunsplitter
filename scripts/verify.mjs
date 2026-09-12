@@ -52,7 +52,7 @@ import { newRunChecks } from "./new-run-checks.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
-const REQUIRED_SRC_TREE = "992f7c57e18709acc08c8ee3cddcfdea816a6acf";
+const REQUIRED_SRC_TREE = "6532283e532bf64137ce719c757a317e56e53a28";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const PRIVATE_PACKAGE_SOURCE_SHA = "a91a26d47ac76a976ca4406caf9b04511c11ba82";
 const PRIVATE_PACKAGE_SOURCE_TREE = "dd9ea40d90ee08d52ff2c11c263a7d7cceb80895";
@@ -109,7 +109,7 @@ function retiredRuntimeFlagChecks(scripts) {
 
 function versionSurfaceChecks() {
   const errors = [];
-  const expectedVersion = "0.33";
+  const expectedVersion = "0.36";
   const versionFile = readFileSync(resolve(ROOT, "VERSION.md"), "utf8").trim().split(/\r?\n/, 1)[0];
   const stateSource = readFileSync(resolve(ROOT, "src/state.js"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -1369,8 +1369,8 @@ async function saveTransferChecks(runtime) {
   if (!/^sunsplitter-save-v[^/]+-\d{4}-\d{2}-\d{2}\.json$/.test(fixture.exportCurrent.filename || "")) {
     errors.push(`export filename is not bounded/versioned: ${JSON.stringify(fixture.exportCurrent.filename)}`);
   }
-  if (fixture.exportCurrent.gameVersion !== "0.33" || !fixture.exportCurrent.filename?.includes("sunsplitter-save-v0.33-")) {
-    errors.push(`save/export identity is not painted to 0.33: ${JSON.stringify(fixture.exportCurrent)}`);
+  if (fixture.exportCurrent.gameVersion !== "0.36" || !fixture.exportCurrent.filename?.includes("sunsplitter-save-v0.36-")) {
+    errors.push(`save/export identity is not painted to 0.36: ${JSON.stringify(fixture.exportCurrent)}`);
   }
   if (!fixture.exportBackupExact) errors.push("export did not select the verified backup when the live slot was corrupt");
   if (fixture.cancelled.ok || fixture.cancelled.confirmCalls !== 1 ||
