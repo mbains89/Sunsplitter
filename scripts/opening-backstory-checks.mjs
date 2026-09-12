@@ -6,6 +6,7 @@ import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-check
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
 import { playtestTitleContrastChecks } from "./playtest-title-contrast-checks.mjs";
 import { playtestTitleBodyFollowChecks } from "./playtest-title-body-follow-checks.mjs";
+import { playtestMobileReadFollow02Checks } from "./playtest-mobile-read-follow-02-checks.mjs";
 import { playtestIntroBackArtChecks } from "./playtest-intro-back-art-checks.mjs";
 import { playtestTutorialTopfieldsChecks } from "./playtest-tutorial-topfields-checks.mjs";
 import { playtestAmaraRomanceReproChecks } from "./playtest-amara-romance-repro-checks.mjs";
@@ -164,6 +165,7 @@ export function openingBackstoryChecks(runtime) {
   errors.push(...playtestTitleRotatingShipChecks(runtime));
   errors.push(...playtestTitleContrastChecks(runtime));
   errors.push(...playtestTitleBodyFollowChecks(runtime));
+  errors.push(...playtestMobileReadFollow02Checks());
   errors.push(...playtestIntroBackArtChecks(runtime));
   errors.push(...playtestTutorialTopfieldsChecks(runtime));
   errors.push(...playtestAmaraRomanceReproChecks(runtime));
