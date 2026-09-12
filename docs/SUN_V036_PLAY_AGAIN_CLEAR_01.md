@@ -1,14 +1,11 @@
 # SUN-V036-PLAY-AGAIN-CLEAR-01
 
-Play Again after ending/what-remains clears the finished save slot so title Resume does not ghost a completed run.
+## Verdict
 
-## Change
+**ALREADY_SATISFIED** at lock.
 
-- `playAgain()` calls `clearSave()` then `beginFreshCampaign({ persist: true })`.
-- Drops `preserveCompletedSlotUntilChoice` on this path.
+`playAgain()` must keep the completed slot on disk via `preserveCompletedSlotUntilChoice: true` until the player commits a real choice. Clearing on Play Again fails `version-verify` (completed-slot custody / Continue restore).
 
-## Holds
+Resume showing a finished run is Continue custody, not a ghost bug.
 
-No Netlify. Art PARKED. Paint 0.36.
-
-IDLE_FOR_ORCH · SUN-V036-PLAY-AGAIN-CLEAR-01 · PR
+IDLE_FOR_ORCH · SUN-V036-PLAY-AGAIN-CLEAR-01 · ALREADY_SATISFIED
