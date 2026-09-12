@@ -92,18 +92,28 @@ ${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Seating for
 
 Observation blister: stars drift at an uneven rate. Daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
 
+${isAlive("tomas") && isAlive("jiro") && !state.flags.pair_grudge && !state.flags.tomas_scapegoated ? `A trunk hatch is open. Two recovered men are working the same seam and not sharing the tool.` : ""}
+
 ${isAlive("elias") ? `Before Elias finds you, there is a moment — small, private — that no one else needs to see.` : ""}`; },
-    choices: [
-      { text: "Stop by Sela. She is at the bulkhead again.", next: "quiet_sela", effects: { cohesion: 2 }, affinity: { sela: 12 }, alive: "sela" },
-      { text: "Wake Mira gently. The drive fault is still open.", next: "quiet_mira", effects: { cohesion: 1 }, affinity: { mira: 10 }, alive: "mira" },
-      { text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas" },
-      { text: "Find Amara among the trays.", next: "quiet_amara", effects: { cohesion: 2 }, affinity: { amara: 10 }, alive: "amara" },
-      { text: "Share a quiet hour with Elias — no orders.", next: "bond_elias", effects: { cohesion: 1 }, alive: "elias", tag: "bond" },
-      { text: "Sit a low-stakes game with Tomas if he will play.", next: "bond_tomas", effects: { cohesion: 1 }, alive: "tomas", tag: "bond" },
-      { text: "Join Jiro on a competence hang at the star tracker.", next: "bond_jiro", effects: { cohesion: 1 }, alive: "jiro", tag: "bond" },
-      { text: "Walk the empty berths before you take any more orders.", next: "empty_berths", effects: { cohesion: 1 } },
-      { text: "Skip the quiet. Elias is already waiting.", alive: "elias", next: "lead_prompt", effects: { cohesion: -1 } }
-    ]
+    get choices() {
+      const opts = [
+        { text: "Stop by Sela. She is at the bulkhead again.", next: "quiet_sela", effects: { cohesion: 2 }, affinity: { sela: 12 }, alive: "sela" },
+        { text: "Wake Mira gently. The drive fault is still open.", next: "quiet_mira", effects: { cohesion: 1 }, affinity: { mira: 10 }, alive: "mira" },
+        { text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas" },
+        { text: "Find Amara among the trays.", next: "quiet_amara", effects: { cohesion: 2 }, affinity: { amara: 10 }, alive: "amara" }
+      ];
+      if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
+        opts.push({ text: "Step into the trunk. Tomas and Jiro are already in each other's way.", next: "pair_grudge_settle", aliveAll: ["tomas", "jiro"] });
+      }
+      opts.push(
+        { text: "Share a quiet hour with Elias — no orders.", next: "bond_elias", effects: { cohesion: 1 }, alive: "elias", tag: "bond" },
+        { text: "Sit a low-stakes game with Tomas if he will play.", next: "bond_tomas", effects: { cohesion: 1 }, alive: "tomas", tag: "bond" },
+        { text: "Join Jiro on a competence hang at the star tracker.", next: "bond_jiro", effects: { cohesion: 1 }, alive: "jiro", tag: "bond" },
+        { text: "Walk the empty berths before you take any more orders.", next: "empty_berths", effects: { cohesion: 1 } },
+        { text: "Skip the quiet. Elias is already waiting.", alive: "elias", next: "lead_prompt", effects: { cohesion: -1 } }
+      );
+      return opts;
+    }
   },
 
 });
