@@ -70,7 +70,9 @@ function showCinematic(kind) {
   // Neutral bookend: no new roster or baked-in HUD assertion from an enlarged plate.
   // The existing ending screen retains its own outcome-selected art unchanged.
   setManagedImageSource(img, "images/onboarding_background.jpg");
-  img.alt = "The empty ship corridor opens onto the stars.";
+  img.alt = intro
+    ? "The empty ship corridor opens onto the stars."
+    : "Ending cinematic bookend — empty corridor (not the outcome plate).";
   renderCinematicFrame(true);
 }
 

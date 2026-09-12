@@ -52,7 +52,7 @@ import { newRunChecks } from "./new-run-checks.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
 const SOURCE_MAIN_TREE = "a6b96e0907de586f6cdd31cf15db09bc1341ddaf";
-const REQUIRED_SRC_TREE = "31716ea89f76f96323bd1cdf21d4d8d9c1a8386a";
+const REQUIRED_SRC_TREE = "f907a0e455b9ccb562769f3520244ef16099f752";
 const AUDITED_RECOVERY_BASE_SHA = "e4f84409759760d31fcf47b8a227802a61421f51";
 const PRIVATE_PACKAGE_SOURCE_SHA = "a91a26d47ac76a976ca4406caf9b04511c11ba82";
 const PRIVATE_PACKAGE_SOURCE_TREE = "dd9ea40d90ee08d52ff2c11c263a7d7cceb80895";
