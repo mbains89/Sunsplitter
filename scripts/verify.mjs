@@ -1532,6 +1532,9 @@ function contentNoticeRevisitChecks(runtime) {
   if (!titleBlock.includes('id="btn-content-notice"') || !titleBlock.includes('onclick="revisitTone()"')) {
     errors.push("title/utilities missing content-notice revisit control");
   }
+  if (!titleBlock.includes('id="content-notice-chip"') || !titleBlock.includes("Revisit content notice")) {
+    errors.push("content-notice clarity chip/label missing on title");
+  }
   if (!indexSource.includes("Adult sexual content is permanent.")) {
     errors.push("content notice lost adult permanence copy");
   }
