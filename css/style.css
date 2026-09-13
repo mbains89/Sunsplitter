@@ -1219,3 +1219,16 @@ body::before {
 .save-transfer-actions:has(#btn-export-save:not(.hidden)) .export-import-chip {
   color: #d8ecff;
 }
+
+.content-notice-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+.content-notice-chip {
+  margin: 0;
+  font: 600 12px/1.35 system-ui, sans-serif;
+  color: #c8d4e0;
+  text-align: center;
+}
