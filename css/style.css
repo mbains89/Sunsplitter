@@ -1207,6 +1207,10 @@ body::before {
 }
 .title-save-chip.hidden { display: none !important; }
 
+.new-run-confirm-chip {
+  margin: 0.25rem 0 0.5rem;
+  font: 600 12px/1.35 system-ui, sans-serif;
+  color: #e0c8a8;
 .export-import-chip {
   margin: 0 0 0.45rem;
   font: 600 12px/1.35 system-ui, sans-serif;
