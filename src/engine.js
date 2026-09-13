@@ -1961,6 +1961,16 @@ function refreshTitleResumeUI() {
     try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
     exportBtn.classList.toggle("hidden", !exportable);
   }
+  const saveChip = document.getElementById("title-save-chip");
+  if (saveChip) {
+    if (has) {
+      saveChip.textContent = "Save slot · durable local · Continue ready";
+      saveChip.classList.remove("hidden");
+    } else {
+      saveChip.textContent = "";
+      saveChip.classList.add("hidden");
+    }
+  }
 }
 
 // Autosave after every committed choice (state already mutated)
