@@ -1219,3 +1219,11 @@ body::before {
 .save-transfer-actions:has(#btn-export-save:not(.hidden)) .export-import-chip {
   color: #d8ecff;
 }
+
+.commander-create-chip {
+  margin: 0.15rem 0 0.55rem;
+  font: 600 12px/1.35 system-ui, sans-serif;
+  color: #c8d4e0;
+}
+.commander-req { font-weight: 600; color: #e0c8a8; font-size: 0.85em; }
+.commander-opt { font-weight: 600; color: #a8b8c8; font-size: 0.85em; }
