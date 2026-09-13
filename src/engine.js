@@ -1960,6 +1960,12 @@ function refreshTitleResumeUI() {
     let exportable = false;
     try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
     exportBtn.classList.toggle("hidden", !exportable);
+    const xchip = document.getElementById("export-import-chip");
+    if (xchip) {
+      xchip.textContent = exportable
+        ? "Export ready · Import anytime (durable local slot)"
+        : "Import anytime · Export appears when a durable slot exists";
+    }
   }
   const saveChip = document.getElementById("title-save-chip");
   if (saveChip) {
