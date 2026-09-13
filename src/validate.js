@@ -334,8 +334,16 @@ function retreatCinematic() {
     if (!currentCinematic) return;
     const back = document.getElementById("cinematic-back");
     if (back) {
-      back.classList.toggle("hidden", currentCinematic.kind !== "intro");
-      back.textContent = currentCinematic.kind === "intro" && currentCinematic.index === 0 ? "Back to title" : "Back";
+      // Intro: always show Back (to prior slide / title). Ending: show Back only when a prior slide exists.
+      const showBack = currentCinematic.kind === "intro" || (currentCinematic.kind === "ending" && currentCinematic.index > 0);
+      back.classList.toggle("hidden", !showBack);
+      if (currentCinematic.kind === "intro" && currentCinematic.index === 0) back.textContent = "Back to title";
+      else if (currentCinematic.kind === "ending") back.textContent = "Back";
+      else back.textContent = "Back";
+    }
+    const skip = document.getElementById("cinematic-skip");
+    if (skip) {
+      skip.textContent = currentCinematic.kind === "intro" ? "Skip intro" : "Skip ending";
     }
     if (currentCinematic.kind === "intro") {
       const img = document.getElementById("cinematic-image");
@@ -344,7 +352,7 @@ function retreatCinematic() {
     }
   };
   const previousShow = showCinematic;
-  showCinematic = function(kind) { previousShow(kind); if (kind === "intro") renderCinematicFrame(false); };
+  showCinematic = function(kind) { previousShow(kind); if (kind === "intro" || kind === "ending") renderCinematicFrame(false); };
 })();
 
 const TUTORIAL_SEEN_KEY = "sunsplitter_tutorial_seen_v1";
