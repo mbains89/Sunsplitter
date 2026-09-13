@@ -1199,7 +1199,10 @@ function renderCrewPanel(selectedKey) {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
   }
 
-  el.innerHTML = `<div class="crew-chips">${chips}</div>${detail}`;
+  const livingN = order.filter(k => crew[k] && isAlive(k)).length;
+  const listedN = order.filter(k => crew[k]).length;
+  const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
+  el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
       const key = btn.getAttribute("data-crew");

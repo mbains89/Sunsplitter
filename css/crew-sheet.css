@@ -81,3 +81,10 @@
 #crew-sheet-bio {
   color: var(--text);
 }
+
+.crew-count {
+  font: 600 12px/1.4 system-ui, sans-serif;
+  color: #c8d4e0;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+}
