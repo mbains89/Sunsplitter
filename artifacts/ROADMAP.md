@@ -1,11 +1,11 @@
 # Sunsplitter — Official Enforceable Roadmap
 
-`SOURCE main@8d23109b · RUNTIME 387e150b · TASK SUN-ROADMAP-PLAN-01 · MODE proposal`
+`SOURCE main@8d23109b · RUNTIME c3b12f75cb74c6e2e97cd410e914044c4f1a818c · TASK SUN-ROADMAP-TIP-SYNC-02 · MODE proposal`
 
 **Acting role:** Grok / program office. Planning only.
 **Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
-**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@387e150b4a767c2c521860b804c2097274acef19`.
+**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3b12f75cb74c6e2e97cd410e914044c4f1a818c` (PR#241 ROADMAP plan + PR#242 STATUS tip landed; not SHIPPED; not CERTIFIED).
 **Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
 **Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
 
@@ -23,7 +23,7 @@ This section does not mint 0.36 or 0.37 and does not authorize Netlify pins.
 
 ### Domain authorities
 
-| Question | Authority |
+|| Question | Authority |
 |---|---|
 | What is approved next, in what order, and with what exit criteria? | `artifacts/ROADMAP.md` |
 | What has actually shipped and what is the active release state? | `artifacts/PROJECT_STATUS.md` |
@@ -71,7 +71,7 @@ It also states role, files read, and whether implementation is authorized. If th
 
 ### Status vocabulary
 
-| Label | Meaning |
+|| Label | Meaning |
 |---|---|
 | **OBSERVED** | Present at an exact revision; no shipped/release claim implied |
 | **LANDED ON VERSION LANE** | Merge-committed into the candidate lane; not on `main` and not certified |
@@ -173,7 +173,7 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 
 ### Controlling revisions
 
-| Surface | Exact state | Meaning |
+|| Surface | Exact state | Meaning |
 |---|---|---|
 | GitHub `main` | `8d23109b63b844e0703fb36643f14b91b8800c90` | Observed repository authority; not certified |
 | Version lane HEAD used for this rebuild | `685d40007d5cae12621d88639bbfb1cd6bdaa3be` | Playtest candidate; player-facing label `0.33` |
@@ -252,7 +252,7 @@ Stable lock identities in `LOCKS.md` keep their section anchors. Historical vers
 
 Historical 0.28.2 ten-ticket batch boundary. Not a reopened queue. Current L-020–L-028 dispositions in `LOCKS.md` control.
 
-| # | Locked ticket boundary | Required outcome |
+|| # | Locked ticket boundary | Required outcome |
 |---|---|---|
 | 1 | Dead-speech/credit batch | Guard or truthfully paraphrase confirmed reachable dead/unrecovered credit. Do not erase memorial/history references. |
 | 2 | `quiet_tomas` rewind | Both exits route to `act3_spine_next`. |
@@ -267,7 +267,7 @@ Historical 0.28.2 ten-ticket batch boundary. Not a reopened queue. Current L-020
 
 ### Simulation invariants
 
-| ID | Meaning |
+|| ID | Meaning |
 |---|---|
 | V1 | A legally reached render has zero enabled exits / hard softlock |
 | V2 | Literal dead-or-unrecovered name/presence spike; classify editorially, not a zero gate |
@@ -378,7 +378,7 @@ Split across later versions. 0.33 does not absorb this work during playtest.
 - Opening video, tutorial, and crew portrait/details remain evidence-gated candidates.
 - The breast-cover toggle remains held.
 
-| Candidate | Gate |
+|| Candidate | Gate |
 |---|---|
 | Earth-calamity opening video | PX-1 must prove a cold-open comprehension need. Skip/pause, captions or equivalent text, reduced-motion fallback, load budget, no autoplay trap. |
 | Skippable first-run tutorial | PX-1 must prove a first-run comprehension failure. Skippable, replayable, touch/keyboard safe; teaches existing interactions only. |
@@ -606,7 +606,7 @@ Execute §13 launch gate. Manraj remains the final and separate go/no-go authori
 
 These items stay off 0.34–0.37 until the 0.33 playtest produces a classified finding or Manraj opens the named gate.
 
-| Item | Why it waits |
+|| Item | Why it waits |
 |---|---|
 | ART-R2 identity/roster/crop audit | Explicitly HELD |
 | STORY-SURGERY-R1 | HELD until evidence names exact prose |
@@ -628,7 +628,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 
 ## 16. Proposal, deferred, held, and rejected register
 
-| Item | Disposition |
+|| Item | Disposition |
 |---|---|
 | Cascade Allusive six-beat package | PROPOSAL; wait for 0.33 playtest + owner open |
 | Heavy standalone boarding manifest / cascade records scenes | RETIRED in favor of distributed allusion |
@@ -691,7 +691,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 
 ## 18. Quick reference
 
-| Stage | State / exit |
+|| Stage | State / exit |
 |---|---|
 | 0.30.1 | Drain closed on lane; NOT CERTIFIED |
 | 0.31 | Systemic truth landed on lane; NOT CERTIFIED |
