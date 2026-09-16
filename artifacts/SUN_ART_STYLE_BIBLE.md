@@ -6,6 +6,8 @@ as the attached style page. This lock does **not** generate JPEGs, does not
 wire `images/**` or `sceneImages`, and does not start BODY-REFERENCE or
 ART-PLATE-LOOP on this branch.
 
+Do not generate plates in Cursor / Grok Bot.
+
 # Sunsplitter — Art style bible (one page)
 
 Anchors: `images/<id>.jpg` + `images/bodysuit_<id>.jpg` (living cast).
