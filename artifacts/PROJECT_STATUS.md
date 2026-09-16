@@ -8,7 +8,7 @@
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 6ab8d85533dbfddff020ac630737eb904589f53f`
+`version_lane_sha: 55143745f12ed716a54b8f13580d71679cca260f`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 6ab8d855 — LANDED ON VERSION LANE after PR 241; not SHIPPED; not CERTIFIED`
+`version_lane_head: 55143745 — LANDED ON VERSION LANE after PR 247; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,21 +38,21 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-PROJECT-STATUS-TIP-01 — observe lane tip after SUN-ROADMAP-PLAN-01`
-`state: STATUS TIP HONESTY ON 6ab8d855 — 0.36 not opened as certify; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-ART-STYLE-BIBLE-LOCK-01 — owner LOCK style bible for art HITL`
+`state: STYLE BIBLE LOCKED ON 55143745 — no JPEG / no wire; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
-### SUN-PROJECT-STATUS-TIP-01 (this tip)
+### SUN-ART-STYLE-BIBLE-LOCK-01 (this tip)
 
-Docs honesty only. Records the live version-lane HEAD after PR 241 (`SUN-ROADMAP-PLAN-01`, merge `6ab8d85533dbfddff020ac630737eb904589f53f`). Does not mint, certify, deploy, or invent OPEN.
+Docs/status only. Records owner OPEN 2026-09-16 art HITL lock of `artifacts/SUN_ART_STYLE_BIBLE.md`. Does not start BODY-REFERENCE or ART-PLATE-LOOP. Does not mint, certify, deploy, or invent OPEN beyond that lock.
 
 | Pin | Live value | Meaning |
 |---|---|---|
 | `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. |
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and `scripts/fixtures/main-reconcile-ci-pr-baseline.json`. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `6ab8d85533dbfddff020ac630737eb904589f53f` | LANDED ON VERSION LANE only. After PR 241. |
+| Lane `HEAD` | `55143745f12ed716a54b8f13580d71679cca260f` | LANDED ON VERSION LANE only. After PR 247. |
 | Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only. Lane `src` may differ from the main src pin; the src-equality gate applies only to the original main-reconcile ticket route.
@@ -72,15 +72,14 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
-| 241 | `SUN-ROADMAP-PLAN-01` | ROADMAP + LOCKS digest tip honesty and labeled 0.36→0.37 plan. Merge `6ab8d855`. LANDED ON VERSION LANE. Not certify. |
+| 247 | `SUN-V036-PACK-NEXT-10` | Pack 0.30.3 ALREADY_SATISFIED; queue exhausted. |
+| 241 | `SUN-ROADMAP-PLAN-01` | ROADMAP + LOCKS digest tip honesty and labeled 0.36→0.37 plan. Not certify. |
 | 238 | `SUN-V036-COMMANDER-CREATE-HINT-01` | Lane chrome. Not 0.36 PC-readiness exit. |
 | 237 | `SUN-V036-CONTENT-NOTICE-CLARITY-01` | Lane chrome. Not 0.36 PC-readiness exit. |
-| 146 | `SUN-V035-STATUS-DOCS-01` | Prior planning-docs sync. Superseded as tip record by this file. |
-| 147 | `SUN-V035-PLAYTEST-CLOSED-LEDGER-01` | PLAYTEST_SUN findings closed to PRs. LANDED ON VERSION LANE. |
 
-`VERSION.md` first line on this tip is `0.36` paint. That is player-facing paint on the lane, not certification and not a 0.36 milestone exit. ROADMAP after PR 241 labels 0.36 PC Readiness as the next plan-to-finish gate and 0.37 External Review as following that exit. Neither gate is opened as certify by this STATUS file.
+`VERSION.md` first line on this tip is `0.36` paint. That is player-facing paint on the lane, not certification and not a 0.36 milestone exit.
 
-Ordered post-0.35 follow-ups still live in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Style bible draft `artifacts/SUN_ART_STYLE_BIBLE.md` still needs owner lock before generation loops.
+Style bible `artifacts/SUN_ART_STYLE_BIBLE.md` is **LOCKED** by owner OPEN 2026-09-16 art HITL. Do not generate plates in Cursor / Grok Bot. Do not start BODY-REFERENCE or ART-PLATE-LOOP on this branch.
 
 Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) remains an ancestor of the current lane. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry.
 
@@ -91,7 +90,7 @@ Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) rema
 - Amara-route parked.
 - PR 45 / draft PR 46 untouched.
 - No main close-out, tag, Release, deploy, or certification language.
-- No remint of PRs 107–241 as a new drain queue. No Netlify pin remint / PIN-02 remint.
+- No remint of PRs 107–163 as a new drain queue. No Netlify pin remint / PIN-02 remint.
 - L-025–L-028 are not reopened here. LOCKS dispositions are unchanged except the ROADMAP digest already synced in PR 241.
 
 ## L-025–L-028 dispositions
@@ -119,10 +118,10 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-PROJECT-STATUS-TIP-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs honesty only. Do not close out to `main`, tag, certify, deploy, or mint 0.36.
+**This ticket:** merge-commit `SUN-ART-STYLE-BIBLE-LOCK-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/status only. Do not start BODY-REFERENCE or ART-PLATE-LOOP here. Do not close out to `main`, tag, certify, deploy, or mint 0.37.
 
-**Grok / orchestrator (`$ S1`):** after this merge, follow ROADMAP after PR 241 (0.36 plan-to-finish, then 0.37) and `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Do not invent OPEN. Do not mint 0.36.
+**Grok / orchestrator (`$ S1`):** after this merge, queue BODY-REFERENCE then ART-PLATE-LOOP as separate tickets. Do not invent extra OPEN. Netlify HOLD.
 
-**Manraj:** remains sole publish authority. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No close-out to `main`, tag, release, deploy, or PIN-02 remint.
+**Manraj:** remains sole publish authority and sole grok.com plate approver. Green CI is not merge-to-main authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling.
 
 <!-- STATUS_COMPLETE -->
