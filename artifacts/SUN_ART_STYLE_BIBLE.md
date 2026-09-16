@@ -1,8 +1,10 @@
-SOURCE main@8d23109 · RUNTIME 1a8e8a5 · TASK SUN-PLAYTEST-ART-EVENT-AUDIT-01 · MODE implementation
+SOURCE main@8d23109b · RUNTIME 55143745f12ed716a54b8f13580d71679cca260f · TASK SUN-ART-STYLE-BIBLE-LOCK-01 · MODE implementation
 
-**DRAFT from CURRENT Batch A tank-top + CURRENT bodysuit portraits.** Owner
-(Manraj) must approve this page before any grok.com event or body_ref loop.
-Not locked until that approval. Do not generate plates in Cursor / Grok Bot.
+**LOCKED** by owner OPEN 2026-09-16 art HITL slice (Pack 0.30.4 first).
+This page is no longer DRAFT. Body-reference and event-plate loops may use it
+as the attached style page. This lock does **not** generate JPEGs, does not
+wire `images/**` or `sceneImages`, and does not start BODY-REFERENCE or
+ART-PLATE-LOOP on this branch.
 
 # Sunsplitter — Art style bible (one page)
 
@@ -64,7 +66,7 @@ event or body_ref binaries in Cursor or Grok Bot.
 One event or one body_ref plate per chat. Attach files, do not describe a
 second face.
 
-1. Paste this page (once owner-approved) at the top.
+1. Paste this page at the top.
 2. Attach CURRENT `images/bodysuit_<id>.jpg` as the **sole face-to-copy**.
 3. Attach CURRENT `images/<id>.jpg` as identity confirm only.
 4. After body_ref approval: attach `body_ref_<id>_front.jpg` and
