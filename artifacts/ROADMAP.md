@@ -1,21 +1,21 @@
 # Sunsplitter — Official Enforceable Roadmap
 
-`SOURCE main@8d23109 · RUNTIME 685d400 · TASK SUN-V033-ROADMAP-REBASE-01 · MODE proposal`
+`SOURCE main@8d23109b · RUNTIME 387e150b · TASK SUN-ROADMAP-PLAN-01 · MODE proposal`
 
 **Acting role:** Grok / program office. Planning only.
-**Implementation authority:** none. This file is a planning replacement. It authorizes no code, leftover drain, ticket mint, PR, merge, close-out, tag, certify, Netlify, or publication.
-**Authority domain:** approved future scope, dependency order, design locks, decision gates, and milestone acceptance criteria.
-**Owner:** Manraj.
-**Lock steward:** Grok / program office.
+**Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
-**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@685d40007d5cae12621d88639bbfb1cd6bdaa3be`.
-**Player-facing version paint:** `0.33` (PR 98).
-**Live preview:** Netlify deploy `6a974ce6083c96103110b960` at https://sunsplitter.netlify.app — preview only, `NOT_CERTIFIED`.
-**Release posture:** `NO-PUBLISH / NOT_CERTIFIED`. Last certified baseline label remains `0.28.1d`.
+**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@387e150b4a767c2c521860b804c2097274acef19`.
+**Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
+**Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
 
-The copy of this file committed on the version lane is authoritative for future scope after owner merge. Candidate-lane facts below are planning evidence, not shipped, released, certified, published, or deployed claims. `PROJECT_STATUS.md` controls current `main` state. Immutable release and deployment evidence control release claims.
+## SUN-ROADMAP-PLAN-01 — Finish 0.36 → plan 0.37 (prose only)
 
-Codex numbering is authority. Do not reuse 0.31–0.33 for independent review, PC readiness, or commercial itch. Those definitions execute at 0.37, 0.36, and 0.39.
+Decision gates (labeled; not OPEN):
+1. **0.36 PC Readiness** — close remaining tip-named 0.36 pack/playtest-gate items on the work tip; no invent OPEN; no mint/certify unless owner OPEN names it.
+2. **0.37 External Review** — planning target after 0.36 readiness; design/review prose only until owner OPEN.
+
+This section does not mint 0.36 or 0.37 and does not authorize Netlify pins.
 
 ---
 
