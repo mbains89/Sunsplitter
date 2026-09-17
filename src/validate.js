@@ -235,29 +235,17 @@ function openCrewSheet(key) {
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
-  const trust = state.trust && state.trust[key];
-  const affinity = state.affinity && state.affinity[key];
-  const trustText = Number.isFinite(trust) ? (trust + "/100") : "Not recorded";
-  const affinityText = Number.isFinite(affinity) ? (affinity + "/100") : "Not recorded";
-  const romance = [];
-  if (state.romance && state.romance[key]) romance.push("Recorded this run");
-  if ((key === "amara" || key === "tomas") && state.romance && state.romance.amara_tomas) romance.push("Shared Amara-Tomas encounter recorded");
   const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
   const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
-  const lean = (typeof crewLean === "object" && crewLean[key]) ? crewLean[key] : "";
   const nameEl = document.getElementById("crew-sheet-name");
   const roleEl = document.getElementById("crew-sheet-role");
   const factsEl = document.getElementById("crew-sheet-facts");
   const bioEl = document.getElementById("crew-sheet-bio");
   if (nameEl) nameEl.textContent = c.name;
-  if (roleEl) roleEl.textContent = role + (lean ? " | lean " + lean : "");
+  if (roleEl) roleEl.textContent = role;
   const factLines = [
-    "Condition: " + condition,
-    (dead ? "Trust (last recorded)" : "Trust") + ": " + trustText,
-    "Affinity: " + affinityText,
-    "Romance: " + (romance.join("; ") || "None recorded")
+    "Condition: " + condition
   ];
-  if (!dead && state.marks && state.marks[key]) factLines.push("Marks: " + String(state.marks[key]).replace(/_/g, " "));
   if (factsEl) factsEl.textContent = factLines.join("\n");
   if (bioEl) bioEl.textContent = c.bio || "";
   const img = document.getElementById("crew-sheet-image");
@@ -334,7 +322,6 @@ function retreatCinematic() {
     if (!currentCinematic) return;
     const back = document.getElementById("cinematic-back");
     if (back) {
-      // Intro: always show Back (to prior slide / title). Ending: show Back only when a prior slide exists.
       const showBack = currentCinematic.kind === "intro" || (currentCinematic.kind === "ending" && currentCinematic.index > 0);
       back.classList.toggle("hidden", !showBack);
       if (currentCinematic.kind === "intro" && currentCinematic.index === 0) back.textContent = "Back to title";
@@ -454,7 +441,6 @@ function commitNewRunWithCommander() {
   if (!started) return false;
   applyCommanderTokens(draft);
   if (typeof persistSave === "function") persistSave({ silent: true });
-  // Playable proof in intro line 3 when tokens exist
   const line = document.getElementById("intro-line-3");
   if (line && draft.commanderCallsign && line.setAttribute) {
     line.setAttribute("data-commander-callsign", draft.commanderCallsign);
