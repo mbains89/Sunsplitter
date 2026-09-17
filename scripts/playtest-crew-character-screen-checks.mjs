@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 — open/close sheet + official bodysuit wiring.
+// SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 / SUN-PLAYTEST-CREW-SHEET-01 — sheet hides numeric hidden stats.
 export function playtestCrewCharacterScreenChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
@@ -20,6 +20,9 @@ export function playtestCrewCharacterScreenChecks(runtime) {
   if (!runtimeSrc.includes("officialBodysuitSrc") || !runtimeSrc.includes("images/bodysuit_lena.jpg") || !runtimeSrc.includes("closeCrewSheet")) {
     errors.push("sheet runtime missing official bodysuit wiring or sheet close");
   }
+  if (runtimeSrc.includes("Affinity: ") || runtimeSrc.includes("Trust") && runtimeSrc.includes("trustText")) {
+    errors.push("sheet runtime still builds numeric trust/affinity lines");
+  }
   try {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
@@ -34,7 +37,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
         panel: panel.classList.contains("visible"),
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
         name: document.getElementById("crew-sheet-name").textContent,
-        trust: document.getElementById("crew-sheet-facts").textContent.includes("Trust: 40/100"),
+        trust: !document.getElementById("crew-sheet-facts").textContent.includes("Trust:"),
         condition: document.getElementById("crew-sheet-facts").textContent.includes("Condition: Alive"),
         portrait: img && (img.__ssManagedSource === "images/bodysuit_lena.jpg" || img.getAttribute("src") === "images/bodysuit_lena.jpg"),
         alt: img ? img.alt : ""
@@ -49,7 +52,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
         name: document.getElementById("crew-sheet-name").textContent,
         portrait: img && (img.__ssManagedSource === "images/bodysuit_mira.jpg" || img.getAttribute("src") === "images/bodysuit_mira.jpg"),
         role: document.getElementById("crew-sheet-role").textContent.includes("Engineer"),
-        affinity: document.getElementById("crew-sheet-facts").textContent.includes("Affinity: 0/100")
+        affinity: !document.getElementById("crew-sheet-facts").textContent.includes("Affinity:")
       };
       document.dispatchEvent({ type: "keydown", key: "Escape" });
       const afterEsc = !sheet.classList.contains("visible") && panel.classList.contains("visible");
@@ -59,7 +62,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
     })()`);
     if (!fixture.opened.panel || !fixture.opened.sheet) errors.push("opening Crew did not show full-screen sheet");
     if (fixture.opened.name !== "Dr. Lena Voss" || !fixture.opened.trust || !fixture.opened.condition) {
-      errors.push("Lena sheet facts drifted from existing game data");
+      errors.push("Lena sheet must keep known status and hide numeric trust");
     }
     if (!fixture.opened.portrait || !fixture.opened.alt.includes("bodysuit")) {
       errors.push("Lena official bodysuit portrait not wired");
@@ -68,7 +71,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
       errors.push("Back/close did not return to prior crew UI");
     }
     if (fixture.mira.name !== "Mira Solis" || !fixture.mira.portrait || !fixture.mira.role || !fixture.mira.affinity) {
-      errors.push("Mira sheet missing official portrait or existing traits");
+      errors.push("Mira sheet missing official portrait/role or still shows affinity numbers");
     }
     if (!fixture.afterEsc) errors.push("Escape did not close sheet while leaving crew panel");
     if (!fixture.closedAll || !fixture.stable) errors.push("sheet open/close mutated run state or failed to close with Crew");
