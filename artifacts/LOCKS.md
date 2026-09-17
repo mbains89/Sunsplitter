@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Grok / program office  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `4807607642a4fc04cee6e71ec36ee0561227dd3c50b6b371a698ddd23f20f586`
+**Roadmap source SHA-256:** `2bf3535a6ca1b829396d6e98b4eb8c3f84ad28984808fb734c28692abb6e36d9`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and Grok records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
