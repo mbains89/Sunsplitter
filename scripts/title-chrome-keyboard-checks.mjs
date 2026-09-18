@@ -1,23 +1,11 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-
 // SUN-TITLE-KB-CHROME-01 — Enter/Space dismiss notice and activate Begin outside gameplay.
 export function titleChromeKeyboardChecks(runtime) {
   const errors = [];
-  const validateSource = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
-  if (!validateSource.includes("function handleTitleChromeKeydown(event)")) {
-    errors.push("validate.js missing handleTitleChromeKeydown");
-  }
-  if (!validateSource.includes('document.addEventListener("keydown", handleTitleChromeKeydown);')) {
-    errors.push("validate.js missing title chrome keydown wiring");
-  }
 
   try {
     const fixture = runtime.evaluate(`(() => {
       const keyEvent = (key, extra = {}) => Object.assign({
+        type: "keydown",
         key,
         target: { tagName: "DIV" },
         defaultPrevented: false,
@@ -26,17 +14,28 @@ export function titleChromeKeyboardChecks(runtime) {
         ctrlKey: false,
         metaKey: false,
         prevented: false,
-        preventDefault() { this.prevented = true; }
+        preventDefault() { this.prevented = true; this.defaultPrevented = true; }
       }, extra);
+      const dispatch = event => {
+        document.dispatchEvent(event);
+        return event;
+      };
 
       localStorage.clear();
+
       showTitleScreen();
       revisitTone();
-      const toneEvent = keyEvent("Enter");
-      const toneHandled = handleTitleChromeKeydown(toneEvent);
+      const toneEnter = dispatch(keyEvent("Enter"));
       const tone = {
-        handled: toneHandled,
-        prevented: toneEvent.prevented,
+        prevented: toneEnter.prevented,
+        toneHidden: document.getElementById("tone-screen").classList.contains("hidden"),
+        titleVisible: !document.getElementById("title-screen").classList.contains("hidden")
+      };
+
+      revisitTone();
+      const toneSpacebar = dispatch(keyEvent("Spacebar"));
+      const spacebarTone = {
+        prevented: toneSpacebar.prevented,
         toneHidden: document.getElementById("tone-screen").classList.contains("hidden"),
         titleVisible: !document.getElementById("title-screen").classList.contains("hidden")
       };
@@ -45,80 +44,102 @@ export function titleChromeKeyboardChecks(runtime) {
       const originalClick = begin.click;
       let beginClicks = 0;
       begin.click = () => { beginClicks += 1; };
-      showTitleScreen();
-      const titleEvent = keyEvent("Enter");
-      const titleHandled = handleTitleChromeKeydown(titleEvent);
-      const title = {
-        handled: titleHandled,
-        prevented: titleEvent.prevented,
-        beginClicks
-      };
-      begin.click = originalClick;
 
       showTitleScreen();
+      const titleEnter = dispatch(keyEvent("Enter"));
+      const title = {
+        prevented: titleEnter.prevented,
+        beginClicks
+      };
+
+      beginClicks = 0;
+      showTitleScreen();
+      const titleSpace = dispatch(keyEvent(" "));
+      const space = {
+        prevented: titleSpace.prevented,
+        beginClicks
+      };
+
+      beginClicks = 0;
+      showTitleScreen();
       showCommanderCreate();
-      const commanderEvent = keyEvent("Enter");
+      const commanderEvent = dispatch(keyEvent("Enter"));
       const commander = {
-        handled: handleTitleChromeKeydown(commanderEvent),
-        prevented: commanderEvent.prevented
+        prevented: commanderEvent.prevented,
+        beginClicks,
+        visible: !document.getElementById("commander-create").classList.contains("hidden")
       };
       hideCommanderCreate();
 
+      beginClicks = 0;
       showTitleScreen();
       showNewRunConfirm();
-      const confirmEvent = keyEvent(" ");
+      const confirmEvent = dispatch(keyEvent(" "));
       const confirm = {
-        handled: handleTitleChromeKeydown(confirmEvent),
-        prevented: confirmEvent.prevented
+        prevented: confirmEvent.prevented,
+        beginClicks,
+        visible: !document.getElementById("new-run-confirm").classList.contains("hidden")
       };
       hideNewRunConfirm();
 
+      beginClicks = 0;
       const game = document.getElementById("game-screen");
       const titleScreen = document.getElementById("title-screen");
       game.classList.remove("hidden");
       titleScreen.classList.remove("hidden");
-      const gameEvent = keyEvent("Enter");
+      const gameEvent = dispatch(keyEvent("Enter"));
       const gameplay = {
-        handled: handleTitleChromeKeydown(gameEvent),
-        prevented: gameEvent.prevented
+        prevented: gameEvent.prevented,
+        beginClicks
       };
       game.classList.add("hidden");
 
+      beginClicks = 0;
       showTitleScreen();
-      const interactiveEvent = keyEvent("Enter", { target: { tagName: "BUTTON" } });
+      const interactiveEvent = dispatch(keyEvent("Enter", { target: { tagName: "BUTTON" } }));
       const interactive = {
-        handled: handleTitleChromeKeydown(interactiveEvent),
-        prevented: interactiveEvent.prevented
+        prevented: interactiveEvent.prevented,
+        beginClicks
       };
 
-      const modifiedEvent = keyEvent("Enter", { ctrlKey: true });
+      beginClicks = 0;
+      showTitleScreen();
+      const modifiedEvent = dispatch(keyEvent("Enter", { ctrlKey: true }));
       const modified = {
-        handled: handleTitleChromeKeydown(modifiedEvent),
-        prevented: modifiedEvent.prevented
+        prevented: modifiedEvent.prevented,
+        beginClicks
       };
 
-      return { tone, title, commander, confirm, gameplay, interactive, modified };
+      begin.click = originalClick;
+
+      return { tone, spacebarTone, title, space, commander, confirm, gameplay, interactive, modified };
     })()`);
 
-    if (!fixture.tone.handled || !fixture.tone.prevented || !fixture.tone.toneHidden || !fixture.tone.titleVisible) {
+    if (!fixture.tone.prevented || !fixture.tone.toneHidden || !fixture.tone.titleVisible) {
       errors.push("Enter did not dismiss tone-screen into the title-screen");
     }
-    if (!fixture.title.handled || !fixture.title.prevented || fixture.title.beginClicks !== 1) {
+    if (!fixture.spacebarTone.prevented || !fixture.spacebarTone.toneHidden || !fixture.spacebarTone.titleVisible) {
+      errors.push("Spacebar did not dismiss tone-screen into the title-screen");
+    }
+    if (!fixture.title.prevented || fixture.title.beginClicks !== 1) {
       errors.push("Enter did not activate btn-begin on the title-screen");
     }
-    if (fixture.commander.handled || fixture.commander.prevented) {
+    if (!fixture.space.prevented || fixture.space.beginClicks !== 1) {
+      errors.push("Space did not activate btn-begin on the title-screen");
+    }
+    if (fixture.commander.prevented || fixture.commander.beginClicks !== 0 || !fixture.commander.visible) {
       errors.push("title chrome keydown ignored commander-create guard");
     }
-    if (fixture.confirm.handled || fixture.confirm.prevented) {
+    if (fixture.confirm.prevented || fixture.confirm.beginClicks !== 0 || !fixture.confirm.visible) {
       errors.push("title chrome keydown ignored new-run-confirm guard");
     }
-    if (fixture.gameplay.handled || fixture.gameplay.prevented) {
+    if (fixture.gameplay.prevented || fixture.gameplay.beginClicks !== 0) {
       errors.push("title chrome keydown ran while game-screen was visible");
     }
-    if (fixture.interactive.handled || fixture.interactive.prevented) {
+    if (fixture.interactive.prevented || fixture.interactive.beginClicks !== 0) {
       errors.push("title chrome keydown handled an interactive target");
     }
-    if (fixture.modified.handled || fixture.modified.prevented) {
+    if (fixture.modified.prevented || fixture.modified.beginClicks !== 0) {
       errors.push("title chrome keydown handled a modified Enter");
     }
   } catch (error) {
