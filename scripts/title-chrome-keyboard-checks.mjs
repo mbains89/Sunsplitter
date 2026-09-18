@@ -91,7 +91,13 @@ export function titleChromeKeyboardChecks(runtime) {
         prevented: interactiveEvent.prevented
       };
 
-      return { tone, title, commander, confirm, gameplay, interactive };
+      const modifiedEvent = keyEvent("Enter", { ctrlKey: true });
+      const modified = {
+        handled: handleTitleChromeKeydown(modifiedEvent),
+        prevented: modifiedEvent.prevented
+      };
+
+      return { tone, title, commander, confirm, gameplay, interactive, modified };
     })()`);
 
     if (!fixture.tone.handled || !fixture.tone.prevented || !fixture.tone.toneHidden || !fixture.tone.titleVisible) {
@@ -111,6 +117,9 @@ export function titleChromeKeyboardChecks(runtime) {
     }
     if (fixture.interactive.handled || fixture.interactive.prevented) {
       errors.push("title chrome keydown handled an interactive target");
+    }
+    if (fixture.modified.handled || fixture.modified.prevented) {
+      errors.push("title chrome keydown handled a modified Enter");
     }
   } catch (error) {
     errors.push(`title chrome keyboard runtime: ${error.message}`);
