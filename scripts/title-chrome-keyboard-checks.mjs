@@ -14,8 +14,11 @@ export function titleChromeKeyboardChecks(runtime) {
   if (!validateSource.includes('document.addEventListener("keydown", handleTitleChromeKeydown);')) {
     errors.push("validate.js missing title chrome keydown wiring");
   }
-  if (validateSource.length < 24000) {
-    errors.push(`validate.js truncated below expected size: ${validateSource.length}`);
+  if (!validateSource.includes("(function overlayNewRunConfirm()")) {
+    errors.push("validate.js lost the existing new-run overlay tail");
+  }
+  if (validateSource.indexOf("function handleTitleChromeKeydown(event)") <= validateSource.indexOf("(function overlayNewRunConfirm()")) {
+    errors.push("title chrome keydown was not appended after the existing validate.js tail");
   }
 
   try {
