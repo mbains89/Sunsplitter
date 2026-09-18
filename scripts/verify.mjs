@@ -48,6 +48,7 @@ import { openingBackstoryChecks } from "./opening-backstory-checks.mjs";
 import { artR2PlaytestCloseChecks } from "./art-r2-playtest-close-checks.mjs";
 import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.mjs";
 import { newRunChecks } from "./new-run-checks.mjs";
+import { titleChromeKeyboardChecks } from "./title-chrome-keyboard-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5289,6 +5290,10 @@ async function main() {
     const keyboardChoiceErrors = keyboardChoiceChecks(runtime);
     printCheck("0.32 keyboard choice controls", keyboardChoiceErrors);
     failures.push(...keyboardChoiceErrors);
+
+    const titleChromeKeyboardErrors = titleChromeKeyboardChecks(runtime);
+    printCheck("SUN_V036_KB_CHROME_01 title/tone Enter + Space keyboard chrome", titleChromeKeyboardErrors);
+    failures.push(...titleChromeKeyboardErrors);
 
     const screenTransitionScrollErrors = screenTransitionScrollChecks(runtime);
     printCheck("0.34 phone surface scroll reset", screenTransitionScrollErrors);
