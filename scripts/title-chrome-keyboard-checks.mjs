@@ -60,6 +60,23 @@ export function titleChromeKeyboardChecks(runtime) {
         beginClicks
       };
 
+      const resume = document.getElementById("btn-resume");
+      const originalResumeClick = resume.click;
+      let resumeClicks = 0;
+      resume.click = () => { resumeClicks += 1; };
+      beginClicks = 0;
+      resumeClicks = 0;
+      showTitleScreen();
+      resume.classList.remove("hidden");
+      const resumeEvent = dispatch(keyEvent("Enter"));
+      const resumePath = {
+        prevented: resumeEvent.prevented,
+        beginClicks,
+        resumeClicks
+      };
+      resume.classList.add("hidden");
+      resume.click = originalResumeClick;
+
       beginClicks = 0;
       showTitleScreen();
       showCommanderCreate();
@@ -112,7 +129,7 @@ export function titleChromeKeyboardChecks(runtime) {
 
       begin.click = originalClick;
 
-      return { tone, spacebarTone, title, space, commander, confirm, gameplay, interactive, modified };
+      return { tone, spacebarTone, title, space, resumePath, commander, confirm, gameplay, interactive, modified };
     })()`);
 
     if (!fixture.tone.prevented || !fixture.tone.toneHidden || !fixture.tone.titleVisible) {
@@ -126,6 +143,9 @@ export function titleChromeKeyboardChecks(runtime) {
     }
     if (!fixture.space.prevented || fixture.space.beginClicks !== 1) {
       errors.push("Space did not activate btn-begin on the title-screen");
+    }
+    if (!fixture.resumePath.prevented || fixture.resumePath.resumeClicks !== 1 || fixture.resumePath.beginClicks !== 0) {
+      errors.push("Enter did not activate btn-resume when Continue was visible");
     }
     if (fixture.commander.prevented || fixture.commander.beginClicks !== 0 || !fixture.commander.visible) {
       errors.push("title chrome keydown ignored commander-create guard");
