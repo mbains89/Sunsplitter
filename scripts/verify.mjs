@@ -5292,7 +5292,7 @@ async function main() {
     failures.push(...keyboardChoiceErrors);
 
     const titleChromeKeyboardErrors = titleChromeKeyboardChecks(runtime);
-    printCheck("SUN_V036_KB_CHROME_01 title/tone Enter + Space keyboard chrome", titleChromeKeyboardErrors);
+    printCheck("SUN-TITLE-KB-CHROME-01 title/tone Enter + Space keyboard chrome", titleChromeKeyboardErrors);
     failures.push(...titleChromeKeyboardErrors);
 
     const screenTransitionScrollErrors = screenTransitionScrollChecks(runtime);
