@@ -244,7 +244,42 @@ const sceneImages = {
   reckon_truth:    "images/observation_reckon.jpg",
   reckon_summary:  "images/observation_reckon.jpg",
   reckon_suppress: "images/observation_reckon.jpg",
-  final_choice:    "images/final_choice.jpg"
+  final_choice:    "images/final_choice.jpg",
+
+  // SUN-HITL-WIRE-01 — Muse 87-slot adds (Slot15 arc_future_2 HOLD omit)
+  observation_nightshift: "images/observation.jpg",
+  observation_nightshift_ask: "images/observation.jpg",
+  observation_nightshift_leave: "images/observation.jpg",
+  records_changeorders: "images/cascade_records.jpg",
+  records_changeorders_after: "images/cascade_records.jpg",
+  act3_lethal_mira_board: "images/quiet_mira.jpg",
+  act3_lethal_mira_reserve: "images/quiet_mira.jpg",
+  aftermath_seal: "images/corridor_variant.jpg",
+  aftermath_seal_order: "images/corridor_variant.jpg",
+  aftermath_seal_holds: "images/corridor_variant.jpg",
+  berths_manifest: "images/empty_berths.jpg",
+  prom_make_tomas: "images/quiet_tomas.jpg",
+  prom_r_tomas: "images/quiet_tomas.jpg",
+  prom_vent: "images/corridor_variant.jpg",
+  prom_vent_keep: "images/corridor_variant.jpg",
+  prom_vent_break: "images/corridor_variant.jpg",
+  prom_line: "images/medbay_dim.jpg",
+  prom_line_keep: "images/medbay_dim.jpg",
+  prom_line_break: "images/covered_body.jpg",
+  prom_direct: "images/power_crisis.jpg",
+  prom_direct_keep: "images/power_crisis.jpg",
+  prom_direct_break: "images/power_crisis.jpg",
+  prom_price: "images/vault_reveal.jpg",
+  prom_price_keep: "images/vault_reveal.jpg",
+  prom_price_break: "images/vault_reveal.jpg",
+  breath_word_given: "images/corridor_pressure_1.jpg",
+  breath_word_refused: "images/corridor_pressure_2.jpg",
+  breath_racks: "images/vault_interior_alt.jpg",
+  custody_onset: "images/custody_onset.jpg",
+  custody_thaw: "images/vault_interior_alt.jpg",
+  custody_severed: "images/mira_thermal_cut.jpg",
+  custody_shared: "images/observation_bridge_alt.jpg"
+
 };
 
 const STAT_CAPS = {
