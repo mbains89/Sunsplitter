@@ -5,12 +5,13 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const INTRO_SLIDE_ART = [
-  "images/cascade_records.jpg",
+  "images/empty_berths.jpg",
   "images/ship_exterior_2.jpg",
-  "images/arc_living_conflict.jpg"
+  "images/onboarding_background.jpg"
 ];
 
 // SUN-PLAYTEST-INTRO-BACK-ART-01 — Back on all 3 intro slides + in-tree slide art.
+// SUN-INTRO-SLIDE-ROSTER-HONESTY-01 — [0]/[2] roster-ambiguous bookends (no unrecovered faces / no baked ship name).
 export function playtestIntroBackArtChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
