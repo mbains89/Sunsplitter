@@ -738,6 +738,7 @@ body::before {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 40%;
+  display: none;
 }
 
 #ending-image-wrap {
