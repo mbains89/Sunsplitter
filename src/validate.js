@@ -305,7 +305,7 @@ function toggleSceneArtSize() {
   return wrap.classList.contains("minimized");
 }
 
-const INTRO_SLIDE_ART = ["images/cascade_records.jpg", "images/ship_exterior_2.jpg", "images/arc_living_conflict.jpg"];
+const INTRO_SLIDE_ART = ["images/empty_berths.jpg", "images/ship_exterior_2.jpg", "images/onboarding_background.jpg"];
 const INTRO_SLIDE_ALT = ["Records of Earth's cascade.", "The Sunsplitter colonization ark.", "The living already arguing what to save."];
 function introSlideArt(index) { return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0]; }
 function retreatCinematic() {
