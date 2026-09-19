@@ -181,7 +181,7 @@ const sceneImages = {
   act2_tether_sighting: "images/debris_field.jpg",
   act2_tether_vent:     "images/power_crisis.jpg",
   act2_tether_rush:     "images/tether_ride.jpg",
-  act2_tether_hand_elias: "images/self_risk.jpg",
+  act2_tether_hand_elias: "images/tether_ride.jpg",
   act2_tether_hand_mira:  "images/self_risk.jpg",
   act2_tether_hand_sela:  "images/self_risk.jpg",
   act2_tether_dock:     "images/bulkhead.jpg",
@@ -199,11 +199,11 @@ const sceneImages = {
   act3_vault_face:      "images/vault.jpg",
   act3_vault_face_read: "images/vault.jpg",
   act3_spine_next:      "images/corridor_variant_2.jpg",
-  act3_lethal_elias_order: "images/bond_elias.jpg",
+  act3_lethal_elias_order: "images/work_elias.jpg",
   act3_lethal_elias_sealant: "images/work_elias.jpg",
   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
-  vess_signal:          "images/transmission.jpg",
-  vess_cost:            "images/transmission.jpg",
+  vess_signal:          "images/vess_signal.jpg",
+  vess_cost:            "images/vess_signal.jpg",
   vess_boarding:        "images/vess_boarding.jpg",
   vess_offer:           "images/vess_offer.jpg",
   vess_transmission:    "images/vess_signal.jpg",
@@ -224,7 +224,7 @@ const sceneImages = {
   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
   romance_mira_1:      "images/quiet_mira.jpg",
   romance_amara_tomas: "images/romance_amara_tomas.jpg",
-  romance_lena_1:      "images/shower_lena.jpg",
+  romance_lena_1:      "images/observation_bridge_alt_2.jpg",
 
   // 0.22.1 explicit art utilization (one-shot aftermath variants)
   lena_shower:     "images/shower_lena.jpg",
@@ -279,6 +279,7 @@ const sceneImages = {
   custody_thaw: "images/vault_interior_alt.jpg",
   custody_severed: "images/mira_thermal_cut.jpg",
   custody_shared: "images/observation_bridge_alt.jpg"
+
 };
 
 const STAT_CAPS = {
