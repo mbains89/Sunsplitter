@@ -38,7 +38,7 @@ board. Face-revealing `romance_lena_1.jpg` / `romance_mira_1.jpg` /
 
 ## Byte pins
 
-Images tree unchanged: `de4c3687cf4c89309d3422505dba4b45a32adc7e`.
+Images tree unchanged: `aaa9cdc9a99ea8483aef15e9fd24a532972afebf`.
 
 | Plate | SHA-256 |
 |---|---|

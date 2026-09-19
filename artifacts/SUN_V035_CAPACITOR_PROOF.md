@@ -57,7 +57,7 @@ It does not invent a permanent mechanical drive/ending lockout: the existing
 - [x] Independent read-only review found no issues. In-memory old-label,
   changed-cost, redraw-only resume, repeated-charge and missing-Mira-guard
   mutants are rejected. The reviewer wrote no files.
-- [x] Existing art tree remains `de4c3687cf4c89309d3422505dba4b45a32adc7e`.
+- [x] Existing art tree remains `aaa9cdc9a99ea8483aef15e9fd24a532972afebf`.
   No authority, workflow, previous ticket or other-game edits.
 
 Four changed files: `src/scenes-42.js`, `scripts/capacitor-checks.mjs`,
