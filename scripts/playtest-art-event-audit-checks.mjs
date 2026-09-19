@@ -359,7 +359,7 @@ function runtimeErrors(runtime) {
     resetRunState();
     showCinematic("intro");
     if (!currentCinematic || currentCinematic.frames.length !== 3) errors.push("intro cinematic is not three slides");
-    const introPlates = ["images/cascade_records.jpg", "images/ship_exterior_2.jpg", "images/arc_living_conflict.jpg"];
+    const introPlates = ["images/empty_berths.jpg", "images/ship_exterior_2.jpg", "images/onboarding_background.jpg"];
     for (let i = 0; i < 3; i++) {
       const got = document.getElementById("cinematic-image").__ssManagedSource;
       if (got !== introPlates[i]) errors.push("intro slide " + (i + 1) + " art is " + (got || "missing") + "; expected " + introPlates[i]);
