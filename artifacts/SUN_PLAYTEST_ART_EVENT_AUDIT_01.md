@@ -100,7 +100,7 @@ does not unwire them as a campaign.
 | `cinematic:intro` frame 2 | `images/onboarding_background.jpg` | **NEEDS_GROK_PLATE** | Unique plate. Prose: colonization ark built for thousands; nine cleared the hatch. |
 | `cinematic:intro` frame 3 | `images/onboarding_background.jpg` | **NEEDS_GROK_PLATE** | Unique plate. Prose: faceless Commander; damaged ship; living already arguing what to save. |
 
-Images tree unchanged: `de4c3687cf4c89309d3422505dba4b45a32adc7e`. No new JPEG bytes.
+Images tree unchanged: `aaa9cdc9a99ea8483aef15e9fd24a532972afebf`. No new JPEG bytes.
 
 ## In-tree retarget (this PR)
 
