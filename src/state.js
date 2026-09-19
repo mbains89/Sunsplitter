@@ -101,7 +101,7 @@ const sceneImages = {
   bond_elias:       "images/bond_elias.jpg",
   bond_tomas:       "images/bond_tomas.jpg",
   bond_jiro:        "images/bond_jiro.jpg",
-  competence_watch: "images/observation_bridge_alt.jpg",
+  competence_watch: "images/competence_watch.jpg",
   crew_walk:       "images/corridor_pressure_4.jpg",
   lead_prompt:     "images/lead_prompt.jpg",
   lead_together:   "images/observation_bridge_alt.jpg",
