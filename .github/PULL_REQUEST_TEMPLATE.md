@@ -20,7 +20,7 @@ GOAL CHECKS:
 - [ ] check 3 — evidence:
 
 VERSION PAINT:
-VERSION LOCK: lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 HOLD
+VERSION LOCK: lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT
 
 RECEIPT:
 - PR:
@@ -51,7 +51,7 @@ Then stop. Do not start the next ticket.
 
 ## Prohibitions
 
-- No 0.36
+- No 0.36 OPEN product (paint already exists; do not mint / certify / publish)
 - No Netlify
 - No certify
 - No squash / tag / deploy / clone-as-proof
