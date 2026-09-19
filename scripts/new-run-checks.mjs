@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { titleChromeKeyboardChecks } from "./title-chrome-keyboard-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -197,5 +198,6 @@ export function newRunChecks(runtime) {
       !fixture.legacyAccept.legacyRetired || !fixture.legacyAccept.currentFresh || fixture.legacyAccept.staleResurrected) {
     errors.push("accepted legacy New Run did not retire the stale slot and preserve only a fresh campaign");
   }
+  errors.push(...titleChromeKeyboardChecks(runtime));
   return errors;
 }
