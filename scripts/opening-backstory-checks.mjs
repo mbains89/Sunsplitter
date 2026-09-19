@@ -31,9 +31,9 @@ const EXISTING_INTRO_LINES = [
 ];
 const EXISTING_PLATE = "images/onboarding_background.jpg";
 const INTRO_SLIDE_ART = [
-  "images/cascade_records.jpg",
+  "images/empty_berths.jpg",
   "images/ship_exterior_2.jpg",
-  "images/arc_living_conflict.jpg"
+  "images/onboarding_background.jpg"
 ];
 const EXISTING_WAKE_OFFICIAL = "Nine of you cleared the hatch. The official story is that the cascade gave you hours, maybe two days.";
 const INVENTED_OPENING = [
