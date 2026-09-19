@@ -1,1 +1,1 @@
-PLACEHOLDER_WILL_REPLACE
+@file:///workspace/feeds/state.js.HITL_WIRED
