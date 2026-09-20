@@ -247,7 +247,7 @@ const sceneImages = {
   final_choice:    "images/final_choice.jpg",
 
   // SUN-HITL-WIRE-01 — Muse 87-slot adds (Slot15 arc_future_2 HOLD omit)
-  observation_nightshift: "images/observation.jpg",
+  observation_nightshift: "images/observation_nightshift.jpg",
   observation_nightshift_ask: "images/observation.jpg",
   observation_nightshift_leave: "images/observation.jpg",
   records_changeorders: "images/cascade_records.jpg",
