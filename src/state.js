@@ -194,7 +194,7 @@ const sceneImages = {
   act3_reckoning_burn_stale: "images/power_crisis.jpg",
   act3_reckoning_burn_verified: "images/power_crisis.jpg",
   act3_reckoning_delay: "images/observation_bridge.jpg",
-  act3_reckoning_cut:   "images/cut_out.jpg",
+  act3_reckoning_cut:   "images/act3_reckoning_cut.jpg",
   act3_reckoning_briefing: "images/cascade_records.jpg",
   act3_vault_face:      "images/vault.jpg",
   act3_vault_face_read: "images/vault.jpg",
