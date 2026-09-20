@@ -129,7 +129,7 @@ const sceneImages = {
   arc_fork:         "images/observation_reckon.jpg",
   arc_future_1:     "images/power_stress_2.jpg",
   arc_future_2:     "images/vault_interior_alt.jpg",
-  arc_future_3:     "images/cascade_records.jpg",
+  arc_future_3:     "images/arc_future_3.jpg",
   arc_future_4:     "images/abandoned_section.jpg",
   arc_living_1:     "images/hydroponics.jpg",
   arc_living_2:     "images/sela_ritual.jpg",
