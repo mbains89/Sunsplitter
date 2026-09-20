@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const IMAGES_TREE = "5cc81a2d691164fe1f1aef24ecb036bf61a2fae0";
+const IMAGES_TREE = "6dcffb5aabe456a0ce37d90594a316f26161b29e";
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
@@ -359,7 +359,7 @@ function runtimeErrors(runtime) {
     resetRunState();
     showCinematic("intro");
     if (!currentCinematic || currentCinematic.frames.length !== 3) errors.push("intro cinematic is not three slides");
-    const introPlates = ["images/cascade_records.jpg", "images/ship_exterior_2.jpg", "images/arc_living_conflict.jpg"];
+    const introPlates = ["images/empty_berths.jpg", "images/ship_exterior_2.jpg", "images/onboarding_background.jpg"];
     for (let i = 0; i < 3; i++) {
       const got = document.getElementById("cinematic-image").__ssManagedSource;
       if (got !== introPlates[i]) errors.push("intro slide " + (i + 1) + " art is " + (got || "missing") + "; expected " + introPlates[i]);

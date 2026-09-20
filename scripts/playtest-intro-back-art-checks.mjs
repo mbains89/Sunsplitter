@@ -5,9 +5,14 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const INTRO_SLIDE_ART = [
-  "images/cascade_records.jpg",
+  "images/empty_berths.jpg",
   "images/ship_exterior_2.jpg",
-  "images/arc_living_conflict.jpg"
+  "images/onboarding_background.jpg"
+];
+const FORBIDDEN_INTRO_SLIDE_ART = [
+  "images/cascade_records.jpg",
+  "images/arc_living_conflict.jpg",
+  "images/observation.jpg"
 ];
 
 // SUN-PLAYTEST-INTRO-BACK-ART-01 — Back on all 3 intro slides + in-tree slide art.
@@ -34,6 +39,15 @@ export function playtestIntroBackArtChecks(runtime) {
     if (!existsSync(resolve(ROOT, plate))) errors.push(`intro plate missing from tree: ${plate}`);
   }
   if (new Set(INTRO_SLIDE_ART).size !== 3) errors.push("intro slides do not have unique in-tree plates");
+  const artDecl = runtimeSource.match(/const INTRO_SLIDE_ART\s*=\s*\[([\s\S]*?)\]/);
+  if (artDecl) {
+    for (const plate of FORBIDDEN_INTRO_SLIDE_ART) {
+      if (artDecl[1].includes(plate)) errors.push(`INTRO_SLIDE_ART still names forbidden plate ${plate}`);
+    }
+  }
+  for (const plate of FORBIDDEN_INTRO_SLIDE_ART) {
+    if (INTRO_SLIDE_ART.includes(plate)) errors.push(`intro harness still expects forbidden plate ${plate}`);
+  }
   try {
     const fixture = runtime.evaluate(`(() => {
       localStorage.clear();
