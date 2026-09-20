@@ -179,7 +179,7 @@ const sceneImages = {
   debt_notice:      "images/corridor_pressure_4.jpg",
   // 0.23 recoveries + vault face (reuse closest plates; dedicated art later)
   act2_tether_sighting: "images/debris_field.jpg",
-  act2_tether_vent:     "images/power_crisis.jpg",
+  act2_tether_vent:     "images/annex_water_vent.jpg",
   act2_tether_rush:     "images/tether_ride.jpg",
   act2_tether_hand_elias: "images/tether_ride.jpg",
   act2_tether_hand_mira:  "images/self_risk.jpg",
