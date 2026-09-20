@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════
   // SCENE_IDS: aftermath_seal, aftermath_seal_order, aftermath_seal_holds
   // VERSION: 0.29        TICKET: Cascade Allusive 6/6
   // PACKAGE: Eighty Seconds
@@ -15,7 +15,7 @@ registerScenes({
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("elias")
   // IMAGE: REUSE images/corridor_variant.jpg; NO ART_REQUEST
   // PHRASE: spends "Standing question." once, here
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════
 
   aftermath_seal: {
     image: "images/corridor_variant.jpg",
@@ -85,6 +85,17 @@ registerScenes({
       if (shape === "future") t += `The ship has leaned Future. The cold is policy now.\n\n`;
       else if (shape === "living") t += `The ship has leaned Living. The warmth has a permanent cost on the screens.\n\n`;
       else t += `Neither side owns the ship. The argument is still live.\n\n`;
+
+      // SUN-MIDGAME-DELAYED-CONSEQUENCE-01: pay unused changeorders write from records_changeorders.
+      if (state.flags.changeorders === "logged") {
+        t += isAlive("mira")
+          ? `Mira does not reopen the commissioning log. She does not have to. Change orders 4417 and 4491 are already on the same line as the cascade hours. Someone quotes the empty justification field as if it were doctrine.\n\n`
+          : `The logged change orders surface without Mira. Empty justification fields, read aloud like a charge sheet.\n\n`;
+      } else if (state.flags.changeorders === "buried") {
+        t += isAlive("mira")
+          ? `Mira's log is still not quite closed. The unsigned pages did not enter the record. The crew argues the schedule anyway — they just cannot point at the gap she showed you.\n\n`
+          : `Someone asks why the boarding window moved. No one can produce the page. You left it out.\n\n`;
+      }
 
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) {
