@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const IMAGES_TREE = "c75e8eed1a5685b6d6b147903e23934a6a9d501b";
+const IMAGES_TREE = "a8e808a05ed45794158a2406dbda4a0b12d620c9";
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
