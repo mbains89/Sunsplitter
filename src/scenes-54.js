@@ -55,7 +55,7 @@ registerScenes({
     },
     text: () => {
       let t = `Outer racks are stripped. Sterile filters and cryogenic reserves move into the air loop. The biofilm dies back.\n\n`;
-      t += `Fourteen thousand and six becomes a smaller number. The uncompromised-vault claim is closed.`;
+      t += `One hundred forty thousand and six becomes a smaller number. The uncompromised-vault claim is closed.`;
       return t;
     },
     choices: [ { text: "Accept the count and move on.", next: "breath_after" } ]
