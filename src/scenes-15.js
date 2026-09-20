@@ -100,7 +100,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
 
 "E-6103. Female. Donor pair deceased, Jakarta arcology. Name field completed at deposit: Noor."
 
-She looks up. "Most of the name fields are empty. The parents left the naming to whoever will raise them. Some could not bear to choose. This pair could not bear not to." Her finger rests beside the line, not on it. "I read one entry aloud each day. There are fourteen thousand and six. I will not finish. That is not the point. The point is that each one I reach has been said once, out loud, by a living voice, inside the ship that carries her."`;
+She looks up. "Most of the name fields are empty. The parents left the naming to whoever will raise them. Some could not bear to choose. This pair could not bear not to." Her finger rests beside the line, not on it. "I read one entry aloud each day. There are one hundred forty thousand and six. I will not finish. That is not the point. The point is that each one I reach has been said once, out loud, by a living voice, inside the ship that carries her."`;
       } else if (isAlive("elias")) {
         t += `\n\nElias is at the manifest terminal. He doesn't startle, because he heard you thirty meters ago.
 
@@ -108,7 +108,7 @@ She looks up. "Most of the name fields are empty. The parents left the naming to
 
 He sets the tablet down flat. "I count exits. My whole life. These don't have any yet. Somebody should still be counting them."`;
       } else {
-        t += `\n\nThe terminal is dark and no one is here to read it, so you read it yourself, for the first time — the manifest, entry by entry, fourteen thousand and six lines of the argument the vault has never once made out loud.
+        t += `\n\nThe terminal is dark and no one is here to read it, so you read it yourself, for the first time — the manifest, entry by entry, one hundred forty thousand and six lines of the argument the vault has never once made out loud.
 
 Most of the name fields are empty. At E-6103 one isn't. Female. Donor pair deceased, Jakarta arcology. Name field completed at deposit: Noor. Two people on a dying planet filled in a form for a person who does not exist yet, and could not bear to leave that line blank.
 
