@@ -1,5 +1,9 @@
 # Sunsplitter — Art Requests
 
+## SUN-ART-PLATE-LOOP-01 — pointer
+
+`docs/SUN_ART_PLATE_LOOP_01.md` dispatches `romance_lena_1` only.
+
 ## SUN-PLAYTEST-ART-EVENT-AUDIT-01 — Grok briefs + one retarget (2026-09-04)
 
 Owner standing brief rule, closed event→image table, and Grok stubs:
