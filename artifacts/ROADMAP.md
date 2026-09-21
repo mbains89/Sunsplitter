@@ -1,11 +1,11 @@
 # Sunsplitter — Official Enforceable Roadmap
 
-`SOURCE main@8d23109b · RUNTIME d5595335 · TASK SUN-ROADMAP-TIP-SYNC-04 · MODE proposal`
+`SOURCE main@8d23109b · RUNTIME c3626434add931b4a8e164febb5c1c7b46bf9471 · TASK SUN-ROADMAP-TIP-SYNC-04 · MODE proposal`
 
 **Acting role:** Grok / program office. Planning only.
 **Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
-**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@d55953353bc25d131c1acb6f01bf1d82b771af95` (after PR#245 tip-sync-03).
+**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
 **Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
 **Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
 
