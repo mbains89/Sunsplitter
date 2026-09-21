@@ -260,7 +260,7 @@ const sceneImages = {
   berths_manifest: "images/empty_berths.jpg",
   prom_make_tomas: "images/quiet_tomas.jpg",
   prom_r_tomas: "images/quiet_tomas.jpg",
-  prom_vent: "images/corridor_variant.jpg",
+  prom_vent: "images/prom_vent.jpg",
   prom_vent_keep: "images/corridor_variant.jpg",
   prom_vent_break: "images/corridor_variant.jpg",
   prom_line: "images/medbay_dim.jpg",
