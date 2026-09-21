@@ -274,11 +274,11 @@ const sceneImages = {
   prom_price_break: "images/vault_reveal.jpg",
   breath_word_given: "images/corridor_pressure_1.jpg",
   breath_word_refused: "images/corridor_pressure_2.jpg",
-  breath_racks: "images/vault_interior_alt.jpg",
+  breath_racks: "images/breath_racks.jpg",
   custody_onset: "images/custody_onset.jpg",
-  custody_thaw: "images/vault_interior_alt.jpg",
+  custody_thaw: "images/custody_thaw.jpg",
   custody_severed: "images/mira_thermal_cut.jpg",
-  custody_shared: "images/observation_bridge_alt.jpg"
+  custody_shared: "images/custody_shared.jpg"
 
 };
 
