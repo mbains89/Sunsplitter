@@ -451,9 +451,21 @@ function visibleCrewKeys() {
   });
 }
 
+function visibleLivingCrewCountFrom(dead, recovered) {
+  // Snapshot roster only. Callers painting a stored save must not read live state.
+  const deadList = Array.isArray(dead) ? dead : [];
+  const rec = recovered && typeof recovered === "object" ? recovered : {};
+  return CREW_ORDER.filter(k => {
+    if (!crew[k]) return false;
+    const gone = deadList.includes(k);
+    if (k === "tomas" || k === "jiro" || k === "vess") return !!rec[k] && !gone;
+    return !gone;
+  }).length;
+}
+
 function visibleLivingCrewCount() {
   // HUD Crew number: living names the player can actually tap, not state.survivors.
-  return visibleCrewKeys().filter(isAlive).length;
+  return visibleLivingCrewCountFrom(state.dead, state.recovered);
 }
 
 
