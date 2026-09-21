@@ -7,3 +7,7 @@ Canon PASS v2 quiet_mira hex `5340014778cbd7d2`.
 - custody_severed still REJECT / HOLD
 - parent: `0859a42b0c5de88bda7214166a0a6e62cba96cd9`
 - IMAGES_TREE: `a58713bbef5c1bf36cb3755a0d2f29e014465c5d`
+
+
+## Lock retarget
+Updated locked sha256 `27518fd30d22c578…` → `ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d` in verify + art-r2 close + event-audit.
