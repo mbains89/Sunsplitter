@@ -48,6 +48,7 @@ import { openingBackstoryChecks } from "./opening-backstory-checks.mjs";
 import { artR2PlaytestCloseChecks } from "./art-r2-playtest-close-checks.mjs";
 import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.mjs";
 import { newRunChecks } from "./new-run-checks.mjs";
+import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5249,6 +5250,10 @@ async function main() {
     const finalOrderErrors = finalOrderEndingChecks(runtime);
     printCheck("final-order consequence in all ending families", finalOrderErrors);
     failures.push(...finalOrderErrors);
+
+    const stillBurningCorridorErrors = stillBurningCorridorChecks(runtime);
+    printCheck("course_briefed Still Burning corridor citation", stillBurningCorridorErrors);
+    failures.push(...stillBurningCorridorErrors);
 
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
