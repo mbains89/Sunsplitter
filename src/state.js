@@ -262,7 +262,7 @@ const sceneImages = {
   prom_r_tomas: "images/prom_make_tomas.jpg",
   prom_vent: "images/prom_vent.jpg",
   prom_vent_keep: "images/prom_vent_keep.jpg",
-  prom_vent_break: "images/corridor_variant.jpg",
+  prom_vent_break: "images/prom_vent_break.jpg",
   prom_line: "images/prom_line.jpg",
   prom_line_keep: "images/medbay_dim.jpg",
   prom_line_break: "images/covered_body.jpg",
