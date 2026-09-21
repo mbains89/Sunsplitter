@@ -440,6 +440,31 @@ function crewOverviewChecks(runtime) {
   return errors;
 }
 
+function titleContinueCrewCountChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    localStorage.clear();
+    resetRunState();
+    showScene("wake");
+    persistSave({ silent: true });
+    kill("rourke", "title-chip fixture");
+    persistSave({ silent: true });
+    showScreen("title");
+    refreshTitleResumeUI();
+    const resumeMeta = document.getElementById("resume-meta");
+    return {
+      visibleLiving: visibleLivingCrewCount(),
+      survivors: state.survivors,
+      resumeMeta: resumeMeta ? resumeMeta.textContent : ""
+    };
+  })()`);
+  if (fixture.visibleLiving !== 5) errors.push(`title Continue fixture expected visibleLivingCrewCount() === 5, got ${fixture.visibleLiving}`);
+  if (fixture.survivors !== 8) errors.push(`title Continue fixture expected state.survivors === 8, got ${fixture.survivors}`);
+  if (/\b8 alive\b/.test(fixture.resumeMeta)) errors.push(`title Continue chip falsely reports mechanical survivors: ${JSON.stringify(fixture.resumeMeta)}`);
+  if (!/\b5 alive\b/.test(fixture.resumeMeta)) errors.push(`title Continue chip did not report visible living crew count: ${JSON.stringify(fixture.resumeMeta)}`);
+  return errors;
+}
+
 function accessibilityRuntimeChecks(runtime) {
   const errors = [];
   const fixture = runtime.evaluate(`(() => {
@@ -5322,6 +5347,10 @@ async function main() {
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);
     failures.push(...crewOverviewErrors);
+
+    const titleContinueCrewCountErrors = titleContinueCrewCountChecks(runtime);
+    printCheck("SUN-TITLE-CONTINUE-CREW-COUNT-01 title Continue visible crew count", titleContinueCrewCountErrors);
+    failures.push(...titleContinueCrewCountErrors);
 
     const performanceRuntimeErrors = performanceRuntimeChecks(runtime);
     printCheck("0.34 image residency + background resume runtime", performanceRuntimeErrors);

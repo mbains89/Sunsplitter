@@ -1689,6 +1689,27 @@ function hasSave() {
   return validRawSnapshot(readRawSave());
 }
 
+function visibleLivingCrewCountFromSnapshot(data) {
+  // Title Continue chip: same roster honesty as HUD visibleLivingCrewCount(),
+  // computed from the save snapshot so title-screen live state is not required.
+  // Unrecovered Tomas/Jiro/Vess are missing, not alive. Commander is not crew.
+  if (!data) return null;
+  const dead = Array.isArray(data.dead) ? data.dead : [];
+  const recovered = (data.recovered && typeof data.recovered === "object") ? data.recovered : {};
+  const keys = (typeof CREW_ORDER !== "undefined" && Array.isArray(CREW_ORDER))
+    ? CREW_ORDER
+    : ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess", "rourke"];
+  let n = 0;
+  for (const k of keys) {
+    if (k === "tomas" || k === "jiro" || k === "vess") {
+      if (recovered[k] && dead.indexOf(k) === -1) n += 1;
+    } else if (dead.indexOf(k) === -1) {
+      n += 1;
+    }
+  }
+  return n;
+}
+
 function getSaveMeta() {
   const raw = readRawSave();
   if (!raw) return null;
@@ -1699,7 +1720,8 @@ function getSaveMeta() {
       scene: data.scene,
       savedAt: data.savedAt || 0,
       survivors: data.survivors,
-      deadCount: Array.isArray(data.dead) ? data.dead.length : 0
+      deadCount: Array.isArray(data.dead) ? data.dead.length : 0,
+      livingCount: visibleLivingCrewCountFromSnapshot(data)
     };
   } catch (e) {
     return null;
@@ -1947,11 +1969,12 @@ function refreshTitleResumeUI() {
       const m = getSaveMeta();
       const scene = m && m.scene ? m.scene : "run";
       const dead = m && m.deadCount ? m.deadCount + " lost" : "intact";
+      const living = (m && m.livingCount != null) ? m.livingCount : null;
       const when = m && m.savedAt ? new Date(m.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
       const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
       resumeMeta.textContent =
         (paint ? "v" + paint + " · " : "") +
-        (m && m.survivors != null ? m.survivors + " alive · " : "") +
+        (living != null ? living + " alive · " : "") +
         dead +
         (when ? " · " + when : "");
       resumeMeta.classList.remove("hidden");
