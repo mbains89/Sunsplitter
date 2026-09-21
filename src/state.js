@@ -184,7 +184,7 @@ const sceneImages = {
   act2_tether_hand_elias: "images/tether_ride.jpg",
   act2_tether_hand_mira:  "images/self_risk.jpg",
   act2_tether_hand_sela:  "images/self_risk.jpg",
-  act2_tether_dock:     "images/bulkhead.jpg",
+  act2_tether_dock:     "images/act2_tether_dock.jpg",
   act2_tether_manifest: "images/medbay_dim.jpg",
   act2_tether_truth:    "images/act2_tether_truth.jpg",
   act2_tether_lie:      "images/act2_tether_lie.jpg",
