@@ -189,7 +189,7 @@ const sceneImages = {
   act2_tether_truth:    "images/act2_tether_truth.jpg",
   act2_tether_lie:      "images/act2_tether_lie.jpg",
   act2_spine_next:      "images/corridor.jpg",
-  act3_reckoning_pattern: "images/observation_bridge_alt.jpg",
+  act3_reckoning_pattern: "images/act3_reckoning_pattern.jpg",
   act3_reckoning_heading: "images/observation_bridge.jpg",
   act3_reckoning_burn_stale: "images/power_crisis.jpg",
   act3_reckoning_burn_verified: "images/power_crisis.jpg",
