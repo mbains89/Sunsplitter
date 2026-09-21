@@ -1025,6 +1025,10 @@ function resolveSceneImage(id, scene) {
   if (["act2_tether_hand_elias", "act2_tether_hand_mira", "act2_tether_hand_sela"].includes(id)) {
     return isAlive(id.slice("act2_tether_hand_".length)) ? "images/tether_ride.jpg" : "images/corridor_pressure_3.jpg";
   }
+  // Hard-catch sibling plate (Canon PASS); intact dock plate still HOLD — default map stays bulkhead.
+  if (id === "act2_tether_dock" && state.flags && state.flags.trays_dead) {
+    return "images/tether_dock_ruined.jpg";
+  }
   // Preserve the previously repaired live yellow-mark plate, but not a dead artist.
   if (id === "arc_living_2" && !isAlive("sela")) return "images/corridor_pressure_3.jpg";
 
