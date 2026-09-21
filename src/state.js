@@ -148,7 +148,7 @@ const sceneImages = {
   offshift_elias:      "images/elias.jpg",
   offshift_mira:       "images/quiet_mira.jpg",
   offshift_tomas:      "images/quiet_tomas.jpg",
-  offshift_tomas_r:    "images/quiet_tomas.jpg",
+  offshift_tomas_r:    "images/offshift_tomas_r.jpg",
   offshift_amara:      "images/quiet_amara.jpg",
   offshift_jiro:       "images/jiro.jpg",
   offshift_sela:       "images/sela_ritual.jpg",
