@@ -1,13 +1,13 @@
-# Sunsplitter ticket queue — tip honesty after #301+#302
+# Sunsplitter ticket queue — tip honesty after PR #345 Still Burning
 
-SOURCE lane@212ee85d6a65 · TASK SUN-DOCS-TIP-HONESTY-01 · MODE docs
+SOURCE lane@c3626434add931b4a8e164febb5c1c7b46bf9471 · TASK SUN-DOCS-TIP-HONESTY-02 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint PRs 107–302, touch Netlify, certify, or start gameplay.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `212ee85d6a6579c20290b78379c4205f80842816`
-(PR **#302** merge tip). `VERSION.md` first line on lane is `0.36`
-(existing PAINT). Last certified remains `0.28.1d`.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `c3626434add931b4a8e164febb5c1c7b46bf9471`
+(PR **#345** Still Burning merge tip). `VERSION.md` first line on lane is `0.36`
+(existing PAINT, not OPEN). Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
@@ -17,7 +17,7 @@ That is not the lock-suffix word. See `docs/SUN_DOCS_TIP_HONESTY_01.md`.
 Pack labels `0.30.2` / `0.30.3` / `0.30.4` stay **planning ids**.
 They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
 
-Tip packet: `docs/SUN_DOCS_TIP_HONESTY_01.md`.
+Tip packet: `docs/SUN_DOCS_TIP_HONESTY_02.md`. Prior receipt `docs/SUN_DOCS_TIP_HONESTY_01.md` stays historical (tip `9788ce10` / PR #333).
 Historical restock packet: `docs/SUN_PREP_RESTOCK_01.md` (tip `2c49176c`).
 Paste-ready /goals: `docs/SUN_ROADMAP_NEXT_PACKS_01.md` (FEED 2 ADD-KEYS-A is
 ALREADY_SATISFIED; do not fire that stub).
@@ -40,7 +40,7 @@ ALREADY_SATISFIED; do not fire that stub).
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `212ee85d6a65` after PR **#302**. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `c3626434add931b4a8e164febb5c1c7b46bf9471` after PR **#345** Still Burning. |
 | PR **#302** `SUN-INTRO-SLIDE-ROSTER-HONESTY-01` | Merged. Roster-ambiguous intro plates. |
 | PR **#301** `SUN-ARC-LIVING-3-WIRE-01` | Merged. `arc_living_conflict.jpg`. |
 | PR **#298** `SUN-DAMAGE-CAUSE-PROPOSAL-01` | Merged. Paper only. Owner lock still OPEN. |
@@ -97,7 +97,7 @@ Playtest UI leftovers 5–9. Lane receipts exist (PRs 150/152/154/155/156/226/22
 
 ## Pack 0.30.3 — ALREADY_SATISFIED (do not remint)
 
-Recorded in `docs/SUN_V036_PACK_NEXT_10.md` at an earlier tip; still true at `212ee85d6a65`.
+Recorded in `docs/SUN_V036_PACK_NEXT_10.md` at an earlier tip; still true at live tip `c3626434add931b4a8e164febb5c1c7b46bf9471`.
 
 | Ticket | Verdict |
 |---|---|

@@ -8,7 +8,7 @@
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 55143745f12ed716a54b8f13580d71679cca260f`
+`version_lane_sha: c3626434add931b4a8e164febb5c1c7b46bf9471`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 55143745 — LANDED ON VERSION LANE after PR 247; not SHIPPED; not CERTIFIED`
+`version_lane_head: c3626434add931b4a8e164febb5c1c7b46bf9471 — LANDED ON VERSION LANE after PR #345 Still Burning; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -52,10 +52,12 @@ Docs/status only. Records owner OPEN 2026-09-16 art HITL lock of `artifacts/SUN_
 | `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. |
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and `scripts/fixtures/main-reconcile-ci-pr-baseline.json`. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `55143745f12ed716a54b8f13580d71679cca260f` | LANDED ON VERSION LANE only. After PR 247. |
+| Lane `HEAD` | `c3626434add931b4a8e164febb5c1c7b46bf9471` | LANDED ON VERSION LANE only. After PR #345 Still Burning. |
 | Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only. Lane `src` may differ from the main src pin; the src-equality gate applies only to the original main-reconcile ticket route.
+
+Live lane tip cite: `c3626434add931b4a8e164febb5c1c7b46bf9471` after PR #345 Still Burning (`SUN-STILL-BURNING-CORRIDOR-01`). Receipt: `docs/SUN_DOCS_TIP_HONESTY_02.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Style-bible lock pin `55143745` and the PR 247 row below are historical, not the live tip. `0.36` stays PAINT, not OPEN.
 
 Proof note: `artifacts/SUN_VERIFY_MAIN_POSTURE_LANE_01.md` remains the earlier posture proof. This ticket does not remint that identity.
 
