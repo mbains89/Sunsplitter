@@ -1699,7 +1699,8 @@ function getSaveMeta() {
       scene: data.scene,
       savedAt: data.savedAt || 0,
       survivors: data.survivors,
-      deadCount: Array.isArray(data.dead) ? data.dead.length : 0
+      deadCount: Array.isArray(data.dead) ? data.dead.length : 0,
+      livingCrew: visibleLivingCrewCountFrom(data.dead, data.recovered)
     };
   } catch (e) {
     return null;
@@ -1951,7 +1952,7 @@ function refreshTitleResumeUI() {
       const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
       resumeMeta.textContent =
         (paint ? "v" + paint + " · " : "") +
-        (m && m.survivors != null ? m.survivors + " alive · " : "") +
+        (m && m.livingCrew != null ? m.livingCrew + " alive · " : "") +
         dead +
         (when ? " · " + when : "");
       resumeMeta.classList.remove("hidden");

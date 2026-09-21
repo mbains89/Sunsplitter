@@ -5165,6 +5165,183 @@ function runSelfTest() {
   console.log(`PASS verify self-test — ${cases.length} corruption, manifest, load-order, validator, and version-drift negatives rejected`);
 }
 
+function titleContinueCrewCountChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const paint = () => {
+      refreshTitleResumeUI();
+      const meta = document.getElementById("resume-meta");
+      const resume = document.getElementById("btn-resume");
+      const chip = document.getElementById("title-save-chip");
+      const hint = document.getElementById("save-hint");
+      const begin = document.getElementById("btn-begin");
+      const extra = ["export-import-chip", "new-run-confirm-copy", "new-run-confirm-chip"]
+        .map(id => {
+          const el = document.getElementById(id);
+          return el ? String(el.textContent || "") : "";
+        });
+      return {
+        meta: meta ? String(meta.textContent || "") : "",
+        metaHidden: !!(meta && meta.classList.contains("hidden")),
+        metaPaint: meta ? meta.getAttribute("data-paint") : null,
+        resumeHidden: !!(resume && resume.classList.contains("hidden")),
+        resumeText: resume ? String(resume.textContent || "") : "",
+        chip: chip ? String(chip.textContent || "") : "",
+        chipHidden: !!(chip && chip.classList.contains("hidden")),
+        hint: hint ? String(hint.textContent || "") : "",
+        begin: begin ? String(begin.textContent || "") : "",
+        extra
+      };
+    };
+    const stored = () => {
+      const raw = readRawSave();
+      const data = raw ? JSON.parse(raw) : null;
+      return {
+        raw,
+        survivors: data ? data.survivors : null,
+        dead: data && Array.isArray(data.dead) ? data.dead.slice() : [],
+        recovered: data && data.recovered ? Object.assign({}, data.recovered) : {}
+      };
+    };
+    const diverge = () => {
+      state.survivors = 1;
+      state.dead = CREW_ORDER.slice();
+      state.recovered = { tomas: true, jiro: true, vess: true };
+    };
+    const loadHud = () => {
+      const ok = loadGame();
+      return {
+        ok,
+        hud: String(document.getElementById("stat-survivors").textContent),
+        resource: state.survivors
+      };
+    };
+    const drive = (mutate) => {
+      localStorage.clear();
+      resetRunState();
+      if (mutate) mutate();
+      const resource = state.survivors;
+      persistSave({ silent: true });
+      const snap = stored();
+      const painted = paint();
+      const raw = snap.raw;
+      diverge();
+      const diverged = paint();
+      const rawHeld = readRawSave() === raw;
+      const loaded = loadHud();
+      return { resource, snap, painted, diverged, rawHeld, loaded };
+    };
+
+    localStorage.clear();
+    resetRunState();
+    const empty = paint();
+    const freshResource = state.survivors;
+    const rosterLength = CREW_ORDER.length;
+    const version = typeof VERSION === "undefined" ? "" : String(VERSION);
+
+    const wake = drive();
+    const death = drive(() => { kill("lena", "visible death fixture"); });
+    const recovery = drive(() => { scenes.act2_tether_dock.onEnter(); });
+
+    clearSave();
+    const cleared = paint();
+    localStorage.clear();
+    resetRunState();
+    return { empty, cleared, freshResource, rosterLength, version, wake, death, recovery };
+  })()`);
+
+  const aliveCount = (text) => {
+    const matches = String(text ?? "").match(/\d+\s+alive/g) || [];
+    if (matches.length !== 1) return null;
+    return matches[0].match(/\d+/)[0];
+  };
+  const hiddenSlot = (label, row) => {
+    if (!row.resumeHidden || !row.metaHidden) errors.push(`${label}: Continue control still visible`);
+    if (row.meta) errors.push(`${label}: #resume-meta still shows ${JSON.stringify(row.meta)}`);
+    if (aliveCount(row.meta) != null || aliveCount(row.chip) != null || aliveCount(row.hint) != null) {
+      errors.push(`${label}: crew count is still shown`);
+    }
+    if (row.begin !== "Begin") errors.push(`${label}: Begin label is ${JSON.stringify(row.begin)}`);
+  };
+  const adjacentClean = (label, row, resource, roster) => {
+    const blobs = [row.chip, row.hint, row.resumeText, row.begin, ...(row.extra || [])];
+    for (const blob of blobs) {
+      if (/\d+\s+alive/.test(blob) || blob.includes(`${resource} alive`) || blob.includes(`${roster} alive`)) {
+        errors.push(`${label}: continue-adjacent status presents a crew count (${JSON.stringify(blob)})`);
+      }
+    }
+  };
+  const assertCase = (label, row, { moves, direction, lost }) => {
+    const count = aliveCount(row.painted.meta);
+    const diverged = aliveCount(row.diverged.meta);
+    const hud = String(row.loaded.hud);
+    const survivors = row.snap.survivors;
+    if (!row.loaded.ok) errors.push(`${label}: load failed`);
+    if (count == null) errors.push(`${label}: Continue count missing from ${JSON.stringify(row.painted.meta)}`);
+    if (count !== hud) errors.push(`${label}: Continue ${count} != HUD Crew ${hud}`);
+    if (count != null && count === String(survivors)) errors.push(`${label}: Continue tracks survivors ${survivors}`);
+    if (count != null && count === String(fixture.rosterLength)) errors.push(`${label}: Continue tracks roster length ${fixture.rosterLength}`);
+    if (String(survivors) === hud) errors.push(`${label}: HUD Crew collapsed onto survivors ${survivors}`);
+    if (row.snap.survivors !== row.resource) errors.push(`${label}: save rewrote survivors from ${row.resource} to ${row.snap.survivors}`);
+    if (row.loaded.resource !== row.resource) errors.push(`${label}: load rewrote survivors to ${row.loaded.resource}`);
+    if (row.painted.resumeHidden || row.painted.metaHidden) errors.push(`${label}: Continue hidden while a save exists`);
+    if (row.painted.metaPaint !== fixture.version || !row.painted.meta.startsWith(`v${fixture.version} · `)) {
+      errors.push(`${label}: version paint drifted (${JSON.stringify(row.painted.meta)})`);
+    }
+    if (!row.painted.meta.includes(lost)) errors.push(`${label}: Continue dropped ${lost}`);
+    if (diverged !== count || row.diverged.meta !== row.painted.meta) {
+      errors.push(`${label}: Continue followed unsaved live state (${JSON.stringify(row.diverged.meta)})`);
+    }
+    if (!row.rawHeld) errors.push(`${label}: title repaint wrote the save slot`);
+    if (moves != null && count != null && Number(count) === Number(moves)) {
+      errors.push(`${label}: Continue did not move from the wake count ${moves}`);
+    }
+    if (direction && count != null && moves != null) {
+      const delta = Number(count) - Number(moves);
+      if (direction === "down" && !(delta < 0)) errors.push(`${label}: Continue did not fall after a visible death`);
+      if (direction === "up" && !(delta > 0)) errors.push(`${label}: Continue did not rise after a recovery`);
+    }
+    adjacentClean(label, row.painted, survivors, fixture.rosterLength);
+    adjacentClean(`${label} diverged`, row.diverged, survivors, fixture.rosterLength);
+    return count;
+  };
+
+  if (!fixture || fixture.freshResource == null) {
+    errors.push("Continue crew fixture did not run");
+    return errors;
+  }
+  hiddenSlot("empty slot", fixture.empty);
+  hiddenSlot("cleared slot", fixture.cleared);
+  if (fixture.freshResource === fixture.rosterLength && String(fixture.wake.loaded.hud) === String(fixture.freshResource)) {
+    errors.push("wake HUD matches both survivors and the full roster; fixture cannot separate them");
+  }
+
+  const wakeCount = assertCase("wake", fixture.wake, { lost: "intact" });
+  if (fixture.wake.snap.survivors !== fixture.freshResource) {
+    errors.push(`wake survivors ${fixture.wake.snap.survivors} != fresh resource ${fixture.freshResource}`);
+  }
+  if (wakeCount != null && wakeCount === String(fixture.freshResource)) {
+    errors.push("wake Continue still prints the mechanical survivors resource");
+  }
+
+  assertCase("visible death", fixture.death, { moves: wakeCount, direction: "down", lost: "1 lost" });
+  if (fixture.death.snap.dead.length !== 1 || fixture.death.snap.dead[0] !== "lena") {
+    errors.push(`visible death snapshot dead list is ${JSON.stringify(fixture.death.snap.dead)}`);
+  }
+
+  assertCase("recovery", fixture.recovery, { moves: wakeCount, direction: "up", lost: "intact" });
+  if (!fixture.recovery.snap.recovered || fixture.recovery.snap.recovered.tomas !== true) {
+    errors.push("recovery snapshot did not record recovered.tomas");
+  }
+  if (fixture.recovery.snap.recovered.jiro || fixture.recovery.snap.recovered.vess) {
+    errors.push("recovery snapshot recovered someone other than Tomas");
+  }
+  if (fixture.recovery.resource !== fixture.freshResource) {
+    errors.push("Tomas recovery changed the mechanical survivors resource");
+  }
+  return errors;
+}
+
 function printCheck(label, errors, detail = "") {
   if (errors.length) {
     console.error(`FAIL ${label}${detail ? ` (${detail})` : ""}`);
@@ -5322,6 +5499,10 @@ async function main() {
     const crewOverviewErrors = crewOverviewChecks(runtime);
     printCheck("0.35 HUD Crew disclosure + truthful read-only crew stats", crewOverviewErrors);
     failures.push(...crewOverviewErrors);
+
+    const titleContinueCrewErrors = titleContinueCrewCountChecks(runtime);
+    printCheck("title Continue crew count matches snapshot-visible HUD crew", titleContinueCrewErrors);
+    failures.push(...titleContinueCrewErrors);
 
     const performanceRuntimeErrors = performanceRuntimeChecks(runtime);
     printCheck("0.34 image residency + background resume runtime", performanceRuntimeErrors);
