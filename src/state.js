@@ -208,7 +208,7 @@ const sceneImages = {
   vess_offer:           "images/vess_offer.jpg",
   vess_transmission:    "images/vess_signal.jpg",
   vess_intimate:        "images/vess_intimate.jpg",
-  ship_interrupt:   "images/power_crisis.jpg",
+  ship_interrupt:   "images/ship_interrupt.jpg",
   ship_interrupt_resolve: "images/ship_interrupt_resolve.jpg",
   ship_memory_payoff: "images/bulkhead.jpg",
   sun_payoff:       "images/sela_ritual.jpg",
