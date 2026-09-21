@@ -906,7 +906,11 @@ function buildStillBurningText(crisis, shape, final, planet) {
   if (shape === "future") text += `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
   else if (shape === "living") text += `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
   else text += `You refused to let either side of the argument own the ship completely.\n\n`;
-  if (final === "hold") text += `The course remains locked on the rogue planet. Fourteen months. No guarantee.\n\n`;
+  if (final === "hold") {
+    text += state.flags.course_briefed
+      ? `The course remains locked on the rogue planet. Verified corridor: day 181 through day 184. One pass.\n\n`
+      : `The course remains locked on the rogue planet. Fourteen months. No guarantee.\n\n`;
+  }
   else if (final === "comfort") text += `You abandoned the destination for warmth and slightly less hunger.\n\n`;
   else if (final === "transmission") text += `A final transmission went out. The ship went quieter afterward.\n\n`;
   else text += `There is no grand destination. Only the work of the next cycle.\n\n`;
