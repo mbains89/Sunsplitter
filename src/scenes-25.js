@@ -97,6 +97,17 @@ registerScenes({
           : `Someone asks why the boarding window moved. No one can produce the page. You left it out.\n\n`;
       }
 
+      // SUN-MIDGAME-DELAYED-CONSEQUENCE-02: pay unused manifest write from empty_berths.
+      if (state.flags.manifest === "read") {
+        t += isAlive("amara")
+          ? `Amara does not bring the tablet. She does not have to. Two hundred fourteen confirmed berths are already a number the sides can point at. Someone repeats her refusal to decide what the codes meant.\n\n`
+          : `The boarding manifest surfaces without Amara. Two hundred fourteen confirmed berths. Codes no one will gloss.\n\n`;
+      } else if (state.flags.manifest === "declined") {
+        t += isAlive("amara")
+          ? `Someone asks for the boarding list. Amara keeps the tablet face-down. You let the manifest stay closed. The argument uses estimates instead of names.\n\n`
+          : `Someone asks for the boarding list. No tablet comes forward. You let the manifest stay closed.\n\n`;
+      }
+
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) {
         t += `More than one person has noticed how often you turn toward ${crew[fav.favored].name}. The observation is no longer private.\n\n`;
