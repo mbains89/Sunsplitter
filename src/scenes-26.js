@@ -71,3 +71,30 @@ Some cry. Some stare at the floor.`;
     ]
   },
 });
+
+// SUN-STILL-BURNING-CORRIDOR-01 — wrap buildStillBurningText after engine.js loads.
+// engine.js is too large to remint; this file already shares the Fourteen-months lie.
+(function wireStillBurningCorridor() {
+  function wrap() {
+    if (typeof buildStillBurningText !== "function") return;
+    if (buildStillBurningText.__ssCorridorWired) return;
+    const prior = buildStillBurningText;
+    function buildStillBurningTextCorridor(crisis, shape, final, planet) {
+      const text = prior(crisis, shape, final, planet);
+      if (final === "hold" && state && state.flags && state.flags.course_briefed) {
+        return String(text).replace(
+          "The course remains locked on the rogue planet. Fourteen months. No guarantee.",
+          "The course remains locked on the rogue planet. Verified corridor: day 181 through day 184. One pass."
+        );
+      }
+      return text;
+    }
+    buildStillBurningTextCorridor.__ssCorridorWired = true;
+    buildStillBurningText = buildStillBurningTextCorridor;
+  }
+  if (typeof document !== "undefined" && document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", wrap);
+  } else {
+    wrap();
+  }
+})();
