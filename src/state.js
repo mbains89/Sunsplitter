@@ -270,7 +270,7 @@ const sceneImages = {
   prom_direct_keep: "images/prom_direct.jpg",
   prom_direct_break: "images/prom_direct.jpg",
   prom_price: "images/prom_price.jpg",
-  prom_price_keep: "images/prom_price.jpg",
+  prom_price_keep: "images/prom_price_keep.jpg",
   prom_price_break: "images/prom_price_break.jpg",
   breath_word_given: "images/breath_word_given.jpg",
   breath_word_refused: "images/breath_word_refused.jpg",
