@@ -66,7 +66,7 @@ const LOCKED_HASHES = {
   "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1"
 };
 
-const IMAGES_TREE = "ff466dfee70de368cf599b529aed0830a63ded7f";
+const IMAGES_TREE = "ee2335fd432b17696b007797b1c9833809d0e237";
 const FACE_REVEAL = [
   "images/romance_lena_1.jpg",
   "images/romance_mira_1.jpg",
