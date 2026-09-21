@@ -2567,7 +2567,7 @@ function romanceMira1ImageTruthChecks(runtime) {
   const faceReveal = "images/romance_mira_1.jpg";
   const linger = "images/shower_mira.jpg";
   const expectedHashes = {
-    "images/quiet_mira.jpg": "27518fd30d22c578eca8fb2b3a775ca6a77c6b4da4486fb0b2a5a39d81d0cf3c",
+    "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
     "images/shower_mira.jpg": "003145b704f5df06cde8c2b586229b951c820059b92efc8dd2b76d750817ec13",
     "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
     "images/bodysuit_mira.jpg": "8b902308cd93489332629b004ec17e5a7b9675d9ae006391554c82690193229b",

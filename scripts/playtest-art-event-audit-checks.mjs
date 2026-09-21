@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const IMAGES_TREE = "ee2335fd432b17696b007797b1c9833809d0e237";
+const IMAGES_TREE = "a58713bbef5c1bf36cb3755a0d2f29e014465c5d";
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
@@ -98,7 +98,7 @@ const FACE_REVEAL = [
   "images/romance_amara_1.jpg"
 ];
 const LOCKED_HASHES = {
-  "images/quiet_mira.jpg": "27518fd30d22c578eca8fb2b3a775ca6a77c6b4da4486fb0b2a5a39d81d0cf3c",
+  "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
   "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
   "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
   "images/observation_bridge_alt_2.jpg": "bd39f540276e44b9c5c8d26da9f7e7fe7b8f5e19d6e15861ca4de07485bb8a55",

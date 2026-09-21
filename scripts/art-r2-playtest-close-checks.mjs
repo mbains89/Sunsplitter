@@ -54,7 +54,7 @@ export const ART_R2_PLAYTEST_CLOSE_SCENES = {
 const LOCKED_HASHES = {
   "images/observation_bridge_alt_2.jpg": "bd39f540276e44b9c5c8d26da9f7e7fe7b8f5e19d6e15861ca4de07485bb8a55",
   "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
-  "images/quiet_mira.jpg": "27518fd30d22c578eca8fb2b3a775ca6a77c6b4da4486fb0b2a5a39d81d0cf3c",
+  "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
   "images/tether_ride.jpg": "7961187200068efe1938de5a110d0a30f673be212e8aaf0694e0650e3a506c34",
   "images/work_elias.jpg": "9dfa81959aba082c192c1a9d0ea3c24383dc7695da0ccbe74bc1c3025af63ff2",
   "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf",
@@ -66,7 +66,7 @@ const LOCKED_HASHES = {
   "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1"
 };
 
-const IMAGES_TREE = "ee2335fd432b17696b007797b1c9833809d0e237";
+const IMAGES_TREE = "a58713bbef5c1bf36cb3755a0d2f29e014465c5d";
 const FACE_REVEAL = [
   "images/romance_lena_1.jpg",
   "images/romance_mira_1.jpg",
