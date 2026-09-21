@@ -265,7 +265,7 @@ const sceneImages = {
   prom_vent_break: "images/prom_vent_break.jpg",
   prom_line: "images/prom_line.jpg",
   prom_line_keep: "images/prom_line_keep.jpg",
-  prom_line_break: "images/covered_body.jpg",
+  prom_line_break: "images/prom_line_break.jpg",
   prom_direct: "images/prom_direct.jpg",
   prom_direct_keep: "images/prom_direct.jpg",
   prom_direct_break: "images/prom_direct.jpg",
