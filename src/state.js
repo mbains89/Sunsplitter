@@ -158,7 +158,7 @@ const sceneImages = {
   pair_shield_cold:    "images/elias.jpg",
   warmth_meal:         "images/hydroponics.jpg",
   warmth_laughter:     "images/corridor.jpg",
-  warmth_music:        "images/corridor.jpg",
+  warmth_music:        "images/warmth_music.jpg",
 
   // Romance
 
