@@ -5,12 +5,15 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // SUN-PLAYTEST-CREW-CHARACTER-SCREEN-01 / SUN-PLAYTEST-CREW-SHEET-01 — sheet hides numeric hidden stats.
+// SUN-CREW-BOARD-FOLLOW-CLARITY-01 — first Crew open shows the board; sheet waits for a name.
 export function playtestCrewCharacterScreenChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const panelCss = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const sheetCss = readFileSync(resolve(ROOT, "css/crew-sheet.css"), "utf8");
   const runtimeSrc = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  let overlay = "";
+  try { overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8"); } catch (_) {}
   if (!html.includes('id="crew-sheet"') || !html.includes('id="crew-sheet-close"') || !html.includes('id="crew-sheet-image"')) {
     errors.push("index missing full-screen crew sheet markup");
   }
@@ -19,6 +22,9 @@ export function playtestCrewCharacterScreenChecks(runtime) {
   }
   if (!runtimeSrc.includes("officialBodysuitSrc") || !runtimeSrc.includes("images/bodysuit_lena.jpg") || !runtimeSrc.includes("closeCrewSheet")) {
     errors.push("sheet runtime missing official bodysuit wiring or sheet close");
+  }
+  if (!(runtimeSrc.includes("crewBoardOpenPass") || overlay.includes("crewBoardOpenPass"))) {
+    errors.push("sheet wrap missing crewBoardOpenPass first-open guard");
   }
   if (runtimeSrc.includes("Affinity: ") || runtimeSrc.includes("Trust") && runtimeSrc.includes("trustText")) {
     errors.push("sheet runtime still builds numeric trust/affinity lines");
@@ -32,9 +38,18 @@ export function playtestCrewCharacterScreenChecks(runtime) {
       const sheet = document.getElementById("crew-sheet");
       const img = document.getElementById("crew-sheet-image");
       const before = JSON.stringify(state);
+      if (panel) { panel.classList.add("hidden"); panel.classList.remove("visible"); }
+      if (typeof closeCrewSheet === "function") closeCrewSheet();
       toggleCrewPanel();
       const opened = {
         panel: panel.classList.contains("visible"),
+        sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
+        chips: (panel.innerHTML.match(/crew-chip/g) || []).length,
+        count: panel.innerHTML.includes("Crew ·"),
+        lenaChip: panel.innerHTML.includes('data-crew="lena"')
+      };
+      renderCrewPanel("lena");
+      const lenaSheet = {
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
         name: document.getElementById("crew-sheet-name").textContent,
         trust: !document.getElementById("crew-sheet-facts").textContent.includes("Trust:"),
@@ -58,13 +73,18 @@ export function playtestCrewCharacterScreenChecks(runtime) {
       const afterEsc = !sheet.classList.contains("visible") && panel.classList.contains("visible");
       toggleCrewPanel();
       const closedAll = !panel.classList.contains("visible") && !sheet.classList.contains("visible");
-      return { opened, afterClose, mira, afterEsc, closedAll, stable: JSON.stringify(state) === before };
+      return { opened, lenaSheet, afterClose, mira, afterEsc, closedAll, stable: JSON.stringify(state) === before };
     })()`);
-    if (!fixture.opened.panel || !fixture.opened.sheet) errors.push("opening Crew did not show full-screen sheet");
-    if (fixture.opened.name !== "Dr. Lena Voss" || !fixture.opened.trust || !fixture.opened.condition) {
-      errors.push("Lena sheet must keep known status and hide numeric trust");
+    if (!fixture.opened.panel || fixture.opened.sheet) {
+      errors.push("opening Crew must show the chip board and keep the sheet closed");
     }
-    if (!fixture.opened.portrait || !fixture.opened.alt.includes("bodysuit")) {
+    if (!fixture.opened.chips || !fixture.opened.count || !fixture.opened.lenaChip) {
+      errors.push("opening Crew did not paint living chips and the Crew count line");
+    }
+    if (!fixture.lenaSheet.sheet || fixture.lenaSheet.name !== "Dr. Lena Voss" || !fixture.lenaSheet.trust || !fixture.lenaSheet.condition) {
+      errors.push("Lena sheet must open on explicit name select and hide numeric trust");
+    }
+    if (!fixture.lenaSheet.portrait || !fixture.lenaSheet.alt.includes("bodysuit")) {
       errors.push("Lena official bodysuit portrait not wired");
     }
     if (!fixture.afterClose.sheetHidden || !fixture.afterClose.panelOpen) {

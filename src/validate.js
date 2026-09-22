@@ -264,11 +264,13 @@ function openCrewSheet(key) {
   sheet.classList.remove("hidden");
   sheet.classList.add("visible");
 }
+var crewBoardOpenPass = false;
 (function wireCrewCharacterSheet() {
   if (typeof renderCrewPanel === "function") {
     const previous = renderCrewPanel;
     renderCrewPanel = function(selectedKey) {
       previous(selectedKey);
+      if (crewBoardOpenPass) { closeCrewSheet(); return; }
       if (selectedKey && typeof crew !== "undefined" && crew[selectedKey]) openCrewSheet(selectedKey);
       else closeCrewSheet();
     };
@@ -276,9 +278,12 @@ function openCrewSheet(key) {
   if (typeof toggleCrewPanel === "function") {
     const previous = toggleCrewPanel;
     toggleCrewPanel = function() {
-      previous();
+      crewBoardOpenPass = true;
+      try { previous(); }
+      finally { crewBoardOpenPass = false; }
       const panel = document.getElementById("crew-panel");
       if (!panel || !panel.classList.contains("visible")) closeCrewSheet();
+      else closeCrewSheet();
     };
   }
   if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
