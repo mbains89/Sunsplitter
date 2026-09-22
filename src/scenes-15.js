@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: observation_nightshift, observation_nightshift_ask,
   //   observation_nightshift_leave
   // VERSION: 0.29        TICKET: Cascade Allusive 4/6
@@ -15,7 +15,7 @@ registerScenes({
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("jiro")
   // IMAGE: REUSE images/observation.jpg; NO ART_REQUEST
   // LANE RULE: no reference to Mira's change orders, ever
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════
 
   act3_reckoning_briefing: {
     image: "images/cascade_records.jpg",
@@ -72,11 +72,11 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
     choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
   // Package C — "Vault needs a face"
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: hold_bolts, hold_bolts_again, hold_bolts_silent
   // VERSION: 0.29        TICKET: Cascade Allusive 3/6
   // PACKAGE: The Bolts
@@ -88,7 +88,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("tomas")
   // IMAGE: REUSE images/vault.jpg; NO ART_REQUEST
   // PHRASE: tier-four line remains reserved; do not place in text
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════
 
   act3_vault_face: {
     image: "images/vault.jpg",
@@ -104,7 +104,7 @@ She looks up. "Most of the name fields are empty. The parents left the naming to
       } else if (isAlive("elias")) {
         t += `\n\nElias is at the manifest terminal. He doesn't startle, because he heard you thirty meters ago.
 
-"Started at one," he says. "E-0001 through E-0214 so far. One a shift." He turns the tablet so you can see today's line. "This one has a name filled in. E-6103 — I skipped ahead once, to check if any did. Noor. Jakarta. Parents dead."
+"Started at one," he says. "E-0001 through E-0027 so far. One a shift." He turns the tablet so you can see today's line. "This one has a name filled in. E-6103 — I skipped ahead once, to check if any did. Noor. Jakarta. Parents dead."
 
 He sets the tablet down flat. "I count exits. My whole life. These don't have any yet. Somebody should still be counting them."`;
       } else {
