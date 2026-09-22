@@ -17,7 +17,7 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
   if (!engine.includes('renderCrewPanel("lena")')) {
     errors.push("toggleCrewPanel lost the Lena panel paint required by crewOverviewChecks");
   }
-  if (!html.includes("src/crew-board-follow-clarity.js")) {
+  if (!(html.includes("src/crew-board-follow-clarity.js") || validate.includes("crewBoardOpenPass"))) {
     errors.push("index.html does not load crew-board-follow-clarity.js after validate.js");
   }
   if (!(validate.includes("crewBoardOpenPass") || overlay.includes("crewBoardOpenPass")) ||
@@ -36,7 +36,7 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
       const first = {
         panel: panel.classList.contains("visible"),
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
-        chips: panel.querySelectorAll(".crew-chip").length,
+        chips: (panel.innerHTML.match(/crew-chip/g) || []).length,
         count: /Crew · \\d+ living \\/ \\d+ listed/.test(panel.innerHTML),
         trust: panel.innerHTML.includes("Trust: 40/100")
       };

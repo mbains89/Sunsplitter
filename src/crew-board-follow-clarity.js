@@ -2,7 +2,6 @@
 (function () {
   if (typeof toggleCrewPanel !== "function") return;
   var previous = toggleCrewPanel;
-  var crewBoardOpenPass = false;
   toggleCrewPanel = function () {
     crewBoardOpenPass = true;
     try { previous(); }
