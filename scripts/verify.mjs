@@ -49,6 +49,7 @@ import { artR2PlaytestCloseChecks } from "./art-r2-playtest-close-checks.mjs";
 import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.mjs";
 import { newRunChecks } from "./new-run-checks.mjs";
 import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
+import { cascadeAllusivePayoffChecks } from "./cascade-allusive-payoff-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5431,6 +5432,10 @@ async function main() {
     const stillBurningCorridorErrors = stillBurningCorridorChecks(runtime);
     printCheck("course_briefed Still Burning corridor citation", stillBurningCorridorErrors);
     failures.push(...stillBurningCorridorErrors);
+
+    const cascadeAllusivePayoffErrors = cascadeAllusivePayoffChecks();
+    printCheck("cascade allusive payoff: changeorders spoken on reckon_summary", cascadeAllusivePayoffErrors);
+    failures.push(...cascadeAllusivePayoffErrors);
 
     const cascadeErrors = cascadeAndMirrorChecks(runtime);
     printCheck("Cascade hosts + mirrors + phrase ownership", cascadeErrors);
