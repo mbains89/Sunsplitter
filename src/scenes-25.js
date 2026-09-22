@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: aftermath_seal, aftermath_seal_order, aftermath_seal_holds
   // VERSION: 0.29        TICKET: Cascade Allusive 6/6
   // PACKAGE: Eighty Seconds
@@ -15,7 +15,7 @@ registerScenes({
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("elias")
   // IMAGE: REUSE images/corridor_variant.jpg; NO ART_REQUEST
   // PHRASE: spends "Standing question." once, here
-  // ═════════════════════════════════════════════════
+  // ═════════════════════════════════
 
   aftermath_seal: {
     image: "images/corridor_variant.jpg",
@@ -106,6 +106,21 @@ registerScenes({
         t += isAlive("amara")
           ? `Someone asks for the boarding list. Amara keeps the tablet face-down. You let the manifest stay closed. The argument uses estimates instead of names.\n\n`
           : `Someone asks for the boarding list. No tablet comes forward. You let the manifest stay closed.\n\n`;
+      }
+
+      // SUN-MIDGAME-THIRD-CONSEQUENCE-01: pay unused Green Tether disclosure write.
+      if (state.flags.manifest_exposed) {
+        t += isAlive("tomas")
+          ? `A third of the vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
+          : isAlive("amara")
+            ? `Amara still has the arithmetic: a third gone, two-thirds green. Tomas is not here to answer the charge.\n\n`
+            : `The crew still remembers the eaten third of the germplasm vault. The man who ate it is not here to answer.\n\n`;
+      } else if (state.flags.manifest_lie) {
+        t += isAlive("tomas")
+          ? `Tomas lets the official line stand. You logged the germplasm shortfall as breach loss.\n\n`
+          : isAlive("amara")
+            ? `Amara still has two books that do not shake hands. You logged the germplasm shortfall as breach loss.\n\n`
+            : `The germplasm shortfall is still logged as breach loss. Someone uses that line as if it were the whole report.\n\n`;
       }
 
       const fav = favoritism();
