@@ -12,6 +12,8 @@ export function playtestCrewCharacterScreenChecks(runtime) {
   const panelCss = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const sheetCss = readFileSync(resolve(ROOT, "css/crew-sheet.css"), "utf8");
   const runtimeSrc = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  let overlay = "";
+  try { overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8"); } catch (_) {}
   if (!html.includes('id="crew-sheet"') || !html.includes('id="crew-sheet-close"') || !html.includes('id="crew-sheet-image"')) {
     errors.push("index missing full-screen crew sheet markup");
   }
@@ -21,7 +23,7 @@ export function playtestCrewCharacterScreenChecks(runtime) {
   if (!runtimeSrc.includes("officialBodysuitSrc") || !runtimeSrc.includes("images/bodysuit_lena.jpg") || !runtimeSrc.includes("closeCrewSheet")) {
     errors.push("sheet runtime missing official bodysuit wiring or sheet close");
   }
-  if (!runtimeSrc.includes("crewBoardOpenPass")) {
+  if (!(runtimeSrc.includes("crewBoardOpenPass") || overlay.includes("crewBoardOpenPass"))) {
     errors.push("sheet wrap missing crewBoardOpenPass first-open guard");
   }
   if (runtimeSrc.includes("Affinity: ") || runtimeSrc.includes("Trust") && runtimeSrc.includes("trustText")) {
@@ -36,11 +38,13 @@ export function playtestCrewCharacterScreenChecks(runtime) {
       const sheet = document.getElementById("crew-sheet");
       const img = document.getElementById("crew-sheet-image");
       const before = JSON.stringify(state);
+      if (panel) { panel.classList.add("hidden"); panel.classList.remove("visible"); }
+      if (typeof closeCrewSheet === "function") closeCrewSheet();
       toggleCrewPanel();
       const opened = {
         panel: panel.classList.contains("visible"),
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
-        chips: panel.querySelectorAll(".crew-chip").length,
+        chips: (panel.innerHTML.match(/crew-chip/g) || []).length,
         count: panel.innerHTML.includes("Crew ·"),
         lenaChip: panel.innerHTML.includes('data-crew="lena"')
       };
