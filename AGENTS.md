@@ -151,6 +151,10 @@ Emit the token and halt. Do not invent a workaround.
 
 PR body must include the PROOF block from `.github/PULL_REQUEST_TEMPLATE.md`. `FILES TOUCHED:` in that block must match the goal `touch:` list. `DIFF STAT:` is required in the same block (short `+/-` / files summary from `git diff --stat`) so wholesale regenerations (validate.js-class) surface. A missing `FILES TOUCHED:` or `DIFF STAT:` line is a fail.
 
+Completion receipts (IDLE STOP, PASTE_OK, MERGED_TIP, PR PROOF) must not claim `artifacts/PROJECT_STATUS.md`, `docs/TICKET_QUEUE.md`, or any other path edit that is absent from the final `gh pr diff` / changed-files list. Verify claimed paths against that list before IDLE STOP. Incomplete scope must be labeled incomplete.
+
+`node scripts/verify.mjs` modes (bare vs PR `VERIFY_EXPECTED_SHA` + `VERIFY_HEAD_REF`) are documented in `docs/VERIFY_MODES.md`. Missing `VERIFY_HEAD_REF` takes the old reconciliation route and FAILs when `HEAD:src` is not the authorized tree. Do not weaken identity checks to make Mode A look green.
+
 Job `version-lock-ci` on `.github/workflows/release-policy.yml` refuses 0.36 mint/paint and checks the lock line. Do not invent a second orchestrator or a third workflow file for that refusal.
 
 Orchestrator treats a merged PR plus the `MERGED_TIP` comment as the receipt. Do not require Orchestrator to re-read the diff or CI logs when those receipts exist.
