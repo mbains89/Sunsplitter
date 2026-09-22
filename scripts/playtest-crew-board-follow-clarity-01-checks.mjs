@@ -9,6 +9,7 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
   const errors = [];
   const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
   const validate = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
+  const overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8");
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   if (!html.includes('id="btn-crew"') || !html.includes('id="crew-panel"') || !html.includes('id="crew-sheet"')) {
     errors.push("Crew board markup tokens missing");
@@ -16,8 +17,12 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
   if (!engine.includes('renderCrewPanel("lena")')) {
     errors.push("toggleCrewPanel lost the Lena panel paint required by crewOverviewChecks");
   }
-  if (!validate.includes("crewBoardOpenPass") || !validate.includes("closeCrewSheet()")) {
-    errors.push("validate wrap missing first-open sheet hold");
+  if (!html.includes("src/crew-board-follow-clarity.js")) {
+    errors.push("index.html does not load crew-board-follow-clarity.js after validate.js");
+  }
+  if (!(validate.includes("crewBoardOpenPass") || overlay.includes("crewBoardOpenPass")) ||
+      !(validate.includes("closeCrewSheet()") || overlay.includes("closeCrewSheet()"))) {
+    errors.push("first-open sheet hold missing crewBoardOpenPass / closeCrewSheet");
   }
   if (typeof runtime === "undefined" || !runtime || typeof runtime.evaluate !== "function") return errors;
   try {
