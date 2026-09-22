@@ -1,63 +1,51 @@
-// SUN-CASCADE-ALLUSIVE-PAYOFF-01 — living vault changes Tomas's reckon_public line.
+// SUN-CASCADE-ALLUSIVE-PAYOFF-01 — static proof that reckon_summary pays
+// flags.changeorders (logged|buried) with a late spoken/summary line.
+// Not a remint of SUN-MIDGAME-DELAYED-CONSEQUENCE-01/02 (those pay on
+// faction_split in src/scenes-25.js). This host is src/scenes-27.js.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PHRASE = "People were tier four.";
 
-export function cascadeAllusivePayoffChecks(runtime) {
+export function cascadeAllusivePayoffChecks() {
   const errors = [];
-  const hold = readFileSync(resolve(ROOT, "src/scenes-15.js"), "utf8");
-  if (hold.includes(PHRASE)) {
-    errors.push("hold_bolts source spent reserved Tomas phrase");
+  const src = readFileSync(resolve(ROOT, "src/scenes-27.js"), "utf8");
+  if (!src.includes("reckon_summary")) {
+    errors.push("scenes-27.js is missing reckon_summary");
   }
-  const faction = readFileSync(resolve(ROOT, "src/scenes-25.js"), "utf8");
-  if (!faction.includes("SUN-MIDGAME-DELAYED-CONSEQUENCE-01")) {
-    errors.push("faction_split 01 changeorders payoff marker missing — do not remint by deleting it");
+  if (!src.includes("state.flags.changeorders === \"logged\"")) {
+    errors.push("reckon_summary does not read changeorders=logged");
   }
-  if (!faction.includes("SUN-MIDGAME-DELAYED-CONSEQUENCE-02")) {
-    errors.push("faction_split 02 manifest payoff marker missing — do not remint by deleting it");
+  if (!src.includes("state.flags.changeorders === \"buried\"")) {
+    errors.push("reckon_summary does not read changeorders=buried");
   }
-  const livingAlive = runtime.evaluate(`(() => {
-    resetRunState();
-    state.recovered.tomas = true;
-    state.flags.vault_sacrifice = "living";
-    return scenes.reckon_public.text;
-  })()`);
-  if (!livingAlive.includes(PHRASE)) {
-    errors.push("living+alive reckon_public missing Tomas tier-four line");
+  if (!src.includes("Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.")) {
+    errors.push("logged + Mira-alive branch missing spoken line");
   }
-  if (!livingAlive.includes("Tomas does not nod.")) {
-    errors.push("living+alive reckon_public did not replace the default nod");
+  if (!src.includes(": `Change orders 4417 and 4491 are still in the record.\\n`")) {
+    errors.push("logged + Mira-dead branch missing unique ternary arm");
   }
-  const futureAlive = runtime.evaluate(`(() => {
-    resetRunState();
-    state.recovered.tomas = true;
-    state.flags.vault_sacrifice = "future";
-    return scenes.reckon_public.text;
-  })()`);
-  if (futureAlive.includes(PHRASE)) {
-    errors.push("future vault + alive Tomas still speaks tier-four");
+  if (!src.includes("Mira's unsigned pages never entered the record. The reckoning has no page to point at.")) {
+    errors.push("buried + Mira-alive branch missing spoken line");
   }
-  if (!futureAlive.includes("Tomas nods through the entire accounting.")) {
-    errors.push("future vault lost the default Tomas nod");
+  if (!src.includes("The unsigned pages never entered the record. You left them out.")) {
+    errors.push("buried + Mira-dead branch missing spoken line");
   }
-  const livingUnrecovered = runtime.evaluate(`(() => {
-    resetRunState();
-    state.flags.vault_sacrifice = "living";
-    return scenes.reckon_public.text;
-  })()`);
-  if (livingUnrecovered.includes(PHRASE)) {
-    errors.push("unrecovered Tomas still speaks tier-four");
+  if (!src.includes("SUN-CASCADE-ALLUSIVE-PAYOFF-01")) {
+    errors.push("scenes-27.js missing ticket marker");
   }
-  if (livingUnrecovered.includes("Tomas nods") || livingUnrecovered.includes("Tomas does not nod")) {
-    errors.push("unrecovered Tomas is still present in reckon_public");
+  if (src.includes("People were tier four.")) {
+    errors.push("must not spend reserved Tomas phrase");
   }
   return errors;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log("cascade-allusive-payoff-checks.mjs is a verify.mjs module; run via scripts/verify.mjs");
-  process.exit(0);
+  const errors = cascadeAllusivePayoffChecks();
+  if (errors.length) {
+    console.error("FAIL cascade allusive payoff", errors);
+    process.exit(1);
+  }
+  console.log("PASS cascade allusive payoff (changeorders spoken on reckon_summary)");
 }

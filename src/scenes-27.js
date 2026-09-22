@@ -10,7 +10,9 @@ registerScenes({
       const sac = state.flags.vault_sacrifice;
       let t = `Before the final order, you take stock.\n\n`;
       t += `Survivors: ${state.survivors}. Hull ${state.integrity}%. Cohesion ${state.cohesion}%. Supplies ${state.supplies}%.\n`;
-      t += `Embryos ${state.embryos}%.\n\n`;
+      t += `Embryos ${state.embryos}%.
+
+`;
       if (deadList.length) t += `Dead: ${deadList.join("; ")}.\n\n`;
       t += `Early priority: ${pri}.`;
       if (sac) t += ` Vault crisis: ${sac}.`;

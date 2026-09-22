@@ -10,9 +10,7 @@ registerScenes({
 You do not soften what was done. You name the dead if there are dead. You name the living. You state the costs in supplies, hull, and time.
 
 Some cry. Some stare at the floor.`;
-      // SUN-CASCADE-ALLUSIVE-PAYOFF-01: spend reserved Tomas tier-four on Living vault.
-      if (isAlive("tomas") && state.flags.vault_sacrifice === "living") t += ` Tomas does not nod. "People were tier four."`;
-      else if (isAlive("tomas")) t += ` Tomas nods through the entire accounting.`;
+      if (isAlive("tomas")) t += ` Tomas nods through the entire accounting.`;
       t += `\n\n`;
       if (isAlive("mira")) {
         t += `When it is finished, Mira stands.\n\n"We're still here. That's the only order that matters."\n\nThe others rise, unevenly.`;
