@@ -10,9 +10,7 @@ registerScenes({
       const sac = state.flags.vault_sacrifice;
       let t = `Before the final order, you take stock.\n\n`;
       t += `Survivors: ${state.survivors}. Hull ${state.integrity}%. Cohesion ${state.cohesion}%. Supplies ${state.supplies}%.\n`;
-      t += `Embryos ${state.embryos}%.
-
-`;
+      t += `Embryos ${state.embryos}%.\n\n`;
       if (deadList.length) t += `Dead: ${deadList.join("; ")}.\n\n`;
       t += `Early priority: ${pri}.`;
       if (sac) t += ` Vault crisis: ${sac}.`;
@@ -31,6 +29,16 @@ registerScenes({
       else if (state.flags.rourke === "stayed") t += ` You stayed with Rourke.`;
       else if (state.flags.rourke === "tried") t += ` You spent supplies on Rourke.`;
       t += `\n`;
+      // SUN-CASCADE-ALLUSIVE-PAYOFF-01: late pay of midgame changeorders write.
+      if (state.flags.changeorders === "logged") {
+        t += isAlive("mira")
+          ? `Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.\n`
+          : `Change orders 4417 and 4491 are still in the record.\n`;
+      } else if (state.flags.changeorders === "buried") {
+        t += isAlive("mira")
+          ? `Mira's unsigned pages never entered the record. The reckoning has no page to point at.\n`
+          : `The unsigned pages never entered the record. You left them out.\n`;
+      }
       if (state.romance.mira && isAlive("mira")) t += `You and Mira crossed a line.\n`;
       else if (state.romance.mira) t += `You and Mira crossed a line. She is no longer here to carry it.\n`;
       if (state.romance.lena && isAlive("lena")) t += `You and Lena crossed a line.\n`;
