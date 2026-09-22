@@ -5,12 +5,19 @@ registerScenes({
 
   reckon_public: {
     get text() {
-      let t = `You gather the living in the common area.
-
-You do not soften what was done. You name the dead if there are dead. You name the living. You state the costs in supplies, hull, and time.
-
-Some cry. Some stare at the floor.`;
-      if (isAlive("tomas")) t += ` Tomas nods through the entire accounting.`;
+      let t = `You gather the living in the common area.\n\nYou do not soften what was done. You name the dead if there are dead. You name the living. You state the costs in supplies, hull, and time.\n\nSome cry. Some stare at the floor.`;
+      // SUN-CASCADE-SECOND-FLAG-PAYOFF-01: late pay of midgame manifest write.
+      if (state.flags.manifest === "read") {
+        t += isAlive("tomas")
+          ? ` Tomas does not ask for the boarding list. Two hundred fourteen confirmed berths are already in the accounting.`
+          : ` The boarding list is already in the accounting. Two hundred fourteen confirmed berths. No one has to open the tablet.`;
+      } else if (state.flags.manifest === "declined") {
+        t += isAlive("tomas")
+          ? ` Tomas nods through estimates. You let the manifest stay closed; the accounting has no names to point at.`
+          : ` The accounting uses estimates. You let the manifest stay closed.`;
+      } else if (isAlive("tomas")) {
+        t += ` Tomas nods through the entire accounting.`;
+      }
       t += `\n\n`;
       if (isAlive("mira")) {
         t += `When it is finished, Mira stands.\n\n"We're still here. That's the only order that matters."\n\nThe others rise, unevenly.`;
