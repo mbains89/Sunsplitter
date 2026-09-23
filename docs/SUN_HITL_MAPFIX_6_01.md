@@ -4,29 +4,29 @@ SOURCE main@8d23109b · RUNTIME 0e7535df45bffa08926c992e0995668246056526 · TASK
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-Wire/map FIX only. Cite Muse `MEASURE_LIVE_VS_HITL_88.md` mismatches×6. Chief NAMED PASS.
-Supersedes `docs/SUN_HITL_WIRE_REMAP_CONFIRM_01.md` STOP for these three keys: `romance_lena_1`, `act2_tether_hand_elias`, `act3_lethal_elias_order`. Myth filenames win; verify updated with the map.
+Cite Muse `MEASURE_LIVE_VS_HITL_88.md` mismatches×6. Chief NAMED PASS.
+Prior CONFIRM STOP (`docs/SUN_HITL_WIRE_REMAP_CONFIRM_01.md`) is superseded for these keys **once map+verify land**. This PR is **incomplete** until those land.
 
 No JPEG byte overwrite. No Slot15 `arc_future_2` invent. No 0.36 mint. No Netlify. No certify.
 
-## Six keys
+## Live tip truth (not yet remapped on this PR)
 
-| event_id | Was (LIVE pin-era) | Myth/HITL now |
+| event_id | Tip `0e7535df` | Myth target |
 |---|---|---|
-| `competence_watch` | `competence_watch.jpg` | `observation_bridge_alt.jpg` |
-| `romance_lena_1` | `observation_bridge_alt_2.jpg` | `shower_lena.jpg` |
-| `act2_tether_hand_elias` | `tether_ride.jpg` | `self_risk.jpg` |
-| `vess_signal` | map `vess_signal.jpg` / scene already `transmission.jpg` | map + scene `transmission.jpg` |
-| `vess_cost` | map `vess_signal.jpg` / scene already `transmission.jpg` | map + scene `transmission.jpg` |
-| `act3_lethal_elias_order` | `work_elias.jpg` | `bond_elias.jpg` |
+| `competence_watch` | map `competence_watch.jpg` | `observation_bridge_alt.jpg` |
+| `romance_lena_1` | `observation_bridge_alt_2.jpg` — verify FORBIDS `shower_lena` | `shower_lena.jpg` |
+| `act2_tether_hand_elias` | resolve `tether_ride.jpg` — verify FORBIDS `self_risk` | `self_risk.jpg` |
+| `vess_signal` | scene.image already `transmission.jpg` (map still `vess_signal.jpg`) | map `transmission.jpg` |
+| `vess_cost` | scene.image already `transmission.jpg` (map still `vess_signal.jpg`) | map `transmission.jpg` |
+| `act3_lethal_elias_order` | resolve `work_elias.jpg` — verify FORBIDS `bond_elias` | `bond_elias.jpg` |
 
-Death fallbacks unchanged (`corridor_pressure_3.jpg` for dead Elias on tether-hand and lethal-order). `act3_lethal_elias_sealant` stays `work_elias.jpg`. `lena_shower` still `shower_lena.jpg`. Mira/Sela tether hands unchanged.
+`vess_signal` / `vess_cost` resolved path is already Myth via `scene.image`. The other four need `src/state.js` + `src/engine.js` guards + `scripts/verify.mjs` expected flips together.
 
-## Files
+## This PR diff (F1)
 
-- `src/state.js` sceneImages
-- `src/engine.js` resolveSceneImage living guards (split order vs sealant; split Elias tether vs Mira/Sela)
-- `src/scenes-03.js` / `src/scenes-11.js` / `src/scenes-23.js` / `src/scenes-41.js` declared `image`
-- `scripts/verify.mjs` + `art-r2-playtest-close-checks.mjs` + `playtest-art-event-audit-checks.mjs` + `remains-lean-checks.mjs`
+- `docs/SUN_HITL_MAPFIX_6_01.md` (this receipt)
+- `src/hitl-mapfix-6.js` (prepared overlay; **not** on the index script manifest yet — adding it without `EXPECTED_SCRIPTS` fails version-verify)
 
-HOLD: Slot15 `arc_future_2` filename. Do not remint this id.
+Not in this diff (incomplete, labeled): `src/state.js`, `src/engine.js`, `src/scenes-03.js`, `src/scenes-11.js`, `src/scenes-23.js`, `src/scenes-41.js`, `scripts/verify.mjs`, `scripts/art-r2-playtest-close-checks.mjs`, `scripts/playtest-art-event-audit-checks.mjs`, `scripts/remains-lean-checks.mjs`, `index.html`.
+
+HOLD: Slot15 `arc_future_2`. Do not remint this id after the map lands.
