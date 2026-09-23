@@ -23,13 +23,13 @@ Lock line: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
 ## Why this ticket exists
 
-PR **#352** `SUN-ROADMAP-TIP-SYNC-351-01` added `docs/SUN_ROADMAP_TIP_SYNC_351.md` and **claimed** STATUS/QUEUE retarget to `3aa2053f` / #351. The final diff contained only the receipt. Pointer files at live HEAD still cite `c3626434` / PR **#345**.
+PR **#352** `SUN-ROADMAP-TIP-SYNC-351-01` added `docs/SUN_ROADMAP_TIP_SYNC_351.md` and **claimed** STATUS/QUEUE retarget to `3aa2053f` / #351. The final diff contained only the receipt. Pointer files at live HEAD still cited `c3626434` / PR **#345`.
 
 PR **#362** `SUN-FABLE-HONESTY-01` recorded that lie and still did not rewrite STATUS/QUEUE.
 
 PR **#363** labeled STATUS/QUEUE sync **incomplete** and forbade claiming those edits when they are absent from the diff.
 
-This ticket performs the missing pointer rewrite **and** records the upcoming-version table against the live tip. It does not remint #352 / #362 / #363.
+This ticket performs the missing STATUS/QUEUE rewrite **and** records the upcoming-version table in this receipt. It does not remint #352 / #362 / #363.
 
 `docs/SUN_ROADMAP_TIP_SYNC_351.md` stays a historical receipt (its live cite was `3aa2053f` / PR **#351**).
 `docs/SUN_DOCS_TIP_HONESTY_02.md` stays historical (`c3626434` / PR **#345**).
@@ -43,12 +43,12 @@ This ticket performs the missing pointer rewrite **and** records the upcoming-ve
 |---|---|---|
 | `artifacts/PROJECT_STATUS.md` lane head | `c3626434add931b4a8e164febb5c1c7b46bf9471` / PR **#345** | `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** RECEIPT-VERIFY-MODES |
 | `docs/TICKET_QUEUE.md` live lane line | `c3626434add931b4a8e164febb5c1c7b46bf9471` / PR **#345** / TASK SUN-DOCS-TIP-HONESTY-02 | `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** / TASK SUN-ROADMAP-UPCOMING-01 |
-| `artifacts/ROADMAP.md` planning-runtime header | `c3626434add931b4a8e164febb5c1c7b46bf9471` / TASK SUN-ROADMAP-TIP-SYNC-04 | `50ec4895168774dd9341633fb46ee6d364a81707` / TASK SUN-ROADMAP-UPCOMING-01 |
+| `artifacts/ROADMAP.md` planning-runtime header | `c3626434add931b4a8e164febb5c1c7b46bf9471` / TASK SUN-ROADMAP-TIP-SYNC-04 | **Not rewritten in this PR.** Header bytes still read `c3626434`. Do not treat that header as live tip. Upcoming table lives in this receipt. Decision gates stay labeled / not OPEN. |
 | `docs/SUN_ROADMAP_TIP_SYNC_351.md` | `3aa2053fad907580c4abcf976c851d48db39d5f6` / PR **#351** | Historical receipt only. Not rewritten. |
 
 `identityAndAuthorityChecks` still requires these STATUS substrings unchanged: `` `release_state: NO-PUBLISH` ``, `` `version_integrity: NOT_CERTIFIED` ``, `PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT`, `L-025 — LOCKED`, `L-026 — LOCKED`, `L-027 — LOCKED`, `L-028 — DEFERRED`. This ticket keeps them. `pc_readiness_0_36: not opened` stays. `source_main_sha` and `runtime_baseline_sha` stay `8d23109b63b844e0703fb36643f14b91b8800c90`.
 
-Because ROADMAP bytes change, `artifacts/LOCKS.md` `**Roadmap source SHA-256:**` is recomputed to the SHA-256 of `artifacts/ROADMAP.md` after the header + upcoming-table edit. Lock dispositions are unchanged.
+`artifacts/ROADMAP.md` and `artifacts/LOCKS.md` are **not** in this diff. ROADMAP source SHA-256 is not recomputed. Lock dispositions are unchanged.
 
 ## Upcoming versions (labeled; not OPEN)
 
@@ -101,9 +101,7 @@ FEED rows drained: HITL remap, embryo sweep, lethal-resume harness, art-plate-lo
 - `docs/SUN_ROADMAP_UPCOMING_01.md` (this receipt)
 - `docs/TICKET_QUEUE.md` (live lane line + empty FEED + spent table)
 - `artifacts/PROJECT_STATUS.md` (lane-head fields + recently-landed + honesty pointer)
-- `artifacts/ROADMAP.md` (planning-runtime header + upcoming-versions table)
-- `artifacts/LOCKS.md` (roadmap digest line only)
 
-Not edited: `VERSION.md`, `docs/version-lock.md`, historical honesty receipts, `AGENTS.md`, gameplay, art plates, Netlify.
+Not edited: `VERSION.md`, `docs/version-lock.md`, `artifacts/ROADMAP.md`, `artifacts/LOCKS.md`, historical honesty receipts, `AGENTS.md`, gameplay, art plates, Netlify.
 
 Stop after this merge. Do not start the next ticket. Do not invent OPEN 0.37.
