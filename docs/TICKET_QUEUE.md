@@ -1,82 +1,71 @@
-# Sunsplitter ticket queue — tip honesty after PR #360 + PR #363
+# Sunsplitter ticket queue — tip honesty after PR #369
 
-SOURCE lane@50ec4895168774dd9341633fb46ee6d364a81707 · TASK SUN-DOCS-TIP-HONESTY-363-01 · MODE docs
+SOURCE lane@5ff4384151a1aa6279044c8cb42c414bd88d3617 · TASK SUN-DOCS-TIP-HONESTY-369-01 · MODE docs
 
-Docs only. This file does not mint a product version, open 0.36 product
-work, remint PRs 107–363, touch Netlify, certify, or start gameplay.
+Docs only. This file does not mint a product version, certify, remint PRs 107–369,
+touch Netlify, or start gameplay.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `50ec4895168774dd9341633fb46ee6d364a81707`
-(PR **#363** RECEIPT-VERIFY-MODES merge tip, after PR **#360** CREW-BOARD).
+Lane: `version/0.30.1-main-reconcile-ci.1` at `5ff4384151a1aa6279044c8cb42c414bd88d3617`
+(PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` merge tip).
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-Certify / Netlify / 0.36 PC-evidence stay **OPEN-GATED** as product actions.
-That is not the lock-suffix word. See `docs/SUN_DOCS_TIP_HONESTY_363.md`.
-Prior receipts: `docs/SUN_DOCS_TIP_HONESTY_02.md` (tip `c3626434` / PR #345),
-`docs/SUN_DOCS_TIP_HONESTY_01.md` (tip `9788ce10` / PR #333).
+Owner GO 2026-09-22: **0.37 stranger / external review PARKED**.
+Keep building. No Hex recruit. No Netlify remint for strangers.
+Plan paper remains `artifacts/SUN_V037_EXTERNAL_REVIEW_PLAN_01.md` (PR **#369**).
+Do not invent OPEN 0.38.
 
-Pack labels `0.30.2` / `0.30.3` / `0.30.4` stay **planning ids**.
-They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
+Receipt: `docs/SUN_DOCS_TIP_HONESTY_369.md`.
+Prior: `docs/SUN_DOCS_TIP_HONESTY_363.md` (`50ec4895` / #363),
+`docs/SUN_DOCS_PC036_PACK_CLOSE_01.md` (`77cf1bf3` / #368).
 
 ## Holds (explicit)
 
-- **0.36 product / mint / recertify HOLD** until owner **OPEN** a named
-  ticket. Do not treat lane paint `0.36` as that OPEN.
-- **Last certified:** `0.28.1d`. Lane work is LANDED ON VERSION LANE only.
+- **0.37 strangers PARKED.** Do not FEED Hex recruit or stranger sessions.
+- **0.36 product / mint / recertify HOLD.** Paint is not OPEN.
+- **Last certified:** `0.28.1d`.
 - **NO-PUBLISH / NOT_CERTIFIED.**
-- **Netlify** is owner-only. Do not remint a pin from this queue.
-- **No Bot JPEG gen.** Style bible + body_ref paper already in-tree;
-  Imagine stays grok.com / Muse HITL after owner lock.
+- **Netlify** owner-only. No pin remint for strangers or anyone else from this queue.
+- **No Bot JPEG gen.**
 - **Amara-route PARKED.**
-- PR 45 / draft PR 46 untouched. No remint of spent PRs 107–363.
-- Ignore Copilot non-ticket branches. **Do not merge PR #297**
-  (corrupt `src/engine.js` PLACEHOLDER).
+- PR 45 / draft PR 46 untouched. No remint of spent PRs 107–369.
+- **Do not merge PR #297** (corrupt `src/engine.js` PLACEHOLDER).
+- Do not invent OPEN 0.38.
 
 ## Current lane (do not reopen as a pack)
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** RECEIPT-VERIFY-MODES (parent of this honesty ticket). |
-| PR **#363** `SUN-RECEIPT-VERIFY-MODES-01` | Merged. F1 receipt honesty + F2 verify.mjs modes. Do not remint. |
-| PR **#360** `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | Merged. First Crew tap holds `#crew-sheet` closed. Do not remint. |
-| PR **#345** `SUN-STILL-BURNING-CORRIDOR-01` | Merged. Historical prior tip `c3626434`. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `5ff4384151a1aa6279044c8cb42c414bd88d3617` after PR **#369**. |
+| PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged plan paper. Stranger execution PARKED. Do not remint. |
+| PR **#368** `SUN-DOCS-PC036-PACK-CLOSE-01` | Tip-named 0.36 PC pack closed-for-FEED. Not certified. |
+| PR **#367** `SUN-V036-PC-WIDESCREEN-REVALIDATE-01` | ALREADY_SATISFIED. Do not remint. |
 | `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. |
-
----
 
 ## $ S2 FEED — spent on this tip (do not remint)
 
 | Ticket | Verdict |
 |---|---|
-| `SUN-RECEIPT-VERIFY-MODES-01` | MERGED PR **#363** @ `50ec4895` |
-| `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | MERGED PR **#360** @ `06010765` |
-| `SUN-HITL-WIRE-REMAP-01` | SPENT / ALREADY_SATISFIED on later lane receipts. Do not remint. |
-| `SUN-EMBRYO-COUNT-SWEEP-01` | SPENT / ALREADY_SATISFIED. Do not remint. |
-| `SUN-LETHAL-RESUME-DEATHBEAT-01` | SPENT / ALREADY_SATISFIED. Do not remint. |
-| `SUN-HITL-WIRE-ADD-KEYS-A-01` | ALREADY_SATISFIED on lane map. |
-| `SUN-DAMAGE-CAUSE-PROPOSAL-01` | ALREADY_SATISFIED as paper (PR **#298**). Owner lock of a cause remains OPEN. |
-
-## Pack 0.30.2 / 0.30.3 — ALREADY_SATISFIED (do not remint)
-
-Unchanged from `docs/SUN_DOCS_TIP_HONESTY_02.md`. Planning ids only.
+| `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | MERGED PR **#369** @ `5ff43841`. Execution PARKED. |
+| `SUN-DOCS-PC036-PACK-CLOSE-01` | MERGED PR **#368**. Pack closed-for-FEED. |
+| `SUN-V036-PC-WIDESCREEN-REVALIDATE-01` | MERGED PR **#367**. ALREADY_SATISFIED. |
+| `SUN-RECEIPT-VERIFY-MODES-01` | MERGED PR **#363**. |
+| `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | MERGED PR **#360**. |
 
 ## OPEN-GATED — not fireable
 
-Do not launch these from `$ S2` FEED.
-
 | Ticket / class | Why gated |
 |---|---|
-| Any new `SUN-V036-VERSION-PAINT-*` remint | Paint already exists; further paint/mint needs owner OPEN |
-| `SUN-V036-PC-DESKTOP-MATRIX-01` and all `SUN-V036-PC-*` | 0.36 PC evidence — owner OPEN only |
-| `SUN-V036-PIN-PACKET-*` / Netlify remint / PIN-02 | Owner-only host pin |
-| Certify / tag / GitHub Release / main close-out | Last certified stays `0.28.1d` |
-| Amara-route expansion | PARKED |
-| ART-R2 broad binary regen | PARKED |
-| PR **#297** `SUN-TITLE-CONTINUE-CREW-COUNT-01` | CORRUPT engine.js. Do not merge. Do not remint. |
-| Invent OPEN 0.37 | Not authorized from this queue |
+| 0.37 stranger sessions / Hex recruit | Owner PARKED 2026-09-22 |
+| Invent OPEN 0.38 | Not authorized |
+| Any new `SUN-V036-PC-*` remint | Pack closed-for-FEED; not a 0.36 exit |
+| Netlify remint / PIN-02 | Owner-only |
+| Certify / tag / Release / main close-out | Last certified stays `0.28.1d` |
+| Amara-route / ART-R2 broad regen | PARKED |
+| PR **#297** | CORRUPT engine.js |
 
 ## Dispatch order for orchestrator
 
-No fireable product row is opened by this honesty ticket. Wait for owner OPEN of a named new ticket. Remint HOLD Approve-only.
+Keep building named owner-OPEN tickets. Do not FEED 0.37 strangers. Do not invent OPEN 0.38. Remint HOLD Approve-only.
