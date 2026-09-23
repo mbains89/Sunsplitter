@@ -93,13 +93,7 @@ registerScenes({
   lena_dying: {
     get text() {
       if (!isAlive("lena")) return `Medical is empty. The conversation you meant to have has nowhere to go.`;
-      return `You stay.
-
-Lena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.
-
-"I already used the last of the heavy stabilizers on Rourke. There is nothing left that will change the timeline. I can work until I can't. That is the only useful version of this."
-
-Her hand is close to yours. The ship is quiet around you.`;
+      return `You stay.\n\nLena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.\n\n"I already used the last of the heavy stabilizers on Rourke. There is nothing left that will change the timeline. I can work until I can't. That is the only useful version of this."\n\nHer hand is close to yours. The ship is quiet around you.`;
     },
     get choices() {
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
@@ -117,18 +111,12 @@ Her hand is close to yours. The ship is quiet around you.`;
   // PRE: Lena living; reached from lena_dying before the intimacy decision
   // WRITES: choices only; scene entry writes nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena gets the empty-blister exit
-  // IMAGE: REUSE images/observation_bridge_alt_2.jpg; person-free observation blister,
-  //   clothed/unresolved, Commander absent. The later optional rinse stays on lena_shower.
+  // IMAGE: SUN-HITL-WIRE-88-MAPFIX-01 Myth/HITL images/shower_lena.jpg.
+  //   lena_shower keeps the same rinse plate. Commander faceless.
   romance_lena_1: {
     get text() {
       if (!isAlive("lena")) return `The blister is empty. Whatever might have happened here has nowhere to land.`;
-      return `You take her hand.
-
-Lena looks at your fingers as if they are a diagnosis. When she speaks it is clinical and raw at once.
-
-"I am not asking for rescue. I am asking whether you will be here while I still am. If this is pity, stop. If this is something else, say so with your body or leave."
-
-The observation blister is cold. The ship is quiet. The line between comfort and crossing is still intact — barely.`;
+      return `You take her hand.\n\nLena looks at your fingers as if they are a diagnosis. When she speaks it is clinical and raw at once.\n\n"I am not asking for rescue. I am asking whether you will be here while I still am. If this is pity, stop. If this is something else, say so with your body or leave."\n\nThe observation blister is cold. The ship is quiet. The line between comfort and crossing is still intact — barely.`;
     },
     get choices() {
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
@@ -138,7 +126,7 @@ The observation blister is cold. The ship is quiet. The line between comfort and
         { text: "Step back. You will not take this from her fear.", next: "past_leak", effects: { cohesion: 1 }, affinity: { lena: 4 }, trust: { lena: 2 }, mark: { lena: "declined" } }
       ];
     },
-    image: "images/observation_bridge_alt_2.jpg"
+    image: "images/shower_lena.jpg"
   },
 
 });
