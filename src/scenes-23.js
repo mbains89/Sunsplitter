@@ -6,9 +6,9 @@ registerScenes({
 // PRE: living Elias at Deck 4 / Station B-four; pre-0.25 saves skip this plant
 // WRITES: none
 // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Elias redirects before text/image/choices
-// IMAGE: REUSE images/work_elias.jpg; living Elias at a station panel during the unresolved
-//   pressure-seal decision. Not bond_elias.jpg (quiet seated cup). Commander faceless.
+// IMAGE: SUN-HITL-WIRE-88-MAPFIX-01 Myth/HITL images/bond_elias.jpg.
 //   Dead/saved-absent fallback stays empty corridor_pressure_3.jpg via the resolver.
+//   Sealant stays work_elias.jpg. Commander faceless.
 act3_lethal_elias_order: {
   onEnter: () => {
     // Lock 5: in-flight saves from <0.25 skip Elias + Mira lethals (new plants)
@@ -22,26 +22,14 @@ act3_lethal_elias_order: {
 
     let t;
     if (state.flags.ship_memory === "proper_seal") {
-      t = `The Deck 4 seal stays shut. The frame beside it does not.
-
-Metal folds around Station B-four and leaves the pressure dog reporting CLOSED while pressure keeps falling. The feedstock held. The adjacent frame failed.`;
+      t = `The Deck 4 seal stays shut. The frame beside it does not.\n\nMetal folds around Station B-four and leaves the pressure dog reporting CLOSED while pressure keeps falling. The feedstock held. The adjacent frame failed.`;
     } else if (state.flags.ship_memory === "open_wound") {
       t = `Deck 4 opens along the seam left underfunded. First a white line of frost. Then the inner plate bows far enough for Station B-four to report CLOSED while pressure keeps falling.`;
     } else {
       t = `Deck 4's thin patch separates one fastener at a time. The jury-rig keeps its shape and loses its seal. Station B-four reports CLOSED while pressure keeps falling.`;
     }
 
-    t += `\n\nElias reads the access map before the gauge.
-
-"What's the threat? The pressure front behind it. Six minutes to habitation. Remote is lying."
-
-The last pressure-rated sealant cartridges can force the dog from this side. The exterior brace can be blown clear, taking a permanent piece of the ship's structural envelope with it. The remaining control is inside the failing section.
-
-A manual hold takes longer than the station suit feed.
-
-Elias keeps one finger on B-four.
-
-"No retrieval until pressure is flat."`;
+    t += `\n\nElias reads the access map before the gauge.\n\n"What's the threat? The pressure front behind it. Six minutes to habitation. Remote is lying."\n\nThe last pressure-rated sealant cartridges can force the dog from this side. The exterior brace can be blown clear, taking a permanent piece of the ship's structural envelope with it. The remaining control is inside the failing section.\n\nA manual hold takes longer than the station suit feed.\n\nElias keeps one finger on B-four.\n\n"No retrieval until pressure is flat."`;
     return t;
   },
   get choices() {
@@ -74,7 +62,7 @@ Elias keeps one finger on B-four.
       }
     ];
   },
-  image: "images/work_elias.jpg"
+  image: "images/bond_elias.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -104,13 +92,7 @@ act3_lethal_elias_sealant: {
   },
   get text() {
     if (!isAlive("elias")) return `The sealant rack is empty. Security is gone.`;
-    return `The cartridges fire together. Grey compound crosses the seam, expands, and hardens around the lying dog.
-
-Pressure falls for another four seconds, then stops. The rack now reads empty.
-
-Elias watches every downstream compartment hold before he releases the board.
-
-"Threat contained. Next breach gets a different answer."`;
+    return `The cartridges fire together. Grey compound crosses the seam, expands, and hardens around the lying dog.\n\nPressure falls for another four seconds, then stops. The rack now reads empty.\n\nElias watches every downstream compartment hold before he releases the board.\n\n"Threat contained. Next breach gets a different answer."`;
   },
   choices: [
     { text: "Log the empty rack. Continue.", next: "act3_lethal_mira_board" }
@@ -142,13 +124,7 @@ act3_lethal_elias_brace: {
   },
   get text() {
     if (!isAlive("elias")) return `The missing brace remains visible on the hull schematic. Security does not.`;
-    return `The brace charges fire in order.
-
-Seven Integrity points leave the board as the exterior frame turns away into the dark. The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.
-
-Elias reads the narrower structural envelope once.
-
-"Threat contained. That side of the ship is no longer ours to spend."`;
+    return `The brace charges fire in order.\n\nSeven Integrity points leave the board as the exterior frame turns away into the dark. The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.\n\nElias reads the narrower structural envelope once.\n\n"Threat contained. That side of the ship is no longer ours to spend."`;
   },
   choices: [
     { text: "Keep the missing brace on the schematic. Continue.", next: "act3_lethal_mira_board" }
@@ -184,11 +160,7 @@ act3_lethal_elias_end: {
     state.dying.elias = "held the line";
     kill("elias", state.dying.elias);
   },
-  text: `The upstream door seats.
-
-The pressure front breaks against B-four and falls away from habitation. Station B-four remains on the breach side. Its suit feed reaches zero before the section is safe to open.
-
-The line holds. Security authority remains on the board with no living name beside it.`,
+  text: `The upstream door seats.\n\nThe pressure front breaks against B-four and falls away from habitation. Station B-four remains on the breach side. Its suit feed reaches zero before the section is safe to open.\n\nThe line holds. Security authority remains on the board with no living name beside it.`,
   choices: [
     { text: "Mark the station sealed. Continue.", next: "act3_lethal_mira_board" }
   ],
