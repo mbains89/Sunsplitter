@@ -6,30 +6,24 @@ Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
 Owner GO via Chief. Supersedes incomplete unpaid PR #372. Do not merge #372 as paid. Do not remint SUN-HITL-MAPFIX-6-01 as paid.
 
-Cite Muse `MEASURE_LIVE_VS_HITL_88.md` mismatches×6. Myth filenames win; verify updated with the map.
+**This PR is incomplete.** Connector file-size limit blocked landing `src/state.js` + `src/engine.js` + `scripts/verify.mjs` in this seat. Do not merge as paid.
 
-No JPEG byte overwrite. No Slot15 `arc_future_2` invent. No 0.36 mint. No Netlify. No certify.
-Muse pixel pack remains PARKED — remaps ≠ art fixed.
+## Live tip truth
 
-## Six keys
+| event_id | Tip `0e7535df` | Myth target | This PR |
+|---|---|---|---|
+| `competence_watch` | map `competence_watch.jpg` | `observation_bridge_alt.jpg` | unpaid |
+| `romance_lena_1` | `observation_bridge_alt_2.jpg` | `shower_lena.jpg` | unpaid (verify FORBIDS) |
+| `act2_tether_hand_elias` | resolve `tether_ride.jpg` | `self_risk.jpg` | scene.image declared only; engine guard + verify unpaid |
+| `vess_signal` | scene.image `transmission.jpg` | `transmission.jpg` | resolved already; map string unpaid |
+| `vess_cost` | scene.image `transmission.jpg` | `transmission.jpg` | resolved already; map string unpaid |
+| `act3_lethal_elias_order` | resolve `work_elias.jpg` | `bond_elias.jpg` | unpaid (verify FORBIDS) |
 
-| event_id | Was (LIVE 0e7535df) | Myth/HITL now |
-|---|---|---|
-| `competence_watch` | `competence_watch.jpg` | `observation_bridge_alt.jpg` |
-| `romance_lena_1` | `observation_bridge_alt_2.jpg` | `shower_lena.jpg` |
-| `act2_tether_hand_elias` | `tether_ride.jpg` | `self_risk.jpg` |
-| `vess_signal` | scene already `transmission.jpg` | map + scene `transmission.jpg` |
-| `vess_cost` | scene already `transmission.jpg` | map + scene `transmission.jpg` |
-| `act3_lethal_elias_order` | `work_elias.jpg` | `bond_elias.jpg` |
+## This PR diff (F1)
 
-Death fallbacks unchanged (`corridor_pressure_3.jpg` for dead Elias on tether-hand and lethal-order). `act3_lethal_elias_sealant` stays `work_elias.jpg`. `lena_shower` still `shower_lena.jpg`. Mira/Sela tether hands unchanged.
+- `docs/SUN_HITL_MAPFIX_6_FINISH_01.md`
+- `src/scenes-11.js` (`act2_tether_hand_elias.image` → `self_risk.jpg`; resolve still `tether_ride` until engine lands)
 
-## Files in this diff
+Not in this diff: `src/state.js`, `src/engine.js`, `src/scenes-03.js`, `src/scenes-23.js`, `src/scenes-41.js`, `scripts/verify.mjs`, `scripts/art-r2-playtest-close-checks.mjs`, `scripts/playtest-art-event-audit-checks.mjs`, `scripts/remains-lean-checks.mjs`.
 
-- `src/state.js` sceneImages
-- `src/engine.js` resolveSceneImage living guards (split order vs sealant; split Elias tether vs Mira/Sela)
-- `src/scenes-03.js` / `src/scenes-11.js` / `src/scenes-23.js` / `src/scenes-41.js` declared `image`
-- `scripts/verify.mjs` + `art-r2-playtest-close-checks.mjs` + `playtest-art-event-audit-checks.mjs` + `scripts/remains-lean-checks.mjs`
-- this receipt
-
-Index script manifest unchanged. No overlay.
+No JPEG. No Slot15 invent. No 0.36 mint. No Netlify. No certify. Muse pixel pack PARKED.
