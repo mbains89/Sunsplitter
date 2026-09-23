@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 50ec4895168774dd9341633fb46ee6d364a81707 — LANDED ON VERSION LANE after PR #363 RECEIPT-VERIFY-MODES; not SHIPPED; not CERTIFIED`
+`version_lane_head: 50ec4895168774dd9341633fb46ee6d364a81707 — LANDED ON VERSION LANE after PR #363 RECEIPT-VERIFY-MODES (after PR #360 CREW-BOARD); not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,14 +38,14 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-ROADMAP-UPCOMING-01 — tip honesty after PR #363 + upcoming versions table`
+`milestone: SUN-DOCS-TIP-HONESTY-363-01 — tip honesty after PR #360 + PR #363`
 `state: DOCS ONLY AT 50ec4895 — no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
-### SUN-ROADMAP-UPCOMING-01 (this tip)
+### SUN-DOCS-TIP-HONESTY-363-01 (this tip)
 
-Docs/status only. Records live lane HEAD `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** RECEIPT-VERIFY-MODES, and lands the labeled upcoming-version table on ROADMAP. Closes the pointer lie left by #352 / #362 (STATUS/QUEUE still cited `c3626434` / #345 at that HEAD). Does not remint #363 / #362 / #352 / #351 / #306 / #326. Does not mint, certify, deploy, or invent OPEN 0.37.
+Docs/status only. Records live lane HEAD `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** RECEIPT-VERIFY-MODES and PR **#360** CREW-BOARD. Does not remint #360 / #363 / #345 / #297 / #304. Does not mint, certify, deploy, or invent OPEN 0.37.
 
 | Pin | Live value | Meaning |
 |---|---|---|
@@ -57,7 +57,7 @@ Docs/status only. Records live lane HEAD `50ec4895168774dd9341633fb46ee6d364a817
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only. Lane `src` may differ from the main src pin; the src-equality gate applies only to the original main-reconcile ticket route.
 
-Live lane tip cite: `50ec4895168774dd9341633fb46ee6d364a81707` after PR #363 RECEIPT-VERIFY-MODES (`SUN-RECEIPT-VERIFY-MODES-01`). Receipt: `docs/SUN_ROADMAP_UPCOMING_01.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Honesty-02 cite `c3626434` / PR #345, tip-sync-351 cite `3aa2053f` / PR #351, and style-bible lock pin `55143745` remain historical, not the live tip. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
+Live lane tip cite: `50ec4895168774dd9341633fb46ee6d364a81707` after PR **#363** RECEIPT-VERIFY-MODES (`SUN-RECEIPT-VERIFY-MODES-01`), which followed PR **#360** CREW-BOARD (`SUN-CREW-BOARD-FOLLOW-CLARITY-01`). Receipt: `docs/SUN_DOCS_TIP_HONESTY_363.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Honesty-02 cite `c3626434` / PR #345 and style-bible lock pin `55143745` remain historical, not the live tip. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
 
 Proof note: `artifacts/SUN_VERIFY_MAIN_POSTURE_LANE_01.md` remains the earlier posture proof. This ticket does not remint that identity.
 
@@ -74,26 +74,17 @@ Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIF
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
-| 363 | `SUN-RECEIPT-VERIFY-MODES-01` | AGENTS receipt-path honesty + `docs/VERIFY_MODES.md`. STATUS/QUEUE were incomplete there. |
-| 362 | `SUN-FABLE-HONESTY-01` | Receipt only. Recorded pointer lie. Do not remint. |
-| 360 | `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | First Crew tap shows living board. Keep `renderCrewPanel("lena")`. |
-| 352 | `SUN-ROADMAP-TIP-SYNC-351-01` | Receipt only. Claimed STATUS/QUEUE retarget missing from diff. |
-| 351 | `SUN-CASCADE-ALLUSIVE-PAYOFF-01` | `flags.changeorders` logged\|buried on `reckon_summary`. Tomas "People were tier four." unspent. Do not remint. |
-| 349 | `SUN-HITL-WIRE-REMAP-01` | SKIP 1–3 / ALREADY_SATISFIED 4–5. Docs receipt only. Do not remint. |
-| 348 | `SUN-TITLE-CONTINUE-CREW-02` | Continue chip = saved visible living crew. Not corrupt #297. |
-| 347 | `SUN-DOCS-TIP-HONESTY-02` | Historical tip honesty after #345. |
-| 346 | `SUN-ART-PLATE-LOOP-01` | One docs brief (`romance_lena_1`). Not JPEG. |
+| 363 | `SUN-RECEIPT-VERIFY-MODES-01` | F1 receipt honesty + F2 verify.mjs modes. Docs only. Do not remint. |
+| 360 | `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | First Crew tap holds `#crew-sheet` closed. KEEP `renderCrewPanel("lena")`. Do not remint. |
 | 345 | `SUN-STILL-BURNING-CORRIDOR-01` | Historical prior tip `c3626434`. |
-| 326 | `SUN-LETHAL-RESUME-DEATHBEAT-01` | Resume death-beat harness. Do not remint. |
-| 306 | `SUN-EMBRYO-COUNT-SWEEP-01` | Spoken 140,006 live. Do not remint. |
 | 247 | `SUN-V036-PACK-NEXT-10` | Pack 0.30.3 ALREADY_SATISFIED; queue exhausted. |
-| 241 | `SUN-ROADMAP-PLAN-01` | ROADMAP + LOCKS digest tip honesty and labeled 0.36→0.37 plan. Not certify. Not OPEN 0.37. |
+| 241 | `SUN-ROADMAP-PLAN-01` | ROADMAP + LOCKS digest tip honesty and labeled 0.36→0.37 plan. Not certify. |
 | 238 | `SUN-V036-COMMANDER-CREATE-HINT-01` | Lane chrome. Not 0.36 PC-readiness exit. |
 | 237 | `SUN-V036-CONTENT-NOTICE-CLARITY-01` | Lane chrome. Not 0.36 PC-readiness exit. |
 
 `VERSION.md` first line on this tip is `0.36` paint. That is player-facing paint on the lane, not certification and not a 0.36 milestone exit.
 
-Style bible `artifacts/SUN_ART_STYLE_BIBLE.md` is **LOCKED** by owner OPEN 2026-09-16 art HITL. Do not generate plates in Cursor / Grok Bot. Do not start BODY-REFERENCE or a new ART-PLATE-LOOP identity on this branch. PR **#346** already dispatched one brief.
+Style bible `artifacts/SUN_ART_STYLE_BIBLE.md` is **LOCKED** by owner OPEN 2026-09-16 art HITL. Do not generate plates in Cursor / Grok Bot. Do not start BODY-REFERENCE or ART-PLATE-LOOP on this branch.
 
 Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) remains an ancestor of the current lane. Treat phone-resume as **ALREADY_SATISFIED** on the lane. Do not mint a retry.
 
@@ -107,7 +98,7 @@ Hunch check, verified: `SUN-V035-PHONE-RESUME-01` (PR 112, merge `e3b7472`) rema
 - Ignore Copilot leftovers #297 / #304 unless owner names them.
 - No main close-out, tag, Release, deploy, or certification language.
 - No remint of PRs 107–363 as a new drain queue. Remint HOLD Approve-only. No Netlify pin remint / PIN-02 remint.
-- L-025–L-028 are not reopened here. LOCKS dispositions are unchanged except the ROADMAP digest line synced by this ticket.
+- L-025–L-028 are not reopened here. LOCKS dispositions are unchanged except the ROADMAP digest already synced in PR 241.
 
 ## L-025–L-028 dispositions
 
@@ -134,7 +125,7 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-ROADMAP-UPCOMING-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/status only. Do not remint #363 / #352 / #351 / #306 / #326. Do not close out to `main`, tag, certify, deploy, or invent OPEN 0.37.
+**This ticket:** merge-commit `SUN-DOCS-TIP-HONESTY-363-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/status only. Do not remint #360 / #363 / #345 / #297 / #304. Do not close out to `main`, tag, certify, deploy, or invent OPEN 0.37.
 
 **Grok / orchestrator (`$ S1`):** after this merge, wait for owner OPEN of a named new ticket. Remint HOLD Approve-only. Do not invent extra OPEN. Netlify HOLD.
 
