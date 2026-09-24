@@ -4,16 +4,14 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
-// SUN-V035-ART-R2-PLAYTEST-CLOSE-01. Cluster closeout for the PLAYTEST_SUN
-// art/event mismatches already retargeted by PRs 133–141. Proof only: no
-// story edits, no new plates, no ART-R2 campaign.
+// SUN-HITL-WIRE-88-MAPFIX-FINISH-03. Expected plates follow MEASURE FIX×6.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export const ART_R2_PLAYTEST_CLOSE_SCENES = {
   romance_lena_1: {
-    expected: "images/observation_bridge_alt_2.jpg",
-    forbidden: ["images/shower_lena.jpg", "images/romance_lena_1.jpg"],
+    expected: "images/shower_lena.jpg",
+    forbidden: ["images/observation_bridge_alt_2.jpg", "images/romance_lena_1.jpg"],
     textNeedle: "observation blister",
     leftover: { id: "lena_shower", image: "images/shower_lena.jpg" }
   },
@@ -30,14 +28,14 @@ export const ART_R2_PLAYTEST_CLOSE_SCENES = {
     leftover: { id: "mira_shower", image: "images/shower_mira.jpg" }
   },
   act2_tether_hand_elias: {
-    expected: "images/tether_ride.jpg",
-    forbidden: ["images/self_risk.jpg"],
+    expected: "images/self_risk.jpg",
+    forbidden: ["images/tether_ride.jpg"],
     textNeedle: "Elias suits up",
     deadFallback: "images/corridor_pressure_3.jpg"
   },
   act3_lethal_elias_order: {
-    expected: "images/work_elias.jpg",
-    forbidden: ["images/bond_elias.jpg", "images/quiet_elias.jpg"],
+    expected: "images/bond_elias.jpg",
+    forbidden: ["images/work_elias.jpg", "images/quiet_elias.jpg"],
     textNeedle: "Station B-four",
     leftover: { id: "bond_elias", image: "images/bond_elias.jpg" },
     deadFallback: "images/corridor_pressure_3.jpg"
