@@ -6,11 +6,11 @@ function exerciseRemainsLean() {
   const LIVING_LINE = "Across the recorded orders, Living carried more weight.";
   const SPLIT_LINE = "The recorded orders remained split between Future and Living.";
   const ART_R2 = {
-    romance_lena_1: "images/observation_bridge_alt_2.jpg",
+    romance_lena_1: "images/shower_lena.jpg",
     romance_amara_1: "images/hydroponics.jpg",
     romance_mira_1: "images/quiet_mira.jpg",
-    act2_tether_hand_elias: "images/tether_ride.jpg",
-    act3_lethal_elias_order: "images/work_elias.jpg",
+    act2_tether_hand_elias: "images/self_risk.jpg",
+    act3_lethal_elias_order: "images/bond_elias.jpg",
     act3_lethal_elias_sealant: "images/work_elias.jpg"
   };
   const errors = [];
@@ -122,7 +122,7 @@ function exerciseRemainsLean() {
     for (const [id, image] of Object.entries(ART_R2)) {
       expect(sceneImages[id] === image, id + " mapping drifted");
       expect(scenes[id] && scenes[id].image === image, id + " declaration drifted");
-      expect(resolveSceneImage(id, scenes[id]) === image, id + " resolve drifted");
+      expect(resolveSceneImage[id] === image, id + " resolve drifted");
     }
     expect(snapshot() === before, "ART-R2 resolve wrote run state");
   } catch (error) {
@@ -143,7 +143,7 @@ function exerciseRemainsLean() {
     expect(!BAN.test(blob), "What Remains cited a counterfactual or score: " + blob);
     expect(facts.some(line => line.includes("Rourke died with company")),
       "logged Rourke cause missing");
-    expect(facts.some(line => /\bLena died\b/.test(line)),
+    expect(facts.some(line => /\\bLena died\\b/.test(line)),
       "unknown deathCause must fall back to name + died, not an invented clause");
     expect(!/would have lived|if treatment/.test(blob),
       "unknown cause invented a story");
