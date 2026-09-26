@@ -8,7 +8,7 @@
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 13a45eb5ca60bd15768ea39ee957c23a978a2e3b`
+`version_lane_sha: f576670764024e136c07d4fa8c4066ee68a08e9e`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 13a45eb5ca60bd15768ea39ee957c23a978a2e3b — LANDED ON VERSION LANE after PR #378 TIP-HONESTY-5D20; not SHIPPED; not CERTIFIED`
+`version_lane_head: f576670764024e136c07d4fa8c4066ee68a08e9e — LANDED ON VERSION LANE after PR #379 TIP-HONESTY-13A45; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,27 +38,27 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-DOCS-TIP-HONESTY-13A45-01 — tip honesty after PR #378`
-`state: DOCS ONLY AT 13a45eb5 — 0.37 strangers PARKED; #376 MAPFIX in-flight unpaid; no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-DOCS-TIP-HONESTY-F576-01 — tip honesty after PR #379`
+`state: DOCS ONLY AT f5766707 — 0.37 strangers PARKED; #376 MAPFIX in-flight unpaid; no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
-### SUN-DOCS-TIP-HONESTY-13A45-01 (this tip)
+### SUN-DOCS-TIP-HONESTY-F576-01 (this tip)
 
-Docs/status only. Records live lane HEAD `13a45eb5ca60bd15768ea39ee957c23a978a2e3b` after PR **#378** `SUN-DOCS-TIP-HONESTY-5D20-01`. Ancestry: **#371** @ `0e7535df` then **#377** @ `5d20c123` then **#378** @ `13a45eb5`. Owner GO 2026-09-22: **0.37 stranger / external review PARKED**. Does not remint #378 / #377 / #371 / #369 / #368 / #367. Does not invent OPEN 0.38. Does not mint or certify. PR **#376** MAPFIX stays in-flight unpaid — this ticket does not claim it merged.
+Docs/status only. Records live lane HEAD `f576670764024e136c07d4fa8c4066ee68a08e9e` after PR **#379** `SUN-DOCS-TIP-HONESTY-13A45-01`. Ancestry: **#371** @ `0e7535df` then **#377** @ `5d20c123` then **#378** @ `13a45eb5` then **#379** @ `f5766707`. Owner GO 2026-09-22: **0.37 stranger / external review PARKED**. Does not remint #379 / #378 / #377 / #371 / #369 / #368 / #367. Does not invent OPEN 0.38. Does not mint or certify. PR **#376** MAPFIX stays in-flight unpaid — this ticket does not claim it merged.
 
 | Pin | Live value | Meaning |
 |---|---|---|
 | `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. |
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and `scripts/fixtures/main-reconcile-ci-pr-baseline.json`. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `13a45eb5ca60bd15768ea39ee957c23a978a2e3b` | LANDED ON VERSION LANE only. After PR #378 TIP-HONESTY-5D20. |
+| Lane `HEAD` | `f576670764024e136c07d4fa8c4066ee68a08e9e` | LANDED ON VERSION LANE only. After PR #379 TIP-HONESTY-13A45. |
 | Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 | `pc_readiness_0_36` | tip-named pack closed-for-FEED | Not a 0.36 exit. |
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only. Lane `src` may differ from the main src pin; the src-equality gate applies only to the original main-reconcile ticket route.
 
-Live lane tip cite: `13a45eb5ca60bd15768ea39ee957c23a978a2e3b` after PR **#378**. Receipt: `docs/SUN_DOCS_TIP_HONESTY_13A45.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Honesty-5D20 cite `5d20c123` / PR #377 and honesty-0E75 cite `0e7535df` / PR #371 remain historical ancestry. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.38.
+Live lane tip cite: `f576670764024e136c07d4fa8c4066ee68a08e9e` after PR **#379**. Receipt: `docs/SUN_DOCS_TIP_HONESTY_F576.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Honesty-13A45 cite `13a45eb5` / PR #378, honesty-5D20 cite `5d20c123` / PR #377, and honesty-0E75 cite `0e7535df` / PR #371 remain historical ancestry. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.38.
 
 Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
 
@@ -88,7 +88,8 @@ Closed-for-FEED means orchestrator must not re-FEED these six spent ids. It does
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
-| 378 | `SUN-DOCS-TIP-HONESTY-5D20-01` | Pointed STATUS/QUEUE at `5d20c123`. Ancestry floor. Do not remint. |
+| 379 | `SUN-DOCS-TIP-HONESTY-13A45-01` | Pointed STATUS/QUEUE at `13a45eb5`. Ancestry floor. Do not remint. |
+| 378 | `SUN-DOCS-TIP-HONESTY-5D20-01` | Pointed STATUS/QUEUE at `5d20c123`. Do not remint. |
 | 377 | `SUN-DOCS-TIP-HONESTY-0E75-01` | Pointed STATUS/QUEUE at `0e7535df`. Do not remint. |
 | 371 | `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | Leftovers 5–9 ALREADY_SATISFIED; 10–13 named holds. Do not remint. |
 | 369 | `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Two-stranger plan paper. Execution PARKED (owner GO 2026-09-22). Do not remint. |
@@ -118,7 +119,7 @@ PR **#376** MAPFIX / restore is **in-flight unpaid**. Do not claim merged. Do no
 - PR 45 / draft PR 46 untouched.
 - Ignore Copilot leftovers #297 / #304 unless owner names them.
 - No main close-out, tag, Release, deploy, or certification language.
-- No remint of PRs 107–378 or of PC pack PRs 249 / 252 / 256 / 257 / 258 / 367 as a new drain queue. Remint HOLD Approve-only. No Netlify pin remint / PIN-02 remint.
+- No remint of PRs 107–379 or of PC pack PRs 249 / 252 / 256 / 257 / 258 / 367 as a new drain queue. Remint HOLD Approve-only. No Netlify pin remint / PIN-02 remint.
 - L-025–L-028 are not reopened here. LOCKS dispositions are unchanged except the ROADMAP digest already synced in PR 241.
 
 ## L-025–L-028 dispositions
@@ -146,7 +147,7 @@ Live GitHub rulesets (read-only GET, 2026-08-31): `21894580` covers `version/*` 
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-DOCS-TIP-HONESTY-13A45-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/status only. Do not remint #378 / #377 / #371 / #369 / #368 / #367. Do not FEED 0.37 strangers. Do not claim #376 merged. Do not close out to `main`, tag, certify, deploy, or invent OPEN 0.38.
+**This ticket:** merge-commit `SUN-DOCS-TIP-HONESTY-F576-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Docs/status only. Do not remint #379 / #378 / #377 / #371 / #369 / #368 / #367. Do not FEED 0.37 strangers. Do not claim #376 merged. Do not close out to `main`, tag, certify, deploy, or invent OPEN 0.38.
 
 **Grok / orchestrator (`$ S1`):** after this merge, keep building named owner-OPEN tickets. 0.37 strangers stay PARKED. Remint HOLD Approve-only. Do not invent extra OPEN. Netlify HOLD. #376 stays on `$S2`.
 
