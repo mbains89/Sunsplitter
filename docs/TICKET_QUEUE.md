@@ -1,12 +1,13 @@
-# Sunsplitter ticket queue — playtest-response drain honesty after tip 5ff43841
+# Sunsplitter ticket queue — tip honesty after 0e7535df (#371 drain)
 
-SOURCE lane@e65f252f599cd29c6b21211ae9d2f42c9e271fdc · TASK SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01 · MODE docs
+SOURCE lane@0e7535df45bffa08926c992e0995668246056526 · TASK SUN-DOCS-TIP-HONESTY-0E75-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
+Does not invent OPEN 0.38. 0.37 strangers stay PARKED.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `e65f252f599cd29c6b21211ae9d2f42c9e271fdc`
-(this ticket's pre-PR HEAD; ≥ named floor `5ff43841`).
+Lane: `version/0.30.1-main-reconcile-ci.1` at `0e7535df45bffa08926c992e0995668246056526`
+(merge of PR **#371** `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01`).
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
@@ -14,13 +15,18 @@ Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
 Certify / Netlify / 0.36 PC-evidence stay **OPEN-GATED** as product actions.
 That is not the lock-suffix word. Prior receipts:
+`docs/SUN_PLAYTEST_RESPONSE_DRAIN_HONESTY_01.md`,
+`docs/SUN_DOCS_TIP_HONESTY_369.md`,
 `docs/SUN_DOCS_TIP_HONESTY_363.md`,
 `docs/SUN_DOCS_TIP_HONESTY_02.md`,
 `docs/SUN_DOCS_TIP_HONESTY_01.md`.
-This pass receipt: `docs/SUN_PLAYTEST_RESPONSE_DRAIN_HONESTY_01.md`.
+This pass receipt: `docs/SUN_DOCS_TIP_HONESTY_0E75.md`.
 
 Pack labels `0.30.2` / `0.30.3` / `0.30.4` stay **planning ids**.
 They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
+
+PR **#376** MAPFIX / restore is **in-flight unpaid** on `$S2`.
+Do not claim it merged. Do not touch `src/state.js` / `src/engine.js`.
 
 ## Holds (explicit)
 
@@ -35,17 +41,22 @@ They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
 - PR 45 / draft PR 46 untouched. No remint of spent playable leftovers 5–9.
 - Ignore Copilot non-ticket branches. **Do not merge PR #297**
   (corrupt `src/engine.js` PLACEHOLDER). Ignore **#304** unless owner names it.
-- Do not invent OPEN 0.37.
+- Do not invent OPEN 0.37. Do not invent OPEN 0.38.
+- **#376 MAPFIX stays unpaid.** Do not merge from this ticket.
 
 ## Current lane (do not reopen as a pack)
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `e65f252f599cd29c6b21211ae9d2f42c9e271fdc` (pre-PR HEAD for this honesty ticket). |
-| `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | This docs ticket. Plan leftovers 5–9 ALREADY_SATISFIED; 10–13 named holds. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `0e7535df45bffa08926c992e0995668246056526` after PR **#371**. |
+| PR **#371** `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | Merged. Leftovers 5–9 ALREADY_SATISFIED; 10–13 named holds. Do not remint. |
+| `SUN-DOCS-TIP-HONESTY-369-01` | Historical pointer at `5ff43841` / PR #369. |
+| PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. Do not remint. |
+| PR **#368** `SUN-DOCS-PC036-PACK-CLOSE-01` | Merged. Tip-named 0.36 PC pack closed-for-FEED. |
 | PR **#363** `SUN-RECEIPT-VERIFY-MODES-01` | Merged earlier. Do not remint. |
 | PR **#360** `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | Merged. First Crew tap holds `#crew-sheet` closed. Do not remint. |
 | PR **#348** `SUN-TITLE-CONTINUE-CREW-02` | Merged. Title Continue = saved visible living crew. Do not remint. |
+| PR **#376** MAPFIX / restore | OPEN / in-flight unpaid. Do not claim merged. |
 | `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. |
 
 ---
@@ -63,7 +74,8 @@ They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
 Also spent (unchanged): `SUN-RECEIPT-VERIFY-MODES-01` PR **#363**;
 `SUN-HITL-WIRE-REMAP-01`; `SUN-EMBRYO-COUNT-SWEEP-01`;
 `SUN-LETHAL-RESUME-DEATHBEAT-01`; `SUN-HITL-WIRE-ADD-KEYS-A-01`;
-`SUN-DAMAGE-CAUSE-PROPOSAL-01` paper PR **#298**.
+`SUN-DAMAGE-CAUSE-PROPOSAL-01` paper PR **#298**;
+`SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` PR **#371**.
 
 ## Named holds — leftovers 10–13 (not fireable)
 
@@ -87,7 +99,9 @@ Do not launch these from `$ S2` FEED.
 | Amara-route expansion | PARKED |
 | ART-R2 broad binary regen | PARKED |
 | PR **#297** `SUN-TITLE-CONTINUE-CREW-COUNT-01` | CORRUPT engine.js. Do not merge. Do not remint. |
-| Invent OPEN 0.37 | Not authorized from this queue |
+| Invent OPEN 0.37 | PARKED |
+| Invent OPEN 0.38 | Not authorized |
+| PR **#376** MAPFIX | In-flight unpaid. Stays on `$S2`. Do not claim merged. |
 
 ## Dispatch order for orchestrator
 
