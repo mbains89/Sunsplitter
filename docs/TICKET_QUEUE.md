@@ -1,14 +1,14 @@
-# Sunsplitter ticket queue — tip honesty after 5d20c123 (#377)
+# Sunsplitter ticket queue — tip honesty after 13a45eb5 (#378)
 
-SOURCE lane@5d20c123d191d3b9d91e4970ce696b8a1f27db7e · TASK SUN-DOCS-TIP-HONESTY-5D20-01 · MODE docs
+SOURCE lane@13a45eb5ca60bd15768ea39ee957c23a978a2e3b · TASK SUN-DOCS-TIP-HONESTY-13A45-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
 Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `5d20c123d191d3b9d91e4970ce696b8a1f27db7e`
-(merge of PR **#377** `SUN-DOCS-TIP-HONESTY-0E75-01`).
-Ancestry: **#371** @ `0e7535df` then **#377** @ `5d20c123`.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `13a45eb5ca60bd15768ea39ee957c23a978a2e3b`
+(merge of PR **#378** `SUN-DOCS-TIP-HONESTY-5D20-01`).
+Ancestry: **#371** @ `0e7535df` then **#377** @ `5d20c123` then **#378** @ `13a45eb5`.
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
@@ -16,13 +16,14 @@ Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
 Certify / Netlify / 0.36 PC-evidence stay **OPEN-GATED** as product actions.
 That is not the lock-suffix word. Prior receipts:
+`docs/SUN_DOCS_TIP_HONESTY_5D20.md`,
 `docs/SUN_DOCS_TIP_HONESTY_0E75.md`,
 `docs/SUN_PLAYTEST_RESPONSE_DRAIN_HONESTY_01.md`,
 `docs/SUN_DOCS_TIP_HONESTY_369.md`,
 `docs/SUN_DOCS_TIP_HONESTY_363.md`,
 `docs/SUN_DOCS_TIP_HONESTY_02.md`,
 `docs/SUN_DOCS_TIP_HONESTY_01.md`.
-This pass receipt: `docs/SUN_DOCS_TIP_HONESTY_5D20.md`.
+This pass receipt: `docs/SUN_DOCS_TIP_HONESTY_13A45.md`.
 
 Pack labels `0.30.2` / `0.30.3` / `0.30.4` stay **planning ids**.
 They are not `GAME_VERSION`, not a tag, and not an OPEN of 0.36.
@@ -50,8 +51,9 @@ Do not claim it merged. Do not touch `src/state.js` / `src/engine.js`.
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `5d20c123d191d3b9d91e4970ce696b8a1f27db7e` after PR **#377**. |
-| PR **#377** `SUN-DOCS-TIP-HONESTY-0E75-01` | Merged. Pointed STATUS/QUEUE at `0e7535df`. Historical once this pass lands. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `13a45eb5ca60bd15768ea39ee957c23a978a2e3b` after PR **#378**. |
+| PR **#378** `SUN-DOCS-TIP-HONESTY-5D20-01` | Merged. Pointed STATUS/QUEUE at `5d20c123`. Historical once this pass lands. |
+| PR **#377** `SUN-DOCS-TIP-HONESTY-0E75-01` | Merged @ `5d20c123`. Do not remint. |
 | PR **#371** `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | Merged @ `0e7535df`. Leftovers 5–9 ALREADY_SATISFIED; 10–13 named holds. Do not remint. |
 | `SUN-DOCS-TIP-HONESTY-369-01` | Historical pointer at `5ff43841` / PR #369. |
 | PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. Do not remint. |
@@ -79,7 +81,8 @@ Also spent (unchanged): `SUN-RECEIPT-VERIFY-MODES-01` PR **#363**;
 `SUN-LETHAL-RESUME-DEATHBEAT-01`; `SUN-HITL-WIRE-ADD-KEYS-A-01`;
 `SUN-DAMAGE-CAUSE-PROPOSAL-01` paper PR **#298**;
 `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` PR **#371**;
-`SUN-DOCS-TIP-HONESTY-0E75-01` PR **#377**.
+`SUN-DOCS-TIP-HONESTY-0E75-01` PR **#377**;
+`SUN-DOCS-TIP-HONESTY-5D20-01` PR **#378**.
 
 ## Named holds — leftovers 10–13 (not fireable)
 
