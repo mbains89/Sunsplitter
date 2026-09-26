@@ -1,37 +1,27 @@
-# SUN-HITL-WIRE-88-MAPFIX-01 / FINISH-03
+# SUN-HITL-WIRE-88-MAPFIX-01 / FINISH-04
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-Myth PASS Slot15 DONE. **MERGE STOP.** Do not merge #376.
-No second unpaid PR. No JPEG regen. No Netlify. No certify. No 0.36 mint.
+**MERGE STOP.** Remote `src/state.js` is still the 1656-byte stub (`0c6a6db`). Do not merge #376.
 
-## Landed on PR #376 this seat
+## Local git commit (not on origin)
 
-- `scripts/playtest-art-event-audit-checks.mjs` FIX×6 needles @ `2acdcc70` / blob `9913a311`
-- scene.image FIX×6 (scenes-03/11/23/41) prior
-- remains-lean + art-r2-playtest-close expected plates prior
+Prepared on this seat, not pushed (HTTPS git has no credentials; `.ssh` empty):
 
-## STOP — truncated state.js
+- commit `e8cba18` on `ticket/0.30.1-hitl-wire-88-mapfix-01`
+- `src/state.js` **39001 bytes** (from lane `0e7535df` + FIX×6). Not PLACEHOLDER.
+- `src/engine.js` resolve split for `act2_tether_hand_elias` / `act3_lethal_elias_order`
+- `scripts/verify.mjs` expected/forbidden flip
 
-`src/state.js` @ `0c6a6db` is a **1656-byte stub** (SHA `555576fb`). Worse than placeholder `d9cdf0ac`.
-Grok Fast Contents API truncated the 39k restore. Do not treat as paid.
+FIX×6 map:
+- competence_watch → observation_bridge_alt.jpg
+- romance_lena_1 → shower_lena.jpg
+- act2_tether_hand_elias → self_risk.jpg
+- act3_lethal_elias_order → bond_elias.jpg
+- vess_signal / vess_cost → transmission.jpg
 
-Restore path: drop full lane `0e7535df` `src/state.js` plus FIX×6 map lines onto this same branch via GitHub web UI.
+## Need from credentialed seat
 
-FIX×6 map lines:
-- competence_watch → images/observation_bridge_alt.jpg
-- romance_lena_1 → images/shower_lena.jpg
-- act2_tether_hand_elias → images/self_risk.jpg
-- act3_lethal_elias_order → images/bond_elias.jpg
-- vess_signal → images/transmission.jpg
-- vess_cost → images/transmission.jpg
+`git push origin ticket/0.30.1-hitl-wire-88-mapfix-01` of `e8cba18`, **or** web-UI drop of the three files. Then prove remote state.js ≥35k and rename the PR off RESTORE STOP.
 
-## Still unpaid
-
-| file | needed |
-|---|---|
-| `src/state.js` | full ~39k restore + FIX×6 |
-| `src/engine.js` | split resolve: elias tether → self_risk; elias order → bond_elias; sealant stays work_elias |
-| `scripts/verify.mjs` | flip expected/forbidden for those three truth checks |
-
-Patched copies prepared this turn locally (`/tmp/state-mapfix.js`, `/tmp/engine-mapfix.js`, `/tmp/verify-mapfix.js`). Not on remote except the audit file.
+No second PR. No JPEG. No Netlify. No 0.36 mint.
