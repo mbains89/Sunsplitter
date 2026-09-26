@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 
 // SUN-PLAYTEST-ART-EVENT-AUDIT-01. Audit table + one in-tree retarget +
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
+// SUN-HITL-MAPFIX-376-FINISH-03: romance_lena_1 expected plate is shower_lena.jpg.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const IMAGES_TREE = "527366322b22ea9b2721f321417bb2343232bd24";
@@ -150,8 +151,8 @@ function sourceErrors() {
   if (!/romance_amara_1:[\s\S]*?image: "images\/hydroponics\.jpg"/.test(bondSource)) {
     errors.push("romance_amara_1 living stand-in must stay hydroponics.jpg until Grok PASS");
   }
-  if (!stateSource.includes('romance_lena_1:      "images/observation_bridge_alt_2.jpg"')) {
-    errors.push("romance_lena_1 map drifted off blister stand-in");
+  if (!stateSource.includes('romance_lena_1:      "images/shower_lena.jpg"')) {
+    errors.push("romance_lena_1 map drifted off HITL shower plate");
   }
   if (!stateSource.includes('vess_boarding:        "images/vess_boarding.jpg"')) {
     errors.push("vess_boarding unwired; discarded-plate campaign is forbidden on this ticket");
@@ -247,16 +248,15 @@ function sourceErrors() {
       }
     }
     if (!block.includes("body_ref front/back: NOT_APPROVED") && !block.includes("body_ref front/back: **NOT_APPROVED**")) {
-      // stubs use "body_ref front/back: NOT_APPROVED"
       if (!/body_ref front\/back:\s*NOT_APPROVED/.test(block)) {
-        errors.push(`stub ${GROK_STUBS[index] || index} missing body_ref NOT_APPROVED slot`);
+        errors.push(`stub ${GROK_STUBS[index] || index} missing body_ref NOT_APPROVED slot");
       }
     }
     if (!block.includes("**Body + facial language**")) {
-      errors.push(`stub ${GROK_STUBS[index] || index} missing body + facial language section`);
+      errors.push(`stub ${GROK_STUBS[index] || index} missing body + facial language section");
     }
     if (!block.includes("**Full event prose")) {
-      errors.push(`stub ${GROK_STUBS[index] || index} missing full event prose`);
+      errors.push(`stub ${GROK_STUBS[index] || index} missing full event prose");
     }
     for (const needle of IDENTITY_LOCK_NEEDLES) {
       if (!block.includes(needle)) {
@@ -264,7 +264,7 @@ function sourceErrors() {
       }
     }
     if (!/Sole face reference path:\s*none|images\/bodysuit_/.test(block)) {
-      errors.push(`stub ${GROK_STUBS[index] || index} missing bodysuit sole-face path or explicit none`);
+      errors.push(`stub ${GROK_STUBS[index] || index} missing bodysuit sole-face path or explicit none");
     }
   }
   if (!audit.includes("| `bond_mira`") || !audit.includes("**RETARGET_IN_TREE**")) {
@@ -299,7 +299,7 @@ function runtimeErrors(runtime) {
     const expectedBond = "images/quiet_mira.jpg";
     const deadFallback = "images/corridor_variant.jpg";
     const prior = {
-      romance_lena_1: "images/observation_bridge_alt_2.jpg",
+      romance_lena_1: "images/shower_lena.jpg",
       romance_amara_1: "images/hydroponics.jpg",
       romance_mira_1: "images/quiet_mira.jpg",
       vess_boarding: "images/vess_boarding.jpg",
