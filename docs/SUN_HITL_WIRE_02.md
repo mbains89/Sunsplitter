@@ -34,12 +34,15 @@ FIX×6 from `MEASURE_LIVE_VS_HITL_88.md`. IN even if pack tags say `LIVE_old` or
 | `vess_cost` | `vess_signal.jpg` | `images/transmission.jpg` |
 | `act3_lethal_elias_order` | `work_elias.jpg` | `images/bond_elias.jpg` |
 
-KEEP `arc_future_2` → `images/vault_interior_alt.jpg`.
+LANDED `arc_future_2` → `images/arc_future_2.jpg` (D2 slot_15 win; prior vault_interior_alt HOLD lifted).
 
 Full wire = map + `scene.image` + `resolveSceneImage` split + verify invert together.
 Living-path only. Dead fallbacks stay. Mira/Sela tether hands keep `tether_ride.jpg`. Sealant keeps `work_elias.jpg`. `lena_shower` may still own `shower_lena.jpg`.
 
 This ticket lifts the #349 SKIP on keys 1–3 because owner GO named those dests as-is.
+
+**Post-land note:** staged pack basename wins over the table dests above when the plate is present in `SUN_HITL_WIRE_STAGE_20260927.zip` (e.g. romance_lena_1→romance_lena_1.jpg, act2_tether_hand_elias→act2_tether_hand_elias.jpg, vess_cost→vess_cost.jpg, act3_lethal_elias_order→act3_lethal_elias_order.jpg). competence_watch kept tip (`competence_watch.jpg`) because `observation_bridge_alt.jpg` was not in stage.
+
 
 ## Pack holds (owner 2026-09-27)
 
@@ -50,7 +53,13 @@ This ticket lifts the #349 SKIP on keys 1–3 because owner GO named those dests
 
 ## Pixels on this branch
 
-None this ticket until a non-quarantined pack is named. Six-late dest files stay tip bytes as-is.
+**LANDED** 2026-09-27 Mac fallback (Codex) after Grok `$S2` attach PASTE_FAIL / attach-reset loop.
+
+- Stage: `SUN_HITL_WIRE_STAGE_20260927.zip` (89 jpgs + MANIFEST + IMAGE_MD5)
+- Overwrote/added `images/*.jpg` same basenames from stage (do not delete unrelated)
+- `src/state.js` `sceneImages` remapped: lead_together, arc_future_2 (NOT vault_interior_alt), mira_shower→shower_mira, rear trio, priority_ration, berths_manifest, plus staged-basename prefers for romance_lena_1 / act2_tether_hand_elias / vess_cost / act3_lethal_elias_order and every other event_id with `images/<event_id>.jpg` in stage
+- Quarantine `sun_hitl_feed_mac` honored (not used)
+- No Netlify. No certify. No merge.
 
 ## Holds
 
