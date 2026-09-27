@@ -6,10 +6,11 @@ registerScenes({
   // PRE: living Elias offered from tether approach; Tomas not dead (requireLivingCast)
   // WRITES: onEnter sets tether_hand_elias
   // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Elias is not offered; requireLivingCast keeps rider living
-  // IMAGE: REUSE images/tether_ride.jpg; one anonymous helmeted exterior rider, green annex still ahead.
-  //   Not self_risk.jpg (wet interior corridor wheel). Mira is not on the plate. Commander faceless.
+  // IMAGE: HITL staged plate images/act2_tether_hand_elias.jpg (MEASURE_LIVE_VS_HITL_88 + OWNER HITL wire).
+  //   Living Elias only; Mira/Sela tether hands keep tether_ride.jpg. Dead fallback corridor_pressure_3.
+  //   Not self_risk.jpg (wet interior corridor wheel). Commander faceless.
   act2_tether_hand_elias: {
-    image: "images/tether_ride.jpg",
+    image: "images/act2_tether_hand_elias.jpg",
     onEnter: () => { state.flags.tether_hand_elias = true; },
     text: () => {
       const rushed = !!state.flags.tether_rushed;

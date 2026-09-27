@@ -11,9 +11,10 @@ import { spawnSync } from "node:child_process";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export const ART_R2_PLAYTEST_CLOSE_SCENES = {
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): staged event_id plates for Lena/Elias living paths.
   romance_lena_1: {
-    expected: "images/observation_bridge_alt_2.jpg",
-    forbidden: ["images/shower_lena.jpg", "images/romance_lena_1.jpg"],
+    expected: "images/romance_lena_1.jpg",
+    forbidden: ["images/shower_lena.jpg", "images/observation_bridge_alt_2.jpg"],
     textNeedle: "observation blister",
     leftover: { id: "lena_shower", image: "images/shower_lena.jpg" }
   },
@@ -30,14 +31,14 @@ export const ART_R2_PLAYTEST_CLOSE_SCENES = {
     leftover: { id: "mira_shower", image: "images/shower_mira.jpg" }
   },
   act2_tether_hand_elias: {
-    expected: "images/tether_ride.jpg",
-    forbidden: ["images/self_risk.jpg"],
+    expected: "images/act2_tether_hand_elias.jpg",
+    forbidden: ["images/self_risk.jpg", "images/tether_ride.jpg"],
     textNeedle: "Elias suits up",
     deadFallback: "images/corridor_pressure_3.jpg"
   },
   act3_lethal_elias_order: {
-    expected: "images/work_elias.jpg",
-    forbidden: ["images/bond_elias.jpg", "images/quiet_elias.jpg"],
+    expected: "images/act3_lethal_elias_order.jpg",
+    forbidden: ["images/bond_elias.jpg", "images/quiet_elias.jpg", "images/work_elias.jpg"],
     textNeedle: "Station B-four",
     leftover: { id: "bond_elias", image: "images/bond_elias.jpg" },
     deadFallback: "images/corridor_pressure_3.jpg"
@@ -52,10 +53,14 @@ export const ART_R2_PLAYTEST_CLOSE_SCENES = {
 };
 
 const LOCKED_HASHES = {
+  "images/romance_lena_1.jpg": "67a79c21d13c72d2e91648f1141cc6171422e579b6702db26d496d6068ae39f4",
   "images/observation_bridge_alt_2.jpg": "bd39f540276e44b9c5c8d26da9f7e7fe7b8f5e19d6e15861ca4de07485bb8a55",
   "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
-  "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
+  // Stage zip intentionally refreshed quiet_mira HITL bytes — pin tip hash, do not revert JPEG.
+  "images/quiet_mira.jpg": "8a4ce93e09534f2140df9d4e2270652ff610cd2b20f63cc7495c5ed11eb05ae0",
+  "images/act2_tether_hand_elias.jpg": "2b4337cece6d32307131328d419028e45fc506986e52a9c7dd0b4ac46de290dd",
   "images/tether_ride.jpg": "7961187200068efe1938de5a110d0a30f673be212e8aaf0694e0650e3a506c34",
+  "images/act3_lethal_elias_order.jpg": "801046e8d1604fd2d7a84d48881b03c5d1457191afce47577f9c40a4d1ffaa01",
   "images/work_elias.jpg": "9dfa81959aba082c192c1a9d0ea3c24383dc7695da0ccbe74bc1c3025af63ff2",
   "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf",
   "images/shower_lena.jpg": "cd0981c0d0e8b31f589658a77591aa73996547707567016d0f6a2a4f119cd097",
@@ -66,9 +71,10 @@ const LOCKED_HASHES = {
   "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1"
 };
 
-const IMAGES_TREE = "527366322b22ea9b2721f321417bb2343232bd24";
+// Tip images tree after SUN_HITL_WIRE_STAGE_20260927.zip land.
+const IMAGES_TREE = "fe94eb1917f3448d0536645db958674f410ffc1b";
+// romance_lena_1.jpg is the landed HITL living map — no longer face-reveal forbidden.
 const FACE_REVEAL = [
-  "images/romance_lena_1.jpg",
   "images/romance_mira_1.jpg",
   "images/romance_amara_1.jpg"
 ];
@@ -97,7 +103,8 @@ function sourceErrors() {
   };
 
   for (const [id, spec] of Object.entries(ART_R2_PLAYTEST_CLOSE_SCENES)) {
-    if (!new RegExp(`${id}:\\s+"${spec.expected}"`).test(stateSource)) {
+    // Tip state.js uses single quotes for HITL remaps; accept either quote style.
+    if (!new RegExp(`${id}:\\s+['"]${spec.expected.replace(/\./g, "\\.")}['"]`).test(stateSource)) {
       errors.push(`state.js map for ${id} is not ${spec.expected}`);
     }
     if (!sceneSources[id].includes(`image: "${spec.expected}"`)) {
@@ -114,14 +121,21 @@ function sourceErrors() {
     }
   }
 
+  // HITL split: order → staged plate; sealant keeps work_elias; Mira/Sela tether keep tether_ride.
+  if (!engineSource.includes('return isAlive("elias") ? "images/act3_lethal_elias_order.jpg" : "images/corridor_pressure_3.jpg"')) {
+    errors.push("engine no longer resolves living Elias lethal-order to act3_lethal_elias_order.jpg");
+  }
   if (!engineSource.includes('return isAlive("elias") ? "images/work_elias.jpg" : "images/corridor_pressure_3.jpg"')) {
-    errors.push("engine no longer resolves living Elias lethal/sealant to work_elias.jpg");
+    errors.push("engine no longer resolves living Elias sealant to work_elias.jpg");
+  }
+  if (!engineSource.includes('return isAlive("elias") ? "images/act2_tether_hand_elias.jpg" : "images/corridor_pressure_3.jpg"')) {
+    errors.push("engine no longer resolves living Elias tether-hand to act2_tether_hand_elias.jpg");
   }
   if (!engineSource.includes('return isAlive(id.slice("act2_tether_hand_".length)) ? "images/tether_ride.jpg" : "images/corridor_pressure_3.jpg"')) {
-    errors.push("engine no longer resolves living tether-hand riders to tether_ride.jpg");
+    errors.push("engine no longer resolves living Mira/Sela tether-hand riders to tether_ride.jpg");
   }
   for (const plate of FACE_REVEAL) {
-    if (stateSource.includes(`"${plate}"`) || engineSource.includes(`"${plate}"`)) {
+    if (stateSource.includes(`"${plate}"`) || stateSource.includes(`'${plate}'`) || engineSource.includes(`"${plate}"`)) {
       errors.push(`runtime still wires face-revealing plate ${plate}`);
     }
   }

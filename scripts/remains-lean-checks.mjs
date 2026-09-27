@@ -5,12 +5,13 @@ function exerciseRemainsLean() {
   const FUTURE_LINE = "Across the recorded orders, Future carried more weight.";
   const LIVING_LINE = "Across the recorded orders, Living carried more weight.";
   const SPLIT_LINE = "The recorded orders remained split between Future and Living.";
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): match tip state.js staged plates.
   const ART_R2 = {
-    romance_lena_1: "images/observation_bridge_alt_2.jpg",
+    romance_lena_1: "images/romance_lena_1.jpg",
     romance_amara_1: "images/hydroponics.jpg",
     romance_mira_1: "images/quiet_mira.jpg",
-    act2_tether_hand_elias: "images/tether_ride.jpg",
-    act3_lethal_elias_order: "images/work_elias.jpg",
+    act2_tether_hand_elias: "images/act2_tether_hand_elias.jpg",
+    act3_lethal_elias_order: "images/act3_lethal_elias_order.jpg",
     act3_lethal_elias_sealant: "images/work_elias.jpg"
   };
   const errors = [];
