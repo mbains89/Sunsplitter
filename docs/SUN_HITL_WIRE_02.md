@@ -12,7 +12,9 @@ Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
 2026-09-27 Game Dev. Full wire + six late as-is.
 
-RETRY_REASON: prior HITL wire remapped names only; approved pixels never landed (`MEASURE_LIVE_VS_HITL_88`).
+RETRY_REASON: prior HITL wire remapped names only; approved pixels never landed.
+
+**Cite:** `MEASURE_LIVE_VS_HITL_88.md` — FIX×6 map honesty. That file is a cite only (not on this tip). Do not invent a second FIX×6 list.
 
 Do not remint `SUN-HITL-WIRE-01` (#290) or `SUN-HITL-WIRE-REMAP-01` (#307 / #349).
 Do not merge unpaid #372 / #373 / #374 / #375.
@@ -21,7 +23,7 @@ Do not apply `docs/SUN_HITL_WIRE_01.state.js.patch`.
 
 ## Six late as-is (Myth filenames win)
 
-IN even if pack tags say `LIVE_old` or `candidate`.
+FIX×6 from `MEASURE_LIVE_VS_HITL_88.md`. IN even if pack tags say `LIVE_old` or `candidate`.
 
 | event_id | tip map @ 637c0d0 | as-is dest |
 |---|---|---|
