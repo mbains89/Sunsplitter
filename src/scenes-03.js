@@ -121,8 +121,9 @@ registerScenes({
   // PRE: Lena living; reached from lena_dying before the intimacy decision
   // WRITES: choices only; scene entry writes nothing
   // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena gets the empty-blister exit
-  // IMAGE: REUSE images/observation_bridge_alt_2.jpg; person-free observation blister,
-  //   clothed/unresolved, Commander absent. The later optional rinse stays on lena_shower.
+  // IMAGE: HITL staged plate images/romance_lena_1.jpg (MEASURE_LIVE_VS_HITL_88 + OWNER HITL wire).
+  //   Living-path only; dead/empty blister keeps observation_bridge_alt_2 via resolver.
+  //   The later optional rinse stays on lena_shower / shower_lena.jpg.
   romance_lena_1: {
     get text() {
       if (!isAlive("lena")) return `The blister is empty. Whatever might have happened here has nowhere to land.`;
@@ -136,7 +137,7 @@ registerScenes({
         { text: "Step back. You will not take this from her fear.", next: "past_leak", effects: { cohesion: 1 }, affinity: { lena: 4 }, trust: { lena: 2 }, mark: { lena: "declined" } }
       ];
     },
-    image: "images/observation_bridge_alt_2.jpg"
+    image: "images/romance_lena_1.jpg"
   },
 
 });

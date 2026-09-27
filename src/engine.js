@@ -1014,10 +1014,20 @@ function resolveSceneImage(id, scene) {
   if (id === "vent" || (["aftermath", "crisis", "priority_repairs"].includes(id) && state.flags.crisis === "vent")) {
     return "images/aftermath.jpg";
   }
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): living romance_lena_1 uses staged event_id plate;
+  // dead/empty blister keeps the prior person-free observation stand-in.
+  if (id === "romance_lena_1") {
+    return isAlive("lena") ? "images/romance_lena_1.jpg" : "images/observation_bridge_alt_2.jpg";
+  }
   if (["private_stores", "prom_deck4_keep", "prom_deck4_break"].includes(id)) {
     return isAlive("elias") ? "images/elias.jpg" : "images/corridor_pressure_3.jpg";
   }
-  if (id === "act3_lethal_elias_order" || id === "act3_lethal_elias_sealant") {
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): living order uses staged event_id plate;
+  // sealant keeps work_elias.jpg. Dead fallback unchanged.
+  if (id === "act3_lethal_elias_order") {
+    return isAlive("elias") ? "images/act3_lethal_elias_order.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  if (id === "act3_lethal_elias_sealant") {
     return isAlive("elias") ? "images/work_elias.jpg" : "images/corridor_pressure_3.jpg";
   }
   if (id === "pregnancy_check") {
@@ -1026,7 +1036,12 @@ function resolveSceneImage(id, scene) {
   if (["filters_stencil", "filters_stencil_luck", "filters_stencil_silent", "offshift_sela"].includes(id)) {
     return isAlive("sela") ? "images/sela.jpg" : "images/corridor_pressure_3.jpg";
   }
-  if (["act2_tether_hand_elias", "act2_tether_hand_mira", "act2_tether_hand_sela"].includes(id)) {
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): living Elias tether uses staged event_id plate;
+  // Mira/Sela keep tether_ride.jpg. Dead fallback unchanged.
+  if (id === "act2_tether_hand_elias") {
+    return isAlive("elias") ? "images/act2_tether_hand_elias.jpg" : "images/corridor_pressure_3.jpg";
+  }
+  if (["act2_tether_hand_mira", "act2_tether_hand_sela"].includes(id)) {
     return isAlive(id.slice("act2_tether_hand_".length)) ? "images/tether_ride.jpg" : "images/corridor_pressure_3.jpg";
   }
   // Hard-catch sibling plate (Canon PASS); intact dock plate still HOLD — default map stays bulkhead.

@@ -50,7 +50,9 @@ export function artEventChecks(runtime) {
     for (const who of ["elias", "mira", "sela"]) for (const live of [true, false]) for (const rushed of [true, false]) {
       resetRunState(); state.flags.tether_rushed = rushed; if (!live) state.dead.push(who);
       const id = "act2_tether_hand_" + who, before = JSON.stringify(state);
-      const expected = live ? "images/tether_ride.jpg" : "images/corridor_pressure_3.jpg";
+      // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): living Elias uses staged event_id plate.
+      const livingPlate = who === "elias" ? "images/act2_tether_hand_elias.jpg" : "images/tether_ride.jpg";
+      const expected = live ? livingPlate : "images/corridor_pressure_3.jpg";
       if (resolveSceneImage(id, scenes[id]) !== expected || JSON.stringify(state) !== before) return false;
     }
     resetRunState();

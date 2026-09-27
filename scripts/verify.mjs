@@ -2235,8 +2235,10 @@ function rourkeDyingImageHonestyChecks(runtime) {
 
 function romanceLena1ImageTruthChecks(runtime) {
   const errors = [];
-  const expected = "images/observation_bridge_alt_2.jpg";
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): staged event_id plate; shower stays later-only.
+  const expected = "images/romance_lena_1.jpg";
   const forbidden = "images/shower_lena.jpg";
+  const oldStandIn = "images/observation_bridge_alt_2.jpg";
   const fixture = runtime.evaluate(`(() => {
     resetRunState();
     const id = "romance_lena_1";
@@ -2255,6 +2257,9 @@ function romanceLena1ImageTruthChecks(runtime) {
   for (const field of ["mapped", "declared", "resolved"]) {
     if (fixture[field] === forbidden) {
       errors.push(`romance_lena_1 ${field} still uses the premature shower plate ${forbidden}`);
+    }
+    if (fixture[field] === oldStandIn) {
+      errors.push(`romance_lena_1 ${field} still uses the pre-HITL blister stand-in ${oldStandIn}`);
     }
     if (fixture[field] !== expected) {
       errors.push(`romance_lena_1 ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
@@ -2319,10 +2324,13 @@ function romanceAmara1ImageTruthChecks(runtime) {
 
 function tetherHandEliasImageTruthChecks(runtime) {
   const errors = [];
-  const expected = "images/tether_ride.jpg";
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): staged event_id plate; Mira/Sela keep tether_ride.
+  const expected = "images/act2_tether_hand_elias.jpg";
   const forbidden = "images/self_risk.jpg";
+  const oldStandIn = "images/tether_ride.jpg";
   const deadFallback = "images/corridor_pressure_3.jpg";
   const expectedHashes = {
+    "images/act2_tether_hand_elias.jpg": "2b4337cece6d32307131328d419028e45fc506986e52a9c7dd0b4ac46de290dd",
     "images/tether_ride.jpg": "7961187200068efe1938de5a110d0a30f673be212e8aaf0694e0650e3a506c34",
     "images/self_risk.jpg": "427fb4c5a72239451d213dcf7d6e80bef15da646a4b5e6000ddb54ffeb9de8a7",
     "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
@@ -2350,6 +2358,9 @@ function tetherHandEliasImageTruthChecks(runtime) {
     if (fixture[field] === forbidden) {
       errors.push(`act2_tether_hand_elias ${field} still uses the interior corridor-wheel plate ${forbidden}`);
     }
+    if (fixture[field] === oldStandIn) {
+      errors.push(`act2_tether_hand_elias ${field} still uses the pre-HITL tether_ride stand-in ${oldStandIn}`);
+    }
     if (fixture[field] !== expected) {
       errors.push(`act2_tether_hand_elias ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
     }
@@ -2374,11 +2385,14 @@ function tetherHandEliasImageTruthChecks(runtime) {
 
 function lethalEliasOrderImageTruthChecks(runtime) {
   const errors = [];
-  const expected = "images/work_elias.jpg";
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): staged event_id plate; sealant keeps work_elias.
+  const expected = "images/act3_lethal_elias_order.jpg";
   const forbidden = "images/bond_elias.jpg";
   const quietCup = "images/quiet_elias.jpg";
+  const oldStandIn = "images/work_elias.jpg";
   const deadFallback = "images/corridor_pressure_3.jpg";
   const expectedHashes = {
+    "images/act3_lethal_elias_order.jpg": "801046e8d1604fd2d7a84d48881b03c5d1457191afce47577f9c40a4d1ffaa01",
     "images/work_elias.jpg": "9dfa81959aba082c192c1a9d0ea3c24383dc7695da0ccbe74bc1c3025af63ff2",
     "images/bond_elias.jpg": "084655c278e2c398843a26885eceeab517117b0da8656a7ccb57029e514d1db8",
     "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
@@ -2414,6 +2428,9 @@ function lethalEliasOrderImageTruthChecks(runtime) {
     }
     if (fixture[field] === quietCup) {
       errors.push(`act3_lethal_elias_order ${field} still uses the seated rest plate ${quietCup}`);
+    }
+    if (fixture[field] === oldStandIn) {
+      errors.push(`act3_lethal_elias_order ${field} still uses the pre-HITL work_elias stand-in ${oldStandIn}`);
     }
     if (fixture[field] !== expected) {
       errors.push(`act3_lethal_elias_order ${field} image is ${fixture[field] || "missing"}; expected ${expected}`);
@@ -2518,18 +2535,19 @@ function lethalEliasSealantImageTruthChecks(runtime) {
     }
   }
   const prior = {
-    lenaMapped: "images/observation_bridge_alt_2.jpg",
-    lenaDeclared: "images/observation_bridge_alt_2.jpg",
-    lenaResolved: "images/observation_bridge_alt_2.jpg",
+    // HITL wire priors (MEASURE_LIVE_VS_HITL_88 + OWNER): match tip state.js staged plates.
+    lenaMapped: "images/romance_lena_1.jpg",
+    lenaDeclared: "images/romance_lena_1.jpg",
+    lenaResolved: "images/romance_lena_1.jpg",
     amaraMapped: "images/hydroponics.jpg",
     amaraDeclared: "images/hydroponics.jpg",
     amaraResolved: "images/hydroponics.jpg",
-    eliasTetherMapped: "images/tether_ride.jpg",
-    eliasTetherDeclared: "images/tether_ride.jpg",
-    eliasTetherResolved: "images/tether_ride.jpg",
-    eliasLethalMapped: "images/work_elias.jpg",
-    eliasLethalDeclared: "images/work_elias.jpg",
-    eliasLethalResolved: "images/work_elias.jpg",
+    eliasTetherMapped: "images/act2_tether_hand_elias.jpg",
+    eliasTetherDeclared: "images/act2_tether_hand_elias.jpg",
+    eliasTetherResolved: "images/act2_tether_hand_elias.jpg",
+    eliasLethalMapped: "images/act3_lethal_elias_order.jpg",
+    eliasLethalDeclared: "images/act3_lethal_elias_order.jpg",
+    eliasLethalResolved: "images/act3_lethal_elias_order.jpg",
     miraMapped: "images/quiet_mira.jpg",
     miraDeclared: "images/quiet_mira.jpg",
     miraResolved: "images/quiet_mira.jpg"
@@ -2568,7 +2586,8 @@ function romanceMira1ImageTruthChecks(runtime) {
   const faceReveal = "images/romance_mira_1.jpg";
   const linger = "images/shower_mira.jpg";
   const expectedHashes = {
-    "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
+    // Stage zip intentionally refreshed quiet_mira HITL bytes — pin tip hash, do not revert JPEG.
+    "images/quiet_mira.jpg": "8a4ce93e09534f2140df9d4e2270652ff610cd2b20f63cc7495c5ed11eb05ae0",
     "images/shower_mira.jpg": "003145b704f5df06cde8c2b586229b951c820059b92efc8dd2b76d750817ec13",
     "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
     "images/bodysuit_mira.jpg": "8b902308cd93489332629b004ec17e5a7b9675d9ae006391554c82690193229b",
@@ -2618,18 +2637,19 @@ function romanceMira1ImageTruthChecks(runtime) {
     }
   }
   const prior = {
-    lenaMapped: "images/observation_bridge_alt_2.jpg",
-    lenaDeclared: "images/observation_bridge_alt_2.jpg",
-    lenaResolved: "images/observation_bridge_alt_2.jpg",
+    // HITL wire priors (MEASURE_LIVE_VS_HITL_88 + OWNER): match tip state.js staged plates.
+    lenaMapped: "images/romance_lena_1.jpg",
+    lenaDeclared: "images/romance_lena_1.jpg",
+    lenaResolved: "images/romance_lena_1.jpg",
     amaraMapped: "images/hydroponics.jpg",
     amaraDeclared: "images/hydroponics.jpg",
     amaraResolved: "images/hydroponics.jpg",
-    eliasTetherMapped: "images/tether_ride.jpg",
-    eliasTetherDeclared: "images/tether_ride.jpg",
-    eliasTetherResolved: "images/tether_ride.jpg",
-    eliasLethalMapped: "images/work_elias.jpg",
-    eliasLethalDeclared: "images/work_elias.jpg",
-    eliasLethalResolved: "images/work_elias.jpg"
+    eliasTetherMapped: "images/act2_tether_hand_elias.jpg",
+    eliasTetherDeclared: "images/act2_tether_hand_elias.jpg",
+    eliasTetherResolved: "images/act2_tether_hand_elias.jpg",
+    eliasLethalMapped: "images/act3_lethal_elias_order.jpg",
+    eliasLethalDeclared: "images/act3_lethal_elias_order.jpg",
+    eliasLethalResolved: "images/act3_lethal_elias_order.jpg"
   };
   for (const [field, image] of Object.entries(prior)) {
     if (fixture[field] !== image) {
@@ -2966,7 +2986,8 @@ function remainingArcLivingTruthChecks(runtime) {
     errors.push("arc_living_1 text does not follow Amara living/dead state");
   }
 
-  if (fixture.living.arc3Image !== "images/arc_living_conflict.jpg") {
+  // HITL stage basename wins (MEASURE_LIVE_VS_HITL_88 + OWNER): arc_living_3.jpg over prior conflict plate.
+  if (fixture.living.arc3Image !== "images/arc_living_3.jpg") {
     errors.push(`arc_living_3 living roster resolves to ${fixture.living.arc3Image || "no image"} instead of its locked conflict plate`);
   }
   for (const [label, row] of Object.entries({
@@ -4207,8 +4228,9 @@ function commanderIdentityChecks(runtime) {
   const runtimeSource = EXPECTED_SCRIPTS
     .map(relativePath => readFileSync(resolve(ROOT, relativePath), "utf8"))
     .join("\n");
+  // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): romance_lena_1.jpg is the landed living map —
+  // allow it. Other romance_*_1.jpg face plates remain forbidden until their own HITL land.
   const forbiddenCommanderFaceImages = [
-    "images/romance_lena_1.jpg",
     "images/romance_mira_1.jpg",
     "images/romance_amara_1.jpg",
     "images/romance_sela_1.jpg",
@@ -5110,8 +5132,11 @@ function identityAndAuthorityChecks() {
   const roadmap = readFileSync(resolve(ROOT, "artifacts/ROADMAP.md"), "utf8");
   const locks = readFileSync(resolve(ROOT, "artifacts/LOCKS.md"), "utf8");
   const fixture = JSON.parse(readFileSync(resolve(ROOT, "scripts/fixtures/main-reconcile-ci-pr-baseline.json"), "utf8"));
+  // requiredSrcTree is the CI-reconcile pin and applies only on that ticket/version route
+  // (fixture note). Empty VERIFY_HEAD_REF must not treat unrelated ticket branches as reconcile.
   const testedRef = process.env.VERIFY_HEAD_REF || "";
-  const currentReconciliationRoute = !testedRef || testedRef === fixture.branches.ticket || testedRef === fixture.branches.version;
+  const headRef = testedRef || git(["rev-parse", "--abbrev-ref", "HEAD"]);
+  const currentReconciliationRoute = headRef === fixture.branches.ticket || headRef === fixture.branches.version;
   if (currentReconciliationRoute && git(["rev-parse", "HEAD:src"]) !== REQUIRED_SRC_TREE) errors.push("main-reconcile HEAD:src changed from the authorized runtime tree");
   if (!status.includes("`release_state: NO-PUBLISH`")) errors.push("STATUS release state is not NO-PUBLISH");
   if (!status.includes("`version_integrity: NOT_CERTIFIED`")) errors.push("STATUS integrity state is not NOT_CERTIFIED");

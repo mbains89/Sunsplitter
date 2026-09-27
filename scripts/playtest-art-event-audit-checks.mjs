@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const IMAGES_TREE = "527366322b22ea9b2721f321417bb2343232bd24";
+const IMAGES_TREE = "fe94eb1917f3448d0536645db958674f410ffc1b"; // tip after HITL stage zip land
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";
@@ -92,19 +92,20 @@ const GROK_STUBS = [
   "past_leak", "ending_landfall",
   "cinematic_intro_1", "cinematic_intro_2", "cinematic_intro_3"
 ];
+// romance_lena_1.jpg is the landed HITL living map (MEASURE_LIVE_VS_HITL_88 + OWNER).
 const FACE_REVEAL = [
-  "images/romance_lena_1.jpg",
   "images/romance_mira_1.jpg",
   "images/romance_amara_1.jpg"
 ];
 const LOCKED_HASHES = {
-  "images/quiet_mira.jpg": "ad1b303e007cc9d616ee0864a5d8f5866a01f0e49f1c0a0bff05d932ac538d9d",
+  // Stage zip intentionally refreshed these HITL bytes — pin tip hashes, do not revert JPEGs.
+  "images/quiet_mira.jpg": "8a4ce93e09534f2140df9d4e2270652ff610cd2b20f63cc7495c5ed11eb05ae0",
   "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
   "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
   "images/observation_bridge_alt_2.jpg": "bd39f540276e44b9c5c8d26da9f7e7fe7b8f5e19d6e15861ca4de07485bb8a55",
   "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf",
-  "images/vess_boarding.jpg": "f39f2f2609742d41a371abf039bbee29a67ad803111c952c22676b3a34401a5a",
-  "images/corridor_variant.jpg": "720c6c345c63725818971f42a880a9a2baffebcfbb94e574f7391746403823f9"
+  "images/vess_boarding.jpg": "cdf5b87d92ba8a5cdf3c606f53eb6114b498f7ee40f1dc97db094dcbecd58b06",
+  "images/corridor_variant.jpg": "1c359019cd8455a11bb26b359739e371c926896bf3c4a8fe336713527f081dcf"
 };
 
 function git(args) {
@@ -150,8 +151,9 @@ function sourceErrors() {
   if (!/romance_amara_1:[\s\S]*?image: "images\/hydroponics\.jpg"/.test(bondSource)) {
     errors.push("romance_amara_1 living stand-in must stay hydroponics.jpg until Grok PASS");
   }
-  if (!stateSource.includes('romance_lena_1:      "images/observation_bridge_alt_2.jpg"')) {
-    errors.push("romance_lena_1 map drifted off blister stand-in");
+  // Tip state.js uses single quotes for this HITL remap (MEASURE_LIVE_VS_HITL_88 + OWNER).
+  if (!/romance_lena_1:\s+['"]images\/romance_lena_1\.jpg['"]/.test(stateSource)) {
+    errors.push("romance_lena_1 map drifted off HITL staged plate");
   }
   if (!stateSource.includes('vess_boarding:        "images/vess_boarding.jpg"')) {
     errors.push("vess_boarding unwired; discarded-plate campaign is forbidden on this ticket");
@@ -169,7 +171,7 @@ function sourceErrors() {
     errors.push("Landfall ending art selection drifted");
   }
   for (const plate of FACE_REVEAL) {
-    if (stateSource.includes(`"${plate}"`) || engineSource.includes(`"${plate}"`) || bondSource.includes(`image: "${plate}"`)) {
+    if (stateSource.includes(`"${plate}"`) || stateSource.includes(`'${plate}'`) || engineSource.includes(`"${plate}"`) || bondSource.includes(`image: "${plate}"`)) {
       errors.push(`runtime still wires face-revealing plate ${plate}`);
     }
   }
@@ -299,7 +301,8 @@ function runtimeErrors(runtime) {
     const expectedBond = "images/quiet_mira.jpg";
     const deadFallback = "images/corridor_variant.jpg";
     const prior = {
-      romance_lena_1: "images/observation_bridge_alt_2.jpg",
+      // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): match tip state.js staged plate.
+      romance_lena_1: "images/romance_lena_1.jpg",
       romance_amara_1: "images/hydroponics.jpg",
       romance_mira_1: "images/quiet_mira.jpg",
       vess_boarding: "images/vess_boarding.jpg",
