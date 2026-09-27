@@ -21,6 +21,8 @@ Do not apply `docs/SUN_HITL_WIRE_01.state.js.patch`.
 
 ## Six late as-is (Myth filenames win)
 
+IN even if pack tags say `LIVE_old` or `candidate`.
+
 | event_id | tip map @ 637c0d0 | as-is dest |
 |---|---|---|
 | `competence_watch` | `competence_watch.jpg` | `images/observation_bridge_alt.jpg` |
@@ -37,15 +39,17 @@ Living-path only. Dead fallbacks stay. Mira/Sela tether hands keep `tether_ride.
 
 This ticket lifts the #349 SKIP on keys 1–3 because owner GO named those dests as-is.
 
-## Pixels
+## Pack holds (owner 2026-09-27)
 
-Approved overwrite commit (unmerged on #374): `cdb920de28c429966096087348ac7b0533b8b61b` — 26 LIVE dest jpgs from Muse FEED_READY pack.
+- IGNORE thin `*52_76*` dupes. Do not wire or overwrite from that thin set.
+- QUARANTINE `sun_hitl_feed_mac`. Do not copy, merge, or treat #374/`cdb920d` as paid pixels on this branch.
+- Late zip cite `SUN_AT_HITL_52_76_PLUS_LATE_REAR.md` md5 `1fc16f97…` is a cite only — file not on this tip.
+- No Imagine. No V153 webps. No Bot JPEG regen.
 
-Those 26 dests do **not** include `shower_lena.jpg` / `self_risk.jpg` / `bond_elias.jpg` / `transmission.jpg`. Six-late dests for those four stay tip bytes as-is.
-Slot02 dest `observation_bridge_alt.jpg` and Slot15 dest `vault_interior_alt.jpg` **are** in the 26.
+## Pixels on this branch
 
-This receipt commit does not copy JPEG bytes.
+None this ticket until a non-quarantined pack is named. Six-late dest files stay tip bytes as-is.
 
 ## Holds
 
-No Netlify. No certify. No 0.36 mint. No invented OPEN 0.37. No Bot JPEG regen.
+No Netlify. No certify. No 0.36 mint. No invented OPEN 0.37.
