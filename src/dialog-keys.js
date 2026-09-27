@@ -6,14 +6,14 @@
     "new-run-confirm": "new-run-ok",
     "crew-sheet": "crew-sheet-close"
   };
+  var DIALOG_IDS = ["tutorial-overlay", "commander-create", "new-run-confirm", "crew-sheet"];
   var modalOpener = null;
 
   function visibleModalDialog() {
     var game = document.getElementById("game-screen");
     if (!game || game.classList.contains("hidden")) return null;
-    var nodes = document.querySelectorAll("[role=dialog][aria-modal=true]");
-    for (var i = 0; i < nodes.length; i += 1) {
-      var el = nodes[i];
+    for (var i = 0; i < DIALOG_IDS.length; i += 1) {
+      var el = document.getElementById(DIALOG_IDS[i]);
       if (el && !el.classList.contains("hidden") && el.classList.contains("visible")) return el;
     }
     return null;
