@@ -1,0 +1,27 @@
+/* SUN-FIX-INTRO-NAV-01 — Hex shot 2 empty hole right of NEXT.
+   Cite: pin 70689e99 cinematic-actions 2-col + #cinematic-skip span.
+   Chrome only. No plate / sceneImages change. */
+.cinematic-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 8px;
+}
+.cinematic-actions .btn {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 4px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: normal;
+}
+#cinematic-skip {
+  grid-column: auto;
+}
+@media (max-width: 359px) {
+  .cinematic-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
