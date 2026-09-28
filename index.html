@@ -134,7 +134,7 @@
         <div id="commander-create" class="hidden" role="dialog" aria-modal="true" aria-labelledby="commander-create-title">
           <p id="commander-create-title"><strong>Commander creation</strong> — light hybrid</p>
           <p class="commander-create-help">Pick a callsign, optional seal, and oath. Role stays Commander.</p>
-          <p id="commander-create-chip" class="commander-create-chip" role="status">Callsign + oath required · Seal optional · no meters / full chargen</p>
+          <p id="commander-create-chip" class="commander-create-chip" role="status">Callsign + oath required · Seal optional · no meters / full setup</p>
           <label class="commander-field">Callsign <span class="commander-req">(required)</span>
             <select id="commander-callsign" aria-label="Callsign">
               <option value="Ash">Ash</option>
@@ -170,7 +170,7 @@
           <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
         </div>
         <div class="content-notice-actions" role="group" aria-label="Content notice">
-          <p id="content-notice-chip" class="content-notice-chip" role="status">Reopens tone notice · does not clear ack or save</p>
+          <p id="content-notice-chip" class="content-notice-chip" role="status">Reopens tone notice · does not clear notice acknowledged or save</p>
           <button id="btn-content-notice" class="btn" type="button" onclick="revisitTone()" aria-describedby="content-notice-chip">Revisit content notice</button>
         </div>
         <input id="save-import-file" class="hidden" type="file" accept="application/json,.json" aria-label="Import save file" onchange="handleSaveImportSelection(this)" />
