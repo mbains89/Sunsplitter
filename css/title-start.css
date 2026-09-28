@@ -160,3 +160,61 @@
   display: block;
   margin: 0.2rem 0;
 }
+
+/* SUN-FIX-CHARCREATION-UI-01 — one primary start CTA + readable form + stacked import */
+#title-screen:has(#commander-create.visible) #btn-begin,
+#title-screen.commander-create-open #btn-begin {
+  display: none !important;
+}
+
+#title-screen #commander-create {
+  padding: 1.05rem 1.1rem 1.15rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#title-screen #commander-create .commander-create-help,
+#title-screen #commander-create .commander-field {
+  margin: 0.7rem 0;
+  line-height: 1.45;
+}
+#title-screen #commander-create fieldset.commander-field label {
+  margin: 0.42rem 0;
+  min-height: 1.65em;
+  padding: 0.12rem 0;
+}
+#title-screen #commander-create [role="group"] {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+#title-screen #commander-create [role="group"] .btn {
+  flex: 1 1 0;
+}
+
+@media (max-width: 420px) {
+  #title-screen #commander-create {
+    padding: 1.1rem 1rem 1.2rem;
+  }
+  #title-screen #commander-create fieldset.commander-field label {
+    margin: 0.5rem 0;
+  }
+}
+
+#title-screen .save-transfer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#title-screen .save-transfer-actions .export-import-chip {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+#title-screen .save-transfer-actions .btn {
+  flex: 0 0 auto;
+  width: 100%;
+}
