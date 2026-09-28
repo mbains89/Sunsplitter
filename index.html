@@ -176,3 +176,145 @@
         <p id="title-save-status" class="title-save-status" aria-live="polite"></p>
       </div>
     </div>
+
+    <section id="cinematic-screen" class="hidden" aria-labelledby="cinematic-heading">
+      <img id="cinematic-image" alt="" decoding="async" />
+      <div id="cinematic-body" class="cinematic-body">
+        <h1 id="cinematic-heading" tabindex="-1"></h1>
+        <div class="cinematic-caption" aria-live="polite" aria-atomic="true">
+          <p id="cinematic-text"></p>
+          <p id="cinematic-progress"></p>
+        </div>
+      </div>
+      <div class="cinematic-actions" role="group" aria-label="Cinematic controls">
+        <button id="cinematic-back" class="btn" type="button" onclick="retreatCinematic()">Back</button>
+        <button id="cinematic-pause" class="btn" type="button" onclick="toggleCinematicPause()" aria-pressed="false">Pause</button>
+        <button id="cinematic-next" class="btn" type="button" onclick="advanceCinematic()">Next</button>
+        <button id="cinematic-skip" class="btn btn-primary" type="button" onclick="finishCinematic()">Skip</button>
+      </div>
+    </section>
+
+    <div id="game-screen" class="hidden" aria-labelledby="scene-heading">
+      <h1 id="scene-heading" class="sr-only">Current scene</h1>
+      <div id="story" role="region" aria-labelledby="scene-heading" tabindex="-1"></div>
+      <div id="choices" role="group" aria-label="Choices"></div>
+    </div>
+
+    <div id="ending-screen" class="hidden">
+      <div id="ending-image-wrap">
+        <img id="ending-image" alt="" decoding="async" />
+      </div>
+      <h1 class="ending-title" id="ending-title" tabindex="-1"></h1>
+      <div class="ending-text" id="ending-text"></div>
+      <p id="ending-next-hint" class="ending-next-hint">Next: read what remains of the run.</p>
+      <button id="btn-what-remains" class="btn btn-primary" type="button" onclick="showWhatRemains()" aria-describedby="ending-next-hint">What remains</button>
+      <button class="btn" type="button" onclick="playAgain()">Play Again</button>
+    </div>
+
+    <div id="what-remains-screen" class="hidden">
+      <div id="what-remains-image-wrap">
+        <img id="what-remains-image" alt="" decoding="async" />
+      </div>
+      <h1 class="ending-title" id="what-remains-heading" tabindex="-1">What remains</h1>
+      <div class="ending-text" id="what-remains-text"></div>
+      <button class="btn" type="button" onclick="showScreen('ending')">Return to ending</button>
+      <button class="btn" type="button" onclick="playAgain()">Play Again</button>
+    </div>
+
+  </main>
+
+  <div id="meta" class="hidden">
+    <span id="scene-id" aria-hidden="true"></span>
+    <span id="save-hint" class="save-hint" aria-live="polite"></span>
+    <span id="save-status" class="save-status" aria-live="polite"></span>
+    <div class="meta-actions">
+      <button type="button" onclick="saveGame()" title="Save now">Save</button>
+      <button type="button" onclick="loadGame()" title="Load saved run">Load</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="src/state.js"></script>
+<script src="src/scenes-01.js"></script>
+<script src="src/scenes-02.js"></script>
+<script src="src/scenes-03.js"></script>
+<script src="src/scenes-04.js"></script>
+<script src="src/scenes-05.js"></script>
+<script src="src/scenes-06.js"></script>
+<script src="src/scenes-07.js"></script>
+<script src="src/scenes-08.js"></script>
+<script src="src/scenes-09.js"></script>
+<script src="src/scenes-10.js"></script>
+<script src="src/scenes-11.js"></script>
+<script src="src/scenes-12.js"></script>
+<script src="src/scenes-13.js"></script>
+<script src="src/scenes-14.js"></script>
+<script src="src/scenes-15.js"></script>
+<script src="src/scenes-16.js"></script>
+<script src="src/scenes-17.js"></script>
+<script src="src/scenes-18.js"></script>
+<script src="src/scenes-19.js"></script>
+<script src="src/scenes-20.js"></script>
+<script src="src/scenes-21.js"></script>
+<script src="src/scenes-22.js"></script>
+<script src="src/scenes-23.js"></script>
+<script src="src/scenes-24.js"></script>
+<script src="src/scenes-25.js"></script>
+<script src="src/scenes-26.js"></script>
+<script src="src/scenes-27.js"></script>
+<script src="src/scenes-28.js"></script>
+<script src="src/scenes-29.js"></script>
+<script src="src/scenes-30.js"></script>
+<script src="src/scenes-31.js"></script>
+<script src="src/scenes-32.js"></script>
+<script src="src/scenes-33.js"></script>
+<script src="src/scenes-34.js"></script>
+<script src="src/scenes-35.js"></script>
+<script src="src/scenes-36.js"></script>
+<script src="src/scenes-37.js"></script>
+<script src="src/scenes-38.js"></script>
+<script src="src/scenes-39.js"></script>
+<script src="src/scenes-40.js"></script>
+<script src="src/scenes-41.js"></script>
+<script src="src/scenes-42.js"></script>
+<script src="src/scenes-43.js"></script>
+<script src="src/scenes-44.js"></script>
+<script src="src/scenes-45.js"></script>
+<script src="src/scenes-46.js"></script>
+<script src="src/scenes-47.js"></script>
+<script src="src/scenes-48.js"></script>
+<script src="src/scenes-49.js"></script>
+<script src="src/scenes-50.js"></script>
+<script src="src/scenes-51.js"></script>
+<script src="src/scenes-52.js"></script>
+<script src="src/scenes-53.js"></script>
+<script src="src/scenes-54.js"></script>
+<script src="src/scenes-55.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
+<script>
+(function wireMobileImageDoubleTap() {
+  function bind() {
+    const wrap = document.getElementById("scene-image-wrap");
+    if (!wrap) return;
+    let lastTapAt = 0;
+    wrap.addEventListener("touchend", function (e) {
+      if (!wrap.classList.contains("visible")) return;
+      if (e.touches && e.touches.length > 0) return;
+      if (!e.changedTouches || e.changedTouches.length !== 1) return;
+      var now = Date.now();
+      if (now - lastTapAt < 320) {
+        lastTapAt = 0;
+        if (typeof toggleSceneArtSize === "function") toggleSceneArtSize();
+        return;
+      }
+      lastTapAt = now;
+    }, { passive: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+})();
+</script>
+</body>
+</html>
