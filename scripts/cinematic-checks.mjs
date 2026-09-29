@@ -15,13 +15,34 @@ export function cinematicChecks(runtime) {
       if (!document.getElementById("game-screen").classList.contains("hidden")) return false;
       if (handleGameplayKeydown({ key: "1" })) return false;
       if (skip) finishCinematic();
-      else { advanceCinematic(); advanceCinematic(); advanceCinematic(); }
+      else {
+        advanceCinematic();
+        if (currentCinematic) currentCinematic.lastAdvanceAt = 0;
+        advanceCinematic();
+        if (currentCinematic) currentCinematic.lastAdvanceAt = 0;
+        advanceCinematic();
+      }
       if (currentCinematic || cinematicTimer !== null || state.scene !== "wake") return false;
       if (document.getElementById("game-screen").classList.contains("hidden")) return false;
       if (finishCinematic() !== false || JSON.stringify(state) !== live || localStorage.getItem(SAVE_KEY) !== saved) return false;
       if (document.getElementById("cinematic-image").__ssManagedSource) return false;
     }
     return true;
+  })()`);
+  check("intro NEXT double-fire advances exactly one slide", `(() => {
+    localStorage.clear(); resetRunState();
+    if (!(startGame() || (typeof advancePastCommanderCreate === "function" && advancePastCommanderCreate())) || !currentCinematic || currentCinematic.kind !== "intro") return false;
+    if (currentCinematic.index !== 0) return false;
+    advanceCinematic();
+    advanceCinematic();
+    if (!currentCinematic || currentCinematic.index !== 1) return false;
+    currentCinematic.lastAdvanceAt = 0;
+    advanceCinematic();
+    advanceCinematic();
+    if (!currentCinematic || currentCinematic.index !== 2) return false;
+    currentCinematic.lastAdvanceAt = 0;
+    advanceCinematic();
+    return !currentCinematic && state.scene === "wake";
   })()`);
   check("ending skip/completion preserve final result, state and saved bytes", `(() => {
     for (const skip of [true, false]) {
@@ -34,7 +55,7 @@ export function cinematicChecks(runtime) {
       const art = currentEndingArt;
       if (document.getElementById("cinematic-image").__ssManagedSource !== "images/onboarding_background.jpg") return false;
       if (document.getElementById("cinematic-text").textContent !== text.split(/\\n\\n+/)[0]) return false;
-      if (skip) finishCinematic(); else while (currentCinematic) advanceCinematic();
+      if (skip) finishCinematic(); else while (currentCinematic) { currentCinematic.lastAdvanceAt = 0; advanceCinematic(); }
       if (document.getElementById("ending-screen").classList.contains("hidden")) return false;
       if (JSON.stringify(state) !== live || localStorage.getItem(SAVE_KEY) !== saved) return false;
       if (document.getElementById("ending-title").textContent !== title || document.getElementById("ending-text").textContent !== text || currentEndingArt !== art) return false;
@@ -87,6 +108,7 @@ export function cinematicChecks(runtime) {
       stale(); if (currentCinematic.index !== 0) return false;
       toggleCinematicPause();
       for (let frame = 0; frame < 3; frame++) {
+        if (currentCinematic) currentCinematic.lastAdvanceAt = 0;
         timers.get(cinematicTimer)();
         if (currentCinematic && document.getElementById("cinematic-body").scrollTop !== 0) return false;
       }
