@@ -7,6 +7,18 @@ export function cinematicChecks(runtime) {
     try { assert.equal(runtime.evaluate(source), true); }
     catch (e) { errors.push(`cinematic ${label}: ${e.message}`); }
   };
+  check("intro Next UI double-fire advances exactly one slide", `(() => {
+    resetRunState();
+    showCinematic("intro");
+    if (!currentCinematic || currentCinematic.index !== 0) return false;
+    const ev = { type: "click" };
+    advanceCinematic(ev);
+    advanceCinematic(ev);
+    const one = currentCinematic && currentCinematic.index === 1;
+    cancelCinematic();
+    showTitleScreen();
+    return one;
+  })()`);
   check("Begin skip/completion preserve the committed fresh run and hide gameplay keys", `(() => {
     for (const skip of [true, false]) {
       localStorage.clear(); resetRunState();
@@ -33,7 +45,7 @@ export function cinematicChecks(runtime) {
       const text = document.getElementById("ending-text").textContent;
       const art = currentEndingArt;
       if (document.getElementById("cinematic-image").__ssManagedSource !== "images/onboarding_background.jpg") return false;
-      if (document.getElementById("cinematic-text").textContent !== text.split(/\\n\\n+/)[0]) return false;
+      if (document.getElementById("cinematic-text").textContent !== text.split(/\n\n+/)[0]) return false;
       if (skip) finishCinematic(); else while (currentCinematic) advanceCinematic();
       if (document.getElementById("ending-screen").classList.contains("hidden")) return false;
       if (JSON.stringify(state) !== live || localStorage.getItem(SAVE_KEY) !== saved) return false;
