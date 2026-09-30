@@ -1,14 +1,14 @@
 # Sunsplitter — Current Status
 
 `schema_version: 2`
-`updated_utc: 2026-09-26`
+`updated_utc: 2026-09-29`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
 `runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: 04c4a8060993a90b6c512dcef21d0fd485528920`
+`version_lane_sha: 048c7a506e7cfe1e7ff0e8681656fed7c55498ac`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: 04c4a8060993a90b6c512dcef21d0fd485528920 — LANDED ON VERSION LANE after PR #385 TIP-HONESTY-5800; not SHIPPED; not CERTIFIED`
+`version_lane_head: 048c7a506e7cfe1e7ff0e8681656fed7c55498ac — LANDED ON VERSION LANE after PR #399 SUN-FIX-CRISIS-PLATE-01-REMINT; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,29 +38,27 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-DOCS-376-DISPOSITION-01 — #376 CLOSED UNMERGED + tip after PR #385`
-`state: DOCS ONLY AT 04c4a806 — #376 CLOSED UNMERGED; 0.37 strangers PARKED; no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-ROADMAP-TIP-SYNC-048C-01 — tip honesty after PR #399`
+`state: DOCS ONLY AT 048c7a50 — no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
-### SUN-DOCS-376-DISPOSITION-01 (this tip)
+### SUN-ROADMAP-TIP-SYNC-048C-01 (this tip)
 
-Docs/status only. Records live lane HEAD `04c4a8060993a90b6c512dcef21d0fd485528920` after PR **#385** `SUN-DOCS-TIP-HONESTY-5800-01`. Ancestry: tip-honesty **#371** @ `0e7535df` through **#385** @ `04c4a806`. Owner GO 2026-09-22: **0.37 stranger / external review PARKED**. Does not remint #385–#371. Does not invent OPEN 0.38. Does not mint or certify.
-
-PR **#376** MAPFIX / restore is **CLOSED UNMERGED** (never merge; do not remint). Tip `state.js` intact. C1 fix is scene.image unshadow — `SUN-HITL-UNSHADOW-01` PARKED (no GO). `state.js` / `engine.js` hold lifted for **NAMED tickets only**. Do not apply `docs/SUN_HITL_WIRE_01.state.js.patch`. Trust / Commander / plate / Vess PARKED.
+Docs/status only. Records live lane HEAD `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` after PR **#399** `SUN-FIX-CRISIS-PLATE-01-REMINT` (engine fold). Does not remint #399 / #385 / #376. Does not invent OPEN 0.37 or OPEN 0.38. Does not mint or certify. Does not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`. Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408**.
 
 | Pin | Live value | Meaning |
 |---|---|---|
 | `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. |
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and fixtures. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `04c4a8060993a90b6c512dcef21d0fd485528920` | LANDED ON VERSION LANE only. After PR #385 TIP-HONESTY-5800. |
+| Lane `HEAD` | `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` | LANDED ON VERSION LANE only. After PR #399 SUN-FIX-CRISIS-PLATE-01-REMINT. |
 | Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 | `pc_readiness_0_36` | tip-named pack closed-for-FEED | Not a 0.36 exit. |
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only.
 
-Live lane tip cite: `04c4a8060993a90b6c512dcef21d0fd485528920` after PR **#385**. Receipt: `docs/SUN_DOCS_376_DISPOSITION_01.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.38.
+Live lane tip cite: `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` after PR **#399**. Receipt: `docs/SUN_ROADMAP_TIP_SYNC_048C.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Prior STATUS live cite `04c4a806` / PR **#385** is historical. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
 
 Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
 
@@ -85,9 +83,10 @@ Closed-for-FEED is not a 0.36 certify exit.
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
-| 385 | `SUN-DOCS-TIP-HONESTY-5800-01` | Pointed STATUS/QUEUE at `5800b42c`. Ancestry floor. Do not remint. |
-| 384 | `SUN-DOCS-TIP-HONESTY-D47C-01` | Pointed STATUS/QUEUE at `d47c5e0c`. Do not remint. |
-| 383 | `SUN-DOCS-TIP-HONESTY-526F-01` | Pointed STATUS/QUEUE at `526fb32a`. Do not remint. |
+| 399 | `SUN-FIX-CRISIS-PLATE-01-REMINT` | Merge `048c7a506e7cfe1e7ff0e8681656fed7c55498ac`. Engine-fold remint recorded as lane tip. Do not remint this id. Hollow follow-ons #401–#403/#405/#407/#408 are not merge authority. |
+| 385 | `SUN-DOCS-TIP-HONESTY-5800-01` | Historical tip-honesty at `04c4a806`. Do not remint. |
+| 384 | `SUN-DOCS-TIP-HONESTY-D47C-01` | Historical. Do not remint. |
+| 383 | `SUN-DOCS-TIP-HONESTY-526F-01` | Historical. Do not remint. |
 | 371 | `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | Leftovers 5–9 ALREADY_SATISFIED. Do not remint. |
 | 369 | `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Two-stranger plan paper. Execution PARKED. Do not remint. |
 | 360 | `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | First Crew tap holds `#crew-sheet` closed. KEEP `renderCrewPanel("lena")`. Do not remint. |
@@ -95,12 +94,14 @@ Closed-for-FEED is not a 0.36 certify exit.
 
 `VERSION.md` first line on this tip is `0.36` paint. Not certification.
 
-### Holds (unchanged except 0.37 park + #376 close)
+### Holds (unchanged except 0.37 park + #376 close + hollow-PR ban)
 
 - **0.36 PC Readiness is not certified.** Pack is closed-for-FEED only.
 - **0.37 stranger / external review PARKED.** **Do not invent OPEN 0.38.**
 - ART-R2 broad campaign held. Amara-route parked. PR 45 / draft PR 46 untouched.
-- **Do not merge #297.** **Do not merge #376.** No remint of PRs 107–385. No Netlify pin remint.
+- **Do not merge #297.** **Do not merge #376.** **Do not merge #401 / #402 / #403 / #405 / #407 / #408.**
+- No remint of PRs 107–399 as spent ids. No Netlify pin remint.
+- Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37` — do not reopen intro softlock.
 - `SUN-HITL-UNSHADOW-01` PARKED. Trust / Commander / plate / Vess PARKED.
 - L-025–L-028 are not reopened here.
 
@@ -125,9 +126,9 @@ Green version-lane checks are candidate evidence only. They do not certify, ship
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-DOCS-376-DISPOSITION-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not remint #376 / #385–#371. Do not FEED 0.37 strangers. Do not invent OPEN 0.38.
+**This ticket:** merge-commit `SUN-ROADMAP-TIP-SYNC-048C-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not remint #399. Do not merge hollow PRs. Do not FEED 0.37 strangers. Do not invent OPEN 0.37 / 0.38.
 
-**Grok / orchestrator (`$ S1`):** after this merge, named owner-OPEN tickets only. `state.js` / `engine.js` only on a named ticket. Netlify HOLD. Unshadow PARKED.
+**Grok / orchestrator (`$ S1`):** after this merge, named owner-OPEN tickets only. Netlify HOLD.
 
 **Manraj:** remains sole publish authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling.
 
