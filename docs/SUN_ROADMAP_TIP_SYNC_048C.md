@@ -22,13 +22,13 @@ Prior pointer cite `04c4a806` / PR **#385** is historical. Do not remint #385–
 
 ---
 
-## Named tip cites (were stale → now this pre-PR HEAD)
+## Named tip cites
 
-| Surface | Stale live cite before this pass | Live truth |
+| Surface | Stale live cite before this pass | Live truth this pass |
 |---|---|---|
 | `artifacts/PROJECT_STATUS.md` lane head | `04c4a8060993a90b6c512dcef21d0fd485528920` / PR #385 | `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` after PR #399 |
-| `artifacts/ROADMAP.md` planning runtime | `c3626434add931b4a8e164febb5c1c7b46bf9471` / PR #345 | `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` after PR #399 |
 | `docs/TICKET_QUEUE.md` live lane line | `04c4a8060993a90b6c512dcef21d0fd485528920` / PR #385 | `048c7a506e7cfe1e7ff0e8681656fed7c55498ac` after PR #399 |
+| `artifacts/ROADMAP.md` planning runtime header | `c3626434add931b4a8e164febb5c1c7b46bf9471` / PR #345 | Header bytes on pre-PR tip still read `c3626434`. Full-file rewrite of ROADMAP (41KB) not landed on this hop. Do not treat that header as live tip. Decision gates stay labeled / not OPEN. |
 
 `identityAndAuthorityChecks` still requires STATUS substrings: `` `release_state: NO-PUBLISH` ``, `` `version_integrity: NOT_CERTIFIED` ``, `PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT`, `L-025 — LOCKED`, `L-026 — LOCKED`, `L-027 — LOCKED`, `L-028 — DEFERRED`. This ticket keeps them. `source_main_sha` and `runtime_baseline_sha` stay `8d23109b63b844e0703fb36643f14b91b8800c90`.
 
@@ -49,6 +49,5 @@ Prior pointer cite `04c4a806` / PR **#385** is historical. Do not remint #385–
 - `docs/SUN_ROADMAP_TIP_SYNC_048C.md` (this receipt)
 - `docs/TICKET_QUEUE.md`
 - `artifacts/PROJECT_STATUS.md`
-- `artifacts/ROADMAP.md` (header SOURCE / Candidate planning runtime only)
 
-Not edited: `VERSION.md`, gameplay, art plates, Netlify.
+Not edited: `artifacts/ROADMAP.md` body/header (size), `VERSION.md`, gameplay, art plates, Netlify.
