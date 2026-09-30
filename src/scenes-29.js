@@ -37,7 +37,6 @@ registerScenes({
       return t;
     },
     get choices() {
-      // Return to the interrupted bond when possible (default-offer routes must remain reachable)
       const ret = state.flags.interrupt_return;
       const canReturn = ret && scenes[ret] && (!scenes[ret].onEnter || true);
       return [
@@ -71,13 +70,9 @@ registerScenes({
       { text: "Treat the records as the only adult version.", next: "arc_fork", effects: { cohesion: -2, integrity: 1 }, flag: { departure_truth: "records" }, lean: { future: 2 } },
       { text: "Refuse to litigate the dead. The living are the only ledger left.", next: "arc_fork", effects: { cohesion: 1 }, flag: { departure_truth: "living_only" }, lean: { living: 2 } }
     ],
-    image: "images/corridor.jpg"
+    image: "images/empty_berths.jpg"
   },
 
-  // PRE: post-vault private window; each individual offer must satisfy romanceOpen()
-  // WRITES: none on entry; outgoing choices route only and preserve existing effects
-  // DEATH: romanceOpen() excludes dead partners | DEAD SPEECH/APPEARANCE: same gate controls text and choices
-  // IMAGE: REUSE images/observation_bridge_alt.jpg; no new art request
   intimacy_window: {
     get text() {
       const avail = [];
