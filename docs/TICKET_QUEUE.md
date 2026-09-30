@@ -1,24 +1,25 @@
-# Sunsplitter ticket queue — tip 5de65973 after #412
+# Sunsplitter ticket queue — tip ee0e89c1 after #413
 
-SOURCE lane@5de6597370f8e5e6cebd1dd29efaec686f537baa · TASK SUN-ROADMAP-TIP-SYNC-5DE6-01 · MODE docs
+SOURCE lane@ee0e89c18b436319eb4c53a84e22b933920b3c31 · TASK SUN-ROADMAP-TIP-SYNC-EE0E-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
 Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
-Does not remint PR **#412** or PR **#409**. Does not touch `src/`.
+Does not remint PR **#413** or PR **#412**. Does not touch `src/`.
 Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**.
 Do not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`.
 HOLD-ART REMINT2 chat `2f15e2ba` WAIT_PR — do not collide.
+Work tip is the lane, not `main@8d23109`.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `5de6597370f8e5e6cebd1dd29efaec686f537baa`
-(merge of PR **#412** `SUN-ROADMAP-TIP-SYNC-2570-01`; parents `2570da2c` + `552916b5`).
-Prior pointer cite `2570da2c` / PR **#409** is historical.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `ee0e89c18b436319eb4c53a84e22b933920b3c31`
+(merge of PR **#413** `SUN-ROADMAP-TIP-SYNC-5DE6-01`; parents `5de65973` + `bd55d60c`).
+Prior pointer cite `5de65973` / PR **#412** is historical.
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_5DE6.md`.
+This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_EE0E.md`.
 
 ## #376 disposition (not in-flight)
 
@@ -43,20 +44,21 @@ Trust / Commander / plate / Vess PARKED.
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `5de6597370f8e5e6cebd1dd29efaec686f537baa` after PR **#412**. |
-| PR **#412** `SUN-ROADMAP-TIP-SYNC-2570-01` | Merged. Live tip. Do not remint this id. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `ee0e89c18b436319eb4c53a84e22b933920b3c31` after PR **#413**. |
+| PR **#413** `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Merged. Live tip. Do not remint this id. |
+| PR **#412** `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical parent tip `5de65973`. Do not remint. |
 | PR **#409** `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical parent tip `2570da2c`. Do not remint. |
 | PR **#399** `SUN-FIX-CRISIS-PLATE-01-REMINT` | Historical parent tip `048c7a50`. Do not remint. |
 | PR **#385** `SUN-DOCS-TIP-HONESTY-5800-01` | Historical pointer at `04c4a806`. Do not remint. |
 | PR **#376** MAPFIX / restore | **CLOSED UNMERGED**. Never merge. Do not remint. |
 | PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. |
-| `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. |
+| `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. Do not cite as work tip. |
 
-Honesty chain **#377–#385** and pointer hops **#409** / **#412** are historical after this pass. Do not remint those ids.
+Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** are historical after this pass. Do not remint those ids.
 
 ## $ S2 FEED — playtest leftovers 5–9 spent (do not remint)
 
-Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412 as this tip.
+Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413 as this tip.
 
 ## Named holds — leftovers 10–13 (not fireable)
 
