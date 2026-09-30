@@ -1,25 +1,25 @@
-# Sunsplitter ticket queue — tip 4226ae83 after #415
+# Sunsplitter ticket queue — tip 2451fa09 after #417
 
-SOURCE lane@4226ae8317d275a3ecee2ef53b272f9737863364 · TASK SUN-ROADMAP-TIP-SYNC-4226-01 · MODE docs
+SOURCE lane@2451fa09c9c0ebc09932ecaca95d0860fa2b67b5 · TASK SUN-ROADMAP-TIP-SYNC-2451-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
 Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
-Does not remint PR **#415** or PR **#413**. Does not touch `src/`.
-Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**.
+Does not remint PR **#417** or PR **#415**. Does not touch `src/`.
+Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT.
 Do not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`.
 HOLD-ART REMINT2 chat `2f15e2ba` WAIT_PR — do not collide.
 Work tip is the lane, not `main@8d23109`.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `4226ae8317d275a3ecee2ef53b272f9737863364`
-(merge of PR **#415** `SUN-ROADMAP-TIP-SYNC-EE0E-01`; parents `ee0e89c1` + `6b370c86`).
-Prior pointer cite `ee0e89c1` / PR **#413** is historical.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `2451fa09c9c0ebc09932ecaca95d0860fa2b67b5`
+(merge of PR **#417** `SUN-ROADMAP-TIP-SYNC-4226-01`; parents `4226ae83` + `ed71e253`).
+Prior pointer cite `4226ae83` / PR **#415** is historical.
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_4226.md`.
+This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_2451.md`.
 
 ## #376 disposition (not in-flight)
 
@@ -37,15 +37,16 @@ Trust / Commander / plate / Vess PARKED.
 - **Amara-route PARKED.** 0.37 strangers PARKED. Do not invent OPEN 0.38.
 - **Do not merge PR #297** (corrupt `src/engine.js` PLACEHOLDER).
 - **Do not merge PR #376.** CLOSED UNMERGED.
-- **Do not merge #401 / #402 / #403 / #405 / #407 / #408 / #410 / #411.** Never Copilot **#414**.
+- **Do not merge #401 / #402 / #403 / #405 / #407 / #408 / #410 / #411.** Never Copilot **#414**. Never **#416** CORRUPT.
 - `SUN-HITL-UNSHADOW-01` PARKED until owner GO.
 
 ## Current lane (do not reopen as a pack)
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `4226ae8317d275a3ecee2ef53b272f9737863364` after PR **#415**. |
-| PR **#415** `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Merged. Live tip. Do not remint this id. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `2451fa09c9c0ebc09932ecaca95d0860fa2b67b5` after PR **#417**. |
+| PR **#417** `SUN-ROADMAP-TIP-SYNC-4226-01` | Merged. Live tip. Do not remint this id. |
+| PR **#415** `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Historical parent tip `4226ae83`. Do not remint. |
 | PR **#413** `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Historical parent tip `ee0e89c1`. Do not remint. |
 | PR **#412** `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical parent tip `5de65973`. Do not remint. |
 | PR **#409** `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical parent tip `2570da2c`. Do not remint. |
@@ -55,11 +56,11 @@ Trust / Commander / plate / Vess PARKED.
 | PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. |
 | `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. Do not cite as work tip. |
 
-Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** / **#415** are historical after this pass. Do not remint those ids.
+Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** / **#415** / **#417** are historical after this pass. Do not remint those ids.
 
 ## $ S2 FEED — playtest leftovers 5–9 spent (do not remint)
 
-Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413, #415 as this tip.
+Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413, #415, #417 as this tip.
 
 ## Named holds — leftovers 10–13 (not fireable)
 
@@ -67,7 +68,7 @@ Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo swe
 
 ## OPEN-GATED
 
-No 0.36 mint/PC remint, no Netlify remint, no certify, no invent OPEN 0.37/0.38, no merge #297, no remint #376, no merge hollow #401–#403/#405/#407/#408/#410/#411, no Copilot #414, no SUN-HITL-UNSHADOW-01 without owner GO.
+No 0.36 mint/PC remint, no Netlify remint, no certify, no invent OPEN 0.37/0.38, no merge #297, no remint #376, no merge hollow #401–#403/#405/#407/#408/#410/#411, no Copilot #414, no #416 CORRUPT, no SUN-HITL-UNSHADOW-01 without owner GO.
 
 ## Dispatch order for orchestrator
 
