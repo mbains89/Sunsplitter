@@ -79,11 +79,16 @@ export function cinematicChecks(runtime) {
       clearTimeout = id => timers.delete(id);
       window.matchMedia = () => ({ matches: false });
       resetRunState(); showCinematic("intro");
-      const stale = timers.get(cinematicTimer);
+      if (cinematicTimer !== null || currentCinematic.index !== 0 || currentCinematic.paused) return false;
+      if (document.getElementById("cinematic-back").textContent !== "Back to title") return false;
       document.getElementById("cinematic-body").scrollTop = 150;
       toggleCinematicPause();
       if (cinematicTimer !== null || !currentCinematic.paused) return false;
       if (document.getElementById("cinematic-body").scrollTop !== 150) return false;
+      toggleCinematicPause();
+      const stale = timers.get(cinematicTimer);
+      if (!stale) return false;
+      toggleCinematicPause();
       stale(); if (currentCinematic.index !== 0) return false;
       toggleCinematicPause();
       for (let frame = 0; frame < 3; frame++) {
