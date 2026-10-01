@@ -18,7 +18,7 @@ registerScenes({
   // PRE: after power_crisis; may precede or follow private_stores, before Deck 4
   // WRITES: existing coolant flag, costs and lean only; return checks stores/coolant
   // DEATH: none | DEAD SPEECH/APPEARANCE: unchanged early roster, before lethal beats
-  // IMAGE: unchanged corridor_variant.jpg; no art work
+  // IMAGE: medical_bay living default; resolveSceneImage death-aware
   coolant_trade: {
     onEnter: () => { if (state.flags.coolant) return "seal_or_food"; },
     get text() {
@@ -36,7 +36,6 @@ registerScenes({
       return t;
     },
     choices: [
-      // Edit A: keep only original/shipped requires (trust) so split remains ungated
       {
         text: "Give it to the loop. Keep the ship from shaking apart.",
         next: "seal_or_food",
@@ -62,13 +61,13 @@ registerScenes({
         flag: { coolant: "split" }
       }
     ],
-    image: "images/corridor_variant.jpg"
+    image: "images/medical_bay.jpg"
   },
 
   // PRE: both existing stores/coolant decisions completed; if coolant came
   // first, return for stores before presenting this unchanged Deck 4 decision
   // WRITES: existing feedstock/ship_memory choices only | DEATH: none
-  // DEAD SPEECH/APPEARANCE: unchanged early living roster | IMAGE: unchanged
+  // DEAD SPEECH/APPEARANCE: unchanged early living roster | IMAGE: work_elias living default
   seal_or_food: {
     onEnter: () => { if (!state.flags.stores) return "private_stores"; },
     get text() {
@@ -85,7 +84,6 @@ registerScenes({
       return t;
     },
     choices: [
-      // Edit A: retain original/shipped requires only (first has integrity gate; third ungated)
       {
         text: "Patch the seal properly. A dead crew does not need calories.",
         next: "time_pass",
@@ -112,7 +110,7 @@ registerScenes({
         remember: "Deck 4 is a jury-rig. It will ask to be paid later."
       }
     ],
-    image: "images/corridor_variant.jpg"
+    image: "images/work_elias.jpg"
   },
 
 });
