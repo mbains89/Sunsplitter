@@ -1,25 +1,25 @@
-# Sunsplitter ticket queue — tip eda4f51f after #429
+# Sunsplitter ticket queue — tip 78fb8ddf after #430
 
-SOURCE lane@eda4f51f930f1743616bbad22fe86a676acc9305 · TASK SUN-ROADMAP-TIP-SYNC-EDA4-01 · MODE docs
+SOURCE lane@78fb8ddfc47362e081f938bcc14554b9229cd5fe · TASK SUN-ROADMAP-TIP-SYNC-78FB-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
 Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
-Does not remint PR **#429** / PR **#428** / PR **#427**. Does not touch `src/` or `src/engine.js`.
+Does not remint PR **#430** / PR **#429** / PR **#428**. Does not touch `src/` or `src/engine.js`.
 F07 CREW-PLATE is **ALREADY_SATISFIED**. Do not remint.
 Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT.
 Work tip is the lane, not `main@8d23109`.
 Do not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `eda4f51f930f1743616bbad22fe86a676acc9305`
-(merge of PR **#429** `SUN-ROADMAP-TIP-SYNC-83DF-01`; parents `83df62a1` + `671a4e22`).
-Prior pointer cite `83df62a1` / PR **#428** is historical.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `78fb8ddfc47362e081f938bcc14554b9229cd5fe`
+(merge of PR **#430** `SUN-ROADMAP-TIP-SYNC-EDA4-01`; parents `eda4f51f` + `5af6e2a4`).
+Prior pointer cite `eda4f51f` / PR **#429** is historical.
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_EDA4.md`.
+This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_78FB.md`.
 
 ## #376 disposition (not in-flight)
 
@@ -44,8 +44,9 @@ Trust / Commander / plate / Vess PARKED.
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `eda4f51f930f1743616bbad22fe86a676acc9305` after PR **#429**. |
-| PR **#429** `SUN-ROADMAP-TIP-SYNC-83DF-01` | Merged. Live tip. Parents `83df62a1` + `671a4e22`. Do not remint. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `78fb8ddfc47362e081f938bcc14554b9229cd5fe` after PR **#430**. |
+| PR **#430** `SUN-ROADMAP-TIP-SYNC-EDA4-01` | Merged. Live tip. Parents `eda4f51f` + `5af6e2a4`. Do not remint. |
+| PR **#429** `SUN-ROADMAP-TIP-SYNC-83DF-01` | Historical parent tip `eda4f51f`. Do not remint. |
 | PR **#428** `SUN-FIX-UIUX-P2-INTRO-PACE-01` | Historical parent tip `83df62a1`. Do not remint. |
 | PR **#426** `SUN-FIX-UIUX-P2-TOPBAR-TRAP-01` | Historical. Do not remint this id. |
 | PR **#423** `SUN-ROADMAP-TIP-SYNC-B968-01` | Historical pointer at `b17fec95`. Do not remint. |
@@ -63,11 +64,11 @@ Trust / Commander / plate / Vess PARKED.
 | PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. |
 | `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. Do not cite as work tip. |
 
-Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** / **#415** / **#417** / **#418** / **#423** / **#429** are historical once this packet lands. Do not remint those ids. Do not remint **#421** / **#424** / **#428**.
+Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** / **#415** / **#417** / **#418** / **#423** / **#429** / **#430** are historical once this packet lands. Do not remint those ids. Do not remint **#421** / **#424** / **#428**.
 
 ## $ S2 FEED — playtest leftovers 5–9 spent (do not remint)
 
-Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413, #415, #417, #418, F07 CREW-PLATE, #421, #424, #423, #428, #429 as this tip.
+Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413, #415, #417, #418, F07 CREW-PLATE, #421, #424, #423, #428, #429, #430 as this tip.
 
 ## Named holds — leftovers 10–13 (not fireable)
 
