@@ -347,6 +347,26 @@ function retreatCinematic() {
   showCinematic = function(kind) { previousShow(kind); if (kind === "intro" || kind === "ending") renderCinematicFrame(false); };
 })();
 
+// SUN-FIX-UIUX-P2-INTRO-PACE-01 — slide 1 stays player-owned.
+// Unpaused auto-NEXT must not steal Back to title. Resume or Next arms pace.
+(function overlayIntroPlayerPace() {
+  if (typeof scheduleCinematicFrame !== "function" || typeof toggleCinematicPause !== "function") return;
+  const previousSchedule = scheduleCinematicFrame;
+  scheduleCinematicFrame = function() {
+    if (currentCinematic && currentCinematic.kind === "intro" && currentCinematic.index === 0 && !currentCinematic.paceArmed) {
+      if (cinematicTimer !== null) clearTimeout(cinematicTimer);
+      cinematicTimer = null;
+      return;
+    }
+    previousSchedule();
+  };
+  const previousToggle = toggleCinematicPause;
+  toggleCinematicPause = function() {
+    if (currentCinematic && currentCinematic.paused) currentCinematic.paceArmed = true;
+    return previousToggle();
+  };
+})();
+
 const TUTORIAL_SEEN_KEY = "sunsplitter_tutorial_seen_v1";
 const TUTORIAL_TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
 function tutorialSeen() { try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1"; } catch (_) { return false; } }
