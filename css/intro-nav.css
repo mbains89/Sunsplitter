@@ -25,3 +25,19 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* SUN-FIX-UIUX-P2-INTRO-OUTLINE-01 — NEXT / PAUSE / BACK outline on dark plate.
+   Layout and 48px target unchanged. Skip stays primary. No engine.js. */
+.cinematic-actions .btn:not(.btn-primary) {
+  color: #f4f6f8;
+  border: 1px solid #d7dde4;
+  background: rgba(8, 9, 11, 0.78);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  min-height: 48px;
+}
+.cinematic-actions .btn:not(.btn-primary):hover,
+.cinematic-actions .btn:not(.btn-primary):focus-visible {
+  color: #fff;
+  border-color: #fff;
+  background: rgba(8, 9, 11, 0.9);
+}
