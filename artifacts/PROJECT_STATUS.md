@@ -1,14 +1,14 @@
 # Sunsplitter — Current Status
 
 `schema_version: 2`
-`updated_utc: 2026-09-29`
+`updated_utc: 2026-10-01`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
 `runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
 `audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
 `protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: fa47b26e19db24d75b0eaa32af92822947ba11ec`
+`version_lane_sha: b96802c3d2a238eea9767729e3a60a9907dbd9c8`
 `owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
 
 This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
@@ -16,7 +16,7 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 ## Release and authority state
 
 `observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: fa47b26e19db24d75b0eaa32af92822947ba11ec — LANDED ON VERSION LANE after PR #418 SUN-ROADMAP-TIP-SYNC-2451-01; not SHIPPED; not CERTIFIED`
+`version_lane_head: b96802c3d2a238eea9767729e3a60a9907dbd9c8 — LANDED ON VERSION LANE after PR #421 SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01; not SHIPPED; not CERTIFIED`
 `audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
@@ -38,27 +38,27 @@ PR 45 and draft PR 46 remain held and untouched.
 
 ## Current work
 
-`milestone: SUN-ROADMAP-TIP-SYNC-FA47-01 — tip honesty after PR #418`
-`state: DOCS ONLY AT fa47b26e — no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
+`milestone: SUN-ROADMAP-TIP-SYNC-B968-01 — tip honesty after PR #421`
+`state: DOCS ONLY AT b96802c3 — no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
 `governed_branch: version/0.30.1-main-reconcile-ci.1`
 `owner: Grok / program office; Manraj remains sole publish authority`
 
-### SUN-ROADMAP-TIP-SYNC-FA47-01 (this tip)
+### SUN-ROADMAP-TIP-SYNC-B968-01 (this tip)
 
-Docs/status only. Records live lane HEAD `fa47b26e19db24d75b0eaa32af92822947ba11ec` after PR **#418** `SUN-ROADMAP-TIP-SYNC-2451-01` (parents `2451fa09` + `7b8b5dab`). Does not remint #418 / #417 / #415. Does not invent OPEN 0.37 or OPEN 0.38. Does not mint or certify. Does not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`. HOLD-ART REMINT2 chat `2f15e2ba` WAIT_PR — do not collide. Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT.
+Docs/status only. Records live lane HEAD `b96802c3d2a238eea9767729e3a60a9907dbd9c8` after PR **#421** `SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01` (parent named `efd2669a`). Does not remint #421 / #418. F07 CREW-PLATE is **ALREADY_SATISFIED**. Does not invent OPEN 0.37 or OPEN 0.38. Does not mint or certify. Does not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`. Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT. No `src/engine.js`.
 
 | Pin | Live value | Meaning |
 |---|---|---|
 | `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. Not the work tip. |
 | `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and fixtures. |
 | `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `fa47b26e19db24d75b0eaa32af92822947ba11ec` | LANDED ON VERSION LANE only. After PR #418 SUN-ROADMAP-TIP-SYNC-2451-01. Work tip. |
+| Lane `HEAD` | `b96802c3d2a238eea9767729e3a60a9907dbd9c8` | LANDED ON VERSION LANE only. After PR #421 bar-wrap. Work tip. |
 | Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
 | `pc_readiness_0_36` | tip-named pack closed-for-FEED | Not a 0.36 exit. |
 
 `identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only.
 
-Live lane tip cite: `fa47b26e19db24d75b0eaa32af92822947ba11ec` after PR **#418**. Receipt: `docs/SUN_ROADMAP_TIP_SYNC_FA47.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Prior STATUS live cite `2451fa09` / PR **#417** is historical. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
+Live lane tip cite: `b96802c3d2a238eea9767729e3a60a9907dbd9c8` after PR **#421**. Receipt: `docs/SUN_ROADMAP_TIP_SYNC_B968.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Prior STATUS live cite `fa47b26e` / PR **#418** is historical. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
 
 Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
 
@@ -83,32 +83,30 @@ Closed-for-FEED is not a 0.36 certify exit.
 
 | PR | Ticket | Lane meaning |
 |---|---|---|
-| 418 | `SUN-ROADMAP-TIP-SYNC-2451-01` | Merge `fa47b26e19db24d75b0eaa32af92822947ba11ec`. Pointer hop after #417. Do not remint this id. |
-| 417 | `SUN-ROADMAP-TIP-SYNC-4226-01` | Historical live-tip parent `2451fa09c9c0ebc09932ecaca95d0860fa2b67b5`. Do not remint. |
-| 415 | `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Historical live-tip parent `4226ae8317d275a3ecee2ef53b272f9737863364`. Do not remint. |
-| 413 | `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Historical live-tip parent `ee0e89c18b436319eb4c53a84e22b933920b3c31`. Do not remint. |
-| 412 | `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical live-tip parent `5de6597370f8e5e6cebd1dd29efaec686f537baa`. Do not remint. |
-| 409 | `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical live-tip parent `2570da2c1239c79f09d65ef21b4620749f273ea7`. Do not remint. |
-| 399 | `SUN-FIX-CRISIS-PLATE-01-REMINT` | Historical parent `048c7a506e7cfe1e7ff0e8681656fed7c55498ac`. Do not remint. Hollow follow-ons #401–#403/#405/#407/#408/#410/#411 are not merge authority. |
+| 421 | `SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01` | Merge `b96802c3d2a238eea9767729e3a60a9907dbd9c8`. 2-col intro actions at 390px. Do not remint this id. |
+| 418 | `SUN-ROADMAP-TIP-SYNC-2451-01` | Historical pointer at `fa47b26e`. Do not remint. |
+| 417 | `SUN-ROADMAP-TIP-SYNC-4226-01` | Historical live-tip parent `2451fa09`. Do not remint. |
+| 415 | `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Historical. Do not remint. |
+| 413 | `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Historical. Do not remint. |
+| 412 | `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical. Do not remint. |
+| 409 | `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical. Do not remint. |
+| 399 | `SUN-FIX-CRISIS-PLATE-01-REMINT` | Historical parent `048c7a50`. Do not remint. Hollow follow-ons are not merge authority. |
+| F07 | CREW-PLATE | **ALREADY_SATISFIED**. Codex Sol 6.1 keep-src proven. Do not remint. |
 | 385 | `SUN-DOCS-TIP-HONESTY-5800-01` | Historical tip-honesty at `04c4a806`. Do not remint. |
-| 384 | `SUN-DOCS-TIP-HONESTY-D47C-01` | Historical. Do not remint. |
-| 383 | `SUN-DOCS-TIP-HONESTY-526F-01` | Historical. Do not remint. |
-| 371 | `SUN-PLAYTEST-RESPONSE-DRAIN-HONESTY-01` | Leftovers 5–9 ALREADY_SATISFIED. Do not remint. |
+| 376 | MAPFIX / restore | **CLOSED UNMERGED**. Never merge. Do not remint. |
 | 369 | `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Two-stranger plan paper. Execution PARKED. Do not remint. |
 | 360 | `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | First Crew tap holds `#crew-sheet` closed. KEEP `renderCrewPanel("lena")`. Do not remint. |
-| 376 | MAPFIX / restore | **CLOSED UNMERGED**. Never merge. Do not remint. |
 
 `VERSION.md` first line on this tip is `0.36` paint. Not certification.
 
-### Holds (unchanged except 0.37 park + #376 close + hollow-PR ban)
+### Holds (unchanged except tip cite + F07 spent)
 
 - **0.36 PC Readiness is not certified.** Pack is closed-for-FEED only.
 - **0.37 stranger / external review PARKED.** **Do not invent OPEN 0.38.**
 - ART-R2 broad campaign held. Amara-route parked. PR 45 / draft PR 46 untouched.
 - **Do not merge #297.** **Do not merge #376.** **Do not merge #401 / #402 / #403 / #405 / #407 / #408 / #410 / #411.** Never Copilot **#414**. Never **#416** CORRUPT.
-- No remint of PRs 107–418 as spent ids. No Netlify pin remint.
+- No remint of #421 or F07. No Netlify pin remint.
 - Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37` — do not reopen intro softlock.
-- HOLD-ART REMINT2 chat `2f15e2ba` WAIT_PR — do not collide.
 - `SUN-HITL-UNSHADOW-01` PARKED. Trust / Commander / plate / Vess PARKED.
 - L-025–L-028 are not reopened here.
 
@@ -133,7 +131,7 @@ Green version-lane checks are candidate evidence only. They do not certify, ship
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-ROADMAP-TIP-SYNC-FA47-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not remint #418. Do not merge hollow PRs. Do not FEED 0.37 strangers. Do not invent OPEN 0.37 / 0.38.
+**This ticket:** merge-commit `SUN-ROADMAP-TIP-SYNC-B968-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not remint #421. Do not merge hollow PRs. Do not FEED 0.37 strangers. Do not invent OPEN 0.37 / 0.38.
 
 **Grok / orchestrator (`$ S2`):** after this merge, named owner-OPEN tickets only. Netlify HOLD.
 
