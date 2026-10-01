@@ -190,7 +190,7 @@
       <div class="cinematic-actions" role="group" aria-label="Cinematic controls">
         <button id="cinematic-back" class="btn" type="button" onclick="retreatCinematic()">Back</button>
         <button id="cinematic-pause" class="btn" type="button" onclick="toggleCinematicPause()" aria-pressed="false">Pause</button>
-        <button id="cinematic-next" class="btn" type="button" onclick="advanceCinematic()">Next</button>
+        <button id="cinematic-next" class="btn" type="button" onclick="advanceCinematic(event)">Next</button>
         <button id="cinematic-skip" class="btn btn-primary" type="button" onclick="finishCinematic()">Skip</button>
       </div>
     </section>
@@ -295,6 +295,30 @@
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
 <script>
+(function wireIntroNextCoalesce() {
+  function advanceCinematicCoalesced(ev) {
+    if (typeof currentCinematic === "undefined" || !currentCinematic) return;
+    if (ev && typeof ev === "object" && ev.type) {
+      if (typeof ev.preventDefault === "function") ev.preventDefault();
+      if (typeof ev.stopPropagation === "function") ev.stopPropagation();
+      var now = Date.now();
+      if (currentCinematic.lastUiAdvanceAt && now - currentCinematic.lastUiAdvanceAt < 450) return;
+      currentCinematic.lastUiAdvanceAt = now;
+    }
+    if (typeof cinematicTimer !== "undefined" && cinematicTimer !== null) {
+      clearTimeout(cinematicTimer);
+      cinematicTimer = null;
+    }
+    var nextIndex = currentCinematic.index + 1;
+    if (nextIndex >= currentCinematic.frames.length) {
+      finishCinematic();
+      return;
+    }
+    currentCinematic.index = nextIndex;
+    renderCinematicFrame(true);
+  }
+  window.advanceCinematic = advanceCinematicCoalesced;
+})();
 (function wireMobileImageDoubleTap() {
   function bind() {
     const wrap = document.getElementById("scene-image-wrap");

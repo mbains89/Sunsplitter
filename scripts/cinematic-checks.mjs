@@ -104,6 +104,20 @@ export function cinematicChecks(runtime) {
       showTitleScreen();
     }
   })()`);
+  check("intro Next UI double-fire advances exactly one slide", `(() => {
+    resetRunState();
+    showCinematic("intro");
+    if (!currentCinematic || currentCinematic.index !== 0) return false;
+    const ev = { type: "click", preventDefault() {}, stopPropagation() {} };
+    advanceCinematic(ev);
+    advanceCinematic(ev);
+    if (!currentCinematic || currentCinematic.index !== 1) return false;
+    if (document.getElementById("cinematic-progress").textContent !== "2 / 3") return false;
+    advanceCinematic();
+    if (!currentCinematic || currentCinematic.index !== 2) return false;
+    advanceCinematic();
+    return !currentCinematic && state.scene === "wake";
+  })()`);
   errors.push(...playtestArtDoubleclickChecks(runtime));
   return errors;
 }
