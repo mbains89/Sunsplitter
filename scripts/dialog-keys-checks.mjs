@@ -1,6 +1,18 @@
-// SUN-FIX-DIALOG-KEYS-01 — gameplay number/Enter/Space must not fire while a modal dialog is open.
+// SUN-FIX-DIALOG-KEYS-01d — gameplay number/Enter/Space must not fire while a modal dialog is open.
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
 export function dialogKeysChecks(runtime) {
   const errors = [];
+  const overlay = readFileSync(resolve(ROOT, "src/dialog-keys.js"), "utf8");
+  if (!overlay.includes("handleModalDialogKeydown")) {
+    errors.push("src/dialog-keys.js is missing handleModalDialogKeydown");
+    return errors;
+  }
+  runtime.evaluate(overlay);
   const fixture = runtime.evaluate(`(() => {
     const originalChoices = scenes.wake.choices;
     const choicesEl = document.getElementById("choices");
