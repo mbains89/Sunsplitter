@@ -16,13 +16,25 @@
   letter-spacing: 0.04em;
   line-height: 1.2;
   white-space: normal;
+  min-height: 48px;
 }
 #cinematic-skip {
   grid-column: auto;
 }
-@media (max-width: 359px) {
+
+/* SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01 — at ~390px a 4-col bar wraps
+   BACK TO TITLE and crushes SKIP INTRO. 2-col from 480px down.
+   Touch target stays 48px. No engine.js. */
+@media (max-width: 480px) {
   .cinematic-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .cinematic-actions .btn {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    padding: 10px 8px;
+    min-height: 48px;
   }
 }
 
