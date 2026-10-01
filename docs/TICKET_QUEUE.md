@@ -1,25 +1,25 @@
-# Sunsplitter ticket queue — tip b17fec95 after #423
+# Sunsplitter ticket queue — tip 3cca53ac after #426
 
-SOURCE lane@b17fec95abd16fe3471cd5dcbd595d0b9ce2a288 · TASK SUN-ROADMAP-TIP-SYNC-B17F-01 · MODE docs
+SOURCE lane@3cca53ac569da24d6da8a98fc7724a474dc3cea9 · TASK SUN-ROADMAP-TIP-SYNC-3CCA-01 · MODE docs
 
 Docs only. This file does not mint a product version, open 0.36 product
 work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
 Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
-Does not remint PR **#423** / PR **#424** / PR **#421**. Does not touch `src/` or `src/engine.js`.
+Does not remint PR **#426** / PR **#425** / PR **#423**. Does not touch `src/` or `src/engine.js`.
 F07 CREW-PLATE is **ALREADY_SATISFIED**. Do not remint.
 Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT.
 Work tip is the lane, not `main@8d23109`.
 Do not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `b17fec95abd16fe3471cd5dcbd595d0b9ce2a288`
-(merge of PR **#423** `SUN-ROADMAP-TIP-SYNC-B968-01`; includes PR **#424** `SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01` at `be69b1fc`).
-Prior pointer cite `b96802c3` / PR **#421** is historical.
+Lane: `version/0.30.1-main-reconcile-ci.1` at `3cca53ac569da24d6da8a98fc7724a474dc3cea9`
+(merge of PR **#426** `SUN-FIX-UIUX-P2-TOPBAR-TRAP-01`; parents `ca92a8e0` + `3299faa7`).
+Prior pointer cite `b17fec95` / PR **#423** is historical.
 `VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
 Last certified remains `0.28.1d`.
 
 Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
 
-This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_B17F.md`.
+This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_3CCA.md`.
 
 ## #376 disposition (not in-flight)
 
@@ -44,8 +44,9 @@ Trust / Commander / plate / Vess PARKED.
 
 | Id | State |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `b17fec95abd16fe3471cd5dcbd595d0b9ce2a288` after PR **#423**. |
-| PR **#423** `SUN-ROADMAP-TIP-SYNC-B968-01` | Merged. Live tip. Do not remint this id. |
+| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `3cca53ac569da24d6da8a98fc7724a474dc3cea9` after PR **#426**. |
+| PR **#426** `SUN-FIX-UIUX-P2-TOPBAR-TRAP-01` | Merged. Live tip. Do not remint this id. |
+| PR **#423** `SUN-ROADMAP-TIP-SYNC-B968-01` | Historical pointer at `b17fec95`. Do not remint. |
 | PR **#424** `SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01` | Merged on this tip at `be69b1fc`. Do not remint. |
 | PR **#421** `SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01` | Historical parent tip `b96802c3`. Do not remint. |
 | PR **#418** `SUN-ROADMAP-TIP-SYNC-2451-01` | Historical pointer at `fa47b26e`. Do not remint. |
