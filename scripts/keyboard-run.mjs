@@ -78,9 +78,11 @@ async function connectCdp(port) {
   let last = "";
   for (let i = 0; i < 40; i++) {
     try {
-      const res = await fetch(`http://127.0.0.1:${port}/json/version`);
-      const body = await res.json();
-      const ws = new WebSocket(body.webSocketDebuggerUrl);
+      const listed = await fetch(`http://127.0.0.1:${port}/json/list`);
+      const targets = await listed.json();
+      const page = Array.isArray(targets) && targets.find(t => t.type === "page" && t.webSocketDebuggerUrl);
+      if (!page) throw new Error("no page target");
+      const ws = new WebSocket(page.webSocketDebuggerUrl);
       await new Promise((resolve, reject) => {
         ws.addEventListener("open", resolve, { once: true });
         ws.addEventListener("error", () => reject(new Error("cdp socket")), { once: true });
@@ -91,7 +93,7 @@ async function connectCdp(port) {
       await sleep(250);
     }
   }
-  throw new Error(`chrome debug port not ready: ${last}`);
+  throw new Error(`chrome page target not ready: ${last}`);
 }
 
 const KEYS = {
@@ -168,6 +170,7 @@ function pickKey(state) {
   ]);
   if (primary.has(id)) return { name: "Enter", spec: KEYS.Enter };
   if (state.focusText.includes("I understand")) return { name: "Enter", spec: KEYS.Enter };
+  if (state.focusText.includes("Play Again")) return { name: "Enter", spec: KEYS.Enter };
   if (id === "btn-crew" || id === "new-run-cancel") return { name: "Tab", spec: KEYS.Tab };
   if (state.gameOn && state.enabled.length) {
     const first = state.enabled[0];
@@ -199,6 +202,7 @@ async function main() {
   try {
     const cdp = await connectCdp(debugPort);
     await cdp.send("Page.enable");
+    await cdp.send("Page.bringToFront");
     await cdp.send("Runtime.enable");
     if (brokenFocus) {
       await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
@@ -212,6 +216,7 @@ async function main() {
     }
     await cdp.send("Page.navigate", { url: `http://127.0.0.1:${port}/index.html` });
     await sleep(1200);
+    await cdp.send("Page.bringToFront");
     let lastScene = "";
     let stuck = 0;
     for (; steps < MAX_STEPS; steps++) {
