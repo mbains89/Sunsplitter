@@ -31,6 +31,7 @@ registerScenes({
       else if (state.flags.rourke === "stayed") t += ` You stayed with Rourke.`;
       else if (state.flags.rourke === "tried") t += ` You spent supplies on Rourke.`;
       t += `\n`;
+      // SUN-CASCADE-ALLUSIVE-PAYOFF-01: late pay of midgame changeorders write.
       if (state.flags.changeorders === "logged") {
         t += isAlive("mira")
           ? `Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.\n`
@@ -56,6 +57,7 @@ registerScenes({
       if (state.past_known && isAlive("elias")) t += `Elias knows how you got your seat.\n`;
       else if (state.past_known) t += `Your past leaked. The man who used it is gone.\n`;
       if (isAlive("lena") && state.dying && state.dying.lena) t += `Lena is on a clock.\n`;
+      // Tomas memory only if the private conversation actually happened
       if (state.flags.tomas === "living" && isAlive("tomas")) t += `Tomas was told the living come first.\n`;
       else if (state.flags.tomas === "future" && isAlive("tomas")) t += `Tomas was told the future justifies the cost.\n`;
       else if (state.flags.tomas === "future") t += `Tomas was told the future justifies the cost. That conversation is finished.\n`;
@@ -64,6 +66,7 @@ registerScenes({
       else if (hasMark("tomas", "broke")) t += `Tomas broke when you chose the future over him. That conversation is finished.\n`;
       else if (hasMark("tomas", "held") && isAlive("tomas")) t += `Tomas is still holding after you asked him to.\n`;
       else if (hasMark("tomas", "warned") && isAlive("tomas")) t += `Tomas warned you he was running out of something quieter than faith.\n`;
+      // Favoritism = private hours / affinity gap only (not policy alignment)
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) t += `The crew has noticed your private preference for ${crew[fav.favored].name}.\n`;
       else if (fav && crew[fav.favored]) t += `The crew noticed your private preference for ${crew[fav.favored].name}. That preference is now a ghost.\n`;
@@ -72,6 +75,7 @@ registerScenes({
       return t;
     },
     get choices() {
+      // Route into the matching reckon_* beat by flag, then sun_payoff
       const r = state.flags.reckon;
       const next =
         r === "public" ? "reckon_public" :

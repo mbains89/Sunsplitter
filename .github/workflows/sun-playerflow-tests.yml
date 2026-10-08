@@ -1,0 +1,49 @@
+name: Sun Playerflow Tests
+
+on:
+  pull_request:
+    branches:
+      - "version/**"
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sun-playerflow-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  playerflow:
+    name: sun-playerflow
+    if: ${{ github.event.action != 'closed' && startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+
+      - name: Run playerflow checks
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v${NODE_VERSION}"
+          shopt -s nullglob
+          files=(scripts/sun-playerflow-*-checks.mjs)
+          test "${#files[@]}" -gt 0
+          for f in "${files[@]}"; do
+            echo "RUN $f"
+            node "$f"
+          done

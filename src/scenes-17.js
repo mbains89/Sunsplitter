@@ -40,6 +40,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
       let t = `She finds you in the observation blister before the first full watch is over. The suit is off; the underlayer is clean enough to show she cared about the first impression. She stands too close or too far — the distance is wrong in both directions.
 
 "I have read the manuals on pair-bonding under isolation. The success rate is low. The failure mode is worse. I am offering the attempt. You may refuse. The refusal will be logged as a clean decision."`;
+      // Informed / run-reading first offer — cites actual run state
       if (state.flags.vault_sacrifice === "future") {
         t += `\n\n"Your vault choice is already in the traffic. You kept the package. I understand the arithmetic. I also understand what it costs the people who are still breathing."`;
       } else if (state.flags.vault_sacrifice === "living") {
@@ -53,6 +54,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
         else list = deadNamed.slice(0, -1).join(", ") + ", and " + deadNamed[deadNamed.length - 1];
         t += `\n\n"I heard the casualty list. ${list}. I said their names once when the beacon logged the update. That is all I can offer the dead."`;
       }
+      // Minimal cross-route seed: awareness as witnessed fact only
       const activeRoms = ["lena", "mira", "amara", "sela"].filter(k => state.romance[k] && isAlive(k));
       if (activeRoms.length) {
         const firstNames = activeRoms.map(k => crew[k] ? crew[k].first : k);

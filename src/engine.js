@@ -566,7 +566,7 @@ function formatRequiresReason(req) {
   for (const key of ["integrity", "cohesion", "supplies", "embryos", "survivors"]) {
     const rule = req[key];
     const need = typeof rule === "number" ? rule : (rule && rule.min);
-    const have = state[key];
+    const have = key === "survivors" && typeof visibleLivingCrewCount === "function" ? visibleLivingCrewCount() : state[key];
     if (need !== undefined && typeof have === "number" && have < need) {
       return `Needs ${need} ${labels[key]}; ${have} available`;
     }
@@ -618,7 +618,7 @@ function meetsRequirements(req) {
       }
       continue;
     }
-    const val = state[k];
+    const val = k === "survivors" && typeof visibleLivingCrewCount === "function" ? visibleLivingCrewCount() : state[k];
     if (val === undefined) continue;
     if (typeof rule === "number") {
       if (val < rule) return false;
@@ -882,7 +882,7 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
-  text += `But the habitation ring is warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
+  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
   text += buildFinalOrderText(final);
@@ -2005,6 +2005,8 @@ function refreshTitleResumeUI() {
 
 // Autosave after every committed choice (state already mutated)
 function makeChoice(choice) {
+  // Recheck before any writes: resources may have changed since rendering.
+  if (!canAffordEffects(choice.effects)) return;
   if (choice.effects) updateStats(choice.effects);
   if (choice.flag && typeof choice.flag === "object") {
     Object.assign(state.flags, choice.flag);

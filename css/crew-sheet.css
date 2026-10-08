@@ -88,3 +88,25 @@
   margin: 0 0 0.5rem;
   letter-spacing: 0.02em;
 }
+
+/* SUN-036-PC-STATES-01 — open and selected stay distinct from hover. 48px targets unchanged. */
+#btn-crew:hover { background: var(--panel-2); }
+#btn-crew[aria-expanded="true"] {
+  background: #1a1e26;
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.35);
+}
+#btn-crew:active { background: #1c222c; }
+.crew-chip:hover {
+  border-color: var(--cyan);
+  background: #1a1e26;
+}
+.crew-chip:active {
+  border-color: var(--accent-dim);
+  background: #12151a;
+}
+.crew-chip.selected,
+.crew-chip.selected:hover,
+.crew-chip.selected:focus-visible {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.25);
+}

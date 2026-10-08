@@ -1,35 +1,25 @@
-# SUN-BUGHUNT-01 progress
+# PROGRESS — SUN-036-PC-STATES-01
 
-Branch: ticket/sun-bughunt-01
-Tip base: 520be6ad
-Branch head at last confirmed push: 5c51549 (cylinder line only)
-No PR yet. Do not merge until the check is green on the branch.
+Seat $S2. Lane `version/0.30.1-main-reconcile-ci.1`. Branch `ticket/0.30.1-sun-036-pc-states-01`.
 
 ## Done
-
-- Hunt on tip 520be6ad. Smoke sim 64/64, no dead ends. Embryo line already 140,006.
-- BH-03 landed: src/scenes-17.js whole ring complain changed to whole cylinder complain (5c51549).
-- Local tree passes node scripts/sun-bughunt-01-checks.mjs. engine.js 94018 B. resolveSceneImage body untouched.
-- BH-01 read sites patched locally to visibleLivingCrewCount(). Stored meter stays 9.
-- BH-02 habitation decks, BH-04 two-name vent memorial, BH-05 house key instead of child's shoe, BH-06 Tomas cross prose removed. Local only.
+- Tip at launch: `520be6ad` after #434. Keyboard ticket had not landed.
+- Plan: choice / .btn / tutorial / title / reduced-motion already distinct. Intro bar and crew open-state were the gaps.
+- `css/intro-nav.css` hover split from focus-visible and active. 48px kept. Commit `0bd46a0b`.
+- `css/crew-sheet.css` open crew and selected chip split from hover. Commit `6fc6000c`.
+- No `src/engine.js`. No VERSION.md. No Netlify. No certify. #257 not reminted.
 
 ## Next
-
-- Push scenes-27, scenes-26, scenes-40, scenes-03, engine.js onto this branch.
-- Re-run the check against the branch.
-- Open one PR. Ori registers the check after $S2. Do not edit verify.mjs.
+- PR into the lane is not open. The create card was shown and not submitted.
+- Do not claim a next ticket until this PR is open.
+- `TICKETS.md` is not on the lane. Do not invent one. Do not claim ON-HOLD rows.
 
 ## Decisions
-
-- Do not change freshState.survivors (stays 9). Changing it moves the CREWPLATE plate rule in resolveSceneImage.
-- Player-facing survivor reads use visibleLivingCrewCount().
-- No css, no index script list, no images, no VERSION, no Netlify, no shared docs.
+- Crew overrides live in `css/crew-sheet.css` because it loads after `css/style.css`. The 26KB style sheet was not rewritten.
+- Banlist #401–#411 / #414 / #416 not touched.
 
 ## Failing checks
-
-- Branch check will fail until the local source patches land. Tip fail: reckon_summary prints Survivors: 8 after Rourke while the board is 5.
-- GitHub write tools rate-limited after 5c51549. Heartbeat is this file.
+- None yet. CI has not run because the PR is not open.
 
 ## Next step
-
-Push the remaining source files, then open the PR.
+- Submit the pull-request card. After it is open, wait for checks. Then claim the next READY row only if `TICKETS.md` exists.
