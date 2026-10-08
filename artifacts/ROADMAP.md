@@ -130,6 +130,8 @@ Every potentially existing feature is **verify first → NO_PR if satisfied**. R
 
 **Gate column:** `Myth` for art/scene changes; `Hex sims` for balance; `none` means neither specialist gate applies, not that tests, dependencies, owner approval, or release holds disappear. Any conditional scene edit adds Myth; any conditional balance edit adds Hex sims and the ±20% cap. If both apply, obtain both. All later milestones remain gated by their entry/exit criteria (§§10–13).
 
+**Myth story-text gate:** player-facing story-text steps also need a Myth PASS before merge: SUN-36-C, SUN-36-E, SUN-39-B, SUN-39-C.
+
 ### 0.36 — PC Readiness
 
 | Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
