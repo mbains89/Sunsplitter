@@ -218,10 +218,9 @@ async function main() {
       const state = await readState(cdp);
       if (steps === 0 && brokenFocus) {
         report(state, 0, "PASS broken-focus case failed the visible-focus assert");
-        if (ringOk(state)) {
-          console.log("broken-focus still drew a ring");
-          process.exitCode = 1;
-        }
+        if (ringOk(state)) console.log("broken-focus still drew a ring");
+        else console.log("broken-focus");
+        process.exitCode = 1;
         return;
       }
       if (state.endingOn && state.endingTitle) {
@@ -256,7 +255,12 @@ async function main() {
     report(end, steps, "FAIL keyboard run did not reach an ending");
     process.exitCode = 1;
   } finally {
-    chrome.kill("SIGKILL");
+    await new Promise(resolve => {
+      if (chrome.exitCode !== null) return resolve();
+      chrome.once("exit", () => resolve());
+      chrome.kill("SIGKILL");
+      setTimeout(resolve, 2000);
+    });
     server.close();
     fs.rmSync(userDir, { recursive: true, force: true });
   }
