@@ -51,9 +51,14 @@ registerScenes({
     get text() {
       if (state.flags.crisis === "vent") {
         let t = `You give the remaining survivors the right to decide how the dead are remembered.\n\nThey keep Sela's last circle on the bulkhead. They keep Amara's key on a shelf in the common area.`;
+        const ventNamed = ["amara", "sela", "jiro"].filter(id => {
+          if (id === "jiro" && typeof isRecovered === "function" && !isRecovered("jiro")) return false;
+          return !isAlive(id);
+        });
+        const nameWord = ventNamed.length === 1 ? "one name" : ventNamed.length === 2 ? "two names" : ventNamed.length === 3 ? "three names" : `${ventNamed.length} names`;
         t += isAlive("tomas")
-          ? ` Tomas speaks the three names once, carefully, and then does not speak them again.`
-          : ` The three names are read off the manifest once, by whoever is holding it, and then not again.`;
+          ? ` Tomas speaks the ${nameWord} once, carefully, and then does not speak them again.`
+          : ` The ${nameWord} are read off the manifest once, by whoever is holding it, and then not again.`;
         t += `\n\nAfter that, the ship feels slightly less like a place where people disappear without record.`;
         return t;
       }
