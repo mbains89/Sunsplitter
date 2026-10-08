@@ -1,4 +1,5 @@
 // SUN-TESTS-PLAYERFLOW-01 — a negative choice cost actually debits the resource.
+// SUN-PLAYERFLOW-COST-02 is expected-fail: makeChoice does not refuse an unaffordable debit.
 import { pathToFileURL } from "node:url";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -28,16 +29,22 @@ export function sunPlayerflowCostsChecks() {
     state[sample.key] = 40;
     const before = state[sample.key];
     makeChoice(scenes[sample.id].choices[sample.i]);
-    return { found: true, sample, before, after: state[sample.key] };
+    const after = state[sample.key];
+    resetRunState();
+    state[sample.key] = 0;
+    makeChoice(scenes[sample.id].choices[sample.i]);
+    return { found: true, sample, before, after, brokeEven: state[sample.key] };
   })()`);
   if (!result || !result.found) {
     bugs.push("SUN-PLAYERFLOW-COST-01 no choice with a negative supplies/cohesion/integrity effect was registered");
   } else if (!(result.after < result.before)) {
-    bugs.push("SUN-PLAYERFLOW-COST-01 " + result.sample.id + " choice " + result.sample.i + " advertised " + result.sample.delta + " " + result.sample.key + " but state stayed " + result.before + " → " + result.after);
+    bugs.push("SUN-PLAYERFLOW-COST-01 " + result.sample.id + " choice " + result.sample.i + " advertised " + result.sample.delta + " " + result.sample.key + " but state stayed " + result.before + " -> " + result.after);
+  } else if (result.brokeEven !== 0) {
+    bugs.push("SUN-PLAYERFLOW-COST-02 " + result.sample.id + " choice " + result.sample.i + " debited " + result.sample.key + " from 0 to " + result.brokeEven + " (makeChoice does not refuse an unaffordable cost). file: src/engine.js makeChoice/updateStats. repro: state[" + result.sample.key + "]=0; makeChoice(scenes[" + result.sample.id + "].choices[" + result.sample.i + "]). seed: n/a (direct call).");
   }
   if (bugs.length) {
     console.log("SKIP sun-playerflow-costs expected-fail " + bugs.join(" ; "));
-    return [];
+    if (bugs.some(line => line.startsWith("SUN-PLAYERFLOW-COST-01"))) return [];
   }
   return errors;
 }
@@ -48,5 +55,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-costs", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-costs (negative choice effect debited the resource)");
+  console.log("PASS sun-playerflow-costs (negative choice effect debited the resource; unaffordable refusal recorded if skipped)");
 }
