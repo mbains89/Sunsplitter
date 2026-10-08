@@ -43,7 +43,7 @@ export const PLATES_WIRE_374 = [
   ["arc_living_2", "images/sela_ritual.jpg", "2aaf1904e300e78fe84be22b7c1a91e2d4f6aa29", 273657],
   ["offshift_sela", "images/sela_ritual.jpg", "2aaf1904e300e78fe84be22b7c1a91e2d4f6aa29", 273657],
   ["ship_interrupt_resolve", "images/ship_interrupt_resolve.jpg", "0ef82b6d7bf774af5a872ff37b782cf9b02013fd", 273858],
-  ["vault_reveal", "images/vault_reveal.jpg", "ace67061627827db4e5957a53c4d31c180094040", 183579],
+  ["vault_reveal", "images/vault_reveal.jpg", "ace67061627827db4e5957a53c4d31c180094040", 183578],
   ["vault_sacrifice", "images/vault_sacrifice.jpg", "2d49af8dc9e494456e7ad1b78acdc035b715696a", 0]
 ];
 
