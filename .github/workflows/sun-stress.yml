@@ -1,0 +1,46 @@
+name: sun-stress
+
+on:
+  pull_request:
+    branches: [version/0.30.1-main-reconcile-ci.1]
+    paths:
+      - "scripts/sun-stress-run.mjs"
+      - "scripts/sun-stress/**"
+      - "src/**"
+      - "index.html"
+      - ".github/workflows/sun-stress.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sun-stress-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  sun-stress:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Check runtime identity
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(node --version)" = "v${NODE_VERSION}"
+      - name: Detector and replay self-checks
+        run: node scripts/sun-stress-run.mjs --self-test
+      - name: Seeded real-engine stress
+        run: node scripts/sun-stress-run.mjs --seed 37001 --runs 64
