@@ -16,7 +16,6 @@ import { execSync } from "node:child_process";
 const PAPER = new Set([
   "artifacts/PROJECT_STATUS.md",
   "docs/TICKET_QUEUE.md",
-  "artifacts/ROADMAP.md",
   "PROGRESS.md",
 ]);
 
@@ -31,6 +30,14 @@ function isPaper(file) {
 function changedFiles() {
   if (process.argv.includes("--replay-434")) {
     return fs.readFileSync("scripts/guards/fixtures/tip-sync-434.txt", "utf8")
+      .split("\n").map((s) => s.trim()).filter(Boolean);
+  }
+  if (process.argv.includes("--replay-roadmap")) {
+    return fs.readFileSync("scripts/guards/fixtures/tip-sync-roadmap-only.txt", "utf8")
+      .split("\n").map((s) => s.trim()).filter(Boolean);
+  }
+  if (process.argv.includes("--replay-tip-sync-doc")) {
+    return fs.readFileSync("scripts/guards/fixtures/tip-sync-ban.txt", "utf8")
       .split("\n").map((s) => s.trim()).filter(Boolean);
   }
   const extra = process.argv.filter((a) => a.startsWith("--file=")).map((a) => a.slice(7));
