@@ -27,7 +27,7 @@ registerScenes({
         if (isAlive("lena")) t += ` that Lena says is not chemical`;
         t += `.\n\n`;
         if (!isAlive("amara")) t += `Amara's house key from Lagos is found on the deck outside the sealed section. No one picks it up for a long time.\n\n`;
-        if (isAlive("tomas")) t += `Tomas sits on the floor of the common area with his cross in both hands and does not move when people pass.\n`;
+        if (isAlive("tomas")) t += `Tomas sits on the floor of the common area with both hands locked around his knees and does not move when people pass.\n`;
         if (isAlive("mira")) t += `Mira has disabled the intercom channel that still loops the last eleven seconds.\n`;
         if (isAlive("elias")) t += `Elias does not apologize.\n`;
         t += `\n`;
