@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * HOLLOW_STUB — refuse a stubbed src/engine.js.
+ * HOLLOW_STUB — refuse a player-facing file an agent stubbed so the shortest path compiles.
  * Evidence: PR #416 head b6284dce replaced src/engine.js with 27 bytes `// see local /tmp/engine.js`.
- * Lane tip bca47d13 src/engine.js is 93575 bytes and owns resolveSceneImage.
- * Small overlays (src/crew-board-follow-clarity.js and kin) are the prescribed alternative, not stubs.
+ * Lane tip bca47d13 src/engine.js is 93575 bytes and owns function resolveSceneImage.
+ * Floor is >=90000. An exact 93575 pin is the byte-lock fight; do not add one here.
+ *
+ * Use instead: do not replace src/engine.js. Add an overlay at src/<ticket>.js and load it
+ * the way src/dialog-keys.js is pointed from the existing validate.js data-* hook.
  *
  *   node scripts/guards/hollow-stub.mjs
  *   node scripts/guards/hollow-stub.mjs --replay-416
@@ -27,32 +30,25 @@ function walk(dir, out = []) {
 
 function checkText(rel, text) {
   const errors = [];
-  const norm = rel.replace(/\\/g, "/");
-  if (norm === "src/engine.js") {
+  if (rel.replace(/\\/g, "/") === "src/engine.js") {
     if (Buffer.byteLength(text) < ENGINE_FLOOR) {
       errors.push(
-        `HOLLOW_STUB ${norm} is ${Buffer.byteLength(text)} bytes (floor ${ENGINE_FLOOR}). ` +
-          "Do not replace src/engine.js. Add an overlay at src/<ticket>.js and load it " +
-          "the way src/dialog-keys.js is pointed from the existing validate.js data-* hook. " +
+        `HOLLOW_STUB ${rel} is ${Buffer.byteLength(text)} bytes (floor ${ENGINE_FLOOR}). ` +
+          "Do not replace src/engine.js to dodge the byte budget. Add an overlay at src/<ticket>.js " +
+          "and load it the way src/dialog-keys.js is pointed from the existing validate.js data-* hook. " +
           "Lane eng=93575 owns function resolveSceneImage."
       );
     }
     if (!text.includes("function resolveSceneImage")) {
       errors.push(
-        `HOLLOW_STUB ${norm} is missing function resolveSceneImage. ` +
+        `HOLLOW_STUB ${rel} is missing function resolveSceneImage. ` +
           "Do not replace src/engine.js. Overlay via src/<ticket>.js instead."
-      );
-    }
-    if (text.trim().length < 80) {
-      errors.push(
-        `HOLLOW_STUB ${norm} looks like a claimed-done stub (${Buffer.byteLength(text)} bytes). ` +
-          "Do not commit SEE_LOCAL_PATCH / PLACEHOLDER / 'see local /tmp'."
       );
     }
   }
   if (STUB_RE.test(text) && Buffer.byteLength(text) < 1000) {
     errors.push(
-      `HOLLOW_STUB ${norm} looks like a claimed-done stub (${Buffer.byteLength(text)} bytes). ` +
+      `HOLLOW_STUB ${rel} looks like a claimed-done stub (${Buffer.byteLength(text)} bytes). ` +
         "Do not commit SEE_LOCAL_PATCH / PLACEHOLDER / 'see local /tmp'. " +
         "Write the real file, or add src/<ticket>.js and point at it from the existing loader."
     );
