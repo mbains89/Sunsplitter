@@ -2005,6 +2005,8 @@ function refreshTitleResumeUI() {
 
 // Autosave after every committed choice (state already mutated)
 function makeChoice(choice) {
+  // Recheck before any writes: resources may have changed since rendering.
+  if (!canAffordEffects(choice.effects)) return;
   if (choice.effects) updateStats(choice.effects);
   if (choice.flag && typeof choice.flag === "object") {
     Object.assign(state.flags, choice.flag);
