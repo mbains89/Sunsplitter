@@ -49,6 +49,7 @@ import { artR2PlaytestCloseChecks } from "./art-r2-playtest-close-checks.mjs";
 import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.mjs";
 import { newRunChecks } from "./new-run-checks.mjs";
 import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
+import { pcViewportChecks } from "./pc-viewport-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5401,6 +5402,9 @@ async function main() {
   const desktopCompositionErrors = desktopCompositionChecks();
   printCheck("0.32 widescreen scene composition", desktopCompositionErrors);
   failures.push(...desktopCompositionErrors);
+  const pcViewportErrors = pcViewportChecks(ROOT);
+  printCheck("0.36 short desktop viewport", pcViewportErrors);
+  failures.push(...pcViewportErrors);
 
   const mobileUsabilityErrors = mobileUsabilityContractChecks();
   printCheck("0.34 real-phone layout + gesture contract", mobileUsabilityErrors);
