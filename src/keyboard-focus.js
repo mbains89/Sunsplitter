@@ -1,6 +1,7 @@
 // SUN-036-KEYBOARD-RUN-01 — visible keyboard landing spots.
 // Loaded after engine.js and validate.js. Does not change phone layout rules.
 (function () {
+  if (typeof document === "undefined" || !document.head || !document.addEventListener) return;
   const style = document.createElement("style");
   style.textContent = [
     "button:focus, button:focus-visible, input:focus, input:focus-visible,",
