@@ -13,7 +13,7 @@
  *   src/scenes-29.js 1 — boarding_stories
  *   src/scenes-52.js 2 — warmth_laughter, warmth_music
  *
- * Use instead: images/corridor_variant.jpg or images/debris_field.jpg inside resolveSceneImage.
+ * Use instead: images/corridor_pressure_3.jpg or images/debris_field.jpg inside resolveSceneImage.
  *
  *   node scripts/guards/portrait-fallback.mjs
  *   node scripts/guards/portrait-fallback.mjs --replay-copy
@@ -24,11 +24,11 @@ import path from "node:path";
 const NEEDLE = "images/corridor.jpg";
 const FIXTURE = "scripts/guards/fixtures/portrait-copy.js";
 const GRANDFATHER = {
-  "src/engine.js": 3,
-  "src/state.js": 2,
-  "src/scenes-12.js": 1,
-  "src/scenes-29.js": 1,
-  "src/scenes-52.js": 2,
+  "src/engine.js": 0,
+  "src/state.js": 0,
+  "src/scenes-12.js": 0,
+  "src/scenes-29.js": 0,
+  "src/scenes-52.js": 0,
 };
 
 function walk(dir, out = []) {
@@ -48,7 +48,7 @@ function count(text) {
 function offense(rel, n, allowed) {
   return (
     `PORTRAIT_FALLBACK ${rel} assigns ${NEEDLE} (${n}; grandfather ${allowed}). ` +
-    "That file is a Vess-lookalike. Do not copy it. Use images/corridor_variant.jpg " +
+    "That file is a Vess-lookalike. Do not copy it. Use images/corridor_pressure_3.jpg " +
     "or images/debris_field.jpg inside resolveSceneImage (src/engine.js)."
   );
 }
