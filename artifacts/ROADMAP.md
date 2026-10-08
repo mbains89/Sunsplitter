@@ -6,7 +6,7 @@
 
 **Pinned sources:** `main@8d23109b63b844e0703fb36643f14b91b8800c90`; write lane `version/0.30.1-main-reconcile-ci.1@5a17d633d799dc54487e7b16127e8049969db5cd`; #436 head `ab18b42203a32455e4778bbc1b374f950dcf1acf`. “Lane” means that existing version branch, not a branch literally named `lane`.
 
-**Unchanged release posture:** `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`. Existing `VERSION.md` paint is 0.36; it is not a PC-readiness pass. No version is minted by this roadmap. No code, tests, status, locks, feeds, or version files change in this proposal.
+**Unchanged release posture:** `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`. Existing `VERSION.md` paint is 0.36; it is not a PC-readiness pass. No version is minted by this roadmap. No code, tests, status, feeds, or version files change in this proposal. The only companion edit updates the ROADMAP digest in `LOCKS.md`; no lock disposition changes.
 
 ## 1. Authority and change-control law
 
@@ -310,6 +310,10 @@ The section numbers cited by `LOCKS.md` remain intact. Their historical version 
 | Damage-cause canon / Cascade Allusive / new narrative density | **proposal — owner yes**; no new canon or scene volume from this split. Keep contested cascade lanes plural and Tomas's reserved phrase unspent. |
 
 Do not remint drained work: #306 embryo sweep (spoken 140,006; HUD 0–100), #307 HITL remap, #326 lethal-resume, #348 Title Continue count, #351 cascade payoff, #433 existing unshadow work, #434 and earlier pointer-only syncs, ADD-KEYS-A, or leftovers 10–12. Preserve the distinct existing #437 job. Opening/tutorial/Crew UI already has implementations; historical candidate wording is not permission to build them again. Do not claim a readiness exit solely because old implementation or planning paper exists.
+
+### Playtest response (post-0.35, pre-0.36)
+
+Historical response scope remains recorded in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`; it is evidence for the named follow-ups above, not a reopened drain. `SUN-ART-BODY-REFERENCE-01` is paper scope, not permission to generate or wire body-reference bytes. The style bible `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before event/body-reference art chats; do not generate plates in Cursor / Grok Bot. Existing Grok briefs are instructions, not wiring authority. Preserve the existing Muse/HITL owner and parked ending-art scope; ART-R2 broad generation/wiring stays held. Do not mint or open 0.36 from this roadmap or those historical papers: the existing 0.36 PAINT is not a new product opening or certification.
 
 ## 15. Parallel map
 
