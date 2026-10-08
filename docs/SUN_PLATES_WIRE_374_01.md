@@ -16,7 +16,7 @@ No VERSION bump. No tag. No Netlify. No image generate / edit / recolor / crop /
 
 ## Wired (already live — not overwritten)
 
-Identity pin is the tip git blob SHA (`git hash-object`). The check also computes sha256 of that same file and fails if the blob drifts.
+Identity pin is the tip git blob SHA (`git hash-object`). The check computes sha256 of that same file and fails if the blob drifts (harvest bytes cannot match).
 
 | event_id | file | live blob SHA | size |
 |---|---|---|---|
@@ -55,8 +55,8 @@ Identity pin is the tip git blob SHA (`git hash-object`). The check also compute
 | arc_living_2 | images/sela_ritual.jpg | 2aaf1904e300e78fe84be22b7c1a91e2d4f6aa29 | 273657 |
 | offshift_sela | images/sela_ritual.jpg | 2aaf1904e300e78fe84be22b7c1a91e2d4f6aa29 | 273657 |
 | ship_interrupt_resolve | images/ship_interrupt_resolve.jpg | 0ef82b6d7bf774af5a872ff37b782cf9b02013fd | 273858 |
-| vault_reveal | images/vault_reveal.jpg | ace67061627827db4e5957a53c4d31c180094040 | 183579 |
-| vault_sacrifice | images/vault_sacrifice.jpg | 2d49af8dc9e494456e7ad1b78acdc035b715696a | live |
+| vault_reveal | images/vault_reveal.jpg | ace67061627827db4e5957a53c4d31c180094040 | 183578 |
+| vault_sacrifice | images/vault_sacrifice.jpg | 2d49af8dc9e494456e7ad1b78acdc035b715696a | blob-only |
 
 `act2_spine_next` and `boarding_stories` already declare `corridor.jpg` on the tip. This ticket does not add that mapping and does not use it as a fallback.
 
