@@ -35,3 +35,10 @@ jobs:
         env:
           GUARD_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/guards/run-all.mjs
+      - name: Fail gutted files
+        env:
+          GUARD_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GUARD_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          node scripts/guards/file-shrink.mjs --self-test
+          node scripts/guards/file-shrink.mjs
