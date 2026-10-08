@@ -1,6 +1,7 @@
 // SUN-PLAYERFLOW-COSTCHECK-03 — a costed choice must not be offered while unaffordable.
 // Missing cost data fails. Any SKIP on the cost path fails. A failure exits non-zero.
-// The broken fixture is test-only and is not loaded unless --broken-fixture is passed.
+// --broken-fixture injects a test-only scene into the live `scenes` object. The same
+// walk that guards players is what goes red. The fixture is not a shipped scene.
 import { pathToFileURL } from "node:url";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,42 +15,36 @@ function recordSkip(errors, message) {
   errors.push("SKIP on cost path is a failure: " + message);
 }
 
-function applyBrokenFixture(errors, fixture) {
-  if (!fixture || !Array.isArray(fixture.choices) || !fixture.choices.length) {
-    recordSkip(errors, "broken fixture missing choices");
-    return;
-  }
-  if (fixture.skip) recordSkip(errors, fixture.skip);
-  for (const choice of fixture.choices) {
-    const effects = choice && choice.effects;
-    if (!effects || typeof effects !== "object") {
-      errors.push("FIXTURE " + (fixture.id || "costcheck") + " cost data missing");
-      continue;
-    }
-    for (const key of RESOURCE_KEYS) {
-      if (!Object.prototype.hasOwnProperty.call(effects, key)) continue;
-      const delta = effects[key];
-      if (typeof delta !== "number" || !Number.isFinite(delta)) {
-        errors.push("FIXTURE " + fixture.id + " cost data missing for " + key);
-        continue;
-      }
-      const have = choice.balance && typeof choice.balance[key] === "number" ? choice.balance[key] : 0;
-      if (delta < 0 && have + delta < 0 && choice.offered) {
-        errors.push("FIXTURE " + fixture.id + " offered while unaffordable (" + key + " " + delta + " at " + have + ")");
-      }
-    }
-  }
-}
-
 export async function sunPlayerflowCostsChecks(opts = {}) {
   const errors = [];
   const runtime = loadGame(ROOT);
-  const live = runtime.evaluate(`(() => {
+  let fixture = null;
+  if (opts.brokenFixture) {
+    ({ brokenCostFixture: fixture } = await import(FIXTURE_URL));
+  }
+  const live = runtime.evaluate(`((fixture) => {
     const keys = ${JSON.stringify(RESOURCE_KEYS)};
     const problems = [];
+    if (fixture && fixture.id) {
+      if (scenes[fixture.id]) problems.push("fixture id collided with a shipped scene: " + fixture.id);
+      scenes[fixture.id] = {
+        text: "test-only costcheck fixture",
+        costcheckSkip: fixture.skip || "",
+        choices: (fixture.choices || []).map(choice => ({
+          text: choice.text,
+          effects: choice.effects,
+          forceOffer: choice.forceOffer === true,
+          next: fixture.id
+        }))
+      };
+    }
     const hits = [];
     for (const id of Object.keys(scenes)) {
-      const list = scenes[id] && scenes[id].choices;
+      const scene = scenes[id];
+      const list = scene && scene.choices;
+      if (scene && scene.costcheckSkip) {
+        problems.push("SKIP on cost path is a failure: " + scene.costcheckSkip);
+      }
       if (!list || typeof list === "function") continue;
       list.forEach((choice, i) => {
         if (!choice || choice.effects == null) return;
@@ -70,16 +65,19 @@ export async function sunPlayerflowCostsChecks(opts = {}) {
     }
     if (!hits.length) {
       problems.push("SKIP on cost path is a failure: no costed choice registered");
-      return { problems, checked: 0 };
+      return { problems, checked: 0, fixtureWalked: false };
     }
+    const realAfford = canAffordEffects;
     for (const sample of hits) {
       resetRunState();
       state[sample.key] = 0;
       const choicesEl = document.getElementById("choices");
       if (choicesEl && choicesEl.children) choicesEl.children.length = 0;
-      showScene(sample.id, { skipOnEnter: true });
       const choice = scenes[sample.id].choices[sample.i];
-      if (canAffordEffects(choice.effects)) {
+      if (choice.forceOffer) canAffordEffects = function () { return true; };
+      showScene(sample.id, { skipOnEnter: true });
+      canAffordEffects = realAfford;
+      if (realAfford(choice.effects)) {
         problems.push(sample.id + " choice " + sample.i + " still affordable at " + sample.key + "=0");
         continue;
       }
@@ -91,12 +89,14 @@ export async function sunPlayerflowCostsChecks(opts = {}) {
       }
       const before = state[sample.key];
       const sceneBefore = state.scene;
+      if (choice.forceOffer) canAffordEffects = function () { return true; };
       makeChoice(choice);
+      canAffordEffects = realAfford;
       if (state[sample.key] !== before || state.scene !== sceneBefore) {
         problems.push(sample.id + " choice " + sample.i + " applied while unaffordable (" + sample.key + " " + before + " -> " + state[sample.key] + ")");
       }
     }
-    const paid = hits[0];
+    const paid = hits.find(hit => !String(hit.id).startsWith("costcheck_fixture_")) || hits[0];
     resetRunState();
     state[paid.key] = 80;
     const beforePaid = state[paid.key];
@@ -104,15 +104,17 @@ export async function sunPlayerflowCostsChecks(opts = {}) {
     if (!(state[paid.key] < beforePaid)) {
       problems.push(paid.id + " choice " + paid.i + " did not debit " + paid.key + " when the cost was payable");
     }
-    return { problems, checked: hits.length };
-  })()`);
+    return {
+      problems,
+      checked: hits.length,
+      fixtureWalked: !!(fixture && hits.some(hit => hit.id === fixture.id))
+    };
+  })(${JSON.stringify(fixture)})`);
 
   if (!live) recordSkip(errors, "cost check returned no result");
   else for (const line of live.problems || []) errors.push(line);
-
-  if (opts.brokenFixture) {
-    const { brokenCostFixture } = await import(FIXTURE_URL);
-    applyBrokenFixture(errors, brokenCostFixture);
+  if (opts.brokenFixture && (!live || !live.fixtureWalked)) {
+    recordSkip(errors, "broken fixture was not walked on the live scenes path");
   }
   return errors;
 }
