@@ -2,32 +2,25 @@
 
 Branch: ticket/0.30.1-roadmap-feeds-1007-01
 Base: version/0.30.1-main-reconcile-ci.1 @ 520be6ad
-Mode: docs only. No game code. No Netlify. No VERSION/tag/certify.
+Updated: 2026-10-07
 
 ## Done
-- artifacts/ROADMAP.md rewritten on this branch: 0.36 PC Readiness through 1.0 (6 versions).
-- Six paste-ready briefs under artifacts/feeds/:
-  - SUN-FEED-KEYBOARD-CHOICE-01
-  - SUN-FEED-NEW-RUN-CONFIRM-01
-  - SUN-FEED-ENDING-SKIP-LABEL-01
-  - SUN-FEED-WHAT-REMAINS-LABEL-01
-  - SUN-FEED-SAVE-EXPORT-HONESTY-01
-  - SUN-FEED-DESKTOP-MATRIX-HARNESS-01
-- Branch tip before this file: 94cb392.
+- artifacts/ROADMAP.md rewritten for 0.36 PC Readiness through 1.0 (6 versions).
+- Six paste-ready briefs under artifacts/feeds/.
+- No game code. No VERSION.md. No certify. No Netlify.
+- F07 not reminted. Button States, Window Resize, and 0.37 review build not re-briefed.
 
 ## Next
 - Open one PR into version/0.30.1-main-reconcile-ci.1.
-- Do not claim a queue ticket until that PR is open.
-- Keyboard brief must stay overlay-only (src/pc-choice-keys.js). Do not edit src/engine.js.
+- After the PR is open, claim the next READY ticket in TICKETS.md if that file exists. Do not claim ON-HOLD (V158 Recruitment).
 
 ## Decisions
-- Left running and not re-briefed: Button States, Window Resize, 0.37 review build, crew-plate F07 (#433 already satisfies F07; do not merge Copilot #414).
-- Paint stays 0.36. Last certified stays 0.28.1d. 0.37 is not OPEN.
-- ASK-FIRST: damage-cause canon, ART-R2, Amara route, breast-cover toggle, calling 0.36 passed, opening 0.37, Netlify pin, close-out to main.
-- Recruitment / V158 stays ON-HOLD. No Fast.
+- Keyboard brief must use overlay src/pc-choice-keys.js, not src/engine.js. The 94cb392 text still names engine.js; builders follow the overlay rule.
+- Damage-cause, ART-R2, Amara route, breast-cover toggle, 0.36 passed, 0.37 open, Netlify pin, and close-out to main are ASK-FIRST.
+- Portraits: needs approved art. Do not generate.
 
 ## Failing checks
-- PR create was deduped and GitHub still showed no pull for this head as of the last public check. Compare URL was ready. Retrying.
+- PR create was deduped on 2026-10-07 and no pull number existed at stop. Recheck before this heartbeat still showed no open PR for this head.
 
 ## Next step
-- Confirm PR number, then stop this roadmap job. Do not start the next product ticket until the PR is open and TICKETS.md has a READY row that is not ON-HOLD.
+- Push this file, then open the single docs PR. Stop line only after the PR number is real or the create fails again with proof.
