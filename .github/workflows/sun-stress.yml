@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/sun-stress-run.mjs"
       - "scripts/sun-stress/**"
+      - "scripts/simulate.mjs"
       - "src/**"
       - "index.html"
       - ".github/workflows/sun-stress.yml"
