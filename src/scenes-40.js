@@ -82,7 +82,7 @@ She turns the key once between her fingers.
   crew_walk: {
     get text() { return `You move through a ship sized for a civilization that did not board.
 
-Deck 2 berths: names still printed on locker lips. A child's shoe in a size no one on this crew wears. Bedding folded for people who never made the ring. The air recyclers run at a fraction of design load and still sound too loud.
+Deck 2 berths: names still printed on locker lips. A house key on a locker lip, in a size no one on this crew wears. Bedding folded for people who never made the ring. The air recyclers run at a fraction of design load and still sound too loud.
 
 ${isAlive("lena") ? `Medical: Lena catalogues every remaining drug by hand. Empty recovery racks line the far wall like an accusation. A covered body still occupies the corner.` : ""}
 

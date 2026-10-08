@@ -9,7 +9,7 @@ registerScenes({
       const pri = state.flags.vault_priority || "both";
       const sac = state.flags.vault_sacrifice;
       let t = `Before the final order, you take stock.\n\n`;
-      t += `Survivors: ${state.survivors}. Hull ${state.integrity}%. Cohesion ${state.cohesion}%. Supplies ${state.supplies}%.\n`;
+      t += `Survivors: ${typeof visibleLivingCrewCount === "function" ? visibleLivingCrewCount() : state.survivors}. Hull ${state.integrity}%. Cohesion ${state.cohesion}%. Supplies ${state.supplies}%.\n`;
       t += `Embryos ${state.embryos}%.
 
 `;
