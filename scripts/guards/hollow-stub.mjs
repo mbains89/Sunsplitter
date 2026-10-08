@@ -15,7 +15,7 @@ import path from "node:path";
 
 const ENGINE_FLOOR = 90000;
 const STUB_RE = /see local \/tmp|SEE_LOCAL_PATCH|SEE_LOCAL_FILE|\bPLACEHOLDER\b/;
-const REPLAY_416 = "// see local /tmp/engine.js\n";
+const REPLAY_416_PATH = "scripts/guards/fixtures/hollow-416.js";
 
 function walk(dir, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -59,7 +59,7 @@ function checkText(rel, text) {
 const replay = process.argv.includes("--replay-416");
 const errors = [];
 if (replay) {
-  errors.push(...checkText("src/engine.js", REPLAY_416));
+  errors.push(...checkText("src/engine.js", fs.readFileSync(REPLAY_416_PATH, "utf8")));
 } else {
   for (const file of walk("src")) {
     const rel = file.split(path.sep).join("/");
