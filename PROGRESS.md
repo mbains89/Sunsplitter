@@ -1,23 +1,25 @@
-# SUN-CORRECT-01 progress
+# PROGRESS — SUN-036-PC-STATES-01
 
-## done
-- Branch `ticket/sun-correct-01` from lane tip `520be6ad` (merge #434).
-- Mined classes: hollow stubs (#416 head `b6284dce`, engine.js 27 bytes), tip-sync churn (#423–#434), portrait `images/corridor.jpg` copies (3 live returns in `src/engine.js` grandfathered).
-- Version paint already owned by `scripts/version-lock-ci.mjs` (PAINT 0.36). Not reminted.
-- Guards landed: `scripts/guards/hollow-stub.mjs`, `scripts/guards/tip-sync-churn.mjs`, `scripts/guards/portrait-fallback.mjs`, `scripts/guards/run-all.mjs`.
-- New workflow `.github/workflows/repo-guards.yml` job `repo-guards` (existing workflows not edited).
+Seat $S2. Lane `version/0.30.1-main-reconcile-ci.1`. Branch `ticket/0.30.1-sun-036-pc-states-01`.
 
-## next
-- Prove each guard fails on a past SHA / replay, passes on tip.
-- Open PR into `version/0.30.1-main-reconcile-ci.1` with rule→enforcer table and FIX FOR OWNER for live corridor.jpg returns.
+## Done
+- Tip at launch: `520be6ad` after #434. Keyboard ticket had not landed.
+- Plan: choice / .btn / tutorial / title / reduced-motion already distinct. Intro bar and crew open-state were the gaps.
+- `css/intro-nav.css` hover split from focus-visible and active. 48px kept. Commit `0bd46a0b`.
+- `css/crew-sheet.css` open crew and selected chip split from hover. Commit `6fc6000c`.
+- No `src/engine.js`. No VERSION.md. No Netlify. No certify. #257 not reminted.
 
-## decisions
-- Do not edit `src/engine.js`. Exact eng=93575 pin is the byte-lock fight; floor is >=90000 plus `function resolveSceneImage` plus stub-marker reject.
-- Fail tip-sync and corridor.jpg only on additions.
-- AGENTS.md is not on the lane. Table stays in the PR body for Ori.
+## Next
+- PR into the lane is not open. The create card was shown and not submitted.
+- Do not claim a next ticket until this PR is open.
+- `TICKETS.md` is not on the lane. Do not invent one. Do not claim ON-HOLD rows.
 
-## failing checks
-- none yet (proof commands next).
+## Decisions
+- Crew overrides live in `css/crew-sheet.css` because it loads after `css/style.css`. The 26KB style sheet was not rewritten.
+- Banlist #401–#411 / #414 / #416 not touched.
 
-## next step
-- Run proof commands and open the PR.
+## Failing checks
+- None yet. CI has not run because the PR is not open.
+
+## Next step
+- Submit the pull-request card. After it is open, wait for checks. Then claim the next READY row only if `TICKETS.md` exists.
