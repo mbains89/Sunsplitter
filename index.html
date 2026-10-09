@@ -100,7 +100,7 @@
         <p class="tone-meta">
           Story and consequences. Not a management sim, not combat, not a checklist.
         </p>
-        <button id="btn-tone-continue" class="btn btn-primary" type="button" onclick="acknowledgeTone()">I understand — continue</button>
+        <button class="btn btn-primary" type="button" onclick="acknowledgeTone()">I understand — continue</button>
       </div>
     </div>
 
@@ -119,6 +119,7 @@
         Choices have weight. The Future and the Living will both ask for blood.
       </p>
       <div class="title-actions">
+        <p id="review-build-stamp" class="review-build-stamp hidden" role="status">Private review build</p>
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <p id="title-save-chip" class="title-save-chip hidden" role="status"></p>
@@ -208,7 +209,7 @@
       <div class="ending-text" id="ending-text"></div>
       <p id="ending-next-hint" class="ending-next-hint">Next: read what remains of the run.</p>
       <button id="btn-what-remains" class="btn btn-primary" type="button" onclick="showWhatRemains()" aria-describedby="ending-next-hint">What remains</button>
-      <button id="btn-play-again" class="btn" type="button" onclick="playAgain()">Play Again</button>
+      <button class="btn" type="button" onclick="playAgain()">Play Again</button>
     </div>
 
     <div id="what-remains-screen" class="hidden">
@@ -294,7 +295,7 @@
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
 <script src="src/hitl-unshadow.js"></script>
-<script src="src/keyboard-focus.js"></script>
+<script src="src/review-build-stamp.js"></script>
 <script>
 (function wireMobileImageDoubleTap() {
   function bind() {
