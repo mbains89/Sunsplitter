@@ -369,6 +369,42 @@ function restorePresentationImages() {
   }
 })();
 
+// SUN-034-PLATE-PREFETCH-01: warm the next plate after choices render.
+// Read-only. Does not call onEnter, write state, or touch #scene-image.
+const warmedPlates = [];
+const warmedPlateSet = new Set();
+function prefetchChoicePlates(choices) {
+  if (typeof Image !== "function") return;
+  try {
+    if (typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData) return;
+  } catch (e) { /* headless */ }
+  const currentImg = document.getElementById("scene-image");
+  const current = currentImg && typeof currentImg.__ssManagedSource === "string" ? currentImg.__ssManagedSource : "";
+  const seen = new Set();
+  let warmedThisPass = 0;
+  const list = choices || [];
+  for (let i = 0; i < list.length && warmedThisPass < 3; i++) {
+    const choice = list[i];
+    if (!choice || !choice.next || !scenes[choice.next]) continue;
+    let src = "";
+    try { src = resolveSceneImage(choice.next, scenes[choice.next]) || ""; }
+    catch (e) { src = ""; }
+    if (!src || src === current || seen.has(src) || warmedPlateSet.has(src)) continue;
+    seen.add(src);
+    try {
+      const plate = new Image();
+      plate.src = src;
+      if (typeof plate.decode === "function") {
+        Promise.resolve(plate.decode()).catch(() => {});
+      }
+    } catch (e) { /* swallow decode/load errors */ }
+    warmedPlateSet.add(src);
+    warmedPlates.push(src);
+    while (warmedPlates.length > 6) warmedPlateSet.delete(warmedPlates.shift());
+    warmedThisPass++;
+  }
+}
+
 function showScene(id, opts) {
   opts = opts || {};
   state.scene = id;
@@ -472,6 +508,14 @@ function showScene(id, opts) {
     const shortcuts = enabledChoices[0].getAttribute("aria-keyshortcuts");
     enabledChoices[0].setAttribute("aria-keyshortcuts", `${shortcuts ? `${shortcuts} ` : ""}Enter Space`);
   }
+  prefetchChoicePlates(choiceList.filter(c => {
+    if (!c || c.alive && !isAlive(c.alive)) return false;
+    if (c.aliveAll && !c.aliveAll.every(k => isAlive(k))) return false;
+    if (c.aliveAny && !c.aliveAny.some(k => isAlive(k))) return false;
+    if (c.requires && !meetsRequirements(c.requires)) return false;
+    if (c.effects && !canAffordEffects(c.effects)) return false;
+    return true;
+  }));
 
   renderStatus();
 
