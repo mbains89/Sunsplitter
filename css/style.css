@@ -732,6 +732,7 @@ body::before {
 }
 
 #scene-id {
+  display: none;
   font-family: var(--font-mono);
   opacity: 0.7;
   overflow: hidden;

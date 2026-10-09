@@ -11,7 +11,11 @@ const live = [
 const replays = [
   ["scripts/guards/hollow-stub.mjs", "--replay-416"],
   ["scripts/guards/tip-sync-churn.mjs", "--replay-434"],
+  ["scripts/guards/tip-sync-churn.mjs", "--replay-tip-sync-doc"],
   ["scripts/guards/portrait-fallback.mjs", "--replay-copy"],
+];
+const passes = [
+  ["scripts/guards/tip-sync-churn.mjs", "--replay-roadmap"],
 ];
 
 let failed = 0;
@@ -30,8 +34,19 @@ for (const args of replays) {
     failed += 1;
   }
 }
+for (const args of passes) {
+  const res = spawnSync(process.execPath, args, { encoding: "utf8" });
+  const status = res.status ?? 1;
+  const out = `${res.stdout || ""}${res.stderr || ""}`.trim();
+  console.log(`\n--- fixture ${args.join(" ")} exit ${status} (expect 0) ---`);
+  console.log(out);
+  if (status !== 0) {
+    console.error(`FIXTURE_DID_NOT_PASS ${args.join(" ")}`);
+    failed += 1;
+  }
+}
 if (failed) {
   console.error(`repo-guards: ${failed} failed`);
   process.exit(1);
 }
-console.log("repo-guards: pass (live clean; three bad fixtures failed)");
+console.log("repo-guards: pass (live clean; bad fixtures failed; roadmap-only passed)");

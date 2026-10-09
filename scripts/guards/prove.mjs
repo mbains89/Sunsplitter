@@ -14,6 +14,16 @@ const cases = [
     expect: 1,
   },
   {
+    name: "roadmap-only diff passes",
+    args: ["scripts/guards/tip-sync-churn.mjs", "--replay-roadmap"],
+    expect: 0,
+  },
+  {
+    name: "SUN_ROADMAP_TIP_SYNC doc still fails",
+    args: ["scripts/guards/tip-sync-churn.mjs", "--replay-tip-sync-doc"],
+    expect: 1,
+  },
+  {
     name: "portrait corridor.jpg copy (Vess-lookalike addition)",
     args: ["scripts/guards/portrait-fallback.mjs", "--replay-copy"],
     expect: 1,
