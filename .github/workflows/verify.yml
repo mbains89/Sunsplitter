@@ -45,6 +45,10 @@ jobs:
           test "$(node --version)" = "v${NODE_VERSION}"
           node scripts/verify.mjs --self-test
           node scripts/verify.mjs
+      - name: Run Crew plate Esc proof
+        run: |
+          set -euo pipefail
+          node scripts/hitl-unshadow-checks.mjs
 
   version_simulation_smoke:
     name: version-simulation-smoke
@@ -99,6 +103,10 @@ jobs:
           test "$(node --version)" = "v${NODE_VERSION}"
           node scripts/verify.mjs --self-test
           node scripts/verify.mjs
+      - name: Run Crew plate Esc proof
+        run: |
+          set -euo pipefail
+          node scripts/hitl-unshadow-checks.mjs
 
   main_simulation:
     name: main-simulation (${{ matrix.policy }})
