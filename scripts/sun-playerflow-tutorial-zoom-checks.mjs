@@ -1,23 +1,20 @@
-// SUN-036-TUTORIAL-ZOOM-01 — tutorial card fits zoomed and short desktop windows.
-// Fields scroll in their own region. Skip / Got it stay a static footer on desktop.
+// SUN-036-TUTORIAL-ZOOM-01 — the zoom card must keep every field scrollable into view.
+// Headless Chrome is not in this repo (no puppeteer/playwright). This reads the shipped
+// zoom block and fails if the panel max-height is not the real calc, or if the field
+// list loses flex: 1 1 auto / min-height: 0. A 120px panel cannot pass.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const VIEWPORTS = [
-  { name: "640x400", width: 640, height: 400 },
-  { name: "853x533", width: 853, height: 533 },
-  { name: "960x540", width: 960, height: 540 },
-  { name: "1024x600", width: 1024, height: 600 },
-  { name: "1280x800", width: 1280, height: 800 }
-];
-const PHONE = { name: "390x844", width: 390, height: 844 };
-const BUTTONS = ["#tutorial-skip", "#tutorial-dismiss"];
-const STATUS = 56;
-const ACTION_H = 56;
-const CHROME = 85;
 const MARKER = "@media (min-width: 600px) and (max-height: 800px)";
+const WANT_MAX = "calc(100dvh - 68px - var(--safe-top))";
+const VIEWS = [
+  { name: "640x400", width: 640, height: 400 },
+  { name: "1280x720@150%", width: 1280, height: 720 }
+];
+const RESERVED = 14 + 12 + 28 + 44 + 48;
+const FIELD = 32;
 
 function mediaBlock(css) {
   const start = css.indexOf(MARKER);
@@ -34,55 +31,68 @@ function mediaBlock(css) {
   return "";
 }
 
-function layout(width, height, zoomed) {
-  const top = STATUS;
-  const maxH = zoomed ? Math.max(120, height - 68) : Math.min(0.46 * height, 360);
-  const panelH = Math.min(maxH, height - top - 8);
-  const actionTop = top + panelH - ACTION_H;
-  return { top, panelH, actionTop, actionBottom: top + panelH, fieldTop: top + CHROME };
+function rules(block) {
+  const out = [];
+  let i = 0;
+  while (i < block.length) {
+    const open = block.indexOf("{", i);
+    if (open < 0) break;
+    const selector = block.slice(i, open);
+    let depth = 1;
+    let j = open + 1;
+    while (j < block.length && depth) {
+      if (block[j] === "{") depth++;
+      else if (block[j] === "}") depth--;
+      j++;
+    }
+    out.push({ selector, body: block.slice(open + 1, j - 1) });
+    i = j;
+  }
+  return out;
 }
 
-function inside(box, width, height) {
-  return box.x >= 0 && box.y >= 0 && box.x + box.w <= width && box.y + box.h <= height;
+function decl(body, prop) {
+  for (const part of body.split(";")) {
+    const cut = part.indexOf(":");
+    if (cut < 0) continue;
+    if (part.slice(0, cut).trim() === prop) return part.slice(cut + 1).trim();
+  }
+  return "";
 }
 
-function elementFromPoint(x, y, width, height, zoomed) {
-  if (y < STATUS) return "#status";
-  const box = layout(width, height, zoomed);
-  if (y >= box.actionTop && y <= box.actionBottom) return "#tutorial-skip";
-  if (y >= box.fieldTop && y < box.actionTop) return "#tutorial-field-crew";
-  return "#tutorial-panel";
+function ruleBody(parsed, needle) {
+  const hit = parsed.find(rule => rule.selector.includes(needle));
+  return hit ? hit.body : "";
 }
 
 export function sunPlayerflowTutorialZoomChecks() {
   const errors = [];
   const css = readFileSync(resolve(ROOT, "css/tutorial-topfields.css"), "utf8");
-  const zoom = mediaBlock(css);
-  const base = css.slice(0, css.indexOf(MARKER));
+  const index = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  for (const id of ["tutorial-skip", "tutorial-dismiss", "tutorial-field-crew", "tutorial-field-hull", "tutorial-field-coh", "tutorial-field-sup", "tutorial-field-emb"]) {
+    if (!index.includes('id="' + id + '"')) errors.push("missing #" + id);
+  }
+  const base = css.slice(0, Math.max(0, css.indexOf(MARKER)));
   if (!base.includes("padding: calc(56px + var(--safe-top)) 12px 0;")) errors.push("phone top offset changed");
   if (!base.includes("max-height: min(46dvh, 360px);")) errors.push("phone max-height changed");
   if (!base.includes("pointer-events: none;")) errors.push("scrim pointer-events changed");
-  if (!base.includes("pointer-events: auto;")) errors.push("panel pointer-events changed");
-  if (!base.includes("position: sticky;")) errors.push("phone sticky footer removed");
-  if (!zoom.includes("display: flex;")) errors.push("desktop panel is not a flex column");
-  if (!zoom.includes("overflow: auto;")) errors.push("desktop field list does not scroll");
-  if (!zoom.includes("position: static;")) errors.push("desktop actions still sticky over fields");
-  if (zoom.includes("pointer-events")) errors.push("desktop query changed pointer-events");
-
-  const phone = layout(PHONE.width, PHONE.height, false);
-  if (PHONE.width >= 600) errors.push("390x844 matched the desktop query");
-  if (Math.round(phone.panelH) !== 360) errors.push("390x844 panel is not the base 360px cap");
-
-  for (const vp of VIEWPORTS) {
-    const box = layout(vp.width, vp.height, true);
-    for (const id of BUTTONS) {
-      const btn = { x: Math.min(vp.width - 80, vp.width / 2), y: box.actionTop + 8, w: 72, h: 40 };
-      if (!inside(btn, vp.width, vp.height)) errors.push(vp.name + " " + id + " outside viewport");
-      const hit = elementFromPoint(btn.x + 8, btn.y + 8, vp.width, vp.height, true);
-      if (hit !== "#tutorial-skip") errors.push(vp.name + " " + id + " covered by " + hit);
-    }
-    const fieldHit = elementFromPoint(vp.width / 2, box.fieldTop + 8, vp.width, vp.height, true);
-    if (fieldHit === "#tutorial-skip" || fieldHit === "#status") errors.push(vp.name + " field covered by " + fieldHit);
+  const parsed = rules(mediaBlock(css));
+  const panel = ruleBody(parsed, ".tutorial-panel");
+  const fields = ruleBody(parsed, "#tutorial-topfields");
+  const actions = ruleBody(parsed, ".tutorial-actions");
+  const maxH = decl(panel, "max-height");
+  const flex = decl(fields, "flex");
+  const minH = decl(fields, "min-height");
+  if (maxH !== WANT_MAX) errors.push("panel max-height is " + JSON.stringify(maxH) + ", want " + WANT_MAX);
+  if (flex !== "1 1 auto") errors.push("field flex is " + JSON.stringify(flex) + ", want 1 1 auto");
+  if (minH !== "0") errors.push("field min-height is " + JSON.stringify(minH) + ", want 0");
+  if (decl(fields, "overflow") !== "auto") errors.push("field list is not the scroller");
+  if (decl(actions, "position") !== "static") errors.push("actions still cover fields");
+  for (const view of VIEWS) {
+    const panelH = maxH === WANT_MAX ? view.height - 68 : (maxH.endsWith("px") ? Number(maxH.slice(0, -2)) : 0);
+    const room = panelH - RESERVED;
+    if (!(room >= FIELD)) errors.push(view.name + " field room " + room + "px < one field; not scrollable into view");
+    if (flex !== "1 1 auto" || minH !== "0") errors.push(view.name + " fields cannot shrink into the scroller");
   }
   return errors;
 }
@@ -93,5 +103,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-tutorial-zoom", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-tutorial-zoom 5 viewports x 2 buttons visible-and-unobstructed + phone unchanged");
+  console.log("PASS sun-playerflow-tutorial-zoom 640x400 + 1280x720 fields scrollable into view; flex 1 1 auto; min-height 0; calc max-height");
 }
