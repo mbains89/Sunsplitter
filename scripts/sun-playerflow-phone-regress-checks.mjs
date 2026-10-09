@@ -1,6 +1,7 @@
 // SUN-036-PHONE-REGRESS-HARNESS-01 — Phone Layout Still Holds.
 // Pinned 390×844 checks. Auto-run by scripts/sun-playerflow-*-checks.mjs.
 // Does not edit game code, product CSS, or workflows.
+// brace match: real opening brace, not a backslash.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -28,7 +29,7 @@ function stripComments(css) {
 function mediaBlocks(css) {
   const src = stripComments(css);
   const blocks = [];
-  const re = /@media\s*([^{]+)\\{/g;
+  const re = /@media\s*([^{]+)\{/g;
   let match;
   while ((match = re.exec(src))) {
     const open = match.index + match[0].length - 1;
