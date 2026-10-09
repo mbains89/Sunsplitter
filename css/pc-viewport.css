@@ -92,3 +92,39 @@ body,
   max-height: 100dvh;
   min-height: 0;
 }
+
+/* SUN-036-HIGH-CONTRAST-01 — Windows forced-colors strips background tints and box-shadows.
+   System colours and border/outline width only. Does not change the non-forced-colours look. */
+@media (forced-colors: active) {
+  .crew-chip.selected,
+  .crew-chip[aria-pressed="true"] {
+    border: 3px solid Highlight;
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+    color: HighlightText;
+  }
+
+  #btn-crew[aria-expanded="true"] {
+    border: 3px solid Highlight;
+    outline: 2px solid Highlight;
+    color: HighlightText;
+  }
+
+  #cinematic-pause[aria-pressed="true"] {
+    border: 3px solid Highlight;
+    outline: 2px solid Highlight;
+    text-decoration: underline;
+    color: HighlightText;
+  }
+
+  .choice-btn:disabled,
+  .choice-btn.disabled {
+    color: GrayText;
+    border: 2px dashed GrayText;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}
