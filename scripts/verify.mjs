@@ -50,6 +50,7 @@ import { playtestArtEventAuditChecks } from "./playtest-art-event-audit-checks.m
 import { newRunChecks } from "./new-run-checks.mjs";
 import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
 import { pcViewportChecks } from "./pc-viewport-checks.mjs";
+import { reviewBuildStampChecks } from "./review-build-stamp-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -65,7 +66,8 @@ const EXPECTED_SCRIPTS = [
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
   "src/engine.js",
   "src/validate.js",
-  "src/hitl-unshadow.js"
+  "src/hitl-unshadow.js",
+  "src/review-build-stamp.js"
 ];
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
@@ -5380,6 +5382,9 @@ function printCheck(label, errors, detail = "") {
 
 async function main() {
   const failures = [];
+  const reviewBuildStampErrors = reviewBuildStampChecks();
+  printCheck("SUN-037-REVIEW-BUILD-01 private review build stamp", reviewBuildStampErrors);
+  failures.push(...reviewBuildStampErrors);
   const { scripts } = readScriptManifest(ROOT);
 
   const identityErrors = identityAndAuthorityChecks();
