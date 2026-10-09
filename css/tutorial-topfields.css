@@ -76,3 +76,14 @@
   min-width: var(--touch);
   min-height: var(--touch);
 }
+/* SUN-036-TUTORIAL-ZOOM-01 — desktop / zoom / short window.
+   Phone rules above are unchanged (no match under 600px).
+   640px height covers 1024x600; a 560px cap would miss it.
+   Top offset stays 56px so the card is not under the status bar.
+   Panel grows to the leftover viewport so Crew/Hull/Coh/Sup/Emb stay on the card.
+   Skip / Got it stay sticky. pointer-events unchanged. */
+@media (min-width: 600px) and (max-height: 640px) {
+  .tutorial-panel {
+    max-height: calc(100dvh - 68px - var(--safe-top));
+  }
+}
