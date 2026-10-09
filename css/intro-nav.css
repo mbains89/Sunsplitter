@@ -65,3 +65,22 @@
   border-color: var(--accent-dim, #5c2424);
   transform: none;
 }
+
+/* SUN-036-PAUSE-PRESSED-01 — Pause stays visually on while aria-pressed is true.
+   Border width, inset bar, and underline. Distinct from hover fill and idle outline.
+   Skip primary and 48px targets unchanged. Forced-colors stays on pc-viewport.css. */
+.cinematic-actions #cinematic-pause[aria-pressed="true"],
+.cinematic-paused #cinematic-pause[aria-pressed="true"] {
+  border: 2px solid #f2c14e;
+  background: #1c140c;
+  box-shadow: inset 0 3px 0 #f2c14e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cinematic-actions #cinematic-pause[aria-pressed="true"]:hover,
+.cinematic-paused #cinematic-pause[aria-pressed="true"]:hover {
+  border-color: #f2c14e;
+  background: #24190f;
+  box-shadow: inset 0 3px 0 #f2c14e;
+  text-decoration: underline;
+}
