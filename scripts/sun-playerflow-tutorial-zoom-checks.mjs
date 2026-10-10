@@ -2,6 +2,7 @@
 // Headless Chrome is not in this repo (no puppeteer/playwright). This reads the shipped
 // zoom block and fails if the panel max-height is not the real calc, or if the field
 // list loses flex: 1 1 auto / min-height: 0. A 120px panel cannot pass.
+// SUN-036-TUTORIAL-ZOOM-BITE-01 — also bite unscoped overrides in later sheets (pc-viewport.css loads after).
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -94,6 +95,24 @@ export function sunPlayerflowTutorialZoomChecks() {
     if (!(room >= FIELD)) errors.push(view.name + " field room " + room + "px < one field; not scrollable into view");
     if (flex !== "1 1 auto" || minH !== "0") errors.push(view.name + " fields cannot shrink into the scroller");
   }
+
+  // Bite unscoped overrides that load after (pc-viewport.css).
+  // The media block sets position: static on .tutorial-actions and flex: 1 1 auto on #tutorial-topfields.
+  // A later unscoped rule can undo that.
+  const pcCss = readFileSync(resolve(ROOT, "css/pc-viewport.css"), "utf8");
+  const pcRules = rules(pcCss);
+  for (const rule of pcRules) {
+    const sel = rule.selector.trim();
+    // Unscoped (no @media wrapping this rule in the parse) that re-stickies actions.
+    if (sel.includes(".tutorial-actions") && !sel.includes("@media") && decl(rule.body, "position") === "sticky") {
+      errors.push("unscoped .tutorial-actions { position: sticky } in pc-viewport.css undoes zoom media position:static (css/pc-viewport.css ~79-82)");
+    }
+    // Unscoped flex override on field list.
+    if (sel.includes("#tutorial-topfields") && !sel.includes("@media") && (decl(rule.body, "flex") === "none" || decl(rule.body, "flex") === "0 0 auto" || decl(rule.body, "flex-grow") === "0")) {
+      errors.push("unscoped #tutorial-topfields flex override in later sheet undoes zoom media flex:1 1 auto");
+    }
+  }
+
   return errors;
 }
 
