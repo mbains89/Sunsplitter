@@ -2,8 +2,8 @@
 // Headless Chrome is not in this repo (no puppeteer/playwright). This reads the shipped
 // zoom block and fails if the panel max-height is not the real calc, or if the field
 // list loses flex: 1 1 auto / min-height: 0. A 120px panel cannot pass.
-// SUN-036-TUTORIAL-ZOOM-BITE-01 — bite later-sheet overrides that undo #tutorial-topfields flex inside the zoom query.
-// Sticky on .tutorial-actions in pc-viewport.css is already on the lane and is harmless (not flagged).
+// SUN-036-TUTORIAL-ZOOM-BITE-01 — also bite unscoped overrides of field flex in later sheets (pc-viewport.css loads after).
+// Do not flag the existing unscoped .tutorial-actions sticky; it ships on the lane and is harmless.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -97,12 +97,14 @@ export function sunPlayerflowTutorialZoomChecks() {
     if (flex !== "1 1 auto" || minH !== "0") errors.push(view.name + " fields cannot shrink into the scroller");
   }
 
-  // Bite later unscoped rules that override #tutorial-topfields flex (undo the zoom media flex: 1 1 auto).
-  // Do not flag the existing unscoped .tutorial-actions sticky in pc-viewport.css (harmless on lane).
+  // Bite later unscoped overrides of the field list flex.
+  // The media block sets flex: 1 1 auto on #tutorial-topfields.
+  // A later unscoped rule can undo that. Do not flag the existing sticky on .tutorial-actions.
   const pcCss = readFileSync(resolve(ROOT, "css/pc-viewport.css"), "utf8");
   const pcRules = rules(pcCss);
   for (const rule of pcRules) {
     const sel = rule.selector.trim();
+    // Unscoped flex override on field list.
     if (sel.includes("#tutorial-topfields") && !sel.includes("@media") && (decl(rule.body, "flex") === "none" || decl(rule.body, "flex") === "0 0 auto" || decl(rule.body, "flex-grow") === "0")) {
       errors.push("unscoped #tutorial-topfields flex override in later sheet undoes zoom media flex:1 1 auto");
     }
@@ -117,5 +119,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-tutorial-zoom", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-tutorial-zoom 640x400 + 1280x720 fields scrollable into view; flex 1 1 auto; min-height 0; calc max-height; no later flex override");
+  console.log("PASS sun-playerflow-tutorial-zoom 640x400 + 1280x720 fields scrollable into view; flex 1 1 auto; min-height 0; calc max-height");
 }
