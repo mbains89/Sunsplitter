@@ -19,6 +19,10 @@ let pendingLegacyResume = null;
 let preserveCompletedSlotUntilChoice = false;
 let currentEndingArt = "";
 let suspendedImagePresentation = null;
+// A rapid second pointer click can hit a newly rendered scene's choice.
+// Keep this presentation-only guard outside run state and save data.
+let lastChoicePointerCommitAt = -Infinity;
+let choiceRenderRevision = 0;
 // Presentation only: never serialized into run state or save flags.
 let currentCinematic = null;
 let cinematicTimer = null;
@@ -406,6 +410,7 @@ function prefetchChoicePlates(choices) {
 }
 
 function showScene(id, opts) {
+  const renderedRevision = ++choiceRenderRevision;
   opts = opts || {};
   state.scene = id;
   document.getElementById("scene-id").textContent = id;
@@ -498,7 +503,17 @@ function showScene(id, opts) {
     } else {
       const effectsHtml = formatEffectsHtml(c.effects);
       btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>${effectsHtml}`;
-      btn.onclick = () => makeChoice(c);
+      btn.onclick = event => {
+        if (btn.disabled || renderedRevision !== choiceRenderRevision) return;
+        const pointerClick = event && event.detail > 0;
+        const now = Date.now();
+        // Native keyboard/programmatic clicks have detail 0. Pointer bursts
+        // must finish before a new scene can accept another pointer choice.
+        if (pointerClick && (event.detail > 1 || now - lastChoicePointerCommitAt < 400)) return;
+        if (!canAffordEffects(c.effects)) return;
+        if (pointerClick) lastChoicePointerCommitAt = now;
+        makeChoice(c);
+      };
     }
     choicesEl.appendChild(btn);
   });
