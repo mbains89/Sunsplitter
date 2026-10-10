@@ -76,6 +76,26 @@
   min-width: var(--touch);
   min-height: var(--touch);
 }
+/* SUN-036-TUTORIAL-PHONE-STICKY-01 — phone (under 600px): field list is the scroller;
+   actions sit under the list and do not sticky-cover fields. Mirrors the zoom pattern.
+   Does not touch the ≥600 zoom block below. */
+@media (max-width: 599px) {
+  .tutorial-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #tutorial-topfields {
+    overflow: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+    margin-bottom: 8px;
+  }
+  .tutorial-actions {
+    position: static;
+    flex: 0 0 auto;
+  }
+}
 /* SUN-036-TUTORIAL-ZOOM-01 — desktop / zoom / short window.
    Phone rules above are unchanged (no match under 600px).
    800px height covers 1024x600, 1280x800, and 150% of 1920x1080.
