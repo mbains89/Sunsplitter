@@ -1,4 +1,4 @@
-// SUN-036-CREW-SHEET-WIDE-01 — Crew character sheet shows the portrait beside the bio on desktop
+// SUN-036-CREW-SHEET-WIDE-01 -- Crew character sheet shows the portrait beside the bio on desktop
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -8,37 +8,41 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function readCssFiles() {
   const cssDir = resolve(ROOT, "css");
-  const files = readdirSync(cssDir).filter(f => f.endsWith(".css"));
+  const files = readdirSync(cssDir).filter(f => f.endsWith(".css")).sort();
   return files.map(f => ({ name: f, content: readFileSync(resolve(cssDir, f), "utf8") }));
+}
+
+function resolveProperty(cssContent, selector, prop) {
+  // Simple last-matching-rule wins for exact selector (load order already in content)
+  const regex = new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\{[^}]*" + prop + "\\s*:\\s*([^;]+)[;]", "g");
+  let last = null;
+  let match;
+  while ((match = regex.exec(cssContent)) !== null) {
+    last = match[1].trim();
+  }
+  return last;
 }
 
 export function sunPlayerflowCrewSheetWideChecks() {
   const errors = [];
   const cssFiles = readCssFiles();
+  const allCss = cssFiles.map(f => f.content).join("\n");
   const crewCss = cssFiles.find(f => f.name === "crew-sheet.css")?.content || "";
   const indexHtml = readFileSync(resolve(ROOT, "index.html"), "utf8");
 
-  // G1: css/crew-sheet.css keeps key strings
-  const g1Required = [
-    "position: fixed",
-    "#crew-sheet.visible",
-    "aspect-ratio: 784 / 1168",
-    "flex-direction: column",
-    ".crew-chip.selected"
-  ];
+  // GUARDS (GREEN on lane)
+  const g1Required = ["position: fixed", "#crew-sheet.visible", "aspect-ratio: 784 / 1168", "flex-direction: column", ".crew-chip.selected"];
   for (const req of g1Required) {
-    if (!crewCss.includes(req)) errors.push(`G1 FAIL: missing '${req}' in crew-sheet.css`);
+    if (!crewCss.includes(req)) errors.push(`G1 FAIL: missing '${req}'`);
   }
 
-  // G2: index.html order
   const closeIdx = indexHtml.indexOf('id="crew-sheet-close"');
   const portraitIdx = indexHtml.indexOf('id="crew-sheet-portrait-wrap"');
   const bodyIdx = indexHtml.indexOf('id="crew-sheet-body"');
-  if (closeIdx < 0 || portraitIdx < 0 || bodyIdx < 0 || !(closeIdx < portraitIdx && portraitIdx < bodyIdx)) {
-    errors.push("G2 FAIL: ids not in order close, portrait-wrap, body");
+  if (!(closeIdx >= 0 && portraitIdx > closeIdx && bodyIdx > portraitIdx)) {
+    errors.push("G2 FAIL: ids order close < portrait < body");
   }
 
-  // G3: runtime
   try {
     const game = loadGame(ROOT);
     const result = game.evaluate(`(() => {
@@ -54,40 +58,39 @@ export function sunPlayerflowCrewSheetWideChecks() {
       const closed = sheet && !sheet.classList.contains("visible");
       return { opened, closed };
     })()`);
-    if (!result || !result.opened || !result.closed) {
-      errors.push("G3 FAIL: runtime sheet open/close " + JSON.stringify(result));
-    }
+    if (!result || !result.opened || !result.closed) errors.push("G3 FAIL: runtime " + JSON.stringify(result));
   } catch (e) {
-    errors.push("G3 FAIL: runtime exception " + e.message);
+    errors.push("G3 FAIL: " + e.message);
   }
 
-  // F1: @media (min-width: 1024px) for grid
-  const hasMedia = crewCss.includes("@media (min-width: 1024px)") && crewCss.includes("display: grid") && crewCss.includes("grid-template-columns");
-  if (!hasMedia) errors.push("F1 FAIL: missing @media (min-width: 1024px) grid block");
+  // FEATURES
+  const mediaMatch = crewCss.match(/@media\s*\(min-width:\s*1024px\)\s*\{([\s\S]*?)\}/);
+  const mediaBlock = mediaMatch ? mediaMatch[1] : "";
+  if (!mediaBlock.includes("display: grid") || !mediaBlock.includes("grid-template-columns")) {
+    errors.push("F1 FAIL: missing @media (min-width: 1024px) grid");
+  }
 
-  // F2: specific grid placements
-  const hasCloseSpan = crewCss.includes("#crew-sheet-close") && crewCss.includes("grid-column: 1 / -1");
-  const hasPortraitCol = crewCss.includes("#crew-sheet-portrait-wrap.visible") && crewCss.includes("grid-column: 1");
-  const hasBodyBeside = crewCss.includes("#crew-sheet-portrait-wrap.visible + #crew-sheet-body") && crewCss.includes("grid-column: 2");
-  const hasBodyDefault = crewCss.includes("#crew-sheet-body") && crewCss.includes("grid-column: 1 / -1");
-  if (!(hasCloseSpan && hasPortraitCol && hasBodyBeside && hasBodyDefault)) {
+  if (!mediaBlock.includes("#crew-sheet-close") || !mediaBlock.includes("grid-column: 1 / -1") ||
+      !mediaBlock.includes("#crew-sheet-portrait-wrap.visible") || !mediaBlock.includes("grid-column: 1") ||
+      !mediaBlock.includes("#crew-sheet-portrait-wrap.visible + #crew-sheet-body") || !mediaBlock.includes("grid-column: 2") ||
+      !mediaBlock.includes("#crew-sheet-body") || !mediaBlock.includes("grid-column: 1 / -1")) {
     errors.push("F2 FAIL: grid column rules incomplete");
   }
 
-  // F3: no aspect-ratio or object-fit change in the block (simplified)
-  // F4: no min-width below 1024, no forced-colors side-by-side
-  if (crewCss.includes("@media (min-width: 600px)") || crewCss.includes("@media (min-width: 800px)")) {
-    errors.push("F4 FAIL: side-by-side media below 1024px");
+  if (mediaBlock.includes("aspect-ratio:") || mediaBlock.includes("object-fit: cover") || mediaBlock.includes("object-fit: fill")) {
+    errors.push("F3 FAIL: media block alters proportions");
   }
 
-  // Shape check (addendum): scan all CSS for bad rules on picture
-  const allCss = cssFiles.map(f => f.content).join("\n");
-  if (allCss.includes("object-fit: cover") || allCss.includes("object-fit:fill") || allCss.includes("object-fit: fill")) {
-    // Note: existing has object-fit: cover on #crew-sheet-image — this may need refinement
-    // For now, flag if present in a way that affects proportions negatively
-    errors.push("SHAPE FAIL: object-fit: cover or fill found (may crop)");
+  if (crewCss.includes("@media (min-width: 600px)") || crewCss.includes("@media (min-width: 800px)")) {
+    errors.push("F4 FAIL: media below 1024px for side-by-side");
   }
-  // More precise shape checks would parse selectors targeting #crew-sheet-image
+
+  // SHAPE as FEATURE: final object-fit for #crew-sheet-image must be contain (last rule wins)
+  const finalFit = resolveProperty(allCss, "#crew-sheet-image", "object-fit");
+  const finalHeight = resolveProperty(allCss, "#crew-sheet-image", "height");
+  if (finalFit !== "contain" || (finalHeight && finalHeight !== "auto" && !finalHeight.includes("auto"))) {
+    errors.push("SHAPE FAIL: final object-fit is " + (finalFit || "none") + " height=" + (finalHeight || "none") + " (must be contain + auto)");
+  }
 
   return errors;
 }
