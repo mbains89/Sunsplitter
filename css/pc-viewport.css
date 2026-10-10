@@ -76,9 +76,12 @@ body,
   background: rgba(8, 9, 11, 0.88);
 }
 
-.tutorial-actions {
-  position: sticky;
-  bottom: 0;
+/* SUN-036-TUTORIAL-PHONE-STICKY-01 — sticky only at phone-or-wider so phone base rules control. */
+@media (min-width: 600px) {
+  .tutorial-actions {
+    position: sticky;
+    bottom: 0;
+  }
 }
 
 #crew-sheet {
