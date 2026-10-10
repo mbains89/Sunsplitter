@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 /** SUN-GUARD-FILE-SHRINK-01. Fail a PR that guts an existing file.
- *  A modified file fails when it loses more than 50 lines AND more than 30%
- *  of its lines, unless the PR has the label big-delete-ok.
- *  Binary/image files fail when the head is under 1024 bytes or more than 50%
- *  smaller, unless big-delete-ok. Text (.js .mjs .css .html .md .json .svg)
- *  is never skipped just because git numstat is -/-.
- *  No new dependencies. Does not change any other guard. */
+ *  One copy of the rule: scanModified calls evaluateChange.
+ *  Text loses more than 50 lines AND more than 30% unless big-delete-ok.
+ *  Binary/image fails if under 1024 bytes or more than 50% smaller.
+ *  .js .mjs .css .html .md .json .svg are never skipped because numstat is -/-.
+ *  No new dependencies. */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -23,8 +22,6 @@ const BINARY_EXT = new Set([
 ]);
 const TEXT_EXT = new Set([".js", ".mjs", ".css", ".html", ".md", ".json", ".svg"]);
 
-/** Deleted files are ignored by the modified-only diff. These generated/lock
- *  paths are also ignored even if modified. */
 export const EXEMPT = [
   "package-lock.json",
   "npm-shrinkwrap.json",
@@ -59,19 +56,6 @@ export function isTextPath(path) {
 
 export function isBinaryNumstat(added, deleted) {
   return added === "-" && deleted === "-";
-}
-
-export function binaryPathsFromNumstat(raw) {
-  const found = new Set();
-  for (const line of String(raw || "").split("\n")) {
-    if (!line.trim()) continue;
-    const parts = line.split("\t");
-    if (parts.length < 3 || !isBinaryNumstat(parts[0], parts[1])) continue;
-    const path = parts.slice(2).join("\t");
-    if (isTextPath(path)) continue;
-    found.add(path);
-  }
-  return found;
 }
 
 export function isExempt(path) {
@@ -154,39 +138,42 @@ function labelsFromEnv() {
     .filter(Boolean);
 }
 
-export function scanModified(baseSha, headSha, labelOk = false) {
+function gatherChanges(baseSha, headSha) {
   const names = git(["diff", "--name-only", "--diff-filter=M", baseSha, headSha])
     .split("\n")
     .map(line => line.trim())
     .filter(Boolean);
-  const binary = binaryPathsFromNumstat(git(["diff", "--numstat", baseSha, headSha]));
-  const rows = [];
+  const changes = [];
   for (const path of names) {
     if (isExempt(path)) continue;
+    const change = { path };
     if (isTextPath(path)) {
-      let beforeText = "";
-      let afterText = "";
       try {
-        beforeText = git(["show", `${baseSha}:${path}`]);
-        afterText = git(["show", `${headSha}:${path}`]);
-        const row = shrinkVerdict(path, beforeText, afterText);
-        if (row.gut) rows.push({ ...row, bypassed: labelOk });
-        else rows.push(row);
+        change.beforeText = git(["show", `${baseSha}:${path}`]);
+        change.afterText = git(["show", `${headSha}:${path}`]);
       } catch {
-        rows.push(byteVerdict(path, bytesAt(baseSha, path), bytesAt(headSha, path), labelOk));
+        change.beforeLines = null;
+        change.beforeBytes = bytesAt(baseSha, path);
+        change.afterBytes = bytesAt(headSha, path);
+        change.binary = true;
+        change.numstatAdded = "-";
+        change.numstatDeleted = "-";
       }
-      continue;
+    } else if (isBinaryExtension(path)) {
+      change.beforeBytes = bytesAt(baseSha, path);
+      change.afterBytes = bytesAt(headSha, path);
+    } else {
+      change.beforeText = git(["show", `${baseSha}:${path}`]);
+      change.afterText = git(["show", `${headSha}:${path}`]);
     }
-    if (isBinaryExtension(path) || binary.has(path)) {
-      rows.push(byteVerdict(path, bytesAt(baseSha, path), bytesAt(headSha, path), labelOk));
-      continue;
-    }
-    const beforeText = git(["show", `${baseSha}:${path}`]);
-    const afterText = git(["show", `${headSha}:${path}`]);
-    const row = shrinkVerdict(path, beforeText, afterText);
-    rows.push({ ...row, bypassed: labelOk && row.gut });
+    changes.push(change);
   }
-  return rows;
+  return changes;
+}
+
+export function scanModified(baseSha, headSha, labelOk = false, injectedChanges) {
+  const changes = Array.isArray(injectedChanges) ? injectedChanges : gatherChanges(baseSha, headSha);
+  return changes.map(change => evaluateChange(change, { labelOk }));
 }
 
 function runLive() {
@@ -198,17 +185,17 @@ function runLive() {
   const headSha = git(["rev-parse", "HEAD"]).trim();
   const labelOk = labelsFromEnv().includes(LABEL);
   const rows = scanModified(baseSha, headSha, labelOk);
-  const guts = rows.filter(row => row.gut && !row.bypassed);
+  const guts = rows.filter(row => row.gut);
   if (!guts.length) {
     console.log(`PASS file-shrink (${rows.length} modified files, none gutted)`);
     return;
   }
-  console.error("FAIL file-shrink: existing file lost too many lines or too many bytes");
-  for (const row of guts) console.error("GUT " + formatVerdict(row));
+  for (const row of guts) console.error((row.bypassed ? "BYPASS " : "GUT ") + formatVerdict(row));
   if (labelOk) {
     console.log(`BYPASS file-shrink: label ${LABEL}`);
     return;
   }
+  console.error("FAIL file-shrink: existing file lost too many lines or too many bytes");
   process.exit(1);
 }
 
@@ -216,63 +203,37 @@ function runSelfTest() {
   const before = readFileSync(resolve(ROOT, "scripts/guards/fixtures/file-shrink-before.txt"), "utf8");
   const gutted = readFileSync(resolve(ROOT, "scripts/guards/fixtures/file-shrink-gutted.txt"), "utf8");
   const normal = readFileSync(resolve(ROOT, "scripts/guards/fixtures/file-shrink-normal.txt"), "utf8");
+  const jsBinary = {
+    path: "src/engine.js",
+    beforeLines: 900,
+    afterLines: 2,
+    beforeBytes: 24000,
+    afterBytes: 2,
+    numstatAdded: "-",
+    numstatDeleted: "-",
+    binary: true,
+  };
   const cases = [
-    {
-      name: "gutted file fails",
-      row: evaluateChange({ path: "index.html", beforeText: before, afterText: gutted }),
-      expectFail: true,
-    },
-    {
-      name: "normal edit passes",
-      row: evaluateChange({ path: "index.html", beforeText: before, afterText: normal }),
-      expectFail: false,
-    },
-    {
-      name: "label bypass works",
-      row: evaluateChange({ path: "index.html", beforeText: before, afterText: gutted }, { labelOk: true }),
-      expectFail: false,
-    },
-    {
-      name: "cut_out.jpg cut to 1 byte fails",
-      row: evaluateChange({ path: "images/cut_out.jpg", beforeBytes: 594906, afterBytes: 1 }),
-      expectFail: true,
-    },
-    {
-      name: "engine.js null-byte cut fails",
-      row: evaluateChange({
-        path: "src/engine.js",
-        beforeLines: 900,
-        afterLines: 2,
-        beforeBytes: 24000,
-        afterBytes: 2,
-        numstatAdded: "-",
-        numstatDeleted: "-",
-        binary: true,
-      }),
-      expectFail: true,
-    },
-    {
-      name: "big-delete-ok image passes",
-      row: evaluateChange({ path: "images/cut_out.jpg", beforeBytes: 594906, afterBytes: 1 }, { labelOk: true }),
-      expectFail: false,
-    },
+    { name: "gutted file fails", rows: scanModified(null, null, false, [{ path: "index.html", beforeText: before, afterText: gutted }]), expectFail: true },
+    { name: "normal edit passes", rows: scanModified(null, null, false, [{ path: "index.html", beforeText: before, afterText: normal }]), expectFail: false },
+    { name: "label bypass works", rows: scanModified(null, null, true, [{ path: "index.html", beforeText: before, afterText: gutted }]), expectFail: false },
+    { name: "cut_out.jpg cut to 1 byte fails", rows: scanModified(null, null, false, [{ path: "images/cut_out.jpg", beforeBytes: 594906, afterBytes: 1 }]), expectFail: true },
+    { name: "engine.js git-binary still line-checked", rows: scanModified(null, null, false, [jsBinary]), expectFail: true },
+    { name: "big-delete-ok image passes", rows: scanModified(null, null, true, [{ path: "images/cut_out.jpg", beforeBytes: 594906, afterBytes: 1 }]), expectFail: false },
   ];
   let failed = 0;
   for (const c of cases) {
-    const wouldFail = Boolean(c.row && c.row.gut && !c.row.bypassed);
-    const ok = wouldFail === c.expectFail;
-    console.log(`${ok ? "PASS" : "FAIL"} ${c.name}: ${formatVerdict(c.row)}`);
+    const row = c.rows[0];
+    const wouldFail = Boolean(row && row.gut && !row.bypassed);
+    const ok = wouldFail === c.expectFail && c.rows.length === 1;
+    console.log(`${ok ? "PASS" : "FAIL"} ${c.name}: ${row ? formatVerdict(row) : "MISSING (scanModified skipped)"}`);
     if (!ok) failed += 1;
   }
-  if (isExempt("package-lock.json") !== true || isExempt("src/engine.js") !== false) {
+  if (isExempt("package-lock.json") !== true || isExempt("src/engine.js") !== false || isExempt("images/cut_out.jpg") !== false) {
     console.error("FAIL exemption list drifted");
     failed += 1;
   }
-  if (isExempt("images/cut_out.jpg") !== false || isTextPath("src/engine.js") !== true) {
-    console.error("FAIL image must be checked and engine.js must stay text");
-    failed += 1;
-  }
-  if (isTextPath("src/style.css") !== true || isTextPath("notes.md") !== true || isTextPath("art/mark.svg") !== true) {
+  if (isTextPath("src/engine.js") !== true || isTextPath("src/style.css") !== true || isTextPath("notes.md") !== true || isTextPath("art/mark.svg") !== true) {
     console.error("FAIL text files must stay checked");
     failed += 1;
   }
@@ -280,7 +241,7 @@ function runSelfTest() {
     console.error(`file-shrink self-test: ${failed} failed`);
     process.exit(1);
   }
-  console.log("PASS file-shrink self-test (jpg 1-byte FAIL; engine.js null-byte FAIL; big-delete-ok PASS)");
+  console.log("PASS file-shrink self-test via scanModified (jpg 1-byte FAIL; engine.js git-binary line FAIL; big-delete-ok PASS)");
 }
 
 if (process.argv.includes("--self-test")) runSelfTest();
