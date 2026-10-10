@@ -1,4 +1,4 @@
-// SUN-036-PHONE-REGRESS-HARNESS-01 — Phone Layout Still Holds.
+// SUN-036-PHONE-REGRESS-HARNESS-01 / BITE-01 — Phone Layout Still Holds.
 // Pinned 390×844 checks. Auto-run by scripts/sun-playerflow-*-checks.mjs.
 // Does not edit game code, product CSS, or workflows.
 // brace match: real opening brace, not a backslash.
@@ -10,7 +10,6 @@ import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const BASE = "ea0f70c9c843c8eea976493e20f9b9e8ce797e9b";
 const PHONE = { width: 390, height: 844 };
 const DESKTOP_MIN = 600;
 
@@ -18,7 +17,7 @@ function headSha() {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
   } catch {
-    return BASE;
+    return "unknown";
   }
 }
 
@@ -139,6 +138,22 @@ export function sunPlayerflowPhoneRegressChecks() {
       errors.push("desktop media winning at 390: " + block.query);
     }
   }
+
+  // (a) desktop rules (short-desktop art cap) must have min-width >=600 or fail; assert 1024px present
+  const artCapBlocks = mediaBlocks(viewport).filter(block => /max-height:\s*min\(52dvh,\s*360px\)/.test(block.body));
+  if (artCapBlocks.length === 0) errors.push("short-desktop art cap missing from pc-viewport.css");
+  const has1024 = artCapBlocks.some(block => /min-width:\s*1024px/.test(block.query));
+  if (!has1024) errors.push("1024px short-desktop query missing");
+  for (const block of artCapBlocks) {
+    const minW = minWidthPx(block.query);
+    if (minW === null || minW < DESKTOP_MIN) {
+      errors.push("desktop art cap block min-width " + (minW === null ? "none" : minW + "px") + " <600: " + block.query);
+    }
+    if (queryMatches(block.query, PHONE.width, PHONE.height)) {
+      errors.push("desktop art cap winning at 390: " + block.query);
+    }
+  }
+
   const unscopedViewport = outsideMedia(viewport);
   if (/max-height:\s*min\(52dvh,\s*360px\)/.test(unscopedViewport)) {
     errors.push("short-desktop art cap leaked outside min-width>=600");
@@ -167,8 +182,24 @@ export function sunPlayerflowPhoneRegressChecks() {
     showTitleScreen();
     const title = document.getElementById("title-screen");
     const begin = document.getElementById("btn-begin");
-    const started = startGame() || (typeof advancePastCommanderCreate === "function" && advancePastCommanderCreate());
-    if (!started) return { ok: false, reason: "startGame did not start" };
+    const started = startGame();
+    if (started) {
+      // startGame returned true — continue
+    } else {
+      // startGame returned false: require commander creation actually opened
+      const panel = document.getElementById("commander-create");
+      const commanderOpened = panel && panel.classList.contains("visible");
+      if (!commanderOpened) {
+        return { ok: false, reason: "startGame returned false and commander-create panel did not open (no #commander-create.visible)" };
+      }
+      if (typeof advancePastCommanderCreate !== "function") {
+        return { ok: false, reason: "commander-create opened but advancePastCommanderCreate missing" };
+      }
+      const advanced = advancePastCommanderCreate();
+      if (!advanced) {
+        return { ok: false, reason: "advancePastCommanderCreate failed after commander-create opened" };
+      }
+    }
     if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
     const buttons = gameplayChoiceButtons().filter(btn => !btn.disabled && String(btn.className || "").includes("choice-btn"));
     return {
@@ -192,7 +223,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const { errors, notes } = sunPlayerflowPhoneRegressChecks();
   const sha = headSha();
   if (errors.length) {
-    console.error("FAIL sun-playerflow-phone-regress tip " + BASE + " head " + sha, errors);
+    console.error("FAIL sun-playerflow-phone-regress head " + sha, errors);
     process.exit(1);
   }
   console.log("PASS sun-playerflow-phone-regress 5/5 at 390x844 (head " + sha + "; " + notes.join("; ") + ")");
