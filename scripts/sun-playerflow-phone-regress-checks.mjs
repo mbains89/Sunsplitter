@@ -183,10 +183,22 @@ export function sunPlayerflowPhoneRegressChecks() {
     const title = document.getElementById("title-screen");
     const begin = document.getElementById("btn-begin");
     const started = startGame();
-    if (!started) return { ok: false, reason: "startGame did not start" };
-    if (typeof advancePastCommanderCreate === "function") {
+    if (started) {
+      // startGame returned true — continue
+    } else {
+      // startGame returned false: require commander creation actually opened
+      const panel = document.getElementById("commander-create");
+      const commanderOpened = panel && panel.classList.contains("visible");
+      if (!commanderOpened) {
+        return { ok: false, reason: "startGame returned false and commander-create panel did not open (no #commander-create.visible)" };
+      }
+      if (typeof advancePastCommanderCreate !== "function") {
+        return { ok: false, reason: "commander-create opened but advancePastCommanderCreate missing" };
+      }
       const advanced = advancePastCommanderCreate();
-      if (!advanced) return { ok: false, reason: "advancePastCommanderCreate failed after startGame" };
+      if (!advanced) {
+        return { ok: false, reason: "advancePastCommanderCreate failed after commander-create opened" };
+      }
     }
     if (typeof finishCinematic === "function" && currentCinematic) finishCinematic();
     const buttons = gameplayChoiceButtons().filter(btn => !btn.disabled && String(btn.className || "").includes("choice-btn"));
