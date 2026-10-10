@@ -93,9 +93,9 @@ export function sunPlayerflowCrewSheetWideChecks() {
   }
 
   // PHONE CASE (new): inside max-width 1023px, portrait max-height must be 100% (of frame), frame flex centered
-  const phoneMedia = crewCss.match(/@media\s*\(max-width:\s*1023px\)\s*\{([\s\S]*?)\}/);
-  const phoneBlock = phoneMedia ? phoneMedia[1] : "";
-  const phoneMaxH = resolveProperty(phoneBlock || crewCss, "#crew-sheet-image", "max-height");
+  const phoneStart = crewCss.indexOf("@media (max-width: 1023px)");
+  const phoneBlock = phoneStart >= 0 ? crewCss.slice(phoneStart) : "";
+  const phoneMaxH = resolveProperty(phoneBlock, "#crew-sheet-image", "max-height");
   if (!phoneBlock || phoneMaxH !== "100%" || /dvh|vh|svh|lvh/.test(phoneMaxH || "")) {
     errors.push("PHONE FAIL: portrait phone max-height is " + (phoneMaxH || "none") + " (must be 100%, no dvh)");
   }

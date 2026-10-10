@@ -154,3 +154,20 @@
     margin: 0;
   }
 }
+
+/* SUN-036 phone: picture follows frame real height, no cutoff, no dvh on portrait */
+@media (max-width: 1023px) {
+  #crew-sheet-portrait-wrap.visible {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height/max-height/overflow unchanged */
+  }
+  #crew-sheet-image {
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+  }
+}
