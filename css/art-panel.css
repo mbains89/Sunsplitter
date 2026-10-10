@@ -9,3 +9,61 @@
     max-height: min(26vh, 200px);
   }
 }
+
+/* SUN-036-WHAT-REMAINS-PLATE-01 What Remains frame (mirrors ending) */
+#what-remains-image-wrap {
+  display: none;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 20px;
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  background: #0d0d0f;
+  box-shadow: 0 0 0 1px rgba(139, 58, 58, 0.12);
+}
+#what-remains-image-wrap.visible {
+  display: block;
+}
+#what-remains-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 320px;
+  object-fit: contain;
+  object-position: center top;
+  filter: saturate(0.82) contrast(1.06);
+}
+@media (max-width: 480px) {
+  #what-remains-image {
+    max-height: 240px;
+  }
+}
+
+/* Desktop composition: plate beside words */
+@media (min-width: 1024px) {
+  #ending-screen,
+  #what-remains-screen {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    column-gap: 28px;
+    align-items: start;
+  }
+  #ending-screen > *,
+  #what-remains-screen > * {
+    grid-column: 1 / -1;
+  }
+  #ending-image-wrap.visible,
+  #what-remains-image-wrap.visible {
+    grid-column: 1;
+    grid-row: 1 / span 8;
+    margin: 0;
+    position: sticky;
+    top: 16px;
+  }
+  #ending-image-wrap.visible ~ *,
+  #what-remains-image-wrap.visible ~ * {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
