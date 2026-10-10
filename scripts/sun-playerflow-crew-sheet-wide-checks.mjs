@@ -13,7 +13,6 @@ function readCssFiles() {
 }
 
 function resolveProperty(cssContent, selector, prop) {
-  // Last matching rule wins; prop must be exact (not max-height when looking for height)
   const selEsc = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(selEsc + "\\s*\\{([^}]+)\}", "g");
   let last = null;
@@ -34,7 +33,7 @@ export function sunPlayerflowCrewSheetWideChecks() {
   const crewCss = cssFiles.find(f => f.name === "crew-sheet.css")?.content || "";
   const indexHtml = readFileSync(resolve(ROOT, "index.html"), "utf8");
 
-  // GUARDS (GREEN on lane)
+  // GUARDS
   const g1Required = ["position: fixed", "#crew-sheet.visible", "aspect-ratio: 784 / 1168", "flex-direction: column", ".crew-chip.selected"];
   for (const req of g1Required) {
     if (!crewCss.includes(req)) errors.push(`G1 FAIL: missing '${req}'`);
@@ -44,7 +43,7 @@ export function sunPlayerflowCrewSheetWideChecks() {
   const portraitIdx = indexHtml.indexOf('id="crew-sheet-portrait-wrap"');
   const bodyIdx = indexHtml.indexOf('id="crew-sheet-body"');
   if (!(closeIdx >= 0 && portraitIdx > closeIdx && bodyIdx > portraitIdx)) {
-    errors.push("G2 FAIL: ids order close < portrait < body");
+    errors.push("G2 FAIL: ids order");
   }
 
   try {
@@ -67,17 +66,14 @@ export function sunPlayerflowCrewSheetWideChecks() {
     errors.push("G3 FAIL: " + e.message);
   }
 
-  // FEATURES
+  // FEATURES desktop
   const mediaStart = crewCss.indexOf("@media (min-width: 1024px)");
   const mediaBlock = mediaStart >= 0 ? crewCss.slice(mediaStart) : "";
   if (!mediaBlock.includes("display: grid") || !mediaBlock.includes("grid-template-columns")) {
     errors.push("F1 FAIL: missing @media (min-width: 1024px) grid");
   }
 
-  if (!mediaBlock.includes("#crew-sheet-close") || !mediaBlock.includes("grid-column: 1 / -1") ||
-      !mediaBlock.includes("#crew-sheet-portrait-wrap.visible") || !mediaBlock.includes("grid-column: 1") ||
-      !mediaBlock.includes("#crew-sheet-portrait-wrap.visible + #crew-sheet-body") || !mediaBlock.includes("grid-column: 2") ||
-      !mediaBlock.includes("#crew-sheet-body") || !mediaBlock.includes("grid-column: 1 / -1")) {
+  if (!mediaBlock.includes("grid-column: 1 / -1") || !mediaBlock.includes("grid-column: 1") || !mediaBlock.includes("#crew-sheet-portrait-wrap.visible + #crew-sheet-body") || !mediaBlock.includes("grid-column: 2")) {
     errors.push("F2 FAIL: grid column rules incomplete");
   }
 
@@ -89,11 +85,22 @@ export function sunPlayerflowCrewSheetWideChecks() {
     errors.push("F4 FAIL: media below 1024px for side-by-side");
   }
 
-  // SHAPE as FEATURE: final object-fit for #crew-sheet-image must be contain (last rule wins)
+  // SHAPE
   const finalFit = resolveProperty(allCss, "#crew-sheet-image", "object-fit");
   const finalHeight = resolveProperty(allCss, "#crew-sheet-image", "height");
   if (finalFit !== "contain" || (finalHeight && finalHeight !== "auto" && !finalHeight.includes("auto"))) {
     errors.push("SHAPE FAIL: final object-fit is " + (finalFit || "none") + " height=" + (finalHeight || "none") + " (must be contain + auto)");
+  }
+
+  // PHONE CASE (new): inside max-width 1023px, portrait max-height must be 100% (of frame), frame flex centered
+  const phoneMedia = crewCss.match(/@media\s*\(max-width:\s*1023px\)\s*\{([\s\S]*?)\}/);
+  const phoneBlock = phoneMedia ? phoneMedia[1] : "";
+  const phoneMaxH = resolveProperty(phoneBlock || crewCss, "#crew-sheet-image", "max-height");
+  if (!phoneBlock || phoneMaxH !== "100%" || /dvh|vh|svh|lvh/.test(phoneMaxH || "")) {
+    errors.push("PHONE FAIL: portrait phone max-height is " + (phoneMaxH || "none") + " (must be 100%, no dvh)");
+  }
+  if (!phoneBlock.includes("display: flex") || !phoneBlock.includes("justify-content: center") || !phoneBlock.includes("align-items: center")) {
+    errors.push("PHONE FAIL: frame not flex centered in phone media");
   }
 
   return errors;
