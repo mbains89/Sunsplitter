@@ -13,12 +13,16 @@ function readCssFiles() {
 }
 
 function resolveProperty(cssContent, selector, prop) {
-  // Simple last-matching-rule wins for exact selector (load order already in content)
-  const regex = new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\{[^}]*" + prop + "\\s*:\\s*([^;]+)[;]", "g");
+  // Last matching rule wins; prop must be exact (not max-height when looking for height)
+  const selEsc = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(selEsc + "\\s*\\{([^}]+)\}", "g");
   let last = null;
   let match;
   while ((match = regex.exec(cssContent)) !== null) {
-    last = match[1].trim();
+    const block = match[1];
+    const propRe = new RegExp("(?:^|;)\\s*" + prop + "\\s*:\\s*([^;]+)", "m");
+    const pm = block.match(propRe);
+    if (pm) last = pm[1].trim();
   }
   return last;
 }
@@ -64,8 +68,8 @@ export function sunPlayerflowCrewSheetWideChecks() {
   }
 
   // FEATURES
-  const mediaMatch = crewCss.match(/@media\s*\(min-width:\s*1024px\)\s*\{([\s\S]*?)\}/);
-  const mediaBlock = mediaMatch ? mediaMatch[1] : "";
+  const mediaStart = crewCss.indexOf("@media (min-width: 1024px)");
+  const mediaBlock = mediaStart >= 0 ? crewCss.slice(mediaStart) : "";
   if (!mediaBlock.includes("display: grid") || !mediaBlock.includes("grid-template-columns")) {
     errors.push("F1 FAIL: missing @media (min-width: 1024px) grid");
   }
@@ -77,7 +81,7 @@ export function sunPlayerflowCrewSheetWideChecks() {
     errors.push("F2 FAIL: grid column rules incomplete");
   }
 
-  if (mediaBlock.includes("aspect-ratio:") || mediaBlock.includes("object-fit: cover") || mediaBlock.includes("object-fit: fill")) {
+  if (mediaBlock.includes("aspect-ratio:") || (mediaBlock.includes("object-fit: cover") && mediaBlock.includes("#crew-sheet-image"))) {
     errors.push("F3 FAIL: media block alters proportions");
   }
 

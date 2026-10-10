@@ -110,3 +110,47 @@
   border-color: var(--accent);
   box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.25);
 }
+
+/* SUN-036-CREW-SHEET-WIDE-01 — desktop side-by-side + shape preserve (contain wins over cover) */
+#crew-sheet-image {
+  object-fit: contain;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 420px);
+  max-height: min(78dvh, 640px);
+}
+
+@media (min-width: 1024px) {
+  #crew-sheet.visible {
+    display: grid;
+    grid-template-columns: minmax(260px, 420px) minmax(0, 520px);
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-content: center;
+    align-content: start;
+    align-items: start;
+    column-gap: 28px;
+    row-gap: 10px;
+  }
+  #crew-sheet-close {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+  }
+  #crew-sheet-portrait-wrap.visible {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    margin: 0;
+    max-height: min(78dvh, 640px);
+    position: sticky;
+    top: 0;
+  }
+  #crew-sheet-body {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #crew-sheet-portrait-wrap.visible + #crew-sheet-body {
+    grid-column: 2;
+    margin: 0;
+  }
+}
