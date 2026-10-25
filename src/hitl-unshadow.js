@@ -15,6 +15,8 @@ function rebindScenePlate() {
   if (typeof document === "undefined" || typeof state === "undefined" || !state || !state.scene) return false;
   if (typeof scenes === "undefined" || !scenes || !scenes[state.scene]) return false;
   if (typeof resolveSceneImage !== "function" || typeof setManagedImageSource !== "function") return false;
+  var game = document.getElementById("game-screen");
+  if (!game || game.classList.contains("hidden")) return false;
   var img = document.getElementById("scene-image");
   var wrap = document.getElementById("scene-image-wrap");
   if (!img || !wrap) return false;

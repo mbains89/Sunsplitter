@@ -219,11 +219,18 @@ const OFFICIAL_BODYSUIT = {
   sela: "images/bodysuit_sela.jpg", vess: "images/bodysuit_vess.jpg", rourke: "images/bodysuit_rourke.jpg"
 };
 function officialBodysuitSrc(key) { return OFFICIAL_BODYSUIT[key] || ""; }
+let crewSheetBackground = [];
+let crewSheetReturnFocus = null;
 function closeCrewSheet() {
   const sheet = document.getElementById("crew-sheet");
   if (!sheet) return;
   sheet.classList.add("hidden");
   sheet.classList.remove("visible");
+  crewSheetBackground.forEach(([el, inert]) => { el.inert = inert; });
+  crewSheetBackground = [];
+  const returnFocus = crewSheetReturnFocus;
+  crewSheetReturnFocus = null;
+  if (returnFocus && returnFocus.isConnected !== false && typeof returnFocus.focus === "function") returnFocus.focus();
   const img = document.getElementById("crew-sheet-image");
   if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
   else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
@@ -232,6 +239,13 @@ function closeCrewSheet() {
 function openCrewSheet(key) {
   const sheet = document.getElementById("crew-sheet");
   if (!sheet || typeof crew === "undefined" || !crew[key]) { closeCrewSheet(); return; }
+  if (!sheet.classList.contains("visible")) {
+    // renderCrewPanel rebuilds the opener; return to its replacement chip.
+    crewSheetReturnFocus = document.querySelector(`#crew-panel [data-crew="${key}"]`) || document.activeElement;
+    crewSheetBackground = Array.from(document.getElementById("app")?.children || [])
+      .filter(el => el !== sheet).map(el => [el, !!el.inert]);
+    crewSheetBackground.forEach(([el]) => { el.inert = true; });
+  }
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
@@ -263,6 +277,8 @@ function openCrewSheet(key) {
   }
   sheet.classList.remove("hidden");
   sheet.classList.add("visible");
+  const close = document.getElementById("crew-sheet-close");
+  if (close && typeof close.focus === "function") close.focus();
 }
 var crewBoardOpenPass = false;
 (function wireCrewCharacterSheet() {
@@ -288,18 +304,28 @@ var crewBoardOpenPass = false;
   }
   if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
   document.addEventListener("keydown", event => {
-    if (!event || event.key !== "Escape") return;
+    if (!event) return;
     const sheet = document.getElementById("crew-sheet");
     if (!sheet || !sheet.classList.contains("visible")) return;
-    if (typeof event.preventDefault === "function") event.preventDefault();
+    const close = document.getElementById("crew-sheet-close");
+    // Back to crew is the sheet's only tabbable control. Capture before the
+    // gameplay and Crew disclosure listeners, allowing its native activation.
+    if (event.key === "Tab") {
+      if (typeof close?.focus === "function") close.focus();
+    } else if (event.key !== "Escape" && !/^[1-9]$/.test(event.key || "") &&
+               !["Enter", " ", "Spacebar"].includes(event.key)) return;
+    if (event.key === "Tab" || event.key === "Escape" || event.target !== close) {
+      if (typeof event.preventDefault === "function") event.preventDefault();
+    }
     if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
     if (typeof event.stopPropagation === "function") event.stopPropagation();
+    if (event.key !== "Escape") return;
     closeCrewSheet();
     const panel = document.getElementById("crew-panel");
     if (panel) { panel.classList.add("visible"); panel.classList.remove("hidden"); }
     const toggle = document.getElementById("btn-crew");
     if (toggle) toggle.setAttribute("aria-expanded", "true");
-  });
+  }, true);
 })();
 
 function toggleSceneArtSize() {
