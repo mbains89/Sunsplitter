@@ -1306,7 +1306,7 @@ function snapshotState() {
   // Explicit allowlist — full run state 0.17.1+ relies on
   const snap = {
     v: SAVE_SCHEMA_VERSION,
-    gameVersion: (typeof VERSION !== "undefined" ? VERSION : "0.19"),
+    gameVersion: loadedGameVersion,
     savedAt: Date.now(),
     sceneEntered: true,
     survivors: state.survivors,
