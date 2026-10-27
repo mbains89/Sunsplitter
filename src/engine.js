@@ -1146,7 +1146,7 @@ function resolveSceneImage(id, scene) {
   // Living-arc conflict plate shows Tomas, Mira, and Amara.
   if (id === "arc_living_3") {
     if (!isAlive("tomas") || !isAlive("mira") || !isAlive("amara")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1183,7 +1183,7 @@ function resolveSceneImage(id, scene) {
 
   if (id === "crew_walk" || id === "status") {
     // absence felt — prefer corridor / empty capacity plates when depleted
-    if (state.survivors <= 5) return "images/corridor.jpg";
+    if (state.survivors <= 5) return "images/corridor_variant_2.jpg";
   }
 
   // The same absent-participant view must not retain an intimate portrait.

@@ -3000,7 +3000,7 @@ function remainingArcLivingTruthChecks(runtime) {
     deadAmara: fixture.deadAmara,
     deadMira: fixture.deadMira
   })) {
-    if (row.arc3Image !== "images/corridor.jpg") {
+    if (row.arc3Image !== "images/corridor_variant_2.jpg") {
       errors.push(`arc_living_3 ${label} state resolves to ${row.arc3Image || "no image"} instead of the roster-safe corridor plate`);
     }
   }
