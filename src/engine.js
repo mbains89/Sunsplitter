@@ -1188,6 +1188,16 @@ function resolveSceneImage(id, scene) {
     if (state.survivors <= 5) return "images/corridor.jpg";
   }
 
+  // SUN-CORRIDOR-SCENES-04 (Myth ruling): corridor_variant.jpg shows Amara and Jiro, so these
+  // scenes may render it only while both are alive and aboard (isAlive is false for unrecovered
+  // Jiro). Always-empty scenes can never have both present, so they always use an empty hall.
+  if (["coolant_trade", "seal_or_food", "prom_vent_break"].includes(id)) return "images/corridor_variant_3.jpg";
+  if (["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds"].includes(id) &&
+      !(isAlive("amara") && isAlive("jiro"))) {
+    return "images/corridor_variant_2.jpg";
+  }
+
   // The same absent-participant view must not retain an intimate portrait.
   // Earlier audited neutral aliases remain authoritative; this only covers
   // the remaining conversation defaults, using existing in-tree empty art.

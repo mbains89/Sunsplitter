@@ -261,5 +261,39 @@ export function livingCastChecks(runtime) {
     } finally { window.confirm = confirm; }
     return failures;
   })()`);
+  // SUN-CORRIDOR-SCENES-04 (Myth ruling; Hex reachability at f5057cfc): corridor_variant.jpg
+  // shows Amara and Jiro, so it may only render while both are alive and aboard.
+  check("corridor_variant Amara/Jiro presence", `(() => {
+    const failures = [];
+    const pair = "images/corridor_variant.jpg", empty = "images/corridor_variant_2.jpg";
+    const guarded = ["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds"];
+    const alwaysEmpty = ["coolant_trade", "seal_or_food", "prom_vent_break"];
+    const statuses = {
+      bothAlive: () => {},
+      amaraDead: () => kill("amara", "corridor presence fixture"),
+      jiroDead: () => kill("jiro", "corridor presence fixture"),
+      jiroUnrecovered: () => { state.recovered.jiro = false; }
+    };
+    const resolve = (id, status) => {
+      resetRunState(); Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });
+      statuses[status]();
+      return resolveSceneImage(id, scenes[id]);
+    };
+    for (const id of guarded) for (const status of Object.keys(statuses)) {
+      const want = status === "bothAlive" ? pair : empty, got = resolve(id, status);
+      if (got !== want) failures.push(id + " " + status + ": " + got + " (want " + want + ")");
+    }
+    for (const id of alwaysEmpty) for (const status of Object.keys(statuses)) {
+      const got = resolve(id, status);
+      if (got !== "images/corridor_variant_3.jpg") failures.push(id + " " + status + ": " + got + " (want images/corridor_variant_3.jpg)");
+    }
+    // Myth PASS: prom_vent / prom_vent_keep keep their authored plate (entry requires Amara alive).
+    for (const id of ["prom_vent", "prom_vent_keep"]) {
+      if (scenes[id].image !== pair) failures.push(id + ": PASS plate changed to " + scenes[id].image);
+    }
+    return failures;
+  })()`);
+
   return errors;
 }

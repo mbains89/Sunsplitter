@@ -79,7 +79,8 @@ Tomas reads the new fracture line, then the green strip.
 // DEATH EXPOSURE: Tomas dies onEnter
 // DEAD-SPEECH CHECK: post-onEnter text contains no Tomas dialogue or action;
 //   rescue completion is carried by pressure and suit telemetry
-// IMAGE: images/corridor_variant.jpg [REUSE death-neutral corridor; EXISTS; NO BAKED TEXT]
+// IMAGE: images/corridor_variant.jpg [REUSE; shows Amara + Jiro, NOT death-neutral; engine renders
+//   corridor_variant_2.jpg unless both are alive and aboard; EXISTS; NO BAKED TEXT]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_tomas_end: {
   onEnter: () => {

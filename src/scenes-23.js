@@ -176,7 +176,8 @@ Elias reads the narrower structural envelope once.
 // DEATH EXPOSURE: Elias dies onEnter
 // DEAD-SPEECH CHECK: post-onEnter text contains no Elias dialogue or action;
 //   only door state, pressure, suit feed, and witnessed absence
-// IMAGE: images/corridor_variant.jpg [REUSE death-neutral corridor; EXISTS; NO BAKED TEXT]
+// IMAGE: images/corridor_variant.jpg [REUSE; shows Amara + Jiro, NOT death-neutral; engine renders
+//   corridor_variant_2.jpg unless both are alive and aboard; EXISTS; NO BAKED TEXT]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_elias_end: {
   onEnter: () => {
