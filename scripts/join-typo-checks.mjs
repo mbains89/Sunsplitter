@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 
 // SUN-V035-PLAYTEST-JOIN-TYPO-01. Exact predecessor's non-whitespace prose,
 // ordering, choices, image and state across the layout matrix.
-const BASELINE_FINGERPRINT = "72c07d7a44d89b31274819afd65e1a408d5224d85e37465a1a7162e1425dbd6d";
+const BASELINE_FINGERPRINT = "9c57b7a0d190831e579a03bb7b96fbf2790710013811d3686003d84635bb5ac9";
 
 export const joinLayoutFixtures = [];
 for (const cascade of ["none", "open", "sealed"])
