@@ -233,7 +233,7 @@ export function livingCastChecks(runtime) {
     for (const [id, cast] of Object.entries(livingCastImageOnly)) for (const who of cast) {
       resetRunState(); Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });
       kill(who, "absent image fixture");
-      if (resolveSceneImage(id, scenes[id]) !== "images/corridor_variant.jpg") failures.push(id + ": absent portrait");
+      if (resolveSceneImage(id, scenes[id]) !== "images/corridor_variant_2.jpg") failures.push(id + ": absent portrait");
     }
     return failures;
   })()`);
