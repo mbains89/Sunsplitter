@@ -1193,7 +1193,7 @@ function resolveSceneImage(id, scene) {
   // Jiro). Always-empty scenes can never have both present, so they always use an empty hall.
   if (["coolant_trade", "seal_or_food", "prom_vent_break"].includes(id)) return "images/corridor_variant_3.jpg";
   if (["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
-      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds"].includes(id) &&
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds", "prom_vent", "prom_vent_keep"].includes(id) &&
       !(isAlive("amara") && isAlive("jiro"))) {
     return "images/corridor_variant_2.jpg";
   }
