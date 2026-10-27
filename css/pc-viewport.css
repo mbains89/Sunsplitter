@@ -25,9 +25,15 @@ body,
   #scene-image-wrap.minimized,
   #scene-image-wrap.intimate,
   #scene-image-wrap.intimate.minimized {
-    width: min(calc(100% - 32px), 36dvh, 280px);
+    /* Last term: width the max-height allows at the locked 784×1168 ratio (shrink, never crop). */
+    width: min(calc(100% - 32px), 36dvh, 280px, calc(min(52dvh, 360px) * 784 / 1168));
     max-height: min(52dvh, 360px);
     margin: 8px 0;
+  }
+
+  #scene-image,
+  #scene-image-wrap.intimate #scene-image {
+    object-fit: contain;
   }
 
   #main {
