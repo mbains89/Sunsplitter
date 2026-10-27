@@ -1116,7 +1116,7 @@ function resolveSceneImage(id, scene) {
   // Scene-level image: is honored only after guards fall through (0.24.2).
 
   // The Off-Shift portrait asserts Vess is present, including on saved renders.
-  if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant.jpg";
+  if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant_2.jpg";
 
   // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
@@ -1154,7 +1154,7 @@ function resolveSceneImage(id, scene) {
   // as the scene. Saved invalid state must never render a dead speaker's face.
   if (id === "pair_shield_cold") {
     if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
-      return "images/corridor_variant.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1168,14 +1168,16 @@ function resolveSceneImage(id, scene) {
   }
 
   // Faction / debt / group plates: substitute whenever ANY of the eight named crew is not alive (0.25 Edit H).
-  // Enumerated against live sceneImages map at implementation. faction_split permanently on corridor_variant.
+  // Enumerated against live sceneImages map at implementation. When any of the eight is gone, debt_notice and
+  // faction_split(_alt) fall back to the empty corridor_variant_3.jpg (corridor_variant.jpg shows Amara + Jiro);
+  // reckon_public / reckon_summary fall back to observation.jpg.
   if (id === "faction_split" || id === "faction_split_alt" || id === "debt_notice" ||
       id === "reckon_public" || id === "reckon_summary") {
     const eight = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
     const anyMissing = eight.some(k => !isAlive(k));
     if (anyMissing) {
       if (id === "debt_notice" || id === "faction_split" || id === "faction_split_alt") {
-        return "images/corridor_variant.jpg";
+        return "images/corridor_variant_3.jpg";
       }
       return "images/observation.jpg";
     }
@@ -1186,11 +1188,21 @@ function resolveSceneImage(id, scene) {
     if (state.survivors <= 5) return "images/corridor.jpg";
   }
 
+  // SUN-CORRIDOR-SCENES-04 (Myth ruling): corridor_variant.jpg shows Amara and Jiro, so these
+  // scenes may render it only while both are alive and aboard (isAlive is false for unrecovered
+  // Jiro). Always-empty scenes can never have both present, so they always use an empty hall.
+  if (["coolant_trade", "seal_or_food", "prom_vent_break"].includes(id)) return "images/corridor_variant_3.jpg";
+  if (["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds", "prom_vent", "prom_vent_keep"].includes(id) &&
+      !(isAlive("amara") && isAlive("jiro"))) {
+    return "images/corridor_variant_2.jpg";
+  }
+
   // The same absent-participant view must not retain an intimate portrait.
   // Earlier audited neutral aliases remain authoritative; this only covers
   // the remaining conversation defaults, using existing in-tree empty art.
   if (!livingCastPresent(id) || (livingCastImageOnly[id] && !livingCastImageOnly[id].every(isAlive))) {
-    return "images/corridor_variant.jpg";
+    return "images/corridor_variant_2.jpg";
   }
 
   // After all id-keyed guards: honor explicit scene.image, then map.

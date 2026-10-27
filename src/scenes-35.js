@@ -18,7 +18,8 @@ registerScenes({
   // PRE: after power_crisis; may precede or follow private_stores, before Deck 4
   // WRITES: existing coolant flag, costs and lean only; return checks stores/coolant
   // DEATH: none | DEAD SPEECH/APPEARANCE: unchanged early roster, before lethal beats
-  // IMAGE: unchanged corridor_variant.jpg; no art work
+  // IMAGE: authored corridor_variant.jpg (shows Amara + Jiro); engine always renders the empty
+  //   corridor_variant_3.jpg for coolant_trade / seal_or_food (Jiro not yet aboard); no art work
   coolant_trade: {
     onEnter: () => { if (state.flags.coolant) return "seal_or_food"; },
     get text() {
