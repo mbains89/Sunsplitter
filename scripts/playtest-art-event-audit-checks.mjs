@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const IMAGES_TREE = "669a81aec8ff2d5bbb103fe7f5a8877b3972ff2e"; // + SUN-ART-R2-FALLBACKS-01 (three art_r2_* people-free plates); was fe94eb19 after HITL stage zip land
+const IMAGES_TREE = "04466461501e812051a9ec88e688bcc35932864e"; // + SUN-HITL-LATE-SIX-01 six recovered Grok cards (was 669a81ae after SUN-ART-R2-FALLBACKS-01)
 const AUDIT_PATH = "artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const BRIEFS_PATH = "artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md";
 const PLAN_PATH = "artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md";

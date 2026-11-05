@@ -1291,7 +1291,15 @@ const PLATE_FACES = {
   "images/aftermath_seal_holds.jpg": ["elias"],
   "images/sun_payoff.jpg": ["sela"],
   "images/pair_grudge_settle.jpg": ["tomas", "jiro"],
-  "images/custody_shared.jpg": ["sela"]
+  "images/custody_shared.jpg": ["sela"],
+  // SUN-HITL-LATE-SIX-01: the six approved Grok Imagine cards recovered from the $ Art chat
+  // (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P), each checked against the official portraits.
+  "images/shower_mira.jpg": ["mira"],
+  "images/rear_mira.jpg": ["mira"],
+  "images/rear_amara.jpg": ["amara"],
+  "images/rear_sela.jpg": ["sela"],
+  "images/priority_ration.jpg": ["elias", "lena", "mira", "amara", "sela"],
+  "images/berths_manifest.jpg": ["amara"]
 };
 // SUN-HITL-SHADOW-02: only plates whose bytes differ from the scene's own image. Byte-identical
 // copies under event names stay shadowed so the face gate keeps matching the original filename.
@@ -1302,7 +1310,9 @@ const HITL_EVENT_PLATE_IDS = new Set([
   "observation_nightshift", "observation_nightshift_ask", "observation_nightshift_leave", "vess_signal",
   "vess_cost", "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
   "aftermath_seal_order", "aftermath_seal_holds", "sun_payoff", "ship_interrupt", "pair_grudge_settle",
-  "custody_shared"
+  "custody_shared",
+  // SUN-HITL-LATE-SIX-01: njQ5P is berths_manifest's own plate; empty_berths keeps empty_berths.jpg.
+  "berths_manifest"
 ]);
 
 // SUN-ART-R2-FALLBACKS-01 (Manraj opened ART-R2 for people-free fallbacks, 2026-11-05): a blocked
@@ -1316,7 +1326,8 @@ const PLATE_FACE_FALLBACK = {
   "images/observation_nightshift.jpg": "images/art_r2_observation_wreck.jpg",
   "images/observation_nightshift_ask.jpg": "images/art_r2_observation_wreck.jpg",
   "images/observation_nightshift_leave.jpg": "images/art_r2_observation_wreck.jpg",
-  "images/custody_shared.jpg": "images/art_r2_observation_wreck.jpg"
+  "images/custody_shared.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/berths_manifest.jpg": "images/art_r2_empty_berths.jpg"
 };
 function plateFacesPresent(src) {
   const faces = PLATE_FACES[src];

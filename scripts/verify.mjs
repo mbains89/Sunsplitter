@@ -2311,7 +2311,7 @@ function romanceAmara1ImageTruthChecks(runtime) {
   const expectedHashes = {
     "images/hydroponics.jpg": "00ab1cb40167e3b2882e2c1ebe02964898c52e7aa04ab8fb94f8beecb99a8960",
     "images/shower_amara.jpg": "588ba8e67d7c1c6f44e38f26da7f25f15a412283c65ffed55831b54065e827f9",
-    "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1",
+    "images/rear_amara.jpg": "e8167625d3facc2af56bdb16cca6f2eb034cf098bd6928bb05fc890d7742a737", // SUN-HITL-LATE-SIX-01: owner-approved Grok card wT0pe (was the as-is plate)
     "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
   };
   const fixture = runtime.evaluate(`(() => {
@@ -2617,7 +2617,7 @@ function romanceMira1ImageTruthChecks(runtime) {
   const expectedHashes = {
     // Stage zip intentionally refreshed quiet_mira HITL bytes — pin tip hash, do not revert JPEG.
     "images/quiet_mira.jpg": "8a4ce93e09534f2140df9d4e2270652ff610cd2b20f63cc7495c5ed11eb05ae0",
-    "images/shower_mira.jpg": "003145b704f5df06cde8c2b586229b951c820059b92efc8dd2b76d750817ec13",
+    "images/shower_mira.jpg": "1ddbff58230148475bc2b8e43512e57381e488473e10304eac18ff01f32cccdb", // SUN-HITL-LATE-SIX-01: owner-approved Grok card XCckB (was the as-is plate)
     "images/mira.jpg": "92eb569e8aec269c43c175d0082c22f27bc0a385f588f28aaa4d515790ac0bf2",
     "images/bodysuit_mira.jpg": "8b902308cd93489332629b004ec17e5a7b9675d9ae006391554c82690193229b",
     "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf"
