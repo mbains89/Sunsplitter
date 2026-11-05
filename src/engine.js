@@ -1072,7 +1072,16 @@ function isIntimateScene(id, scene) {
   return /^romance_/.test(id);
 }
 
+// SUN-PLATE-FACES-06: the face gate wraps every resolver path. Event-art aliases and other early
+// returns used to skip it (offshift_lena / breath_blacksleep -> medbay_dim with Lena or Jiro gone,
+// custody_possession -> corridor_pressure_1 with Tomas dead).
 function resolveSceneImage(id, scene) {
+  const chosen = resolveSceneImageUngated(id, scene);
+  if (chosen && !plateFacesPresent(chosen)) return "images/corridor_variant_3.jpg";
+  return chosen;
+}
+
+function resolveSceneImageUngated(id, scene) {
   const map = (typeof sceneImages !== "undefined" && sceneImages) ? sceneImages : {};
   // SUN-V035-PLAYTEST-ART-AUDIT-01: pixel-verified event-fit aliases.
   // PRE: existing scene admission / saved-scene render, unchanged.
@@ -1243,7 +1252,15 @@ const PLATE_FACES = {
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
   "images/crisis.jpg": ["amara", "jiro", "sela"],
-  "images/empty_berths.jpg": ["amara"]
+  "images/empty_berths.jpg": ["amara"],
+  // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
+  // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
+  // the lab coat as well as Jiro on the cot (the record names only Jiro).
+  "images/corridor_pressure_1.jpg": ["tomas"],
+  "images/corridor_pressure_2.jpg": ["tomas"],
+  "images/medbay_dim.jpg": ["lena", "jiro"],
+  "images/cut_out.jpg": ["mira", "amara", "sela"],
+  "images/vault_reveal.jpg": ["sela"]
 };
 function plateFacesPresent(src) {
   const faces = PLATE_FACES[src];

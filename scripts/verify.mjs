@@ -3044,8 +3044,12 @@ function remainingArcLivingTruthChecks(runtime) {
     errors.push("arc_living_3 names Mira or Elias when both are dead");
   }
 
-  if (fixture.living.arc4Image !== "images/corridor_pressure_2.jpg" || fixture.heldDeadTomas.arc4Image !== "images/corridor_pressure_2.jpg") {
-    errors.push("arc_living_4 no longer resolves to its roster-ambiguous corridor plate");
+  // SUN-PLATE-FACES-06: corridor_pressure_2.jpg is the owner-approved HITL Tomas plate (#71), no longer
+  // roster-ambiguous. It renders with Tomas aboard and alive; otherwise the empty corridor fallback.
+  if (fixture.living.arc4Image !== "images/corridor_pressure_2.jpg" ||
+      fixture.heldDeadTomas.arc4Image !== "images/corridor_variant_3.jpg" ||
+      fixture.unrecoveredTomas.arc4Image !== "images/corridor_variant_3.jpg") {
+    errors.push("arc_living_4 plate does not follow Tomas: corridor_pressure_2 while he is aboard, empty corridor otherwise");
   }
   if (fixture.heldDeadTomas.arc4Text.includes("Tomas") || fixture.backedDeadElias.arc4Text.includes("Elias")) {
     errors.push("arc_living_4 conflict callbacks do not follow living/dead state");
