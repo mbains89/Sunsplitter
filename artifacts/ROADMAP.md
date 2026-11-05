@@ -1,92 +1,24 @@
-# Sunsplitter — Official Enforceable Roadmap
+# Sunsplitter — Roadmap to 1.0: OpenAI and Grok builders
 
-`SOURCE main@8d23109b · RUNTIME c3626434add931b4a8e164febb5c1c7b46bf9471 · TASK SUN-ROADMAP-TIP-SYNC-04 · MODE proposal`
+`SOURCE main@8d23109b · RUNTIME 5a17d633 · TASK ASTRA-ROADMAP-SPLIT-SUN-01 · MODE proposal`
 
-**Acting role:** Grok / program office. Planning only.
-**Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
-**Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
-**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
-**Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
-**Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
+**Acting role:** Astra roadmap planner. Manraj's 2026-10-08 Game Dev request explicitly authorizes this roadmap-only rewrite and a draft PR; it does not dispatch the implementation below. **Read:** live lane ROADMAP, AGENTS, PROJECT_STATUS, LOCKS, version lock, ticket queue, progress, relevant runtime and review documents, open PRs, and Grok draft [#436](https://github.com/mbains89/Sunsplitter/pull/436) including its six briefs.
 
-## SUN-ROADMAP-PLAN-01 — Finish 0.36 → plan 0.37 (prose only)
+**Pinned sources:** `main@8d23109b63b844e0703fb36643f14b91b8800c90`; write lane `version/0.30.1-main-reconcile-ci.1@5a17d633d799dc54487e7b16127e8049969db5cd`; #436 head `ab18b42203a32455e4778bbc1b374f950dcf1acf`. “Lane” means that existing version branch, not a branch literally named `lane`.
 
-Decision gates (labeled; not OPEN):
-1. **0.36 PC Readiness** — close remaining tip-named 0.36 pack/playtest-gate items on the work tip; no invent OPEN; no mint/certify unless owner OPEN names it.
-2. **0.37 External Review** — planning target after 0.36 readiness; design/review prose only until owner OPEN.
-
-This section does not mint 0.36 or 0.37 and does not authorize Netlify pins.
-
----
+**Unchanged release posture:** `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`. Existing `VERSION.md` paint is 0.36; it is not a PC-readiness pass. No version is minted by this roadmap. No code, tests, status, feeds, or version files change in this proposal. The only companion edit updates the ROADMAP digest in `LOCKS.md`; no lock disposition changes.
 
 ## 1. Authority and change-control law
 
-### Domain authorities
+- Manraj remains final product, canon, commercial, and release authority; Grok records owner-approved dispositions. This is a proposal under L-042, not a self-approved lock or implementation dispatch.
+- `AGENTS.md` controls process; `LOCKS.md` controls dispositions; this roadmap controls proposed future scope and acceptance; `PROJECT_STATUS.md` records current/shipped state. Exact Git bytes and current PR evidence expose stale activity pointers without silently awarding release credit.
+- Every deliverable declares `SOURCE main@<sha7> · RUNTIME <sha7> · TASK <id> · MODE <review|proposal|implementation|verification>`, acting role, files read, and whether implementation is authorized. Stop if required authority or named revisions cannot be read; do not substitute memory.
+- Every dispatch rereads the live lane, locks, affected code, and open PRs; pins one SHA; names one writer and a bounded touch list. Historical receipts are evidence, not permission to remint spent tickets.
+- Work targets the named version lane. Leave PR 45 and draft PR 46 untouched. No direct `main` writes, close-out, certification, tag, Release, or deployment under this job. **No Netlify actions or planning.** A GitHub Pages playtest build may be proposed only with an owner-named candidate; this document launches none.
+- **OBSERVED** means present at a pinned revision. **LANDED ON VERSION LANE** means integrated candidate bytes, not shipped or certified. **SHIPPED** requires `main` plus STATUS; **RELEASED** requires an immutable tag and GitHub Release at an exact commit with an artifact digest; **DEPLOYED** requires a deployment record tied to that released commit and digest. A green check alone proves none of these.
+- **LOCKED** means approved scope subject to entry gates; **DECISION GATE** needs the named owner choice; **CANDIDATE** is not promised; **HUNCH** needs reproduction; **HELD/DEFERRED/OUT/REJECTED** retain their ledger meanings.
+- Existing jobs keep their owners (§3). Version and step IDs below are roadmap prose, not minted product versions or permission to launch tickets. Any scope beyond the cited roadmap, repo documents, or #436 is **proposal — owner yes** before it enters a dispatch.
 
-| Question | Authority |
-|---|---|
-| What is approved next, in what order, and with what exit criteria? | `artifacts/ROADMAP.md` |
-| What has actually shipped and what is the active release state? | `artifacts/PROJECT_STATUS.md` |
-| What bytes and behavior exist at a revision? | Git at that exact revision |
-| What version was released or deployed? | Immutable tag, GitHub Release, artifact digest, and a named deployment record |
-| What is character/canon/voice truth? | `CHARACTER_BIBLE.md`, `VOICE_CARDS.md`, `FABLE_BRIEF.md`, and explicitly locked cascade/minted-phrase documents |
-| What is art truth? | `ART_RULES.md`, `ART_REQUESTS.md`, the CURRENT portrait manifest, and exact image bytes |
-| How is work executed? | `AGENTS.md` and the governed branch/PR law below |
-
-When documents disagree:
-
-1. Code and assets at the pinned runtime are observed behavior; contradictions are reported, not hidden.
-2. `PROJECT_STATUS.md` wins for shipped/current `main` state.
-3. `ROADMAP.md` wins for approved future scope and order.
-4. `LOCKS.md` controls dispositions; this roadmap carries the full approved language.
-5. Domain documents control craft detail unless a later recorded lock supersedes them.
-6. A newer exact GitHub revision wins over pasted text, memory, a browser observation, or a local ZIP.
-
-### Required session declaration
-
-Every Grok, Fable, Build, Art, GPT, or Claude deliverable begins with:
-
-`SOURCE main@<sha7> · RUNTIME <sha7> · TASK <id-or-session-type> · MODE <review|proposal|implementation|verification>`
-
-It also states role, files read, and whether implementation is authorized. If the named revisions or required authority files cannot be read, stop rather than substitute memory.
-
-### Who may change the roadmap
-
-- Manraj is the only product, canon, commercial, and unresolved-gate approval authority.
-- Grok records owner-approved sequence and lock dispositions; Grok does not self-approve.
-- Any approved role may draft a roadmap patch. No AI may directly edit `main` or convert its recommendation into a lock.
-- Roadmap changes land through one-concern PR review on the version lane. A documentation merge creates no gameplay, release, certification, publication, or deployment credit.
-- GitHub issues, PRs, playtest reports, model reports, and screenshots are evidence and execution records, not competing authorities.
-
-### Write and preview law (2026-09-01)
-
-- Write authority is the version lane `version/0.30.1-main-reconcile-ci.1`, not `main`.
-- GitHub merge-commit is the default land path for ticket PRs into that lane.
-- Do not promote the lane onto `main`. Do not open or merge a version close-out.
-- Leave PR 45 and draft PR 46 untouched.
-- Do not certify this lane. Last certified remains `0.28.1d`.
-- Netlify fires only when Manraj names an exact SHA. No auto-Netlify. The live preview at deploy `6a974ce6083c96103110b960` is not certification and is not a close-out.
-- Do not leftover-drain. Closed 0.30.1 / 0.31 / 0.32 work is not reopened as a new queue.
-- Playtest bugs Manraj reports during 0.33 stay one-PR tickets on 0.33. They do not mint a new version.
-
-### Status vocabulary
-
-| Label | Meaning |
-|---|---|
-| **OBSERVED** | Present at an exact revision; no shipped/release claim implied |
-| **LANDED ON VERSION LANE** | Merge-committed into the candidate lane; not on `main` and not certified |
-| **SHIPPED** | Present on `main` and recorded by STATUS; not automatically released or deployed |
-| **RELEASED** | Proven by immutable tag and GitHub Release at an exact commit with artifact digest |
-| **DEPLOYED** | Proven by deployment record tied to the released commit and digest |
-| **LOCKED** | Owner-approved scope/order; implementation may proceed when entry gates pass |
-| **DECISION GATE** | Blocked until the named owner choice is recorded |
-| **CANDIDATE** | Worth testing or scoping; not promised scope |
-| **HUNCH** | Unconfirmed finding; verify on the current authority before ticketing |
-| **HELD** | Deliberately unscheduled; do not implement |
-| **DEFERRED** | Valid concern assigned to a later gate or version |
-| **OUT** | Excluded before 1.0 |
-
----
 
 ## 2. Permanent product, canon, and implementation locks
 
@@ -169,88 +101,110 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 
 ---
 
-## 3. Current authority and source truth
+## 3. Current state and In flight
 
-### Controlling revisions
+At the pinned lane, 0.30.1–0.35 drains are recorded closed and must not be reopened. The current work is to finish evidence for 0.36, then follow 0.37 → 0.38 → 0.39 → 0.40 → 1.0. No sequential certification is claimed; last certified remains 0.28.1d.
 
-| Surface | Exact state | Meaning |
+`PROJECT_STATUS.md` and `docs/TICKET_QUEUE.md` still point at `e14ca7d2`; the old roadmap mixes `c3626434` and `685d400`; `PROGRESS.md` still says Button States has no PR. These are stale activity snapshots. Live evidence shows Button States **#435 merged**, Gerald II **#442 merged**, and Window Resize **#444 merged** at the current lane. #441 and #439 are closed unmerged; do not recreate them. #435 changed `css/intro-nav.css` and `css/crew-sheet.css`; #444 added `css/pc-viewport.css` and its harness. Their old blanket reservation of `css/style.css` has ended. Integration is evidence to verify, not a milestone exit.
+
+### In flight — preserve the current owners
+
+| Work | Current owner, unchanged | Files/areas reserved and next dependency |
 |---|---|---|
-| GitHub `main` | `8d23109b63b844e0703fb36643f14b91b8800c90` | Observed repository authority; not certified |
-| Version lane HEAD used for this rebuild | `685d40007d5cae12621d88639bbfb1cd6bdaa3be` | Playtest candidate; player-facing label `0.33` |
-| 0.32 Save Trust exit mark | `~7ec5b30` | Owner-accepted 0.32 exit on the lane; not certification |
-| Last certified baseline label | `0.28.1d` | Historical certification boundary |
-| Live preview | Netlify deploy `6a974ce6083c96103110b960` | Named preview only; `NOT_CERTIFIED` |
-| Release posture | `NO-PUBLISH / NOT_CERTIFIED` | No release artifact, tag, publication, or certified deploy |
-| Held close-out identities | PR 45 and draft PR 46 | Do not merge, close, or use as release authority |
+| [#437 Crew-plate F07](https://github.com/mbains89/Sunsplitter/pull/437) | Existing builder / Ori; model not recorded | `src/hitl-unshadow.js`, `scripts/hitl-unshadow-checks.mjs`; Escape/class-flip close work beyond #433. Preserve this distinct job despite stale “F07 satisfied” notes; Myth review and existing PR checks remain with its owner. |
+| [#438 Bug Hunt](https://github.com/mbains89/Sunsplitter/pull/438) | Existing builder / Ori | `src/engine.js`, `src/scenes-17.js`, `src/scenes-26.js`, `src/scenes-27.js`, `src/scenes-40.js`, `scripts/sun-bughunt-01-checks.mjs`; wait for disposition before overlapping state-truth work. |
+| [#440 Repo guards](https://github.com/mbains89/Sunsplitter/pull/440) | Existing builder / Ori | `scripts/guards/**`, `.github/workflows/repo-guards.yml`; no competing guard implementation. |
+| [#443 Seeded stress](https://github.com/mbains89/Sunsplitter/pull/443) | Astra Build; separate Sol review; Hex review next | `scripts/sun-stress-run.mjs`, `scripts/sun-stress/**`, `.github/workflows/sun-stress.yml`; draft head `1abe1e5f` incorporates current lane and has a passing `sun-stress` check. Its body still describes the older #442 blockage; do not create a second repair from that stale text. |
+| [#436 Roadmap and six briefs](https://github.com/mbains89/Sunsplitter/pull/436) | Existing Grok draft owner | Comparison input only. Its branch, `artifacts/feeds/*`, and `PROGRESS.md` remain untouched. This is a separate alternative proposal, not a takeover of that branch. |
+| 0.37 review-build packet | Existing assigned owner; person/model not recorded | Existing `artifacts/SUN_V037_*` and `docs/SUN_V037_EXTERNAL_REVIEW_PLAN_01.md`. #436 reports owner-assigned execution in flight; lane STATUS/queue say PARKED. Confirm that dispatch with its owner, preserve ownership, and do not create a second packet or infer OPEN. |
 
-The version lane has advanced well beyond `main`. Nothing on that lane is **SHIPPED**, **RELEASED**, or **CERTIFIED** under this roadmap's vocabulary.
+Open PRs #297, #304, #374, #389, #390, and #407 are not fresh dispatches. Preserve their holds; #297/#407 must not merge, and #304 is not an automatic vehicle for footer cleanup. #437/#438/#440 have version-route policy failures at this snapshot; their owners retain those PRs. “Open” is neither active authority nor permission to reassign.
 
-### Version-lane evidence absorbed (do not reopen as drain)
+## 4. Builder roadmap and dependency spine
 
-- **0.30.1 Governed Recovery Integrity:** leftover drain emptied. Still `NOT_CERTIFIED`.
-- **0.31 Systemic Truth Closure:** landed on the lane. Remaining C/D items stay hunches, not a queue.
-- **0.32 Save Trust and Recovery:** exited ~`7ec5b30`. Early keyboard (PR 84) and widescreen (PR 85) work is evidence for 0.36, not 0.36 closure.
-- **0.33 version paint + named playtest:** PR 98 painted the player-facing version to `0.33`. Manraj is playtesting this candidate now. Vess-scene plates were wired on the lane earlier on 2026-09-01.
-- Confirmed playtest bugs become one-PR 0.33 tickets. They do not open 0.34 and they do not reopen 0.30.1–0.32.
+**OPENAI:** Astra in Codex web, GPT-6 Astra, **Astra High**; PRs cross-reviewed by **GPT-6.1 Sol**. Use for repeated execution, input behavior, save safety, real browser/device checks, simulations, rendered-state tracing, and multi-file engine work with tests.
 
-### Explicitly outside current write authority
+**GROK:** chats in grok.com projects, **Grok Expert** by default; **Grok Heavy** for a large, fully specified multi-file presentation job. **Never Fast/Auto.** Use for bounded labels, displays from an already-proven data source, docs, approved art wiring, and narrow presentation fixes. A Grok row never grants a new state rule or hidden-data disclosure.
 
-- PR 45 / draft PR 46.
-- ART-R2 / L-004 art-audit opening.
-- Any leftover-drain identity.
-- Close-out to `main`, certification, tag, GitHub Release, publication.
-- Auto-Netlify or any Netlify action except a SHA Manraj names.
-- ET-03 count sweep, issue 24 / REC-02 reopen, and STORY-SURGERY-R1 unless the 0.33 playtest plus owner lock names them.
+Every potentially existing feature is **verify first → NO_PR if satisfied**. Record the exact SHA and proof; implementation presence, a receipt, or a literal-string harness alone is not behavioral proof. Repair only a reproduced gap in a later bounded dispatch. Existing in-flight work is not counted as a new assignment.
 
----
+**Gate column:** `Myth` for art/scene changes; `Hex sims` for balance; `none` means neither specialist gate applies, not that tests, dependencies, owner approval, or release holds disappear. Any conditional scene edit adds Myth; any conditional balance edit adds Hex sims and the ±20% cap. If both apply, obtain both. All later milestones remain gated by their entry/exit criteria (§§10–13).
 
-## 4. Locked dependency spine
+### 0.36 — PC Readiness
 
-```text
-0.30.1 — Governed Recovery Integrity     DRAIN CLOSED; NOT CERTIFIED
-  ↓
-0.31 — Systemic Truth Closure            LANDED ON LANE; NOT CERTIFIED
-  ↓
-0.32 — Save Trust and Recovery           EXITED ~7ec5b30; NOT CERTIFIED
-  ↓
-0.33 — Named playtest candidate          ACTIVE PLAYTEST; ART-R2 HELD
-  ↓
-0.34 — Mobile UX, Accessibility, Performance
-  ↓
-0.35 — Packaging and Private Itch
-  ↓
-0.36 — PC Readiness
-  ↓
-0.37 — External Review Pilot
-  ↓
-0.38 — Player Validation Cohort
-  ↓
-0.39 — Commercial Readiness
-  ↓
-0.40 — Launch Rehearsal / Release Candidate
-  ↓
-1.0 — Public Release
-```
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 0.36 / SUN-36-A INPUT | Finish the same story by keyboard without accidental choices or trapped dialogs. | OPENAI | Astra High | Key dispatch, focus, and modal interactions need repeatable full-stack execution. | `src/engine.js`, `src/validate.js`, `src/dialog-keys.js`, `index.html`; existing keyboard/dialog/new-run checks | none | #438 disposition for engine access; #435/#444 landed; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-B SAVE | Cancel New run safely and export/import or resume the intended local run. | OPENAI | Astra High | Destructive confirmation and restore failures require persistence and rejection-path tests. | `src/engine.js`, `src/validate.js`, `index.html`; existing save/new-run/import checks | none | SUN-36-A; #438 disposition; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-C TRUTH | See costs, crew, saved-run details, and ending facts that match this run. | OPENAI | Astra High | Display truth must be traced back to saved/live state, not inferred from labels. | `src/engine.js`, `src/state.js` read contract, existing crew/ending/choice checks; scene edits only if a reproduced finding names them | Myth if scene changes; otherwise none | SUN-36-B; #438 disposition and #443 evidence; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-D ENDING | Skip the ending cinematic safely and leave optional What Remains through truthful actions. | OPENAI | Astra High | Cinematic completion, optional reflection, and restart are different state transitions. | `src/engine.js`, `src/validate.js`, `index.html`; cinematic and What Remains behavior checks | none | SUN-36-C; preserve Muse/HITL ownership of parked ending art; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-E COPY | Understand New run, local saves, ending actions, and existing disabled reasons at a glance. | GROK | Grok Expert | Copy can be narrowly specified after behavior and data sources are proven. | Existing `index.html` labels and exact message literals in `src/engine.js` / `src/validate.js`; no new handlers or overlays by default | none | SUN-36-D supplies approved action/data contract; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-F CHROME | Read clear focus/button states and reachable controls without production clutter. | GROK | Grok Expert | Bounded CSS and labels are presentation work with an explicit target. | `css/style.css`, `css/intro-nav.css`, `css/crew-sheet.css`; existing footer marker contract | none | #435/#444 landed; no #304 remint; retain 48px touch floor; verify first → NO_PR if satisfied |
+| 0.36 / SUN-36-G DEVICES | Keep choices reachable through desktop resize, zoom, fullscreen, and phone use. | OPENAI | Astra High | CSS markers do not prove actual geometry, focus, storage, or device behavior. | `css/pc-viewport.css` and other layout files only for reproduced defects; existing browser/viewport checks and evidence report | none | SUN-36-A–F complete or NO_PR; #437 disposition; same-build private package; verify first → NO_PR if satisfied |
 
-Rules of the spine:
+**Scope corrections to #436:** The keyboard area includes both `engine.js` and the overriding behavior in `validate.js`; do not promise an isolated new `pc-choice-keys.js` overlay or add arrow navigation by assumption. Preserve the approved number-key and Enter/Space contract and test focused enabled controls, key repeat, text inputs, and modal swallowing. **Ending cinematic Skip goes to the ending screen**; it does not skip the ending facts or What Remains. What Remains currently offers **Return to ending** and **Play Again**; do not invent a new Skip destination. SUN-36-E only labels the behavior proven by SUN-36-D. Export/import already exist, including rejection reasons: SUN-36-B verifies them; SUN-36-E is copy/discoverability only. Existing disabled resource reasons remain truthful; hidden dead/unrecovered options must not become visible spoilers. Existing 48px touch targets must not be reduced to #436's proposed 44px.
 
-- One concern, one ticket branch, one PR into the version lane. Ticket PRs merge with merge commits.
-- A milestone advances only when its acceptance evidence exists. Early implementation receives no later milestone credit.
-- Hunches stay hunches until reproduced on current bytes.
-- Correctness failures found in the 0.33 playtest are repaired on 0.33. They do not become 0.34–0.37 scope.
-- Experience findings from the 0.33 playtest are classified before they become a later version slice. Classification happens after the playtest report, not during it.
-- Story, art-audit, and gameplay volume cannot jump the ART-R2 hold.
-- Mobile/accessibility work cannot be relabeled PC readiness; PC work cannot create a separate game.
-- Independent review is 0.37. PC readiness is 0.36. Public/commercial itch is 0.39. Do not reuse 0.31–0.33 for those jobs.
-- No milestone authorizes close-out, certification, tag, release, publication, Netlify, itch.io public page, or deployment. Those are separate owner actions at their named gates.
+**Exit:** a complete keyboard-only run, mouse/touch sanity, visible focus order and distinct states, actual resize/zoom/fullscreen measurements (including 1280×720 and 1920×1080), relevant browser coverage, and phone regression checks at one exact candidate. Record real-device/browser/OS and limitations; headless or string checks do not stand in for a human/device pass. No new PC ruleset, story, settings system, native wrapper, or version paint.
 
-Stable lock identities in `LOCKS.md` keep their section anchors. Historical version labels inside those rows do not override this spine: L-010 executes at 0.37; L-011 at 0.36; L-012 at 0.39; L-013 splits across 0.40 and 1.0.
+### 0.37 — External Review Pilot
 
----
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 0.37 / SUN-37-A CANDIDATE | Give reviewers one reproducible private build that opens, saves, and finishes. | OPENAI | Astra High | Packaging identity and start-to-ending probes need executable proof. | Existing package tooling, verifier/simulator and #443 harness when available; candidate manifest/digest; use current review packet read-only | none | 0.36 exit; existing review-build owner releases any overlapping scope; Manraj names candidate and reviewers |
+| 0.37 / SUN-37-B INTAKE | Have each reported problem retain its scene, device, reproduction, and severity. | GROK | Grok Expert | Structured evidence transcription is a bounded documentation task. | Finding report derived from existing `artifacts/SUN_V037_*` templates; no duplicate packet or outreach | none | SUN-37-A; two independent human reports; existing packet owner's handoff |
+| 0.37 / SUN-37-C REPAIR | Finish without reported save loss, softlocks, unpaid costs, or false endings. | OPENAI | Astra High | Reproduction and exact-candidate retesting must close each correctness finding. | Only owner-ranked affected files and targeted regression checks; reuse stress/probe tooling | Myth if art/scene changes; Hex sims if balance; otherwise none | SUN-37-B; named repair dispatch; rerun review blockers on repaired candidate |
 
-## 5. L-005 — Truth Hotfix foundation
+The builders prepare and verify; they do not impersonate the two independent strangers or send invitations without a named owner dispatch. #443's internal stress evidence is useful but is not outside review. P0 must be fixed and retested before proceeding; no “owner-deferred P0” shortcut. First-run/save P1 remains blocking for 1.0 (§10).
 
-Historical 0.28.2 ten-ticket batch boundary. Not a reopened queue. Current L-020–L-028 dispositions in `LOCKS.md` control.
+### 0.38 — Player Validation Cohort
+
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 0.38 / SUN-38-A PROTOCOL | Have player feedback judged against agreed stop/continue rules. | GROK | Grok Expert | Pre-registering an owner-approved protocol is documentation work. | Existing cohort/threshold planning documents; no runtime or telemetry system | none | 0.37 exit; Manraj approves cohort and thresholds before results are read |
+| 0.38 / SUN-38-B MATRIX | Play the same frozen build reliably on phone and desktop. | OPENAI | Astra High | Device, accessibility, and performance claims require actual repeated runs. | Existing browser/device harnesses and cohort evidence; same candidate SHA on both platforms | none | SUN-38-A; named human cohort execution; no invented OPEN 0.38 |
+| 0.38 / SUN-38-C FINDINGS | Have crashes and access barriers separated from taste and market notes. | GROK | Grok Expert | Classifying sourced reports need not alter story or engine. | Cohort finding report and owner decision record | none | SUN-38-B and human reports; compare with pre-registered thresholds |
+| 0.38 / SUN-38-D BALANCE | Keep honest choices and reachable outcomes when evidence warrants a balance repair. | OPENAI | Astra High | Outcome changes require reproducible before/after policy simulations. | Only owner-named existing cost/threshold fields and simulation fixtures; no new system or event shuffle | Hex sims; Myth if scene changes | SUN-38-C identifies a real imbalance; owner opens bounded change; ±20% maximum per tuned value; NO_PR without a finding |
+
+No automatic rebalance: retain full survival after the opening, every-scene enabled exit, paid costs, and truthful consequences. Compare random/cheapest/priciest outcomes and relevant targeted paths before/after; do not chase symmetry or compound small edits to evade the ±20% limit. Larger changes are **proposal — owner yes**, outside this capped program.
+
+### 0.39 — Commercial Readiness
+
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 0.39 / SUN-39-A RIGHTS | Receive a package with accurate asset, font, code, and license notices. | GROK | Grok Expert | A sourced rights inventory is documentation, with unresolved rights left to owner. | Existing asset/license inventory, notices and commercial records; bytes read-only | none | 0.38 owner go/wait/stay-private decision; verify first → NO_PR if satisfied |
+| 0.39 / SUN-39-B DISCLOSURES | Know the adult content, AI use, and current storefront conditions before purchase. | GROK | Grok Expert | Explicit descriptors and current-policy citations can follow an approved copy brief. | Adult/AI/content disclosure and platform-policy documents | none | 0.38 decision; submission-time itch.io policy recheck; owner approves final wording |
+| 0.39 / SUN-39-C STORE | Read store, privacy, and support copy that describes the actual candidate. | GROK | Grok Expert | Final copy is bounded by verified features and owner business decisions. | Store/privacy/support drafts; approved build facts, no runtime edits | none | SUN-39-A/B; owner decides price, tax/business setup, support posture and messaging |
+| 0.39 / SUN-39-D ART | See only approved, truthful cover/page art in the commercial presentation. | GROK | Grok Heavy | A specified multi-file art-wire job suits Heavy once assets and mapping are approved. | Named existing cover/page assets, presentation mapping and art manifest only; no portrait invention | Myth | SUN-39-C; owner-approved exact assets/spec and named art opening; NO_PR if already satisfied; ART-R2 stays held |
+
+itch.io remains the primary direction, subject to current policy and rights checks. These are readiness drafts, not a public storefront launch. Steam remains post-1.0. Any new scene or portrait concept is **proposal — owner yes** and is not authorized by SUN-39-D.
+
+### 0.40 — Launch Rehearsal / Release Candidate
+
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 0.40 / SUN-40-A FREEZE | Install the same complete private candidate every time. | OPENAI | Astra High | Repeatable packaging, inventory, digest, and strict checks establish exact bytes. | Existing package scripts/allowlist, release manifest and candidate verifier/simulator | none | 0.39 readiness; candidate freeze; all required art/scene gates cleared |
+| 0.40 / SUN-40-B MIGRATION | Resume supported older local saves and reject incompatible files without loss. | OPENAI | Astra High | Restore/migration and failure isolation require multiple save fixtures and browsers. | Existing save/import code only if a defect is proven; save fixtures and targeted checks | none | SUN-40-A exact RC and compatibility contract; verify first → NO_PR if satisfied |
+| 0.40 / SUN-40-C RUNBOOK | Get clear known-issue, support, reinstall, and recovery instructions. | GROK | Grok Expert | A runbook can be written from the verified candidate and approved support policy. | Release/rollback/known-issues documents; frozen artifact identity read-only | none | SUN-40-A identity; SUN-39-C copy; final reconciliation after SUN-40-B/D |
+| 0.40 / SUN-40-D REHEARSAL | Recover or roll back a private install without losing a valid run. | OPENAI | Astra High | Install, rollback, save, and support instructions must be exercised on exact bytes. | Private package, existing validation tooling, rehearsal evidence; runbook read-only during execution | none | SUN-40-B; SUN-40-C draft frozen; rerun strict candidate checks after any repair |
+
+SUN-40-C finalizes the report only after SUN-40-D returns evidence; that finalization changes documents, not the frozen game. Rehearsal creates no tag, Release, deployment, or publication authority. Missing real-device evidence is NOT_AVAILABLE and remains an open gate.
+
+### 1.0 — Public Release
+
+| Version / ID | One-line player-facing goal | Builder | Mode | Why | Files / areas | Gate | Depends-on |
+|---|---|---|---|---|---|---|---|
+| 1.0 / SUN-100-A RELEASE | Start, save, resume, and finish the exact release on phone or PC. | OPENAI | Astra High | Release identity and any authorized main close-out need exact-revision reruns. | Consolidated release verification, artifact/digest records and existing release process; code only through separate defect tickets | none | 0.40 exit including final runbook; no P0 or blocking first-run/save P1; Manraj's separate exact-SHA go/no-go and release/close-out authority |
+| 1.0 / SUN-100-B PAGE | Find an honest itch.io page with the approved copy, disclosures, and art. | GROK | Grok Expert | Publishing an approved presentation is a narrow, specified task. | Approved storefront text, descriptors, and asset mapping; no new art or runtime work | Myth for art/page composition | SUN-100-A; SUN-39-C/D; Manraj's separate public-page approval |
+| 1.0 / SUN-100-C SUPPORT | Know how to get help and which issues remain in the released build. | GROK | Grok Expert | Support and known-issues updates use verified release facts. | Approved support/known-issues/privacy documents and release links | none | SUN-100-A/B and SUN-40-C; owner-approved support channel |
+
+**Builder count:** 25 future steps — **13 OPENAI / 12 GROK**. Counts include conditional/NO_PR steps, exclude historical versions and retained in-flight jobs, and count each ID once. No stage heading is an additional unassigned build ticket.
+
+
+## 5. L-005 — Truth foundation and simulation invariants
+
+Sections 5–13 preserve the acceptance definitions referenced by LOCKS; they are constraints on §4's assigned steps, not another ticket queue. The historical ten-ticket Truth Hotfix and 0.30.1–0.35 drains stay closed. Ruled L-020–L-024 behavior survives: one-shot Elias→Mira consequence, an enabled affordable exit at every render, preserved early vault priority, retired unused `pair_turn`, and truthful untested-promise treatment.
+
+Historical L-005 boundaries (closed; these are preserved constraints, not additional future builder steps):
 
 | # | Locked ticket boundary | Required outcome |
 |---|---|---|
@@ -265,448 +219,118 @@ Historical 0.28.2 ten-ticket batch boundary. Not a reopened queue. Current L-020
 | 9 | Version identity | `src/state.js` `VERSION` is runtime source; verifier/save/visible/manifest surfaces agree. |
 | 10 | `pair_turn` registry | Unused runtime flag removed under L-023. |
 
-### Simulation invariants
-
-| ID | Meaning |
+| Invariant | Acceptance meaning |
 |---|---|
-| V1 | A legally reached render has zero enabled exits / hard softlock |
-| V2 | Literal dead-or-unrecovered name/presence spike; classify editorially, not a zero gate |
-| V3 | Promise-state integrity failure at ending |
-| V4 | Advertised negative cost executes without being affordable and paid |
-| V5 | Ending/reflection contradicts the recorded run |
-| V6 | Promise lifecycle violates approved dead/live untested-holder semantics |
+| V1 | No legally reached render has zero enabled exits. |
+| V2 | Literal dead/unrecovered name spikes require editorial classification; never a zero gate. |
+| V3 | Promise state remains consistent at ending. |
+| V4 | Advertised negative costs are affordable and paid; no bypass or double payment. |
+| V5 | Ending/reflection agrees with this run. |
+| V6 | Promise lifecycle honors approved dead/live untested-holder semantics. |
 
-Strict candidate simulation remains random, cheapest, and priciest at seed `20260817`, 2,000 runs per policy, unless a later owner-approved lock changes it. Ticket smoke is non-certifying. No simulation-green result certifies the lane.
-
----
+Strict candidate simulation remains random, cheapest, and priciest with seed `20260817`, 2,000 runs per policy. Bounded ticket smoke is non-certifying. V1, V3, V4, V5 and approved V6 semantics are hard candidate gates; a green model report or a marker check does not close them. Balance edits require Hex's before/after sims and stay within ±20%; observed human evidence must justify the tuning.
 
 ## 6. L-006 — Chain-of-custody and systemic-truth foundation
 
-### Repository and release law
-
-- Freeze direct and per-file API writes to `main`.
-- Ticket work targets the protected version lane, not `main`.
-- PRs begin as drafts and become reviewable only after local transcript, evidence, declarations, and required CI exist.
-- Ticket PRs run inexpensive `version-release-policy`, `version-verify`, and bounded `version-simulation-smoke`. They do not claim the strict candidate matrix unless dispatch escalates it.
-- Ticket PRs merge with merge commits. A green check is not merge authority.
-- The only route to `main` is one consolidated version close-out PR. That close-out is **not authorized** in this planning window.
-- Protect `main` and version branches, including administrators: no direct/force push, branch deletion, or required-check bypass.
-- Thresholds are ratchet-only.
-- Tag only an exact resulting `main` revision as `sun-vX.Y.Z` after a separately authorized close-out. Never rewrite historical tags.
-- Production is opt-in and SHA-named. Never deploy a partial version branch as certified.
-
-### Systemic-truth law
-
-- **L-024:** an untested dead holder remains `made` and is omitted from reflection; never invent a betrayal.
-- **L-026:** Last Off-Shift zero/one routes remain defensive save-recovery guards and preserve `junctionChoice`.
-- **L-027:** `vess_course_lost` and its promised downstream course are retired; do not add a consumer.
-- V2 stays a classified spike detector. V1, V3, V4, V5, and approved V6 semantics are hard at candidate closure, which this file does not authorize.
-
----
+- Pin exact source, runtime, and PR head; one concern per ticket branch and PR. Preserve the full predecessor tree. Never publish through per-file API commits, direct/force-push `main`, or bypass required checks.
+- Keep the existing inexpensive ticket checks (`version-release-policy`, `version-lock-ci`, `version-verify`, bounded `version-simulation-smoke`) and relevant targeted regressions. Candidate closure requires the strict matrix; ticket smoke is not a substitute.
+- PRs retain evidence, file declarations, and the repository PROOF block. Required checks must pass before any later authorized merge; merge-commit is the integration method, not squash or rebase-merge. This job ends at a draft PR and does not merge.
+- Only a separately authorized consolidated version close-out may reach `main`. Rerun strict gates at the exact resulting `main` before any separately authorized immutable tag/Release. Never rewrite historical release identities; artifacts and deployment records must match their SHA and digest.
+- Main/version protection, ratchet-only thresholds, and exact-byte release proof survive. Local ZIPs, branch labels, strings, or screenshots alone do not prove released bytes. No certification or publishing authority comes from this document.
+- L-024: a dead untested holder remains `made` and is omitted from reflection; never invent betrayal. L-026: zero/one Last Off-Shift remains defensive recovery and preserves `junctionChoice`. L-027: retire `vess_course_lost` and its downstream-course promise, with no new consumer.
 
 ## 7. L-007 — Player-experience evidence method
 
-Execution map under the owner-accepted spine:
+Use the existing PX framework through the assigned steps, without reopening closed implementation packs. PX-1 evidence combines fixed-seed timing with actual first-run/replay reports: elapsed time, beat timestamps, truthful route facts, anonymous run receipt, clarity, remembered choices, fatigue, save trust and replay desire. Separate correctness from experience and rank P0/P1/P2. PX-2's 30–60 minute aspiration remains a hypothesis until measured; no player clock is added.
 
-- PX-7 save trust executed at 0.32 and is exited.
-- PX-1 through PX-6 evidence is collected from the 0.33 playtest. It does not automatically become 0.34–0.37 work.
-- PX-8 mobile accessibility/performance executes at 0.34; desktop revalidation at 0.36.
-- PX-9 audience/distribution completes across 0.38–0.39.
+PX-3 defines an outcome envelope from evidence. Change balance only for dominance, misleading choices, unreachable/vanishing outcomes, or dishonest resource presentation; do not optimize for symmetry. PX-4 audits L-025 Option B without reopening it. PX-5 preserves rank/scarcity/consent/refusal/aftermath honesty, Sela's adult boundaries and Vess's retained power, without a consent meter. PX-6 chronology remains private continuity material, not UI.
 
-No prose, economy, tutorial, video, or interface expansion is justified merely because an internal model predicts it. First identify an observed problem, classify it, and attach evidence.
-
-### PX-1 — Player Experience Baseline
-
-Fixed-seed automated timing plus real first-run and replay playthroughs. Capture elapsed time, major-beat timestamps, truthful route facts, a copyable anonymous run receipt, and notes on clarity, remembered choices, emotional peaks, fatigue, save trust, and replay desire. Separate correctness from experience. Rank P0/P1/P2.
-
-**Exit:** a ranked evidence report exists; no content was changed merely to add volume.
-
-### PX-2 — Run-Length and Macro-Pacing Target
-
-Use PX-1 evidence to set first-run/replay ranges and beat-spacing. The 30–60 minute aspiration remains a hypothesis until measured. Add no player-facing clock.
-
-### PX-3 — Behavioral Economy and Outcome Envelope
-
-Define acceptable outcome distributions. Change balance only for dominance, misleading choice, impossible/vanishing outcome, or dishonest resource presentation. Do not optimize toward symmetry.
-
-### PX-4 — Commander Identity Implementation Audit
-
-L-025 Option B is not reopened. Audit rendered paths for accidental gendering, portrait drift, and reproductive-fact handling.
-
-### PX-5 — Command Authority and Sexual Power
-
-Audit each romance route for rank, scarcity, consent, initiation, refusal, aftermath, and operational dependency. Preserve adult permanence, Sela's boundaries, and Vess's retained power. No consent meter.
-
-### PX-6 — Voyage Chronology
-
-Private continuity source only. No player-facing chronology UI.
-
-### PX-7 — Mobile Save Trust and Run Portability
-
-Executed at 0.32. Reopen only if the 0.33 playtest proves a save-loss, trap, or silent-replace defect. That repair stays a 0.33 one-PR ticket.
-
-### PX-8 — Accessibility and Real-Device Performance
-
-0.34 primary; 0.36 desktop revalidation.
-
-### PX-9 — Audience, Distribution, and Shareability
-
-0.38–0.39. Distribution constraints never soften canonical adult content.
-
----
+PX-7 save trust has existing implementation to verify, not a fresh portability system. PX-8 covers accessibility and real-device performance through SUN-36-G/SUN-38-B; PX-9 audience and distribution evidence informs 0.38–0.39. Internal model predictions do not justify new prose, tutorial, video, economy, or UI scope.
 
 ## 8. L-008 — What Remains and evidence-backed density
 
-Governing definition, already present on the candidate lane:
+What Remains remains optional, 3–6 lines, selected by significance rather than append order. Eligible facts are current-run ideology, deaths with authored causes, crisis/vault outcome, one truthful promise state and an optional relational fact. No counterfactuals, moral grade, score or invented betrayal. Existing return/restart controls and their actual transitions are the contract to verify in SUN-36-C/D, before any Grok label work.
 
-- What Remains is skippable, 3–6 lines, selected by significance rather than append order.
-- Eligible facts: current-run ideology, deaths with authored causes, crisis/vault outcome, one truthful promise state, optional relational fact.
-- No counterfactual, score, moral grade, or invented betrayal.
-- Pair residue, debt, pregnancy texture, and additional density remain evidence-gated.
-- The six light Cascade Allusive beats remain **PROPOSALS** behind playtest evidence and a later owner open. They are not 0.34–0.37 work.
-
----
+Pair residue, debt, pregnancy texture and additional density remain evidence-gated. The six Cascade Allusive beats remain proposals requiring host/voice/live-dead evidence and an owner opening, not an automatic 0.36–0.37 queue.
 
 ## 9. L-009 — Packaging and presentation foundation
 
-Split across later versions. 0.33 does not absorb this work during playtest.
+Preserve completed-save behavior, honest ending actions, one truthful visible version, and removal of production chrome without exposing hidden state. Existing opening, tutorial, Crew details and confirmation controls are observed implementations to verify, not new features to assume missing.
 
-- Remove production chrome such as raw scene IDs; keep one truthful visible version.
-- Preserve completed-save behavior and honest ending actions.
-- Strengthen type scale, line length, contrast, touch targets, motion preferences, semantic structure, focus, labels, and announcements at 0.34.
-- Keep the content notice revisitable without creating a settings dashboard.
-- Opening video, tutorial, and crew portrait/details remain evidence-gated candidates.
-- The breast-cover toggle remains held.
-
-| Candidate | Gate |
-|---|---|
-| Earth-calamity opening video | PX-1 must prove a cold-open comprehension need. Skip/pause, captions or equivalent text, reduced-motion fallback, load budget, no autoplay trap. |
-| Skippable first-run tutorial | PX-1 must prove a first-run comprehension failure. Skippable, replayable, touch/keyboard safe; teaches existing interactions only. |
-| Clickable crew portrait/details | Existing portrait, bio, and truthful known status only. No numeric stats, affinity values, hidden flags, or management system. |
-
----
+Presentation changes preserve type scale, line length, contrast, touch targets, motion preferences, semantic structure, focus, labels, announcements and revisitable content notice. Video/intro behavior needs skip/pause, captions or equivalent text, reduced-motion fallback, load budget and no autoplay trap. Tutorial behavior stays skippable/replayable and teaches only existing interactions. Crew details may show existing portrait, bio and known status, never numeric affinity/hidden flags or a management system. The explicit-content toggle remains held.
 
 ## 10. L-010 — External Review Pilot, executes at 0.37
 
-**Entry:** 0.36 passes.
-**Purpose:** fresh-stranger structural and experience audit after systemic truth, the 0.33 playtest response, mobile, private packaging, and PC work.
+Entry is the 0.36 evidence exit plus a named owner dispatch. At least two independent strangers, one mobile-primary and one desktop, play the exact same private candidate; they have not seen the code, internal reports, or earlier builds. Record device/browser/build identity. Existing assigned packet work is retained; no duplicate review build or unapproved outreach.
 
-### Reviewer independence
+Full start-to-end runs cover first-run clarity, save/resume trust, choices, art/text composition, resource honesty, death continuity, ending specificity, adult-content clarity and replay desire. Findings include severity, scene/UI location, reproduction, device/browser and evidence. Explicit probes cover dead speech, unpaid costs, save loss, softlocks and false ending text.
 
-- At least two reviewers who have not seen code, internal reports, or earlier builds.
-- At least one mobile-primary reviewer and one desktop reviewer.
-- Review uses the exact private candidate and records device/browser/build identity.
-
-### Scope and evidence
-
-- Full start-to-end runs on phone and desktop.
-- First-run clarity, save/resume trust, choice legibility, art/text composition, resource honesty, death continuity, ending specificity, adult-content clarity, and replay desire.
-- Findings carry severity, exact scene/UI location, reproduction, device/browser, and evidence.
-- Explicit probes cover dead speech, unpaid costs, save loss, softlock, and false ending text.
-
-### Exit
-
-- P0 correctness/save/softlock/false-ending findings are closed and retested.
-- P1 is fixed or owner-ranked/deferred; first-run trust and save-integrity P1 blocks 1.0.
-- P2 remains polish and cannot be silently inflated into a new system.
-
----
+P0 correctness/save/softlock/false-ending findings must close and be retested. P1 is fixed or explicitly owner-ranked/deferred, but first-run trust and save-integrity P1 blocks 1.0. P2 polish never silently expands into a system. A blocked reviewer run is a finding, not a completed acceptance pass.
 
 ## 11. L-011 — PC Readiness, executes at 0.36
 
-PC is a second composition of the same static browser build, not a port.
+PC remains a second composition of the same static browser game. Widescreen plate/prose, desktop type/line length, keyboard play, visible focus/order, number choices and unambiguous Enter/Space share identical scenes, state, saves, consequences, content and endings with phone. Hover, focus, pressed, disabled and selected states remain distinct.
 
-### Scope
-
-- Widescreen portrait plate beside prose, desktop type scale, and line-length caps.
-- Full keyboard play, visible focus/order, number-key choices, and unambiguous Enter/Space advance.
-- Hover distinct from focus, pressed, disabled, and selected states.
-- Fullscreen, resize, zoom, and common desktop viewport sanity.
-- Identical scene data, state, saves, consequences, content, and endings across phone and PC.
-
-### Out
-
-- No native wrapper, gamepad, achievements, cloud saves, PC-only narrative branch, or separate settings/game system.
-
-### Acceptance
-
-- Start-to-end keyboard-only run succeeds.
-- Mouse, touch, keyboard, zoom, fullscreen, and resize preserve state and choice integrity.
-- Desktop composition does not regress phone layout.
-- Representative desktop browser/device matrix passes the 0.34 accessibility/performance controls.
-
-PRs 84 and 85 are early landed evidence for keyboard and composition only; they do not close this section.
-
----
+Accept only after start-to-end keyboard play, mouse/touch sanity, fullscreen/resize/zoom, desktop browser coverage, accessibility/performance controls and phone non-regression are proved at the candidate SHA. Previously landed keyboard, widescreen, states and viewport work are inputs, not an automatic exit. No wrapper, gamepad, achievements, cloud saves, PC-only narrative, or separate settings/game system.
 
 ## 12. L-012 — Commercial Readiness, executes at 0.39
 
-**Entry:** 0.38 cohort findings are closed or owner-ranked.
+Enter after 0.38 evidence and owner go/wait/stay-private. itch.io is the primary direction subject to submission-time policy: adult classification, AI disclosure, content descriptors, cover suitability, payment terms and platform rules. Audit fonts, third-party code/assets, licenses and notices. Store copy describes exact bytes honestly; distribution constraints never silently soften canonical adult content.
 
-- itch.io remains the primary 1.0 storefront direction, subject to submission-time policy recheck.
-- Adult classification, AI disclosure, content descriptors, cover-art suitability, payment terms, and current platform rules are verified at submission time.
-- Netlify is not the canonical commercial host.
-- Audit fonts, third-party code/assets, licenses, and notices.
-- Manraj decides price, business/tax setup, public messaging, support posture, and final commercial go/no-go.
-- Store copy must describe exact bytes honestly.
-- Steam remains a separate post-1.0 decision.
+Manraj decides price, business/tax setup, public messaging, support posture and commercial go/no-go. Rights questions stay open until evidenced; an inventory is not legal approval. Steam remains a separate post-1.0 decision. No storefront is published during readiness work.
 
----
+## 13. L-013 — Release rehearsal and 1.0 acceptance
 
-## 13. L-013 — 0.40 release rehearsal and 1.0 launch gate
+0.40 freezes one RC identity from the governed lane and exercises deterministic packaging, inventory/digest, private install, save compatibility/migration, rollback, content descriptors and support. Tag/Release material may be prepared as drafts only when separately requested. Strict verifier/V1–V6 evidence follows §5; exact-main reruns happen only after separately authorized close-out. No rehearsal grants publication authority.
 
-### 0.40 rehearsal
+1.0 requires a complete authored arc; strangers can start, save/resume and finish on phone/PC without developer habits; all canon, adult-content, art, architecture, causality, save and outcome locks hold; no P0 remains; blocking first-run/save P1 is fixed and retested; strict gates pass at the exact release identity; approved adult-tagged, AI-disclosed commercial package, store copy, known issues, privacy, support, artifact, digest, tag, GitHub Release and deployment identity agree; Manraj gives final go/no-go. Separate authorization governs performing those release actions; it does not waive the required release identity evidence.
 
-- Freeze one release-candidate identity from the exact governed lane.
-- Run strict verifier and V1–V6 gates at that exact candidate and again at exact merged `main` only if close-out is separately authorized.
-- Exercise deterministic packaging, digest, tag/Release draft, rollback, private install, save migration, content descriptors, support, and deployment dry run.
-- Rehearsal prepares drafts and private evidence. It does not authorize publication.
+Steam, native wrappers, achievements, gamepad and cloud saves are not requirements. Myth approval for art/scene changes and Hex sims for capped balance changes survive release preparation. Missing evidence is NOT_AVAILABLE, not implied acceptance.
 
-### 1.0 public release
 
-1.0 may release only when the authored arc is complete; a stranger can start, save/resume, and finish on phone or PC without developer habits; causality, adult-content, art, architecture, save, and outcome locks hold; no P0 remains; blocking first-run/save P1s are closed and retested; strict gates pass at the exact release revision; the adult-tagged, AI-disclosed commercial package is ready; store copy, known bugs, privacy, support, artifact, digest, tag, Release, and deployment identity agree; and Manraj gives final go/no-go.
+## 14. Stable dispositions and held work
 
-Steam, native wrapper, achievements, gamepad, and cloud saves are not 1.0 requirements.
+The section numbers cited by `LOCKS.md` remain intact. Their historical version labels do not renumber this program: L-010 executes at 0.37, L-011 at 0.36, L-012 at 0.39, L-013 across 0.40/1.0. No lock disposition changes in this proposal.
 
----
+| Lock / work | Binding disposition |
+|---|---|
+| L-025 | LOCKED Option B: player-shaped, second person, faceless; no identity system or portrait. Audit existing rendered facts, do not reopen the choice. |
+| L-026 | LOCKED: retain zero/one Last Off-Shift paths as tested defensive save-recovery guards; preserve `junctionChoice`. |
+| L-027 | LOCKED: retire `vess_course_lost` and its promised downstream course; do not invent a consumer. |
+| L-028 | DEFERRED, default RETIRE: no new-crew indicator unless qualifying mobile-PX evidence meets the pre-registered, Manraj-approved threshold. |
+| L-029 / L-030 | Approved Vess/Mira identity law (§2 and full LOCKS language); image presence is not art approval. |
+| L-040 | Explicit-content/breast-cover toggle HELD, not accessibility work. |
+| L-041 | Pair residue, debt, pregnancy texture remain evidence-gated, not automatic narrative expansion. |
+| L-042 | Unrestricted AI roadmap editing REJECTED; owner-requested draft proposal only. |
+| L-043 | Engine/state mechanical split DEFERRED until after 1.0 or separate approval. |
+| L-044 / L-045 | Native wrapper, gamepad, achievements, cloud saves OUT before 1.0; Steam a separate post-1.0 decision. |
+| L-046 / L-047 / L-048 | Fixed event order accepted; conventional dashboard/meters/quest log rejected; V2 literal-name lint is a classified spike detector, never a zero gate. |
+| ART-R2 / STORY-SURGERY-R1 / Amara-route | Remain HELD/PARKED. A named observed defect is not an expansion or campaign opening. |
+| Ending cinematic leftover 13 | Existing Muse/HITL owner, PARKED; the ending navigation checks do not reassign it or generate art. |
+| Damage-cause canon / Cascade Allusive / new narrative density | **proposal — owner yes**; no new canon or scene volume from this split. Keep contested cascade lanes plural and Tomas's reserved phrase unspent. |
 
-## 14. Accepted version program and live work
-
-### 0.30.1 — Governed Recovery Integrity
-
-**State:** drain closed on the version lane; `NOT_CERTIFIED`; no close-out credit.
-
-Do not mint a new leftover identity. PRs 45/46 remain held.
-
-### 0.31 — Systemic Truth Closure / This Run Does Not Lie
-
-**State:** landed on the version lane; `NOT_CERTIFIED`.
-
-Remaining C/D items are parked hunches. They are not 0.34 work. If the 0.33 playtest reproduces one as a correctness defect, repair it as a 0.33 one-PR ticket.
-
-### 0.32 — Save Trust and Recovery
-
-**State:** exited ~`7ec5b30`; `NOT_CERTIFIED`.
-
-Do not reopen the 0.32 queue. If playtest proves a save-loss, trap, silent replace, or version-misread, that is a 0.33 bug ticket.
-
-### 0.33 — Named playtest candidate
-
-**State:** ACTIVE. Player-facing label `0.33` at `685d400`. ART-R2 **HELD**.
-
-**Purpose:** let Manraj play the current candidate and report what is actually wrong.
-
-Work allowed now:
-
-1. Playtest on the named live preview and/or the exact lane SHA.
-2. One-PR bug tickets on 0.33 for defects Manraj reports.
-3. Capture PX-1 notes when they appear. Do not pre-write the baseline report as scope.
-4. Keep ART-R2, STORY-SURGERY-R1, Cascade Allusive proposals, and new art volume closed.
-
-**Entry:** 0.32 exited; version paint landed; owner named this SHA as the playtest.
-**Exit:** owner declares the playtest window closed enough to classify findings. Bugs already filed on 0.33 are closed or ranked. No ART-R2. No close-out. No certify.
-
-### 0.34 — Mobile UX, Accessibility, and Performance
-
-**Purpose:** make the already-playtested candidate usable on real phones without changing the story.
-
-**Workstreams**
-
-1. Real-device pass on current iPhone Safari and one representative Android Chrome.
-2. Text scaling, contrast, focus visibility, touch targets, and reduced-motion.
-3. Screen-reader reading order and honest image alternatives that are not raw scene IDs.
-4. Scene-to-scene image decode, memory pressure over a full run, and resume-after-background.
-5. Orientation, zoom, and resize without state loss.
-6. Retest only the 0.33 playtest defects that were classified as presentation/performance, not new narrative work.
-
-**Entry:** 0.33 playtest window closed; findings classified; remaining 0.33 bug PRs ranked or closed; ART-R2 still held unless separately opened.
-**Exit:** ranked device/performance matrix exists; P0 and blocking P1 presentation failures are fixed and retested on phone. No new story. No art batch. No certify.
-
-**Hard holds:** PR 45/46, ART-R2, leftover drain, main close-out, certification, auto-Netlify.
-
-### 0.35 — Packaging and Private Itch
-
-**Purpose:** prove the game can be packaged and handed privately without making a public or commercial claim.
-
-**Workstreams**
-
-1. Deterministic private candidate ZIP from an exact lane SHA, with SHA-256.
-2. Font, license, asset-inventory, path, and MIME/cache honesty.
-3. Content-notice and adult-classification fields as draft private metadata.
-4. Private download → open → save → resume path on phone.
-5. Draft non-public store/support/privacy copy. No public page.
-6. Record platform/rights issues for 0.39. Do not solve commercial policy here.
-
-**Entry:** 0.34 device matrix passed.
-**Exit:** reproducible private package and digest exist; private open/save path works; no public itch page; no payment; no publication.
-
-**Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public itch, price, Steam.
+Do not remint drained work: #306 embryo sweep (spoken 140,006; HUD 0–100), #307 HITL remap, #326 lethal-resume, #348 Title Continue count, #351 cascade payoff, #433 existing unshadow work, #434 and earlier pointer-only syncs, ADD-KEYS-A, or leftovers 10–12. Preserve the distinct existing #437 job. Opening/tutorial/Crew UI already has implementations; historical candidate wording is not permission to build them again. Do not claim a readiness exit solely because old implementation or planning paper exists.
 
 ### Playtest response (post-0.35, pre-0.36)
 
-Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). Pack note `SUN-ART-BODY-REFERENCE-01` is documented in that plan; the audit PR does not generate `body_ref` bytes or wire them. Style bible draft `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before grok.com event or body_ref chats; generation is offloaded off Grok Bot / Cursor. ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
+Historical response scope remains recorded in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`; it is evidence for the named follow-ups above, not a reopened drain. `SUN-ART-BODY-REFERENCE-01` is paper scope, not permission to generate or wire body-reference bytes. The style bible `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before event/body-reference art chats; do not generate plates in Cursor / Grok Bot. Existing Grok briefs are instructions, not wiring authority. Preserve the existing Muse/HITL owner and parked ending-art scope; ART-R2 broad generation/wiring stays held. Do not mint or open 0.36 from this roadmap or those historical papers: the existing 0.36 PAINT is not a new product opening or certification.
 
-**Hard holds:** PR 45/46; do not mint 0.36; no certify; last certified `0.28.1d`; NO-PUBLISH; live Netlify pin `a91a26d` (no PIN-02 remint); L-025–L-028 not reopened here.
+## 15. Parallel map
 
-### 0.36 — PC Readiness
+These pairs are eligible only after their dependencies and current owners' reservations clear. A shared file means serialize, even when two edits look small. Reserve named paths before launch; no simultaneous `engine.js`, `validate.js`, `index.html`, `style.css`, shared verifier entry-point, or receipt edits.
 
-**Purpose:** give the same static browser game a second composition that a keyboard-and-mouse stranger can finish.
+| OPENAI work | GROK work alongside it | Disjoint file boundary and join |
+|---|---|---|
+| SUN-36-A/B/C/D, one at a time | SUN-36-F CHROME | OPENAI owns runtime/input/save files and targeted checks; GROK owns the three named CSS files only. If runtime proof requires CSS repair, pause and serialize that file. Final integrated browser proof is SUN-36-G. |
+| SUN-38-B MATRIX | SUN-39-A RIGHTS preparation only | OPENAI writes device evidence/checks; GROK reads the frozen asset tree and writes only the rights inventory. Preparation earns no 0.39 entry credit; final rights pass awaits the 0.38 decision. |
+| SUN-40-B MIGRATION | SUN-40-C RUNBOOK draft | OPENAI owns save code/fixtures/checks; GROK owns release/recovery prose. The RC manifest is read-only to both; reconcile the final runbook after rehearsal. |
 
-**Workstreams**
+SUN-36-E copy follows SUN-36-A–D because it can touch the same runtime literals and `index.html`. SUN-36-G follows all PC edits. Do not run a new art-wire edit alongside #437, a state-truth patch alongside #438, guards alongside #440, or stress/probe edits alongside #443. Review-packet edits stay with the existing 0.37 owner until handed off. Parallel document drafting never starts a held cohort, changes a milestone order, or authorizes publication.
 
-1. Revalidate PR 84 keyboard controls on the then-current candidate.
-2. Revalidate PR 85 widescreen plate-beside-prose without regressing phone layout.
-3. Hover versus focus versus pressed versus disabled versus selected.
-4. Fullscreen, resize, zoom, and common desktop viewport sanity.
-5. One start-to-end keyboard-only run.
-6. Desktop browser matrix against the 0.34 accessibility/performance controls.
+## 16. Dispatch and acceptance
 
-**Entry:** 0.35 private package exists so PC and phone are tested against the same bytes.
-**Exit:** keyboard-only run succeeds; desktop matrix passes; phone layout is not regressed.
+One later dispatch selects one row, rereads the then-live tip, names exact files and current owner, and carries its goal, gate, dependencies, and success proof into the ticket. **verify first → NO_PR if satisfied** applies before creating replacement code or an overlay. Grok copy/art work uses a signed-off behavior/asset specification; unexpected state, save, input, or cross-file engine behavior returns to a separately scoped OPENAI row rather than silently expanding the job. No Fast/Auto.
 
-**Hard holds:** no Electron/Tauri, no gamepad, no achievements, no cloud saves, no PC-only story branch, no 45/46, no certify, no main close-out.
+OPENAI implementation PRs receive GPT-6.1 Sol cross-review. Every runtime claim includes execution evidence at the exact candidate; art/scene changes require Myth, balance changes require Hex sims and stay within ±20%. Missing tooling, human evidence, or an approval is reported honestly; it is not a pass. Preserve source and save compatibility, regression checks, lane locks, and the draft-PR review process. Never weaken tests or identity checks to turn a red check green.
 
-### 0.37 — External Review Pilot
-
-**Purpose:** put the private candidate in front of two strangers who have never seen the code or prior reports.
-
-**Workstreams**
-
-1. Select one mobile-primary and one desktop reviewer with no prior Sunsplitter playthrough.
-2. Freeze the exact private candidate identity they will play.
-3. Full start-to-end runs plus explicit probes for dead speech, unpaid cost, save loss, softlock, and false ending.
-4. Ranked P0/P1/P2 report with scene/UI, device/browser, and reproduction.
-5. Retest only after owner-ranked repairs. Repairs are one-concern PRs, not a new mid-version invented here.
-6. Feed 0.38 cohort design. Do not start the cohort inside 0.37.
-
-**Entry:** 0.36 passed.
-**Exit:** both reviewers finished or their blockers are ranked; P0 closed and retested; first-run-trust and save-integrity P1s are closed or owner-deferred with a named later version.
-
-**Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public page, paying customers.
-
-### 0.38 — Player Validation Cohort
-
-Bounded cohort on the exact private candidate. Separate correctness, accessibility, experience, and market findings. Define stop/continue thresholds before reading results.
-
-### 0.39 — Commercial Readiness
-
-Execute §12. Public itch, disclosures, rights, price, and store truth live here — not at 0.33 or 0.35.
-
-### 0.40 — Launch Rehearsal / RC
-
-Execute §13 rehearsal against one frozen identity.
-
-### 1.0 — Public Release
-
-Execute §13 launch gate. Manraj remains the final and separate go/no-go authority.
-
----
-
-## 15. Wait for playtest — do not pre-slice
-
-These items stay off 0.34–0.37 until the 0.33 playtest produces a classified finding or Manraj opens the named gate.
-
-| Item | Why it waits |
-|---|---|
-| ART-R2 identity/roster/crop audit | Explicitly HELD |
-| STORY-SURGERY-R1 | HELD until evidence names exact prose |
-| Cascade Allusive six light beats | Proposals; need host/voice/live-dead confirmation after play |
-| Opening video, tutorial, crew dossier | Candidates; PX-1 must prove the failure |
-| Ticket 2 / L-028 new-crew indicator | Default RETIRE until pre-registered mobile-PX threshold |
-| Pair residue, pregnancy delayed texture, unchosen-debt cascade | Evidence-gated density |
-| Economy rebalance / outcome-envelope retune | Needs human play, not another model prediction |
-| Ship-exterior damage-cause canon | Fable proposal + owner lock; not a version slice |
-| Spoken 140,006 prose sweep | Only if playtest hits the old count as a visible lie and owner wants it now |
-| Command-authority/sexual-power tickets | Audit after play notes, not before |
-| Voyage chronology bible as blocking work | Useful, not a version |
-| New art generation or unwire of discarded Vess plates | ART-R2 still held |
-| Any leftover-drain identity from 0.30.1–0.32 | Closed on purpose |
-
-Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, version label lie) stay on **0.33** as one-PR tickets.
-
----
-
-## 16. Proposal, deferred, held, and rejected register
-
-| Item | Disposition |
-|---|---|
-| Cascade Allusive six-beat package | PROPOSAL; wait for 0.33 playtest + owner open |
-| Heavy standalone boarding manifest / cascade records scenes | RETIRED in favor of distributed allusion |
-| Lena disposition beat | DEFERRED to a late evidence-backed private moment |
-| Tomas “People were tier four.” | RESERVED; do not spend early |
-| Earth-calamity opening video | CANDIDATE only after first-run evidence |
-| Skippable tutorial | CANDIDATE only after a measured comprehension failure |
-| Clickable crew portrait/details | CANDIDATE; descriptive only |
-| Ticket 2 new-crew indicator | DEFERRED / default RETIRE under L-028 |
-| Pair residue, debt, pregnancy texture | DEFERRED to evidence-backed narrative scope |
-| Breast-cover/explicit-content toggle | HELD / UNSCHEDULED |
-| STORY-SURGERY-R1 | HELD |
-| ART-R2 | HELD |
-| Unrestricted AI roadmap editing | REJECTED; proposal PR only |
-| Engine/state mechanical split | DEFERRED until after 1.0 or separate approval |
-| Native wrapper, gamepad, achievements, cloud saves | OUT before 1.0 |
-| Steam launch | DEFERRED to separate post-1.0 decision |
-| Fixed event-order redesign | ACCEPTED LIMITATION unless explicitly reopened |
-| Conventional HUD/dashboard/meters/quest log | REJECTED |
-| V2 literal-name lint as zero gate | REJECTED; classified spike detector only |
-| Leftover drain reopen | REJECTED unless owner reopens it by name |
-| Close-out of this lane to `main` in the current window | HELD |
-| Certification of 0.33 | HELD; last certified remains 0.28.1d |
-
----
-
-## 17. Agent operating rules
-
-### Grok / program office
-
-- Read exact authority and runtime revisions.
-- Record owner-approved locks and prevent out-of-order work.
-- Keep confirmed findings, hunches, holds, and landed evidence distinct.
-- Do not draft prose or self-approve creative/commercial decisions.
-- Do not leftover-drain. Do not mint tickets in a planning pass unless the owner asks for a ticket.
-
-### Fable
-
-- Design/draft prose only from exact authority after a named ticket.
-- Every scene declares preconditions, writes, death exposure, dead-speech check, and image status.
-- Keep contested cascade lanes plural and phrase ownership exact.
-
-### Build / Engine
-
-- Implement only an approved ticket from a pinned lane head.
-- Preserve pure-data shape and one concern per PR.
-- Open the PR, return exact evidence, and stop. Build does not merge, publish, tag, deploy, or close a lock.
-
-### Art
-
-- ART-R2 is held. Work only from locked requests after that gate opens.
-- Match CURRENT identity, rectangular interiors, roster honesty, Commander anonymity, and `vess.jpg` as the official Vess face.
-
-### External reviewers
-
-- State exact build, method, coverage, device/browser, and limitations.
-- Separate correctness from experience and recommendations from locks.
-
----
-
-## 18. Quick reference
-
-| Stage | State / exit |
-|---|---|
-| 0.30.1 | Drain closed on lane; NOT CERTIFIED |
-| 0.31 | Systemic truth landed on lane; NOT CERTIFIED |
-| 0.32 | Save trust exited ~7ec5b30; NOT CERTIFIED |
-| 0.33 | Named playtest active at `685d400`; bugs stay here; ART-R2 held |
-| 0.34 | Phone a11y/perf matrix passes |
-| 0.35 | Private package + private itch path proven; no publication |
-| Playtest response | Post-0.35 / pre-0.36 version-lane follow-ups; see `SUN_PLAYTEST_RESPONSE_PLAN.md`; 0.36 not opened |
-| 0.36 | Same browser game works on PC without phone regression |
-| 0.37 | Independent pilot findings ranked and retested |
-| 0.38 | Cohort evidence supports product and commercial decisions |
-| 0.39 | Rights, policy, store, support, privacy, and package truth ready |
-| 0.40 | Frozen RC survives rehearsal |
-| 1.0 | Owner-authorized public release at exact verified identity |
-
-**Current next action:** playtest response on the version lane (`SUN_PLAYTEST_RESPONSE_PLAN.md`). Do not mint or open 0.36.
-
-**Hard holds that survive every later version in this file:** leave PR 45/46; ART-R2 held; no certify; last certified `0.28.1d`; no auto-Netlify; no main close-out; no leftover drain.
+**Next action — Manraj:** review this draft builder split. Existing owners continue only their already-authorized jobs; this prose alone opens no held implementation or release gate.
