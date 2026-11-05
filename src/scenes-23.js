@@ -181,6 +181,9 @@ Elias reads the narrower structural envelope once.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_elias_end: {
   onEnter: () => {
+  // SUN-LEGACY-DEATHBEAT-01: a resume without the sceneEntered marker re-runs onEnter after this
+  // scene already wrote the death; render the beat instead of redirecting past it.
+    if (state.dead.includes("elias") && state.deathCause && state.deathCause.elias === "held the line") return;
     if (!isAlive("elias")) return "act3_lethal_mira_board";
     state.dying.elias = "held the line";
     kill("elias", state.dying.elias);
