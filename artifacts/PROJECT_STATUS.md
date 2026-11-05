@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 0ed0306 (after PR #495)`
+`work_branch_tip: 4f0f08a (after PR #496)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -58,7 +58,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 493 | SUN-CLOSEOUT-RECORD-01 | Recorded the close-out ruling. Process only. |
 | 494 | SUN-PLATE-FACES-06 | The face gate covers the five HITL plates that show crew, on every resolver path. Exposures went from 13 to 0. |
 | 495 | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
-| this PR | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
+| 496 | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
+| this PR | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
 
 ## Open
 
@@ -89,7 +90,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 - **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
 - **3: keep.** Amara stays on intro slide 1.
 - **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
-- **ART-R2: opened for people-free fallbacks only** (2026-11-05). Wired in SUN-ART-R2-FALLBACKS-01. The four Sep-23 harvest candidates for the unsaved Imagine frames stay unapproved, and the shipped versions remain, until Manraj verifies them in the Grok art chat.
+- **ART-R2: opened for people-free fallbacks only** (2026-11-05). Wired in SUN-ART-R2-FALLBACKS-01. The Sep-23 harvest candidates turned out to be different images from the approved cards, so they are discarded. The real six were recovered from the Grok `$ Art` chat on 2026-11-05 and are wired in SUN-HITL-LATE-SIX-01.
 - **7: now.** Done as PR #492, `main` @ `e5a71fc`. Its head was `version/0.30.1-main-closeout.1`, at the same commit as the lane. The policy's general `version/*` → `main` route applied, because the lane's own name is bound to the August 10-path CI diff. No gate code changed. No tag, release, deploy, Netlify or certification came with it.
 
 *Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.

@@ -65,14 +65,14 @@ const LOCKED_HASHES = {
   "images/vess.jpg": "a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf",
   "images/shower_lena.jpg": "cd0981c0d0e8b31f589658a77591aa73996547707567016d0f6a2a4f119cd097",
   "images/shower_amara.jpg": "588ba8e67d7c1c6f44e38f26da7f25f15a412283c65ffed55831b54065e827f9",
-  "images/shower_mira.jpg": "003145b704f5df06cde8c2b586229b951c820059b92efc8dd2b76d750817ec13",
+  "images/shower_mira.jpg": "1ddbff58230148475bc2b8e43512e57381e488473e10304eac18ff01f32cccdb", // SUN-HITL-LATE-SIX-01: owner-approved Grok card XCckB (was the as-is plate)
   "images/self_risk.jpg": "427fb4c5a72239451d213dcf7d6e80bef15da646a4b5e6000ddb54ffeb9de8a7",
   "images/bond_elias.jpg": "084655c278e2c398843a26885eceeab517117b0da8656a7ccb57029e514d1db8",
-  "images/rear_amara.jpg": "eb2161471ea17a5472a030fae8450d6f832317d69e2cc9b0e43756aaaffd51d1"
+  "images/rear_amara.jpg": "e8167625d3facc2af56bdb16cca6f2eb034cf098bd6928bb05fc890d7742a737" // SUN-HITL-LATE-SIX-01: owner-approved Grok card wT0pe (was the as-is plate)
 };
 
 // Tip images tree after SUN_HITL_WIRE_STAGE_20260927.zip land.
-const IMAGES_TREE = "669a81aec8ff2d5bbb103fe7f5a8877b3972ff2e"; // + SUN-ART-R2-FALLBACKS-01 three art_r2_* plates (was fe94eb19)
+const IMAGES_TREE = "04466461501e812051a9ec88e688bcc35932864e"; // + SUN-HITL-LATE-SIX-01 six recovered Grok cards (was 669a81ae after SUN-ART-R2-FALLBACKS-01)
 // romance_lena_1.jpg is the landed HITL living map — no longer face-reveal forbidden.
 const FACE_REVEAL = [
   "images/romance_mira_1.jpg",

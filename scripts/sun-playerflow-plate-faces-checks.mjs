@@ -65,4 +65,18 @@ const facedByHash = new Map(result.faced.map(file => [digest(file), file]));
 const copies = result.rendered.filter(file => !result.faced.includes(file) && facedByHash.has(digest(file)))
   .map(file => file + " = " + facedByHash.get(digest(file)));
 assert.deepEqual(copies, [], `unmapped copies of face plates render and bypass the gate:\n${copies.join("\n")}`);
+// SUN-HITL-LATE-SIX-01: the six owner-approved Grok Imagine cards recovered from the $ Art chat
+// (approved 2026-09-08/09, never saved until 2026-11-05) are pinned to their exact card bytes.
+const LATE_SIX = {
+  "images/shower_mira.jpg": ["XCckB", "1ddbff58230148475bc2b8e43512e57381e488473e10304eac18ff01f32cccdb"],
+  "images/rear_mira.jpg": ["CzOb5", "c4df40109b15ae35e32f7d2f846d9d709ed4a16d52a03756a31c58ba536511b5"],
+  "images/rear_amara.jpg": ["wT0pe", "e8167625d3facc2af56bdb16cca6f2eb034cf098bd6928bb05fc890d7742a737"],
+  "images/rear_sela.jpg": ["SJDX2", "4ba2d86b4d035f24daeeb5e8499d64d05a54d52ce577734004256f2ae3ff52f0"],
+  "images/priority_ration.jpg": ["8flOC", "a28de1fc350cc81d3e97edf8ac5af439db5e9b2e52ae8c3d2be1ccb61827b8aa"],
+  "images/berths_manifest.jpg": ["njQ5P", "ffce19f18e485345d23c684be17ef850470f85d4bac57fb4bf7bd619e632a2ba"]
+};
+for (const [file, [card, sha]] of Object.entries(LATE_SIX)) {
+  assert.equal(digest(file), sha, `${file} is not approved Grok card ${card}`);
+  assert.ok(result.faced.includes(file), `${file} (card ${card}) is not face-gated`);
+}
 console.log(`PASS sun-playerflow-plate-faces: ${result.checked} scene/roster renders, no absent crew on shared plates`);
