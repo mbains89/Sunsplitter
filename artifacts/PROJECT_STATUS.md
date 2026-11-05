@@ -1,23 +1,16 @@
 # Sunsplitter — Current Status
 
-`schema_version: 2`
-`updated_utc: 2026-10-06`
+`schema_version: 3`
+`updated_utc: 2026-11-05`
+`work_branch: version/0.30.1-main-reconcile-ci.1`
+`work_branch_tip: 24999ca (after PR #485)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
-`source_main_tree: a6b96e0907de586f6cdd31cf15db09bc1341ddaf`
-`runtime_baseline_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
-`runtime_src_tree: 992f7c57e18709acc08c8ee3cddcfdea816a6acf`
-`audited_recovery_base_sha: e4f84409759760d31fcf47b8a227802a61421f51`
-`protected_recovery_head_sha: 41d43f7d22e08efb742a0773ea422c91aa70c170`
-`version_lane_sha: e14ca7d21ccc221798dae57c7bce7bf5d01a31c5`
-`owner_playtest_pin_sha: a91a26d47ac76a976ca4406caf9b04511c11ba82`
+`netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
 
-This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`. Vocabulary in this file follows ROADMAP §1: **LANDED ON VERSION LANE** is merge-committed into `version/0.30.1-main-reconcile-ci.1` and is not on `main` and is not certified. **SHIPPED** is present on `main` and recorded here as current repository truth; it is not a Release or deploy. **CERTIFIED** applies only to the last certified baseline below. Nothing on the version lane is SHIPPED or CERTIFIED.
+This is the live page: where the work branch is, what landed, what is open, and the single next action. Process is in `/AGENTS.md` (contract v2), dispositions are in `LOCKS.md`, and approved scope and order are in `ROADMAP.md`. Vocabulary follows ROADMAP §1. **LANDED ON VERSION LANE** means merge-committed into the work branch. It is not on `main` and not certified.
 
 ## Release and authority state
 
-`observed_runtime: main@8d23109 — SHIPPED observation of GitHub main; not certified`
-`version_lane_head: e14ca7d21ccc221798dae57c7bce7bf5d01a31c5 — LANDED ON VERSION LANE after PR #433 SUN-HITL-UNSHADOW-01; not SHIPPED; not CERTIFIED`
-`audited_recovery_base: e4f8440 — preserved historical NO-PUBLISH recovery base`
 `last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
 `release_state: NO-PUBLISH`
@@ -26,99 +19,53 @@ This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADM
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 
-Main's `src` tree is byte-identical to protected recovery head `41d43f7` (`992f7c57e18709acc08c8ee3cddcfdea816a6acf`). Main and that protected head are not repository-equivalent: their art, pipeline, and authority-document trees differ. The audited recovery base `e4f8440` remains provenance, not the current observed runtime and not a release candidate. Version-lane `src` has advanced past that pin; those bytes are LANDED ON VERSION LANE only. Do not cite `main@8d23109` as the work tip.
+- `main` is `8d23109`. It has not moved and is far behind the work branch. Close-out to `main` needs Manraj.
+- **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
+- `VERSION.md` paints `0.36`. That is paint, not certification.
+- Current art is **PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT**. Image presence implies no art approval, roster approval, publication right or release credit.
+- PR 45 and draft PR 46 remain held and untouched.
 
-Current main art is **PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT**. No art decision, wiring approval, roster approval, publication right, or release credit is implied by image presence.
+## Roles
 
-PIPE-BOOT and PIPE-BOOT-R1 were accepted and closed in the protected recovery lineage (`93ccb43e141da544b999ba2c45f664a19428a5e3`, then `0b600935aa6e21d4898bcc9c7ad09e78893ec6e7`). They are protected governance/pipeline evidence only; they grant no gameplay, release, certification, publication, deployment, or sequential-gate credit.
+Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish action. Claude is lead in the Sunsplitter project's lead chat, merges ticket PRs into the work branch once CI is green, and keeps this page current. The helper chats are Myth (story), Hex (balance) and Muse (art audit). They propose, and they do not merge. The Grok, Build and Art bot lanes are retired; their receipts stay as history.
 
-Owner playtesting uses Netlify pin `a91a26d`. This file does not remint PIN-02 and does not authorize a new Netlify pin.
+## Landed since the last STATUS (`e14ca7d`, PR #433)
 
-PR 45 and draft PR 46 remain held and untouched.
+**Before the lead handover (#434–#473):** 0.36 PC-readiness work, including desktop matrix and phone-regression harnesses, title states, input integrity, tutorial zoom and sticky fixes, pause pressed state, high contrast, wide crew sheet and plate prefetch. Also the playerflow cost checks, the stress harness, CI repair, the file-shrink and roadmap-tax guards, F07 crew plate, and continue probes.
 
-## Current work
+**Lead (Claude), 2026-11-05:**
 
-`milestone: SUN-ROADMAP-TIP-SYNC-E14C-01 — tip honesty after PR #433`
-`state: DOCS ONLY AT e14ca7d2 — no JPEG / no wire / no gameplay; NO-PUBLISH / NOT_CERTIFIED`
-`governed_branch: version/0.30.1-main-reconcile-ci.1`
-`owner: Grok / program office; Manraj remains sole publish authority`
-
-### SUN-ROADMAP-TIP-SYNC-E14C-01 (this tip)
-
-Docs/status only. Records live lane HEAD `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5` after PR **#433** `SUN-HITL-UNSHADOW-01` (parents `5efeb070` + `d6f3a27`). Pointer hop **#432** `SUN-ROADMAP-TIP-SYNC-8159-01` landed `5efeb070` and is historical. Does not remint #433 / #432 / #431. F07 CREW-PLATE is **ALREADY_SATISFIED**. Leftovers 10–12 are **ALREADY_SATISFIED** / **NO_PR**. Leftover 13 stays Muse/HITL PARKED. Intro slide 1 is player-owned (no auto-NEXT until Resume). Does not invent OPEN 0.37 or OPEN 0.38. Does not mint or certify. Does not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`. Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT. No `src/engine.js`.
-
-| Pin | Live value | Meaning |
+| PR | Ticket | Player-visible change |
 |---|---|---|
-| `source_main_sha` | `8d23109b63b844e0703fb36643f14b91b8800c90` | GitHub `main` HEAD. SHIPPED observation only. Not the work tip. |
-| `source_main_tree` | `a6b96e0907de586f6cdd31cf15db09bc1341ddaf` | Bound in `scripts/verify.mjs` and fixtures. |
-| `runtime_src_tree` | `992f7c57e18709acc08c8ee3cddcfdea816a6acf` | Main `src` tree. Same as protected recovery `src`. |
-| Lane `HEAD` | `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5` | LANDED ON VERSION LANE only. After PR #433 SUN-HITL-UNSHADOW-01. Work tip. |
-| Fixture certification string | `NO-PUBLISH / NOT_CERTIFIED` | Unchanged. |
-| `pc_readiness_0_36` | tip-named pack closed-for-FEED | Not a 0.36 exit. |
+| 480 | SUN-AGENTS-CLAUDE-LEAD-01 | AGENTS.md contract v2 and the PR template. Process only. |
+| 474–477 | SUN-CORRIDOR-FALLBACK-01..03, SUN-CORRIDOR-SCENES-04 | People-free fallbacks no longer show crew faces, with per-scene guards. |
+| 478 | SUN-REVIEW-VERSION-SUFFIX | Hotfix-letter saves (`0.28.1d`) compare correctly. |
+| 479 | SUN-REVIEW-PC-VIEWPORT-CROP | PC plates are no longer cropped. |
+| 481 | SUN-MODAL-HOTKEYS-01 | Digit and Enter keys no longer fire story choices behind open dialogs. Dialogs take and return focus. |
+| 482 | SUN-TETHER-FLOOR-01 | The tether sighting always has an affordable exit. |
+| 483 | SUN-UNREADABLE-SAVE-01 | An unreadable save is named on the title screen, and starting a new run asks before replacing it. |
+| 484 | SUN-PLATE-FACES-05 | Any plate showing a dead or absent crew face falls back to an empty corridor. Probe: 0 exposures across 2,025 renders. |
+| 485 | SUN-LEGACY-DEATHBEAT-01 | Legacy resume lands on the four Act III death beats instead of skipping them. |
 
-`identityAndAuthorityChecks` still requires the original STATUS field lines and the L-025 through L-028 disposition lines. Those strings stay in their original sections only.
+## Open
 
-Live lane tip cite: `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5` after PR **#433**. Receipt: `docs/SUN_ROADMAP_TIP_SYNC_E14C.md`. That cite is the pre-PR lane HEAD, not this docs PR's merge SHA. Prior STATUS live cite `815906c0` / PR **#431** is historical. `0.36` stays PAINT, not OPEN. Do not invent OPEN 0.37.
+**Lead queue (no owner decision needed):**
 
-Lane facts below are LANDED ON VERSION LANE. They are not SHIPPED and not CERTIFIED. Last certified remains `0.28.1d`.
+- Helper-chat bootstrap prompts for Myth, Hex and Muse, saved in the Sunsplitter project.
+- Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15).
 
-### Tip-named 0.36 PC evidence pack (closed-for-FEED)
+**Stale PRs to close.** Manraj closes these; the lead's close calls are blocked by the session's permission policy. #297 and #304 (Copilot; #297 is on the do-not-merge list), #389 and #390 (superseded by #481), #407 (superseded), #436, #445 and #465 (retired multi-bot roadmap docs), #451 (superseded by the landed 0.36 keyboard work), #452 (superseded by #474–#477 and #484).
 
-| PR | Ticket | Lane meaning |
-|---|---|---|
-| 249 | `SUN-V036-PC-KEYBOARD-01` | ALREADY_SATISFIED. |
-| 257 | `SUN-V036-PC-HOVER-FOCUS-01` | ALREADY_SATISFIED. |
-| 256 | `SUN-V036-PC-DESKTOP-MATRIX-01` | Desktop viewport evidence packet. |
-| 258 | `SUN-V036-PC-VIEWPORT-01` | ALREADY_SATISFIED. |
-| 252 | `SUN-V036-PC-KEYBOARD-RUN-01` | Keyboard-only run packet. |
-| 367 | `SUN-V036-PC-WIDESCREEN-REVALIDATE-01` | ALREADY_SATISFIED. |
+## Decisions for Manraj
 
-Closed-for-FEED is not a 0.36 certify exit.
-
-### Drained on the version lane (do not reopen as a new queue)
-
-- **0.30.1–0.32 / 0.33 / 0.34 / 0.35:** drain recorded on the lane. Still `NOT_CERTIFIED`.
-
-### Recently landed
-
-| PR | Ticket | Lane meaning |
-|---|---|---|
-| 433 | `SUN-HITL-UNSHADOW-01` | Merge `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5`. Parents `5efeb070` + `d6f3a27`. Do not remint. |
-| 432 | `SUN-ROADMAP-TIP-SYNC-8159-01` | Historical parent tip `5efeb070`. Do not remint. |
-| 431 | `SUN-ROADMAP-TIP-SYNC-78FB-01` | Historical parent tip `815906c0`. Do not remint. |
-| 430 | `SUN-ROADMAP-TIP-SYNC-EDA4-01` | Historical parent tip `78fb8ddf`. Do not remint. |
-| 429 | `SUN-ROADMAP-TIP-SYNC-83DF-01` | Historical parent tip `eda4f51f`. Do not remint. |
-| 428 | `SUN-FIX-UIUX-P2-INTRO-PACE-01` | Parent tip `83df62a1`. Intro slide 1 player-owned. Do not remint. |
-| 426 | `SUN-FIX-UIUX-P2-TOPBAR-TRAP-01` | Merge `3cca53ac569da24d6da8a98fc7724a474dc3cea9`. Do not remint this id. |
-| 423 | `SUN-ROADMAP-TIP-SYNC-B968-01` | Historical live-tip parent `b17fec95abd16fe3471cd5dcbd595d0b9ce2a288`. Do not remint. |
-| 424 | `SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01` | On this tip at `be69b1fc`. Create CTAs stay in view at desktop 900. Do not remint. |
-| 421 | `SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01` | Historical tip `b96802c3`. Do not remint. |
-| 418 | `SUN-ROADMAP-TIP-SYNC-2451-01` | Historical pointer at `fa47b26e`. Do not remint. |
-| 417 | `SUN-ROADMAP-TIP-SYNC-4226-01` | Historical live-tip parent `2451fa09`. Do not remint. |
-| 415 | `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Historical. Do not remint. |
-| 413 | `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Historical. Do not remint. |
-| 412 | `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical. Do not remint. |
-| 409 | `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical. Do not remint. |
-| 399 | `SUN-FIX-CRISIS-PLATE-01-REMINT` | Historical parent `048c7a50`. Do not remint. Hollow follow-ons are not merge authority. |
-| F07 | CREW-PLATE | **ALREADY_SATISFIED**. Codex Sol 6.1 keep-src proven. Do not remint. |
-| 385 | `SUN-DOCS-TIP-HONESTY-5800-01` | Historical tip-honesty at `04c4a806`. Do not remint. |
-| 376 | MAPFIX / restore | **CLOSED UNMERGED**. Never merge. Do not remint. |
-| 369 | `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Two-stranger plan paper. Execution PARKED. Do not remint. |
-| 360 | `SUN-CREW-BOARD-FOLLOW-CLARITY-01` | First Crew tap holds `#crew-sheet` closed. KEEP `renderCrewPanel("lena")`. Do not remint. |
-
-`VERSION.md` first line on this tip is `0.36` paint. Not certification.
-
-### Holds (unchanged except tip cite)
-
-- **0.36 PC Readiness is not certified.** Pack is closed-for-FEED only.
-- **0.37 stranger / external review PARKED.** **Do not invent OPEN 0.38.**
-- ART-R2 broad campaign held. Amara-route parked. PR 45 / draft PR 46 untouched.
-- **Do not merge #297.** **Do not merge #376.** **Do not merge #401 / #402 / #403 / #405 / #407 / #408 / #410 / #411.** Never Copilot **#414**. Never **#416** CORRUPT.
-- No remint of #433 / #432 / #431 / #430 / #429 / #428 / #423 / #424 / #421 or F07. No Netlify pin remint.
-- Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37` — do not reopen intro softlock.
-- `SUN-HITL-UNSHADOW-01` merged as PR **#433**. Do not remint. Trust / Commander / plate / Vess PARKED.
-- Leftovers 10–12 **ALREADY_SATISFIED** / **NO_PR**. Leftover 13 Muse/HITL PARKED.
-- L-025–L-028 are not reopened here.
+1. **Playtest build.** Production shows `0e7535d`, from September. Should the lead deploy the work-branch tip as a Netlify preview (not production) so you can play the current game?
+2. **Unreadable saves.** #483 names them but keeps Export hidden, per the 0.32 fail-closed rule. Do you want an "export the unreadable bytes" escape hatch? It would reverse that rule.
+3. **Intro slide 1 plate shows Amara.** The art-event audit checks lock it. Keep it, or route it to Muse for a people-free alternative?
+4. **Story wording, for Myth review.** The tether floor line (#482) and the unreadable-save message (#483) are lead-written.
+5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+6. **Dead scene.** `act3_crisis_declare` is unreachable. Cut it, or wire it?
+7. **Balance, for Hex.** A cohesion farming loop at `final_choice`.
+8. **Close-out.** When to consolidate the work branch onto `main`.
 
 ## L-025–L-028 dispositions
 
@@ -127,24 +74,15 @@ Closed-for-FEED is not a 0.36 certify exit.
 - **L-027 — LOCKED:** retire `vess_course_lost` and its promised downstream-course consequence. Runtime removal remains implementation work.
 - **L-028 — DEFERRED:** default RETIRE unless qualifying mobile-PX evidence meets the pre-registered, Manraj-approved threshold. No indicator is authorized.
 
-L-020 through L-024 remain ruled. This handoff does not reopen L-004, art governance, product/canon scope outside L-025–L-028, or any release gate.
-
-## Verification and CI state
-
-Green version-lane checks are candidate evidence only. They do not certify, ship, or close a sequential gate. This ticket has no ruleset-mutation authority.
+L-020 through L-024 remain ruled.
 
 ## Blockers
 
-- `NO-PUBLISH / NOT_CERTIFIED` remains controlling; no release artifact or deployment authority exists.
-- Last certified baseline remains `0.28.1d`. The version lane is not certified.
-- This ticket has no merge-to-main, tag, release, Netlify, or deploy authority.
+- `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No release artifact or deployment is authorized.
+- The lead cannot close PRs or delete remote branches through the API in this session. Pushing a branch deletion works.
 
 ## Next action
 
-**This ticket:** merge-commit `SUN-ROADMAP-TIP-SYNC-E14C-01` into `version/0.30.1-main-reconcile-ci.1`, then stop. Do not remint #433 / #432 / #431. Do not remint leftovers 10–12. Do not merge hollow PRs. Do not FEED 0.37 strangers. Do not invent OPEN 0.37 / 0.38.
-
-**Grok / orchestrator (`$ S2`):** after this merge, named owner-OPEN tickets only. Netlify HOLD. Close `SUN-FIX-LEFTOVERS-10-12-01-REMINT` as ALREADY_SATISFIED NO_PR.
-
-**Manraj:** remains sole publish authority. `NO-PUBLISH / NOT_CERTIFIED` remains controlling.
+**Manraj:** answer decision 1 (preview deploy of the tip). Then play it and report bugs; each bug becomes a one-PR ticket.
 
 <!-- STATUS_COMPLETE -->

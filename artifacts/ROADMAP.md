@@ -2,7 +2,7 @@
 
 `SOURCE main@8d23109b · RUNTIME c3626434add931b4a8e164febb5c1c7b46bf9471 · TASK SUN-ROADMAP-TIP-SYNC-04 · MODE proposal`
 
-**Acting role:** Grok / program office. Planning only.
+**Steward:** Lead (Claude, per `AGENTS.md` v2, 2026-11-05). The Grok program-office header below is history; read Grok/Build as Lead.
 **Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
 **Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
@@ -44,7 +44,7 @@ When documents disagree:
 
 ### Required session declaration
 
-Every Grok, Fable, Build, Art, GPT, or Claude deliverable begins with:
+Every lead or helper-chat deliverable (and, historically, every Grok, Fable, Build, Art, or GPT deliverable) begins with:
 
 `SOURCE main@<sha7> · RUNTIME <sha7> · TASK <id-or-session-type> · MODE <review|proposal|implementation|verification>`
 
@@ -53,7 +53,7 @@ It also states role, files read, and whether implementation is authorized. If th
 ### Who may change the roadmap
 
 - Manraj is the only product, canon, commercial, and unresolved-gate approval authority.
-- Grok records owner-approved sequence and lock dispositions; Grok does not self-approve.
+- The lead (Claude, per `AGENTS.md` v2) records owner-approved sequence and lock dispositions; the lead does not self-approve.
 - Any approved role may draft a roadmap patch. No AI may directly edit `main` or convert its recommendation into a lock.
 - Roadmap changes land through one-concern PR review on the version lane. A documentation merge creates no gameplay, release, certification, publication, or deployment credit.
 - GitHub issues, PRs, playtest reports, model reports, and screenshots are evidence and execution records, not competing authorities.
@@ -65,7 +65,7 @@ It also states role, files read, and whether implementation is authorized. If th
 - Do not promote the lane onto `main`. Do not open or merge a version close-out.
 - Leave PR 45 and draft PR 46 untouched.
 - Do not certify this lane. Last certified remains `0.28.1d`.
-- Netlify fires only when Manraj names an exact SHA. No auto-Netlify. The live preview at deploy `6a974ce6083c96103110b960` is not certification and is not a close-out.
+- Netlify fires only when Manraj names an exact SHA. No auto-Netlify. Observed 2026-11-05: production is deploy `6ab363f139fc952b12339989` at commit `0e7535d`. The live preview at deploy `6a974ce6083c96103110b960` is not certification and is not a close-out.
 - Do not leftover-drain. Closed 0.30.1 / 0.31 / 0.32 work is not reopened as a new queue.
 - Playtest bugs Manraj reports during 0.33 stay one-PR tickets on 0.33. They do not mint a new version.
 
@@ -657,29 +657,29 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 
 ## 17. Agent operating rules
 
-### Grok / program office
+`AGENTS.md` v2 (2026-11-05) controls roles. The Grok program office, Build/GPT-Codex and Art bot lanes are retired; the rules below are their successors.
 
-- Read exact authority and runtime revisions.
-- Record owner-approved locks and prevent out-of-order work.
+### Lead (Claude, lead chat)
+
+- Read exact authority and runtime revisions. Record owner-approved locks and prevent out-of-order work.
 - Keep confirmed findings, hunches, holds, and landed evidence distinct.
-- Do not draft prose or self-approve creative/commercial decisions.
-- Do not leftover-drain. Do not mint tickets in a planning pass unless the owner asks for a ticket.
+- Implement approved tickets one concern per PR from the work-branch tip; merge ticket PRs into the work branch with a merge commit once CI is green.
+- Do not self-approve creative, canon, art, balance or commercial decisions. Do not merge to `main`, tag, release, deploy, repin Netlify, or certify.
+- Do not leftover-drain.
 
-### Fable
+### Myth (story helper chat; formerly Fable)
 
-- Design/draft prose only from exact authority after a named ticket.
+- Propose and review prose only; the lead lands it.
 - Every scene declares preconditions, writes, death exposure, dead-speech check, and image status.
 - Keep contested cascade lanes plural and phrase ownership exact.
 
-### Build / Engine
+### Hex (balance helper chat)
 
-- Implement only an approved ticket from a pinned lane head.
-- Preserve pure-data shape and one concern per PR.
-- Open the PR, return exact evidence, and stop. Build does not merge, publish, tag, deploy, or close a lock.
+- Simulations and balance proposals only. Numbers change through a lead-reviewed PR.
 
-### Art
+### Muse (art helper chat; formerly Art)
 
-- ART-R2 is held. Work only from locked requests after that gate opens.
+- ART-R2 is held. Audit and request only from locked requests after that gate opens; cannot generate images.
 - Match CURRENT identity, rectangular interiors, roster honesty, Commander anonymity, and `vess.jpg` as the official Vess face.
 
 ### External reviewers
