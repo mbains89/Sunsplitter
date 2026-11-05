@@ -118,12 +118,15 @@ if (typeof document.addEventListener === "function") {
 
 function parseSemanticVersion(value) {
   if (typeof value !== "string") return null;
-  const match = value.trim().match(/^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
+  // Optional lowercase hotfix letter after the last number (0.28.1c, 0.28.1d) is a
+  // later build of the same core, not unknown syntax.
+  const match = value.trim().match(/^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?([a-z])?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
   if (!match) return null;
-  const prerelease = match[4] ? match[4].split(".") : [];
+  const prerelease = match[5] ? match[5].split(".") : [];
   if (prerelease.some(part => /^\d+$/.test(part) && part.length > 1 && part.startsWith("0"))) return null;
   return {
     core: [Number(match[1]), Number(match[2]), Number(match[3] || 0)],
+    hotfix: match[4] || "",
     prerelease
   };
 }
@@ -135,6 +138,7 @@ function compareSemanticVersions(left, right) {
   for (let i = 0; i < a.core.length; i += 1) {
     if (a.core[i] !== b.core[i]) return a.core[i] < b.core[i] ? -1 : 1;
   }
+  if (a.hotfix !== b.hotfix) return a.hotfix < b.hotfix ? -1 : 1;
   if (!a.prerelease.length && !b.prerelease.length) return 0;
   if (!a.prerelease.length) return 1;
   if (!b.prerelease.length) return -1;
