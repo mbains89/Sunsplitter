@@ -1,11 +1,11 @@
 # Sunsplitter — Stable Lock Ledger
 
 **Owner:** Manraj  
-**Lock steward:** Grok / program office  
+**Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
 **Roadmap source SHA-256:** `771c12c41a75f53f76f6b064a98e4052138237aae6fd06b924e38dbaa8e9dc93`
 
-This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and Grok records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
+This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
 Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`, `HELD`, `DEFERRED`, `OUT`, `REJECTED`, and `ACCEPTED_LIMITATION`.
 

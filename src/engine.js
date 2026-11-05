@@ -1123,7 +1123,7 @@ function resolveSceneImage(id, scene) {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1146,7 +1146,7 @@ function resolveSceneImage(id, scene) {
   // Living-arc conflict plate shows Tomas, Mira, and Amara.
   if (id === "arc_living_3") {
     if (!isAlive("tomas") || !isAlive("mira") || !isAlive("amara")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1185,7 +1185,7 @@ function resolveSceneImage(id, scene) {
 
   if (id === "crew_walk" || id === "status") {
     // absence felt — prefer corridor / empty capacity plates when depleted
-    if (state.survivors <= 5) return "images/corridor.jpg";
+    if (state.survivors <= 5) return "images/corridor_variant_2.jpg";
   }
 
   // SUN-CORRIDOR-SCENES-04 (Myth ruling): corridor_variant.jpg shows Amara and Jiro, so these
