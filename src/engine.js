@@ -1629,6 +1629,29 @@ function exportSaveFile() {
     flashSaveStatus("No valid save to export", true, true);
     return false;
   }
+  return downloadPreparedSave(prepared, "Export prepared");
+}
+
+// SUN-UNREADABLE-EXPORT-01 (Manraj 2026-11-05, ruling 2): a slot this build cannot read can be
+// downloaded byte-for-byte before a new run replaces it. It is never loaded, validated or
+// re-exported as a playable save; Export save above stays fail-closed (0.32) for these bytes.
+function buildUnreadableSaveExport() {
+  const raw = unreadableSaveRaw();
+  if (!raw) return null;
+  const stamp = new Date(Date.now()).toISOString().slice(0, 10);
+  return { filename: `sunsplitter-unreadable-save-${stamp}.json`, text: raw };
+}
+
+function exportUnreadableSaveFile() {
+  const prepared = buildUnreadableSaveExport();
+  if (!prepared) {
+    flashSaveStatus("No unreadable save to download", true, true);
+    return false;
+  }
+  return downloadPreparedSave(prepared, "Unreadable save downloaded");
+}
+
+function downloadPreparedSave(prepared, doneMessage) {
   let url = null;
   let link = null;
   try {
@@ -1640,7 +1663,7 @@ function exportSaveFile() {
     link.hidden = true;
     document.body.appendChild(link);
     link.click();
-    flashSaveStatus("Export prepared");
+    flashSaveStatus(doneMessage);
     return true;
   } catch (e) {
     flashSaveStatus("Export failed", true, true);
@@ -1814,6 +1837,7 @@ function readRawSave() {
 // SUN-UNREADABLE-SAVE-01: bytes in a slot that this build cannot load (a scene id it does not
 // know, a corrupt write). The title still fails closed (no Continue/Export, per 0.32), but it
 // says the slot exists and Begin confirms before replacing it; before this Begin replaced it unasked.
+// SUN-UNREADABLE-EXPORT-01: the raw bytes can be downloaded (buildUnreadableSaveExport).
 function unreadableSaveRaw() {
   if (hasSave()) return null;
   for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
@@ -2109,7 +2133,9 @@ function refreshTitleResumeUI() {
   }
   let unreadable = null;
   if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
-  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Starting a new run will replace it.", true, true);
+  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it.", true, true);
+  const unreadableBtn = document.getElementById("btn-export-unreadable");
+  if (unreadableBtn) unreadableBtn.classList.toggle("hidden", !unreadable);
   if (exportBtn) {
     let exportable = false;
     try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }

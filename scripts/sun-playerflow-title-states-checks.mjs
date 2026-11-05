@@ -14,6 +14,7 @@ const BUTTONS = [
   { id: "btn-resume", primary: true, containers: [".title-actions"] },
   { id: "btn-import-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
   { id: "btn-export-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
+  { id: "btn-export-unreadable", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
   { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm"] },
   { id: "new-run-cancel", primary: false, containers: [".title-actions", "#new-run-confirm"] },
