@@ -13,7 +13,7 @@
  *   src/scenes-29.js 1 — boarding_stories
  *   src/scenes-52.js 2 — warmth_laughter, warmth_music
  *
- * Use instead: images/corridor_variant.jpg or images/debris_field.jpg inside resolveSceneImage.
+ * Use instead: images/corridor_variant_2.jpg or images/debris_field.jpg inside resolveSceneImage.
  *
  *   node scripts/guards/portrait-fallback.mjs
  *   node scripts/guards/portrait-fallback.mjs --replay-copy
@@ -48,7 +48,7 @@ function count(text) {
 function offense(rel, n, allowed) {
   return (
     `PORTRAIT_FALLBACK ${rel} assigns ${NEEDLE} (${n}; grandfather ${allowed}). ` +
-    "That file is a Vess-lookalike. Do not copy it. Use images/corridor_variant.jpg " +
+    "That file is a Vess-lookalike. Do not copy it. Use images/corridor_variant_2.jpg " +
     "or images/debris_field.jpg inside resolveSceneImage (src/engine.js)."
   );
 }
