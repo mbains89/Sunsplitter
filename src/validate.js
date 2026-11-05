@@ -405,6 +405,7 @@ function dismissTutorial() {
   const overlay = document.getElementById("tutorial-overlay");
   if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
   markTutorialSeen();
+  restoreModalDialogFocus("tutorial-overlay");
   return true;
 }
 function skipTutorial() { return dismissTutorial(); }
@@ -417,6 +418,7 @@ function showTutorialOverlay() {
   if (list && !list.textContent) list.textContent = TUTORIAL_TOPFIELDS.join(" ");
   overlay.classList.remove("hidden");
   overlay.classList.add("visible");
+  focusModalDialog("tutorial-overlay");
   return true;
 }
 (function overlayTutorialTopfields() {
@@ -446,12 +448,14 @@ function hideNewRunConfirm() {
   if (!panel) return;
   panel.classList.add("hidden");
   panel.classList.remove("visible");
+  restoreModalDialogFocus("new-run-confirm");
 }
 function showNewRunConfirm() {
   const panel = document.getElementById("new-run-confirm");
   if (!panel) return false;
   panel.classList.remove("hidden");
   panel.classList.add("visible");
+  focusModalDialog("new-run-confirm");
   return true;
 }
 
@@ -460,6 +464,7 @@ function hideCommanderCreate() {
   if (!panel) return;
   panel.classList.add("hidden");
   panel.classList.remove("visible");
+  restoreModalDialogFocus("commander-create");
 }
 function showCommanderCreate() {
   const panel = document.getElementById("commander-create");
@@ -467,8 +472,60 @@ function showCommanderCreate() {
   hideNewRunConfirm();
   panel.classList.remove("hidden");
   panel.classList.add("visible");
+  focusModalDialog("commander-create");
   return true;
 }
+
+// SUN-MODAL-HOTKEYS-01: an open aria-modal dialog owns the keyboard. Number keys, Enter and
+// Space never reach gameplay or title shortcuts behind it (first-run tutorial over wake was
+// committing a choice blind). Enter/Space on a control inside the dialog keep their native
+// activation; form fields keep their own keys. Focus moves to the dialog's main button on open
+// and returns to the opener on close. The crew sheet keeps its own focus trap and return focus.
+const MODAL_DIALOG_PRIMARY = {
+  "tutorial-overlay": "tutorial-dismiss",
+  "commander-create": "commander-create-ok",
+  "new-run-confirm": "new-run-ok",
+  "crew-sheet": "crew-sheet-close"
+};
+const modalDialogOpeners = {};
+function openModalDialogElement() {
+  for (const id of Object.keys(MODAL_DIALOG_PRIMARY)) {
+    const el = document.getElementById(id);
+    if (el && el.classList.contains("visible") && !el.classList.contains("hidden")) return el;
+  }
+  return null;
+}
+function focusModalDialog(id) {
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, id)) modalDialogOpeners[id] = document.activeElement || null;
+  const target = document.getElementById(MODAL_DIALOG_PRIMARY[id]) || document.getElementById(id);
+  if (target && typeof target.focus === "function") target.focus();
+}
+function restoreModalDialogFocus(id) {
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, id)) return;
+  const opener = modalDialogOpeners[id];
+  delete modalDialogOpeners[id];
+  if (opener && opener.isConnected !== false && typeof opener.focus === "function") opener.focus();
+}
+function handleModalDialogKeydown(event) {
+  if (!event || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const key = event.key || "";
+  const activation = key === "Enter" || key === " " || key === "Spacebar";
+  if (!/^[0-9]$/.test(key) && !activation) return false;
+  const dialog = openModalDialogElement();
+  if (!dialog) return false;
+  const target = event.target;
+  const inside = !!(target && typeof dialog.contains === "function" && dialog.contains(target));
+  const tag = String((target && (target.tagName || target.nodeName)) || "").toUpperCase();
+  if (inside && (["INPUT", "SELECT", "TEXTAREA"].includes(tag) || (target && target.isContentEditable))) return false;
+  if (inside && activation && typeof keyboardTargetIsInteractive === "function" && keyboardTargetIsInteractive(target)) return false;
+  if (typeof event.preventDefault === "function") event.preventDefault();
+  if (typeof event.stopPropagation === "function") event.stopPropagation();
+  return true;
+}
+(function wireModalDialogKeys() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", handleModalDialogKeydown, true);
+})();
 function readCommanderCreateDraft() {
   const callsignEl = document.getElementById("commander-callsign");
   const oathEl = document.getElementById("commander-oath");
@@ -531,7 +588,8 @@ function cancelNewRun() { hideNewRunConfirm(); return false; }
 (function overlayNewRunConfirm() {
   if (typeof startGame === "function") {
     startGame = function() {
-      if (typeof hasSave === "function" && hasSave()) {
+      const slotOccupied = typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave());
+      if (slotOccupied) {
         if (showNewRunConfirm()) {
           const confirmFn = typeof window !== "undefined" ? window.confirm : null;
           const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
