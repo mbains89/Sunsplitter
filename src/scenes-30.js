@@ -8,7 +8,7 @@ registerScenes({
   //   otherwise clears interrupt_return. Choices write affinity/trust/marks only.
   // DEATH: none. DEAD SPEECH/APPEARANCE: living text already empty-engineering;
   //   requireLivingCast entryOnly + engine image guard; dead resolve is
-  //   corridor_variant.jpg. Continue/Import unchanged.
+  //   corridor_variant_2.jpg. Continue/Import unchanged.
   // IMAGE: RETARGET_IN_TREE images/quiet_mira.jpg — living Mira at an
   //   engineering console (drive-schematic beat). Not mira.jpg portrait
   //   stand-in. romance_mira_1 keeps quiet_mira.jpg until a Grok intimate
