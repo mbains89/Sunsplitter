@@ -4,6 +4,7 @@
 // (Tomas, Jiro, Vess unrecovered); the resolved plate's listed faces must all be alive.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
@@ -15,6 +16,7 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   const rosters = [{ label: "opening", dead: ["rourke"], recovered: {} }];
   for (const k of crewKeys) rosters.push({ label: "dead:" + k, dead: ["rourke", k], recovered: { tomas: true, jiro: true, vess: true } });
   const bad = [];
+  const rendered = new Set();
   let checked = 0;
   for (const roster of rosters) {
     resetRunState();
@@ -24,6 +26,7 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
       let src;
       try { src = resolveSceneImage(id, scenes[id]); } catch (e) { continue; }
       checked += 1;
+      if (src) rendered.add(src);
       const faces = PLATE_FACES[src];
       if (faces && !faces.every(isAlive)) bad.push(roster.label + " " + id + " -> " + src);
     }
@@ -40,7 +43,8 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   if (resolveSceneImage("status", scenes.status) !== "images/art_r2_observation_wreck.jpg") fallbackErrors.push("status without Elias did not use the observation fallback");
   resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("amara");
   if (resolveSceneImage("empty_berths", scenes.empty_berths) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("empty_berths without Amara did not use the berths fallback");
-  return { checked, bad, plates: Object.keys(PLATE_FACES).length, fallbackErrors, fallbacks: [...new Set(Object.values(PLATE_FACE_FALLBACK))] };
+  return { checked, bad, plates: Object.keys(PLATE_FACES).length, fallbackErrors, fallbacks: [...new Set(Object.values(PLATE_FACE_FALLBACK))],
+    rendered: [...rendered], faced: Object.keys(PLATE_FACES) };
 })())`));
 assert.ok(result.plates >= 10, "PLATE_FACES table missing entries (SUN-PLATE-FACES-06 lists 10 plates)");
 assert.ok(result.checked > 1000, `too few scene renders checked (${result.checked})`);
@@ -53,4 +57,12 @@ for (const file of result.fallbacks) {
     if (m >= 0xc0 && m <= 0xc2) size = [bytes.readUInt16BE(i + 7), bytes.readUInt16BE(i + 5)]; else i += 2 + bytes.readUInt16BE(i + 2); }
   assert.deepEqual(size, [784, 1168], `${file} is not the 784x1168 portrait plate`);
 }
+// SUN-HITL-SHADOW-02: a byte-identical copy of a face-mapped plate rendered under another name would
+// bypass the gate (the gate keys on filename). Every rendered plate whose bytes match a faced plate
+// must itself be face-mapped.
+const digest = file => { try { return createHash("sha256").update(readFileSync(resolve(ROOT, file))).digest("hex"); } catch { return null; } };
+const facedByHash = new Map(result.faced.map(file => [digest(file), file]));
+const copies = result.rendered.filter(file => !result.faced.includes(file) && facedByHash.has(digest(file)))
+  .map(file => file + " = " + facedByHash.get(digest(file)));
+assert.deepEqual(copies, [], `unmapped copies of face plates render and bypass the gate:\n${copies.join("\n")}`);
 console.log(`PASS sun-playerflow-plate-faces: ${result.checked} scene/roster renders, no absent crew on shared plates`);

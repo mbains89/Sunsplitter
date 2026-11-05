@@ -1239,6 +1239,10 @@ function resolveSceneImageUngated(id, scene) {
 
   // After all id-keyed guards: honor explicit scene.image, then map. SUN-PLATE-FACES-05: a
   // shared plate that shows named crew renders only while all of them are alive and aboard.
+  // SUN-HITL-SHADOW-02: owner-approved HITL event plates (SUN_ART_HITL_APPROVED_ANALYSIS.md, verdict
+  // APPROVE = replace LIVE) were wired as sceneImages[id] = images/<id>.jpg but each scene's own older
+  // image took precedence, so they never rendered. These ids prefer their event plate.
+  if (HITL_EVENT_PLATE_IDS.has(id) && map[id] === "images/" + id + ".jpg") return map[id];
   // The face gate (and its per-setting fallback) is applied once, in resolveSceneImage.
   return (scene && scene.image) || map[id] || null;
 }
@@ -1259,8 +1263,48 @@ const PLATE_FACES = {
   "images/corridor_pressure_2.jpg": ["tomas"],
   "images/medbay_dim.jpg": ["lena", "jiro"],
   "images/cut_out.jpg": ["mira", "amara", "sela"],
-  "images/vault_reveal.jpg": ["sela"]
+  "images/vault_reveal.jpg": ["sela"],
+  // SUN-HITL-SHADOW-02: rosters checked by eye against the official portraits (2026-11-05). Uncertain
+  // calls list the likelier crew member so the gate errs toward the empty fallback.
+  "images/records_changeorders.jpg": ["mira"],
+  "images/records_changeorders_after.jpg": ["mira"],
+  "images/act2_tether_vent.jpg": ["mira", "amara"],
+  "images/act2_tether_dock.jpg": ["tomas"],
+  "images/act2_tether_truth.jpg": ["tomas", "sela", "mira", "amara", "elias"],
+  "images/act2_tether_lie.jpg": ["tomas"],
+  "images/act3_reckoning_heading.jpg": ["mira", "tomas", "elias"],
+  "images/act3_reckoning_burn_stale.jpg": ["mira"],
+  "images/act3_reckoning_burn_verified.jpg": ["mira", "tomas"],
+  "images/act3_reckoning_delay.jpg": ["mira", "amara", "tomas"],
+  "images/act3_reckoning_cut.jpg": ["elias", "jiro", "tomas"],
+  "images/act3_reckoning_briefing.jpg": ["lena", "jiro", "sela"],
+  "images/observation_nightshift.jpg": ["jiro"],
+  "images/observation_nightshift_ask.jpg": ["jiro"],
+  "images/observation_nightshift_leave.jpg": ["jiro"],
+  "images/vess_signal.jpg": ["mira", "elias"],
+  "images/vess_cost.jpg": ["mira", "elias"],
+  "images/vess_transmission.jpg": ["vess", "mira"],
+  "images/act3_lethal_mira_board.jpg": ["mira"],
+  "images/act3_lethal_mira_reserve.jpg": ["mira"],
+  "images/aftermath_seal.jpg": ["elias"],
+  "images/aftermath_seal_order.jpg": ["elias"],
+  "images/aftermath_seal_holds.jpg": ["elias"],
+  "images/sun_payoff.jpg": ["sela"],
+  "images/pair_grudge_settle.jpg": ["tomas", "jiro"],
+  "images/custody_shared.jpg": ["sela"]
 };
+// SUN-HITL-SHADOW-02: only plates whose bytes differ from the scene's own image. Byte-identical
+// copies under event names stay shadowed so the face gate keeps matching the original filename.
+const HITL_EVENT_PLATE_IDS = new Set([
+  "records_changeorders", "records_changeorders_after", "act2_tether_vent", "act2_tether_dock",
+  "act2_tether_truth", "act2_tether_lie", "act3_reckoning_heading", "act3_reckoning_burn_stale",
+  "act3_reckoning_burn_verified", "act3_reckoning_delay", "act3_reckoning_cut", "act3_reckoning_briefing",
+  "observation_nightshift", "observation_nightshift_ask", "observation_nightshift_leave", "vess_signal",
+  "vess_cost", "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
+  "aftermath_seal_order", "aftermath_seal_holds", "sun_payoff", "ship_interrupt", "pair_grudge_settle",
+  "custody_shared"
+]);
+
 // SUN-ART-R2-FALLBACKS-01 (Manraj opened ART-R2 for people-free fallbacks, 2026-11-05): a blocked
 // plate falls back to an empty plate of its own setting from the held ART-R2 reserve (style-matched
 // 2026-08-24; QA'd 2026-11-05: no people, no readable text, 784x1168). Others keep the empty corridor.
@@ -1268,7 +1312,11 @@ const PLATE_FACE_FALLBACK = {
   "images/corridor.jpg": "images/art_r2_empty_berths.jpg",
   "images/empty_berths.jpg": "images/art_r2_empty_berths.jpg",
   "images/observation_bridge_alt.jpg": "images/art_r2_observation_wreck.jpg",
-  "images/vault_reveal.jpg": "images/art_r2_vault_racks.jpg"
+  "images/vault_reveal.jpg": "images/art_r2_vault_racks.jpg",
+  "images/observation_nightshift.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/observation_nightshift_ask.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/observation_nightshift_leave.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/custody_shared.jpg": "images/art_r2_observation_wreck.jpg"
 };
 function plateFacesPresent(src) {
   const faces = PLATE_FACES[src];
