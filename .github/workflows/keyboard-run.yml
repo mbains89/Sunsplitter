@@ -1,0 +1,65 @@
+name: Keyboard Run
+
+on:
+  pull_request:
+    branches:
+      - "version/**"
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keyboard-run-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  keyboard_run:
+    name: keyboard-run
+    if: ${{ github.event.action != 'closed' && startsWith(github.base_ref, 'version/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact pull-request head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use exact Node.js version
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          check-latest: false
+      - name: Install Chrome
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          google-chrome --version
+      - name: Red — deliberate broken focus must not reach an ending
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          set +e
+          node scripts/keyboard-run.mjs --broken-focus > /tmp/keyboard-red.txt
+          code=$?
+          set -e
+          cat /tmp/keyboard-red.txt
+          if [ "$code" -eq 0 ]; then
+            echo "broken-focus case exited 0; it must fail"
+            exit 1
+          fi
+          grep -q "broken-focus" /tmp/keyboard-red.txt
+          echo "RED broken-focus exit ${code}"
+      - name: Green — keyboard-only start to ending
+        run: |
+          set -euo pipefail
+          node scripts/keyboard-run.mjs | tee /tmp/keyboard-green.txt
+          grep -E '^ENDING=.+' /tmp/keyboard-green.txt
+          grep -E '^STEPS=[0-9]+' /tmp/keyboard-green.txt
+          echo "GREEN keyboard-only ending"
