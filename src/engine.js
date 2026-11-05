@@ -1077,7 +1077,7 @@ function isIntimateScene(id, scene) {
 // custody_possession -> corridor_pressure_1 with Tomas dead).
 function resolveSceneImage(id, scene) {
   const chosen = resolveSceneImageUngated(id, scene);
-  if (chosen && !plateFacesPresent(chosen)) return "images/corridor_variant_3.jpg";
+  if (chosen && !plateFacesPresent(chosen)) return PLATE_FACE_FALLBACK[chosen] || "images/corridor_variant_3.jpg";
   return chosen;
 }
 
@@ -1239,9 +1239,8 @@ function resolveSceneImageUngated(id, scene) {
 
   // After all id-keyed guards: honor explicit scene.image, then map. SUN-PLATE-FACES-05: a
   // shared plate that shows named crew renders only while all of them are alive and aboard.
-  const chosen = (scene && scene.image) || map[id] || null;
-  if (chosen && !plateFacesPresent(chosen)) return "images/corridor_variant_3.jpg";
-  return chosen;
+  // The face gate (and its per-setting fallback) is applied once, in resolveSceneImage.
+  return (scene && scene.image) || map[id] || null;
 }
 
 // SUN-PLATE-FACES-05: named crew visible in shared (non-portrait) plates, checked by eye
@@ -1261,6 +1260,15 @@ const PLATE_FACES = {
   "images/medbay_dim.jpg": ["lena", "jiro"],
   "images/cut_out.jpg": ["mira", "amara", "sela"],
   "images/vault_reveal.jpg": ["sela"]
+};
+// SUN-ART-R2-FALLBACKS-01 (Manraj opened ART-R2 for people-free fallbacks, 2026-11-05): a blocked
+// plate falls back to an empty plate of its own setting from the held ART-R2 reserve (style-matched
+// 2026-08-24; QA'd 2026-11-05: no people, no readable text, 784x1168). Others keep the empty corridor.
+const PLATE_FACE_FALLBACK = {
+  "images/corridor.jpg": "images/art_r2_empty_berths.jpg",
+  "images/empty_berths.jpg": "images/art_r2_empty_berths.jpg",
+  "images/observation_bridge_alt.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/vault_reveal.jpg": "images/art_r2_vault_racks.jpg"
 };
 function plateFacesPresent(src) {
   const faces = PLATE_FACES[src];

@@ -72,7 +72,7 @@ const LOCKED_HASHES = {
 };
 
 // Tip images tree after SUN_HITL_WIRE_STAGE_20260927.zip land.
-const IMAGES_TREE = "fe94eb1917f3448d0536645db958674f410ffc1b";
+const IMAGES_TREE = "669a81aec8ff2d5bbb103fe7f5a8877b3972ff2e"; // + SUN-ART-R2-FALLBACKS-01 three art_r2_* plates (was fe94eb19)
 // romance_lena_1.jpg is the landed HITL living map — no longer face-reveal forbidden.
 const FACE_REVEAL = [
   "images/romance_mira_1.jpg",
