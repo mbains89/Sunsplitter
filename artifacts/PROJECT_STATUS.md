@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 211f6dc (after PR #494)`
+`work_branch_tip: 0ed0306 (after PR #495)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -57,7 +57,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 492 | Close-out | Lane → `main` @ `e5a71fc`. The post-merge strict rerun on `e5a71fc` passed (run 42100031310). |
 | 493 | SUN-CLOSEOUT-RECORD-01 | Recorded the close-out ruling. Process only. |
 | 494 | SUN-PLATE-FACES-06 | The face gate covers the five HITL plates that show crew, on every resolver path. Exposures went from 13 to 0. |
-| this PR | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
+| 495 | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
+| this PR | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
 
 ## Open
 
@@ -76,6 +77,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
 4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
 5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+
+8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
+   - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
+   - Six plates show a sliver of the Commander's cheek, jaw or ear, never the eyes: `records_changeorders`, `act2_tether_lie`, `act3_reckoning_cut`, `act3_reckoning_briefing`, `aftermath_seal` and `aftermath_seal_order` (the most visible). Does that pass the faceless rule?
+   - `vess_signal` and `vess_cost` show Mira and Elias, not Vess.
+   - The `vault_reveal` fallback shows drawer racks, while the text says "cylinders".
 
 **Ruled by Manraj, 2026-11-05:**
 

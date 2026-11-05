@@ -2853,7 +2853,8 @@ function act3SpineImageRepeatChecks(runtime) {
       errors.push(`debt return repeats hub plate or changes exit: ${JSON.stringify(row)}`);
     }
   }
-  if (fixture.unrecoveredEntry.id !== "vess_signal" || fixture.unrecoveredEntry.image !== "images/transmission.jpg") {
+  // SUN-HITL-SHADOW-02: vess_signal renders its owner-approved plate (Mira and Elias at the signal, no Vess).
+  if (fixture.unrecoveredEntry.id !== "vess_signal" || fixture.unrecoveredEntry.image !== "images/vess_signal.jpg") {
     errors.push("unrecovered Vess hub entry no longer redirects before painting the hub");
   }
   const hash = createHash("sha256").update(readFileSync(resolve(ROOT, expected))).digest("hex");

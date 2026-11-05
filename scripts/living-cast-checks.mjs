@@ -266,8 +266,10 @@ export function livingCastChecks(runtime) {
   check("corridor_variant Amara/Jiro presence", `(() => {
     const failures = [];
     const pair = "images/corridor_variant.jpg", empty = "images/corridor_variant_2.jpg";
+    // SUN-HITL-SHADOW-02: aftermath_seal* now render their owner-approved Elias plates (the scenes are
+    // Elias alone at a seal), checked separately below.
     const guarded = ["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
-      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds", "prom_vent", "prom_vent_keep"];
+      "prom_vent", "prom_vent_keep"];
     const alwaysEmpty = ["coolant_trade", "seal_or_food", "prom_vent_break"];
     const statuses = {
       bothAlive: () => {},
@@ -288,6 +290,13 @@ export function livingCastChecks(runtime) {
     for (const id of guarded) for (const status of Object.keys(statuses)) {
       const want = status === "bothAlive" ? pair : empty, got = resolve(id, status);
       if (got !== want) failures.push(id + " " + status + ": " + got + " (want " + want + ")");
+    }
+    for (const id of ["aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds"]) {
+      const own = "images/" + id + ".jpg";
+      if (resolve(id, "bothAlive") !== own) failures.push(id + " living: " + resolve(id, "bothAlive") + " (want " + own + ")");
+      resetRunState(); Object.assign(state.recovered, { tomas: true, jiro: true, vess: true }); kill("elias", "seal plate fixture");
+      const gone = resolveSceneImage(id, scenes[id]);
+      if (gone === own || (PLATE_FACES[gone] && !PLATE_FACES[gone].every(isAlive))) failures.push(id + " dead Elias still pictured: " + gone);
     }
     for (const id of alwaysEmpty) for (const status of Object.keys(statuses)) {
       const got = resolve(id, status);
