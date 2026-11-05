@@ -249,8 +249,8 @@ function beginFreshCampaign(opts) {
 }
 
 function startGame() {
-  // New run overwrites the slot — warn if a save exists
-  if (hasSave()) {
+  // New run overwrites the slot — warn if a save exists, readable or not
+  if (slotHasAnyBytes()) {
     const ok = window.confirm("Start a new run? This will replace your saved progress.");
     if (!ok) return false;
   }
@@ -1777,6 +1777,22 @@ function readRawSave() {
   }
 }
 
+// SUN-UNREADABLE-SAVE-01: bytes in a slot that this build cannot load (a scene id it does not
+// know, a corrupt write). The title still fails closed (no Continue/Export, per 0.32), but it
+// says the slot exists and Begin confirms before replacing it; before this Begin replaced it unasked.
+function unreadableSaveRaw() {
+  if (hasSave()) return null;
+  for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
+    let raw = null;
+    try { raw = localStorage.getItem(key); } catch (e) { raw = null; }
+    if (typeof raw === "string" && raw.trim()) return raw;
+  }
+  return null;
+}
+function slotHasAnyBytes() {
+  return hasSave() || !!unreadableSaveRaw();
+}
+
 function hasSave() {
   return validRawSnapshot(readRawSave());
 }
@@ -2057,6 +2073,9 @@ function refreshTitleResumeUI() {
   if (beginBtn) {
     beginBtn.textContent = has ? "New run" : "Begin";
   }
+  let unreadable = null;
+  if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
+  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Starting a new run will replace it.", true, true);
   if (exportBtn) {
     let exportable = false;
     try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
