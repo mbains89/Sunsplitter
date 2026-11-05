@@ -73,6 +73,7 @@ registerScenes({
   //
   // PRECONDITIONS:
   //   reached from ship_memory_payoff or patch_fails abort; no extra live-crew gate
+  //   hold choice requires flags.patch !== "aborted" (SUN-FINAL-HOLD-ONCE-01; text names the failed burn)
   // STATE WRITES:
   //   choice hold: flag.final = "hold"; optional integrity/cohesion effects on the no-buy-in hold
   //   choice comfort: flag.final = "comfort"; supplies paid equal to advertised min (15 or 18);
@@ -92,7 +93,12 @@ registerScenes({
   final_choice: {
     get text() {
       let t = `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
-      if (state.flags.planet === "committed") {
+      if (state.flags.patch === "aborted") {
+        // SUN-FINAL-HOLD-ONCE-01: destination truth stays; the failed burn closes the hold.
+        t += state.flags.planet === "committed"
+          ? `The course is still locked on the rogue planet. The hard burn to hold it has already failed once, and Deck 4 will not carry it again.\n\n`
+          : `You still have no destination. The hard burn has already failed once, and Deck 4 will not carry it again.\n\n`;
+      } else if (state.flags.planet === "committed") {
         t += `The course is still locked on the rogue planet. You can hold it, alter it, or abandon it.\n\n`;
       } else {
         t += `You still have no destination. You can set one, or refuse the idea that a destination is required.\n\n`;
@@ -110,7 +116,13 @@ registerScenes({
       const committed = state.flags.planet === "committed";
       // Hold course needs Jiro or Mira trusting enough — structural dependence
       const holdNext = (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound") ? "patch_fails" : "ending_check";
-      if (isAlive("jiro") && (state.trust.jiro || 0) >= 35 && !debt.includes("jiro")) {
+      // SUN-FINAL-HOLD-ONCE-01 (Manraj 2026-11-05, option A): once the hard burn is aborted at
+      // patch_fails, Hold is not offered again. Re-offering it made hold -> abort a repeatable lap
+      // (+2 cohesion and hold lean per lap for 3 integrity).
+      const holdOffered = state.flags.patch !== "aborted";
+      if (!holdOffered) {
+        // no hold option after an aborted burn
+      } else if (isAlive("jiro") && (state.trust.jiro || 0) >= 35 && !debt.includes("jiro")) {
         opts.push({ text: committed ? "Hold course for the rogue planet. We finish what we started." : "Set course for the rogue planet.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 30 }, supplies: { min: 10 } }, lean: { future: 3 }, alive: "jiro" });
       } else if (isAlive("mira") && (state.trust.mira || 0) >= 40 && !debt.includes("mira")) {
         opts.push({ text: committed ? "Hold course — Mira can keep the drive honest." : "Set course for the rogue planet — Mira can keep the drive honest.", next: holdNext, flag: { final: "hold" }, requires: { integrity: { min: 28 }, supplies: { min: 10 } }, lean: { future: 2 }, alive: "mira" });

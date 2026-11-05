@@ -1,5 +1,6 @@
 // SUN-SCENE-COVERAGE-01 — every live scene stays reachable from a fresh run.
-// Seeded random play (300 runs, mixed recovery rosters) through the real engine. Fails when a scene
+// Seeded random play (at least 300 runs, continuing in chunks up to 900 until every live scene is
+// reached, so rare scenes survive seed drift from unrelated choice changes) through the real engine. Fails when a scene
 // that is not on the allowlist below is never reached, when a run hits a render with no enabled
 // exit, or when a choice throws. A wiring change that orphans a scene shows up here by name.
 import assert from "node:assert/strict";
@@ -8,7 +9,8 @@ import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const RUNS = 300;
+const MIN_RUNS = 300;
+const MAX_RUNS = 900;
 const CHUNK = 20;
 const SEED = 11;
 // Scenes a fresh run never renders, with the reason. Anything else unreached is a failure.
@@ -22,7 +24,10 @@ const visits = {};
 const stuck = new Set();
 const errors = new Set();
 let sceneIds = [];
-for (let chunk = 0; chunk * CHUNK < RUNS; chunk++) {
+let runs = 0;
+const unreachedNow = () => sceneIds.filter(id => !visits[id] && !NOT_RENDERED[id]);
+for (let chunk = 0; chunk * CHUNK < MAX_RUNS; chunk++) {
+  if (runs >= MIN_RUNS && !unreachedNow().length) break;
   if (chunk && chunk % 5 === 0) runtime = loadGame(ROOT); // fresh realm keeps the run fast
   const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
     persistSave = () => true;
@@ -55,12 +60,13 @@ for (let chunk = 0; chunk * CHUNK < RUNS; chunk++) {
   out.stuck.forEach(id => stuck.add(id));
   out.errors.forEach(message => errors.add(message));
   sceneIds = out.ids;
+  runs += CHUNK;
 }
 
 assert.deepEqual([...errors], [], `choices threw during seeded play: ${[...errors].join("; ")}`);
 assert.deepEqual([...stuck], [], `seeded play reached renders with no enabled exit: ${[...stuck].join(", ")}`);
 const unreached = sceneIds.filter(id => !visits[id] && !NOT_RENDERED[id]);
-assert.deepEqual(unreached, [], `live scenes never reached in ${RUNS} seeded runs: ${unreached.join(", ")}`);
+assert.deepEqual(unreached, [], `live scenes never reached in ${runs} seeded runs: ${unreached.join(", ")}`);
 const staleAllow = Object.keys(NOT_RENDERED).filter(id => !sceneIds.includes(id) || visits[id]);
 assert.deepEqual(staleAllow, [], `allowlist entries are stale (renamed, removed or now rendered): ${staleAllow.join(", ")}`);
-console.log(`PASS sun-playerflow-scene-coverage: ${sceneIds.length - Object.keys(NOT_RENDERED).length}/${sceneIds.length - Object.keys(NOT_RENDERED).length} live scenes reached in ${RUNS} seeded runs; no dead ends, no throws`);
+console.log(`PASS sun-playerflow-scene-coverage: ${sceneIds.length - Object.keys(NOT_RENDERED).length}/${sceneIds.length - Object.keys(NOT_RENDERED).length} live scenes reached in ${runs} seeded runs; no dead ends, no throws`);
