@@ -1,87 +1,30 @@
-# Sunsplitter ticket queue — tip e14ca7d2 after #433
+# Sunsplitter ticket queue
 
-SOURCE lane@e14ca7d21ccc221798dae57c7bce7bf5d01a31c5 · TASK SUN-ROADMAP-TIP-SYNC-E14C-01 · MODE docs
+Live coordination queue for the lead and helper chats (AGENTS.md v2 §1). Status and decisions are in `artifacts/PROJECT_STATUS.md`. History is in git: this file's tip-sync history up to PR #434 is in `git log -- docs/TICKET_QUEUE.md`.
 
-Docs only. This file does not mint a product version, open 0.36 product
-work, remint spent playable PRs, touch Netlify, certify, or start gameplay.
-Does not invent OPEN 0.37 or OPEN 0.38. 0.37 strangers stay PARKED.
-Does not remint PR **#433** / PR **#432** / PR **#431**. Does not touch `src/` or `src/engine.js`.
-F07 CREW-PLATE is **ALREADY_SATISFIED**. Do not remint.
-Never merge hollow/wrong-shape **#401 / #402 / #403 / #405 / #407 / #408 / #410 / #411**. Never Copilot **#414**. Never **#416** CORRUPT.
-Work tip is the lane, not `main@8d23109`.
-Do not reopen Heavy UIUX PASS intro NEXT+SKIP on pin `6ab9fa37`.
+Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.30.1-<name>`, one concern each.
 
-Lane: `version/0.30.1-main-reconcile-ci.1` at `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5`
-(merge of PR **#433** `SUN-HITL-UNSHADOW-01`; parents `5efeb070` + `d6f3a27`).
-Prior pointer cite `815906c0` / PR **#431** is historical. Pointer hop **#432** landed `5efeb070` and is historical.
-`VERSION.md` first line on lane is `0.36` (existing PAINT, not OPEN).
-Last certified remains `0.28.1d`.
+## In flight
 
-Lock: `lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT`
+| Ticket | Owner | State |
+|---|---|---|
+| Helper bootstrap prompts (Myth, Hex, Muse) | Lead | Draft. Saved in the Sunsplitter project, not in the repo. |
 
-This pass receipt: `docs/SUN_ROADMAP_TIP_SYNC_E14C.md`.
+## Waiting on Manraj
 
-## #376 disposition (not in-flight)
+See PROJECT_STATUS "Decisions for Manraj". The first one gates the rest: a preview deploy of the tip so playtest can resume on current bytes.
 
-PR **#376** MAPFIX / restore is **CLOSED UNMERGED**. Never merge. Do not remint.
-Tip `state.js` is intact. C1 plate gap shipped as PR **#433** `SUN-HITL-UNSHADOW-01`. Do not remint that id.
-`state.js` / `engine.js` hold lifted for **NAMED tickets only**. Do not apply `docs/SUN_HITL_WIRE_01.state.js.patch`.
-Trust / Commander / plate / Vess PARKED.
+## Helper asks (once each helper chat exists)
 
-## Holds (explicit)
-
-- **0.36 product / mint / recertify HOLD** until owner **OPEN** a named ticket.
-- **Last certified:** `0.28.1d`. Lane work is LANDED ON VERSION LANE only.
-- **NO-PUBLISH / NOT_CERTIFIED.**
-- **Netlify** is owner-only.
-- **Amara-route PARKED.** 0.37 strangers PARKED. Do not invent OPEN 0.38.
-- **Do not merge PR #297.** **Do not merge PR #376.**
-- **Do not merge #401 / #402 / #403 / #405 / #407 / #408 / #410 / #411.** Never Copilot **#414**. Never **#416** CORRUPT.
-- `SUN-HITL-UNSHADOW-01` merged as PR **#433**. Do not remint.
-- F07 CREW-PLATE **ALREADY_SATISFIED**. Do not remint.
-- Leftovers 10–12 **ALREADY_SATISFIED** / **NO_PR**. Do not remint `SUN-FIX-LEFTOVERS-10-12-01-REMINT`. Leftover 13 stays Muse/HITL PARKED.
-
-## Current lane (do not reopen as a pack)
-
-| Id | State |
+| Helper | Ask |
 |---|---|
-| `version/0.30.1-main-reconcile-ci.1` | Active write lane. Tip `e14ca7d21ccc221798dae57c7bce7bf5d01a31c5` after PR **#433**. |
-| PR **#433** `SUN-HITL-UNSHADOW-01` | Merged. Live tip. Parents `5efeb070` + `d6f3a27`. Do not remint. |
-| PR **#432** `SUN-ROADMAP-TIP-SYNC-8159-01` | Historical parent tip `5efeb070`. Do not remint. |
-| PR **#431** `SUN-ROADMAP-TIP-SYNC-78FB-01` | Historical parent tip `815906c0`. Do not remint. |
-| PR **#430** `SUN-ROADMAP-TIP-SYNC-EDA4-01` | Historical parent tip `78fb8ddf`. Do not remint. |
-| PR **#429** `SUN-ROADMAP-TIP-SYNC-83DF-01` | Historical parent tip `eda4f51f`. Do not remint. |
-| PR **#428** `SUN-FIX-UIUX-P2-INTRO-PACE-01` | Historical parent tip `83df62a1`. Do not remint. |
-| PR **#426** `SUN-FIX-UIUX-P2-TOPBAR-TRAP-01` | Historical. Do not remint this id. |
-| PR **#423** `SUN-ROADMAP-TIP-SYNC-B968-01` | Historical pointer at `b17fec95`. Do not remint. |
-| PR **#424** `SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01` | Merged on this tip at `be69b1fc`. Do not remint. |
-| PR **#421** `SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01` | Historical parent tip `b96802c3`. Do not remint. |
-| PR **#418** `SUN-ROADMAP-TIP-SYNC-2451-01` | Historical pointer at `fa47b26e`. Do not remint. |
-| PR **#417** `SUN-ROADMAP-TIP-SYNC-4226-01` | Historical parent tip `2451fa09`. Do not remint. |
-| PR **#415** `SUN-ROADMAP-TIP-SYNC-EE0E-01` | Historical parent tip `4226ae83`. Do not remint. |
-| PR **#413** `SUN-ROADMAP-TIP-SYNC-5DE6-01` | Historical parent tip `ee0e89c1`. Do not remint. |
-| PR **#412** `SUN-ROADMAP-TIP-SYNC-2570-01` | Historical parent tip `5de65973`. Do not remint. |
-| PR **#409** `SUN-ROADMAP-TIP-SYNC-048C-01` | Historical parent tip `2570da2c`. Do not remint. |
-| PR **#399** `SUN-FIX-CRISIS-PLATE-01-REMINT` | Historical parent tip `048c7a50`. Do not remint. |
-| PR **#385** `SUN-DOCS-TIP-HONESTY-5800-01` | Historical pointer at `04c4a806`. Do not remint. |
-| PR **#376** MAPFIX / restore | **CLOSED UNMERGED**. Never merge. Do not remint. |
-| PR **#369** `SUN-V037-EXTERNAL-REVIEW-PLAN-01` | Merged paper. Execution PARKED. |
-| `main@8d23109` | SHIPPED observation only. Do not close the lane onto main. Do not cite as work tip. |
+| Myth | Review the lead-written lines from #482 (tether floor) and #483 (unreadable save). Rule on the `offshift_elias` mending/unmended contradiction and the `arc_future_2` author note. |
+| Hex | Reproduce and size the cohesion farming loop at `final_choice`, then propose a fix. |
+| Muse | People-free candidate for intro slide 1, if Manraj wants one. Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits. |
 
-Honesty chain **#377–#385** and pointer hops **#409** / **#412** / **#413** / **#415** / **#417** / **#418** / **#423** / **#429** / **#430** / **#431** / **#432** are historical once this packet lands. Do not remint those ids. Do not remint **#421** / **#424** / **#428** / **#433**.
+## Standing holds
 
-## $ S2 FEED — playtest leftovers 5–9 spent (do not remint)
-
-Unchanged ALREADY_SATISFIED rows 5–9. Also spent: #363, HITL remap, embryo sweep, lethal-resume, ADD-KEYS-A, #298 paper, #371, #377–#385, #399, #409, #412, #413, #415, #417, #418, F07 CREW-PLATE, #421, #424, #423, #428, #429, #430, #431, #432, #433 as this tip.
-
-## Named holds — leftovers 10–13
-
-10 Amara repro **ALREADY_SATISFIED** (PR #158). 11 crew conflict **ALREADY_SATISFIED** (PR #213). 12 commander creation **ALREADY_SATISFIED** (PR #210 / #238). `SUN-FIX-LEFTOVERS-10-12-01-REMINT` **NO_PR**. Do not remint. 13 ending cinematic Muse/HITL PARKED.
-
-## OPEN-GATED
-
-No 0.36 mint/PC remint, no Netlify remint, no certify, no invent OPEN 0.37/0.38, no merge #297, no remint #376, no merge hollow #401–#403/#405/#407/#408/#410/#411, no Copilot #414, no #416 CORRUPT, no remint SUN-HITL-UNSHADOW-01, no F07 remint, no remint leftovers 10–12.
-
-## Dispatch order for orchestrator
-
-No fireable product row is opened by this tip-sync. Remint HOLD Approve-only. Named-ticket-only edits to `state.js` / `engine.js` after owner OPEN. Close `SUN-FIX-LEFTOVERS-10-12-01-REMINT` as ALREADY_SATISFIED NO_PR.
+- Never merge #297, #376, #401–#403, #405, #407, #408, #410, #411, #414 or #416. Leave PR 45 and draft PR 46.
+- ART-R2 held. Amara route parked. 0.37 external review parked. Leftover 13 (ending cinematic) parked for Muse/HITL.
+- Leftovers 10–12 are ALREADY_SATISFIED. F07 crew plate is ALREADY_SATISFIED. Do not remint either.
+- No mint or certify, no Netlify, no `main` close-out, no leftover drain without Manraj.
