@@ -3,7 +3,8 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 0eead44 (after PR #488)`
+`work_branch_tip: 8ff92ad (after PR #491)`
+`main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
 
@@ -20,7 +21,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
 
-- `main` is `8d23109`. It has not moved and is far behind the work branch. Close-out to `main` needs Manraj.
+- `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
 - `VERSION.md` paints `0.36`. That is paint, not certification.
 - Current art is **PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT**. Image presence implies no art approval, roster approval, publication right or release credit.
@@ -50,7 +51,10 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 486 | SUN-DOCS-TRUTH-01 | This page, ROADMAP roles, and the live ticket queue. Process only. |
 | 487 | SUN-SCENE-COVERAGE-01 | CI check: 300 seeded runs must reach all 223 live scenes, with no dead ends. |
 | 488 | SUN-CREW-FOCUS-DIGITS-01 | Digit shortcuts keep working after clicking Crew. Found by the browser bot. |
-| this PR | SUN-BROWSER-BOT-01 | `scripts/sun-browser-bot.mjs`, a manual real-browser full-run tool, plus the 0.36 keyboard and resume evidence in `docs/SUN_036_BROWSER_EVIDENCE.md`. |
+| 489 | SUN-BROWSER-BOT-01 | `scripts/sun-browser-bot.mjs`, a manual real-browser full-run tool, plus the 0.36 keyboard and resume evidence in `docs/SUN_036_BROWSER_EVIDENCE.md`. |
+| 490 | SUN-FINAL-HOLD-ONCE-01 | After an aborted hard burn, Hold is no longer offered. Ends the cohesion/lean lap (ruling 6A). |
+| 491 | SUN-UNREADABLE-EXPORT-01 | An unreadable save can be downloaded byte-for-byte before a new run replaces it (ruling 2). |
+| 492 | Close-out | Lane → `main` @ `e5a71fc`. |
 
 ## Open
 
@@ -75,7 +79,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 - **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
 - **3: keep.** Amara stays on intro slide 1.
 - **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
-- **7: now.** Close out the work branch onto `main`. The ROADMAP close-out holds are lifted by this ruling. The `main` CI gates bound to the old 10-path reconcile diff are rebound in a separate PR before the close-out PR opens. No tag, release, deploy, Netlify or certification comes with it.
+- **7: now.** Done as PR #492, `main` @ `e5a71fc`. Its head was `version/0.30.1-main-closeout.1`, at the same commit as the lane. The policy's general `version/*` → `main` route applied, because the lane's own name is bound to the August 10-path CI diff. No gate code changed. No tag, release, deploy, Netlify or certification came with it.
 
 *Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.
 
@@ -95,6 +99,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** land SUN-FINAL-HOLD-ONCE-01 and SUN-UNREADABLE-EXPORT-01, rebind the `main` gates, then open the close-out PR to `main` per Manraj's 2026-11-05 go.
+**Lead:** confirm the post-merge strict rerun on `main` @ `e5a71fc`, then keep landing lead-scope fixes and browser-bot batches on the lane. **Manraj:** say when you want a preview deploy to play.
 
 <!-- STATUS_COMPLETE -->
