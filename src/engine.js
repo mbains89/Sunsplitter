@@ -577,6 +577,8 @@ function handleGameplayKeydown(event) {
 
   const game = document.getElementById("game-screen");
   if (!game || game.classList.contains("hidden")) return false;
+  // SUN-MODAL-HOTKEYS-01: never commit a choice behind an open dialog.
+  if (typeof openModalDialogElement === "function" && openModalDialogElement()) return false;
 
   const buttons = gameplayChoiceButtons();
   if (/^[1-9]$/.test(event.key || "")) {
