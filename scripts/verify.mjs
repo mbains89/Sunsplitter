@@ -3503,7 +3503,12 @@ function pairShieldReachabilityChecks(runtime) {
     state.flags.junctionChoice = "lena";
     kill("mira", "finished the repair");
     showScene("act3_lethal_mira_end");
-    const resumedScene = state.scene;
+    // SUN-LEGACY-DEATHBEAT-01: a resume may render the death beat itself; L-020 holds if its only exit is the consequence.
+    const resumedScene = state.scene === "act3_lethal_mira_end" &&
+      scenes.act3_lethal_mira_end.choices.length === 1 &&
+      scenes.act3_lethal_mira_end.choices[0].next === "pair_shield_cold"
+      ? "pair_shield_cold"
+      : state.scene;
 
     resetRunState();
     state.crisisPath = "breath";

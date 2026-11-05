@@ -84,6 +84,10 @@ Tomas reads the new fracture line, then the green strip.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_tomas_end: {
   onEnter: () => {
+  // SUN-LEGACY-DEATHBEAT-01: a resume without the sceneEntered marker re-runs onEnter after this
+  // scene already wrote the death; render the beat instead of redirecting past it.
+    if (state.dead.includes("tomas") && state.deathCause &&
+        ["refused the order and paid for it", "went back for the living and did not return"].includes(state.deathCause.tomas)) return;
     if (!isAlive("tomas") || !state.recovered || !state.recovered.tomas) {
       return "act3_lethal_elias_order";
     }

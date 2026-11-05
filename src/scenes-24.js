@@ -188,6 +188,10 @@ Mira reads the limit twice.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_mira_end: {
   onEnter: () => {
+  // SUN-LEGACY-DEATHBEAT-01: a resume without the sceneEntered marker re-runs onEnter after this
+  // scene already wrote the death; render the beat instead of redirecting past it.
+    if (state.dead.includes("mira") && state.deathCause &&
+        ["would not leave the board", "finished the repair"].includes(state.deathCause.mira)) return;
     if (!isAlive("mira")) {
       return isAlive("elias") && attributableDeath("mira") && !state.flags.pair_shield
         ? "pair_shield_cold"
