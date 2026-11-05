@@ -70,7 +70,9 @@ function exerciseDestination(fixtures, mode) {
       mira: "Set course for the rogue planet — Mira can keep the drive honest.",
       rough: "Set course for the rogue planet anyway. Navigation will be rougher without full crew buy-in."
     };
-    expect(hold.text === (committed ? oldLabels : newLabels)[navBranch()], "course label contradicts setup");
+    // SUN-FINAL-HOLD-ONCE-01 (Manraj 2026-11-05, option A): an aborted hard burn closes Hold.
+    if (state.flags.patch === "aborted") expect(!hold, "aborted hard burn re-offered Hold");
+    else expect(hold.text === (committed ? oldLabels : newLabels)[navBranch()], "course label contradicts setup");
     const comfort = choices.find(c => c.flag.final === "comfort");
     if (!relationshipDebtors().some(k => k === "amara" || k === "tomas"))
       expect(comfort.text === (committed ? "Abandon the destination." : "Leave the destination unset.") +
