@@ -249,8 +249,8 @@ function beginFreshCampaign(opts) {
 }
 
 function startGame() {
-  // New run overwrites the slot — warn if a save exists
-  if (hasSave()) {
+  // New run overwrites the slot — warn if a save exists, readable or not
+  if (slotHasAnyBytes()) {
     const ok = window.confirm("Start a new run? This will replace your saved progress.");
     if (!ok) return false;
   }
@@ -1576,7 +1576,12 @@ function inspectSaveImportText(text) {
 
 function buildSaveExport() {
   const raw = readRawSave();
-  if (!validRawSnapshot(raw)) return null;
+  if (!validRawSnapshot(raw)) {
+    const unreadable = unreadableSaveRaw();
+    if (!unreadable) return null;
+    const stamp = new Date(Date.now()).toISOString().slice(0, 10);
+    return { filename: `sunsplitter-save-unreadable-${stamp}.json`, text: unreadable };
+  }
   const save = JSON.parse(raw);
   const exportedAt = Date.now();
   const version = String(save.gameVersion || "legacy").replace(/[^0-9A-Za-z.-]+/g, "-").slice(0, 32) || "legacy";
@@ -1773,6 +1778,22 @@ function readRawSave() {
   } catch (e) {
     return null;
   }
+}
+
+// SUN-UNREADABLE-SAVE-01: bytes in a slot that this build cannot load (a scene id it does not
+// know, a corrupt write). The title must say so, keep them exportable, and confirm before a new
+// run overwrites them; before this they vanished silently and Begin replaced them unasked.
+function unreadableSaveRaw() {
+  if (hasSave()) return null;
+  for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
+    let raw = null;
+    try { raw = localStorage.getItem(key); } catch (e) { raw = null; }
+    if (typeof raw === "string" && raw.trim()) return raw;
+  }
+  return null;
+}
+function slotHasAnyBytes() {
+  return hasSave() || !!unreadableSaveRaw();
 }
 
 function hasSave() {
@@ -2055,9 +2076,12 @@ function refreshTitleResumeUI() {
   if (beginBtn) {
     beginBtn.textContent = has ? "New run" : "Begin";
   }
+  let unreadable = null;
+  if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
+  if (unreadable) flashSaveStatus("Saved run can't be read by this version. Export it before starting a new run.", true, true);
   if (exportBtn) {
     let exportable = false;
-    try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
+    try { exportable = validRawSnapshot(readRawSave()) || !!unreadable; } catch (e) { /* keep hidden */ }
     exportBtn.classList.toggle("hidden", !exportable);
     const xchip = document.getElementById("export-import-chip");
     if (xchip) {

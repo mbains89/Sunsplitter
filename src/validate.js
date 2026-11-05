@@ -531,7 +531,8 @@ function cancelNewRun() { hideNewRunConfirm(); return false; }
 (function overlayNewRunConfirm() {
   if (typeof startGame === "function") {
     startGame = function() {
-      if (typeof hasSave === "function" && hasSave()) {
+      const slotOccupied = typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave());
+      if (slotOccupied) {
         if (showNewRunConfirm()) {
           const confirmFn = typeof window !== "undefined" ? window.confirm : null;
           const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
