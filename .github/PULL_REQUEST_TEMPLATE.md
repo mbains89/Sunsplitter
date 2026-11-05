@@ -1,33 +1,40 @@
 # Pull request
 
-Fill this template before review. Orchestrator reads the PROOF block as the receipt. Do not omit fields.
+Shape required by `AGENTS.md` §6. Keep it short and plain.
 
-## Summary
+## What and why
 
 - Ticket:
-- Lane:
-- Base SHA:
+- Player-visible problem:
+- Fix:
 
-## PROOF
+## Base
+
+- Work branch:
+- Base commit:
+
+## Scene declaration
+
+Only when a scene changed; otherwise write `no scene changes`.
+
+- Entry preconditions:
+- State writes:
+- Death exposure:
+- Dead-speech / dead-appearance checks:
+- Image status:
+
+## Verification
+
+Commands run against the PR head and their results. Write `NOT_AVAILABLE` (with the reason) for anything that could not run.
 
 ```
-TICKET:
-BASE:
+HEAD:
+-
+```
 
-GOAL CHECKS:
-- [ ] check 1 — evidence:
-- [ ] check 2 — evidence:
-- [ ] check 3 — evidence:
+## Files touched
 
-VERSION PAINT:
-VERSION LOCK: lane 0.30.1 · certified 0.28.1d · NO-PUBLISH · 0.36 PAINT
-
-RECEIPT:
-- PR:
-- HEAD sha:
-- CI: (optional; existing version-release-policy / version-verify / version-simulation-smoke)
-- merge method required: merge-commit (no squash, no tag, no deploy)
-
+```
 FILES TOUCHED:
 -
 
@@ -37,23 +44,10 @@ DIFF STAT:
 - deletions:
 ```
 
-`FILES TOUCHED:` must match the `/goal` `touch:` list. A gap is a fail.
+## Open questions for Manraj
 
-`DIFF STAT:` is required. Use a short `git diff --stat` summary (`N files changed, +X, -Y`). Wholesale regenerations (validate.js-class) must be visible here. A missing line is a fail.
+- none
 
-## After merge
+## Never in a ticket PR
 
-Post a PR comment, exactly:
-
-`MERGED_TIP: <sha> · PARENTS: <p1> <p2> · VERSION_PAINT: <string>`
-
-Then stop. Do not start the next ticket.
-
-## Prohibitions
-
-- No 0.36 OPEN product (paint already exists; do not mint / certify / publish)
-- No Netlify
-- No certify
-- No squash / tag / deploy / clone-as-proof
-- No remint of a spent ticket
-- No touch of PR 45 / draft PR 46 unless the goal names them
+Merge to `main`, tag, Release, deploy, Netlify, certify, squash, force-push.
