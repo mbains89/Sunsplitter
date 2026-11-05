@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 24999ca (after PR #485)`
+`work_branch_tip: 0eead44 (after PR #488)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
 
@@ -18,6 +18,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `deployment: none authorized`
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
+`pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
 
 - `main` is `8d23109`. It has not moved and is far behind the work branch. Close-out to `main` needs Manraj.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -46,13 +47,18 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 483 | SUN-UNREADABLE-SAVE-01 | An unreadable save is named on the title screen, and starting a new run asks before replacing it. |
 | 484 | SUN-PLATE-FACES-05 | Any plate showing a dead or absent crew face falls back to an empty corridor. Probe: 0 exposures across 2,025 renders. |
 | 485 | SUN-LEGACY-DEATHBEAT-01 | Legacy resume lands on the four Act III death beats instead of skipping them. |
+| 486 | SUN-DOCS-TRUTH-01 | This page, ROADMAP roles, and the live ticket queue. Process only. |
+| 487 | SUN-SCENE-COVERAGE-01 | CI check: 300 seeded runs must reach all 223 live scenes, with no dead ends. |
+| 488 | SUN-CREW-FOCUS-DIGITS-01 | Digit shortcuts keep working after clicking Crew. Found by the browser bot. |
+| this PR | SUN-BROWSER-BOT-01 | `scripts/sun-browser-bot.mjs`, a manual real-browser full-run tool, plus the 0.36 keyboard and resume evidence in `docs/SUN_036_BROWSER_EVIDENCE.md`. |
 
 ## Open
 
 **Lead queue (no owner decision needed):**
 
-- Helper-chat bootstrap prompts for Myth, Hex and Muse, saved in the Sunsplitter project.
-- Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15).
+- Keep running `scripts/sun-browser-bot.mjs` batches after each batch of merges, and fix what it finds as one-PR tickets.
+- Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
+- Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
 
 **Stale PRs to close.** Manraj closes these; the lead's close calls are blocked by the session's permission policy. #297 and #304 (Copilot; #297 is on the do-not-merge list), #389 and #390 (superseded by #481), #407 (superseded), #436, #445 and #465 (retired multi-bot roadmap docs), #451 (superseded by the landed 0.36 keyboard work), #452 (superseded by #474–#477 and #484).
 
@@ -63,9 +69,15 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 3. **Intro slide 1 plate shows Amara.** The art-event audit checks lock it. Keep it, or route it to Muse for a people-free alternative?
 4. **Story wording, for Myth review.** The tether floor line (#482) and the unreadable-save message (#483) are lead-written.
 5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
-6. **Dead scene.** `act3_crisis_declare` is unreachable. Cut it, or wire it?
-7. **Balance, for Hex.** A cohesion farming loop at `final_choice`.
-8. **Close-out.** When to consolidate the work branch onto `main`.
+6. **Repeatable hold/abort loop at `final_choice`.** On a jury-rigged or unsealed Deck 4, choosing Hold leads to `patch_fails`. Its Abort ("Choose a softer final path") returns to `final_choice`, and Hold is offered again. Each lap gives +2 cohesion and the hold's lean, for −3 integrity, until integrity drops under the hold gate. Measured from integrity 70 and cohesion 30:
+   - Jiro navigating: 14 laps. Cohesion reaches 58 and future lean +42, which flips the run's ideology.
+   - Mira navigating: 15 laps. Cohesion 60, future lean +30.
+   - No crew buy-in: 6 laps, a net loss.
+
+   `scripts/destination-checks.mjs` asserts that Hold is re-offered after an abort, so the fix is a design call. **(A, recommended)** After an abort, `final_choice` stops offering Hold, matching the abort's own wording. **(B)** Keep offering Hold, but only the first abort pays cohesion, and a repeat hold adds no lean.
+7. **Close-out.** When to consolidate the work branch onto `main`.
+
+*Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.
 
 ## L-025–L-028 dispositions
 
@@ -83,6 +95,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Manraj:** answer decision 1 (preview deploy of the tip). Then play it and report bugs; each bug becomes a one-PR ticket.
+**Lead:** keep landing lead-scope fixes and evidence until Manraj is ready to play. **Manraj:** decision 6 (A or B) is the cheapest one to unblock. Decision 1 (preview deploy) can wait until you want to play.
 
 <!-- STATUS_COMPLETE -->
