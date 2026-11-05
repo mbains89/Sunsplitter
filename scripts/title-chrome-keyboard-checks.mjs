@@ -147,10 +147,14 @@ export function titleChromeKeyboardChecks(runtime) {
     if (!fixture.resumePath.prevented || fixture.resumePath.resumeClicks !== 1 || fixture.resumePath.beginClicks !== 0) {
       errors.push("Enter did not activate btn-resume when Continue was visible");
     }
-    if (fixture.commander.prevented || fixture.commander.beginClicks !== 0 || !fixture.commander.visible) {
+    // SUN-MODAL-HOTKEYS-01: the open dialog now owns Enter (it may preventDefault); the title
+    // shortcut must still not fire behind it, and the dialog must stay open.
+    if (fixture.commander.beginClicks !== 0 || !fixture.commander.visible) {
       errors.push("title chrome keydown ignored commander-create guard");
     }
-    if (fixture.confirm.prevented || fixture.confirm.beginClicks !== 0 || !fixture.confirm.visible) {
+    // SUN-MODAL-HOTKEYS-01: the open dialog now owns Enter (it may preventDefault); the title
+    // shortcut must still not fire behind it, and the dialog must stay open.
+    if (fixture.confirm.beginClicks !== 0 || !fixture.confirm.visible) {
       errors.push("title chrome keydown ignored new-run-confirm guard");
     }
     if (fixture.gameplay.prevented || fixture.gameplay.beginClicks !== 0) {
