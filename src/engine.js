@@ -1123,7 +1123,7 @@ function resolveSceneImage(id, scene) {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
