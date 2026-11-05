@@ -2840,7 +2840,9 @@ function act3SpineImageRepeatChecks(runtime) {
     }
   }
   for (const row of fixture.resumes) {
-    const image = row.expectedId === "act3_spine_next" ? expected : "images/corridor.jpg";
+    // corridor.jpg shows Vess (SUN-PLATE-FACES-05): warmth scenes keep it only while she is aboard.
+    const image = row.expectedId === "act3_spine_next" ? expected
+      : (row.status === "living" ? "images/corridor.jpg" : "images/corridor_variant_3.jpg");
     if (!row.saved || !row.loaded || !row.stable || row.id !== row.expectedId || row.image !== image) {
       errors.push(`act3 image-only resume changed state or image: ${JSON.stringify(row)}`);
     }

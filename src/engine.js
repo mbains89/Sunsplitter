@@ -1211,9 +1211,26 @@ function resolveSceneImage(id, scene) {
     return "images/corridor_variant_2.jpg";
   }
 
-  // After all id-keyed guards: honor explicit scene.image, then map.
-  if (scene && scene.image) return scene.image;
-  return map[id] || null;
+  // After all id-keyed guards: honor explicit scene.image, then map. SUN-PLATE-FACES-05: a
+  // shared plate that shows named crew renders only while all of them are alive and aboard.
+  const chosen = (scene && scene.image) || map[id] || null;
+  if (chosen && !plateFacesPresent(chosen)) return "images/corridor_variant_3.jpg";
+  return chosen;
+}
+
+// SUN-PLATE-FACES-05: named crew visible in shared (non-portrait) plates, checked by eye
+// against images/bodysuit_*.jpg. The fallback corridor_variant_3.jpg is an empty corridor distinct
+// from the act3_spine_next hub plate (corridor_variant_2.jpg), so hub -> warmth never repeats.
+const PLATE_FACES = {
+  "images/corridor.jpg": ["vess"],
+  "images/corridor_variant.jpg": ["amara", "jiro"],
+  "images/observation_bridge_alt.jpg": ["amara", "elias"],
+  "images/crisis.jpg": ["amara", "jiro", "sela"],
+  "images/empty_berths.jpg": ["amara"]
+};
+function plateFacesPresent(src) {
+  const faces = PLATE_FACES[src];
+  return !faces || faces.every(isAlive);
 }
 
 function toggleCrewPanel() {
