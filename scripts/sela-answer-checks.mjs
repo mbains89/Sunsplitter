@@ -123,7 +123,7 @@ export function selaAnswerChecks(runtime) {
             expect(dead ? story().includes(ABSENT_CAST_TEXT) && !story().includes(answer) : story().includes(answer), "saved response has wrong speaker");
             const choices = gameplayChoiceButtons();
             expect(choices.length === 1 && !choices[0].disabled, "saved response has no free exit");
-            expect(resolveSceneImage(id, scenes[id]) === (dead ? "images/corridor_variant.jpg" : "images/sela_ritual.jpg"), "saved response image claims wrong cast");
+            expect(resolveSceneImage(id, scenes[id]) === (dead ? "images/corridor_variant_2.jpg" : "images/sela_ritual.jpg"), "saved response image claims wrong cast");
           }
         }
       }

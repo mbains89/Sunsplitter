@@ -118,12 +118,15 @@ if (typeof document.addEventListener === "function") {
 
 function parseSemanticVersion(value) {
   if (typeof value !== "string") return null;
-  const match = value.trim().match(/^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
+  // Optional lowercase hotfix letter after the last number (0.28.1c, 0.28.1d) is a
+  // later build of the same core, not unknown syntax.
+  const match = value.trim().match(/^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?([a-z])?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
   if (!match) return null;
-  const prerelease = match[4] ? match[4].split(".") : [];
+  const prerelease = match[5] ? match[5].split(".") : [];
   if (prerelease.some(part => /^\d+$/.test(part) && part.length > 1 && part.startsWith("0"))) return null;
   return {
     core: [Number(match[1]), Number(match[2]), Number(match[3] || 0)],
+    hotfix: match[4] || "",
     prerelease
   };
 }
@@ -135,6 +138,7 @@ function compareSemanticVersions(left, right) {
   for (let i = 0; i < a.core.length; i += 1) {
     if (a.core[i] !== b.core[i]) return a.core[i] < b.core[i] ? -1 : 1;
   }
+  if (a.hotfix !== b.hotfix) return a.hotfix < b.hotfix ? -1 : 1;
   if (!a.prerelease.length && !b.prerelease.length) return 0;
   if (!a.prerelease.length) return 1;
   if (!b.prerelease.length) return -1;
@@ -1116,14 +1120,14 @@ function resolveSceneImage(id, scene) {
   // Scene-level image: is honored only after guards fall through (0.24.2).
 
   // The Off-Shift portrait asserts Vess is present, including on saved renders.
-  if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant.jpg";
+  if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant_2.jpg";
 
   // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1146,7 +1150,7 @@ function resolveSceneImage(id, scene) {
   // Living-arc conflict plate shows Tomas, Mira, and Amara.
   if (id === "arc_living_3") {
     if (!isAlive("tomas") || !isAlive("mira") || !isAlive("amara")) {
-      return "images/corridor.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1154,7 +1158,7 @@ function resolveSceneImage(id, scene) {
   // as the scene. Saved invalid state must never render a dead speaker's face.
   if (id === "pair_shield_cold") {
     if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
-      return "images/corridor_variant.jpg";
+      return "images/corridor_variant_2.jpg";
     }
   }
 
@@ -1168,14 +1172,16 @@ function resolveSceneImage(id, scene) {
   }
 
   // Faction / debt / group plates: substitute whenever ANY of the eight named crew is not alive (0.25 Edit H).
-  // Enumerated against live sceneImages map at implementation. faction_split permanently on corridor_variant.
+  // Enumerated against live sceneImages map at implementation. When any of the eight is gone, debt_notice and
+  // faction_split(_alt) fall back to the empty corridor_variant_3.jpg (corridor_variant.jpg shows Amara + Jiro);
+  // reckon_public / reckon_summary fall back to observation.jpg.
   if (id === "faction_split" || id === "faction_split_alt" || id === "debt_notice" ||
       id === "reckon_public" || id === "reckon_summary") {
     const eight = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
     const anyMissing = eight.some(k => !isAlive(k));
     if (anyMissing) {
       if (id === "debt_notice" || id === "faction_split" || id === "faction_split_alt") {
-        return "images/corridor_variant.jpg";
+        return "images/corridor_variant_3.jpg";
       }
       return "images/observation.jpg";
     }
@@ -1183,14 +1189,24 @@ function resolveSceneImage(id, scene) {
 
   if (id === "crew_walk" || id === "status") {
     // absence felt — prefer corridor / empty capacity plates when depleted
-    if (state.survivors <= 5) return "images/corridor.jpg";
+    if (state.survivors <= 5) return "images/corridor_variant_2.jpg";
+  }
+
+  // SUN-CORRIDOR-SCENES-04 (Myth ruling): corridor_variant.jpg shows Amara and Jiro, so these
+  // scenes may render it only while both are alive and aboard (isAlive is false for unrecovered
+  // Jiro). Always-empty scenes can never have both present, so they always use an empty hall.
+  if (["coolant_trade", "seal_or_food", "prom_vent_break"].includes(id)) return "images/corridor_variant_3.jpg";
+  if (["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds", "prom_vent", "prom_vent_keep"].includes(id) &&
+      !(isAlive("amara") && isAlive("jiro"))) {
+    return "images/corridor_variant_2.jpg";
   }
 
   // The same absent-participant view must not retain an intimate portrait.
   // Earlier audited neutral aliases remain authoritative; this only covers
   // the remaining conversation defaults, using existing in-tree empty art.
   if (!livingCastPresent(id) || (livingCastImageOnly[id] && !livingCastImageOnly[id].every(isAlive))) {
-    return "images/corridor_variant.jpg";
+    return "images/corridor_variant_2.jpg";
   }
 
   // After all id-keyed guards: honor explicit scene.image, then map.

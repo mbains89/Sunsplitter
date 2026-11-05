@@ -299,7 +299,7 @@ function runtimeErrors(runtime) {
   return runtime.evaluate(`(() => {
     const errors = [];
     const expectedBond = "images/quiet_mira.jpg";
-    const deadFallback = "images/corridor_variant.jpg";
+    const deadFallback = "images/corridor_variant_2.jpg";
     const prior = {
       // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): match tip state.js staged plate.
       romance_lena_1: "images/romance_lena_1.jpg",
