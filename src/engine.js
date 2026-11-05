@@ -1576,12 +1576,7 @@ function inspectSaveImportText(text) {
 
 function buildSaveExport() {
   const raw = readRawSave();
-  if (!validRawSnapshot(raw)) {
-    const unreadable = unreadableSaveRaw();
-    if (!unreadable) return null;
-    const stamp = new Date(Date.now()).toISOString().slice(0, 10);
-    return { filename: `sunsplitter-save-unreadable-${stamp}.json`, text: unreadable };
-  }
+  if (!validRawSnapshot(raw)) return null;
   const save = JSON.parse(raw);
   const exportedAt = Date.now();
   const version = String(save.gameVersion || "legacy").replace(/[^0-9A-Za-z.-]+/g, "-").slice(0, 32) || "legacy";
@@ -1781,8 +1776,8 @@ function readRawSave() {
 }
 
 // SUN-UNREADABLE-SAVE-01: bytes in a slot that this build cannot load (a scene id it does not
-// know, a corrupt write). The title must say so, keep them exportable, and confirm before a new
-// run overwrites them; before this they vanished silently and Begin replaced them unasked.
+// know, a corrupt write). The title still fails closed (no Continue/Export, per 0.32), but it
+// says the slot exists and Begin confirms before replacing it; before this Begin replaced it unasked.
 function unreadableSaveRaw() {
   if (hasSave()) return null;
   for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
@@ -2078,10 +2073,10 @@ function refreshTitleResumeUI() {
   }
   let unreadable = null;
   if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
-  if (unreadable) flashSaveStatus("Saved run can't be read by this version. Export it before starting a new run.", true, true);
+  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Starting a new run will replace it.", true, true);
   if (exportBtn) {
     let exportable = false;
-    try { exportable = validRawSnapshot(readRawSave()) || !!unreadable; } catch (e) { /* keep hidden */ }
+    try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
     exportBtn.classList.toggle("hidden", !exportable);
     const xchip = document.getElementById("export-import-chip");
     if (xchip) {

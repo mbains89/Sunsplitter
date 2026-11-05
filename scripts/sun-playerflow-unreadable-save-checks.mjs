@@ -1,5 +1,5 @@
-// SUN-UNREADABLE-SAVE-01 — a save this build cannot read is announced, exportable, and never
-// overwritten by Begin without the new-run confirm.
+// SUN-UNREADABLE-SAVE-01 — a save this build cannot read is announced and never overwritten by
+// Begin without the new-run confirm. The title still fails closed (no Continue, no Export; 0.32).
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,9 +40,7 @@ const unknownScene = probe(`snap.scene = "scene_removed_in_future_build"; const 
 assert.equal(unknownScene.hasSave, false);
 assert.equal(unknownScene.resumeHidden, true, "Continue must stay hidden for an unloadable save");
 assert.match(unknownScene.status, /can't be read/, "title must say the save cannot be read");
-assert.equal(unknownScene.exportHidden, false, "Export must stay available for unreadable bytes");
-assert.equal(unknownScene.exportText, unknownScene.raw, "Export must hand back the exact stored bytes");
-assert.match(unknownScene.exportName, /unreadable/);
+assert.equal(unknownScene.exportHidden, true, "0.32 fail-closed: no Export for an unloadable save");
 assert.equal(unknownScene.confirmShown, true, "Begin must ask before replacing unreadable bytes");
 assert.equal(unknownScene.slotUntouched, true, "Begin must not overwrite before confirm");
 
@@ -56,4 +54,4 @@ assert.equal(valid.hasSave, true);
 assert.doesNotMatch(valid.status, /can't be read/, "a readable save must not show the warning");
 assert.equal(valid.resumeHidden, false);
 
-console.log("PASS sun-playerflow-unreadable-save: unreadable slot announced, exportable as raw bytes, confirm before overwrite");
+console.log("PASS sun-playerflow-unreadable-save: unreadable slot announced, title fails closed, confirm before overwrite");
