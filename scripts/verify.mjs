@@ -2178,19 +2178,44 @@ function saveVersionSemanticChecks(runtime) {
       loadedGameVersion = version;
       return scenes[sceneId].onEnter() || null;
     };
-    const versions = ["0.9", "0.10", "0.24.9", "0.25.0-rc.1", "0.25", "0.25.0", "0.100", "1.0", "not-a-version"];
-    return Object.fromEntries(versions.map(version => [version, {
+    const versions = ["0.9", "0.10", "0.24.9", "0.24.9d", "0.25.0-rc.1", "0.25", "0.25.0", "0.28.1c", "0.28.1d", "0.100", "1.0", "not-a-version"];
+    const rows = Object.fromEntries(versions.map(version => [version, {
       elias: check(version, "act3_lethal_elias_order"),
       mira: check(version, "act3_lethal_mira_board")
     }]));
+    // SUN-REVIEW T1-1: a save stamped with a letter hotfix suffix must survive a
+    // snapshot roundtrip and reach both lethals exactly like a fresh-save run.
+    const roundtrip = stamp => {
+      resetRunState();
+      const snap = snapshotState();
+      if (stamp != null) snap.gameVersion = stamp;
+      snap.scene = "act3_lethal_elias_order";
+      resetRunState();
+      const applied = applySnapshot(JSON.parse(JSON.stringify(snap)));
+      const version = loadedGameVersion;
+      const elias = scenes.act3_lethal_elias_order.onEnter() || null;
+      const mira = scenes.act3_lethal_mira_board.onEnter() || null;
+      return { applied, version, elias, mira };
+    };
+    rows.__fresh = roundtrip(null);
+    rows.__suffixed = roundtrip("0.28.1d");
+    return rows;
   })()`);
 
-  for (const version of ["0.9", "0.10", "0.24.9", "0.25.0-rc.1", "not-a-version"]) {
+  const fresh = fixture.__fresh;
+  const suffixed = fixture.__suffixed;
+  if (!fresh.applied || !suffixed.applied) errors.push("fresh or 0.28.1d snapshot did not apply");
+  if (suffixed.version !== "0.28.1d") errors.push(`0.28.1d save stamp not preserved on load (got ${suffixed.version})`);
+  if (fresh.elias !== null || fresh.mira !== null) errors.push("fresh save no longer reaches the Elias and Mira lethal encounters");
+  if (suffixed.elias !== fresh.elias || suffixed.mira !== fresh.mira) {
+    errors.push(`0.28.1d save does not reach Elias/Mira lethals like a fresh save (elias=${suffixed.elias} mira=${suffixed.mira})`);
+  }
+  for (const version of ["0.9", "0.10", "0.24.9", "0.24.9d", "0.25.0-rc.1", "not-a-version"]) {
     if (fixture[version].elias !== "faction_split" || fixture[version].mira !== "faction_split") {
       errors.push(`save version ${version} did not fail closed before the 0.25 lethal-scene threshold`);
     }
   }
-  for (const version of ["0.25", "0.25.0", "0.100", "1.0"]) {
+  for (const version of ["0.25", "0.25.0", "0.28.1c", "0.28.1d", "0.100", "1.0"]) {
     if (fixture[version].elias !== null || fixture[version].mira !== null) {
       errors.push(`save version ${version} was incorrectly treated as older than 0.25`);
     }
