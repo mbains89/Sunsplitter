@@ -4,6 +4,7 @@
 
 **Steward:** Lead (Claude, per `AGENTS.md` v2, 2026-11-05). The Grok program-office header below is history; read Grok/Build as Lead.
 **Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
+**Close-out ruling (Manraj, 2026-11-05):** close out now. Executed as PR #492 (`version/0.30.1-main-closeout.1` → `main`, merge commit `e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a`, all three `main` gates green). Every "no main close-out" hold below is satisfied for that close-out only; the next close-out again needs Manraj's go. No tag, release, deploy, Netlify or certification came with it.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
 **Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
 **Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
@@ -62,7 +63,7 @@ It also states role, files read, and whether implementation is authorized. If th
 
 - Write authority is the version lane `version/0.30.1-main-reconcile-ci.1`, not `main`.
 - GitHub merge-commit is the default land path for ticket PRs into that lane.
-- Do not promote the lane onto `main`. Do not open or merge a version close-out.
+- Do not promote the lane onto `main` without Manraj's go. (Given 2026-11-05; executed as PR #492, `main` @ `e5a71fc`.)
 - Leave PR 45 and draft PR 46 untouched.
 - Do not certify this lane. Last certified remains `0.28.1d`.
 - Netlify fires only when Manraj names an exact SHA. No auto-Netlify. Observed 2026-11-05: production is deploy `6ab363f139fc952b12339989` at commit `0e7535d`. The live preview at deploy `6a974ce6083c96103110b960` is not certification and is not a close-out.
@@ -650,7 +651,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Conventional HUD/dashboard/meters/quest log | REJECTED |
 | V2 literal-name lint as zero gate | REJECTED; classified spike detector only |
 | Leftover drain reopen | REJECTED unless owner reopens it by name |
-| Close-out of this lane to `main` in the current window | HELD |
+| Close-out of this lane to `main` in the current window | DONE: Manraj go 2026-11-05, PR #492, `main` @ `e5a71fc` |
 | Certification of 0.33 | HELD; last certified remains 0.28.1d |
 
 ---
