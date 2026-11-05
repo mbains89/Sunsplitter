@@ -567,6 +567,20 @@ function keyboardTargetIsInteractive(target) {
   return false;
 }
 
+// SUN-CREW-FOCUS-DIGITS-01: digit shortcuts stand down only for text entry and for a focused
+// choice button (native focus handling owns it). A focused Crew toggle or other chrome button
+// keeps digits live; Enter/Space still defer to every focused control.
+function keyboardTargetIsTextEntry(target) {
+  if (!target) return false;
+  const tag = String(target.tagName || target.nodeName || "").toUpperCase();
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(tag)) return true;
+  if (target.isContentEditable) return true;
+  if (typeof target.closest === "function") {
+    return !!target.closest("input, select, textarea, [contenteditable='true']");
+  }
+  return false;
+}
+
 function activateGameplayChoice(btn, event) {
   if (!btn || btn.disabled) return false;
   if (event && typeof event.preventDefault === "function") event.preventDefault();
@@ -577,7 +591,10 @@ function activateGameplayChoice(btn, event) {
 
 function handleGameplayKeydown(event) {
   if (!event || event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
-  if (keyboardTargetIsInteractive(event.target)) return false;
+  const digitKey = /^[1-9]$/.test(event.key || "");
+  if (digitKey
+    ? keyboardTargetIsTextEntry(event.target) || gameplayChoiceButtons().includes(event.target)
+    : keyboardTargetIsInteractive(event.target)) return false;
 
   const game = document.getElementById("game-screen");
   if (!game || game.classList.contains("hidden")) return false;
