@@ -13,7 +13,8 @@ registerScenes({
   // STATE WRITES: none; flags.elias_question deliberately remains cold
   // DEATH EXPOSURE: none
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("elias")
-  // IMAGE: REUSE images/corridor_variant.jpg; NO ART_REQUEST
+  // IMAGE: REUSE images/corridor_variant.jpg (shows Amara + Jiro); engine renders
+  //   corridor_variant_2.jpg unless both are alive and aboard; NO ART_REQUEST
   // PHRASE: spends "Standing question." once, here
   // ═════════════════════════════════
 
