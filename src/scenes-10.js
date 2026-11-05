@@ -1,11 +1,23 @@
 // Sunsplitter — scenes-10.js
 // 0.28.1c size hygiene. Pure mechanical. crises: tether sighting + vent + rush
 // Strict scene shape only: text | choices | onEnter | image
+let act2TetherAllusionsOnEntry = { elias: false, amara: false };
+
 registerScenes({
 
+  // PRE: tether sighting, living speaker, made unalluded promise | WRITES: consumes Elias/Amara allusion flags on entry
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Elias/Amara prose is living-gated | IMAGE: existing debris-field plate
+  // FLOOR (SUN-TETHER-FLOOR-01): when neither paid route is affordable, a free route to act2_tether_rush writes nothing
   act2_tether_sighting: {
     image: "images/debris_field.jpg",
-    onEnter: () => {},
+    onEnter: () => {
+      act2TetherAllusionsOnEntry = {
+        elias: isAlive("elias") && state.promises.elias === "made" && !state.flags.prom_elias_alluded,
+        amara: isAlive("amara") && state.promises.amara === "made" && !state.flags.prom_amara_alluded
+      };
+      if (act2TetherAllusionsOnEntry.elias) state.flags.prom_elias_alluded = true;
+      if (act2TetherAllusionsOnEntry.amara) state.flags.prom_amara_alluded = true;
+    },
     text: () => {
       let t = `The contact resolves on the third scope pass: the agri-annex, whole, trailing four kilometers back on nothing but its own dying momentum. The observation strip still glows green. Someone is keeping the grow-lamps fed.
 
@@ -18,27 +30,35 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       if (isAlive("elias")) {
         t += `\n\n"Nine hours," Elias says. "Suit prep takes one. Decide in eight."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.elias === "made" && !state.flags.prom_elias_alluded) {
+        if (state.promises.elias === "made" &&
+            (act2TetherAllusionsOnEntry.elias || (renderingSavedScene && state.flags.prom_elias_alluded))) {
           t += `\n\n"Deck Four pushed back another fragment last night. When it finishes, I hold you to the order of operations."`;
-          state.flags.prom_elias_alluded = true;
         }
       }
       if (isAlive("lena")) t += `\n\n"If Tomas is alive in there, he's been living on sprouted seed stock and reclaimed water," Lena says. "Malnourished, half-blind from the lamps, and treatable. Dead isn't. Factor that."`;
       if (isAlive("amara")) {
         t += `\n\nAmara doesn't look away from the green light. "That's Tomas and every growing thing we own, on one bad rope. You'll not be offered a cheaper miracle than eleven hundred liters. You'll also never drink a miracle."`;
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
-        if (state.promises.amara === "made" && !state.flags.prom_amara_alluded) {
+        if (state.promises.amara === "made" &&
+            (act2TetherAllusionsOnEntry.amara || (renderingSavedScene && state.flags.prom_amara_alluded))) {
           t += `\n\n"The beds are holding. So is your line in my book. I reread it when the air runs thin."`;
-          state.flags.prom_amara_alluded = true;
         }
       }
       if (isAlive("sela")) t += `\n\n"The annex was built to carry seeds through the death of a world," Sela says. "It may have carried a man instead. I would like to know which."`;
       return t;
     },
-    choices: [
-      { text: "Vent the reserve. Match the drift.", next: "act2_tether_vent", effects: { supplies: -6 }, lean: { living: 1 } },
-      { text: "Hard intercept. Catch it fast and keep the water.", next: "act2_tether_rush", effects: { integrity: -2 }, lean: { future: 1 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Vent the reserve. Match the drift.", next: "act2_tether_vent", effects: { supplies: -6 }, lean: { living: 1 } },
+        { text: "Hard intercept. Catch it fast and keep the water.", next: "act2_tether_rush", effects: { integrity: -2 }, lean: { future: 1 } }
+      ];
+      // SUN-TETHER-FLOOR-01: both routes cost; with no reserve water and no hull margin the scene
+      // would render zero enabled exits. Governed floor writes nothing, like arc_fork / custody.
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({ text: "There is no water to vent and no margin to spend. Make the catch on what the frame has left.", next: "act2_tether_rush", lean: { future: 1 } });
+      }
+      return routes;
+    }
   },
 
   act2_tether_vent: {
@@ -73,7 +93,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
   },
 
   act2_tether_rush: {
-    image: "images/debris_field.jpg",
+    image: "images/tether_ride.jpg",
     onEnter: () => {
       state.flags.tether_rushed = true;
       remember("Ordered a hard intercept of the agri-annex to preserve the water reserve.");

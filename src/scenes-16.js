@@ -1,24 +1,32 @@
 // Sunsplitter — scenes-16.js
 // 0.28.1c size hygiene. Pure mechanical. crises: spine_next + vess_signal + cost
 // Strict scene shape only: text | choices | onEnter | image
+let act3SpineTomasAllusionOnEntry = false;
+
 registerScenes({
 
+  // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: consumes Tomas allusion flag on entry
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: roster-neutral corridor_variant_2; distinct from immediate warmth returns
   act3_spine_next: {
-    image: "images/corridor.jpg",
+    image: "images/corridor_variant_2.jpg",
     onEnter: () => {
+      act3SpineTomasAllusionOnEntry = false;
       // 0.24: Vess arrival window opens once after vault face; guaranteed, no refuse-contact
-      if (!state.recovered || !state.recovered.vess) return "vess_signal";
+      if ((!state.recovered || !state.recovered.vess) && !state.dead.includes("vess")) return "vess_signal";
+      act3SpineTomasAllusionOnEntry = state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded;
+      if (act3SpineTomasAllusionOnEntry) state.flags.prom_tomas_alluded = true;
     },
     text: () => {
-      let t = `The vault light stays on behind you. The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
-      if (state.recovered && state.recovered.vess) {
+      let t = `The vault light stays on behind you.`;
+      if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
+      if (isAlive("vess")) {
         t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
       }
       t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
-      if (state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded) {
+      if (state.promises.tomas === "made" && isAlive("tomas") &&
+          (act3SpineTomasAllusionOnEntry || (renderingSavedScene && state.flags.prom_tomas_alluded))) {
         t += `\n\nTomas finds you in the corridor on the way past. "Names first, then numbers. You put the order of mercy on record once. I count easier since."`;
-        state.flags.prom_tomas_alluded = true;
       }
       return t;
     },
@@ -36,22 +44,23 @@ registerScenes({
       if (isAlive("tomas") && !state.flags.quiet_tomas_done) {
         opts.push({ text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas", tag: "bond" });
       }
-      // 0.28.1b: Amara+Tomas private — intimacy_window can fire before Tomas recovery
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && state.flags.hydro === "full") {
+      // 0.28.1b: Amara+Tomas private — closed by shared encounter OR privacy leave (not a fabricated relationship)
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && state.flags.hydro === "full") {
         opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
       }
       if (isAlive("jiro") && !hasMark("jiro", "bonded") && !hasMark("jiro", "bond_skipped")) {
         opts.push({ text: "Join Jiro on a competence hang at the star tracker.", next: "bond_jiro", effects: { cohesion: 1 }, alive: "jiro", tag: "bond" });
       }
       // 0.28: pair settle + warmth optional one-shots (gated)
+      // SUN-V036-CREW-CONFLICT-01: existing pair offers named as living-vs-living conflict. No new flags.
       if (isAlive("elias") && !isAlive("mira") && attributableDeath("mira") && !state.flags.pair_shield) {
-        opts.push({ text: "Elias is still at the board after the report.", next: "pair_shield_cold" });
+        opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
-        opts.push({ text: "The sound of two people working carries from the trunk.", next: "pair_grudge_settle" });
+        opts.push({ text: "Tomas and Jiro are working the same trunk and not speaking.", next: "pair_grudge_settle" });
       }
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
-        opts.push({ text: "Hydroponics wants a quiet word.", next: "pair_favor_confront" });
+        opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
@@ -76,11 +85,11 @@ registerScenes({
     }
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════
   // 0.24 — Vess Arrival + short asymmetric 5th romance
   // Structural asymmetry: informed run-reading offer, transmission currency,
   // power stays hers, fewer beats, one explicit sufficient. Not a fifth ladder.
-  // ═══════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════
 
   vess_signal: {
     image: "images/transmission.jpg",
@@ -92,15 +101,11 @@ registerScenes({
       } else {
         t += `The automatic filters finally pull a clean string.`;
       }
-      t += `
-
-Authentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.
-
-The voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
+      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
       if (isAlive("mira")) {
         t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
       } else {
-        t += `\n\nThe geometry is clear from the boards: matchable, but the reaction-mass reserve held for a late course option will be spent, and the environmental bus will run degraded to power her relay core. No second window.`;
+        t += `\n\nThe geometry is clear from the boards: matchable, but the docking burn will spend reaction mass now, and the environmental bus will run degraded to power her relay core. No second window.`;
       }
       if (isAlive("elias")) {
         t += `\n\n"Eleven months of listening," Elias says. "She already knows our hull ID. Decide whether that is a gift or a problem after she is aboard."`;
@@ -117,16 +122,10 @@ The voice is flat, timestamped, log-trained — a woman who has been her own cap
     onEnter: () => {
       state.flags.busDowngraded = true;
       state.flags.reaction_mass_spent = true;
-      // Distinct from Jiro burn course_option_lost (0.24.2)
-      state.flags.vess_course_lost = true;
-      remember("Spent the last clean reaction-mass reserve to recover Vess from Dawnbreak.");
+      remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
       remember("Environmental bus runs degraded for her relay core.");
     },
-    text: () => `Matching the fragment costs the last clean reaction-mass reserve that was held back for a late course correction. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.
-
-The window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.
-
-She is coming aboard.`,
+    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
     choices: [
       { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } },
       { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding" }

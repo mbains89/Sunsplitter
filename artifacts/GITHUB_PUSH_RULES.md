@@ -1,16 +1,69 @@
-# GitHub Push Rules — Retired
+# GitHub Branch, Pull-Request, and Check Contract
 
-**Status:** SUPERSEDED by [`/AGENTS.md`](../AGENTS.md) and [`ROADMAP.md` §6](ROADMAP.md).  
-**Effective:** authority-bootstrap merge.
+**Status:** ACTIVE repository workflow contract, subordinate to `/AGENTS.md`, `ROADMAP.md`, `LOCKS.md`, and `PROJECT_STATUS.md`.
+**Approved:** Manraj, 2026-08-30, `MAIN-RECONCILE-CI-SUCCESSOR-01`.
+**Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
 
-Do not use the former workflow from this path. It depended on direct/per-file API writes, one-file commits, ZIP-as-source reconstruction, marker-string verification, and branch labels as evidence. Those practices are retired.
+Green CI is exact-revision verification evidence. It is never, by itself, certification, release, publication, deployment, sequential-gate closure, or merge authority.
 
-The authority bootstrap itself is the roadmap's single documentation-only exception. After it merges, repository changes use:
+## Authorized branch flow
 
-1. `version/<semver>` from the exact approved predecessor;
-2. one-concern ticket branches and PRs into that version branch;
-3. merge commits for ticket PRs;
-4. one consolidated version close-out PR to `main`;
-5. exact-commit validation and release evidence defined by the roadmap.
+1. Create `version/<semver-or-approved-version-id>` from the exact approved predecessor.
+2. Create one-concern `ticket/*` branches from that version lane.
+3. Open ticket PRs from `ticket/*` to the exact intended `version/*` base in the same repository.
+4. Merge ticket PRs only with merge commits and only under separately recorded merge authority. No direct, force, squash, or rebase merge into a protected version lane.
+5. Open exactly one consolidated close-out PR from the version lane to `main`.
+6. Merge the close-out only with a merge commit after the strict exact-head gate and the required owner approval point.
+7. Rerun the strict suite against the exact resulting `main` SHA before any later release action. Release, tag, GitHub Release, publication, deployment, Pages, Netlify, or production action always requires separate explicit authority.
 
-The full chain-of-custody implementation, branch protection, required checks, release manifest, and deployment verification land in 0.28.3. Until then, follow `/AGENTS.md`, the active roadmap milestone, and the compact current status. This tombstone exists so old links fail visibly instead of silently teaching the retired process.
+Direct pushes to `main` and `version/*`, per-file API commits, ZIP-as-source reconstruction, marker checks, and branch labels as byte evidence are forbidden.
+
+## Canonical required contexts
+
+Ticket PRs from `ticket/*` to `version/*`:
+
+- `version-release-policy`
+- `version-verify`
+- `version-simulation-smoke`
+
+Consolidated close-out PRs from `version/*` to `main`:
+
+- `main-release-policy`
+- `main-verify`
+- `main-simulation-gate`
+
+The non-required strict matrix jobs may be named `main-simulation (random)`, `main-simulation (cheapest)`, and `main-simulation (priciest)`. The aggregator alone is the required main simulation context.
+
+Version smoke is deliberately bounded and non-certifying. The strict main gate runs random, cheapest, and priciest at seed `20260817`, 2,000 runs per policy, process-sharded in 500-run children with bounded heap, and reports attributable V1/V4/V5 witnesses. A high-risk ticket may run the strict gate earlier only when its dispatch explicitly requires it; doing so does not create certification or release credit.
+
+Evidence may be reused only for the same tested commit and unchanged invalidation class. Any relevant source, workflow, toolchain, manifest, fixture, seed, policy, threshold, or authority change invalidates the affected evidence. A PR merge result does not substitute for the exact post-merge `main` SHA.
+
+## Close-out approval mechanics
+
+- If a distinct Build identity opens the close-out PR, one Manraj approval is required.
+- If GitHub identity makes Build and Manraj the same reviewer identity, formal self-review is neither required nor valid; Manraj's manual merge is the approval point.
+- New commits invalidate any earlier approval and affected checks.
+- A check run, PR creation, or copyable approval text never grants merge authority.
+
+## Workflow safety
+
+- Workflows use `pull_request`, never `pull_request_target`.
+- PR-description `edited` events may run only cheap policy metadata; heavy verification and simulation do not run on `edited`.
+- Pin Node `22.16.0`, the runner image, and action commit SHAs.
+- Root permissions are exactly `contents: read`; job-level write permissions are forbidden.
+- Checkout disables credential persistence.
+- Concurrency cancels superseded runs.
+- Secrets, write-capable tokens, deploys, uploads, releases, tags, Pages, Netlify, publication, and production commands are forbidden.
+
+## Live observed rulesets (read-only GET)
+
+The branch split is a live repository observation. This ticket records it; it does not apply, edit, or bypass any GitHub ruleset. Public ruleset JSON does not include `bypass_actors`; this file does not invent that field.
+
+Read-only GET `/repos/mbains89/Sunsplitter/rulesets/{id}` on 2026-08-31 observed:
+
+- `21051662` **PIPE-BOOT protected branches** covers only `refs/heads/recovery/e4f8440-nopub`. It still requires `release-policy`, `verify`, and `simulation-gate`. It still allows merge, squash, and rebase. Last observed `updated_at`: `2026-08-31T02:46:21Z`.
+- `21894580` **Sunsplitter version protected branches** covers `refs/heads/version/*`. Merge-only. Requires `version-release-policy`, `version-verify`, and `version-simulation-smoke`. `do_not_enforce_on_create`: `true`. Created `2026-08-31T02:45:07Z`.
+- `21894561` **Sunsplitter main protected branch** covers `refs/heads/main`. Merge-only. Requires `main-release-policy`, `main-verify`, and `main-simulation-gate`. Created `2026-08-31T02:44:23Z`.
+- Tag ruleset `21051665` **PIPE-BOOT block tag creation** is unchanged.
+
+This ticket still has no ruleset-mutation authority.

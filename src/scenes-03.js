@@ -6,11 +6,22 @@ registerScenes({
   aftermath: {
     get text() {
       let t = `The immediate crisis is over. What remains is the cost.\n\n`;
-      const n = state.survivors;
-      t += `${n} still living. The manifests still pretend there could be more.\n\n`;
+      const livingN = (typeof visibleLivingCrewCount === "function")
+        ? visibleLivingCrewCount()
+        : null;
+      if (livingN == null) {
+        t += `The living remain. The manifests still pretend there could be more.\n\n`;
+      } else {
+        t += `${livingN} still living. The manifests still pretend there could be more.\n\n`;
+      }
 
       if (state.flags.crisis === "vent") {
-        t += `Three empty bunks.`;
+        const ventedBunks = (state.dead || []).filter(who => {
+          const cause = state.deathCause && state.deathCause[who];
+          return typeof cause === "string" && /vented/i.test(cause);
+        }).length;
+        const bunkWord = ({ 1: "One", 2: "Two", 3: "Three", 4: "Four" })[ventedBunks] || String(ventedBunks);
+        t += ventedBunks === 1 ? `${bunkWord} empty bunk.` : `${bunkWord} empty bunks.`;
         if (!isAlive("sela")) t += ` Sela's last yellow circle still fixed on the bulkhead — adult work, left where she put it.`;
         t += ` The air recyclers still carry a faint metallic taste`;
         if (isAlive("lena")) t += ` that Lena says is not chemical`;
@@ -93,37 +104,30 @@ registerScenes({
   lena_dying: {
     get text() {
       if (!isAlive("lena")) return `Medical is empty. The conversation you meant to have has nowhere to go.`;
-      return `You stay.
-
-Lena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.
-
-"I already used the last of the heavy stabilizers on Rourke. There is nothing left that will change the timeline. I can work until I can't. That is the only useful version of this."
-
-Her hand is close to yours. The ship is quiet around you.`;
+      return `You stay.\n\nLena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.\n\n"I already used the last of the heavy stabilizers on Rourke. There is nothing left that will change the timeline. I can work until I can't. That is the only useful version of this."\n\nHer hand is close to yours. The ship is quiet around you.`;
     },
     get choices() {
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
       const opts = [
         { text: "Promise her the work will matter. Then go deal with the crew.", next: "prom_make_lena", effects: { cohesion: 2 }, affinity: { lena: 6 }, trust: { lena: 4 } },
-        { text: "Ask her whether the vault should outrank her own remaining time.", next: "prom_make_lena", effects: { cohesion: -2 }, flag: { vault_priority: "future" }, lean: { future: 2 } }
+        { text: "Ask her whether the vault should outrank her own remaining time.", next: "prom_make_lena", effects: { cohesion: -2 }, lean: { future: 2 } }
       ];
-      // Intimate path: needs some trust and not already completed
       if (!state.romance.lena && !hasMark("lena", "declined")) {
         opts.unshift({ text: "Take her hand. Stay longer than duty requires.", next: "romance_lena_1", effects: { cohesion: 4 }, affinity: { lena: 8 } });
       }
       return opts;
     }
   },
+  // PRE: Lena living; reached from lena_dying before the intimacy decision
+  // WRITES: choices only; scene entry writes nothing
+  // DEATH: none | DEAD SPEECH/APPEARANCE: dead Lena gets the empty-blister exit
+  // IMAGE: HITL staged plate images/romance_lena_1.jpg (MEASURE_LIVE_VS_HITL_88 + OWNER HITL wire).
+  //   Living-path only; dead/empty blister keeps observation_bridge_alt_2 via resolver.
+  //   The later optional rinse stays on lena_shower / shower_lena.jpg.
   romance_lena_1: {
     get text() {
       if (!isAlive("lena")) return `The blister is empty. Whatever might have happened here has nowhere to land.`;
-      return `You take her hand.
-
-Lena looks at your fingers as if they are a diagnosis. When she speaks it is clinical and raw at once.
-
-"I am not asking for rescue. I am asking whether you will be here while I still am. If this is pity, stop. If this is something else, say so with your body or leave."
-
-The observation blister is cold. The ship is quiet. The line between comfort and crossing is still intact — barely.`;
+      return `You take her hand.\n\nLena looks at your fingers as if they are a diagnosis. When she speaks it is clinical and raw at once.\n\n"I am not asking for rescue. I am asking whether you will be here while I still am. If this is pity, stop. If this is something else, say so with your body or leave."\n\nThe observation blister is cold. The ship is quiet. The line between comfort and crossing is still intact — barely.`;
     },
     get choices() {
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
@@ -132,7 +136,8 @@ The observation blister is cold. The ship is quiet. The line between comfort and
         { text: "Hold her hand only. Stay present without sex.", next: "past_leak", effects: { cohesion: 4 }, affinity: { lena: 12 }, trust: { lena: 10 }, mark: { lena: "held_only" } },
         { text: "Step back. You will not take this from her fear.", next: "past_leak", effects: { cohesion: 1 }, affinity: { lena: 4 }, trust: { lena: 2 }, mark: { lena: "declined" } }
       ];
-    }
+    },
+    image: "images/romance_lena_1.jpg"
   },
 
 });

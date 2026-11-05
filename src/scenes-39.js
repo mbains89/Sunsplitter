@@ -15,8 +15,7 @@ She glances once at the empty recovery racks — capacity for a full medical win
 "I will keep them alive as long as the ship lets me. That is the only promise I can make."`,
     choices: [
       { text: "Give her authority over all medical decisions without question.", next: "intro_elias", effects: { cohesion: 4, supplies: -3 }, flag: { lena_authority: true }, affinity: { lena: 15 }, trust: { lena: 12 } },
-      { text: "Tell her every major intervention needs your approval. Resources are that tight.", next: "intro_elias", effects: { cohesion: -3, supplies: 2 }, flag: { lena_authority: false }, affinity: { lena: -8 }, trust: { lena: -10 } },
-      { text: "Ask her what she needs most right now.", next: "intro_elias", effects: { cohesion: 2, supplies: -5 }, flag: { lena_authority: true }, affinity: { lena: 10 }, trust: { lena: 8 } }
+      { text: "Tell her every major intervention needs your approval. Resources are that tight.", next: "intro_elias", effects: { cohesion: -3, supplies: 2 }, flag: { lena_authority: false }, affinity: { lena: -8 }, trust: { lena: -10 } }
     ],
     onEnter: () => { if (!state.dead.includes("rourke")) kill("rourke", "died while command was taken"); }
   },
@@ -34,8 +33,7 @@ He studies you.
 "Decide how hard you intend to hold this ship before the empty decks decide for you."`,
     choices: [
       { text: "Give him security authority and the right to enforce work quotas.", next: "vault_reveal", effects: { integrity: 3, cohesion: -6 }, flag: { elias_power: "high", leadership_style: "hard" }, affinity: { elias: 12 }, trust: { elias: 15, lena: -5, tomas: -5 } },
-      { text: "Keep security under your direct control. No freelancing.", next: "vault_reveal", effects: { cohesion: 3 }, flag: { elias_power: "limited", leadership_style: "balanced" }, affinity: { elias: 4 }, trust: { elias: 0 } },
-      { text: "Tell him you will not rule by fear. He will have to adapt.", next: "vault_reveal", effects: { cohesion: 5, integrity: -2 }, flag: { elias_power: "low", leadership_style: "soft" }, affinity: { elias: -10 }, trust: { elias: -12, tomas: 8 } }
+      { text: "Keep security under your direct control. No freelancing.", next: "vault_reveal", effects: { cohesion: 3 }, flag: { elias_power: "limited", leadership_style: "balanced" }, affinity: { elias: 4 }, trust: { elias: 0 } }
     ]
   },
 
@@ -43,31 +41,26 @@ He studies you.
 
 
 
+  // PRE: intro_elias exit | WRITES: vault_priority, immediate resource allocation, ideology lean, affinity, trust; degraded floor preserves L-021
+  // DEATH: none | DEAD SPEECH/APPEARANCE: all named speakers are present at this early fixed-roster beat
+  // IMAGE: REUSE images/vault_reveal.jpg; ART-R2 remains separate
   vault_reveal: {
-    text: `Mira stops you in the corridor outside the sealed cargo section.
-
-"You need to see this before you give any more orders."
-
-She opens a secondary hatch. Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.
-
-"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."
-
-The monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.
-
-Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."
-
-Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."
-
-The argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.`,
-    choices: [
-      { text: "The living come first. We protect the people who are already breathing.", next: "status", effects: { cohesion: 4 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 } },
-      { text: "This is the only future that matters. Everything else is temporary.", next: "status", effects: { cohesion: -3 }, flag: { vault_priority: "future" }, lean: { future: 6 }, affinity: { elias: 10, jiro: 8, lena: -6, tomas: -8 }, trust: { elias: 12, jiro: 10, lena: -6, tomas: -10 } },
-      { text: "We protect both until the ship forces a choice.", next: "status", effects: { cohesion: 1 }, flag: { vault_priority: "both" }, lean: { future: 2, living: 2 }, affinity: { mira: 6 } }
-    ]
+    get text() { return `${isAlive("mira") ? `Mira stops you in the corridor outside the sealed cargo section.\n\n"You need to see this before you give any more orders."` : ""}\n\n${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.\n\n${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."` : ""}\n\nThe monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.\n\n${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}\n\n${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}\n\nThe argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.\n\nThe order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
+    get choices() {
+      const mandates = [
+        { text: "Living priority — divert vault power to habitation now. Cohesion rises; embryo viability takes the first loss.", next: "status", effects: { cohesion: 4, embryos: -5 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 } },
+        { text: "Future priority — ring-fence vault power and the restart package. Preserve the full embryo ceiling; cohesion takes the first loss.", next: "status", effects: { cohesion: -3 }, flag: { vault_priority: "future" }, lean: { future: 6 }, affinity: { elias: 10, jiro: 8, lena: -6, tomas: -8 }, trust: { elias: 12, jiro: 10, lena: -6, tomas: -10 } },
+        { text: "Dual mandate — keep both grids funded for now. Spend active stores to carry the overlap.", next: "status", effects: { cohesion: 1, supplies: -3 }, flag: { vault_priority: "both" }, lean: { future: 2, living: 2 }, affinity: { mira: 6 } }
+      ];
+      if (!mandates.some(choice => canAffordEffects(choice.effects))) {
+        mandates.push({ text: "No reserve can move. Record a dual mandate without reallocating power.", next: "status", flag: { vault_priority: "both" }, lean: { future: 1, living: 1 } });
+      }
+      return mandates;
+    }
   },
   status: {
     get text() {
-      const n = state.survivors;
+      const n = visibleLivingCrewCount();
       let t = `You gather what remains of your people in the corridor outside medical.\n\n`;
       t += `${n} living.`;
       if (!isAlive("rourke")) t += ` One body already cooling.`;

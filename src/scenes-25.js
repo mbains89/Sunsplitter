@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: aftermath_seal, aftermath_seal_order, aftermath_seal_holds
   // VERSION: 0.29        TICKET: Cascade Allusive 6/6
   // PACKAGE: Eighty Seconds
@@ -13,9 +13,10 @@ registerScenes({
   // STATE WRITES: none; flags.elias_question deliberately remains cold
   // DEATH EXPOSURE: none
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("elias")
-  // IMAGE: REUSE images/corridor_variant.jpg; NO ART_REQUEST
+  // IMAGE: REUSE images/corridor_variant.jpg (shows Amara + Jiro); engine renders
+  //   corridor_variant_2.jpg unless both are alive and aboard; NO ART_REQUEST
   // PHRASE: spends "Standing question." once, here
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════
 
   aftermath_seal: {
     image: "images/corridor_variant.jpg",
@@ -41,6 +42,11 @@ registerScenes({
     choices: [ { text: "Let the private hour begin.", next: "offshift_open" } ]
   },
 
+  // SUN-V035-PLAYTEST-JOIN-TYPO-01: paragraph boundary only; no prose/mechanics changes.
+  // PRE: resolved crisisPath + junctionChoice; existing redirects remain otherwise.
+  // WRITES: entry/render none; choices retain resource deltas, flags.reckon and ideology.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: existing isAlive/voicesFor/debtors guards retained.
+  // IMAGE: REUSE images/corridor_variant.jpg; no art work.
   faction_split: {
     onEnter: () => {
       if (state.crisisPath == null) return "act3_crisis_router"; // existing 0.26
@@ -81,6 +87,43 @@ registerScenes({
       else if (shape === "living") t += `The ship has leaned Living. The warmth has a permanent cost on the screens.\n\n`;
       else t += `Neither side owns the ship. The argument is still live.\n\n`;
 
+      // SUN-MIDGAME-DELAYED-CONSEQUENCE-01: pay unused changeorders write from records_changeorders.
+      if (state.flags.changeorders === "logged") {
+        t += isAlive("mira")
+          ? `Mira does not reopen the commissioning log. She does not have to. Change orders 4417 and 4491 are already on the same line as the cascade hours. Someone quotes the empty justification field as if it were doctrine.\n\n`
+          : `The logged change orders surface without Mira. Empty justification fields, read aloud like a charge sheet.\n\n`;
+      } else if (state.flags.changeorders === "buried") {
+        t += isAlive("mira")
+          ? `Mira's log is still not quite closed. The unsigned pages did not enter the record. The crew argues the schedule anyway — they just cannot point at the gap she showed you.\n\n`
+          : `Someone asks why the boarding window moved. No one can produce the page. You left it out.\n\n`;
+      }
+
+      // SUN-MIDGAME-DELAYED-CONSEQUENCE-02: pay unused manifest write from empty_berths.
+      if (state.flags.manifest === "read") {
+        t += isAlive("amara")
+          ? `Amara does not bring the tablet. She does not have to. Two hundred fourteen confirmed berths are already a number the sides can point at. Someone repeats her refusal to decide what the codes meant.\n\n`
+          : `The boarding manifest surfaces without Amara. Two hundred fourteen confirmed berths. Codes no one will gloss.\n\n`;
+      } else if (state.flags.manifest === "declined") {
+        t += isAlive("amara")
+          ? `Someone asks for the boarding list. Amara keeps the tablet face-down. You let the manifest stay closed. The argument uses estimates instead of names.\n\n`
+          : `Someone asks for the boarding list. No tablet comes forward. You let the manifest stay closed.\n\n`;
+      }
+
+      // SUN-MIDGAME-THIRD-CONSEQUENCE-01: pay unused Green Tether disclosure write.
+      if (state.flags.manifest_exposed) {
+        t += isAlive("tomas")
+          ? `A third of the vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
+          : isAlive("amara")
+            ? `Amara still has the arithmetic: a third gone, two-thirds green. Tomas is not here to answer the charge.\n\n`
+            : `The crew still remembers the eaten third of the germplasm vault. The man who ate it is not here to answer.\n\n`;
+      } else if (state.flags.manifest_lie) {
+        t += isAlive("tomas")
+          ? `Tomas lets the official line stand. You logged the germplasm shortfall as breach loss.\n\n`
+          : isAlive("amara")
+            ? `Amara still has two books that do not shake hands. You logged the germplasm shortfall as breach loss.\n\n`
+            : `The germplasm shortfall is still logged as breach loss. Someone uses that line as if it were the whole report.\n\n`;
+      }
+
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) {
         t += `More than one person has noticed how often you turn toward ${crew[fav.favored].name}. The observation is no longer private.\n\n`;
@@ -93,7 +136,7 @@ registerScenes({
       }
       if (isAlive("elias")) t += `Elias has begun keeping his own informal watch list.`;
       if (isAlive("amara")) t += ` Amara has stopped pretending the hydroponics bay is only about food.`;
-      t += `\n\nYou can feel the lines hardening. The next order will not be answered the same way by everyone.`;
+      t += `\n\nYou can feel the lines hardening. The next order will not be answered the same way by everyone.\n\n`;
       
       if (state.flags.cascade_truth === "open") t += `The cascade records are out. Trust is a different shape now.\n\n`;
       else if (state.flags.cascade_truth === "sealed") t += `You sealed the cascade records. Someone will unseal them eventually.\n\n`;
@@ -143,7 +186,7 @@ registerScenes({
       if (state.supplies <= 0) t += `Supplies are at zero. The next real expenditure will come out of bodies or hull.\n\n`;
       else if (state.supplies <= 8) t += `Supplies are thin enough that every request is already an argument.\n\n`;
 
-return t;
+      return t.trimEnd();
     },
     choices: [
       { text: "Call them together and force the fracture into the open.", next: "reckon_summary", effects: { cohesion: -3, integrity: -2 }, lean: { living: 2 }, requires: { cohesion: { min: 25 }, survivors: { min: 4 } }, flag: { reckon: "public" } },

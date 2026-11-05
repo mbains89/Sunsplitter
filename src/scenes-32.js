@@ -3,6 +3,11 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // SUN-V035-PLAYTEST-VESS-RECAP-01: acknowledge Vess separately from second approaches.
+  // PRE: existing private-window route; pending ship interruption still redirects.
+  // WRITES: entry/render none; choices route only (unchanged).
+  // DEATH: none. DEAD SPEECH/APPEARANCE: current isAlive/recovery and debtor guards.
+  // IMAGE: existing state-map plate; no art work or new encounter ladder.
   pursuit_window: {
     onEnter: () => {
       if (!state.flags.ship_interrupt_fired && (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound")) {
@@ -15,13 +20,18 @@ registerScenes({
         if (state.romance[who] && !state.pursuit[who] && isAlive(who)) open.push(crew[who].name);
       }
       let t = `Private time is almost spent.\n\n`;
+      if (state.romance.vess && isAlive("vess")) {
+        t += state.flags.vess_intimate
+          ? `Shared the last long-range window and a private hour with Vess.\n\n`
+          : `Vess offered the attempt and you accepted. Power stayed hers.\n\n`;
+      }
       if (open.length) {
         t += `Someone you already crossed a line with may still come looking: ${open.join(", ")}. A second approach is not free — the crew will read it as a pattern.\n\n`;
       } else {
         t += `No one is initiating a second private claim right now.\n\n`;
       }
       if (typeof hasOpenRomanceGates === "function" && hasOpenRomanceGates()) {
-        t += `There is still room for one first-time bond if you insist — but every hour here is an hour not spent on the ship.\n\n`;
+        t += `You can still check who is willing to meet without an audience — but every hour here is an hour not spent on the ship.\n\n`;
       }
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       if (debt.length) {

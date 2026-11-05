@@ -15,11 +15,12 @@ registerScenes({
       }
     },
     text: () => {
-      let t = `The fragment docks ugly — no working attitude thrusters, only a hard magnetic grab and a pressure equalize that makes the whole ring complain. The hatch opens on a tall, wiry figure in a suit patched by the same hands for six years. Long dark hair cut with a knife at the jawline. She looks at you too long, then not at all.
+      let t = `The fragment docks ugly — no working attitude thrusters, only a hard magnetic grab and a pressure equalize that makes the whole cylinder complain. The hatch opens on a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair still held back from six years of solo work. She looks at you too long, then not at all.
 
 "Commander. Your hull ID has been in my night log for eleven months. I said the names of the Dawnbreak dead every night so somebody did. Yours I already knew."
 
 The flat voice cracks on the last word. She recovers it immediately, the way a log entry recovers from a dropped packet.`;
+      t += `\n\nHer name is on the board before the first watch turns.`;
       if (isAlive("lena")) {
         t += `\n\nLena is already moving toward the hatch with a med kit. "Six years closed-loop. Hypercapnia baseline, possible calcium loss, treatable. Let me see her before anyone else does."`;
       }
@@ -50,7 +51,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
         let list;
         if (deadNamed.length === 1) list = deadNamed[0];
         else if (deadNamed.length === 2) list = deadNamed[0] + " and " + deadNamed[1];
-        else list = deadNamed.slice(0, 2).join(", ") + ", and others";
+        else list = deadNamed.slice(0, -1).join(", ") + ", and " + deadNamed[deadNamed.length - 1];
         t += `\n\n"I heard the casualty list. ${list}. I said their names once when the beacon logged the update. That is all I can offer the dead."`;
       }
       // Minimal cross-route seed: awareness as witnessed fact only
@@ -76,7 +77,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
         return [{ text: "Return to the watch.", next: "act3_spine_next" }];
       }
       return [
-        { text: "Accept the offer. Power stays with her.", next: "vess_transmission", tag: "private", affinity: { vess: 6 }, trust: { vess: 4 } },
+        { text: "Accept the offer. Power stays with her.", next: "vess_transmission", tag: "private", mark: { vess: "accepted" }, affinity: { vess: 6 }, trust: { vess: 4 } },
         { text: "Decline. Log it clean.", next: "act3_spine_next", mark: { vess: "declined" }, affinity: { vess: 1 } }
       ];
     }

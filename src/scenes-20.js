@@ -51,6 +51,10 @@ She checks the cradle count first, then her own pulse.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_lena_end: {
   onEnter: () => {
+  // SUN-LEGACY-DEATHBEAT-01: a resume without the sceneEntered marker re-runs onEnter after this
+  // scene already wrote the death; render the beat instead of redirecting past it.
+    if (state.dead.includes("lena") && state.deathCause &&
+        ["resources diverted to the vault", "kept working until the clock ran out"].includes(state.deathCause.lena)) return;
     if (!isAlive("lena") || !state.dying || !state.dying.lena) {
       return "act3_vault_face";
     }

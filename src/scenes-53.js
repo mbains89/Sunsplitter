@@ -53,7 +53,7 @@ registerScenes({
       let t = `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking on the load of every body you insisted on keeping alive.\n\n`;
       if (isAlive("tomas")) {
         t += `Tomas meets you at the bulkhead. His voice is steady and public.\n\n`;
-        t += `"Captain. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`;
+        t += `"Commander. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`;
       } else {
         t += `The rumor is already moving: vent the late arrivals, save the filters. No one stands in front of it.`;
       }
@@ -101,7 +101,7 @@ registerScenes({
       let t = `The refusal lands.\n\n`;
       if (isAlive("tomas")) {
         t += `Tomas does not argue.\n\n`;
-        t += `"Understood, Captain. The math is yours."\n\n`;
+        t += `"Understood, Commander. The math is yours."\n\n`;
       }
       t += `The rumor does not die. It only goes quieter.`;
       return t;

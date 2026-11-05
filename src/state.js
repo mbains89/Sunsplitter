@@ -1,7 +1,7 @@
 // Sunsplitter — state.js
-// Version 0.30 — Packaging
+// Version 0.36 — Player Experience and Narrative Closure
 // Game state, crew definitions, sceneImages map, core helpers
-const VERSION = "0.30";
+const VERSION = "0.36";
 
 // FLAGS: see validate + scene onEnter/flag writes. state.dying is sole source for slow-death clock (map form from 0.25).
 // Edit this file to change starting stats, characters, or image mappings
@@ -20,7 +20,7 @@ function freshState() {
     survivors: 9,
     integrity: 62,
     cohesion: 48,
-    supplies: 41,
+    supplies: 61,
     embryos: 100,
     flags: {},
     dead: [],
@@ -79,11 +79,11 @@ const LIVING_CREW_KEYS = CREW_ORDER.filter(k => k !== "rourke"); // starting liv
 const sceneImages = {
   // Opening / medical
   wake:            "images/medical_bay.jpg",
-  dying:           "images/rourke.jpg",
+  dying:           "images/medical_bay.jpg",
   rourke_end:      "images/covered_body.jpg",
   rourke_stop:     "images/covered_body.jpg",
   rourke_try:      "images/covered_body.jpg",
-  silence:         "images/medical_bay.jpg",
+  silence:         'images/silence.jpg',
 
   // Character intros (Batch A portraits — locked)
   intro_lena:      "images/lena.jpg",
@@ -93,7 +93,7 @@ const sceneImages = {
   vault_reveal:    "images/vault_reveal.jpg",
   status:          "images/observation_bridge_alt.jpg",
   priority_repairs:"images/crisis.jpg",
-  priority_ration: "images/observation_reckon.jpg",
+  priority_ration: "images/priority_ration.jpg",
   priority_planet: "images/rogue_planet.jpg",
   commit_planet:   "images/rogue_planet.jpg",
   hydroponics:     "images/hydroponics.jpg",
@@ -101,15 +101,15 @@ const sceneImages = {
   bond_elias:       "images/bond_elias.jpg",
   bond_tomas:       "images/bond_tomas.jpg",
   bond_jiro:        "images/bond_jiro.jpg",
-  competence_watch: "images/observation_bridge_alt.jpg",
+  competence_watch: "images/competence_watch.jpg",
   crew_walk:       "images/corridor_pressure_4.jpg",
   lead_prompt:     "images/lead_prompt.jpg",
-  lead_together:   "images/observation_bridge_alt.jpg",
+  lead_together:   'images/lead_together.jpg',
   lead_hard:       "images/corridor_pressure_1.jpg",
   lead_watch:      "images/corridor_pressure_2.jpg",
-  power_crisis:    "images/power_stress_2.jpg",
+  power_crisis:    'images/power_crisis.jpg',
   private_stores:  "images/private_stores.jpg",
-  time_pass:       "images/corridor_pressure_2.jpg",
+  time_pass:       "images/time_pass.jpg",
 
   // Crisis family
   crisis:          "images/crisis.jpg",
@@ -128,12 +128,12 @@ const sceneImages = {
   // v0.11 exclusive mid-arcs
   arc_fork:         "images/observation_reckon.jpg",
   arc_future_1:     "images/power_stress_2.jpg",
-  arc_future_2:     "images/vault_interior_alt.jpg",
-  arc_future_3:     "images/cascade_records.jpg",
+  arc_future_2:     'images/arc_future_2.jpg',
+  arc_future_3:     "images/arc_future_3.jpg",
   arc_future_4:     "images/abandoned_section.jpg",
   arc_living_1:     "images/hydroponics.jpg",
-  arc_living_2:     "images/sela.jpg",
-  arc_living_3:     "images/arc_living_conflict.jpg",
+  arc_living_2:     "images/sela_ritual.jpg",
+  arc_living_3:     'images/arc_living_3.jpg',
   arc_living_4:     "images/corridor_pressure_2.jpg",
   vault_voice:     "images/vault_voice.jpg",
   vault_sacrifice: "images/vault_sacrifice.jpg",
@@ -146,19 +146,19 @@ const sceneImages = {
   offshift_open:       "images/corridor_variant.jpg",
   offshift_lena:       "images/medical_bay.jpg",
   offshift_elias:      "images/elias.jpg",
-  offshift_mira:       "images/quiet_mira.jpg",
+  offshift_mira:       'images/offshift_mira.jpg',
   offshift_tomas:      "images/quiet_tomas.jpg",
-  offshift_tomas_r:    "images/quiet_tomas.jpg",
+  offshift_tomas_r:    "images/offshift_tomas_r.jpg",
   offshift_amara:      "images/quiet_amara.jpg",
   offshift_jiro:       "images/jiro.jpg",
   offshift_sela:       "images/sela_ritual.jpg",
-  offshift_vess:       "images/transmission.jpg",
-  pair_grudge_settle:  "images/observation.jpg",
+  offshift_vess:       "images/vess.jpg",
+  pair_grudge_settle:  "images/pair_grudge_settle.jpg",
   pair_favor_confront: "images/hydroponics_amara.jpg",
   pair_shield_cold:    "images/elias.jpg",
   warmth_meal:         "images/hydroponics.jpg",
-  warmth_laughter:     "images/corridor.jpg",
-  warmth_music:        "images/corridor.jpg",
+  warmth_laughter:     'images/warmth_laughter.jpg',
+  warmth_music:        "images/warmth_music.jpg",
 
   // Romance
 
@@ -171,7 +171,7 @@ const sceneImages = {
   pursuit_sela:     "images/lingerie_sela.jpg",
   pursuit_sela_sex: "images/afterglow_sela.jpg",
   pursuit_lena:     "images/lingerie_lena.jpg",
-  pursuit_lena_sex: "images/afterglow_lena.jpg",
+  pursuit_lena_sex: "images/pursuit_lena.jpg",
   coolant_trade:    "images/corridor_variant.jpg",
   seal_or_food:     "images/corridor_variant.jpg",
   history_elias:    "images/elias.jpg",
@@ -179,50 +179,52 @@ const sceneImages = {
   debt_notice:      "images/corridor_pressure_4.jpg",
   // 0.23 recoveries + vault face (reuse closest plates; dedicated art later)
   act2_tether_sighting: "images/debris_field.jpg",
-  act2_tether_vent:     "images/power_crisis.jpg",
-  act2_tether_rush:     "images/debris_field.jpg",
-  act2_tether_hand_elias: "images/self_risk.jpg",
+  act2_tether_vent:     'images/act2_tether_vent.jpg',
+  act2_tether_rush:     "images/tether_ride.jpg",
+  act2_tether_hand_elias: 'images/act2_tether_hand_elias.jpg',
   act2_tether_hand_mira:  "images/self_risk.jpg",
   act2_tether_hand_sela:  "images/self_risk.jpg",
-  act2_tether_dock:     "images/bulkhead.jpg",
+  act2_tether_dock:     "images/act2_tether_dock.jpg",
   act2_tether_manifest: "images/medbay_dim.jpg",
-  act2_tether_truth:    "images/observation_crew.jpg",
-  act2_tether_lie:      "images/observation_bridge.jpg",
+  act2_tether_truth:    "images/act2_tether_truth.jpg",
+  act2_tether_lie:      "images/act2_tether_lie.jpg",
   act2_spine_next:      "images/corridor.jpg",
-  act3_reckoning_pattern: "images/observation_bridge_alt.jpg",
-  act3_reckoning_heading: "images/observation_bridge.jpg",
-  act3_reckoning_burn_stale: "images/power_crisis.jpg",
-  act3_reckoning_burn_verified: "images/power_crisis.jpg",
-  act3_reckoning_delay: "images/observation_bridge.jpg",
-  act3_reckoning_cut:   "images/cut_out.jpg",
-  act3_reckoning_briefing: "images/cascade_records.jpg",
+  act3_reckoning_pattern: "images/act3_reckoning_pattern.jpg",
+  act3_reckoning_heading: "images/act3_reckoning_heading.jpg",
+  act3_reckoning_burn_stale: 'images/act3_reckoning_burn_stale.jpg',
+  act3_reckoning_burn_verified: 'images/act3_reckoning_burn_verified.jpg',
+  act3_reckoning_delay: 'images/act3_reckoning_delay.jpg',
+  act3_reckoning_cut:   "images/act3_reckoning_cut.jpg",
+  act3_reckoning_briefing: "images/act3_reckoning_briefing.jpg",
   act3_vault_face:      "images/vault.jpg",
   act3_vault_face_read: "images/vault.jpg",
-  act3_spine_next:      "images/corridor.jpg",
+  act3_spine_next:      "images/corridor_variant_2.jpg",
+  act3_lethal_elias_order: 'images/act3_lethal_elias_order.jpg',
+  act3_lethal_elias_sealant: "images/work_elias.jpg",
   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
   vess_signal:          "images/vess_signal.jpg",
-  vess_cost:            "images/vess_signal.jpg",
+  vess_cost:            'images/vess_cost.jpg',
   vess_boarding:        "images/vess_boarding.jpg",
   vess_offer:           "images/vess_offer.jpg",
-  vess_transmission:    "images/vess_signal.jpg",
+  vess_transmission:    'images/vess_transmission.jpg',
   vess_intimate:        "images/vess_intimate.jpg",
-  ship_interrupt:   "images/power_crisis.jpg",
+  ship_interrupt:   "images/ship_interrupt.jpg",
   ship_interrupt_resolve: "images/ship_interrupt_resolve.jpg",
   ship_memory_payoff: "images/bulkhead.jpg",
-  sun_payoff:       "images/sela_ritual.jpg",
+  sun_payoff:       "images/sun_payoff.jpg",
   boarding_stories: "images/corridor.jpg",
   patch_fails:      "images/vent.jpg",
-  bond_mira:        "images/mira.jpg",
+  bond_mira:        "images/quiet_mira.jpg",
   bond_amara:       "images/amara.jpg",
   bond_sela:        "images/sela.jpg",
   bond_lena:        "images/lena.jpg",
-  romance_lena_sex: "images/romance_lena_1.jpg",
-  romance_amara_1:  "images/shower_amara.jpg",
+  romance_lena_sex: "images/afterglow_lena.jpg",
+  romance_amara_1:  "images/hydroponics.jpg",
   romance_sela_1:   "images/shower_sela.jpg",
   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
-  romance_mira_1:      "images/shower_mira.jpg",
+  romance_mira_1:      "images/quiet_mira.jpg",
   romance_amara_tomas: "images/romance_amara_tomas.jpg",
-  romance_lena_1:      "images/romance_lena_1.jpg",
+  romance_lena_1:      'images/romance_lena_1.jpg',
 
   // 0.22.1 explicit art utilization (one-shot aftermath variants)
   lena_shower:     "images/shower_lena.jpg",
@@ -242,7 +244,42 @@ const sceneImages = {
   reckon_truth:    "images/observation_reckon.jpg",
   reckon_summary:  "images/observation_reckon.jpg",
   reckon_suppress: "images/observation_reckon.jpg",
-  final_choice:    "images/final_choice.jpg"
+  final_choice:    "images/final_choice.jpg",
+
+  // SUN-HITL-WIRE-01 — Muse 87-slot adds (Slot15 arc_future_2 HOLD omit)
+  observation_nightshift: "images/observation_nightshift.jpg",
+  observation_nightshift_ask: 'images/observation_nightshift_ask.jpg',
+  observation_nightshift_leave: 'images/observation_nightshift_leave.jpg',
+  records_changeorders: "images/records_changeorders.jpg",
+  records_changeorders_after: 'images/records_changeorders_after.jpg',
+  act3_lethal_mira_board: 'images/act3_lethal_mira_board.jpg',
+  act3_lethal_mira_reserve: 'images/act3_lethal_mira_reserve.jpg',
+  aftermath_seal: "images/aftermath_seal.jpg",
+  aftermath_seal_order: 'images/aftermath_seal_order.jpg',
+  aftermath_seal_holds: 'images/aftermath_seal_holds.jpg',
+  berths_manifest: 'images/berths_manifest.jpg',
+  prom_make_tomas: "images/prom_make_tomas.jpg",
+  prom_r_tomas: 'images/prom_r_tomas.jpg',
+  prom_vent: "images/prom_vent.jpg",
+  prom_vent_keep: "images/prom_vent_keep.jpg",
+  prom_vent_break: "images/prom_vent_break.jpg",
+  prom_line: "images/prom_line.jpg",
+  prom_line_keep: "images/prom_line_keep.jpg",
+  prom_line_break: "images/prom_line_break.jpg",
+  prom_direct: "images/prom_direct.jpg",
+  prom_direct_keep: 'images/prom_direct_keep.jpg',
+  prom_direct_break: 'images/prom_direct_break.jpg',
+  prom_price: "images/prom_price.jpg",
+  prom_price_keep: "images/prom_price_keep.jpg",
+  prom_price_break: "images/prom_price_break.jpg",
+  breath_word_given: "images/breath_word_given.jpg",
+  breath_word_refused: "images/breath_word_refused.jpg",
+  breath_racks: "images/breath_racks.jpg",
+  custody_onset: "images/custody_onset.jpg",
+  custody_thaw: "images/custody_thaw.jpg",
+  custody_severed: 'images/custody_severed.jpg',
+  custody_shared: "images/custody_shared.jpg"
+
 };
 
 const STAT_CAPS = {
@@ -331,10 +368,19 @@ function ideologyShape() {
   const f = state.ideology.future || 0;
   const l = state.ideology.living || 0;
   const sac = state.flags.vault_sacrifice;
-  // Hard vault choice outweighs soft leans
+  // Hard vault choice outweighs soft leans for endings and mid-voyage voice.
   if (sac === "future") return "future";
   if (sac === "living") return "living";
   if (sac === "split") return "split";
+  if (f - l >= 8) return "future";
+  if (l - f >= 8) return "living";
+  return "split";
+}
+
+// What Remains first line cites recorded order weights, not the vault override.
+function whatRemainsIdeologyShape() {
+  const f = state.ideology.future || 0;
+  const l = state.ideology.living || 0;
   if (f - l >= 8) return "future";
   if (l - f >= 8) return "living";
   return "split";
@@ -394,6 +440,32 @@ function isAlive(key) {
     return isRecovered(key) && !state.dead.includes(key);
   }
   return !state.dead.includes(key);
+}
+
+function visibleCrewKeys() {
+  // Same roster the Crew panel paints: unrecovered Tomas/Jiro/Vess stay off the board.
+  return CREW_ORDER.filter(k => {
+    if (!crew[k]) return false;
+    if (k === "tomas" || k === "jiro" || k === "vess") return isRecovered(k);
+    return true;
+  });
+}
+
+function visibleLivingCrewCountFrom(dead, recovered) {
+  // Snapshot roster only. Callers painting a stored save must not read live state.
+  const deadList = Array.isArray(dead) ? dead : [];
+  const rec = recovered && typeof recovered === "object" ? recovered : {};
+  return CREW_ORDER.filter(k => {
+    if (!crew[k]) return false;
+    const gone = deadList.includes(k);
+    if (k === "tomas" || k === "jiro" || k === "vess") return !!rec[k] && !gone;
+    return !gone;
+  }).length;
+}
+
+function visibleLivingCrewCount() {
+  // HUD Crew number: living names the player can actually tap, not state.survivors.
+  return visibleLivingCrewCountFrom(state.dead, state.recovered);
 }
 
 
@@ -542,6 +614,7 @@ function whatRemainsPromiseCausedDeath(owner) {
 function whatRemainsPromiseLine(owner) {
   const result = state.promises[owner];
   if (result !== "kept" && result !== "broken") return null;
+  if (owner === "tomas" && state.crisisPath !== "custody") return null;
   const lines = {
     amara: {
       kept: "At the service-pocket test, the vent stayed shut until the reader came out breathing.",
@@ -621,7 +694,7 @@ function whatRemainsFacts() {
     living: "Across the recorded orders, Living carried more weight.",
     split: "The recorded orders remained split between Future and Living."
   };
-  const facts = [ideologyLines[ideologyShape()]];
+  const facts = [ideologyLines[whatRemainsIdeologyShape()]];
   facts.push(...whatRemainsDeathFacts());
   const crisis = whatRemainsCrisisFact();
   if (crisis) facts.push(crisis);
@@ -633,9 +706,10 @@ function whatRemainsFacts() {
 }
 
 function romanceOpen(who) {
-  // Default-offer gate for one woman: alive && !romanced && marks !== declined && promise not broken
+  // Default-offer gate: held-only and declined both complete the first offer.
   if (!who || !ROMANCEABLE.includes(who)) return false;
-  return isAlive(who) && !state.romance[who] && !hasMark(who, "declined") && state.promises[who] !== "broken";
+  if (who === "amara" && state.romance.amara_tomas) return false;
+  return isAlive(who) && !state.romance[who] && !hasMark(who, "declined") && !hasMark(who, "held_only") && state.promises[who] !== "broken";
 }
 
 function hasOpenRomanceGates() {
@@ -645,27 +719,40 @@ function hasOpenRomanceGates() {
 
 
 function renderStatus() {
-  const set = (id, val) => {
+  const set = (id, value, display, classify) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.textContent = val;
-    el.className = "stat-value " + (val < 30 ? "low" : val < 60 ? "mid" : "high");
+    el.textContent = display;
+    el.className = "stat-value" + (classify ? " " + (value < 30 ? "low" : value < 60 ? "mid" : "high") : "");
   };
-  set("stat-survivors", state.survivors);
-  set("stat-integrity", state.integrity + "%");
-  set("stat-cohesion", state.cohesion + "%");
-  set("stat-supplies", state.supplies + "%");
-  set("stat-embryos", state.embryos + "%");
+  const livingCrew = visibleLivingCrewCount();
+  set("stat-survivors", livingCrew, livingCrew, false);
+  set("stat-integrity", state.integrity, state.integrity + "%", true);
+  set("stat-cohesion", state.cohesion, state.cohesion + "%", true);
+  set("stat-supplies", state.supplies, state.supplies + "%", true);
+  set("stat-embryos", state.embryos, state.embryos + "%", true);
+  const announcement = `Ship status: ${livingCrew} survivors, hull integrity ${state.integrity}%, cohesion ${state.cohesion}%, supplies ${state.supplies}%, embryos ${state.embryos}%.`;
+  const announcer = document.getElementById("stat-announcer");
+  if (announcer && announcer.textContent !== announcement) announcer.textContent = announcement;
   if (typeof renderCrewPanel === "function") renderCrewPanel();
 }
 
 function showScreen(id) {
-  ["tone-screen", "title-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
+  // Each surface starts at its own top. Short phones otherwise inherit the
+  // previous surface's scroll position and can open with the heading hidden.
+  const main = document.getElementById("main");
+  if (main) main.scrollTop = 0;
+  if (main) main.classList.toggle("cinematic-active", id === "cinematic");
+  if (id !== "cinematic" && typeof cancelCinematic === "function") cancelCinematic();
+  if (typeof releaseInactiveArtForScreen === "function") releaseInactiveArtForScreen(id);
+  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
   const crew = document.getElementById("crew-panel");
   if (crew) crew.classList.remove("visible");
+  const crewToggle = document.getElementById("btn-crew");
+  if (crewToggle) crewToggle.setAttribute("aria-expanded", "false");
   // 0.21.3: scene art lives outside #main; force hide when leaving game
   const imgWrap = document.getElementById("scene-image-wrap");
   if (imgWrap && id !== "game") {
@@ -688,7 +775,21 @@ function showScreen(id) {
     document.getElementById("meta").classList.remove("hidden");
   }
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
+  if (id === "cinematic") document.getElementById("cinematic-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
+
+  const focusTargetId = {
+    tone: "tone-heading",
+    title: "title-heading",
+    cinematic: "cinematic-heading",
+    ending: "ending-title",
+    "what-remains": "what-remains-heading"
+  }[id];
+  const focusTarget = focusTargetId ? document.getElementById(focusTargetId) : null;
+  if (focusTarget && typeof focusTarget.focus === "function") {
+    try { focusTarget.focus({ preventScroll: true }); }
+    catch (e) { focusTarget.focus(); }
+  }
 }
 
 // ─── 0.28 helpers: Last Off-Shift eligibility + pairs + attributable death ───

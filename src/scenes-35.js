@@ -4,13 +4,7 @@
 registerScenes({
 
   favor_mira: {
-    text: `Mira listens to the request without looking up from the board.
-
-"You want me to free sealed maintenance stock that is inventory-locked to a department that does not exist on this voyage. That is a favor, not a work order."
-
-She finally meets your eyes.
-
-"I will do it once. After that, the next time you need a miracle, the answer is the board."`,
+    text: `Mira listens to the request without looking up from the board.\n\n"You want me to free sealed maintenance stock that is inventory-locked to a department that does not exist on this voyage. That is a favor, not a work order."\n\nShe finally meets your eyes.\n\n"I will do it once. After that, the next time you need a miracle, the answer is the board."`,
     choices: [
       { text: "Take the favor. Accept that she will remember the debt the other way.", next: "prom_make_mira", effects: { supplies: 8, integrity: 3 }, flag: { mira_favor: true }, trust: { mira: 4 }, affinity: { mira: 6 } },
       { text: "Withdraw the ask. You will not spend her goodwill on parts.", next: "prom_make_mira", trust: { mira: 2 } }
@@ -21,14 +15,19 @@ She finally meets your eyes.
     }
   },
 
+  // PRE: after power_crisis; may precede or follow private_stores, before Deck 4
+  // WRITES: existing coolant flag, costs and lean only; return checks stores/coolant
+  // DEATH: none | DEAD SPEECH/APPEARANCE: unchanged early roster, before lethal beats
+  // IMAGE: authored corridor_variant.jpg (shows Amara + Jiro); engine always renders the empty
+  //   corridor_variant_3.jpg for coolant_trade / seal_or_food (Jiro not yet aboard); no art work
   coolant_trade: {
+    onEnter: () => { if (state.flags.coolant) return "seal_or_food"; },
     get text() {
-      let t = `Mira and Lena are arguing over the same tank of coolant-grade fluid.`;
+      let t = isAlive("mira") && isAlive("lena")
+        ? `Mira and Lena are arguing over the same tank of coolant-grade fluid.` : "";
 
       if (isAlive("mira")) {
-        t += `\n\n"I can stabilize the secondary loop for three weeks if I take it," Mira says. She keeps one hand on the secondary-loop trace.
-
-"What's broken is remote authority. The tank buys time; it does not restore the contactor. If the cross-feed welds, control goes local. Whoever takes the phase board stays until both traces are flat."`;
+        t += `\n\n"I can stabilize the secondary loop for three weeks if I take it," Mira says. She keeps one hand on the secondary-loop trace.\n\n"What's broken is remote authority. The tank buys time; it does not restore the contactor. If the cross-feed welds, control goes local. Whoever takes the phase board stays until both traces are flat."`;
       }
       if (isAlive("lena")) {
         t += `\n\nLena does not raise her voice. "Or I can keep the last sterile field cold enough that surgery remains possible. Choose which future injury you prefer."`;
@@ -67,14 +66,17 @@ She finally meets your eyes.
     image: "images/corridor_variant.jpg"
   },
 
+  // PRE: both existing stores/coolant decisions completed; if coolant came
+  // first, return for stores before presenting this unchanged Deck 4 decision
+  // WRITES: existing feedstock/ship_memory choices only | DEATH: none
+  // DEAD SPEECH/APPEARANCE: unchanged early living roster | IMAGE: unchanged
   seal_or_food: {
+    onEnter: () => { if (!state.flags.stores) return "private_stores"; },
     get text() {
       let t = `A pressure seal on Deck 4 is failing in slow motion. The same fabrication feedstock can patch it for months — or be rendered into calorie paste that extends ration estimates by ten days.`;
 
       if (isAlive("elias")) {
-        t += `\n\nElias wants the seal. He tests the manual dog.
-
-"What's the threat? The status light that says a bad seal held. Remote is lying. Close upstream once. No retrieval team until pressure is flat."`;
+        t += `\n\nElias wants the seal. He tests the manual dog.\n\n"What's the threat? The status light that says a bad seal held. Remote is lying. Close upstream once. No retrieval team until pressure is flat."`;
       }
       if (isAlive("amara")) {
         t += `\n\nAmara wants the paste.`;

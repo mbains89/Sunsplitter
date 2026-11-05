@@ -7,6 +7,8 @@ registerScenes({
     image: "images/vess_signal.jpg",
     onEnter: () => {
       if (!isAlive("vess")) return "act3_spine_next";
+      if (hasMark("vess", "accepted")) state.romance.vess = true;
+      if (state.flags.last_tx_spent) return "act3_spine_next";
       state.romance.vess = true;
     },
     text: () => {

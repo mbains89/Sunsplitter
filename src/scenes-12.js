@@ -13,9 +13,9 @@ registerScenes({
       } else {
         t += `He's on fluids, propped half-upright, refusing the bed's angle like it's a personal opinion.`;
       }
-      if (state.flags.tether_hand_elias) t += ` Elias is still in decon.`;
-      else if (state.flags.tether_hand_mira) t += ` Mira is still in decon.`;
-      else if (state.flags.tether_hand_sela) t += ` Sela is still in decon.`;
+      if (state.flags.tether_hand_elias && isAlive("elias")) t += ` Elias is still in decon.`;
+      else if (state.flags.tether_hand_mira && isAlive("mira")) t += ` Mira is still in decon.`;
+      else if (state.flags.tether_hand_sela && isAlive("sela")) t += ` Sela is still in decon.`;
       t += `\n\nWhen it's just the two of you, Tomas talks to the ceiling.\n\n"I need you to hear this before you read it off a manifest. I ate the vault. Not all of it — a third, near enough. Sprouted it in trays and ate the future one species at a time, because the future doesn't chew itself and I wasn't ready to stop being somebody's present. I kept a list. Every name I ate. One of them was Hokkaidō cold-line rice — the variety that would have grown in the first soil they planned to break. I ate it on day forty-one because the protein was clean and the list had to start somewhere. It tasted like nothing. That was the point. You'll have it, all of it, because they were seeds with names and they deserve better than a number."\n\nHe turns his head and looks at you for the first time since the hatch.\n\n"What you tell the others is command. What I just told you is true. Those don't have to match. I'd rather they did."`;
       return t;
     },
@@ -93,9 +93,7 @@ registerScenes({
   act2_spine_next: {
     image: "images/corridor.jpg",
     onEnter: () => {},
-    text: () => `The annex is secured. Tomas is aboard. The ship has one more green thing and one more mouth.
-
-The boards keep working. So do you.`,
+    text: () => `${isAlive("tomas") ? "The annex is secured. Tomas is aboard. The ship has one more green thing and one more mouth.\n\n" : ""}The boards keep working. So do you.`,
     choices: [
       { text: "Back to the work.", next: "act3_reckoning_pattern" }
     ]

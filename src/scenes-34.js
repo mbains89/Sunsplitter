@@ -55,7 +55,7 @@ registerScenes({
         }
       }
     },
-    image: "images/afterglow_lena.jpg"
+    image: "images/pursuit_lena.jpg"
   },
 
   // ═══ SCENE INSERTION DECLARATION ═════════════════════════════════
@@ -65,9 +65,11 @@ registerScenes({
   // SPINE: existing debt_notice; no route or choice changes
   // PRECONDITIONS: partner line requires state.romance.<who> && isAlive("<who>");
   //   mirror clause requires another living romance among Lena/Mira/Amara/Sela
-  // STATE WRITES: none; render is side-effect-free
+  //   Vess completion also requires flags.vess_intimate; shared bay requires
+  //   romance.amara_tomas and both Amara/Tomas alive. EPILOGUE-01: text only.
+  // STATE WRITES: none on entry/render; existing public-repair choice +3 cohesion/+1 integrity
   // DEATH EXPOSURE: none
-  // DEAD-SPEECH CHECK: each partner line uses an isAlive guard
+  // DEAD-SPEECH CHECK: original four, Vess and both shared-bay partners use isAlive
   // IMAGE: REUSE current debt_notice images/corridor_pressure_4.jpg; NO ART_REQUEST
   // ═════════════════════════════════════════════════════════════════
 
@@ -111,6 +113,14 @@ registerScenes({
           ? `Sela returns to the vault count. "I know about ${others}. I will not pretend otherwise. The private mark is not a claim on the next watch."\n\n`
           : `Sela returns to the vault count. "The private mark is not a claim on the next watch."\n\n`;
       }
+      if (state.romance.vess && isAlive("vess")) {
+        t += state.flags.vess_intimate
+          ? `Shared the last long-range window and a private hour with Vess.\n\n`
+          : `Vess offered the attempt and you accepted. Power stayed hers.\n\n`;
+      }
+      if (state.romance.amara_tomas && isAlive("amara") && isAlive("tomas")) {
+        t += `You shared the hydroponics bay with Amara and Tomas.\n\n`;
+      }
       if (debt.length) {
         t += `When you return to the common corridor, the temperature has changed.\n\n`;
         if (debt.includes("elias")) t += `Elias's reports get shorter. He does not argue. He also does not offer.\n`;
@@ -120,7 +130,7 @@ registerScenes({
         if (debt.includes("amara") && !state.romance.amara) t += `Amara works the trays with her back to the hatch.\n`;
         if (debt.includes("lena") && !state.romance.lena) t += `Lena's medical updates arrive as text only.\n`;
         if (debt.includes("sela") && !state.romance.sela) t += `Sela's yellow circles continue. She does not look up when you pass.\n`;
-        t += `\nThis is not a mutiny. It is people rationing what they give a commander who has already rationed his attention.`;
+        t += `\nThis is not a mutiny. It is people rationing what they give you after you have already rationed your attention.`;
       } else {
         t += `No one makes a speech about who you kept close. That does not mean no one measured it.`;
       }

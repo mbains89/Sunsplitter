@@ -3,6 +3,10 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // L-026: zero-eligible bypass and one-eligible auto-route are defensive
+  // save-recovery guards, not ordinary playable content. Preserve junctionChoice:
+  // zero writes "none"; one defers the write to its destination scene; two-or-more
+  // leaves the existing value untouched while rendering the ordinary selector.
   offshift_open: {
     image: "images/corridor_variant.jpg",
     onEnter: () => {

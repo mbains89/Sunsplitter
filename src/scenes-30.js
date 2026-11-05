@@ -3,6 +3,16 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: Mira living; reached from intimacy_window via romanceOpen("mira").
+  // WRITES: onEnter may set interrupt_return and redirect to ship_interrupt;
+  //   otherwise clears interrupt_return. Choices write affinity/trust/marks only.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: living text already empty-engineering;
+  //   requireLivingCast entryOnly + engine image guard; dead resolve is
+  //   corridor_variant_2.jpg. Continue/Import unchanged.
+  // IMAGE: RETARGET_IN_TREE images/quiet_mira.jpg — living Mira at an
+  //   engineering console (drive-schematic beat). Not mira.jpg portrait
+  //   stand-in. romance_mira_1 keeps quiet_mira.jpg until a Grok intimate
+  //   console plate exists. Face-revealing romance_mira_1.jpg stays unwired.
   bond_mira: {
     onEnter: () => {
       if (!state.flags.ship_interrupt_fired && (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound" || (state.integrity || 0) < 40)) {
@@ -20,13 +30,21 @@ registerScenes({
       return [
         { text: "Stay. Give her the honest hour.", next: "romance_mira_1", affinity: { mira: 10 }, trust: { mira: 6 } },
         { text: "Tell her you care — and that sex would complicate the chain of command tonight.", next: "intimacy_window", affinity: { mira: 8 }, trust: { mira: 8 }, mark: { mira: "held_only" }, effects: { cohesion: 2 } },
-        { text: "Step back. Not her. Not like this.", next: "intimacy_window", affinity: { mira: -2 }, trust: { mira: -4 }, mark: { mira: "declined" } }
+        { text: "Step back. Not her. Not like this.", next: "intimacy_window", mark: { mira: "declined" } }
       ];
-    }
+    },
+    image: "images/quiet_mira.jpg"
   },
 
+  // PRE: Mira living; reached from bond_mira yes-path
+  // WRITES: onEnter may set romance.mira, affinity, trust, memory; dead Mira redirects
+  // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Mira redirects via requireLivingCast / onEnter
+  // IMAGE: REUSE images/quiet_mira.jpg; living Mira at an engineering console,
+  //   ice-blue eyes, Commander absent. Not shower_mira.jpg (later rinse) and not
+  //   romance_mira_1.jpg (face-revealing Commander; wet bunks, not console).
+  //   Later rinse stays on mira_shower / shower_mira.jpg.
   romance_mira_1: {
-    text: `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one. And do not pretend Elias will not notice who you left engineering smelling like."`,
+    get text() { return `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one.${isAlive("elias") ? " And do not pretend Elias will not notice who you left engineering smelling like." : ""}"`; },
     get choices() {
       const opts = [
         { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { mira: 8 }, lean: { living: 1 } },
@@ -47,7 +65,7 @@ registerScenes({
         remember("You and Mira crossed a line in engineering. The ship is too small to hide it.");
       }
     },
-    image: "images/shower_mira.jpg"
+    image: "images/quiet_mira.jpg"
   },
 
   bond_amara: {
@@ -72,6 +90,11 @@ registerScenes({
     }
   },
 
+  // PRE: Amara living; reached from bond_amara yes-path
+  // WRITES: onEnter may set romance.amara, affinity, trust, memory; dead Amara redirects
+  // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Amara redirects via requireLivingCast / onEnter
+  // IMAGE: REUSE images/hydroponics.jpg; person-free grow trays, Commander absent.
+  //   Later linger stays on amara_rear / rear_amara.jpg. Shower/rinse is not this beat.
   romance_amara_1: {
     text: `She locks the bay hatch. Not dramatic — practical.\n\nWhat follows is unhurried and explicit. Amara is vocal about what she likes and what she does not. She pulls you down among the warm trays, skin against skin, the smell of wet earth and her mouth at your ear. She does not perform vulnerability; she chooses it. When she finishes she laughs once, quiet, then goes still with her forehead against your shoulder.\n\n"The crew will smell the bay," she says. "Let them. I am done pretending only the vault gets a future."`,
     get choices() {
@@ -94,7 +117,7 @@ registerScenes({
         remember("You and Amara claimed the hydroponics bay. Favoritism is no longer theoretical.");
       }
     },
-    image: "images/shower_amara.jpg"
+    image: "images/hydroponics.jpg"
   },
 
   bond_sela: {

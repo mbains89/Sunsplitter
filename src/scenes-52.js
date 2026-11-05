@@ -39,18 +39,34 @@ registerScenes({
     ]
   },
 
-  // Pair 1 cold (micro, reachable when Mira dead + Elias alive + attributable)
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: pair_shield_cold
+  // PRECONDITIONS: Elias alive; Mira dead from an attributable cause;
+  //   pair_shield not already spent on fresh entry
+  // STATE WRITES: eligible fresh entry sets pair_shield and records one memory;
+  //   invalid or spent fresh entry redirects to faction_split
+  // DEATH EXPOSURE: none
+  // DEAD-SPEECH CHECK: Elias speech is predicate-guarded; a saved invalid
+  //   scene-entry marker renders neutral fallback text instead of dead speech
+  // IMAGE: images/elias.jpg only while the same roster/cause predicate holds;
+  //   engine resolves invalid saved state to a roster-neutral corridor plate
+  // ═════════════════════════════════════════════════════════════════
   pair_shield_cold: {
     image: "images/elias.jpg",
     onEnter: () => {
+      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira") || state.flags.pair_shield) {
+        return "faction_split";
+      }
       state.flags.pair_shield = true;
       remember("Elias said she was what the job was for");
     },
     get text() {
-      let t = `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
-      return t;
+      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
+        return `The watch report remains in the command log. There is no private accounting to add. The ship moves on.`;
+      }
+      return `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
     },
-    choices: [ { text: "Continue.", next: "act3_spine_next" } ]
+    choices: [ { text: "Continue.", next: "faction_split" } ]
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -60,6 +76,7 @@ registerScenes({
   warmth_meal: {
     image: "images/hydroponics.jpg",
     onEnter: () => {
+      if (!isAlive("tomas")) return "act3_spine_next";
       state.flags.warmth_meal = true;
     },
     get text() {
@@ -95,8 +112,12 @@ registerScenes({
     get text() {
       const living = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"].filter(isAlive);
       let t = `You stop short of the bend and don't round it. Two of them`;
-      if (isAlive("vess")) t += ` — and Vess is one`;
-      t += ` — and Vess is telling a joke a half-beat behind her own timing, like reading music at sight. The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.\n\n`;
+      if (isAlive("vess")) {
+        t += ` — and Vess is one — and Vess is telling a joke a half-beat behind her own timing, like reading music at sight.`;
+      } else {
+        t += ` — and one of them is telling a joke, timing it by the other voice.`;
+      }
+      t += ` The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.\n\n`;
       if (living.length <= 3) {
         t += `It's two voices where there used to be a mess hall of them, and it is quieter, and it still counts. It counts more.`;
       }

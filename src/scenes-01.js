@@ -6,9 +6,7 @@ registerScenes({
 
   time_pass: {
     get text() {
-      let base = `Days pass. Or what pass for days on a ship with no sun.
-
-The hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections. The daylight panels still rise and set on a schedule that no longer means anything.`;
+      let base = `Days pass. Or what pass for days on a ship with no sun.\n\nThe hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections. The daylight panels still rise and set on a schedule that no longer means anything.`;
 
       if (state.flags.priority === "repairs") {
         if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. The temporary patches hold better than expected. She has begun sleeping in engineering rather than the common area.`;
@@ -78,44 +76,37 @@ The hull produces a recurring metallic knock that people initially mistake for a
       return base;
     },
     choices: [
-      { text: "Go to the alarm yourself.", next: "crisis", effects: { cohesion: 2 } },
-      { text: "Order Mira and Elias ahead. You follow.", next: "crisis", effects: { integrity: 1 } }
+      { text: "Answer the alarm.", next: "crisis" }
     ]
   },
   crisis: {
     get text() {
       // 0.22.0: Jiro/Tomas may still be missing; name only the living trapped
-      const trapped = ["Amara Vale"];
+      const trapped = [];
+      if (isAlive("amara")) trapped.push("Amara Vale");
       if (isAlive("jiro")) trapped.push("Jiro Okada");
-      trapped.push("Sela"); // Sela always present early
-      const countWord = trapped.length === 3 ? "Three" : "Two";
-      let t = `The alarm is not loud. It does not need to be.
+      if (isAlive("sela")) trapped.push("Sela");
+      const countWord = ["No", "One", "Two", "Three"][trapped.length];
+      let t = `The alarm is not loud. It does not need to be.\n\nLife support on the lower habitation ring is failing. CO₂ climbing. ${countWord} ${trapped.length === 1 ? "person is" : "people are"} trapped behind a warped bulkhead: ${trapped.join(", ")}.\n\n${isAlive("mira") ? "Mira is already at the panel." : ""}`;
 
-Life support on the lower habitation ring is failing. CO₂ climbing. ${countWord} people are trapped behind a warped bulkhead: ${trapped.join(", ")}.
-
-Mira is already at the panel.`;
-
-      if (state.flags.priority === "repairs") {
+      if (isAlive("mira") && state.flags.priority === "repairs") {
         t += `\n\n"The seals we reinforced earlier are buying us minutes. I can try to cut them out. The risk of cascade is lower than it would have been."`;
-      } else {
-        t += `\n\n"I can vent the section and save the rest of the ship, or I can try to cut them out. Cutting risks a cascade. If I fail, we lose more than ${trapped.length === 3 ? "three" : "two"}."`;
+      } else if (isAlive("mira")) {
+        t += `\n\n"I can vent the section and save the rest of the ship, or I can try to cut them out. Cutting risks a cascade. If I fail, we lose more than ${countWord.toLowerCase()}."`;
       }
 
       if (state.flags.priority === "ration") {
         t += `\n\nThe trapped have been on reduced oxygen for two days. They will not last as long as they should.`;
       }
 
-      t += `\n\nElias: "Vent it. Now."
-
-Lena: "Sela is in there."
-
-`;
+      if (isAlive("elias")) t += `\n\nElias: "Vent it. Now."\n\n`;
+      if (isAlive("lena") && isAlive("sela")) t += `Lena: "Sela is in there."\n\n`;
       if (isAlive("tomas")) t += `Tomas looks only at you.\n\n`;
       t += `You have less than four minutes.`;
       return t;
     },
     choices: [
-      { text: "Cut them out. We do not leave people behind a wall.", next: "cut_out", effects: { integrity: -14, cohesion: 12 }, flag: { crisis: "cut" }, lean: { living: 5 }, affinity: { amara: 10, jiro: 8, sela: 10, elias: -6 } },
+      { text: "Cut them out. We do not leave people behind a wall.", next: "cut_out", effects: { integrity: -14, cohesion: 12 }, flag: { crisis: "cut" }, lean: { living: 5 }, affinity: { amara: 10, sela: 10, elias: -6 } },
       { text: "Vent the section. Protect the ship and the majority.", next: "vent", effects: { integrity: 5, cohesion: -18 }, flag: { crisis: "vent" }, lean: { future: 5 }, affinity: { elias: 10, lena: -15, tomas: -12 } },
       { text: "Go yourself. Buy time with your own body.", next: "self_risk", effects: { integrity: -7, cohesion: 8, supplies: -4 }, flag: { crisis: "self" }, lean: { living: 3 }, affinity: { mira: 6, lena: 8 } }
     ]

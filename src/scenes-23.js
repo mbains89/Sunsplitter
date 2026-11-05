@@ -3,10 +3,16 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+// PRE: living Elias at Deck 4 / Station B-four; pre-0.25 saves skip this plant
+// WRITES: none
+// DEATH: none here | DEAD SPEECH/APPEARANCE: dead Elias redirects before text/image/choices
+// IMAGE: HITL staged plate images/act3_lethal_elias_order.jpg (MEASURE_LIVE_VS_HITL_88 + OWNER HITL wire).
+//   Living Elias order only; sealant keeps work_elias.jpg. Not bond_elias.jpg (quiet seated cup).
+//   Dead/saved-absent fallback stays empty corridor_pressure_3.jpg via the resolver. Commander faceless.
 act3_lethal_elias_order: {
   onEnter: () => {
     // Lock 5: in-flight saves from <0.25 skip Elias + Mira lethals (new plants)
-    if (typeof loadedGameVersion === "string" && loadedGameVersion < "0.25") {
+    if (isGameVersionBefore(loadedGameVersion, "0.25")) {
       return "faction_split";
     }
     if (!isAlive("elias")) return "act3_lethal_mira_board";
@@ -68,7 +74,7 @@ Elias keeps one finger on B-four.
       }
     ];
   },
-  image: "images/bond_elias.jpg"
+  image: "images/act3_lethal_elias_order.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -87,7 +93,10 @@ Elias keeps one finger on B-four.
 // DEATH EXPOSURE: none
 // DEAD-SPEECH CHECK: Elias dialogue/action guarded by isAlive('elias'); dead
 //   entry redirects before image/text/choices
-// IMAGE: images/bond_elias.jpg [REUSE live Elias portrait; EXISTS; NO BAKED TEXT]
+// IMAGE: REUSE images/work_elias.jpg; living Elias at the station board after
+//   the sealant cartridges fire. Not bond_elias.jpg (quiet seated cup). Commander
+//   faceless. Dead/saved-absent fallback stays empty corridor_pressure_3.jpg
+//   via the resolver.
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_elias_sealant: {
   onEnter: () => {
@@ -106,7 +115,7 @@ Elias watches every downstream compartment hold before he releases the board.
   choices: [
     { text: "Log the empty rack. Continue.", next: "act3_lethal_mira_board" }
   ],
-  image: "images/bond_elias.jpg"
+  image: "images/work_elias.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
@@ -167,10 +176,14 @@ Elias reads the narrower structural envelope once.
 // DEATH EXPOSURE: Elias dies onEnter
 // DEAD-SPEECH CHECK: post-onEnter text contains no Elias dialogue or action;
 //   only door state, pressure, suit feed, and witnessed absence
-// IMAGE: images/corridor_variant.jpg [REUSE death-neutral corridor; EXISTS; NO BAKED TEXT]
+// IMAGE: images/corridor_variant.jpg [REUSE; shows Amara + Jiro, NOT death-neutral; engine renders
+//   corridor_variant_2.jpg unless both are alive and aboard; EXISTS; NO BAKED TEXT]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_elias_end: {
   onEnter: () => {
+  // SUN-LEGACY-DEATHBEAT-01: a resume without the sceneEntered marker re-runs onEnter after this
+  // scene already wrote the death; render the beat instead of redirecting past it.
+    if (state.dead.includes("elias") && state.deathCause && state.deathCause.elias === "held the line") return;
     if (!isAlive("elias")) return "act3_lethal_mira_board";
     state.dying.elias = "held the line";
     kill("elias", state.dying.elias);

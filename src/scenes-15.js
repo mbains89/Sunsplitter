@@ -3,7 +3,7 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: observation_nightshift, observation_nightshift_ask,
   //   observation_nightshift_leave
   // VERSION: 0.29        TICKET: Cascade Allusive 4/6
@@ -15,7 +15,7 @@ registerScenes({
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("jiro")
   // IMAGE: REUSE images/observation.jpg; NO ART_REQUEST
   // LANE RULE: no reference to Mira's change orders, ever
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════
 
   act3_reckoning_briefing: {
     image: "images/cascade_records.jpg",
@@ -72,11 +72,11 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
     choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
   },
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
   // Package C — "Vault needs a face"
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════
 
-  // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
+  // ═══ SCENE GROUP DECLARATION ═════════════════════════════
   // SCENE_IDS: hold_bolts, hold_bolts_again, hold_bolts_silent
   // VERSION: 0.29        TICKET: Cascade Allusive 3/6
   // PACKAGE: The Bolts
@@ -88,7 +88,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
   // DEAD-SPEECH CHECK: every node redirects when !isAlive("tomas")
   // IMAGE: REUSE images/vault.jpg; NO ART_REQUEST
   // PHRASE: tier-four line remains reserved; do not place in text
-  // ═════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════
 
   act3_vault_face: {
     image: "images/vault.jpg",
@@ -100,15 +100,15 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
 
 "E-6103. Female. Donor pair deceased, Jakarta arcology. Name field completed at deposit: Noor."
 
-She looks up. "Most of the name fields are empty. The parents left the naming to whoever will raise them. Some could not bear to choose. This pair could not bear not to." Her finger rests beside the line, not on it. "I read one entry aloud each day. There are fourteen thousand and six. I will not finish. That is not the point. The point is that each one I reach has been said once, out loud, by a living voice, inside the ship that carries her."`;
+She looks up. "Most of the name fields are empty. The parents left the naming to whoever will raise them. Some could not bear to choose. This pair could not bear not to." Her finger rests beside the line, not on it. "I read one entry aloud each day. There are one hundred forty thousand and six. I will not finish. That is not the point. The point is that each one I reach has been said once, out loud, by a living voice, inside the ship that carries her."`;
       } else if (isAlive("elias")) {
         t += `\n\nElias is at the manifest terminal. He doesn't startle, because he heard you thirty meters ago.
 
-"Started at one," he says. "E-0001 through E-0214 so far. One a shift." He turns the tablet so you can see today's line. "This one has a name filled in. E-6103 — I skipped ahead once, to check if any did. Noor. Jakarta. Parents dead."
+"Started at one," he says. "E-0001 through E-0027 so far. One a shift." He turns the tablet so you can see today's line. "This one has a name filled in. E-6103 — I skipped ahead once, to check if any did. Noor. Jakarta. Parents dead."
 
 He sets the tablet down flat. "I count exits. My whole life. These don't have any yet. Somebody should still be counting them."`;
       } else {
-        t += `\n\nThe terminal is dark and no one is here to read it, so you read it yourself, for the first time — the manifest, entry by entry, fourteen thousand and six lines of the argument the vault has never once made out loud.
+        t += `\n\nThe terminal is dark and no one is here to read it, so you read it yourself, for the first time — the manifest, entry by entry, one hundred forty thousand and six lines of the argument the vault has never once made out loud.
 
 Most of the name fields are empty. At E-6103 one isn't. Female. Donor pair deceased, Jakarta arcology. Name field completed at deposit: Noor. Two people on a dying planet filled in a form for a person who does not exist yet, and could not bear to leave that line blank.
 
@@ -134,7 +134,7 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
       let t = `You read the next line. E-6104. Male. Donor pair deceased. The name field is empty, so you read the emptiness too, the way you'd log a silence on a comm check.`;
       if (isAlive("sela")) {
         t += `\n\nSela does not thank you. She moves her finger down to the following entry and waits — the way people wait for a thing they expect to continue. Tomorrow's line is yours now, if you want it. She will not ask. She has already spent the words.`;
-      } else {
+      } else if (isAlive("elias")) {
         t += `\n\nElias slides the tablet the rest of the way over and doesn't watch you read it. He watches the vault. When you finish he takes the tablet back and marks the count forward by one, in his own column, next to yours.`;
       }
       return t;

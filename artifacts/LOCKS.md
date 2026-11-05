@@ -1,11 +1,11 @@
 # Sunsplitter — Stable Lock Ledger
 
 **Owner:** Manraj  
-**Lock steward:** Grok / program office  
+**Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `1c60d45f0f05ac8f30400d884873ee35d8ad48692d1b17b0e96f0fdd6c406869`
+**Roadmap source SHA-256:** `1a3131370b83de10f56968a64d195b639f9bd513c52cb37ae3bf3473d19d537f`
 
-This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and Grok records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
+This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
 Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`, `HELD`, `DEFERRED`, `OUT`, `REJECTED`, and `ACCEPTED_LIMITATION`.
 
@@ -26,6 +26,8 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 | L-012 | LOCKED | 0.33 commercial direction | ROADMAP §12 |
 | L-013 | LOCKED | 1.0 release-candidate and launch gate | ROADMAP §13 |
 
+The owner-approved 2026-08-30 tiered-CI amendment is recorded under existing stable identity **L-006** because it changes only ROADMAP §6's Chain-of-Custody process: inexpensive non-certifying ticket checks, the strict consolidated close-out gate, and exact-`main` post-merge rerun. It creates no new lock, release credit, certification, publication, deployment, or ruleset-mutation authority.
+
 ## Ruled (0.28.2 blockers closed 2026-08-18)
 
 | ID | Disposition | Subject | Ruling | Ruled |
@@ -36,14 +38,43 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 | L-023 | LOCKED | `pair_turn` | Remove the unused `pair_turn` flag from engineFlags / runtime state. | 2026-08-18 Manraj |
 | L-024 | LOCKED | Untested promise domain (Option B) | Untested promises remain `"made"` and are omitted from ending reflection / “What remains”. Never invent a player-authored betrayal on a dead holder. | 2026-08-18 Manraj |
 
-## Unresolved decision gates
+## Ruled and deferred (L-025–L-028; 2026-08-19)
 
-| ID | Disposition | Subject | Authority |
-|---|---|---|---|
-| L-025 | DECISION_GATE | Commander identity A/B at PX-4; B is recommended, not ruled | ROADMAP §§7, 14 |
-| L-026 | DECISION_GATE | Last Off-Shift zero/one branches: document defensive code or retire | ROADMAP §§6, 14 |
-| L-027 | DECISION_GATE | `vess_course_lost`: tested consumer or retirement | ROADMAP §§6, 14 |
-| L-028 | DECISION_GATE | Ticket 2 new-crew indicator; no implementation before PX evidence and Grok lock | ROADMAP §14 |
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-025 | LOCKED | Commander identity, Option B | ROADMAP §§2, 7, 14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
+| L-026 | LOCKED | Last Off-Shift zero/one defensive save-recovery guards | ROADMAP §§6, 14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
+| L-027 | LOCKED | `vess_course_lost` and downstream-course promise retirement | ROADMAP §§6, 14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
+| L-028 | DEFERRED | Ticket 2 new-crew indicator, default-retire evidence gate | ROADMAP §14 | 2026-08-19 | Manraj | `009fca7884e360486ddda172c389f480b62323a5` |
+
+## Ruled (art identity; 2026-08-31)
+
+Documentation-only. These rows record identity law. They do not authorize image deletion, unwire, regen, wiring, publication, or a new art batch. Spine order in ROADMAP §4 still controls when art bytes may change.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-029 | LOCKED | Vess portrait identity | ROADMAP §2 art; ART_RULES identity honesty; ART_REQUESTS 2026-08-15 `vess.jpg` lock | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
+| L-030 | LOCKED | Mira iris identity | ROADMAP §2 art; ART_RULES identity honesty | 2026-08-31 | Manraj | `060d5771019a86f1f5c7a244e22a08fa0b1e8713` |
+
+### L-029 approved language
+
+`images/vess.jpg` is the sole official Vess face. `images/bodysuit_vess.jpg` is the only approved bodysuit twin. Downstream Vess plates inherit that tank lock only.
+
+The porcelain / younger / paler / lock-over-RIGHT set is discarded as Vess identity. Keep the files on disk as rejected reference until a later authorized art ticket unwires or replaces them. Do not treat them as locked. Do not wire them as Vess.
+
+Discarded as Vess:
+`vess_boarding.jpg`, `vess_intimate.jpg`, `vess_offer.jpg`, `vess_signal.jpg`, `vess_signal_2.jpg`, `vess_signal_3.jpg`, `offshift_vess.jpg`, `romance_vess_1.jpg`.
+
+Identity-valid Vess plates at the ruling audit:
+`vess.jpg`, `bodysuit_vess.jpg`, `afterglow_vess.jpg`, `lingerie_vess.jpg`, `shower_vess.jpg`, `pursuit_vess.jpg`, `rear_vess.jpg`.
+
+`romance_vess_1.jpg` is discarded on two counts: porcelain face and invented Commander face (L-025).
+
+### L-030 approved language
+
+Mira’s irises are ice-blue. Green-eyed Mira is drift. Hair remains dark brown in a messy bun. Skin remains olive/tan and clean. Heavy freckles remain Amara’s mark, not Mira’s.
+
+Official lock bytes remain `images/mira.jpg` and `images/bodysuit_mira.jpg`. Green-eye / freckled Mira plates are not identity-valid. This row does not authorize regen.
 
 ## Held, deferred, rejected, and limited
 
@@ -61,4 +92,4 @@ Dispositions use the roadmap vocabulary: `LOCKED`, `DECISION_GATE`, `CANDIDATE`,
 
 ## Recording rule
 
-For a new decision, allocate the next unused ID in the matching range, cite the exact authority, and preserve the approved wording there. For a ruling, change only the disposition and add `ruled_date`, `ruled_by`, and `landing_sha` columns in the same approved change. Never merge, split, or silently renumber an ID during a ruling pass.
+For a new decision, allocate the next unused ID in the matching range, cite the exact authority, and preserve the approved wording there. For a ruling, change only the disposition and add `ruled_date`, `ruled_by`, and `landing_sha` columns in the same approved change. `landing_sha` records the approved ruling commit, not gameplay implementation. Never merge, split, or silently renumber an ID during a ruling pass.

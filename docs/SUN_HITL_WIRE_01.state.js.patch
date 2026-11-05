@@ -1,0 +1,76 @@
+--- src/state.js
++++ src/state.js
+@@ -181,7 +181,7 @@
+   act2_tether_sighting: "images/debris_field.jpg",
+   act2_tether_vent:     "images/power_crisis.jpg",
+   act2_tether_rush:     "images/tether_ride.jpg",
+-  act2_tether_hand_elias: "images/tether_ride.jpg",
++  act2_tether_hand_elias: "images/self_risk.jpg",
+   act2_tether_hand_mira:  "images/self_risk.jpg",
+   act2_tether_hand_sela:  "images/self_risk.jpg",
+   act2_tether_dock:     "images/bulkhead.jpg",
+@@ -199,11 +199,11 @@
+   act3_vault_face:      "images/vault.jpg",
+   act3_vault_face_read: "images/vault.jpg",
+   act3_spine_next:      "images/corridor_variant_2.jpg",
+-  act3_lethal_elias_order: "images/work_elias.jpg",
++  act3_lethal_elias_order: "images/bond_elias.jpg",
+   act3_lethal_elias_sealant: "images/work_elias.jpg",
+   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
+-  vess_signal:          "images/vess_signal.jpg",
+-  vess_cost:            "images/vess_signal.jpg",
++  vess_signal:          "images/transmission.jpg",
++  vess_cost:            "images/transmission.jpg",
+   vess_boarding:        "images/vess_boarding.jpg",
+   vess_offer:           "images/vess_offer.jpg",
+   vess_transmission:    "images/vess_signal.jpg",
+@@ -224,7 +224,7 @@
+   romance_amara_tomas_sex: "images/romance_amara_tomas.jpg",
+   romance_mira_1:      "images/quiet_mira.jpg",
+   romance_amara_tomas: "images/romance_amara_tomas.jpg",
+-  romance_lena_1:      "images/observation_bridge_alt_2.jpg",
++  romance_lena_1:      "images/shower_lena.jpg",
+ 
+   // 0.22.1 explicit art utilization (one-shot aftermath variants)
+   lena_shower:     "images/shower_lena.jpg",
+@@ -244,7 +244,41 @@
+   reckon_truth:    "images/observation_reckon.jpg",
+   reckon_summary:  "images/observation_reckon.jpg",
+   reckon_suppress: "images/observation_reckon.jpg",
+-  final_choice:    "images/final_choice.jpg"
++  final_choice:    "images/final_choice.jpg",
++
++  // SUN-HITL-WIRE-01 — Muse 87-slot adds (Slot15 arc_future_2 HOLD omit)
++  observation_nightshift: "images/observation.jpg",
++  observation_nightshift_ask: "images/observation.jpg",
++  observation_nightshift_leave: "images/observation.jpg",
++  records_changeorders: "images/cascade_records.jpg",
++  records_changeorders_after: "images/cascade_records.jpg",
++  act3_lethal_mira_board: "images/quiet_mira.jpg",
++  act3_lethal_mira_reserve: "images/quiet_mira.jpg",
++  aftermath_seal: "images/corridor_variant.jpg",
++  aftermath_seal_order: "images/corridor_variant.jpg",
++  aftermath_seal_holds: "images/corridor_variant.jpg",
++  berths_manifest: "images/empty_berths.jpg",
++  prom_make_tomas: "images/quiet_tomas.jpg",
++  prom_r_tomas: "images/quiet_tomas.jpg",
++  prom_vent: "images/corridor_variant.jpg",
++  prom_vent_keep: "images/corridor_variant.jpg",
++  prom_vent_break: "images/corridor_variant.jpg",
++  prom_line: "images/medbay_dim.jpg",
++  prom_line_keep: "images/medbay_dim.jpg",
++  prom_line_break: "images/covered_body.jpg",
++  prom_direct: "images/power_crisis.jpg",
++  prom_direct_keep: "images/power_crisis.jpg",
++  prom_direct_break: "images/power_crisis.jpg",
++  prom_price: "images/vault_reveal.jpg",
++  prom_price_keep: "images/vault_reveal.jpg",
++  prom_price_break: "images/vault_reveal.jpg",
++  breath_word_given: "images/corridor_pressure_1.jpg",
++  breath_word_refused: "images/corridor_pressure_2.jpg",
++  breath_racks: "images/vault_interior_alt.jpg",
++  custody_onset: "images/custody_onset.jpg",
++  custody_thaw: "images/vault_interior_alt.jpg",
++  custody_severed: "images/mira_thermal_cut.jpg",
++  custody_shared: "images/observation_bridge_alt.jpg"
+ };

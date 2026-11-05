@@ -1,13 +1,21 @@
 # Sunsplitter — Official Enforceable Roadmap
 
-**Authority domain:** approved future scope, dependency order, design locks, decision gates, and milestone acceptance criteria.
-**Owner:** Manraj.
-**Lock steward:** Grok records approved locks and prevents scope drift; Grok does not override Manraj.
-**Initial authority date:** 2026-08-18.
-**Prepared against GitHub `main`:** `3789062f1d0703f63feb8ada66503bb773879550`.
-**Verified game-code/audit baseline:** `2bb4517707df90702a9b78fe0fa8fb55c1852dd8`. The only change between these revisions is `artifacts/PROJECT_STATUS.md`, so source findings pinned to `2bb4517` still apply at `3789062`.
+`SOURCE main@8d23109b · RUNTIME c3626434add931b4a8e164febb5c1c7b46bf9471 · TASK SUN-ROADMAP-TIP-SYNC-04 · MODE proposal`
 
-The copy of this file committed on GitHub `main` is authoritative. Pasted copies, local drafts, project-doc copies, and AI memory are not authoritative unless the user explicitly asks to work from a draft. The containing Git commit identifies the current revision; do not try to embed that self-referential final commit SHA inside this file.
+**Steward:** Lead (Claude, per `AGENTS.md` v2, 2026-11-05). The Grok program-office header below is history; read Grok/Build as Lead.
+**Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
+**Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
+**Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
+**Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
+**Release posture:** `NO-PUBLISH / NOT_CERTIFIED`.
+
+## SUN-ROADMAP-PLAN-01 — Finish 0.36 → plan 0.37 (prose only)
+
+Decision gates (labeled; not OPEN):
+1. **0.36 PC Readiness** — close remaining tip-named 0.36 pack/playtest-gate items on the work tip; no invent OPEN; no mint/certify unless owner OPEN names it.
+2. **0.37 External Review** — planning target after 0.36 readiness; design/review prose only until owner OPEN.
+
+This section does not mint 0.36 or 0.37 and does not authorize Netlify pins.
 
 ---
 
@@ -19,745 +27,686 @@ The copy of this file committed on GitHub `main` is authoritative. Pasted copies
 |---|---|
 | What is approved next, in what order, and with what exit criteria? | `artifacts/ROADMAP.md` |
 | What has actually shipped and what is the active release state? | `artifacts/PROJECT_STATUS.md` |
-| What bytes and behavior are actually on `main`? | Git at the exact revision being reviewed |
-| What version was released or deployed? | Signed/annotated release tag, GitHub Release, deployment record, and artifact digest |
+| What bytes and behavior exist at a revision? | Git at that exact revision |
+| What version was released or deployed? | Immutable tag, GitHub Release, artifact digest, and a named deployment record |
 | What is character/canon/voice truth? | `CHARACTER_BIBLE.md`, `VOICE_CARDS.md`, `FABLE_BRIEF.md`, and explicitly locked cascade/minted-phrase documents |
-| What is art truth? | `ART_RULES.md`, `ART_REQUESTS.md`, the CURRENT portrait manifest, and the shipped `images/` bytes |
-| How is work executed? | `GITHUB_PUSH_RULES.md` after its 0.28.3 rewrite; until then this roadmap's branch/PR rules supersede its retired API-push workflow |
+| What is art truth? | `ART_RULES.md`, `ART_REQUESTS.md`, the CURRENT portrait manifest, and exact image bytes |
+| How is work executed? | `AGENTS.md` and the governed branch/PR law below |
 
 When documents disagree:
 
-1. Runtime/source truth is reported as a defect; documentation must not pretend the intended behavior already shipped.
-2. `PROJECT_STATUS.md` wins only for shipped/current state.
-3. `ROADMAP.md` wins only for approved future scope and order.
-4. Domain canon documents control detail unless this roadmap or a later recorded lock explicitly supersedes them.
-5. A newer `main` revision wins over a pasted or local copy.
+1. Code and assets at the pinned runtime are observed behavior; contradictions are reported, not hidden.
+2. `PROJECT_STATUS.md` wins for shipped/current `main` state.
+3. `ROADMAP.md` wins for approved future scope and order.
+4. `LOCKS.md` controls dispositions; this roadmap carries the full approved language.
+5. Domain documents control craft detail unless a later recorded lock supersedes them.
+6. A newer exact GitHub revision wins over pasted text, memory, a browser observation, or a local ZIP.
 
 ### Required session declaration
 
-Every Grok, Fable, Build, Art, GPT, or Claude session must begin by stating:
+Every lead or helper-chat deliverable (and, historically, every Grok, Fable, Build, Art, or GPT deliverable) begins with:
 
-- role and session type: retrieval, review, design, build, art, or release;
-- repository: `mbains89/Sunsplitter`;
-- exact `main` SHA read;
-- authority files read;
-- whether the task is proposal-only or authorized implementation.
+`SOURCE main@<sha7> · RUNTIME <sha7> · TASK <id-or-session-type> · MODE <review|proposal|implementation|verification>`
 
-If the named SHA or authority files cannot be read, the session must stop rather than silently use memory.
+It also states role, files read, and whether implementation is authorized. If the named revisions or required authority files cannot be read, stop rather than substitute memory.
 
 ### Who may change the roadmap
 
-- Any approved AI role may draft a roadmap patch or draft PR.
-- No AI may directly edit `main`, self-approve a lock, or convert its own recommendation into approved scope.
-- A change to permanent locks, sequence, milestone scope, or acceptance criteria requires Manraj's approval and Grok's recorded lock.
-- Mechanical truth corrections may be proposed with source evidence, but still land through review.
-- Roadmap and status changes that affect both future and shipped truth must land in the same atomic close-out PR.
-- GitHub issues and PRs are execution/evidence records, not competing authorities.
+- Manraj is the only product, canon, commercial, and unresolved-gate approval authority.
+- The lead (Claude, per `AGENTS.md` v2) records owner-approved sequence and lock dispositions; the lead does not self-approve.
+- Any approved role may draft a roadmap patch. No AI may directly edit `main` or convert its recommendation into a lock.
+- Roadmap changes land through one-concern PR review on the version lane. A documentation merge creates no gameplay, release, certification, publication, or deployment credit.
+- GitHub issues, PRs, playtest reports, model reports, and screenshots are evidence and execution records, not competing authorities.
+
+### Write and preview law (2026-09-01)
+
+- Write authority is the version lane `version/0.30.1-main-reconcile-ci.1`, not `main`.
+- GitHub merge-commit is the default land path for ticket PRs into that lane.
+- Do not promote the lane onto `main`. Do not open or merge a version close-out.
+- Leave PR 45 and draft PR 46 untouched.
+- Do not certify this lane. Last certified remains `0.28.1d`.
+- Netlify fires only when Manraj names an exact SHA. No auto-Netlify. Observed 2026-11-05: production is deploy `6ab363f139fc952b12339989` at commit `0e7535d`. The live preview at deploy `6a974ce6083c96103110b960` is not certification and is not a close-out.
+- Do not leftover-drain. Closed 0.30.1 / 0.31 / 0.32 work is not reopened as a new queue.
+- Playtest bugs Manraj reports during 0.33 stay one-PR tickets on 0.33. They do not mint a new version.
 
 ### Status vocabulary
 
 | Label | Meaning |
 |---|---|
-| **SHIPPED** | Present on `main` and recorded by STATUS as current repository truth; this label alone does not prove a GitHub Release or production deploy |
-| **RELEASED** | Proven by an immutable tag and GitHub Release at an exact commit with an artifact digest |
-| **DEPLOYED** | Proven by a deployment record tied to the released commit/artifact digest |
-| **LOCKED** | Approved scope/order; implementation may proceed when dependencies pass |
-| **DECISION GATE** | Work is blocked until the named choice is explicitly approved |
+| **OBSERVED** | Present at an exact revision; no shipped/release claim implied |
+| **LANDED ON VERSION LANE** | Merge-committed into the candidate lane; not on `main` and not certified |
+| **SHIPPED** | Present on `main` and recorded by STATUS; not automatically released or deployed |
+| **RELEASED** | Proven by immutable tag and GitHub Release at an exact commit with artifact digest |
+| **DEPLOYED** | Proven by deployment record tied to the released commit and digest |
+| **LOCKED** | Owner-approved scope/order; implementation may proceed when entry gates pass |
+| **DECISION GATE** | Blocked until the named owner choice is recorded |
 | **CANDIDATE** | Worth testing or scoping; not promised scope |
+| **HUNCH** | Unconfirmed finding; verify on the current authority before ticketing |
 | **HELD** | Deliberately unscheduled; do not implement |
+| **DEFERRED** | Valid concern assigned to a later gate or version |
 | **OUT** | Excluded before 1.0 |
 
 ---
 
 ## 2. Permanent product, canon, and implementation locks
 
-These rules survive every version unless Manraj explicitly reopens one.
+These rules survive every version unless Manraj explicitly reopens one and Grok records the disposition.
 
 ### Product and canon
 
-- Sunsplitter is a short, grim narrative-survival browser game. The player is the Commander of a damaged colonization ark after Earth's sudden cascade.
-- The ship is a full O'Neill cylinder. Interior art uses rectangular rooms, bays, and straight corridors only; no curved-ring interior architecture.
-- Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. The Commander is not an additional named NPC. No permanent character may be added beyond Vess.
-- The Commander remains faceless and has no official portrait.
-- Permanent constants do not drift: `04:19:07`, Tube 3, 214 berths, change orders 4417/4491, 61/19/42 systems, manifest tiers 1–4, nine through the hatch, and the ship name `Sunsplitter`.
-- Earth departure remains a colonization mission overtaken by a sudden cascade measured in hours to roughly two days. The official account appears first; contested truths arrive later.
-- Fixed event order is an accepted pre-1.0 design limitation, not an open replayability defect.
+- Sunsplitter is a short, grim narrative-survival browser game. The player commands a damaged colonization ark after Earth's sudden cascade.
+- The ship is a full O'Neill cylinder. Interior art uses rectangular rooms, bays, and straight corridors; no curved-ring interior architecture.
+- Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. No permanent character may be added.
+- **Commander identity (L-025, Option B):** player-shaped, second person, faceless, no portrait, gender assignment, or identity system. Reproductive facts are handled deliberately.
+- Constants do not drift: `04:19:07`, Tube 3, 214 berths, change orders 4417/4491, 61/19/42 systems, manifest tiers 1–4, nine through the hatch, spoken embryo residue **one hundred forty thousand and six**, and ship name `Sunsplitter`. HUD `embryos` remains a 0–100 pressure meter, not a headcount. Named line remains E-6103 Noor, Jakarta.
+- Earth departure remains a colonization mission overtaken by a sudden cascade measured in hours to roughly two days. The official account appears first; contested truths remain plural.
+- Fixed event order is an accepted pre-1.0 limitation, not an open replayability defect.
 
 ### Causality and consequence truth
 
-- Resources must gate, kill, or produce an authored consequence. No silent clamps, decorative costs, free advertised costs, or choices that execute without payment.
-- Every rendered scene must leave at least one legal enabled exit. A resource gate may not create a hard softlock.
-- Dead or unrecovered characters never speak, act, appear as present, receive present-tense credit, or appear in run-state art.
+- Resources must gate, kill, or produce an authored consequence. No silent clamps, decorative costs, phantom credits, or unpaid advertised costs.
+- Every rendered scene leaves at least one legal enabled exit. A resource gate may not hard-softlock the run.
+- Dead or unrecovered characters never speak, act, appear as present, vote, pair, contribute effects, or receive present-tense credit.
 - Endings and reflections cite only facts from the current run. No counterfactual, score, moral grade, or invented betrayal.
-- A full-survival run must remain possible. It need not be easy, common, or dominant.
+- Full survival after the opening remains possible, though not necessarily easy or common.
 - Delayed consequences cite their cause diegetically when they land.
 - Immediate advertised costs and unmet requirements may be shown honestly. Future narrative consequences are never labeled as “important” or scored.
-- Future versus Living remains the central ideology tension; leadership and ideology remain separable.
+- Future versus Living remains the central ideological tension; leadership and ideology remain separable.
 
 ### Romance and adult-content locks
 
 - Romanceable women are Lena, Mira, Amara, Sela, and Vess.
-- Default offer: if she is alive, eligible, and not declined, she initiates; the player must explicitly reject.
-- First offers have no affinity/trust hard gate.
+- If alive, eligible, and not declined, she initiates; the player must explicitly reject. First offers have no affinity/trust hard gate.
 - Acceptance creates relationship debt and scarce private attention through existing state, not a visible system.
-- Sela is fully adult, age 20, with high-trust boundaries that must remain legible.
-- Vess is deliberately asymmetric: shorter route, different currency, and power remains hers.
-- Adult and explicit content is permanent. A platform mismatch changes distribution, not the canonical content.
+- Sela is fully adult, age 20, with legible high-trust boundaries. Vess remains shorter, uses a different currency, stays asymmetric, and retains power.
+- Adult and explicit content is permanent. Distribution constraints do not silently soften canon.
 - No exclusivity meter, jealousy system, morality bar, romance score, or relationship dashboard.
-- A breast-cover/explicit-content toggle is **HELD**, not approved. It would require a separate canon, asset, continuity, platform, and QA decision and must not be slipped into accessibility work.
+- A breast-cover/explicit-content toggle is **HELD** and requires a separate canon, asset, continuity, platform, and QA decision.
 
 ### Architecture and data shape
 
-- Pure static site: `index.html`, CSS, and JavaScript; no backend or required build step.
+- Pure static site: HTML, CSS, and JavaScript; no backend or required build step.
 - Scenes remain pure data registered through JavaScript globals. A scene contains only `text | choices | onEnter | image` plus its registration key.
-- `onEnter` is the scene-level write hook. Rendering must be side-effect-free.
+- `onEnter` is the scene-level write hook. Rendering is side-effect-free.
 - The engine stays thin. No TypeScript, framework, bundler, component rewrite, or engine/state mechanical split before 1.0.
-- No combat loop, mining, inventory management, quest log, skill tree, visible resource dashboard, relationship bar, or new gameplay system.
+- No combat loop, mining, inventory, crafting, quest log, skill tree, visible gameplay dashboard, or new management system.
 - New state keys require a recorded lock and same-change registry/schema coverage. Never invent keys speculatively.
-- Scene declarations must state live preconditions, exhaustive writes, death exposure, dead-speech review, and image status.
+- Every changed scene declares live preconditions, exhaustive writes, death exposure, dead-speech/appearance checks, and image status.
 
 ### UI and save model
 
-- Mobile-first, single-column composition remains the primary layout through 0.31.
-- Artwork stays pinned while scene text scrolls below/alongside it according to the active composition.
-- Choices remain stacked, thumb-friendly, and legible. No mobile-only story branch.
-- Primary interface is scene text, speaker/context, choices, and minimal utility buttons—not a conventional HUD, dashboard, notification layer, or quest surface.
-- Unavailable choices may be disabled only with an honest reason. They may not disappear in ways that falsify cost or causality.
-- Autosave/Continue must disclose enough metadata to earn trust without exposing hidden consequence state.
+- Mobile-first remains the primary composition through 0.35. PC at 0.36 is a second composition of the same build, not a port.
+- Art stays pinned while scene text scrolls below or beside it according to active composition.
+- Choices remain stacked, legible, and touch/keyboard safe. There is no platform-specific story branch.
+- Primary interface is scene text, context, choices, and minimal utilities—not a conventional HUD, dashboard, notification layer, or quest surface.
+- Disabled choices disclose an honest reason. They do not disappear in ways that falsify cost or causality.
+- Autosave/Continue discloses enough metadata to earn trust without exposing hidden consequence state.
 - Saves remain local and account-free through 1.0. Cloud saves are out.
 
 ### Art and presentation
 
-- The official tank-top Batch A portrait set is the sole character-identity reference:
-  `artifacts/sunsplitter-official-portraits-CURRENT-2026-08-17.zip` plus the verified shipped portrait bytes.
-- Plate aspect ratio remains 784/1168 (approximately 2:3).
-- No baked ship names, character names, system labels, production vocabulary, or ending copy.
+- Official character identity is the CURRENT Batch A/tank-top portrait set plus verified locked bytes.
+- **L-029:** `images/vess.jpg` is Vess's sole official face; downstream plates must match it. Discarded porcelain/Commander-face plates are not identity-valid.
+- **L-030:** Mira has ice-blue irises, dark-brown hair in a messy bun, olive/tan clean skin, and no Amara-style freckles.
+- Plate ratio remains 784×1168. No baked names, ship names, production labels, system copy, or ending text.
 - Commander depictions are hands, back view, or silhouette only.
-- Group plates default to roster-ambiguous; at most two identifiable faces unless exact living-roster preconditions make more honest.
-- Unrecovered is treated as dead for art resolution.
-- Reuse/rewire is preferred to generation. No new art volume before the corresponding scene is written, gated, and version-locked.
-- Art is approved in a real mobile composition, not as an isolated full-size image.
-- Generation workflow: one request card and one job per reference; verify references/hashes; generate four bases; triage; allow at most two controlled edits; restart rather than endlessly mutate. Default output budget is six.
-- Before wiring, perform identity, lighting, crop, mobile-legibility, roster-honesty, rectangular-interior, and moderation-line QA. Mirror production copies byte-identically and record hashes/contact sheet where the dual-folder art workflow is used.
+- Group plates default roster-ambiguous; at most two identifiable faces unless exact living-roster preconditions make more honest. Unrecovered is treated as dead.
+- Lethal plates show the pre-commitment choice; recovery plates carry the cost, not rescue warmth.
+- Reuse/rewire is preferred to generation. No art volume before the corresponding scene is written, gated, and version-locked.
+- Art is approved in target mobile/desktop composition, not as an isolated full-size image.
+- Generation is bounded: one request card and one job per reference; verify references and hashes; generate four bases; triage; allow at most two controlled edits; restart rather than endlessly mutate. Default output budget is six.
+- Before wiring, perform identity, lighting, crop, mobile-legibility, roster-honesty, rectangular-interior, and moderation-line QA.
+- **ART-R2 remains HELD.** No art-identity audit batch, regen, unwire, or new wiring campaign until Manraj opens that gate.
 
-### Shipped feature inventory
+### Cascade and voice locks
 
-This inventory is baseline context pinned to the preparation revisions above. `PROJECT_STATUS.md` controls later shipped/current truth and must be updated when the inventory changes.
-
-#### Cast and recovery
-
-| Character | Shipped shape |
-|---|---|
-| Rourke | Dies in the opening; memory/history only after death |
-| Tomas | Missing early, recovered mid through Green Tether; Living-textured water-mass/germplasm cost |
-| Jiro | Missing early, recovered mid/late through Dead Reckoning; Future/navigation correction-burn cost |
-| Vess | Arrives mid/late from Dawnbreak; reaction-mass/bus-downgrade cost; fifth and asymmetric romance |
-| Lena, Elias, Mira, Amara, Sela | Initial core crew with romance routes for the women, male bond route for Elias, lethal/promise/pair participation as authored |
-
-#### Narrative systems already present
-
-- Future versus Living ideology fork; leadership is not identical to ideology.
-- Mutually exclusive ideology crises: The Breath They Cost (Living) and Custody of Tomorrow (Future).
-- Six spoken promises: Amara, Tomas, Elias, Lena, Sela, and Mira.
-- Avoidable lethal opportunities for Lena, Tomas, Elias, and Mira; Rourke's opening death; conditional vent losses for Amara/Jiro/Sela; full survival after the opening remains possible.
-- Crew pairs: Elias→Mira shield, Tomas↔Jiro grudge, Amara→Sela favor, Jiro→Lena neglect.
-- Last Off-Shift scarce private-attention junction with deferred debt.
-- Relationship debt and crew-visible favoritism after romance acceptance.
-- Vault needs a face, vault voice, ship memory, Sela yellow-sun payoff, boarding stories, and contested departure accounts.
-- Full romance route shape for Lena, Mira, Amara, and Sela; asymmetric Vess route; optional explicit continuation beats.
-- Non-sexual bond routes for Elias, Tomas, and Jiro.
-
-#### Known partial/deferred features
-
-- Cross-route awareness is incomplete; full mirror coverage belongs to evidence-backed 0.29.
-- What Remains is not yet a dedicated significance-based post-ending system.
-- Cascade background canon exists; the reserved Cascade Allusive beat set remains deferred to 0.29.
-- The current audit baseline registers 207 scenes. Declaration-header coverage is incomplete and remains process debt.
-- Mobile-first pinned-art/scrolling-text presentation is shipped; save portability, formal accessibility audit, PC composition, and commercial packaging are not.
-- Portrait and intimate-art categories exist for all five women, but the Lena lingerie file on `main` is currently a placeholder and therefore not a shipped usable plate.
+- The cascade background spine and its five contested lanes remain plural forever. Artifacts corroborate; no scene or ending proves or collapses a lane.
+- Mira's change orders and Jiro's contingency file are independent projections-lane artifacts and are never presented as mutual confirmation.
+- Rourke's missing account remains load-bearing absence. Do not author it after death.
+- The Commander's boarding remains unspecified.
+- Ensemble reflex ownership remains: Lena—who is hurt; Elias—the threat; Mira—what is broken; Jiro—where are we; Vess—what is out there; Tomas—who pays; Amara—who is owed; Sela—what it means.
+- Minted phrase ownership is durable: Sela's “I am the hand-off.” and Elias's “Standing question.” are spent; Tomas's “People were tier four.” remains reserved for a late Living-aligned reckoning or ending unless a later lock says otherwise.
 
 ---
 
-## 3. Shipped baseline and known source truth
+## 3. Current authority and source truth
 
-This section is a pinned reconciliation snapshot, not a second shipped-state authority. On any later revision, `PROJECT_STATUS.md` controls current/shipped facts; the tag/Release proves release provenance, and the deployment record proves production.
+### Controlling revisions
 
-### Current release label
+| Surface | Exact state | Meaning |
+|---|---|---|
+| GitHub `main` | `8d23109b63b844e0703fb36643f14b91b8800c90` | Observed repository authority; not certified |
+| Version lane HEAD used for this rebuild | `685d40007d5cae12621d88639bbfb1cd6bdaa3be` | Playtest candidate; player-facing label `0.33` |
+| 0.32 Save Trust exit mark | `~7ec5b30` | Owner-accepted 0.32 exit on the lane; not certification |
+| Last certified baseline label | `0.28.1d` | Historical certification boundary |
+| Live preview | Netlify deploy `6a974ce6083c96103110b960` | Named preview only; `NOT_CERTIFIED` |
+| Release posture | `NO-PUBLISH / NOT_CERTIFIED` | No release artifact, tag, publication, or certified deploy |
+| Held close-out identities | PR 45 and draft PR 46 | Do not merge, close, or use as release authority |
 
-**0.28.1d — SHIPPED LABEL.**
+The version lane has advanced well beyond `main`. Nothing on that lane is **SHIPPED**, **RELEASED**, or **CERTIFIED** under this roadmap's vocabulary.
 
-The release label is 0.28.1d, but version identity is currently split:
+### Version-lane evidence absorbed (do not reopen as drain)
 
-- `VERSION.md`: 0.28.1d
-- `src/state.js` runtime/save stamp: 0.28.1b
-- `index.html` subtitle: 0.28.1c
-- numbered scene headers: 0.28.1c
+- **0.30.1 Governed Recovery Integrity:** leftover drain emptied. Still `NOT_CERTIFIED`.
+- **0.31 Systemic Truth Closure:** landed on the lane. Remaining C/D items stay hunches, not a queue.
+- **0.32 Save Trust and Recovery:** exited ~`7ec5b30`. Early keyboard (PR 84) and widescreen (PR 85) work is evidence for 0.36, not 0.36 closure.
+- **0.33 version paint + named playtest:** PR 98 painted the player-facing version to `0.33`. Manraj is playtesting this candidate now. Vess-scene plates were wired on the lane earlier on 2026-09-01.
+- Confirmed playtest bugs become one-PR 0.33 tickets. They do not open 0.34 and they do not reopen 0.30.1–0.32.
 
-This is a confirmed 0.28.2 defect, not permission to relabel history.
+### Explicitly outside current write authority
 
-### Verified repository facts at roadmap creation
-
-- Current `main` read: `3789062f1d0703f63feb8ada66503bb773879550`.
-- Game source at that revision is byte-unchanged from `2bb4517707df90702a9b78fe0fa8fb55c1852dd8`.
-- `images/lingerie_lena.jpg` is a 21-byte placeholder at the verified revision. An external or local real image does not count as shipped until its bytes land on `main`.
-- `scripts/verify.mjs`, `scripts/simulate.mjs`, and `.github/workflows/` do not yet exist on `main`.
-- The existing `GITHUB_PUSH_RULES.md` describes the retired per-file API workflow and marker checks that failed to catch shipped corruption. It is superseded by this roadmap pending its 0.28.3 rewrite.
-- The 0.28.1d engine syntax error was fixed at `2bb4517`. The process hole that allowed it remains open.
-
-### Condensed shipped history
-
-| Version | Shipped focus |
-|---|---|
-| 0.10–0.14 | Causality hygiene, divergence, romance structure, mobile/art continuity, density |
-| 0.15–0.17 | Relationship debt, persistent consequence, Sela payoff, boarding truths, code review |
-| 0.18–0.21.1 | Onboarding, UI strength, discoverability, second-pass pursuit |
-| 0.21.2–0.24.2 | Causality hygiene, cast drip, Tomas/Jiro recoveries, vault face, Vess arrival and romance |
-| 0.25.x | Avoidable lethal opportunities, full-survival preservation, causality fixes |
-| 0.26.x | Ideology router, exclusive Living/Future crises, art wiring |
-| 0.27.x | Spoken promises, map/art honesty, allusion carriers |
-| 0.28 | Crew pairs, Last Off-Shift, scheduled warmth |
-| 0.28.1–0.28.1b | Truth repairs, reachable-scene work, unpaid-cost gating |
-| 0.28.1c | Mechanical split into numbered scene files |
-| 0.28.1d | Release-label bump, official Batch A portrait/CSS work, portrait drift repair, black-screen syntax hotfix |
-
-The detailed pre-0.28 status ledger remains in Git history at `2bb4517:artifacts/PROJECT_STATUS.md`. Stale forward-plan sections in that historical file are not current authority.
+- PR 45 / draft PR 46.
+- ART-R2 / L-004 art-audit opening.
+- Any leftover-drain identity.
+- Close-out to `main`, certification, tag, GitHub Release, publication.
+- Auto-Netlify or any Netlify action except a SHA Manraj names.
+- ET-03 count sweep, issue 24 / REC-02 reopen, and STORY-SURGERY-R1 unless the 0.33 playtest plus owner lock names them.
 
 ---
 
 ## 4. Locked dependency spine
 
 ```text
-AUTHORITY BOOTSTRAP (ROADMAP + STATUS synchronization)
+0.30.1 — Governed Recovery Integrity     DRAIN CLOSED; NOT CERTIFIED
   ↓
-0.28.2 — Truth Hotfix
+0.31 — Systemic Truth Closure            LANDED ON LANE; NOT CERTIFIED
   ↓
-0.28.3 — Chain-of-Custody + Systemic-Truth Foundation
+0.32 — Save Trust and Recovery           EXITED ~7ec5b30; NOT CERTIFIED
   ↓
-PX GATE — Player Experience Baseline & Design Governance
+0.33 — Named playtest candidate          ACTIVE PLAYTEST; ART-R2 HELD
   ↓
-0.29 — What Remains + evidence-backed density
+0.34 — Mobile UX, Accessibility, Performance
   ↓
-0.30 — Packaging & Presentation
+0.35 — Packaging and Private Itch
   ↓
-0.31 — Independent External Review #2 + remediation/retest
+0.36 — PC Readiness
   ↓
-0.32 — PC Readiness
+0.37 — External Review Pilot
   ↓
-0.33 — Commercial Readiness
+0.38 — Player Validation Cohort
   ↓
-1.0 — Release Candidate / launch gate
+0.39 — Commercial Readiness
+  ↓
+0.40 — Launch Rehearsal / Release Candidate
+  ↓
+1.0 — Public Release
 ```
 
-**Milestone A = 0.28.2 + 0.28.3.** Both must ship before the PX gate closes or any 0.29 prose opens.
+Rules of the spine:
 
-No new story volume, art batch, gameplay system, Ticket 2 implementation, tutorial, opening video, or crew dossier may jump this sequence.
+- One concern, one ticket branch, one PR into the version lane. Ticket PRs merge with merge commits.
+- A milestone advances only when its acceptance evidence exists. Early implementation receives no later milestone credit.
+- Hunches stay hunches until reproduced on current bytes.
+- Correctness failures found in the 0.33 playtest are repaired on 0.33. They do not become 0.34–0.37 scope.
+- Experience findings from the 0.33 playtest are classified before they become a later version slice. Classification happens after the playtest report, not during it.
+- Story, art-audit, and gameplay volume cannot jump the ART-R2 hold.
+- Mobile/accessibility work cannot be relabeled PC readiness; PC work cannot create a separate game.
+- Independent review is 0.37. PC readiness is 0.36. Public/commercial itch is 0.39. Do not reuse 0.31–0.33 for those jobs.
+- No milestone authorizes close-out, certification, tag, release, publication, Netlify, itch.io public page, or deployment. Those are separate owner actions at their named gates.
 
-The authority bootstrap is a one-time documentation-only migration PR explicitly outside the recurring game-version cadence. It changes no runtime bytes, must be reviewed atomically, and is the last non-version PR permitted to target `main`. After it lands, only conforming version close-out PRs may target `main`.
+Stable lock identities in `LOCKS.md` keep their section anchors. Historical version labels inside those rows do not override this spine: L-010 executes at 0.37; L-011 at 0.36; L-012 at 0.39; L-013 splits across 0.40 and 1.0.
 
 ---
 
-## 5. 0.28.2 — Truth Hotfix
+## 5. L-005 — Truth Hotfix foundation
 
-**Status:** LOCKED batch shape; four implementation decisions remain gated below.
-**Concern:** the current game stops lying about this run.
-**Scope:** ten tickets, no new story content.
+Historical 0.28.2 ten-ticket batch boundary. Not a reopened queue. Current L-020–L-028 dispositions in `LOCKS.md` control.
 
-Before the first hotfix ticket, the certified verifier/simulator copies, minimal Actions checks, and a bootstrap release-policy check must land on the protected 0.28.2 integration branch. Checks are blocking from the first ticket: known baseline failures may be explicitly pinned/ratcheted, but a ticket may never worsen them. This is pipeline bootstrap, not a separate release and not permission to claim 0.28.3 complete.
-
-| # | Ticket | Required outcome |
+| # | Locked ticket boundary | Required outcome |
 |---|---|---|
-| 1 | Dead-speech/credit batch | Repair the 16 confirmed reachable rows, including verified dead-Tomas credit and the unrecovered-Tomas/Jiro intimacy/pursuit rows. Use guards or truthful paraphrase; do not mechanically erase memorial/history references. |
-| 2 | `quiet_tomas` rewind | Both exits route to `act3_spine_next`; the late offer never rewinds to `lead_prompt` or reapplies early writes. |
-| 3 | Cost-gate/softlock class | Resolve the approximately 20 confirmed scenes. Every rendered scene has an enabled exit; no mandatory downstream spend is offered without honest affordability. `act3_reckoning_heading` gets an explicit locked floor disposition. |
-| 4 | `vault_priority` clobber | Preserve the player's early Living/Future/both priority. Re-key or remove the later Lena-choice write; ending prose never reports the overwritten value as the early choice. |
-| 5 | `offshift_tomas_r` contract line | Replace the repeated `remember()` sentence with a paraphrase so contract-class text renders at most twice. |
-| 6 | Lena lingerie asset | Replace the 21-byte placeholder with the approved real JPEG; validate magic bytes, dimensions, size floor, reference, and release artifact. |
-| 7 | Vess hair canon | Replace the dark/knife-cut boarding description with locked long white-silver hair without changing her route. |
-| 8 | `pair_shield_cold` disposition | Either make the consequence reachable exactly once after the Mira lethal path or retire it. Decision required before implementation. |
-| 9 | Version identity | Treat `src/state.js` `VERSION` as the runtime source; make all 11 verifier surfaces agree, including save stamp, visible subtitle, `VERSION.md` manifest, and scene consensus. |
-| 10 | `pair_turn` registry | If there is no live writer/reader, remove it from `engineFlags`; otherwise document and test the reserved contract. |
+| 1 | Dead-speech/credit batch | Guard or truthfully paraphrase confirmed reachable dead/unrecovered credit. Do not erase memorial/history references. |
+| 2 | `quiet_tomas` rewind | Both exits route to `act3_spine_next`. |
+| 3 | Cost-gate/softlock class | Every rendered scene has an exit; no mandatory downstream spend without honest affordability. |
+| 4 | `vault_priority` clobber | Preserve the early Living/Future/both choice. |
+| 5 | `offshift_tomas_r` contract line | Contract-class text renders at most twice. |
+| 6 | Lena lingerie asset | Real approved JPEG, not a placeholder. |
+| 7 | Vess hair canon | Locked long white-silver hair without changing her route. |
+| 8 | `pair_shield_cold` | Reachable exactly once after Mira's lethal path under L-020. |
+| 9 | Version identity | `src/state.js` `VERSION` is runtime source; verifier/save/visible/manifest surfaces agree. |
+| 10 | `pair_turn` registry | Unused runtime flag removed under L-023. |
 
-### 0.28.2 decision gates
-
-| Decision | Recommended disposition | Lock state |
-|---|---|---|
-| `pair_shield_cold` | Add a one-shot post-lethal re-entry so the already-authored pair consequence exists; retire only if topology makes it dishonest. | DECISION GATE |
-| Global cost rule | A hub must cover the worst mandatory sole downstream cost or charge at entry; every rendered scene also needs an authored floor. Use a zero-cost degraded burn at `act3_reckoning_heading` if the hub rule alone cannot guarantee an exit. Never silently clamp. | DECISION GATE |
-| `vault_priority` | Re-key the later Lena choice; preserve the early ideology choice. | DECISION GATE |
-| `pair_turn` | Remove the unused flag now; reserve the concept in prose/design notes rather than runtime state. | DECISION GATE |
-
-### 0.28.2 release gate
-
-- All ten tickets have a source citation and regression fixture.
-- `verify.mjs` Mode A is green at the candidate revision.
-- `simulate.mjs` runs random, cheapest, and priciest policies at seed `20260817` with the pinned run count (currently 2,000/policy); V1 softlocks = 0 and V5 ending lies = 0. Changing seed, policies, or run count requires a recorded lock.
-- JavaScript parses; all expected scene modules load exactly once; validator reports 0 errors.
-- No placeholder or stale asset reference survives in the release artifact.
-- Version surfaces agree. The 0.28.2 preflight verifier must publish its authoritative 11-surface table; until then the minimum known surfaces are `VERSION.md`, `src/state.js VERSION`/save stamp, visible subtitle, and numbered-scene consensus.
-- A real phone smoke test reaches the opening, makes a choice, resumes a save, and reaches a verified route beyond the prior failure points.
-- The release uses the “Chain-of-custody branch law” below even while protections are being bootstrapped.
-
-### Simulation invariant glossary
+### Simulation invariants
 
 | ID | Meaning |
 |---|---|
 | V1 | A legally reached render has zero enabled exits / hard softlock |
-| V2 | Literal dead-or-unrecovered name/presence spike; report and classify, not a zero gate |
+| V2 | Literal dead-or-unrecovered name/presence spike; classify editorially, not a zero gate |
 | V3 | Promise-state integrity failure at ending |
-| V4 | Advertised negative cost executes without being affordable/paid |
+| V4 | Advertised negative cost executes without being affordable and paid |
 | V5 | Ending/reflection contradicts the recorded run |
-| V6 | Promise-lifecycle result violates the approved dead/live untested-holder semantics |
+| V6 | Promise lifecycle violates approved dead/live untested-holder semantics |
+
+Strict candidate simulation remains random, cheapest, and priciest at seed `20260817`, 2,000 runs per policy, unless a later owner-approved lock changes it. Ticket smoke is non-certifying. No simulation-green result certifies the lane.
 
 ---
 
-## 6. 0.28.3 — Chain-of-Custody + Systemic-Truth Foundation
+## 6. L-006 — Chain-of-custody and systemic-truth foundation
 
-**Status:** LOCKED scope; promise semantics and several small dispositions remain decision gates.
-**Concern:** make truth repeatable, auditable, and safe to ship.
-**Entry:** 0.28.2 green.
+### Repository and release law
 
-### Release-pipeline work
+- Freeze direct and per-file API writes to `main`.
+- Ticket work targets the protected version lane, not `main`.
+- PRs begin as drafts and become reviewable only after local transcript, evidence, declarations, and required CI exist.
+- Ticket PRs run inexpensive `version-release-policy`, `version-verify`, and bounded `version-simulation-smoke`. They do not claim the strict candidate matrix unless dispatch escalates it.
+- Ticket PRs merge with merge commits. A green check is not merge authority.
+- The only route to `main` is one consolidated version close-out PR. That close-out is **not authorized** in this planning window.
+- Protect `main` and version branches, including administrators: no direct/force push, branch deletion, or required-check bypass.
+- Thresholds are ratchet-only.
+- Tag only an exact resulting `main` revision as `sun-vX.Y.Z` after a separately authorized close-out. Never rewrite historical tags.
+- Production is opt-in and SHA-named. Never deploy a partial version branch as certified.
 
-1. Independently re-verify and harden the checked-in `scripts/verify.mjs` and `scripts/simulate.mjs`. Their prior certification outside the repository is evidence, not a substitute for checked-in review.
-2. Add dependency-free GitHub Actions verification and release workflows using a pinned supported Node version.
-3. Rewrite `GITHUB_PUSH_RULES.md` v2. Retire marker checks, ZIP-as-source, per-file API pushes, file-size push rituals, and direct edits to `main`.
-4. Add a PR template with ticket, concern, base SHA, integration SHA, local transcript, state/scene declarations, and evidence links.
-5. Make corruption fixtures permanent: historical `&quot;` mutation, truncation, bad image magic/size, missing registration/load-order, validator failure, and version drift must all fail closed.
-6. Create deterministic release ZIPs from the exact release revision and publish SHA-256 with the GitHub Release.
-7. Keep production deployment opt-in. A production deploy must use the exact release revision/artifact; never deploy a partial version branch. PR previews may be enabled only if the account supports them and they are private/unindexed enough for adult material.
-8. Split provenance honestly: the pre-merge close-out manifest records baseline plus ticket PR/head SHAs; the post-merge GitHub Release records merge SHA, tag, release CI run, and artifact digest; the deployment record adds the deployed digest/revision when production is triggered.
-9. Use verifier Mode B to compare local bytes with raw GitHub bytes at a named immutable SHA; environment/network failure exits distinctly and never passes silently.
-10. Harden the bootstrap `release-policy` check/ruleset on `main` so it permanently rejects non-`version/<semver>` heads after the one-time authority bootstrap and verifies the approved version manifest/ticket map.
+### Systemic-truth law
 
-### Systemic-truth foundation
-
-- Lock and implement promise lifecycle semantics; V6 becomes a hard regression assertion.
-- Replace cause-string inference with explicit stable cause IDs at kill sites before What Remains.
-- Move render-time state writes in numbered scene modules and `offshift_amara` into `onEnter`; rendering becomes side-effect-free.
-- Harden `validate.js`: real reachability, Vess in romance IDs, fail-closed unknown requirements, invalid-name `isAlive` guard, no accidental global `scenes`, and negative fixtures.
-- Change intimacy-window first-offer gates to `romanceOpen`.
-- Give `vess_course_lost` a tested downstream consumer or retire the flag and its promise.
-- Close the solo-Amara first-offer after `amara_tomas` and add the group relationship to current-run facts.
-- Keep or retire Last Off-Shift zero/one branches explicitly; validator/docs must not misreport structurally unreachable defensive code as playable content.
-- Adopt the coverage-proof rule: future external audits are rejected if they do not declare scanned files/scenes, classifications, and unresolved rows.
-- Refresh the stale README layout to the numbered scene modules and add only verified simulator usage; do not reuse the rejected retired-layout README.
-- Produce the unified economy close-out: starting values, typical spends, hard floors, lethal thresholds, ending requirements, resource-rich/poor viable paths, and full-survival evidence. PX-3 later judges dominance/feel; 0.28.3 proves honesty and viability.
-
-### Promise semantics — blocking recommendation
-
-The recommended domain is:
-
-| State | Meaning |
-|---|---|
-| `kept` | The authored test occurred and the holder/player kept the promise |
-| `broken` | The authored test occurred and the player's action broke it |
-| `dissolved` | The holder died before the promise could be tested |
-| `forfeited` | The holder remained alive but routing bypassed the authored test |
-
-An untested dead holder can never become `broken`. A broken promise must correspond to an authored test and player action. What Remains may cite only these truthful states.
-
-**Lock state:** DECISION GATE. No promise resolver or 0.29 promise reflection is implemented until Manraj approves and Grok records the semantics.
-
-### Chain-of-custody branch law
-
-- Freeze direct/API writes to `main` immediately.
-- Create `version/<semver>` from an exact `main` baseline.
-- Each one-concern ticket uses its own branch and PR targeting the protected version branch, not `main`.
-- PRs open as drafts and become mergeable only after the local transcript, evidence, and required CI are present.
-- Ticket PRs run all checks and need no separate Manraj review when they remain inside the approved version scope. Merge is performed by a named human maintainer or configured GitHub auto-merge after Grok records scope compliance. An AI may enable/trigger auto-merge only under standing authorization recorded in `GITHUB_PUSH_RULES.md`; drafting or updating a PR alone does not grant merge authority.
-- The only route from a version branch to `main` is one consolidated close-out PR. That is Manraj's single manual review/approval point for the version.
-- New commits dismiss that approval and rerun the complete gate.
-- Protect `main` and version branches, including administrators: no direct/force push, no deletion, no required-check bypass.
-- Prefer a merge commit for the close-out so squashed ticket commits remain traceable while `main` changes atomically. If close-out is squashed, the release manifest must preserve the ticket PR/SHA map.
-- Tag the exact resulting `main` revision as `sun-vX.Y.Z` from 0.28.2 onward. Do not rewrite historical tags.
-- After merge, the release workflow reruns the full suite on the actual `main` merge SHA M, verifies the tag resolves to M, builds once from M, hashes/publishes that artifact, and optionally deploys the same digest. A synthetic PR merge result is not release proof.
-- Rollback uses a verified revert PR or the previously published immutable deploy, never ad-hoc file repair.
-
-### 0.28.3 release gate
-
-- Direct push to `main` is mechanically rejected for every actor, including admins.
-- The required `release-policy` check rejects ordinary ticket/feature PRs targeting `main` and incomplete version manifests.
-- Required CI is green on every ticket PR and the consolidated close-out PR.
-- `verify.mjs` is green; V1, V3, V4, and V5 are zero under locked simulation policies.
-- V6 is hard and matches the approved promise domain. V2 remains a spike detector/report, not a literal zero gate.
-- Thresholds are ratchet-only. Updating an audit pin may not silently update the expected-failure pin or weaken a gate.
-- Every rendered scene has an exit; economy table and viable-path evidence are attached.
-- Historical entity corruption, truncation, bad image, and version-drift fixtures fail as expected.
-- `ROADMAP.md` and `PROJECT_STATUS.md` are coherent in the same close-out.
-- Routine Manraj actions are limited to reviewing/approving the one consolidated diff and triggering an opt-in production deploy when desired.
+- **L-024:** an untested dead holder remains `made` and is omitted from reflection; never invent a betrayal.
+- **L-026:** Last Off-Shift zero/one routes remain defensive save-recovery guards and preserve `junctionChoice`.
+- **L-027:** `vess_course_lost` and its promised downstream course are retired; do not add a consumer.
+- V2 stays a classified spike detector. V1, V3, V4, V5, and approved V6 semantics are hard at candidate closure, which this file does not authorize.
 
 ---
 
-## 7. PX Gate — Player Experience Baseline & Design Governance
+## 7. L-007 — Player-experience evidence method
 
-**Status:** LOCKED sequence.
-**Placement:** after all of Milestone A (0.28.2 + 0.28.3), before 0.29.
-**Nature:** research/design plus bounded technical validation. PX-7/PX-8 implementation must ship in one or more pre-0.29 0.28.x patch builds (or a dedicated PX-labelled build) assigned by Grok at dispatch; the sequence may not be bypassed merely because the exact patch number is deferred.
+Execution map under the owner-accepted spine:
 
-No story or economy change is justified merely because an internal reviewer predicts it. First identify a specific observed problem, classify it, and attach evidence.
+- PX-7 save trust executed at 0.32 and is exited.
+- PX-1 through PX-6 evidence is collected from the 0.33 playtest. It does not automatically become 0.34–0.37 work.
+- PX-8 mobile accessibility/performance executes at 0.34; desktop revalidation at 0.36.
+- PX-9 audience/distribution completes across 0.38–0.39.
 
-### Dependency order
-
-1. PX-1 baseline.
-2. PX-2 pacing target and PX-3 outcome envelope.
-3. PX-4 Commander identity decision and PX-5 command-authority/sexual-power audit.
-4. PX-6 private voyage chronology.
-5. Only evidence-backed narrative/economy changes.
-6. PX-7 save portability and PX-8 accessibility/performance.
-7. PX-9 audience/distribution decision.
-8. Resolve or ranked-defer every blocking finding before 0.29.
+No prose, economy, tutorial, video, or interface expansion is justified merely because an internal model predicts it. First identify an observed problem, classify it, and attach evidence.
 
 ### PX-1 — Player Experience Baseline
 
-**Method:** fixed-seed automated timing plus real human phone playthroughs from strangers and near-strangers. Include at least first-run and replay observations.
+Fixed-seed automated timing plus real first-run and replay playthroughs. Capture elapsed time, major-beat timestamps, truthful route facts, a copyable anonymous run receipt, and notes on clarity, remembered choices, emotional peaks, fatigue, save trust, and replay desire. Separate correctness from experience. Rank P0/P1/P2.
 
-**Required evidence:**
-
-- elapsed time and major-beat timestamps;
-- route/ending/deaths/resources/promises selected from truthful run state;
-- anonymous, copyable end-of-run receipt suitable for playtest reporting;
-- observer notes on clarity, remembered choices, emotional peaks, fatigue, save trust, and desire to replay;
-- ranked P0/P1/P2 report with correctness defects separated from experience findings.
-
-**Exit:** a ranked report exists; no content has been changed merely to “add more.”
-
-The compact playtest receipt belongs here. Full save export/import belongs to PX-7.
+**Exit:** a ranked evidence report exists; no content was changed merely to add volume.
 
 ### PX-2 — Run-Length and Macro-Pacing Target
 
-- Use PX-1 evidence to set an internal target range and beat-spacing standard.
-- Record target first-run and replay ranges, crisis density, intimacy spacing, and ending runway.
-- The earlier 30–60 minute aspiration is a hypothesis, not a locked fact until measured.
-- No player-facing clock, countdown, or voyage timer is added.
-
-**Exit:** one written internal pacing standard with measurable tolerances and named exceptions.
+Use PX-1 evidence to set first-run/replay ranges and beat-spacing. The 30–60 minute aspiration remains a hypothesis until measured. Add no player-facing clock.
 
 ### PX-3 — Behavioral Economy and Outcome Envelope
 
-- Define acceptable distributions for full survival, partial loss, resource-rich/poor endings, ideology routes, promise outcomes, and major romance/relationship routes.
-- Compare simulation policies with observed human behavior.
-- Change balance only for a clear dominant strategy, misleading choice, impossible/vanishing outcome, or dishonest resource presentation.
-- Do not optimize toward equal outcomes merely for symmetry.
+Define acceptable outcome distributions. Change balance only for dominance, misleading choice, impossible/vanishing outcome, or dishonest resource presentation. Do not optimize toward symmetry.
 
-**Exit:** approved outcome-envelope definitions plus reproducible simulation evidence.
+### PX-4 — Commander Identity Implementation Audit
 
-### PX-4 — Commander Identity Decision
-
-Choose and record one canon:
-
-- **A:** defined male protagonist, communicated early and consistently; or
-- **B:** player-shaped second-person Commander, with accidental gendering removed and reproductive facts handled deliberately.
-
-**Recommendation:** B, because the game already relies on a faceless second-person Commander.
-
-**Exit:** Manraj approves A or B; Grok records it; every rendered prose path—not only literal source lines—is audited; relevant Bible/voice/status notes are synchronized.
+L-025 Option B is not reopened. Audit rendered paths for accidental gendering, portrait drift, and reproductive-fact handling.
 
 ### PX-5 — Command Authority and Sexual Power
 
-- Audit each romance route for the effect of rank, scarcity, consent, initiation, refusal, aftermath, and operational dependency.
-- Preserve adult permanence and asymmetry rather than sanding it down.
-- Preserve Sela's boundaries and Vess's retained power.
-- Use prose/gating corrections only; no consent meter, morality bar, or relationship system.
-
-**Exit:** per-route findings and any minimal evidence-backed tickets are recorded.
+Audit each romance route for rank, scarcity, consent, initiation, refusal, aftermath, and operational dependency. Preserve adult permanence, Sela's boundaries, and Vess's retained power. No consent meter.
 
 ### PX-6 — Voyage Chronology
 
-- Create a private continuity bible for elapsed voyage time, recoveries, crises, intimacy windows, injuries, promises, and ending approach.
-- Use it to catch impossible healing/travel/relationship timing.
-- Do not expose dates, timers, or a player-facing chronology UI.
-
-**Exit:** one private chronology source exists and every post-PX prose ticket cites it.
+Private continuity source only. No player-facing chronology UI.
 
 ### PX-7 — Mobile Save Trust and Run Portability
 
-- Provide non-destructive export/import of local saves, version/schema rules, migration behavior, corruption detection, recovery/fallback, and clear failure messaging.
-- Preserve the original save until a new import validates.
-- Test upgrade, downgrade refusal, malformed data, interrupted import, and completed-run behavior.
-- No accounts, backend, telemetry, or cloud saves.
-
-**Exit:** phone-tested export/import and recovery matrix passes.
+Executed at 0.32. Reopen only if the 0.33 playtest proves a save-loss, trap, or silent-replace defect. That repair stays a 0.33 one-PR ticket.
 
 ### PX-8 — Accessibility and Real-Device Performance
 
-- Audit iPhone Safari and representative Android Chrome first; include desktop browsers before 0.32.
-- Measure text scaling, contrast, focus, touch targets, announcements, reduced motion, scrolling, memory/load time, image decode, save/resume, and orientation/resize behavior.
-- Rank measured failures P0/P1/P2 and change only what evidence supports.
-- Preserve the locked presentation model unless a measured failure requires a revision.
-
-**Exit:** ranked audit, device matrix, performance evidence, and mandatory retests are complete.
+0.34 primary; 0.36 desktop revalidation.
 
 ### PX-9 — Audience, Distribution, and Shareability
 
-- Record what success means: intended audience, paid/free posture, replay/share goal, support burden, and launch channel.
-- Decide how playtest receipts, screenshots, content descriptors, and public messaging represent the game honestly.
-- Distribution constraints do not soften canonical adult content.
-- Reconfirm the 0.33 itch.io direction and current platform/payment rules before commercial work opens.
-
-**Exit:** written strategic decision approved by Manraj before public commercial push.
+0.38–0.39. Distribution constraints never soften canonical adult content.
 
 ---
 
-## 8. 0.29 — What Remains + Evidence-Backed Density
+## 8. L-008 — What Remains and evidence-backed density
 
-**Status:** LOCKED destination; exact prose opens only after PX findings and promise semantics are resolved.
-**Entry:** Milestone A complete; PX findings closed or ranked-deferred.
+Governing definition, already present on the candidate lane:
 
-### Locked core
-
-- **What Remains:** skippable 3–6 lines after the ending, selected by significance rather than append order. Eligible facts: ideology, deaths with explicit cause IDs, crisis/vault outcome, one truthful promise state, and optional relational fact. Never counterfactual.
-- **Cascade Allusive:** the six reserved light crew beats—Amara empty berths, Mira cascade records, Tomas vault bolts, Jiro observation, Sela stencil/hand-off, Elias seal/Standing question. Tomas “People were tier four” remains reserved late unless specifically dispatched.
-- Cross-route awareness/mirror lines for the original four: Lena, Mira, Amara, and Sela. Vess remains intentionally asymmetric and is audited for truthful awareness without forcing route parity.
-- Post-intimacy conditionals in operational scenes.
-
-### Evidence-gated remainder
-
-Death-residue objects, residual Pair 4 texture, unchosen-debt cascade, pregnancy-delayed texture, or other deferred density ships only if a PX finding justifies it. No speculative volume.
-
-### Acceptance
-
-- What Remains uses explicit current-run fact records and stable cause IDs.
-- Promise text matches kept/broken/dissolved/forfeited semantics exactly.
-- Dead/unrecovered filters and full-survival routes have regression coverage.
-- Selector tests cover route combinations and prove significance ordering.
-- Cascade lines preserve contract-class render limits and current voice cards.
-- No new meter, system, content dashboard, or visible consequence label.
+- What Remains is skippable, 3–6 lines, selected by significance rather than append order.
+- Eligible facts: current-run ideology, deaths with authored causes, crisis/vault outcome, one truthful promise state, optional relational fact.
+- No counterfactual, score, moral grade, or invented betrayal.
+- Pair residue, debt, pregnancy texture, and additional density remain evidence-gated.
+- The six light Cascade Allusive beats remain **PROPOSALS** behind playtest evidence and a later owner open. They are not 0.34–0.37 work.
 
 ---
 
-## 9. 0.30 — Packaging and Presentation
+## 9. L-009 — Packaging and presentation foundation
 
-**Status:** LOCKED presentation milestone; three user ideas remain CANDIDATES.
-**Entry:** 0.29 complete.
+Split across later versions. 0.33 does not absorb this work during playtest.
 
-### Locked baseline
+- Remove production chrome such as raw scene IDs; keep one truthful visible version.
+- Preserve completed-save behavior and honest ending actions.
+- Strengthen type scale, line length, contrast, touch targets, motion preferences, semantic structure, focus, labels, and announcements at 0.34.
+- Keep the content notice revisitable without creating a settings dashboard.
+- Opening video, tutorial, and crew portrait/details remain evidence-gated candidates.
+- The breast-cover toggle remains held.
 
-- Remove production chrome such as raw scene IDs; keep one authoritative visible version.
-- Correct ending action labels and completed-save behavior.
-- Strengthen cold-open/mobile composition, type scale, line length, contrast tokens, touch targets, reduced motion, semantic headings/labels, and screen-reader announcements.
-- Provide visible focus, keyboard-safe modal dismissal, focus return, and meaningful accessible labels.
-- Keep the content notice revisitable without turning it into a settings dashboard.
-- Resolve decision briefs for title/tone merge, settings surface, alt-text policy, scene cadence, death beat, ending hierarchy, and completed-save semantics before 0.32.
-- Do not add a new surface unless clarity, accessibility, or measured first-run evidence requires it.
-
-### Candidate presentation experiments
-
-| Candidate | Earliest placement | Gate |
-|---|---|---|
-| Initial Earth-calamity video | 0.30 | PX-1 must show the cold open needs it. Require skip/pause, captions or equivalent text, reduced-motion/static fallback, load budget, and no autoplay trap. |
-| Initial skippable tutorial | 0.30 | PX-1 must identify a first-run comprehension failure. It must be skippable, replayable, touch/keyboard safe, and must teach existing interactions only. |
-| Clickable crew portrait/details | 0.30, with desktop composition refined at 0.32 | May show existing portrait, bio, and truthful known status. No numeric/upgradable “stats,” affinity values, hidden flags, or new management system. |
-
-The breast-cover toggle remains HELD and is not part of this milestone.
+| Candidate | Gate |
+|---|---|
+| Earth-calamity opening video | PX-1 must prove a cold-open comprehension need. Skip/pause, captions or equivalent text, reduced-motion fallback, load budget, no autoplay trap. |
+| Skippable first-run tutorial | PX-1 must prove a first-run comprehension failure. Skippable, replayable, touch/keyboard safe; teaches existing interactions only. |
+| Clickable crew portrait/details | Existing portrait, bio, and truthful known status only. No numeric stats, affinity values, hidden flags, or management system. |
 
 ---
 
-## 10. 0.31 — Independent External Review #2
+## 10. L-010 — External Review Pilot, executes at 0.37
 
-**Status:** LOCKED definition.
-**Entry:** 0.30 candidate build; `verify.mjs` and `simulate.mjs` green.
-
-### Purpose
-
-Fresh-stranger structural and experience audit after systemic truth, PX governance, content, and packaging. Catch residual lies, save/UI trust failures, and pacing problems that project authors no longer see.
+**Entry:** 0.36 passes.
+**Purpose:** fresh-stranger structural and experience audit after systemic truth, the 0.33 playtest response, mobile, private packaging, and PC work.
 
 ### Reviewer independence
 
-- At least two reviewers who have never seen the codebase or prior internal reports.
-- At least one mobile-primary reviewer (iPhone Safari preferred) and one desktop reviewer.
-- No prior playthrough of an earlier Sunsplitter build.
+- At least two reviewers who have not seen code, internal reports, or earlier builds.
+- At least one mobile-primary reviewer and one desktop reviewer.
+- Review uses the exact private candidate and records device/browser/build identity.
 
-### Scope and artifacts
+### Scope and evidence
 
 - Full start-to-end runs on phone and desktop.
-- First-run clarity, save/resume trust, choice legibility, art/text composition, resource honesty, death continuity, ending specificity, adult-content discoverability/consent clarity, and replay desire.
-- P0/P1/P2 findings with exact scene ID or UI location, device/browser, reproduction steps, and evidence.
-- Short experience notes: what felt earned, opaque, memorable, or exhausting.
-- Explicit confirmation checks for dead speech, unpaid cost execution, save loss, softlock, and counterfactual ending text.
+- First-run clarity, save/resume trust, choice legibility, art/text composition, resource honesty, death continuity, ending specificity, adult-content clarity, and replay desire.
+- Findings carry severity, exact scene/UI location, reproduction, device/browser, and evidence.
+- Explicit probes cover dead speech, unpaid costs, save loss, softlock, and false ending text.
 
-### Severity and exit
+### Exit
 
-- **P0:** causality lie, unpaid cost execution, dead speech/presence, save loss, unrecoverable softlock, or false ending. Blocks everything later.
-- **P1:** major pacing/comprehension failure, missing gate telegraph, broken image honesty, first-run trust failure, or save-integrity risk.
-- **P2:** polish/discoverability/minor wording/non-blocking layout.
-- All P0 close and pass retest. A recorded risk acceptance does not silently erase P0 severity; it still blocks 0.32, 0.33, and 1.0 unless evidence supports formal reclassification.
-- P1 is fixed or ranked-deferred with owner/version; any P1 affecting first-run trust or save integrity blocks 1.0.
-- Reviewers can finish on phone without developer habits.
-- Fixes and mandatory retests ship as 0.31.x; new findings may not be waved through without retest evidence.
-- No “fix” introduces a new system, meter, or adult-content softening.
+- P0 correctness/save/softlock/false-ending findings are closed and retested.
+- P1 is fixed or owner-ranked/deferred; first-run trust and save-integrity P1 blocks 1.0.
+- P2 remains polish and cannot be silently inflated into a new system.
 
 ---
 
-## 11. 0.32 — PC Readiness
+## 11. L-011 — PC Readiness, executes at 0.36
 
-**Status:** LOCKED amendment.
-**Entry:** 0.31 has no open P0 and blocking P1s are resolved.
-
-PC is a second composition of the same browser build, not a port.
+PC is a second composition of the same static browser build, not a port.
 
 ### Scope
 
-- Widescreen layout: 784×1168 portrait plates beside the prose column instead of above it; no art regeneration merely for widescreen.
-- Desktop type scale and line-length caps.
-- Full keyboard play: number keys select choices; Enter/Space advance where unambiguous; real focus states and focus order.
-- Hover states distinct from pressed/selected states.
-- Fullscreen, window resize, zoom, and common desktop viewport sanity.
-- Mobile and PC use identical scene data, state, saves, consequences, and content.
+- Widescreen portrait plate beside prose, desktop type scale, and line-length caps.
+- Full keyboard play, visible focus/order, number-key choices, and unambiguous Enter/Space advance.
+- Hover distinct from focus, pressed, disabled, and selected states.
+- Fullscreen, resize, zoom, and common desktop viewport sanity.
+- Identical scene data, state, saves, consequences, content, and endings across phone and PC.
 
 ### Out
 
-- No Electron/Tauri/native wrapper.
-- No gamepad support, achievements, cloud saves, new gameplay systems, or PC-only narrative branch.
-- No rebuild of settings/title/cadence decisions that 0.30 already resolved.
+- No native wrapper, gamepad, achievements, cloud saves, PC-only narrative branch, or separate settings/game system.
 
 ### Acceptance
 
 - Start-to-end keyboard-only run succeeds.
-- Mouse, touch, keyboard, zoom, fullscreen, and resizing preserve choice/state integrity.
+- Mouse, touch, keyboard, zoom, fullscreen, and resize preserve state and choice integrity.
 - Desktop composition does not regress phone layout.
-- Representative desktop browser/device matrix passes the PX-8 checks.
+- Representative desktop browser/device matrix passes the 0.34 accessibility/performance controls.
+
+PRs 84 and 85 are early landed evidence for keyboard and composition only; they do not close this section.
 
 ---
 
-## 12. 0.33 — Commercial Readiness
+## 12. L-012 — Commercial Readiness, executes at 0.39
 
-**Status:** LOCKED direction, with submission-time policy recheck.
-**Entry:** 0.32 passes.
+**Entry:** 0.38 cohort findings are closed or owner-ranked.
 
-### Distribution direction
-
-- itch.io is the primary 1.0 commercial storefront.
-- Before submission, complete itch.io's Adult classification and built-in AI Disclosure; keep cover art non-explicit; verify content and monetization against current adult-content and payment-processor rules.
-- Re-check policies at submission because platform and processor requirements change and some review is case-by-case.
-- Retire Netlify as the canonical public/commercial game host before monetization, or retain only a private preview/non-explicit marketing mirror. This is a conservative continuity decision, not a claim that Netlify categorically bans lawful adult content.
-- Steam is a separate post-1.0 decision. If later pursued, submit the stable near-final build/store page with mature-content and generative-AI disclosures and allow extra review time.
-
-Official policy references to re-check:
-
-- [itch.io adult-content FAQ](https://itch.io/docs/creators/faq#is-adult-content-allowed)
-- [itch.io adult classification](https://itch.io/docs/creators/quality-guidelines#adult-content)
-- [itch.io AI disclosure](https://itch.io/docs/creators/quality-guidelines#ai-disclosure)
-- [itch.io payment terms](https://itch.io/docs/legal/terms#7-acceptable-payment-forms)
-- [Netlify Acceptable Use Policy](https://www.netlify.com/legal/acceptable-use-policy/)
-- [Netlify Website Terms of Use](https://www.netlify.com/legal/terms-of-use/)
-- [Netlify Self-Serve Subscription Agreement](https://www.netlify.com/legal/self-serve-subscription-agreement/)
-- [Steam rules/onboarding](https://partner.steamgames.com/doc/gettingstarted/onboarding#5)
-- [Steam content survey](https://partner.steamgames.com/doc/gettingstarted/contentsurvey)
-- [Steam review process](https://partner.steamgames.com/doc/store/review_process)
-
-### Commercial checklist
-
-- Audit and bundle fonts; confirm licenses such as OFL where applicable.
-- Enumerate third-party code/assets and preserve license notices.
-- Manraj decides price.
-- Prepare honest store copy, screenshots, adult/content descriptors, AI disclosure, trailer/press kit as justified, support contact, and known-bugs list.
-- Verify before claiming: localStorage-only saves, zero analytics, no account/backend, and the exact privacy posture stated on the page.
-- Run the full release gate: `verify.mjs` green; V1–V6 at their locked hard thresholds; mobile/desktop playtest sign-off; policy/content review; artifact digest.
-- Business-entity and tax setup remains owner-handled and outside the game roadmap.
+- itch.io remains the primary 1.0 storefront direction, subject to submission-time policy recheck.
+- Adult classification, AI disclosure, content descriptors, cover-art suitability, payment terms, and current platform rules are verified at submission time.
+- Netlify is not the canonical commercial host.
+- Audit fonts, third-party code/assets, licenses, and notices.
+- Manraj decides price, business/tax setup, public messaging, support posture, and final commercial go/no-go.
+- Store copy must describe exact bytes honestly.
+- Steam remains a separate post-1.0 decision.
 
 ---
 
-## 13. 1.0 — Release Candidate / Launch Gate
+## 13. L-013 — 0.40 release rehearsal and 1.0 launch gate
 
-**Status:** LOCKED definition.
+### 0.40 rehearsal
 
-1.0 may release only when:
+- Freeze one release-candidate identity from the exact governed lane.
+- Run strict verifier and V1–V6 gates at that exact candidate and again at exact merged `main` only if close-out is separately authorized.
+- Exercise deterministic packaging, digest, tag/Release draft, rollback, private install, save migration, content descriptors, support, and deployment dry run.
+- Rehearsal prepares drafts and private evidence. It does not authorize publication.
 
-- the authored arc is complete;
-- a stranger can start, save/resume, and finish on phone or desktop without developer habits;
-- all permanent causality, adult-content, art, architecture, and outcome locks still hold;
-- no P0 remains; blocking first-run/save P1s are closed and retested;
-- `verify.mjs` and the locked V1–V6 simulation gates pass at the exact release revision;
-- save compatibility/recovery, accessibility, and device matrices pass;
-- the adult-tagged, AI-disclosed build is purchasable on itch.io;
-- store copy, known bugs, privacy posture, support path, release artifact, digest, tag, and deployment record agree;
-- Manraj gives the final go/no-go.
+### 1.0 public release
 
-Steam, a native wrapper, achievements, gamepad, and cloud saves are not requirements for 1.0.
+1.0 may release only when the authored arc is complete; a stranger can start, save/resume, and finish on phone or PC without developer habits; causality, adult-content, art, architecture, save, and outcome locks hold; no P0 remains; blocking first-run/save P1s are closed and retested; strict gates pass at the exact release revision; the adult-tagged, AI-disclosed commercial package is ready; store copy, known bugs, privacy, support, artifact, digest, tag, Release, and deployment identity agree; and Manraj gives final go/no-go.
+
+Steam, native wrapper, achievements, gamepad, and cloud saves are not 1.0 requirements.
 
 ---
 
-## 14. Proposal, deferred, held, and rejected register
+## 14. Accepted version program and live work
+
+### 0.30.1 — Governed Recovery Integrity
+
+**State:** drain closed on the version lane; `NOT_CERTIFIED`; no close-out credit.
+
+Do not mint a new leftover identity. PRs 45/46 remain held.
+
+### 0.31 — Systemic Truth Closure / This Run Does Not Lie
+
+**State:** landed on the version lane; `NOT_CERTIFIED`.
+
+Remaining C/D items are parked hunches. They are not 0.34 work. If the 0.33 playtest reproduces one as a correctness defect, repair it as a 0.33 one-PR ticket.
+
+### 0.32 — Save Trust and Recovery
+
+**State:** exited ~`7ec5b30`; `NOT_CERTIFIED`.
+
+Do not reopen the 0.32 queue. If playtest proves a save-loss, trap, silent replace, or version-misread, that is a 0.33 bug ticket.
+
+### 0.33 — Named playtest candidate
+
+**State:** ACTIVE. Player-facing label `0.33` at `685d400`. ART-R2 **HELD**.
+
+**Purpose:** let Manraj play the current candidate and report what is actually wrong.
+
+Work allowed now:
+
+1. Playtest on the named live preview and/or the exact lane SHA.
+2. One-PR bug tickets on 0.33 for defects Manraj reports.
+3. Capture PX-1 notes when they appear. Do not pre-write the baseline report as scope.
+4. Keep ART-R2, STORY-SURGERY-R1, Cascade Allusive proposals, and new art volume closed.
+
+**Entry:** 0.32 exited; version paint landed; owner named this SHA as the playtest.
+**Exit:** owner declares the playtest window closed enough to classify findings. Bugs already filed on 0.33 are closed or ranked. No ART-R2. No close-out. No certify.
+
+### 0.34 — Mobile UX, Accessibility, and Performance
+
+**Purpose:** make the already-playtested candidate usable on real phones without changing the story.
+
+**Workstreams**
+
+1. Real-device pass on current iPhone Safari and one representative Android Chrome.
+2. Text scaling, contrast, focus visibility, touch targets, and reduced-motion.
+3. Screen-reader reading order and honest image alternatives that are not raw scene IDs.
+4. Scene-to-scene image decode, memory pressure over a full run, and resume-after-background.
+5. Orientation, zoom, and resize without state loss.
+6. Retest only the 0.33 playtest defects that were classified as presentation/performance, not new narrative work.
+
+**Entry:** 0.33 playtest window closed; findings classified; remaining 0.33 bug PRs ranked or closed; ART-R2 still held unless separately opened.
+**Exit:** ranked device/performance matrix exists; P0 and blocking P1 presentation failures are fixed and retested on phone. No new story. No art batch. No certify.
+
+**Hard holds:** PR 45/46, ART-R2, leftover drain, main close-out, certification, auto-Netlify.
+
+### 0.35 — Packaging and Private Itch
+
+**Purpose:** prove the game can be packaged and handed privately without making a public or commercial claim.
+
+**Workstreams**
+
+1. Deterministic private candidate ZIP from an exact lane SHA, with SHA-256.
+2. Font, license, asset-inventory, path, and MIME/cache honesty.
+3. Content-notice and adult-classification fields as draft private metadata.
+4. Private download → open → save → resume path on phone.
+5. Draft non-public store/support/privacy copy. No public page.
+6. Record platform/rights issues for 0.39. Do not solve commercial policy here.
+
+**Entry:** 0.34 device matrix passed.
+**Exit:** reproducible private package and digest exist; private open/save path works; no public itch page; no payment; no publication.
+
+**Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public itch, price, Steam.
+
+### Playtest response (post-0.35, pre-0.36)
+
+Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03; ordered follow-ups are listed in `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`. Current ticket on the version lane: `SUN-PLAYTEST-ART-EVENT-AUDIT-01` (audit + in-tree retargets + Grok briefs). Pack note `SUN-ART-BODY-REFERENCE-01` is documented in that plan; the audit PR does not generate `body_ref` bytes or wire them. Style bible draft `artifacts/SUN_ART_STYLE_BIBLE.md` must be owner-approved before grok.com event or body_ref chats; generation is offloaded off Grok Bot / Cursor. ART-R2 broad binary campaign remains held; Grok briefs are instructions, not wiring authority.
+
+**Hard holds:** PR 45/46; do not mint 0.36; no certify; last certified `0.28.1d`; NO-PUBLISH; live Netlify pin `a91a26d` (no PIN-02 remint); L-025–L-028 not reopened here.
+
+### 0.36 — PC Readiness
+
+**Purpose:** give the same static browser game a second composition that a keyboard-and-mouse stranger can finish.
+
+**Workstreams**
+
+1. Revalidate PR 84 keyboard controls on the then-current candidate.
+2. Revalidate PR 85 widescreen plate-beside-prose without regressing phone layout.
+3. Hover versus focus versus pressed versus disabled versus selected.
+4. Fullscreen, resize, zoom, and common desktop viewport sanity.
+5. One start-to-end keyboard-only run.
+6. Desktop browser matrix against the 0.34 accessibility/performance controls.
+
+**Entry:** 0.35 private package exists so PC and phone are tested against the same bytes.
+**Exit:** keyboard-only run succeeds; desktop matrix passes; phone layout is not regressed.
+
+**Hard holds:** no Electron/Tauri, no gamepad, no achievements, no cloud saves, no PC-only story branch, no 45/46, no certify, no main close-out.
+
+### 0.37 — External Review Pilot
+
+**Purpose:** put the private candidate in front of two strangers who have never seen the code or prior reports.
+
+**Workstreams**
+
+1. Select one mobile-primary and one desktop reviewer with no prior Sunsplitter playthrough.
+2. Freeze the exact private candidate identity they will play.
+3. Full start-to-end runs plus explicit probes for dead speech, unpaid cost, save loss, softlock, and false ending.
+4. Ranked P0/P1/P2 report with scene/UI, device/browser, and reproduction.
+5. Retest only after owner-ranked repairs. Repairs are one-concern PRs, not a new mid-version invented here.
+6. Feed 0.38 cohort design. Do not start the cohort inside 0.37.
+
+**Entry:** 0.36 passed.
+**Exit:** both reviewers finished or their blockers are ranked; P0 closed and retested; first-run-trust and save-integrity P1s are closed or owner-deferred with a named later version.
+
+**Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public page, paying customers.
+
+### 0.38 — Player Validation Cohort
+
+Bounded cohort on the exact private candidate. Separate correctness, accessibility, experience, and market findings. Define stop/continue thresholds before reading results.
+
+### 0.39 — Commercial Readiness
+
+Execute §12. Public itch, disclosures, rights, price, and store truth live here — not at 0.33 or 0.35.
+
+### 0.40 — Launch Rehearsal / RC
+
+Execute §13 rehearsal against one frozen identity.
+
+### 1.0 — Public Release
+
+Execute §13 launch gate. Manraj remains the final and separate go/no-go authority.
+
+---
+
+## 15. Wait for playtest — do not pre-slice
+
+These items stay off 0.34–0.37 until the 0.33 playtest produces a classified finding or Manraj opens the named gate.
+
+| Item | Why it waits |
+|---|---|
+| ART-R2 identity/roster/crop audit | Explicitly HELD |
+| STORY-SURGERY-R1 | HELD until evidence names exact prose |
+| Cascade Allusive six light beats | Proposals; need host/voice/live-dead confirmation after play |
+| Opening video, tutorial, crew dossier | Candidates; PX-1 must prove the failure |
+| Ticket 2 / L-028 new-crew indicator | Default RETIRE until pre-registered mobile-PX threshold |
+| Pair residue, pregnancy delayed texture, unchosen-debt cascade | Evidence-gated density |
+| Economy rebalance / outcome-envelope retune | Needs human play, not another model prediction |
+| Ship-exterior damage-cause canon | Fable proposal + owner lock; not a version slice |
+| Spoken 140,006 prose sweep | Only if playtest hits the old count as a visible lie and owner wants it now |
+| Command-authority/sexual-power tickets | Audit after play notes, not before |
+| Voyage chronology bible as blocking work | Useful, not a version |
+| New art generation or unwire of discarded Vess plates | ART-R2 still held |
+| Any leftover-drain identity from 0.30.1–0.32 | Closed on purpose |
+
+Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, version label lie) stay on **0.33** as one-PR tickets.
+
+---
+
+## 16. Proposal, deferred, held, and rejected register
 
 | Item | Disposition |
 |---|---|
-| Earth-calamity opening video | CANDIDATE at 0.30 after PX evidence |
-| Skippable first-run tutorial | CANDIDATE at 0.30 after PX evidence |
-| Clickable crew portrait/details | CANDIDATE at 0.30/0.32; descriptive only, no hidden/numeric stats |
-| “PM-like” quick roadmap updater | CANDIDATE 0.28.3 governance helper. It may fetch `main`, draft a patch/draft PR, validate, and return a copy-ready summary. It may never write directly to `main` or self-lock. |
-| Ticket 2 new-crew indicator | DECISION GATE; no implementation before PX evidence and Grok lock |
-| Four-state promise domain | DECISION GATE before 0.28.3 promise implementation and all 0.29 prose |
-| Commander identity A/B | DECISION GATE at PX-4; B recommended |
-| Last Off-Shift zero/one branches | DECISION GATE in 0.28.3: document defensive code or retire it |
-| `vess_course_lost` | DECISION GATE in 0.28.3: tested consumer or retire |
-| Pair residual textures/debt/pregnancy texture | DEFERRED to evidence-gated 0.29 scope |
-| Breast-cover/explicit-content toggle | HELD/UNSCHEDULED |
+| Cascade Allusive six-beat package | PROPOSAL; wait for 0.33 playtest + owner open |
+| Heavy standalone boarding manifest / cascade records scenes | RETIRED in favor of distributed allusion |
+| Lena disposition beat | DEFERRED to a late evidence-backed private moment |
+| Tomas “People were tier four.” | RESERVED; do not spend early |
+| Earth-calamity opening video | CANDIDATE only after first-run evidence |
+| Skippable tutorial | CANDIDATE only after a measured comprehension failure |
+| Clickable crew portrait/details | CANDIDATE; descriptive only |
+| Ticket 2 new-crew indicator | DEFERRED / default RETIRE under L-028 |
+| Pair residue, debt, pregnancy texture | DEFERRED to evidence-backed narrative scope |
+| Breast-cover/explicit-content toggle | HELD / UNSCHEDULED |
+| STORY-SURGERY-R1 | HELD |
+| ART-R2 | HELD |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
-| Engine/state mechanical split | DEFERRED until after 1.0 or a separately approved architectural need |
+| Engine/state mechanical split | DEFERRED until after 1.0 or separate approval |
 | Native wrapper, gamepad, achievements, cloud saves | OUT before 1.0 |
-| Steam launch | DEFERRED to a separate post-1.0 decision |
-| Fixed event-order redesign | ACCEPTED PERMANENT LIMITATION unless Manraj explicitly reopens the lock; no scheduled redesign |
-| `warmth_laughter` latent Vess guard/duplicate wording | Ranked P2 debt outside the exact 0.28.2 ten-ticket batch; fix only through a separately approved ticket |
+| Steam launch | DEFERRED to separate post-1.0 decision |
+| Fixed event-order redesign | ACCEPTED LIMITATION unless explicitly reopened |
 | Conventional HUD/dashboard/meters/quest log | REJECTED |
-| Stale GPT README describing retired scene layout | REJECTED; salvage only verified simulator usage |
-| V2 literal-name lint as a zero gate | REJECTED; spike detector only, with classified editorial audit as authority |
+| V2 literal-name lint as zero gate | REJECTED; classified spike detector only |
+| Leftover drain reopen | REJECTED unless owner reopens it by name |
+| Close-out of this lane to `main` in the current window | HELD |
+| Certification of 0.33 | HELD; last certified remains 0.28.1d |
 
 ---
 
-## 15. Agent operating rules
+## 17. Agent operating rules
 
-### Grok / program office
+`AGENTS.md` v2 (2026-11-05) controls roles. The Grok program office, Build/GPT-Codex and Art bot lanes are retired; the rules below are their successors.
 
-- Read exact `main` SHA and both authority files.
-- Record Manraj-approved locks, dispatch one-concern tickets, and prevent out-of-order work.
-- Maintain the decision register and close-out evidence.
-- Do not draft scene prose or self-approve unresolved creative/commercial choices.
+### Lead (Claude, lead chat)
 
-### Fable
+- Read exact authority and runtime revisions. Record owner-approved locks and prevent out-of-order work.
+- Keep confirmed findings, hunches, holds, and landed evidence distinct.
+- Implement approved tickets one concern per PR from the work-branch tip; merge ticket PRs into the work branch with a merge commit once CI is green.
+- Do not self-approve creative, canon, art, balance or commercial decisions. Do not merge to `main`, tag, release, deploy, repin Netlify, or certify.
+- Do not leftover-drain.
 
-- Design, draft prose, and perform independent voice/causality review.
-- Begin from this roadmap, current status, Fable brief, voice cards, scene skeleton, and only the domain documents needed.
+### Myth (story helper chat; formerly Fable)
+
+- Propose and review prose only; the lead lands it.
 - Every scene declares preconditions, writes, death exposure, dead-speech check, and image status.
-- Return one complete copy-ready handoff, not scattered fragments.
-- A writer does not certify its own scenes.
+- Keep contested cascade lanes plural and phrase ownership exact.
 
-### Build / Engine
+### Hex (balance helper chat)
 
-- Implement only an approved ticket against a pinned baseline/integration SHA.
-- Use the version-branch PR flow; no direct/API writes to `main`.
-- Preserve pure-data shape and state registry discipline.
-- Run local verification before PR and attach the exact transcript/evidence.
-- Never claim a version shipped until the close-out revision, tag, and release evidence exist.
+- Simulations and balance proposals only. Numbers change through a lead-reviewed PR.
 
-### Art
+### Muse (art helper chat; formerly Art)
 
-- Work only from locked requests tied to written/gated scenes.
-- Match CURRENT Batch A identity, rectangular interiors, roster honesty, and Commander anonymity.
-- Use the bounded base/edit workflow and approve in the target composition.
-- Return real files plus manifest/hash evidence; a chat image is not a shipped asset.
+- ART-R2 is held. Audit and request only from locked requests after that gate opens; cannot generate images.
+- Match CURRENT identity, rectangular interiors, roster honesty, Commander anonymity, and `vess.jpg` as the official Vess face.
 
-### External GPT / Claude reviewers
+### External reviewers
 
-- State exact SHA, method, coverage, and limitations.
-- Separate source correctness from experience predictions.
-- Do not invent systems, keys, content volume, policy claims, or locks.
-- Return one copy-ready text block or one coherent artifact bundle.
+- State exact build, method, coverage, device/browser, and limitations.
+- Separate correctness from experience and recommendations from locks.
 
 ---
 
-## 16. Quick reference
+## 18. Quick reference
 
-| Stage | Exit summary |
+| Stage | State / exit |
 |---|---|
-| Authority bootstrap | ROADMAP exists on `main`; STATUS/README point to it; retired API rules visibly superseded |
-| 0.28.2 | Ten truth defects close; V1/V5 zero; verifier green |
-| 0.28.3 | Chain-of-custody enforced; promise/economy/state foundation truthful; V6 hard |
-| PX Gate | Measured baseline, pacing/outcome standards, identity/power/chronology/save/a11y/distribution decisions |
-| 0.29 | Truthful What Remains + evidence-backed density |
-| 0.30 | Stranger-ready presentation; user ideas only if evidence-backed |
-| 0.31 | Independent mobile/desktop review; blockers fixed and retested |
-| 0.32 | Same browser game works cleanly on PC |
-| 0.33 | itch.io commercial package, disclosures, rights/privacy/release checks |
-| 1.0 | Phone-or-desktop, adult-tagged, AI-disclosed, purchasable, verified |
+| 0.30.1 | Drain closed on lane; NOT CERTIFIED |
+| 0.31 | Systemic truth landed on lane; NOT CERTIFIED |
+| 0.32 | Save trust exited ~7ec5b30; NOT CERTIFIED |
+| 0.33 | Named playtest active at `685d400`; bugs stay here; ART-R2 held |
+| 0.34 | Phone a11y/perf matrix passes |
+| 0.35 | Private package + private itch path proven; no publication |
+| Playtest response | Post-0.35 / pre-0.36 version-lane follow-ups; see `SUN_PLAYTEST_RESPONSE_PLAN.md`; 0.36 not opened |
+| 0.36 | Same browser game works on PC without phone regression |
+| 0.37 | Independent pilot findings ranked and retested |
+| 0.38 | Cohort evidence supports product and commercial decisions |
+| 0.39 | Rights, policy, store, support, privacy, and package truth ready |
+| 0.40 | Frozen RC survives rehearsal |
+| 1.0 | Owner-authorized public release at exact verified identity |
 
-**Do not start 0.29 or any new story/art volume until both 0.28.2 and 0.28.3 are complete and the PX gate exits.**
+**Current next action:** playtest response on the version lane (`SUN_PLAYTEST_RESPONSE_PLAN.md`). Do not mint or open 0.36.
+
+**Hard holds that survive every later version in this file:** leave PR 45/46; ART-R2 held; no certify; last certified `0.28.1d`; no auto-Netlify; no main close-out; no leftover drain.

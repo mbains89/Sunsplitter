@@ -7,17 +7,16 @@
 
 (function () {
   const ALLOWED_KEYS = new Set(["text", "choices", "onEnter", "image"]);
-  // Exhaustive against current usage + tag (bond/private labels). onChoose removed 0.26.1.
   const ALLOWED_CHOICE_KEYS = new Set([
     "text", "next", "effects", "affinity", "flag", "lean", "requires",
     "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag"
   ]);
-  const ROMANCE_IDS = ["lena", "mira", "amara", "sela"];
+  const ROMANCE_IDS = ["lena", "mira", "amara", "sela", "vess"];
+  const ROMANCE_ID_PATTERN = ROMANCE_IDS.join("|");
   const LOCKED_FLAG_VALUES = {
     manifest: new Set(["read", "declined"]),
     changeorders: new Set(["logged", "buried"])
   };
-
   function shouldRun() {
     try {
       if (typeof location !== "undefined" && /[?&]validate=1\b/.test(location.search)) return true;
@@ -25,7 +24,6 @@
     } catch (_) {}
     return false;
   }
-
   function collectChoiceLists(sc, id, warnings) {
     let choiceList = [];
     try {
@@ -40,116 +38,90 @@
       warnings.push(`${id}: choices did not resolve to array`);
       return [];
     }
+    const authored = livingCastOriginals.get(sc)?.choices;
+    if (authored) {
+      try {
+        const raw = authored.get ? authored.get.call(sc) : authored.value;
+        const original = typeof raw === "function" ? raw.call(sc) : raw;
+        if (Array.isArray(original)) choiceList = [...new Set([...choiceList, ...original])];
+      } catch (e) {
+        warnings.push(`${id}: authored choices getter threw (${e.message})`);
+      }
+    }
     return choiceList;
   }
-
+  function propertySource(object, key) {
+    const descriptor = Object.getOwnPropertyDescriptor(object, key);
+    const source = d => d?.get ? d.get.toString() : String(d?.value || "");
+    return source(descriptor) + "\n" + source(livingCastOriginals.get(object)?.[key]);
+  }
   function validate() {
     const errors = [];
     const warnings = [];
-
+    if (typeof ROMANCEABLE !== "undefined") {
+      const runtimeIds = [...ROMANCEABLE].sort();
+      const validatorIds = [...ROMANCE_IDS].sort();
+      if (JSON.stringify(runtimeIds) !== JSON.stringify(validatorIds)) {
+        errors.push(`romance validator IDs ${validatorIds.join(",")} != runtime IDs ${runtimeIds.join(",")}`);
+      }
+    }
     if (typeof scenes === "undefined" || !scenes || typeof scenes !== "object") {
       console.error("[Sunsplitter validate] scenes object missing");
       return { errors: ["scenes missing"], warnings: [], count: 0 };
     }
-
     const ids = Object.keys(scenes);
     if (ids.length === 0) errors.push("no scenes registered");
-
-    const nextGraph = {}; // id -> Set of next ids
+    const nextGraph = {};
     const writtenFlags = new Set();
     const readFlags = new Set();
     const allNexts = new Set();
-
     for (const id of ids) {
       const sc = scenes[id];
-      if (!sc || typeof sc !== "object") {
-        errors.push(`${id}: not an object`);
-        continue;
-      }
-
-      // Required: text
+      if (!sc || typeof sc !== "object") { errors.push(`${id}: not an object`); continue; }
       const desc = Object.getOwnPropertyDescriptor(sc, "text");
       if (!desc && sc.text === undefined) errors.push(`${id}: missing text`);
-
-      // Illegal keys (strict shape)
       for (const k of Object.keys(sc)) {
-        if (!ALLOWED_KEYS.has(k)) {
-          errors.push(`${id}: illegal key "${k}" (allowed: text, choices, onEnter, image)`);
-        }
+        if (!ALLOWED_KEYS.has(k)) errors.push(`${id}: illegal key "${k}" (allowed: text, choices, onEnter, image)`);
       }
-
       const choiceList = collectChoiceLists(sc, id, warnings);
       nextGraph[id] = new Set();
-
       choiceList.forEach((c, i) => {
-        if (!c || typeof c !== "object") {
-          errors.push(`${id}: choice[${i}] not an object`);
-          return;
-        }
-        // Choice-level shape (same severity as scene ALLOWED_KEYS)
+        if (!c || typeof c !== "object") { errors.push(`${id}: choice[${i}] not an object`); return; }
         for (const ck of Object.keys(c)) {
-          if (!ALLOWED_CHOICE_KEYS.has(ck)) {
-            errors.push(`${id}: choice[${i}] illegal key "${ck}" (allowed: ${[...ALLOWED_CHOICE_KEYS].join(", ")})`);
-          }
+          if (!ALLOWED_CHOICE_KEYS.has(ck)) errors.push(`${id}: choice[${i}] illegal key "${ck}" (allowed: ${[...ALLOWED_CHOICE_KEYS].join(", ")})`);
         }
         if (!c.text) warnings.push(`${id}: choice[${i}] missing text`);
-        if (!c.next) {
-          errors.push(`${id}: choice[${i}] missing next`);
-          return;
-        }
+        if (!c.next) { errors.push(`${id}: choice[${i}] missing next`); return; }
         nextGraph[id].add(c.next);
         allNexts.add(c.next);
-        if (c.next !== "ending_check" && !scenes[c.next]) {
-          errors.push(`${id}: choice[${i}] next "${c.next}" does not exist`);
-        }
-        // Flag writes from choice.flag
+        if (c.next !== "ending_check" && !scenes[c.next]) errors.push(`${id}: choice[${i}] next "${c.next}" does not exist`);
         if (c.flag && typeof c.flag === "object") {
           Object.keys(c.flag).forEach(fk => {
             writtenFlags.add(fk);
             const domain = LOCKED_FLAG_VALUES[fk];
-            if (domain && !domain.has(c.flag[fk])) {
-              errors.push(`${id}: choice[${i}] invalid ${fk} value ${JSON.stringify(c.flag[fk])}`);
-            }
+            if (domain && !domain.has(c.flag[fk])) errors.push(`${id}: choice[${i}] invalid ${fk} value ${JSON.stringify(c.flag[fk])}`);
           });
         }
-        // Mark writes
-        if (c.mark && typeof c.mark === "object") {
-          Object.keys(c.mark).forEach(mk => writtenFlags.add("mark:" + mk));
-        }
+        if (c.mark && typeof c.mark === "object") Object.keys(c.mark).forEach(mk => writtenFlags.add("mark:" + mk));
       });
-
-      // Flag/mark reads inside text getters (best-effort static scan)
       try {
-        const src = sc.text && sc.text.toString ? sc.text.toString() : "";
-        const onSrc = sc.onEnter && sc.onEnter.toString ? sc.onEnter.toString() : "";
-        const chSrc = sc.choices && sc.choices.toString ? sc.choices.toString() : "";
+        const src = propertySource(sc, "text");
+        const onSrc = propertySource(sc, "onEnter");
+        const chSrc = propertySource(sc, "choices");
         const blob = src + "\n" + onSrc + "\n" + chSrc;
         for (const m of blob.matchAll(/flags\.([a-zA-Z0-9_]+)/g)) readFlags.add(m[1]);
-        for (const m of blob.matchAll(/flags\[['\"]([a-zA-Z0-9_]+)['\"]\]/g)) readFlags.add(m[1]);
+        for (const m of blob.matchAll(/flags\[['\" ]([a-zA-Z0-9_]+)['\"]\]/g)) readFlags.add(m[1]);
         for (const m of blob.matchAll(/marks\.([a-zA-Z0-9_]+)/g)) readFlags.add("mark:" + m[1]);
       } catch (_) {}
-
-      // image path if scene.image set
       if (sc.image && typeof sc.image === "string") {
-        if (!sc.image.startsWith("images/") && !sc.image.startsWith("./images/")) {
-          warnings.push(`${id}: image path "${sc.image}" looks nonstandard`);
-        }
+        if (!sc.image.startsWith("images/") && !sc.image.startsWith("./images/")) warnings.push(`${id}: image path "${sc.image}" looks nonstandard`);
       }
     }
-
-    // --- next-target graph: orphans not in any choice.next from static resolve ---
-    // Dynamic getters (intimacy/pursuit) may omit options without full state; scan source too.
-    // Prefer property descriptors so we do not invoke getters (which need full state).
     let allSource = "";
     try {
       for (const id of ids) {
         const sc = scenes[id];
-        const chDesc = Object.getOwnPropertyDescriptor(sc, "choices");
-        if (chDesc && chDesc.get) allSource += chDesc.get.toString() + "\n";
-        else if (sc.choices && sc.choices.toString) allSource += sc.choices.toString() + "\n";
-        const teDesc = Object.getOwnPropertyDescriptor(sc, "text");
-        if (teDesc && teDesc.get) allSource += teDesc.get.toString() + "\n";
-        if (sc.onEnter && sc.onEnter.toString) allSource += sc.onEnter.toString() + "\n";
+        for (const key of ["choices", "text", "onEnter"]) allSource += propertySource(sc, key) + "\n";
       }
     } catch (_) {}
     for (const id of ids) {
@@ -158,59 +130,28 @@
       if (allSource.includes('"' + id + '"') || allSource.includes("'" + id + "'")) continue;
       warnings.push(`graph: "${id}" is never referenced as next/onEnter target`);
     }
-
-    // --- sceneImages map ---
     const imagePaths = new Set();
     if (typeof sceneImages === "object" && sceneImages) {
       for (const [sid, path] of Object.entries(sceneImages)) {
-        if (typeof path !== "string" || !path.length) {
-          errors.push(`sceneImages["${sid}"] empty`);
-        } else {
+        if (typeof path !== "string" || !path.length) errors.push(`sceneImages["${sid}"] empty`);
+        else {
           imagePaths.add(path);
           if (!path.includes("/")) warnings.push(`sceneImages["${sid}"] path has no directory: ${path}`);
         }
-        // unused map keys (scene id not registered)
-        if (sid !== "ending_check" && !scenes[sid] && !sid.startsWith("ending_")) {
-          warnings.push(`sceneImages["${sid}"] has no matching scene id`);
-        }
+        if (sid !== "ending_check" && !scenes[sid] && !sid.startsWith("ending_")) warnings.push(`sceneImages["${sid}"] has no matching scene id`);
       }
-    } else {
-      warnings.push("sceneImages map missing");
-    }
-
-    // scene.image values not in map (informational)
-    for (const id of ids) {
-      const sc = scenes[id];
-      if (sc && typeof sc.image === "string" && imagePaths.size && !imagePaths.has(sc.image)) {
-        // not an error — inline image is fine
-      }
-    }
-
-    // --- romance gate consistency (default-offer rule) ---
-    // intimacy_window should not hard-gate on affinity/trust numerics in source
+    } else warnings.push("sceneImages map missing");
     if (scenes.intimacy_window) {
       try {
-        const src = [
-          scenes.intimacy_window.choices && scenes.intimacy_window.choices.toString(),
-          scenes.intimacy_window.text && scenes.intimacy_window.text.toString()
-        ].filter(Boolean).join("\n");
-        if (/affinity\.(mira|amara|sela|lena)\s*\|\|\s*0\)\s*>=\s*\d+/.test(src)) {
-          warnings.push("romance: intimacy_window still has numeric affinity gates (expected default-offer)");
-        }
-        if (/trust\.(mira|amara|sela|lena)\s*\|\|\s*0\)\s*>=\s*\d+/.test(src)) {
-          warnings.push("romance: intimacy_window still has numeric trust gates (expected default-offer)");
-        }
-        // declined mark should appear (string or hasMark)
-        if (!/declined/.test(src) && !/hasMark\(/.test(src)) {
-          warnings.push("romance: intimacy_window may not check marks.*.declined");
-        }
+        const src = [propertySource(scenes.intimacy_window, "choices"), propertySource(scenes.intimacy_window, "text")].filter(Boolean).join("\n");
+        const affinityGate = new RegExp(`affinity\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
+        const trustGate = new RegExp(`trust\\.(${ROMANCE_ID_PATTERN})\\s*\\|\\|\\s*0\\)\\s*>=\\s*\\d+`);
+        if (affinityGate.test(src)) warnings.push("romance: intimacy_window still has numeric affinity gates (expected default-offer)");
+        if (trustGate.test(src)) warnings.push("romance: intimacy_window still has numeric trust gates (expected default-offer)");
+        if (!/declined/.test(src) && !/hasMark\(/.test(src)) warnings.push("romance: intimacy_window may not check marks.*.declined");
       } catch (_) {}
     }
-
-    // --- flag READ vs WRITE audit ---
-    // dead writes: written in choices but never read in getters
     const deadWrites = [...writtenFlags].filter(f => !readFlags.has(f) && !f.startsWith("mark:"));
-    // ignore very common engine-consumed flags
     const engineFlags = new Set([
       "crisis", "vault_sacrifice", "mid_arc", "final", "planet", "leadership", "reckon",
       "hydro", "power", "stores", "signal", "past", "cascade_truth", "ship_memory",
@@ -218,31 +159,20 @@
       "feedstock", "coolant", "pregnancy_risk", "vault_priority", "vault_voice",
       "abandoned", "tomas", "sela_attention", "priority", "rourke", "mira_favor",
       "patch", "elias_power", "lena_authority", "interrupt_return",
-      // 0.24.1 crisis-request currencies (read in later lethals / What Remains)
       "sela_vault_vow", "lena_regen", "mira_memory_public", "amara_vent_delayed",
       "pursuit_mira_cost", "pursuit_amara_cost", "pursuit_sela_cost", "pursuit_lena_cost",
       "busDowngraded", "reaction_mass_spent", "last_tx_spent", "vess_intimate",
-      "vess_course_lost",
-      // 0.26 exclusive crises (onEnter-only writes; read later in What Remains)
       "breath_word", "breath_answer", "custody_roll", "custody_answer",
-      // 0.27 spoken promises
       "prom_amara", "prom_tomas", "prom_elias", "prom_lena", "prom_sela", "prom_mira",
       "prom_deck4_edited", "prom_deck4_buried", "prom_line_other", "prom_line_held",
-      // 0.27.2 allusion carriers (one-shot mid-run re-surface)
       "prom_amara_alluded", "prom_tomas_alluded", "prom_elias_alluded",
       "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
-      // 0.28 Off-Shift + pairs + warmth
       "junctionChoice", "lena_notes", "mira_fault_known", "course_briefed",
-      "pair_shield", "pair_grudge", "pair_favor", "pair_turn",
+      "pair_shield", "pair_grudge", "pair_favor",
       "warmth_meal", "warmth_laughter", "warmth_music",
-      // 0.29 Cascade Allusive
       "manifest", "changeorders"
     ]);
-    deadWrites.forEach(f => {
-      if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`);
-    });
-
-    // --- Reachability BFS from wake (static next only; getters may hide branches) ---
+    deadWrites.forEach(f => { if (!engineFlags.has(f)) warnings.push(`flag WRITE-only (no scene read found): ${f}`); });
     const reachable = new Set();
     const queue = ["wake"];
     while (queue.length) {
@@ -252,56 +182,468 @@
       const outs = nextGraph[cur];
       if (outs) for (const n of outs) if (!reachable.has(n) && scenes[n]) queue.push(n);
     }
-    // Also mark source-referenced ids as reachable for dynamic getters
     for (const id of ids) {
       if (reachable.has(id)) continue;
       if (allSource.includes('"' + id + '"') || allSource.includes("'" + id + "'")) reachable.add(id);
     }
-    const unreachable = ids.filter(id => id !== "ending_check" && !reachable.has(id));
-    unreachable.forEach(id => warnings.push(`reachability: "${id}" not reachable from wake (static+source)`));
-
-    // Required scenes
+    ids.filter(id => id !== "ending_check" && !reachable.has(id)).forEach(id => warnings.push(`reachability: "${id}" not reachable from wake (static+source)`));
     if (!scenes.ending_check) errors.push("missing required scene ending_check");
     if (!scenes.wake) errors.push("missing required scene wake");
-    // 0.25 lethal chain presence
     for (const id of ["act3_lethal_lena_clock", "act3_lethal_tomas_cost", "act3_lethal_elias_order", "act3_lethal_mira_board"]) {
       if (!scenes[id]) errors.push("missing required 0.25 scene " + id);
     }
-
-    // SPINE assert deferred until exclusive crises land (0.26+) — data-driven later
-
     const summary = `[Sunsplitter validate] ${ids.length} scenes — ${errors.length} error(s), ${warnings.length} warning(s)`;
     if (errors.length) console.error(summary, errors);
     else if (warnings.length) console.warn(summary, warnings);
     else console.log(summary + " — clean");
-
     return {
-      errors,
-      warnings,
-      count: ids.length,
+      errors, warnings, count: ids.length,
       flags: { written: [...writtenFlags].sort(), read: [...readFlags].sort(), deadWrites },
       graph: Object.fromEntries(Object.entries(nextGraph).map(([k, v]) => [k, [...v]]))
     };
   }
-
-  if (typeof window !== "undefined") {
-    window.validateSunsplitter = validate;
-  }
-
+  if (typeof window !== "undefined") window.validateSunsplitter = validate;
   function boot() {
     if (!shouldRun()) return;
-    try {
-      validate();
-    } catch (e) {
-      console.error("[Sunsplitter validate] crashed", e);
-    }
+    try { validate(); } catch (e) { console.error("[Sunsplitter validate] crashed", e); }
   }
-
   if (typeof document !== "undefined") {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", boot);
-    } else {
-      boot();
-    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
   }
+})();
+
+const OFFICIAL_BODYSUIT = {
+  lena: "images/bodysuit_lena.jpg", elias: "images/bodysuit_elias.jpg", mira: "images/bodysuit_mira.jpg",
+  tomas: "images/bodysuit_tomas.jpg", amara: "images/bodysuit_amara.jpg", jiro: "images/bodysuit_jiro.jpg",
+  sela: "images/bodysuit_sela.jpg", vess: "images/bodysuit_vess.jpg", rourke: "images/bodysuit_rourke.jpg"
+};
+function officialBodysuitSrc(key) { return OFFICIAL_BODYSUIT[key] || ""; }
+let crewSheetBackground = [];
+let crewSheetReturnFocus = null;
+function closeCrewSheet() {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet) return;
+  sheet.classList.add("hidden");
+  sheet.classList.remove("visible");
+  crewSheetBackground.forEach(([el, inert]) => { el.inert = inert; });
+  crewSheetBackground = [];
+  const returnFocus = crewSheetReturnFocus;
+  crewSheetReturnFocus = null;
+  if (returnFocus && returnFocus.isConnected !== false && typeof returnFocus.focus === "function") returnFocus.focus();
+  const img = document.getElementById("crew-sheet-image");
+  if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+  else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
+  if (img) img.alt = "";
+}
+function openCrewSheet(key) {
+  const sheet = document.getElementById("crew-sheet");
+  if (!sheet || typeof crew === "undefined" || !crew[key]) { closeCrewSheet(); return; }
+  if (!sheet.classList.contains("visible")) {
+    // renderCrewPanel rebuilds the opener; return to its replacement chip.
+    crewSheetReturnFocus = document.querySelector(`#crew-panel [data-crew="${key}"]`) || document.activeElement;
+    crewSheetBackground = Array.from(document.getElementById("app")?.children || [])
+      .filter(el => el !== sheet).map(el => [el, !!el.inert]);
+    crewSheetBackground.forEach(([el]) => { el.inert = true; });
+  }
+  const c = crew[key];
+  const dead = typeof isAlive === "function" ? !isAlive(key) : false;
+  const role = c.role && c.role !== "None" ? c.role : "No rank";
+  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
+  const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
+  const nameEl = document.getElementById("crew-sheet-name");
+  const roleEl = document.getElementById("crew-sheet-role");
+  const factsEl = document.getElementById("crew-sheet-facts");
+  const bioEl = document.getElementById("crew-sheet-bio");
+  if (nameEl) nameEl.textContent = c.name;
+  if (roleEl) roleEl.textContent = role;
+  const factLines = [
+    "Condition: " + condition
+  ];
+  if (factsEl) factsEl.textContent = factLines.join("\n");
+  if (bioEl) bioEl.textContent = c.bio || "";
+  const img = document.getElementById("crew-sheet-image");
+  const wrap = document.getElementById("crew-sheet-portrait-wrap");
+  const src = officialBodysuitSrc(key);
+  if (src) {
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, src);
+    else if (img) img.src = src;
+    if (img) img.alt = "Official bodysuit portrait of " + (c.first || c.name) + ".";
+    if (wrap) wrap.classList.add("visible");
+  } else {
+    if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
+    if (img) img.alt = "";
+    if (wrap) wrap.classList.remove("visible");
+  }
+  sheet.classList.remove("hidden");
+  sheet.classList.add("visible");
+  const close = document.getElementById("crew-sheet-close");
+  if (close && typeof close.focus === "function") close.focus();
+}
+var crewBoardOpenPass = false;
+(function wireCrewCharacterSheet() {
+  if (typeof renderCrewPanel === "function") {
+    const previous = renderCrewPanel;
+    renderCrewPanel = function(selectedKey) {
+      previous(selectedKey);
+      if (crewBoardOpenPass) { closeCrewSheet(); return; }
+      if (selectedKey && typeof crew !== "undefined" && crew[selectedKey]) openCrewSheet(selectedKey);
+      else closeCrewSheet();
+    };
+  }
+  if (typeof toggleCrewPanel === "function") {
+    const previous = toggleCrewPanel;
+    toggleCrewPanel = function() {
+      crewBoardOpenPass = true;
+      try { previous(); }
+      finally { crewBoardOpenPass = false; }
+      const panel = document.getElementById("crew-panel");
+      if (!panel || !panel.classList.contains("visible")) closeCrewSheet();
+      else closeCrewSheet();
+    };
+  }
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", event => {
+    if (!event) return;
+    const sheet = document.getElementById("crew-sheet");
+    if (!sheet || !sheet.classList.contains("visible")) return;
+    const close = document.getElementById("crew-sheet-close");
+    // Back to crew is the sheet's only tabbable control. Capture before the
+    // gameplay and Crew disclosure listeners, allowing its native activation.
+    if (event.key === "Tab") {
+      if (typeof close?.focus === "function") close.focus();
+    } else if (event.key !== "Escape" && !/^[1-9]$/.test(event.key || "") &&
+               !["Enter", " ", "Spacebar"].includes(event.key)) return;
+    if (event.key === "Tab" || event.key === "Escape" || event.target !== close) {
+      if (typeof event.preventDefault === "function") event.preventDefault();
+    }
+    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    if (typeof event.stopPropagation === "function") event.stopPropagation();
+    if (event.key !== "Escape") return;
+    closeCrewSheet();
+    const panel = document.getElementById("crew-panel");
+    if (panel) { panel.classList.add("visible"); panel.classList.remove("hidden"); }
+    const toggle = document.getElementById("btn-crew");
+    if (toggle) toggle.setAttribute("aria-expanded", "true");
+  }, true);
+})();
+
+function toggleSceneArtSize() {
+  const wrap = document.getElementById("scene-image-wrap");
+  if (!wrap || !wrap.classList.contains("visible")) return false;
+  wrap.classList.toggle("minimized");
+  window.__ssImagePinned = true;
+  return wrap.classList.contains("minimized");
+}
+
+const INTRO_SLIDE_ART = ["images/empty_berths.jpg", "images/ship_exterior_2.jpg", "images/onboarding_background.jpg"];
+const INTRO_SLIDE_ALT = ["Records of Earth's cascade.", "The Sunsplitter colonization ark.", "The living already arguing what to save."];
+function introSlideArt(index) { return INTRO_SLIDE_ART[index] || INTRO_SLIDE_ART[0]; }
+function retreatCinematic() {
+  if (!currentCinematic) return false;
+  if (currentCinematic.index > 0) { currentCinematic.index -= 1; renderCinematicFrame(true); return true; }
+  if (currentCinematic.kind === "intro") { cancelCinematic(); showTitleScreen(); return true; }
+  return false;
+}
+(function overlayIntroBackArt() {
+  if (typeof renderCinematicFrame !== "function" || typeof showCinematic !== "function") return;
+  const previousRender = renderCinematicFrame;
+  renderCinematicFrame = function(resetScroll) {
+    previousRender(resetScroll);
+    if (!currentCinematic) return;
+    const back = document.getElementById("cinematic-back");
+    if (back) {
+      const showBack = currentCinematic.kind === "intro" || (currentCinematic.kind === "ending" && currentCinematic.index > 0);
+      back.classList.toggle("hidden", !showBack);
+      if (currentCinematic.kind === "intro" && currentCinematic.index === 0) back.textContent = "Back to title";
+      else if (currentCinematic.kind === "ending") back.textContent = "Back";
+      else back.textContent = "Back";
+    }
+    const skip = document.getElementById("cinematic-skip");
+    if (skip) {
+      skip.textContent = currentCinematic.kind === "intro" ? "Skip intro" : "Skip ending";
+    }
+    if (currentCinematic.kind === "intro") {
+      const img = document.getElementById("cinematic-image");
+      setManagedImageSource(img, introSlideArt(currentCinematic.index));
+      if (img) img.alt = INTRO_SLIDE_ALT[currentCinematic.index] || "";
+    }
+  };
+  const previousShow = showCinematic;
+  showCinematic = function(kind) { previousShow(kind); if (kind === "intro" || kind === "ending") renderCinematicFrame(false); };
+})();
+
+// SUN-FIX-UIUX-P2-INTRO-PACE-01 — slide 1 stays player-owned.
+// Unpaused auto-NEXT must not steal Back to title. Resume or Next arms pace.
+(function overlayIntroPlayerPace() {
+  if (typeof scheduleCinematicFrame !== "function" || typeof toggleCinematicPause !== "function") return;
+  const previousSchedule = scheduleCinematicFrame;
+  scheduleCinematicFrame = function() {
+    if (currentCinematic && currentCinematic.kind === "intro" && currentCinematic.index === 0 && !currentCinematic.paceArmed) {
+      if (cinematicTimer !== null) clearTimeout(cinematicTimer);
+      cinematicTimer = null;
+      return;
+    }
+    previousSchedule();
+  };
+  const previousToggle = toggleCinematicPause;
+  toggleCinematicPause = function() {
+    if (currentCinematic && currentCinematic.paused) currentCinematic.paceArmed = true;
+    return previousToggle();
+  };
+})();
+
+const TUTORIAL_SEEN_KEY = "sunsplitter_tutorial_seen_v1";
+const TUTORIAL_TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
+function tutorialSeen() { try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1"; } catch (_) { return false; } }
+function markTutorialSeen() { try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); } catch (_) {} }
+function isTutorialOpen() {
+  const overlay = document.getElementById("tutorial-overlay");
+  return !!(overlay && !overlay.classList.contains("hidden"));
+}
+function dismissTutorial() {
+  const overlay = document.getElementById("tutorial-overlay");
+  if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
+  markTutorialSeen();
+  restoreModalDialogFocus("tutorial-overlay");
+  return true;
+}
+function skipTutorial() { return dismissTutorial(); }
+function showTutorialOverlay() {
+  const overlay = document.getElementById("tutorial-overlay");
+  if (!overlay) return false;
+  const copy = document.getElementById("tutorial-copy");
+  if (copy && !copy.textContent) copy.textContent = "The status bar is live. Crew, Hull, Coh, Sup, and Emb are the only numbers that gate what you can order.";
+  const list = document.getElementById("tutorial-topfields");
+  if (list && !list.textContent) list.textContent = TUTORIAL_TOPFIELDS.join(" ");
+  overlay.classList.remove("hidden");
+  overlay.classList.add("visible");
+  focusModalDialog("tutorial-overlay");
+  return true;
+}
+(function overlayTutorialTopfields() {
+  if (typeof finishCinematic === "function") {
+    const previousFinish = finishCinematic;
+    finishCinematic = function() {
+      const kind = currentCinematic && currentCinematic.kind;
+      const ok = previousFinish();
+      if (ok && kind === "intro" && !tutorialSeen()) showTutorialOverlay();
+      return ok;
+    };
+  }
+  if (typeof showScreen === "function") {
+    const previousShow = showScreen;
+    showScreen = function(id) {
+      previousShow(id);
+      if (id !== "game" && isTutorialOpen()) {
+        const overlay = document.getElementById("tutorial-overlay");
+        if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
+      }
+    };
+  }
+})();
+
+function hideNewRunConfirm() {
+  const panel = document.getElementById("new-run-confirm");
+  if (!panel) return;
+  panel.classList.add("hidden");
+  panel.classList.remove("visible");
+  restoreModalDialogFocus("new-run-confirm");
+}
+function showNewRunConfirm() {
+  const panel = document.getElementById("new-run-confirm");
+  if (!panel) return false;
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+  focusModalDialog("new-run-confirm");
+  return true;
+}
+
+function hideCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (!panel) return;
+  panel.classList.add("hidden");
+  panel.classList.remove("visible");
+  restoreModalDialogFocus("commander-create");
+}
+function showCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (!panel) return false;
+  hideNewRunConfirm();
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+  focusModalDialog("commander-create");
+  return true;
+}
+
+// SUN-MODAL-HOTKEYS-01: an open aria-modal dialog owns the keyboard. Number keys, Enter and
+// Space never reach gameplay or title shortcuts behind it (first-run tutorial over wake was
+// committing a choice blind). Enter/Space on a control inside the dialog keep their native
+// activation; form fields keep their own keys. Focus moves to the dialog's main button on open
+// and returns to the opener on close. The crew sheet keeps its own focus trap and return focus.
+const MODAL_DIALOG_PRIMARY = {
+  "tutorial-overlay": "tutorial-dismiss",
+  "commander-create": "commander-create-ok",
+  "new-run-confirm": "new-run-ok",
+  "crew-sheet": "crew-sheet-close"
+};
+const modalDialogOpeners = {};
+function openModalDialogElement() {
+  for (const id of Object.keys(MODAL_DIALOG_PRIMARY)) {
+    const el = document.getElementById(id);
+    if (el && el.classList.contains("visible") && !el.classList.contains("hidden")) return el;
+  }
+  return null;
+}
+function focusModalDialog(id) {
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, id)) modalDialogOpeners[id] = document.activeElement || null;
+  const target = document.getElementById(MODAL_DIALOG_PRIMARY[id]) || document.getElementById(id);
+  if (target && typeof target.focus === "function") target.focus();
+}
+function restoreModalDialogFocus(id) {
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, id)) return;
+  const opener = modalDialogOpeners[id];
+  delete modalDialogOpeners[id];
+  if (opener && opener.isConnected !== false && typeof opener.focus === "function") opener.focus();
+}
+function handleModalDialogKeydown(event) {
+  if (!event || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const key = event.key || "";
+  const activation = key === "Enter" || key === " " || key === "Spacebar";
+  if (!/^[0-9]$/.test(key) && !activation) return false;
+  const dialog = openModalDialogElement();
+  if (!dialog) return false;
+  const target = event.target;
+  const inside = !!(target && typeof dialog.contains === "function" && dialog.contains(target));
+  const tag = String((target && (target.tagName || target.nodeName)) || "").toUpperCase();
+  if (inside && (["INPUT", "SELECT", "TEXTAREA"].includes(tag) || (target && target.isContentEditable))) return false;
+  if (inside && activation && typeof keyboardTargetIsInteractive === "function" && keyboardTargetIsInteractive(target)) return false;
+  if (typeof event.preventDefault === "function") event.preventDefault();
+  if (typeof event.stopPropagation === "function") event.stopPropagation();
+  return true;
+}
+(function wireModalDialogKeys() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", handleModalDialogKeydown, true);
+})();
+function readCommanderCreateDraft() {
+  const callsignEl = document.getElementById("commander-callsign");
+  const oathEl = document.getElementById("commander-oath");
+  const sealEl = document.querySelector('input[name="commander-seal"]:checked');
+  return {
+    commanderCallsign: callsignEl && callsignEl.value ? String(callsignEl.value).slice(0, 32) : "Ash",
+    commanderSeal: sealEl && sealEl.value ? String(sealEl.value).slice(0, 128) : "",
+    commanderOath: oathEl && oathEl.value ? String(oathEl.value).slice(0, 128) : "Keep the living breathing."
+  };
+}
+function applyCommanderTokens(tokens) {
+  if (!tokens || typeof state === "undefined") return;
+  state.commanderCallsign = tokens.commanderCallsign || "";
+  state.commanderSeal = tokens.commanderSeal || "";
+  state.commanderOath = tokens.commanderOath || "";
+}
+function commitNewRunWithCommander() {
+  hideCommanderCreate();
+  const draft = readCommanderCreateDraft();
+  const started = beginFreshCampaign({ persist: true });
+  if (!started) return false;
+  applyCommanderTokens(draft);
+  if (typeof persistSave === "function") persistSave({ silent: true });
+  const line = document.getElementById("intro-line-3");
+  if (line && draft.commanderCallsign && line.setAttribute) {
+    line.setAttribute("data-commander-callsign", draft.commanderCallsign);
+  }
+  showCinematic("intro");
+  return true;
+}
+function confirmCommanderCreate() { return commitNewRunWithCommander(); }
+function advancePastCommanderCreate() {
+  const panel = document.getElementById("commander-create");
+  if (panel && panel.classList.contains("visible")) return confirmCommanderCreate();
+  return false;
+}
+function startGameThroughCommander() {
+  const opened = typeof startGame === "function" ? startGame() : false;
+  if (opened) return true;
+  if (typeof confirmNewRun === "function") {
+    const panel = document.getElementById("new-run-confirm");
+    if (panel && panel.classList.contains("visible")) confirmNewRun();
+  }
+  if (advancePastCommanderCreate()) return true;
+  return !!opened;
+}
+
+function cancelCommanderCreate() {
+  hideCommanderCreate();
+  return false;
+}
+
+function commitNewRun() {
+  hideNewRunConfirm();
+  if (showCommanderCreate()) return false;
+  return commitNewRunWithCommander();
+}
+function confirmNewRun() { return commitNewRun(); }
+function cancelNewRun() { hideNewRunConfirm(); return false; }
+(function overlayNewRunConfirm() {
+  if (typeof startGame === "function") {
+    startGame = function() {
+      const slotOccupied = typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave());
+      if (slotOccupied) {
+        if (showNewRunConfirm()) {
+          const confirmFn = typeof window !== "undefined" ? window.confirm : null;
+          const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
+          if (!confirmIsNative && typeof confirmFn === "function") {
+            try { confirmFn("Start a new run? This will replace your saved progress."); } catch (e) {}
+          }
+          return false;
+        }
+        const ok = typeof window !== "undefined" && typeof window.confirm === "function"
+          ? window.confirm("Start a new run? This will replace your saved progress.")
+          : true;
+        if (!ok) return false;
+      }
+      return commitNewRun();
+    };
+  }
+  if (typeof refreshTitleResumeUI === "function") {
+    const previous = refreshTitleResumeUI;
+    refreshTitleResumeUI = function() {
+      hideNewRunConfirm();
+      hideCommanderCreate();
+      return previous();
+    };
+  }
+})();
+
+function handleTitleChromeKeydown(event) {
+  if (!event || event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
+  if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") return false;
+  if (typeof keyboardTargetIsInteractive === "function" && keyboardTargetIsInteractive(event.target)) return false;
+  const game = document.getElementById("game-screen");
+  if (game && !game.classList.contains("hidden")) return false;
+  const visible = id => { const el = document.getElementById(id); return !!(el && !el.classList.contains("hidden")); };
+  if (visible("tone-screen")) {
+    if (typeof event.preventDefault === "function") event.preventDefault();
+    if (typeof acknowledgeTone === "function") acknowledgeTone();
+    return true;
+  }
+  if (!visible("title-screen")) return false;
+  if (visible("commander-create") || visible("new-run-confirm")) return false;
+  const resume = document.getElementById("btn-resume");
+  if (resume && !resume.classList.contains("hidden")) {
+    if (typeof event.preventDefault === "function") event.preventDefault();
+    if (typeof resume.click === "function") resume.click();
+    return true;
+  }
+  const begin = document.getElementById("btn-begin");
+  if (!begin || begin.classList.contains("hidden")) return false;
+  if (typeof event.preventDefault === "function") event.preventDefault();
+  if (typeof begin.click === "function") begin.click();
+  else if (typeof startGame === "function") startGame();
+  return true;
+}
+(function wireTitleChromeKeyboard() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  document.addEventListener("keydown", handleTitleChromeKeydown);
 })();

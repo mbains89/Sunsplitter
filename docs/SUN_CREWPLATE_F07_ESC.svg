@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <rect width="1280" height="800" fill="#121418"/>
+  <text x="40" y="40" fill="#d7e7ea" font-family="monospace" font-size="20">Crew open, plate minimized</text>
+  <rect x="40" y="60" width="360" height="80" fill="#1c2428" stroke="#3a4a50"/>
+  <text x="52" y="106" fill="#8aa" font-family="monospace" font-size="16">#scene-image-wrap.minimized</text>
+  <rect x="440" y="60" width="800" height="640" fill="#1a1014" stroke="#6a3038"/>
+  <text x="460" y="100" fill="#e8d0d4" font-family="monospace" font-size="18">Crew panel open</text>
+  <text x="40" y="200" fill="#d7e7ea" font-family="monospace" font-size="20">After Esc, plate restored</text>
+  <rect x="40" y="220" width="520" height="500" fill="#243038" stroke="#3ec8c4"/>
+  <text x="60" y="260" fill="#d7e7ea" font-family="monospace" font-size="18">#scene-image src = resolveSceneImage(current)</text>
+  <text x="60" y="300" fill="#9ec" font-family="monospace" font-size="18">minimized absent</text>
+  <text x="60" y="340" fill="#9ec" font-family="monospace" font-size="18">existing medical_bay.jpg, no new portrait bytes</text>
+</svg>

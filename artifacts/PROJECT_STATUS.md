@@ -1,53 +1,100 @@
 # Sunsplitter — Current Status
 
-`schema_version: 1`  
-`updated_utc: 2026-08-19`  
-`authority_migration_base: 3789062f1d0703f63feb8ada66503bb773879550`
+`schema_version: 3`
+`updated_utc: 2026-11-05`
+`work_branch: version/0.30.1-main-reconcile-ci.1`
+`work_branch_tip: 0eead44 (after PR #488)`
+`source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
+`netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
 
-This is the compact rolling handoff. Process: `/AGENTS.md`. Future scope: `ROADMAP.md`. Dispositions: `LOCKS.md`.
+This is the live page: where the work branch is, what landed, what is open, and the single next action. Process is in `/AGENTS.md` (contract v2), dispositions are in `LOCKS.md`, and approved scope and order are in `ROADMAP.md`. Vocabulary follows ROADMAP §1. **LANDED ON VERSION LANE** means merge-committed into the work branch. It is not on `main` and not certified.
 
-## Release / recovery state
+## Release and authority state
 
-`runtime_baseline_sha: e4f84409759760d31fcf47b8a227802a61421f51`  
-`release_label: NO-PUBLISH recovery base`  
-`release_state: NO-PUBLISH`  
-`last_certified_baseline_label: 0.28.1d`  
-`last_certified_baseline_sha_associated: 2bb4517707df90702a9b78fe0fa8fb55c1852dd8`  
-`production_url: NOT_AUTHORIZED`  
-`release_artifact: none authorized from this base`  
+`last_certified_baseline_label: 0.28.1d`
 `version_integrity: NOT_CERTIFIED`
+`release_state: NO-PUBLISH`
+`release_artifact: none authorized`
+`deployment: none authorized`
+`sequential_gate_closure: none credited from 0.28.2 onward`
+`pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
+`pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
 
-**HARD STOP.** Tree at `e4f8440` is the audited NO-PUBLISH recovery base only. Candidate labels such as `0.30` do not certify any sequential gate. No deploy, tag, Release, or itch.io upload from this base.
+- `main` is `8d23109`. It has not moved and is far behind the work branch. Close-out to `main` needs Manraj.
+- **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
+- `VERSION.md` paints `0.36`. That is paint, not certification.
+- Current art is **PRESENT / UNRECONCILED / NO INTEGRATION OR RELEASE CREDIT**. Image presence implies no art approval, roster approval, publication right or release credit.
+- PR 45 and draft PR 46 remain held and untouched.
 
-Authority documents:
-- `artifacts/GOV-01_AUTHORITY_RECONCILIATION.md`
-- `artifacts/RECOVERY-DEC_AMENDMENT.md`
-- Branch `recovery/e4f8440-nopub` + `artifacts/PIPE-BOOT_RECOVERY_PIPELINE.md`
+## Roles
 
-## Active work
+Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish action. Claude is lead in the Sunsplitter project's lead chat, merges ticket PRs into the work branch once CI is green, and keeps this page current. The helper chats are Myth (story), Hex (balance) and Muse (art audit). They propose, and they do not merge. The Grok, Build and Art bot lanes are retired; their receipts stay as history.
 
-`milestone: Governance recovery bootstrap complete`  
-`state: GOVERNANCE_BOOTSTRAP_COMPLETE — awaiting Manraj acceptance of PIPE-BOOT before any integrity dispatch`  
-`governed_branch: recovery/e4f8440-nopub`  
-`owner: Grok / program office`
+## Landed since the last STATUS (`e14ca7d`, PR #433)
 
-## Blocked
+**Before the lead handover (#434–#473):** 0.36 PC-readiness work, including desktop matrix and phone-regression harnesses, title states, input integrity, tutorial zoom and sticky fixes, pause pressed state, high contrast, wide crew sheet and plate prefetch. Also the playerflow cost checks, the stress harness, CI repair, the file-shrink and roadmap-tax guards, F07 crew plate, and continue probes.
 
-- All correction / integrity implementation until Manraj accepts PIPE-BOOT and issues a bounded dispatch.
-- Publication, tagging, deploy, monetization frozen.
-- Sequential gates from 0.28.2 onward remain uncertified.
-- L-025, L-026, L-027, L-028 open.
+**Lead (Claude), 2026-11-05:**
 
-## Open locks (remaining)
+| PR | Ticket | Player-visible change |
+|---|---|---|
+| 480 | SUN-AGENTS-CLAUDE-LEAD-01 | AGENTS.md contract v2 and the PR template. Process only. |
+| 474–477 | SUN-CORRIDOR-FALLBACK-01..03, SUN-CORRIDOR-SCENES-04 | People-free fallbacks no longer show crew faces, with per-scene guards. |
+| 478 | SUN-REVIEW-VERSION-SUFFIX | Hotfix-letter saves (`0.28.1d`) compare correctly. |
+| 479 | SUN-REVIEW-PC-VIEWPORT-CROP | PC plates are no longer cropped. |
+| 481 | SUN-MODAL-HOTKEYS-01 | Digit and Enter keys no longer fire story choices behind open dialogs. Dialogs take and return focus. |
+| 482 | SUN-TETHER-FLOOR-01 | The tether sighting always has an affordable exit. |
+| 483 | SUN-UNREADABLE-SAVE-01 | An unreadable save is named on the title screen, and starting a new run asks before replacing it. |
+| 484 | SUN-PLATE-FACES-05 | Any plate showing a dead or absent crew face falls back to an empty corridor. Probe: 0 exposures across 2,025 renders. |
+| 485 | SUN-LEGACY-DEATHBEAT-01 | Legacy resume lands on the four Act III death beats instead of skipping them. |
+| 486 | SUN-DOCS-TRUTH-01 | This page, ROADMAP roles, and the live ticket queue. Process only. |
+| 487 | SUN-SCENE-COVERAGE-01 | CI check: 300 seeded runs must reach all 223 live scenes, with no dead ends. |
+| 488 | SUN-CREW-FOCUS-DIGITS-01 | Digit shortcuts keep working after clicking Crew. Found by the browser bot. |
+| this PR | SUN-BROWSER-BOT-01 | `scripts/sun-browser-bot.mjs`, a manual real-browser full-run tool, plus the 0.36 keyboard and resume evidence in `docs/SUN_036_BROWSER_EVIDENCE.md`. |
 
-- L-025 — Commander identity A/B
-- L-026 — Last Off-Shift zero/one branches
-- L-027 — `vess_course_lost` consumer or retirement
-- L-028 — Ticket 2 new-crew indicator
+## Open
+
+**Lead queue (no owner decision needed):**
+
+- Keep running `scripts/sun-browser-bot.mjs` batches after each batch of merges, and fix what it finds as one-PR tickets.
+- Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
+- Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
+
+**Stale PRs to close.** Manraj closes these; the lead's close calls are blocked by the session's permission policy. #297 and #304 (Copilot; #297 is on the do-not-merge list), #389 and #390 (superseded by #481), #407 (superseded), #436, #445 and #465 (retired multi-bot roadmap docs), #451 (superseded by the landed 0.36 keyboard work), #452 (superseded by #474–#477 and #484).
+
+## Decisions for Manraj
+
+**Open:**
+
+1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
+4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
+5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+
+**Ruled by Manraj, 2026-11-05:**
+
+- **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
+- **3: keep.** Amara stays on intro slide 1.
+- **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
+- **7: now.** Close out the work branch onto `main`. The ROADMAP close-out holds are lifted by this ruling. The `main` CI gates bound to the old 10-path reconcile diff are rebound in a separate PR before the close-out PR opens. No tag, release, deploy, Netlify or certification comes with it.
+
+*Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.
+
+## L-025–L-028 dispositions
+
+- **L-025 — LOCKED:** Commander Option B. The rendered-path gender/canon audit and document synchronization remain implementation work; this reconciliation changes no gameplay prose.
+- **L-026 — LOCKED:** retain Last Off-Shift zero/one routes solely as tested defensive save-recovery guards and preserve `junctionChoice`. Required coverage remains implementation work.
+- **L-027 — LOCKED:** retire `vess_course_lost` and its promised downstream-course consequence. Runtime removal remains implementation work.
+- **L-028 — DEFERRED:** default RETIRE unless qualifying mobile-PX evidence meets the pre-registered, Manraj-approved threshold. No indicator is authorized.
+
+L-020 through L-024 remain ruled.
+
+## Blockers
+
+- `NO-PUBLISH / NOT_CERTIFIED` remains controlling. No release artifact or deployment is authorized.
+- The lead cannot close PRs or delete remote branches through the API in this session. Pushing a branch deletion works.
 
 ## Next action
 
-**Manraj:** Accept or reject PIPE-BOOT.  
-**Grok:** Only after acceptance, dispatch a bounded integrity ticket limited to the RECOVERY-DEC list. No correction work before that.
+**Lead:** land SUN-FINAL-HOLD-ONCE-01 and SUN-UNREADABLE-EXPORT-01, rebind the `main` gates, then open the close-out PR to `main` per Manraj's 2026-11-05 go.
 
 <!-- STATUS_COMPLETE -->

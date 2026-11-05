@@ -74,8 +74,15 @@ registerScenes({
     }
   },
 
+  // SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 — image-only repair.
+  // PRECONDITION: eligVess() / isAlive("vess") via offshift_open.
+  // WRITES (unchanged): onEnter junctionChoice + beacon memory; choices may
+  // write cohesion -1, last_tx_spent, and the selected beacon memory.
+  // DEATH EXPOSURE: none. Vess speaks; live admission unchanged. Invalid-save
+  // appearance is guarded by resolveSceneImage; no prose/gate rewrite here.
+  // IMAGE: REUSE official images/vess.jpg (L-029), declared in ART_REQUESTS.
   offshift_vess: {
-    image: "images/transmission.jpg",
+    image: "images/vess.jpg",
     onEnter: () => {
       state.flags.junctionChoice = "vess";
       remember("heard the beacon Vess was holding");

@@ -3,8 +3,14 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // PRE: living Elias offered from tether approach; Tomas not dead (requireLivingCast)
+  // WRITES: onEnter sets tether_hand_elias
+  // DEATH: none here | DEAD SPEECH/APPEARANCE: dead Elias is not offered; requireLivingCast keeps rider living
+  // IMAGE: HITL staged plate images/act2_tether_hand_elias.jpg (MEASURE_LIVE_VS_HITL_88 + OWNER HITL wire).
+  //   Living Elias only; Mira/Sela tether hands keep tether_ride.jpg. Dead fallback corridor_pressure_3.
+  //   Not self_risk.jpg (wet interior corridor wheel). Commander faceless.
   act2_tether_hand_elias: {
-    image: "images/self_risk.jpg",
+    image: "images/act2_tether_hand_elias.jpg",
     onEnter: () => { state.flags.tether_hand_elias = true; },
     text: () => {
       const rushed = !!state.flags.tether_rushed;
@@ -69,15 +75,15 @@ The hatch opens on wet ruin. Grey-green mash where the trays were.`;
 The hatch opens on the smell of soil. Nobody aboard has smelled soil in a long time.`;
       }
       // Rider-comm payoffs (guarded)
-      if (state.flags.tether_hand_sela) {
+      if (state.flags.tether_hand_sela && isAlive("sela")) {
         t += state.flags.tether_rushed
           ? `\n\nSela's last call was a single word: "Sealed." Then silence until the hatch.`
           : `\n\nSela's last call was clean range and a quiet "Green light holds." She does not celebrate.`;
-      } else if (state.flags.tether_hand_mira) {
+      } else if (state.flags.tether_hand_mira && isAlive("mira")) {
         t += `\n\nMira's last transmission was the seal pressure, read once, then "Collar holds."`;
-      } else if (state.flags.tether_hand_elias) {
+      } else if (state.flags.tether_hand_elias && isAlive("elias")) {
         t += `\n\nElias comes off the line the same way he went on it: three checks, then the hatch.`;
-      } else {
+      } else if (!["sela", "mira", "elias"].some(who => state.flags[`tether_hand_${who}`])) {
         t += `\n\nYou rode it yourself. The line sang under your hands the whole way in. Nobody else was available to hear the report.`;
       }
       t += `\n\nTomas comes through it on his own feet, barely. Gaunt to the bone, soil under every nail, eyes lamp-burned to a permanent squint. `;
@@ -86,6 +92,7 @@ The hatch opens on the smell of soil. Nobody aboard has smelled soil in a long t
       } else {
         t += `He puts a hand on the nearest rack on his way out, the way other men touch a doorframe of a house they are leaving.`;
       }
+      t += `\n\nHis name is on the board before anyone finds him a bunk.`;
       t += `\n\nHe looks at you before he looks at anyone else.\n\n"Count the trays before you thank me. Then decide whether you still want to."`;
       return t;
     },

@@ -1,5 +1,110 @@
 # Sunsplitter — Art Requests
 
+## SUN-ART-PLATE-LOOP-01 — pointer
+
+`docs/SUN_ART_PLATE_LOOP_01.md` dispatches `romance_lena_1` only.
+
+## SUN-PLAYTEST-ART-EVENT-AUDIT-01 — Grok briefs + one retarget (2026-09-04)
+
+Owner standing brief rule, closed event→image table, and Grok stubs:
+`artifacts/SUN_PLAYTEST_ART_EVENT_AUDIT_01.md`,
+`artifacts/GROK_BRIEFS_PLAYTEST_ART_EVENT_AUDIT_01.md`.
+Unique plate per beat; never official portrait as stand-in. Every
+NEEDS_GROK_PLATE stub carries a standing **portrait identity-lock**: official
+bodysuit portrait path as sole face reference; exact likeness (geometry, age,
+skin, hairline, eye shape, scars/marks; no beautify/age/ethnicity swap);
+bodysuit silhouette unless the beat changes clothes; named must-appear /
+must-not; scene verb + full event prose; REJECT if the face fails vs official
+at thumbnail size. Ban "generic crew." `body_ref` front/back NOT_APPROVED
+in-tree. Pack note `SUN-ART-BODY-REFERENCE-01` (living-cast **front and back**
+full-body refs, shared pose, underwear/base layer) is documented in the
+audit/plan only — planned `body_ref_<id>_front.jpg` /
+`body_ref_<id>_back.jpg`. No `body_ref` bytes and no scene wiring in that
+ticket. Owner approves body portraits directly before any later wire.
+PASS/HOLD/REJECT before wire. No new JPEG bytes in that ticket. Do not
+generate event plates in Cursor. Style bible draft:
+`artifacts/SUN_ART_STYLE_BIBLE.md` (owner lock before grok.com loops).
+Body_ref front/back pack comes after that style lock. Generation is
+grok.com, one event or body_ref at a time.
+Post-0.35 / pre-0.36 follow-ups: `artifacts/SUN_PLAYTEST_RESPONSE_PLAN.md`.
+
+## SUN-V035-PLAYTEST-ART-AUDIT-01 — confirmed event-fit retargets
+
+`SOURCE main@8d23109 · RUNTIME base@163d333 · TASK SUN-V035-PLAYTEST-ART-AUDIT-01 · MODE implementation`
+
+Build / $ Con V9; owner-authorized 2035CT dispatch. Existing in-tree bytes only.
+These aliases are resolved centrally by `resolveSceneImage`, ahead of historical
+scene/map defaults. No scene text, choices, entry hooks, gates, costs, memories,
+state keys, RNG, save schema, image files or prior source mappings are rewritten.
+All image reads are pure. Entry and death exposure remain exactly those in the
+existing scene declarations; this change creates no death or relationship effect.
+
+Pixel inspection, not filename inference, established each mismatch below.
+Portraits are character-focus illustrations, not claims to show a literal procedure.
+
+| Event / existing render point | Confirmed old image contradiction | Existing alias / appearance condition |
+|---|---|---|
+| `silence`, after its existing Rourke death entry | `medical_bay.jpg` still shows the exposed man being treated after Lena covers his face | `covered_body.jpg`; concealed corpse, two indistinct observers; same existing outcome-art class as the other Rourke exits |
+| `offshift_lena`, quiet late medbay hour | Opening emergency/bloody Rourke instead of a quiet medbay | `medbay_dim.jpg`; empty exam chairs, one indistinct distant silhouette; no named face |
+| `breath_blacksleep`, committed medical crisis response | `medbay_dim_alt.jpg` is a control hall overlooking an industrial skyline, not treatment space | `medbay_dim.jpg`; actual medical setting, no particular patient's condition asserted |
+| `pregnancy_check`, corridor conversation / dead-Lena fallback | Same unrelated skyline/control hall | Official `lena.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `act3_lethal_elias_order`, `act3_lethal_elias_sealant`, pressure-control decision and contained breach | `bond_elias.jpg` shows seated mug/table companionship during emergency work | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `private_stores`, early Elias report before crew recoveries | `private_stores.jpg` is three people at a navigation viewport, including unrecovered Jiro, not Elias's private-food report | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `prom_deck4`, reconstructed door record | `bulkhead.jpg` depicts a face-visible armed man crawling through a vent; no such intervention is in this scene | `corridor_pressure_3.jpg`; empty structural passage, no invented participant |
+| `prom_deck4_keep`, `prom_deck4_break`, Elias hears the whole / edited / buried record | Star-window two-man tableau / armed vent crawl instead of Elias's record response | Official `elias.jpg` only while alive; otherwise `corridor_pressure_3.jpg` |
+| `ship_memory_payoff`, all seal/memory branches before final orders | Armed vent crawl despite passive structural-debt accounting | `corridor_pressure_4.jpg`; empty structural passage, no new damage or repair assertion |
+| `patch_fails`, loaded seal / remote-valve failure | `vent.jpg` is an armed man entering a shaft, not the described remote structural failure | `power_stress_2.jpg`; crew-free red emergency passage with sparking conduits |
+| `custody_possession`, committed thermal exposure | Armed vent crawl, no matching authored intervention | `corridor_pressure_1.jpg`; empty red-pressure passage, no individual outcome asserted |
+| `vent`; `aftermath`, `crisis`, `priority_repairs` only when their existing crisis flag is `vent` | Armed crawling man instead of the sealed section and lost crew | `aftermath.jpg`; sealed bulkhead, geometric yellow sun, empty bunks and abandoned key; no people. Non-vent crisis handling unchanged |
+| `arc_living_2`, dead-Sela branch only | Living Sela actively painting while text says “Their author does not.” | `corridor_pressure_3.jpg`; no artist asserted. The previously repaired live `sela_ritual.jpg` binding stays intact |
+| `act2_tether_hand_elias`, `act2_tether_hand_mira`, `act2_tether_hand_sela`, before the catch, both approach speeds | `self_risk.jpg` is an unhelmeted male back inside a corridor, not an EVA tether rider | `tether_ride.jpg`; one anonymous helmeted rider outside the ship, green annex still ahead. If the selected rider is dead in a saved render, empty `corridor_pressure_3.jpg` instead |
+| `vault_voice`, speaking-vault interface | `vault_voice.jpg` is a navigation/planet-window tableau | `vault.jpg`; cold, crew-free vault racks; location-level illustration |
+| `filters_stencil`, `filters_stencil_luck`, `filters_stencil_silent`, crate/filter discussion; `offshift_sela`, lamp ritual | `sela_ritual.jpg` shows actively painting a door, not handling filters or attending a lamp | Official `sela.jpg` only while alive; otherwise `corridor_pressure_3.jpg`; no new ritual action invented |
+
+### Alias properties and preservation
+
+- All reused files are existing portrait-aspect plates. No crop, recolor, generation,
+  duplication, new identity ruling, or new ART-R2 approval.
+- Official Elias/Lena/Sela portraits: one face, neutral/cold existing interior.
+- Pressure passages and vault: no figures, rectangular interiors; crimson emergency
+  for `_1` / `power_stress_2`, mixed cyan/red for `_3` / `_4`, cold cyan for vault.
+- Medbay: cold cyan medical chairs, one unidentifiable silhouette; not a crew count.
+- Covered body: identity concealed, cold/crimson medical aftermath; opening death only.
+- Tether: one anonymous helmeted exterior rider; no rider gender/face or rescued crew asserted.
+- Sealed vent aftermath: crew-free, crimson/cyan structural interior.
+- Existing repair controls remain: Rourke siblings / covered-body Lena outcome,
+  faction-split retirement, offshift Vess official portrait and guard, act3 hub
+  variant, live yellow-mark action, tether sighting/rush, Lena intimacy, and male-crew
+  portraits. No cinematic or ending-screen binding changes.
+
+### Coverage and limits
+
+Source/event-fit review covered the 55 scene modules with two independent read-only
+review tracks plus root reconciliation. This is not full ART-R2 identity/crop/signage
+certification. Runtime retargets are limited to the 26 named IDs above (some conditional).
+No catalog-only change is proposed: the resolver changes the rendered game.
+
+Unchanged candidates without a proven safe replacement or outside this bounded repair:
+the tether docking plate across intact versus ruined-tray outcomes; early records
+imagery; berth imagery with visible invented name tape; variable numerical overlays;
+legacy observation fallbacks; intimate-setting
+and full character-identity issues. These are not represented as fixed or approved.
+No further ticket is minted. ART-R2 remains held; NO-PUBLISH / NOT_CERTIFIED; last
+certified remains 0.28.1d.
+
+## SUN-V035-PLAYTEST-MALE-CREW-01 — existing-portrait aliases only
+
+- `bond_elias_mending` → byte-identical `images/elias.jpg`, the existing official Elias portrait. One identifiable man, rectangular interior, neutral/cold character focus; early or post-vault accepted Elias bond only while alive.
+- `bond_jiro_distance` → byte-identical `images/jiro.jpg`, the existing official Jiro portrait. One identifiable man, rectangular interior, neutral/cold character focus; accepted Jiro bond after recovery only while alive.
+- Both saved absent/dead renders → existing crew-free `images/onboarding_background.jpg`. The portrait is a character focus, not an illustration claiming to show stitching or a navigation procedure.
+- No new or edited images, generation, new identity ruling, or ART-R2 gate credit. Existing bond-entry art is unchanged.
+
+## SUN-V035-PLAYTEST-CINEMATICS-01 — existing-screen aliases only
+
+- Intro beat: byte-identical `images/onboarding_background.jpg`, already used by the content-notice screen. Empty rectangular corridor and stars, no identifiable crew. Reused before fresh `wake`; no new plate.
+- Ending beat: the same byte-identical `images/onboarding_background.jpg` as a neutral visual bookend, with the actual resolved ending title/text. No crew, outcome or numerical HUD assertion in the cinematic art. The existing ending screen and its selected art are unchanged.
+- Presentation-only aliases, skippable; no asset edits, generation, new identity approval, or ART-R2 gate credit.
+
 **Last updated:** 2026-08-16  
 **Hard goal:** 100% of scenes have unique (or clearly distinct + fitting) art  
 **Style lock:** grimdark × cyberpunk — decaying high-tech, crimson/cyan neon, atmospheric haze, attractive but grounded characters  
@@ -379,3 +484,74 @@ New scene IDs (wired to closest existing plates; dedicated art later). No new ar
 | vess_intimate | vess_intimate.jpg | Hero | Power-stays-hers explicit; shorter route. |
 
 **Vess portrait set CLOSED 2026-08-16:** full approved set on disk in both folders (vess.jpg + boarding/offer/intimate + romance_vess_1 + afterglow/lingerie/rear/shower). Long white/silver hair, purple eyes locked. No further generation required.
+
+## SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 — declared portrait reuse (2026-09-02)
+
+SOURCE main@8d23109 · RUNTIME baseline 1f68553 · TASK SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 · MODE implementation
+
+Build / $ Con V9; owner-authorized by `1506CT-V9-OFFSHIFT-VESS-01.md`.
+Read AGENTS, ROADMAP, PROJECT_STATUS, LOCKS, ART_RULES, this manifest,
+SCENE_SKELETON, and GITHUB_PUSH_RULES. This entry is one scene alias, not ART-R2
+or a new portrait lock. L-029 supersedes the older Vess-set approval above.
+
+- **Alias:** `offshift_vess` → existing `images/vess.jpg` in both the map and
+  scene declaration. No duplicate image file; official portrait bytes untouched.
+- **Finding:** both old bindings selected `transmission.jpg`, whose visible
+  dark-haired male figure does not depict Vess. The rejected `offshift_vess.jpg`
+  remains unwired; no discarded Vess plate is reinstated.
+- **Depicted:** Vess alone, adult woman, long white-silver hair, purple irises,
+  dark tank top; no Commander face, extra crew, baked text, or sexual act.
+- **Location/composition:** close character portrait against a rectangular
+  ship interior with cyan/purple light. A portrait substitute for the relay-bay
+  conversation, not a claim to illustrate its chair or beacon action exactly.
+- **Palette/tier:** Future-cold / Solid reused portrait. Existing 784×1168 JPEG.
+- **Render range:** entry and saved-scene resume of `offshift_vess`, after the
+  living/recovered Vess offer in `offshift_open`, until `faction_split`; both
+  romantic and non-romantic states. No romance eligibility change.
+- **Roster safety:** resolver uses existing `corridor_variant.jpg` only for this
+  scene if Vess is absent/dead, including malformed saved-scene fixtures. This
+  is image safety only, not a repair or correctness claim for invalid-save prose.
+- **Portrait SHA-256:** `a25799e8ae9663cbb91c4fe950fa937abc589d95d9f9015ab89d3c187fc5bcdf`.
+- **Proof:** verifier checks map/declaration/resolver/render, exact locked bytes,
+  live admission, both relationship states, unchanged saves/rerenders/exits,
+  and absent/dead saved-image fallback. Mobile composition evidence and exact
+  head/CI results accompany the PR and V9 outbox receipt.
+
+No other scene binding, image bytes, story, cost, or romance gate changes.
+NO-PUBLISH / NOT_CERTIFIED; last certified remains 0.28.1d. ART-R2/L-004 stays held.
+Next action: Manraj reviews the named PR; merge-commit in the browser, not squash.
+
+## SUN-V035-PLAYTEST-ART-REPEAT-01 — one hub alias (2026-09-02)
+
+SOURCE main@8d23109 · RUNTIME baseline d18b34d · TASK SUN-V035-PLAYTEST-ART-REPEAT-01 · MODE implementation
+
+Build / $ Con V9; owner-authorized by `1618CT-V9-ART-REPEAT-01.md`.
+Read AGENTS, ROADMAP, PROJECT_STATUS, LOCKS, ART_RULES, this manifest,
+SCENE_SKELETON, and GITHUB_PUSH_RULES. This is one existing-plate alias,
+not a new art lock or a deep art-to-event audit.
+
+- **Confirmed repeat:** legal policy replay renders `act3_spine_next` →
+  `warmth_music` → hub → `warmth_laughter` → hub with `corridor.jpg` on all
+  five frames. Both the explicit scene image and map bind the same old plate.
+- **Alias:** only `act3_spine_next` → existing `images/corridor_variant_2.jpg`
+  in both bindings. Music/laughter and all other scene images remain untouched.
+- **Visual review:** empty rectangular ship corridor, cyan side lights and
+  sparse red lamps, exposed dark service runs; no visible person or identifiable
+  crew, no Commander face, no legible text observed. Location/mood substitute,
+  not a literal depiction of the vault board or Tomas's optional conversation.
+- **Palette/tier:** Future-cold / Solid reused location; existing 784×1168 JPEG.
+- **Render range:** post-vault hub entry, optional-event returns, and saved hub
+  resume. Existing unrecovered-Vess redirect runs before the hub paints.
+  The empty plate makes no living/dead/recovery assertion and needs no new guard.
+- **Immediate-neighbor safety:** distinct from music/laughter's `corridor.jpg`
+  and debt return's `corridor_pressure_4.jpg` / `corridor_variant.jpg` fallback.
+- **Image SHA-256:** `b1320c8eb2445272fa49599169f18a506a69e7b755dcdd88ba33c8db106d401e`.
+- **Proof:** regression covers both warmth-event orders and returns, living/dead
+  roster, map/declaration/render, nine saved-scene fixtures, unchanged saved state,
+  debt return and unrecovered-Vess entry redirect. The new check rejects baseline
+  bindings. Exact-head browser/CI evidence accompanies the PR and V9 receipt.
+
+No image bytes, story, choices, state writes, costs, romance gates, or resolver
+changes. No offshift_vess remint; vess.jpg untouched. ART-R2/L-004 stays held.
+NO-PUBLISH / NOT_CERTIFIED; last certified remains 0.28.1d.
+Next action: Manraj reviews the named PR; merge-commit in the browser, not squash.

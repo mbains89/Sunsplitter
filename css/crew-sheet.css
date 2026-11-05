@@ -1,0 +1,173 @@
+/* Full-screen character sheet — playtest P2. Chip list stays the bounded #crew-panel. */
+#crew-sheet {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px calc(16px + var(--safe-bottom));
+  background: rgba(8, 9, 11, 0.97);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#crew-sheet.visible {
+  display: flex;
+}
+
+#crew-sheet-close {
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+#crew-sheet-portrait-wrap {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  background: #0d0d0f;
+  aspect-ratio: 784 / 1168;
+  max-height: min(62dvh, 640px);
+  overflow: hidden;
+}
+
+#crew-sheet-portrait-wrap.visible {
+  display: block;
+}
+
+#crew-sheet-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: saturate(0.82) contrast(1.06);
+}
+
+#crew-sheet-body {
+  flex-shrink: 0;
+  width: min(100%, 520px);
+  margin: 0 auto;
+}
+
+#crew-sheet-name {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+  margin-bottom: 4px;
+}
+
+#crew-sheet-role,
+#crew-sheet-facts,
+#crew-sheet-bio {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+#crew-sheet-role,
+#crew-sheet-facts {
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+#crew-sheet-bio {
+  color: var(--text);
+}
+
+.crew-count {
+  font: 600 12px/1.4 system-ui, sans-serif;
+  color: #c8d4e0;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+/* SUN-036-PC-STATES-01 — open and selected stay distinct from hover. 48px targets unchanged. */
+#btn-crew:hover { background: var(--panel-2); }
+#btn-crew[aria-expanded="true"] {
+  background: #1a1e26;
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.35);
+}
+#btn-crew:active { background: #1c222c; }
+.crew-chip:hover {
+  border-color: var(--cyan);
+  background: #1a1e26;
+}
+.crew-chip:active {
+  border-color: var(--accent-dim);
+  background: #12151a;
+}
+.crew-chip.selected,
+.crew-chip.selected:hover,
+.crew-chip.selected:focus-visible {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.25);
+}
+
+/* SUN-036-CREW-SHEET-WIDE-01 — desktop side-by-side + shape preserve (contain wins over cover) */
+#crew-sheet-image {
+  object-fit: contain;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 420px);
+  max-height: min(78dvh, 640px);
+}
+
+@media (min-width: 1024px) {
+  #crew-sheet.visible {
+    display: grid;
+    grid-template-columns: minmax(260px, 420px) minmax(0, 520px);
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-content: center;
+    align-content: start;
+    align-items: start;
+    column-gap: 28px;
+    row-gap: 10px;
+  }
+  #crew-sheet-close {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+  }
+  #crew-sheet-portrait-wrap.visible {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    margin: 0;
+    max-height: min(78dvh, 640px);
+    position: sticky;
+    top: 0;
+  }
+  #crew-sheet-body {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #crew-sheet-portrait-wrap.visible + #crew-sheet-body {
+    grid-column: 2;
+    margin: 0;
+  }
+}
+
+/* SUN-036 phone: picture follows frame real height, no cutoff, no dvh on portrait */
+@media (max-width: 1023px) {
+  #crew-sheet-portrait-wrap.visible {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height/max-height/overflow unchanged */
+  }
+  #crew-sheet-image {
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+  }
+}

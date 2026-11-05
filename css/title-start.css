@@ -1,0 +1,337 @@
+/* SUN-PLAYTEST-TITLE-WHITESPACE-01 — drop the leftover bottom band on notice/title.
+   SUN-PLAYTEST-TITLE-ROTATING-SHIP-01 — slow in-tree ship plate behind title/start.
+   SUN-PLAYTEST-TITLE-CONTRAST-01 — title splash body-copy readable on dark hull.
+   SUN-PLAYTEST-TITLE-BODY-FOLLOW-01 — wordmark + leftover title body on the same hull.
+   Loaded after css/style.css. Does not invent new ship art. */
+
+#tone-screen,
+#title-screen {
+  min-height: 0;
+  min-height: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  box-sizing: border-box;
+}
+
+#tone-screen {
+  overflow: hidden;
+}
+
+#title-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+#tone-screen .tone-panel,
+#title-screen .title-actions,
+#title-screen .game-title,
+#title-screen .game-subtitle,
+#title-screen .prologue,
+#title-screen .title-contract {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+#title-ship-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #08090b;
+}
+
+#title-ship-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 9, 11, 0.42) 0%, rgba(8, 9, 11, 0.72) 55%, rgba(8, 9, 11, 0.92) 100%);
+}
+
+#title-ship-image {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 168%;
+  height: 168%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 40%;
+  transform: translate(-50%, -50%);
+  filter: saturate(0.78) contrast(1.05);
+  animation: title-ship-rotate 180s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes title-ship-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #title-ship-image {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #tone-screen,
+  #title-screen {
+    min-height: 0;
+    min-height: 100%;
+    justify-content: flex-start;
+    padding-top: 12px;
+    padding-bottom: calc(16px + var(--safe-bottom, 0px));
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  #tone-screen,
+  #title-screen {
+    min-height: 0;
+    justify-content: flex-start;
+    padding-bottom: calc(12px + var(--safe-bottom, 0px));
+  }
+}
+
+/* SUN-PLAYTEST-TITLE-CONTRAST-01 — body-copy readable over rotating hull on mobile.
+   Does not rewrite style.css tokens (HUD --dim stays). Overlay/ship plate unchanged. */
+#title-screen .game-subtitle,
+#title-screen .prologue,
+#title-screen .resume-meta {
+  color: var(--text);
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
+}
+
+#title-screen .title-contract {
+  color: #f0a0a0;
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
+}
+
+/* SUN-PLAYTEST-TITLE-BODY-FOLLOW-01 — wordmark + leftover title body over the same hull.
+   style.css tokens / overlay stop 0.42 / rotating-ship contract held. */
+#title-screen .game-title {
+  color: #f2f3f5;
+  text-shadow:
+    0 1px 2px rgba(8, 9, 11, 0.94),
+    0 0 16px rgba(8, 9, 11, 0.78),
+    0 0 24px rgba(154, 58, 58, 0.25);
+}
+
+#title-screen .title-save-status,
+#title-screen #new-run-confirm-copy {
+  color: var(--text);
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
+}
+
+/* SUN-V036-COMMANDER-CREATION-01 — title-adjacent light hybrid panel */
+#title-screen #commander-create {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(242, 243, 245, 0.28);
+  background: rgba(8, 9, 11, 0.88);
+  text-align: left;
+  color: var(--text);
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94);
+}
+#title-screen #commander-create.hidden { display: none; }
+#title-screen #commander-create.visible { display: block; }
+#title-screen #commander-create .commander-create-help,
+#title-screen #commander-create .commander-field {
+  display: block;
+  margin: 0.45rem 0;
+  font-size: 0.92rem;
+}
+#title-screen #commander-create select {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+#title-screen #commander-create fieldset.commander-field {
+  border: 0;
+  padding: 0;
+  margin: 0.45rem 0;
+}
+#title-screen #commander-create fieldset.commander-field label {
+  display: block;
+  margin: 0.2rem 0;
+}
+
+/* SUN-FIX-CHARCREATION-UI-01 — one primary start CTA + readable form + stacked import */
+#title-screen:has(#commander-create.visible) #btn-begin,
+#title-screen.commander-create-open #btn-begin {
+  display: none !important;
+}
+
+#title-screen #commander-create {
+  padding: 1.05rem 1.1rem 1.15rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#title-screen #commander-create .commander-create-help,
+#title-screen #commander-create .commander-field {
+  margin: 0.7rem 0;
+  line-height: 1.45;
+}
+#title-screen #commander-create fieldset.commander-field label {
+  margin: 0.42rem 0;
+  min-height: 1.65em;
+  padding: 0.12rem 0;
+}
+#title-screen #commander-create [role="group"] {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+#title-screen #commander-create [role="group"] .btn {
+  flex: 1 1 0;
+}
+
+@media (max-width: 420px) {
+  #title-screen #commander-create {
+    padding: 1.1rem 1rem 1.2rem;
+  }
+  #title-screen #commander-create fieldset.commander-field label {
+    margin: 0.5rem 0;
+  }
+}
+
+#title-screen .save-transfer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#title-screen .save-transfer-actions .export-import-chip {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+#title-screen .save-transfer-actions .btn {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01 — desktop ~900 first-open BEGIN RUN / CANCEL stay in view.
+   Splash copy collapses only while the create panel is open. CTAs stick to the panel bottom.
+   No engine.js. Phone rules unchanged. */
+@media (min-width: 800px) and (max-height: 980px) {
+  #title-screen:has(#commander-create.visible),
+  #title-screen.commander-create-open {
+    max-height: 100dvh;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+  #title-screen:has(#commander-create.visible) .prologue,
+  #title-screen.commander-create-open .prologue,
+  #title-screen:has(#commander-create.visible) .title-contract,
+  #title-screen.commander-create-open .title-contract,
+  #title-screen:has(#commander-create.visible) .save-transfer-actions,
+  #title-screen.commander-create-open .save-transfer-actions,
+  #title-screen:has(#commander-create.visible) .content-notice-actions,
+  #title-screen.commander-create-open .content-notice-actions {
+    display: none;
+  }
+  #title-screen:has(#commander-create.visible) #commander-create,
+  #title-screen.commander-create-open #commander-create {
+    margin-top: 0.35rem;
+    max-height: min(72dvh, 640px);
+    overflow: auto;
+    position: relative;
+    z-index: 2;
+  }
+  #title-screen:has(#commander-create.visible) #commander-create .commander-create-help,
+  #title-screen:has(#commander-create.visible) #commander-create .commander-field,
+  #title-screen.commander-create-open #commander-create .commander-create-help,
+  #title-screen.commander-create-open #commander-create .commander-field {
+    margin: 0.4rem 0;
+  }
+  #title-screen:has(#commander-create.visible) #commander-create [role="group"],
+  #title-screen.commander-create-open #commander-create [role="group"] {
+    position: sticky;
+    bottom: 0;
+    margin-top: 0.45rem;
+    padding: 0.55rem 0 0.1rem;
+    background: rgba(8, 9, 11, 0.96);
+  }
+}
+
+/* SUN-037-REVIEW-BUILD-01 — stamp stays hidden until the package manifest is present. */
+#title-screen #review-build-stamp {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 8px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: #f2c14e;
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94);
+}
+#title-screen #review-build-stamp.hidden { display: none; }
+
+/* SUN-036-TITLE-STATES-01 — title buttons answer the mouse.
+   Hover, keyboard focus, and pressed differ by border style / outline / inset
+   as well as colour. Desktop only (min-width: 481px) so 390px phone rules stay BASE.
+   Does not change --touch 48px or any existing max-width: 480px query. No new motion. */
+@media (min-width: 481px) {
+  #title-screen .title-actions .btn:hover,
+  #title-screen .save-transfer-actions .btn:hover,
+  #title-screen .content-notice-actions .btn:hover,
+  #title-screen #new-run-confirm .btn:hover,
+  #title-screen #commander-create .btn:hover {
+    border-style: dashed;
+    border-color: #f2c14e;
+    outline: 1px dashed #f2c14e;
+    outline-offset: 3px;
+    box-shadow: none;
+    text-decoration: none;
+    color: #fff;
+    background-color: #2a2118;
+  }
+
+  #title-screen .title-actions .btn:focus-visible,
+  #title-screen .save-transfer-actions .btn:focus-visible,
+  #title-screen .content-notice-actions .btn:focus-visible,
+  #title-screen #new-run-confirm .btn:focus-visible,
+  #title-screen #commander-create .btn:focus-visible {
+    border-style: solid;
+    border-color: #f2c14e;
+    outline: 3px solid #f2c14e;
+    outline-offset: 3px;
+    box-shadow: none;
+    text-decoration: none;
+    color: #f2c14e;
+    background-color: #14181f;
+  }
+
+  #title-screen .title-actions .btn:active,
+  #title-screen .save-transfer-actions .btn:active,
+  #title-screen .content-notice-actions .btn:active,
+  #title-screen #new-run-confirm .btn:active,
+  #title-screen #commander-create .btn:active {
+    border-style: solid;
+    border-color: #d16a6a;
+    outline: none;
+    outline-offset: 0;
+    box-shadow: inset 0 3px 0 #f2c14e;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: #fff;
+    background-color: #1a1214;
+  }
+
+  #title-screen .title-actions .btn.btn-primary:active,
+  #title-screen #new-run-confirm .btn.btn-primary:active,
+  #title-screen #commander-create .btn.btn-primary:active {
+    border-style: double;
+    border-width: 3px;
+    background-color: #3a1818;
+  }
+}

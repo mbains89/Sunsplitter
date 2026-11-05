@@ -33,6 +33,12 @@ registerScenes({
     }
   },
 
+  // SUN-V035-PLAYTEST-CHOICE-AUDIT-01 — existing Off-Shift choice repair.
+  // PRE: eligTomas() via offshift_open; recovered, living Tomas.
+  // WRITES: entry sets flags.junctionChoice; first-vow acceptance sets prom_tomas.
+  // DEATH EXPOSURE: none. DEAD-SPEECH: promise-holder ask uses isAlive in text
+  // and choices; Tomas attendance uses the existing Off-Shift eligibility guard.
+  // IMAGE: images/quiet_tomas.jpg EXISTS. No prose, vow or art changes.
   offshift_tomas: {
     image: "images/quiet_tomas.jpg",
     onEnter: () => {
@@ -74,7 +80,7 @@ registerScenes({
           { text: "Refuse the words.", next: "offshift_tomas_r" }
         ];
       }
-      const made = ["lena", "sela", "elias", "mira"].some(p => state.promises[p] === "made");
+      const made = ["lena", "sela", "elias", "mira"].some(p => state.promises[p] === "made" && isAlive(p));
       if (made) {
         return [
           { text: "Agree to weigh it in daylight.", next: "faction_split" },

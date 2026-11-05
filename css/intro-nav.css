@@ -1,0 +1,86 @@
+/* SUN-FIX-INTRO-NAV-01 — Hex shot 2 empty hole right of NEXT.
+   Cite: pin 70689e99 cinematic-actions 2-col + #cinematic-skip span.
+   Chrome only. No plate / sceneImages change. */
+.cinematic-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 8px;
+}
+.cinematic-actions .btn {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 4px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: normal;
+  min-height: 48px;
+}
+#cinematic-skip {
+  grid-column: auto;
+}
+
+/* SUN-FIX-UIUX-P2-INTRO-BAR-WRAP-01 — at ~390px a 4-col bar wraps
+   BACK TO TITLE and crushes SKIP INTRO. 2-col from 480px down.
+   Touch target stays 48px. No engine.js. */
+@media (max-width: 480px) {
+  .cinematic-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .cinematic-actions .btn {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    padding: 10px 8px;
+    min-height: 48px;
+  }
+}
+
+/* SUN-FIX-UIUX-P2-INTRO-OUTLINE-01 — NEXT / PAUSE / BACK outline on dark plate.
+   Layout and 48px target unchanged. Skip stays primary. No engine.js. */
+.cinematic-actions .btn:not(.btn-primary) {
+  color: #f4f6f8;
+  border: 1px solid #d7dde4;
+  background: rgba(8, 9, 11, 0.78);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  min-height: 48px;
+}
+/* SUN-036-PC-STATES-01 — hover fill must not equal keyboard focus. */
+.cinematic-actions .btn:not(.btn-primary):hover {
+  color: #fff;
+  border-color: #fff;
+  background: rgba(8, 9, 11, 0.9);
+}
+.cinematic-actions .btn:not(.btn-primary):focus-visible {
+  color: #fff;
+  border-color: var(--focus, #f2c14e);
+  background: rgba(18, 21, 26, 0.94);
+  outline: 3px solid var(--focus, #f2c14e);
+  outline-offset: 2px;
+}
+.cinematic-actions .btn:not(.btn-primary):active {
+  background: #12151a;
+  border-color: var(--accent-dim, #5c2424);
+  transform: none;
+}
+
+/* SUN-036-PAUSE-PRESSED-01 — Pause stays visually on while aria-pressed is true.
+   Border width, inset bar, and underline. Distinct from hover fill and idle outline.
+   Skip primary and 48px targets unchanged. Forced-colors stays on pc-viewport.css. */
+.cinematic-actions #cinematic-pause[aria-pressed="true"],
+.cinematic-paused #cinematic-pause[aria-pressed="true"] {
+  border: 2px solid #f2c14e;
+  background: #1c140c;
+  box-shadow: inset 0 3px 0 #f2c14e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cinematic-actions #cinematic-pause[aria-pressed="true"]:hover,
+.cinematic-paused #cinematic-pause[aria-pressed="true"]:hover {
+  border-color: #f2c14e;
+  background: #24190f;
+  box-shadow: inset 0 3px 0 #f2c14e;
+  text-decoration: underline;
+}

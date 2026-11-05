@@ -19,13 +19,26 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara" },
-      { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 } },
-      { text: "Split the difference — half trays, tighter wash schedule.", next: "arc_living_2", effects: { supplies: -2, cohesion: 2, integrity: 1 }, lean: { living: 1 }, affinity: { amara: 4 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara" },
+        { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 } }
+      ];
+      const legal = choice => (!choice.alive || isAlive(choice.alive)) &&
+        (!choice.requires || meetsRequirements(choice.requires)) &&
+        canAffordEffects(choice.effects);
+      if (!routes.some(legal)) {
+        routes.push({ text: "Leave the ring as it is.", next: "arc_living_2" });
+      }
+      return routes;
+    }
   },
 
+  // SUN-V035-PLAYTEST-SELA-ANSWER-01: only the Ask destination changes.
+  // PRE: existing Living arc; Sela/Jiro text and addressed choices are live-gated.
+  // WRITES: original cohesion/supplies/integrity, lean, affinity/trust, spoken
+  // marks and sela_attention choices; entry retains its original memory/mark.
+  // DEATH: none. IMAGE: existing sela_ritual / absent-Sela resolver unchanged.
   arc_living_2: {
     get text() {
       let t = ``;
@@ -47,12 +60,17 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      { text: "Tell her refusal is a kind of navigation. Keep the ritual protected.", next: "arc_living_3", effects: { cohesion: 4, supplies: -1 }, lean: { living: 3 }, affinity: { sela: 12, jiro: 6 }, trust: { sela: 10 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, alive: "sela" },
-      { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_3", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
-      { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" },
-      { text: "Leave the marks where they are.", next: "arc_living_3" }
-    ],
+    get choices() {
+      const routes = [
+        { text: "Tell her refusal is a kind of navigation. Keep the ritual protected.", next: "arc_living_3", effects: { cohesion: 4, supplies: -1 }, lean: { living: 3 }, affinity: { sela: 12, jiro: 6 }, trust: { sela: 10 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, alive: "sela" },
+        { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_sela_answer", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela" },
+        { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" }
+      ];
+      if (!isAlive("sela")) {
+        return [{ text: "Leave the marks where they are.", next: "arc_living_3" }];
+      }
+      return routes;
+    },
     onEnter: () => {
       if (isAlive("sela")) {
         remember("Sela said refusal is half of what the yellow is for.");
@@ -61,4 +79,16 @@ registerScenes({
     }
   },
 
+  // SCENE_ID: arc_living_sela_answer | TICKET: SUN-V035-PLAYTEST-SELA-ANSWER-01
+  // SPINE: arc_living_2 Ask -> this response -> original arc_living_3.
+  // PRE: isAlive("sela"), enforced by the existing full-graph guard.
+  // WRITES: none; the question already paid its original effects exactly once.
+  // DEATH: none. DEAD SPEECH/CHOICES: Sela only; absent saved view is neutral.
+  // IMAGE: REUSE images/sela_ritual.jpg; absent guard uses existing corridor.
+  // PROSE: exact existing quiet_sela sentence, not a new price or story chapter.
+  arc_living_sela_answer: {
+    text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."`,
+    choices: [{ text: "Continue.", next: "arc_living_3" }],
+    image: "images/sela_ritual.jpg"
+  }
 });
