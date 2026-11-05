@@ -233,7 +233,7 @@ export function livingCastChecks(runtime) {
     for (const [id, cast] of Object.entries(livingCastImageOnly)) for (const who of cast) {
       resetRunState(); Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });
       kill(who, "absent image fixture");
-      if (resolveSceneImage(id, scenes[id]) !== "images/corridor_variant.jpg") failures.push(id + ": absent portrait");
+      if (resolveSceneImage(id, scenes[id]) !== "images/corridor_variant_2.jpg") failures.push(id + ": absent portrait");
     }
     return failures;
   })()`);
@@ -261,5 +261,40 @@ export function livingCastChecks(runtime) {
     } finally { window.confirm = confirm; }
     return failures;
   })()`);
+  // SUN-CORRIDOR-SCENES-04 (Myth ruling; Hex reachability at f5057cfc): corridor_variant.jpg
+  // shows Amara and Jiro, so it may only render while both are alive and aboard.
+  check("corridor_variant Amara/Jiro presence", `(() => {
+    const failures = [];
+    const pair = "images/corridor_variant.jpg", empty = "images/corridor_variant_2.jpg";
+    const guarded = ["offshift_open", "act3_lethal_tomas_end", "act3_lethal_elias_end", "act3_lethal_mira_end",
+      "aftermath_seal", "aftermath_seal_order", "aftermath_seal_holds", "prom_vent", "prom_vent_keep"];
+    const alwaysEmpty = ["coolant_trade", "seal_or_food", "prom_vent_break"];
+    const statuses = {
+      bothAlive: () => {},
+      amaraDead: () => kill("amara", "corridor presence fixture"),
+      jiroDead: () => kill("jiro", "corridor presence fixture"),
+      jiroUnrecovered: () => { state.recovered.jiro = false; }
+    };
+    const resolve = (id, status) => {
+      resetRunState(); Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });
+      // prom_vent(_keep): Vess is the present patient so the living-cast contract holds and
+      // the Amara/Jiro guard, not the general absent-cast fallback, decides the plate.
+      if (id === "prom_vent" || id === "prom_vent_keep") {
+        state.crisisPath = "breath"; state.promises.amara = "made"; state.flags.prom_line_other = "vess";
+      }
+      statuses[status]();
+      return resolveSceneImage(id, scenes[id]);
+    };
+    for (const id of guarded) for (const status of Object.keys(statuses)) {
+      const want = status === "bothAlive" ? pair : empty, got = resolve(id, status);
+      if (got !== want) failures.push(id + " " + status + ": " + got + " (want " + want + ")");
+    }
+    for (const id of alwaysEmpty) for (const status of Object.keys(statuses)) {
+      const got = resolve(id, status);
+      if (got !== "images/corridor_variant_3.jpg") failures.push(id + " " + status + ": " + got + " (want images/corridor_variant_3.jpg)");
+    }
+    return failures;
+  })()`);
+
   return errors;
 }

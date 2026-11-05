@@ -183,7 +183,8 @@ Mira reads the limit twice.
 // DEATH EXPOSURE: Mira dies onEnter
 // DEAD-SPEECH CHECK: post-onEnter text contains no Mira dialogue or action;
 //   only traces, temperature, completed work, and witnessed absence
-// IMAGE: images/corridor_variant.jpg [REUSE death-neutral corridor; EXISTS; NO BAKED TEXT]
+// IMAGE: images/corridor_variant.jpg [REUSE; shows Amara + Jiro, NOT death-neutral; engine renders
+//   corridor_variant_2.jpg unless both are alive and aboard; EXISTS; NO BAKED TEXT]
 // ═════════════════════════════════════════════════════════════════
 act3_lethal_mira_end: {
   onEnter: () => {

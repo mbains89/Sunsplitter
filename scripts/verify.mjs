@@ -2926,8 +2926,8 @@ function offshiftVessImageTruthChecks(runtime) {
     }
   }
   for (const row of fixture.unavailable) {
-    if (!row.saved || !row.loaded || row.rendered !== "images/corridor_variant.jpg" ||
-        row.resumed !== "images/corridor_variant.jpg") {
+    if (!row.saved || !row.loaded || row.rendered !== "images/corridor_variant_2.jpg" ||
+        row.resumed !== "images/corridor_variant_2.jpg") {
       errors.push(`Off-Shift portrait asserted unavailable Vess: ${JSON.stringify(row)}`);
     }
   }
@@ -3025,7 +3025,7 @@ function remainingArcLivingTruthChecks(runtime) {
     deadAmara: fixture.deadAmara,
     deadMira: fixture.deadMira
   })) {
-    if (row.arc3Image !== "images/corridor.jpg") {
+    if (row.arc3Image !== "images/corridor_variant_2.jpg") {
       errors.push(`arc_living_3 ${label} state resolves to ${row.arc3Image || "no image"} instead of the roster-safe corridor plate`);
     }
   }
@@ -3573,7 +3573,7 @@ function pairShieldReachabilityChecks(runtime) {
     eliasDead: fixture.savedEliasDead,
     unattributableMiraDeath: fixture.savedUnattributable
   })) {
-    if (row.scene !== "pair_shield_cold" || row.next !== "faction_split" || row.image !== "images/corridor_variant.jpg" || /\bElias\b|\bMira\b|\"/.test(row.text) || row.memoriesAdded !== 0) {
+    if (row.scene !== "pair_shield_cold" || row.next !== "faction_split" || row.image !== "images/corridor_variant_2.jpg" || /\bElias\b|\bMira\b|\"/.test(row.text) || row.memoriesAdded !== 0) {
       errors.push(`pair_shield_cold saved ${label} entry rendered an ineligible speaker, image, write, or exit`);
     }
   }
