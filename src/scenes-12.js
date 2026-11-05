@@ -91,16 +91,11 @@ registerScenes({
 
   // Spine placeholder after Tomas recovery → Jiro recovery
   act2_spine_next: {
-    image: "images/corridor.jpg",
+    image: "images/corridor_pressure_3.jpg",
     onEnter: () => {},
     text: () => `${isAlive("tomas") ? "The annex is secured. Tomas is aboard. The ship has one more green thing and one more mouth.\n\n" : ""}The boards keep working. So do you.`,
     choices: [
       { text: "Back to the work.", next: "act3_reckoning_pattern" }
     ]
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  // Package B — Jiro recovery: "Dead Reckoning"
-  // ═══════════════════════════════════════════════════════════════
-
+  }
 });
