@@ -64,18 +64,18 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 
 ## Decisions for Manraj
 
-1. **Playtest build.** Production shows `0e7535d`, from September. Should the lead deploy the work-branch tip as a Netlify preview (not production) so you can play the current game?
-2. **Unreadable saves.** #483 names them but keeps Export hidden, per the 0.32 fail-closed rule. Do you want an "export the unreadable bytes" escape hatch? It would reverse that rule.
-3. **Intro slide 1 plate shows Amara.** The art-event audit checks lock it. Keep it, or route it to Muse for a people-free alternative?
-4. **Story wording, for Myth review.** The tether floor line (#482) and the unreadable-save message (#483) are lead-written.
-5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
-6. **Repeatable hold/abort loop at `final_choice`.** On a jury-rigged or unsealed Deck 4, choosing Hold leads to `patch_fails`. Its Abort ("Choose a softer final path") returns to `final_choice`, and Hold is offered again. Each lap gives +2 cohesion and the hold's lean, for −3 integrity, until integrity drops under the hold gate. Measured from integrity 70 and cohesion 30:
-   - Jiro navigating: 14 laps. Cohesion reaches 58 and future lean +42, which flips the run's ideology.
-   - Mira navigating: 15 laps. Cohesion 60, future lean +30.
-   - No crew buy-in: 6 laps, a net loss.
+**Open:**
 
-   `scripts/destination-checks.mjs` asserts that Hold is re-offered after an abort, so the fix is a design call. **(A, recommended)** After an abort, `final_choice` stops offering Hold, matching the abort's own wording. **(B)** Keep offering Hold, but only the first abort pays cohesion, and a repeat hold adds no lean.
-7. **Close-out.** When to consolidate the work branch onto `main`.
+1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
+4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
+5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+
+**Ruled by Manraj, 2026-11-05:**
+
+- **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
+- **3: keep.** Amara stays on intro slide 1.
+- **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
+- **7: now.** Close out the work branch onto `main`. The ROADMAP close-out holds are lifted by this ruling. The `main` CI gates bound to the old 10-path reconcile diff are rebound in a separate PR before the close-out PR opens. No tag, release, deploy, Netlify or certification comes with it.
 
 *Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.
 
@@ -95,6 +95,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** keep landing lead-scope fixes and evidence until Manraj is ready to play. **Manraj:** decision 6 (A or B) is the cheapest one to unblock. Decision 1 (preview deploy) can wait until you want to play.
+**Lead:** land SUN-FINAL-HOLD-ONCE-01 and SUN-UNREADABLE-EXPORT-01, rebind the `main` gates, then open the close-out PR to `main` per Manraj's 2026-11-05 go.
 
 <!-- STATUS_COMPLETE -->
