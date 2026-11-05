@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 8ff92ad (after PR #491)`
+`work_branch_tip: 211f6dc (after PR #494)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -54,7 +54,10 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 489 | SUN-BROWSER-BOT-01 | `scripts/sun-browser-bot.mjs`, a manual real-browser full-run tool, plus the 0.36 keyboard and resume evidence in `docs/SUN_036_BROWSER_EVIDENCE.md`. |
 | 490 | SUN-FINAL-HOLD-ONCE-01 | After an aborted hard burn, Hold is no longer offered. Ends the cohesion/lean lap (ruling 6A). |
 | 491 | SUN-UNREADABLE-EXPORT-01 | An unreadable save can be downloaded byte-for-byte before a new run replaces it (ruling 2). |
-| 492 | Close-out | Lane → `main` @ `e5a71fc`. |
+| 492 | Close-out | Lane → `main` @ `e5a71fc`. The post-merge strict rerun on `e5a71fc` passed (run 42100031310). |
+| 493 | SUN-CLOSEOUT-RECORD-01 | Recorded the close-out ruling. Process only. |
+| 494 | SUN-PLATE-FACES-06 | The face gate covers the five HITL plates that show crew, on every resolver path. Exposures went from 13 to 0. |
+| this PR | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
 
 ## Open
 
@@ -79,6 +82,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 - **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
 - **3: keep.** Amara stays on intro slide 1.
 - **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
+- **ART-R2: opened for people-free fallbacks only** (2026-11-05). Wired in SUN-ART-R2-FALLBACKS-01. The four Sep-23 harvest candidates for the unsaved Imagine frames stay unapproved, and the shipped versions remain, until Manraj verifies them in the Grok art chat.
 - **7: now.** Done as PR #492, `main` @ `e5a71fc`. Its head was `version/0.30.1-main-closeout.1`, at the same commit as the lane. The policy's general `version/*` → `main` route applied, because the lane's own name is bound to the August 10-path CI diff. No gate code changed. No tag, release, deploy, Netlify or certification came with it.
 
 *Withdrawn 2026-11-05:* the earlier note that `act3_crisis_declare` is unreachable was wrong. Split-ideology runs reach it, as #487's coverage check confirms.
@@ -99,6 +103,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** confirm the post-merge strict rerun on `main` @ `e5a71fc`, then keep landing lead-scope fixes and browser-bot batches on the lane. **Manraj:** say when you want a preview deploy to play.
+**Lead:** SUN-HITL-SHADOW-02. Unshadow the 27 owner-approved event plates whose scenes' own `image` overrides their mapped plate, face-gating each one. Then the next browser-bot batch. **Manraj:** say when you want a preview deploy to play.
 
 <!-- STATUS_COMPLETE -->

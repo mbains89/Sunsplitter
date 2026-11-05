@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `bd2cbf366c7e26ca9fd1dc309e5360f7a78fa807c0e567033a8781526ab95a43`
+**Roadmap source SHA-256:** `a65ebcd432a00f3bfad860d177cbffd3208d73570ee9a77648036b0795405931`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 

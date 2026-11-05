@@ -3,6 +3,7 @@
 // For every scene, resolve its plate under each single-death roster and under the opening roster
 // (Tomas, Jiro, Vess unrecovered); the resolved plate's listed faces must all be alive.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
@@ -27,9 +28,29 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
       if (faces && !faces.every(isAlive)) bad.push(roster.label + " " + id + " -> " + src);
     }
   }
-  return { checked, bad, plates: Object.keys(PLATE_FACES).length };
+  // SUN-ART-R2-FALLBACKS-01: per-setting fallbacks are people-free plates and are actually reached.
+  const fallbackErrors = [];
+  for (const [plate, fallback] of Object.entries(PLATE_FACE_FALLBACK)) {
+    if (!PLATE_FACES[plate]) fallbackErrors.push(plate + " has a fallback but no face entry");
+    if (PLATE_FACES[fallback]) fallbackErrors.push(fallback + " is not people-free");
+  }
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("sela");
+  if (resolveSceneImage("vault_reveal", scenes.vault_reveal) !== "images/art_r2_vault_racks.jpg") fallbackErrors.push("vault_reveal without Sela did not use the vault fallback");
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("elias");
+  if (resolveSceneImage("status", scenes.status) !== "images/art_r2_observation_wreck.jpg") fallbackErrors.push("status without Elias did not use the observation fallback");
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("amara");
+  if (resolveSceneImage("empty_berths", scenes.empty_berths) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("empty_berths without Amara did not use the berths fallback");
+  return { checked, bad, plates: Object.keys(PLATE_FACES).length, fallbackErrors, fallbacks: [...new Set(Object.values(PLATE_FACE_FALLBACK))] };
 })())`));
 assert.ok(result.plates >= 10, "PLATE_FACES table missing entries (SUN-PLATE-FACES-06 lists 10 plates)");
 assert.ok(result.checked > 1000, `too few scene renders checked (${result.checked})`);
 assert.deepEqual(result.bad, [], `plates show absent crew:\n${result.bad.join("\n")}`);
+assert.deepEqual(result.fallbackErrors, [], result.fallbackErrors.join("\n"));
+for (const file of result.fallbacks) {
+  const bytes = readFileSync(resolve(ROOT, file));
+  let i = 2, size = null;
+  while (i < bytes.length && !size) { if (bytes[i] !== 0xff) { i++; continue; } const m = bytes[i + 1];
+    if (m >= 0xc0 && m <= 0xc2) size = [bytes.readUInt16BE(i + 7), bytes.readUInt16BE(i + 5)]; else i += 2 + bytes.readUInt16BE(i + 2); }
+  assert.deepEqual(size, [784, 1168], `${file} is not the 784x1168 portrait plate`);
+}
 console.log(`PASS sun-playerflow-plate-faces: ${result.checked} scene/roster renders, no absent crew on shared plates`);

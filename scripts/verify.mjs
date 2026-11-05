@@ -2840,9 +2840,10 @@ function act3SpineImageRepeatChecks(runtime) {
     }
   }
   for (const row of fixture.resumes) {
-    // corridor.jpg shows Vess (SUN-PLATE-FACES-05): warmth scenes keep it only while she is aboard.
+    // corridor.jpg shows Vess (SUN-PLATE-FACES-05): warmth scenes keep it only while she is aboard;
+    // otherwise the empty berth-row plate (SUN-ART-R2-FALLBACKS-01).
     const image = row.expectedId === "act3_spine_next" ? expected
-      : (row.status === "living" ? "images/corridor.jpg" : "images/corridor_variant_3.jpg");
+      : (row.status === "living" ? "images/corridor.jpg" : "images/art_r2_empty_berths.jpg");
     if (!row.saved || !row.loaded || !row.stable || row.id !== row.expectedId || row.image !== image) {
       errors.push(`act3 image-only resume changed state or image: ${JSON.stringify(row)}`);
     }

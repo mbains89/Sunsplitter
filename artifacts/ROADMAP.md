@@ -157,7 +157,7 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Art is approved in target mobile/desktop composition, not as an isolated full-size image.
 - Generation is bounded: one request card and one job per reference; verify references and hashes; generate four bases; triage; allow at most two controlled edits; restart rather than endlessly mutate. Default output budget is six.
 - Before wiring, perform identity, lighting, crop, mobile-legibility, roster-honesty, rectangular-interior, and moderation-line QA.
-- **ART-R2 remains HELD.** No art-identity audit batch, regen, unwire, or new wiring campaign until Manraj opens that gate.
+- **ART-R2 remains HELD**, except as opened by Manraj on 2026-11-05 for people-free fallback plates only: the held reserve's empty berths, observation and vault plates stand in when a face-gated plate's crew are dead or absent (SUN-ART-R2-FALLBACKS-01). Any other art-identity audit batch, regen, unwire, or new wiring campaign still waits on his go.
 
 ### Cascade and voice locks
 
