@@ -1,4 +1,5 @@
-// SUN-PLATE-FACES-05 — no shared plate shows a named crew member who is dead or not yet aboard.
+// SUN-PLATE-FACES-05/06 — no shared plate shows a named crew member who is dead or not yet aboard,
+// on any resolver path (event-art aliases included).
 // For every scene, resolve its plate under each single-death roster and under the opening roster
 // (Tomas, Jiro, Vess unrecovered); the resolved plate's listed faces must all be alive.
 import assert from "node:assert/strict";
@@ -28,7 +29,7 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   }
   return { checked, bad, plates: Object.keys(PLATE_FACES).length };
 })())`));
-assert.ok(result.plates >= 5, "PLATE_FACES table missing");
+assert.ok(result.plates >= 10, "PLATE_FACES table missing entries (SUN-PLATE-FACES-06 lists 10 plates)");
 assert.ok(result.checked > 1000, `too few scene renders checked (${result.checked})`);
 assert.deepEqual(result.bad, [], `plates show absent crew:\n${result.bad.join("\n")}`);
 console.log(`PASS sun-playerflow-plate-faces: ${result.checked} scene/roster renders, no absent crew on shared plates`);

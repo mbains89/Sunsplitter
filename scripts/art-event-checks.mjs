@@ -31,7 +31,10 @@ export function artEventChecks(runtime) {
       if (roster === "depleted") state.dead.push("lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess");
       const before = JSON.stringify(state);
       for (const [id, image] of Object.entries(expected)) {
-        if (resolveSceneImage(id, scenes[id]) !== image) return false;
+        // SUN-PLATE-FACES-06: the HITL re-art put named crew into medbay_dim (Lena, Jiro) and
+        // corridor_pressure_1 (Tomas); a fixed alias holds only while everyone it shows is aboard.
+        const gated = PLATE_FACES[image] && !PLATE_FACES[image].every(isAlive) ? "images/corridor_variant_3.jpg" : image;
+        if (resolveSceneImage(id, scenes[id]) !== gated) return false;
       }
       if (JSON.stringify(state) !== before) return false;
     }
@@ -70,7 +73,10 @@ export function artEventChecks(runtime) {
       if (resolveSceneImage(id, scenes[id]) !== "images/aftermath.jpg") return false;
     }
     state.flags.crisis = "cut";
-    return resolveSceneImage("aftermath", scenes.aftermath) === sceneImages.cut_out;
+    // SUN-PLATE-FACES-06: cut_out.jpg shows Mira, Amara and Sela; this fixture's vent already killed two.
+    const cutPlate = PLATE_FACES[sceneImages.cut_out] && !PLATE_FACES[sceneImages.cut_out].every(isAlive)
+      ? "images/corridor_variant_3.jpg" : sceneImages.cut_out;
+    return resolveSceneImage("aftermath", scenes.aftermath) === cutPlate;
   })()`);
   check("current saved renders keep exact state and new image without entry replay", `(() => {
     const ids = [...Object.keys(${JSON.stringify(FIXED_EVENT_ART)}), ...Object.keys(${JSON.stringify(PORTRAIT_EVENTS)}),
