@@ -7,6 +7,7 @@ registerScenes({
 
   // PRE: tether sighting, living speaker, made unalluded promise | WRITES: consumes Elias/Amara allusion flags on entry
   // DEATH: none | DEAD SPEECH/APPEARANCE: Elias/Amara prose is living-gated | IMAGE: existing debris-field plate
+  // FLOOR (SUN-TETHER-FLOOR-01): when neither paid route is affordable, a free route to act2_tether_rush writes nothing
   act2_tether_sighting: {
     image: "images/debris_field.jpg",
     onEnter: () => {
@@ -46,10 +47,18 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       if (isAlive("sela")) t += `\n\n"The annex was built to carry seeds through the death of a world," Sela says. "It may have carried a man instead. I would like to know which."`;
       return t;
     },
-    choices: [
-      { text: "Vent the reserve. Match the drift.", next: "act2_tether_vent", effects: { supplies: -6 }, lean: { living: 1 } },
-      { text: "Hard intercept. Catch it fast and keep the water.", next: "act2_tether_rush", effects: { integrity: -2 }, lean: { future: 1 } }
-    ]
+    get choices() {
+      const routes = [
+        { text: "Vent the reserve. Match the drift.", next: "act2_tether_vent", effects: { supplies: -6 }, lean: { living: 1 } },
+        { text: "Hard intercept. Catch it fast and keep the water.", next: "act2_tether_rush", effects: { integrity: -2 }, lean: { future: 1 } }
+      ];
+      // SUN-TETHER-FLOOR-01: both routes cost; with no reserve water and no hull margin the scene
+      // would render zero enabled exits. Governed floor writes nothing, like arc_fork / custody.
+      if (!routes.some(choice => canAffordEffects(choice.effects))) {
+        routes.push({ text: "There is no water to vent and no margin to spend. Make the catch on what the frame has left.", next: "act2_tether_rush", lean: { future: 1 } });
+      }
+      return routes;
+    }
   },
 
   act2_tether_vent: {
