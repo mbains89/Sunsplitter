@@ -180,7 +180,7 @@ function playChunk(runtime, { chunkSeed, runs, measure, scenes, bindings }) {
       cancelCinematic();
       runsOut.push({ outcome, path, finalState: JSON.stringify(state) });
     }
-    return { rows, runs: runsOut, errors, sceneIds: Object.keys(scenes) };
+    return { rows, runs: runsOut, errors };
   })())`, 1_800_000));
 }
 
@@ -195,16 +195,13 @@ const bindings = moduleBindings(ROOT);
 const rows = [];
 const errors = [];
 const outcomes = { ended: 0, stuck: 0, capped: 0, threw: 0 };
-let sceneIds = null;
+const knownScenes = new Set(loadGame(ROOT).sceneIds);
+const unknownScenes = (options.scenes || []).filter(id => !knownScenes.has(id));
+if (unknownScenes.length) usage(`unknown scene id(s): ${unknownScenes.join(", ")}`);
 for (let chunk = 0; chunk * CHUNK < options.runs; chunk++) {
   const runs = Math.min(CHUNK, options.runs - chunk * CHUNK);
   const chunkSeed = options.seed + chunk;
   const measured = playChunk(loadGame(ROOT), { chunkSeed, runs, measure: true, scenes: options.scenes, bindings });
-  if (!sceneIds) {
-    sceneIds = new Set(measured.sceneIds);
-    const unknown = (options.scenes || []).filter(id => !sceneIds.has(id));
-    if (unknown.length) usage(`unknown scene id(s): ${unknown.join(", ")}`);
-  }
   const plain = playChunk(loadGame(ROOT), { chunkSeed, runs, measure: false, scenes: null, bindings });
   measured.runs.forEach((run, index) => {
     outcomes[run.outcome]++;
