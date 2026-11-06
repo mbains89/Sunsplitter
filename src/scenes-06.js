@@ -87,17 +87,20 @@ registerScenes({
         t += `He scrolls. Names of genetic lines. A mission profile that still assumes a destination with a sky.\n\n`;
         t += `"I can lock the vault into conservation mode. Habitation takes the brownouts — cold corridors, tighter rations, people noticing who the package ranks above. Or we keep the brownouts off the living and accept a permanent bleed in the cylinders. The ceiling does not recover."\n\n`;
       } else {
-        t += `The vault hatch is unmanned. The board still reports: embryo viability ${emb}%, power draw not. Conservation mode or permanent slow bleed. The numbers do not soften without him.\n\n`;
+        // SUN-MYTH-WORDING-01: Jiro is unrecovered whenever this scene plays (mid-A; he is recovered at
+        // act3_reckoning_cut), so this branch is the one that renders; "without him" pointed at a man the
+        // player has not met. Reassigning the briefing above is STATUS decision 5, Manraj's call.
+        t += `The vault hatch is unmanned. The board still reports: embryo viability ${emb}%, power draw not. Conservation mode or permanent slow bleed. The numbers do not soften.\n\n`;
       }
       if (emb < 70) {
         t += `The count is already wounded. Full conservation will only hold what is left; it will not restore what was spent.\n\n`;
       }
       if (isAlive("elias") && state.flags.leadership === "together") {
-        t += `Elias: "Soft leadership does not change thermodynamics. It only changes who gets blamed for the brownouts."`;
+        t += `"Soft leadership does not change thermodynamics," Elias says. "It changes who gets blamed for the brownouts."`;
       } else if (isAlive("elias")) {
         t += `Elias does not bother to argue. He is already counting which brownouts he can enforce and which people will notice.`;
       } else if (isAlive("lena")) {
-        t += `Lena, if she is near: "Every brownout is a medical problem I will have to solve with fewer supplies."`;
+        t += `Lena does not look up from the chart. "Every brownout is a medical problem I will solve with fewer supplies. Log that as a prognosis, not a complaint."`;
       }
       return t;
     },

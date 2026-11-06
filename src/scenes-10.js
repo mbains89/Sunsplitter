@@ -55,7 +55,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       // SUN-TETHER-FLOOR-01: both routes cost; with no reserve water and no hull margin the scene
       // would render zero enabled exits. Governed floor writes nothing, like arc_fork / custody.
       if (!routes.some(choice => canAffordEffects(choice.effects))) {
-        routes.push({ text: "There is no water to vent and no margin to spend. Make the catch on what the frame has left.", next: "act2_tether_rush", lean: { future: 1 } });
+        routes.push({ text: "No water to vent and no hull to spare. Hard intercept on what is left.", next: "act2_tether_rush", lean: { future: 1 } });
       }
       return routes;
     }
