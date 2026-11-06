@@ -8,8 +8,7 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
-| SUN-WHATREMAINS-DEATH-ONCE-01 | Lead | Decision 21: a death prints once in What Remains; the crew paragraph opens on the person. Carries the STATUS and queue close-out for #523–#526. |
-| SUN-DIET-VESS-MERGE-01 | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. Myth read before ready. |
+| SUN-DIET-VESS-MERGE-01 | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. PR #529; Myth read applied. |
 | SUN-DIET-MEMORY-FOLD-01 | Lead | D11 Deep step 1, C04: `ship_memory_payoff` folds into the final preamble. Myth read before ready. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
@@ -46,6 +45,7 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
   - Off-shift lead-ins are not cut (L-050 stays). What Remains is not cut (L-008 stays).
 - **Small tickets found today:**
   - the `arc_living_4` "double cycle" sentence (decision 22);
+  - SUN-HUB-ALLUSION-RESUME-01: a resumed hub reprints Tomas's spent allusion (needs decision 24 or a design);
   - the phone-landscape plate leaves `#main` about 75 px;
   - five flags written but never read;
   - `offshift_jiro`'s two identical `isAlive("mira")` branches;
