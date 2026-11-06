@@ -4,6 +4,8 @@
 // Keep story content out of this file.
 
 const TONE_ACK_KEY = "sunsplitter_tone_ack_v1";
+// SUN-PRICE-TAGS-01: reader setting "Show costs on choices". "1" = on; anything else = off.
+const SHOW_COSTS_KEY = "sunsplitter_show_costs_v1";
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
@@ -26,6 +28,14 @@ let choiceRenderRevision = 0;
 // Presentation only: never serialized into run state or save flags.
 let currentCinematic = null;
 let cinematicTimer = null;
+// SUN-PACED-REVEAL-01: reader preference and the in-scene paragraph reveal.
+// Presentation only, like the tone acknowledgement: never in run state, saves or exports.
+const TEXT_PACE_KEY = "sunsplitter_text_pace_v1";
+const REVEAL_MIN_WORDS = 40; // shorter scenes arrive whole
+const REVEAL_SETTLE_MS = 350; // a burst of taps/keys that finished the reveal cannot also pick a choice
+let textPaceSession = null; // survives a session when storage is blocked
+let sceneReveal = null; // { blocks, shown } while paragraphs are still waiting
+let revealSettledAt = -Infinity;
 
 function cancelCinematic() {
   if (cinematicTimer !== null) clearTimeout(cinematicTimer);
@@ -85,7 +95,8 @@ function finishCinematic() {
   const kind = currentCinematic.kind;
   cancelCinematic();
   showScreen(kind === "intro" ? "game" : "ending");
-  if (kind === "intro") showScene(state.scene, { skipOnEnter: true, resume: true });
+  // The first scene was rendered behind the intro; this is the player's first look at it.
+  if (kind === "intro") showScene(state.scene, { skipOnEnter: true, resume: true, firstView: true });
   return true;
 }
 
@@ -179,6 +190,100 @@ function acknowledgeTone() {
 
 function revisitTone() {
   showScreen("tone");
+}
+
+// SUN-PRICE-TAGS-01 — reader setting "Show costs on choices". Default OFF.
+// Presentation only: never serialized into run state or save data, and it never
+// changes what a choice does. Disabled choices keep their honest reason either way.
+// Once the reader toggles it this session, that value wins over storage, so a
+// blocked or full localStorage still leaves a working toggle.
+let showCostsSessionValue = null;
+
+function showCostsOnChoices() {
+  if (showCostsSessionValue !== null) return showCostsSessionValue;
+  try {
+    return localStorage.getItem(SHOW_COSTS_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function setShowCostsOnChoices(on) {
+  showCostsSessionValue = !!on;
+  try {
+    localStorage.setItem(SHOW_COSTS_KEY, showCostsSessionValue ? "1" : "0");
+  } catch (e) { /* private mode — the setting still holds for this session */ }
+  syncShowCostsControls();
+  refreshChoiceCostLabels();
+  return showCostsSessionValue;
+}
+
+function toggleShowCosts() {
+  return setShowCostsOnChoices(!showCostsOnChoices());
+}
+
+function syncShowCostsControls() {
+  const on = showCostsOnChoices();
+  for (const id of ["btn-show-costs", "btn-show-costs-meta"]) {
+    const btn = document.getElementById(id);
+    if (btn) btn.setAttribute("aria-pressed", String(on));
+  }
+  const chip = document.getElementById("show-costs-chip");
+  if (chip) {
+    chip.textContent = on
+      ? "On · choices show their resource changes"
+      : "Off · choices show no costs · locked choices still say why";
+  }
+}
+
+(function wireShowCostsControls() {
+  if (typeof document === "undefined") return;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", syncShowCostsControls);
+  else syncShowCostsControls();
+})();
+
+// SUN-PRICE-TAGS-01 — after a choice, each status value that changed pulses once.
+// Feedback on the existing status bar only: no toast, no popup, no new layer.
+// #stat-announcer still carries the full status for screen readers.
+const STATUS_PULSE_IDS = {
+  survivors: "stat-survivors",
+  integrity: "stat-integrity",
+  cohesion: "stat-cohesion",
+  supplies: "stat-supplies",
+  embryos: "stat-embryos"
+};
+const STATUS_PULSE_MS = 1200;
+const statusPulseTimers = {};
+
+function statusPulseSnapshot() {
+  return {
+    survivors: typeof visibleLivingCrewCount === "function" ? visibleLivingCrewCount() : state.survivors,
+    integrity: state.integrity,
+    cohesion: state.cohesion,
+    supplies: state.supplies,
+    embryos: state.embryos
+  };
+}
+
+function pulseChangedStatus(before) {
+  if (!before) return [];
+  const after = statusPulseSnapshot();
+  const changed = [];
+  for (const [key, id] of Object.entries(STATUS_PULSE_IDS)) {
+    if (before[key] === after[key]) continue;
+    const el = document.getElementById(id);
+    if (!el || !el.classList) continue;
+    changed.push(key);
+    el.classList.remove("stat-pulse");
+    void el.offsetWidth; // restart the one-shot highlight when the same value changes again
+    el.classList.add("stat-pulse");
+    if (statusPulseTimers[key]) clearTimeout(statusPulseTimers[key]);
+    statusPulseTimers[key] = setTimeout(() => {
+      statusPulseTimers[key] = null;
+      el.classList.remove("stat-pulse");
+    }, STATUS_PULSE_MS);
+  }
+  return changed;
 }
 
 function resetRunState() {
@@ -413,13 +518,38 @@ function prefetchChoicePlates(choices) {
   }
 }
 
+// SUN-REPLY-ENGINE-01 (proposed L-057): a choice may carry `reply`, one to three lines in which the
+// person in front of you answers the order, rendered as the first paragraph of the next screen.
+// Shape: a string (narration), { who, text }, or an array of those. `who` is a crew key; a line
+// whose speaker is dead or absent when the next screen renders is dropped (the next scene's
+// onEnter may have just killed them). Held in memory only: never written to state or the save,
+// carried across onEnter redirects, dropped on resume and when the choice ends the run.
+let pendingChoiceReply = null;
+
+function choiceReplyLines(reply) {
+  if (!reply) return [];
+  const list = Array.isArray(reply) ? reply : [reply];
+  return list.map(entry => typeof entry === "string" ? { who: "", text: entry } : entry)
+    .filter(entry => entry && typeof entry.text === "string" && entry.text.trim());
+}
+
+function renderPendingChoiceReply() {
+  const lines = pendingChoiceReply || [];
+  pendingChoiceReply = null;
+  return lines.filter(line => !line.who || isAlive(line.who))
+    .map(line => `<p class="choice-reply">${String(line.text).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 function showScene(id, opts) {
   const renderedRevision = ++choiceRenderRevision;
   opts = opts || {};
   state.scene = id;
   document.getElementById("scene-id").textContent = id;
+  clearSceneReveal();
 
   if (id === "ending_check") {
+    pendingChoiceReply = null;
     resolveEnding();
     if (!opts.resume) showCinematic("ending");
     return;
@@ -450,7 +580,7 @@ function showScene(id, opts) {
   imgWrap.classList.remove("minimized"); // full size on every new scene
   window.__ssImagePinned = false; // 0.24.92: clear manual pin
   if (imgSrc) {
-    setManagedImageSource(img, imgSrc);
+    if (setManagedImageSource(img, imgSrc)) restartPlateDrift(img);
     img.alt = imageAlternative(imgSrc);
     imgWrap.classList.add("visible");
     if (isIntimateScene(id, scene)) imgWrap.classList.add("intimate");
@@ -476,12 +606,14 @@ function showScene(id, opts) {
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 
-  document.getElementById("story").innerHTML = `<div class="scene-text">${html}</div>`;
+  const replyHtml = opts.resume ? (pendingChoiceReply = null, "") : renderPendingChoiceReply();
+  document.getElementById("story").innerHTML = `<div class="scene-text">${replyHtml}${html}</div>`;
 
   const choicesEl = document.getElementById("choices");
   choicesEl.innerHTML = "";
 
   const choiceList = typeof scene.choices === "function" ? scene.choices() : (scene.choices || []);
+  const showCosts = showCostsOnChoices();
   choiceList.forEach(c => {
     // Death-gated options stay hidden (person is gone). Resource gates show disabled + reason.
     if (c.alive && !isAlive(c.alive)) return;
@@ -505,12 +637,19 @@ function showScene(id, opts) {
       btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>` +
         (reason ? `<span class="choice-reason">${escapeHtml(reason)}</span>` : "");
     } else {
+      // SUN-PRICE-TAGS-01: enabled choices read as orders; their resource changes
+      // show only when the reader turns on "Show costs on choices".
+      const labelHtml = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>`;
       const effectsHtml = formatEffectsHtml(c.effects);
-      btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>${effectsHtml}`;
+      btn.__ssChoiceLabelHtml = labelHtml;
+      btn.__ssChoiceEffectsHtml = effectsHtml;
+      btn.innerHTML = labelHtml + (showCosts ? effectsHtml : "");
       btn.onclick = event => {
         if (btn.disabled || renderedRevision !== choiceRenderRevision) return;
         const pointerClick = event && event.detail > 0;
         const now = Date.now();
+        // SUN-PACED-REVEAL-01: the tap or key that revealed the choices cannot also commit one.
+        if (now - revealSettledAt < REVEAL_SETTLE_MS) return;
         // Native keyboard/programmatic clicks have detail 0. Pointer bursts
         // must finish before a new scene can accept another pointer choice.
         if (pointerClick && (event.detail > 1 || now - lastChoicePointerCommitAt < 400)) return;
@@ -538,6 +677,10 @@ function showScene(id, opts) {
 
   renderStatus();
 
+  // SUN-PACED-REVEAL-01: hold later paragraphs and the choices until the player
+  // reads on. Resume and re-render paths always arrive whole.
+  beginSceneReveal(opts);
+
   // A choice replaces the focused button. Move the reading cursor to the new
   // passage without disturbing the explicit scroll reset above.
   const storyEl = document.getElementById("story");
@@ -546,6 +689,220 @@ function showScene(id, opts) {
     catch (e) { storyEl.focus(); }
   }
 }
+
+// ─── SUN-PACED-REVEAL-01: paced paragraph reveal, text setting, plate drift ───
+// Presentation only. Reads the paragraphs showScene already rendered; never
+// changes scene text, run state, saves, or which choices exist in #choices.
+
+function readTextPace() {
+  if (textPaceSession) return textPaceSession;
+  try {
+    return localStorage.getItem(TEXT_PACE_KEY) === "instant" ? "instant" : "paced";
+  } catch (e) {
+    return "paced";
+  }
+}
+
+function syncTextPaceControls() {
+  const paced = readTextPace() === "paced";
+  for (const id of ["btn-text-pace", "meta-text-pace"]) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = paced ? "Text: paced" : "Text: instant";
+  }
+  const chip = document.getElementById("text-pace-chip");
+  if (chip) {
+    chip.textContent = paced
+      ? "Paced · tap for each paragraph"
+      : "Instant · the whole scene at once";
+  }
+}
+
+function setTextPace(mode) {
+  const next = mode === "instant" ? "instant" : "paced";
+  textPaceSession = next;
+  try { localStorage.setItem(TEXT_PACE_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  syncTextPaceControls();
+  // Switching to instant mid-scene shows the rest now; focus stays on the toggle.
+  if (next === "instant") finishSceneReveal("setting");
+  return next;
+}
+
+function toggleTextPace() {
+  return setTextPace(readTextPace() === "paced" ? "instant" : "paced");
+}
+
+function revealPrefersReducedMotion() {
+  try {
+    return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (e) {
+    return false;
+  }
+}
+
+// The renderer's own paragraphs. Hosts without a parsed DOM (the headless
+// harness in scripts/simulate.mjs) return none, so they always render instant.
+function sceneRevealBlocks() {
+  const story = document.getElementById("story");
+  if (!story || typeof story.querySelectorAll !== "function") return [];
+  try { return Array.from(story.querySelectorAll(".scene-text > p")); }
+  catch (e) { return []; }
+}
+
+function sceneRevealWordCount(blocks) {
+  return blocks.reduce((sum, p) => sum + String(p.textContent || "").trim().split(/\s+/).filter(Boolean).length, 0);
+}
+
+function setSceneRevealChrome(pending) {
+  const choicesEl = document.getElementById("choices");
+  const controls = document.getElementById("reveal-controls");
+  const main = document.getElementById("main");
+  if (choicesEl) choicesEl.classList.toggle("reveal-pending", pending);
+  if (controls) controls.classList.toggle("hidden", !pending);
+  if (main) main.classList.toggle("reveal-active", pending);
+  const next = document.getElementById("reveal-next");
+  if (next && pending && sceneReveal) {
+    next.setAttribute("aria-label", `Read on: paragraph ${sceneReveal.shown + 1} of ${sceneReveal.blocks.length}`);
+  }
+}
+
+function clearSceneReveal() {
+  sceneReveal = null;
+  setSceneRevealChrome(false);
+  const choicesEl = document.getElementById("choices");
+  if (choicesEl) choicesEl.classList.remove("reveal-fade");
+}
+
+function beginSceneReveal(opts) {
+  opts = opts || {};
+  clearSceneReveal();
+  const rerender = (opts.resume || opts.skipOnEnter) && !opts.firstView;
+  if (rerender || readTextPace() !== "paced") return false;
+  const blocks = sceneRevealBlocks();
+  if (blocks.length < 2 || sceneRevealWordCount(blocks) < REVEAL_MIN_WORDS) return false;
+  blocks.forEach((p, index) => {
+    p.classList.remove("reveal-fade");
+    if (index > 0) p.classList.add("reveal-hidden");
+  });
+  sceneReveal = { blocks, shown: 1 };
+  setSceneRevealChrome(true);
+  return true;
+}
+
+function scrollRevealedIntoView(block) {
+  const main = document.getElementById("main");
+  const controls = document.getElementById("reveal-controls");
+  const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
+  if (!block || typeof block.scrollIntoView !== "function") return;
+  try {
+    const blockHeight = block.getBoundingClientRect().height;
+    const controlsHeight = sceneReveal && controls ? controls.getBoundingClientRect().height : 0;
+    const room = main ? main.clientHeight : Infinity;
+    // Keep "read on" in view under the new paragraph when both fit; otherwise start the paragraph at the top.
+    if (sceneReveal && controls && blockHeight + controlsHeight <= room) controls.scrollIntoView({ block: "nearest", behavior });
+    else block.scrollIntoView({ block: blockHeight <= room ? "nearest" : "start", behavior });
+  } catch (e) { /* layout-free hosts */ }
+}
+
+function showRevealBlock(block) {
+  block.classList.remove("reveal-hidden");
+  if (!revealPrefersReducedMotion()) block.classList.add("reveal-fade");
+}
+
+// source: "story-key" (Space/Enter/→ in the passage), "control-key" (keyboard on Read on /
+// Show all), "pointer" (tap/click), "setting" (the Text toggle).
+function advanceSceneReveal(source) {
+  const reveal = sceneReveal;
+  if (!reveal) return false;
+  const block = reveal.blocks[reveal.shown];
+  if (block) {
+    showRevealBlock(block);
+    reveal.shown += 1;
+  }
+  if (reveal.shown < reveal.blocks.length) {
+    setSceneRevealChrome(true);
+    scrollRevealedIntoView(block);
+    return true;
+  }
+  finishSceneReveal(source);
+  // From a keyboard control, focusing the first choice scrolls it in; otherwise keep the
+  // last paragraph in view with the choices under it.
+  if (source !== "control-key") scrollRevealedIntoView(block);
+  return true;
+}
+
+function finishSceneReveal(source) {
+  const reveal = sceneReveal;
+  if (!reveal) return false;
+  reveal.blocks.slice(reveal.shown).forEach(showRevealBlock);
+  reveal.shown = reveal.blocks.length;
+  const active = document.activeElement;
+  const controls = document.getElementById("reveal-controls");
+  const focusWasOnControls = !!(active && controls && typeof controls.contains === "function" && controls.contains(active));
+  sceneReveal = null;
+  setSceneRevealChrome(false);
+  revealSettledAt = Date.now();
+  const choicesEl = document.getElementById("choices");
+  if (choicesEl && !revealPrefersReducedMotion()) choicesEl.classList.add("reveal-fade");
+  if (source === "control-key") {
+    // Keyboard focus was on a control that just hid: move it to the first enabled choice.
+    const first = gameplayChoiceButtons().find(btn => !btn.disabled);
+    if (first && typeof first.focus === "function") first.focus();
+  } else if (source !== "setting" && focusWasOnControls) {
+    // A tapped control just hid; keep the reading cursor in the passage, not on <body>.
+    const storyEl = document.getElementById("story");
+    if (storyEl && typeof storyEl.focus === "function") {
+      try { storyEl.focus({ preventScroll: true }); } catch (e) { storyEl.focus(); }
+    }
+  }
+  // "story-key" leaves focus on the passage: digits 1-9 stay live (a focused choice button
+  // keeps native handling under SUN-CREW-FOCUS-DIGITS-01) and Tab reaches the first choice next.
+  return true;
+}
+
+function revealSourceFromEvent(event) {
+  return event && event.detail > 0 ? "pointer" : "control-key";
+}
+
+function readOnFromControl(event) {
+  return advanceSceneReveal(revealSourceFromEvent(event));
+}
+
+// The rest of the text lands where "read on" was, so a tap keeps the reader's place.
+function showAllFromControl(event) {
+  return finishSceneReveal(revealSourceFromEvent(event));
+}
+
+// Restart the slow plate drift only when the plate itself changes; a scene that
+// keeps its plate keeps drifting instead of snapping back.
+function restartPlateDrift(img) {
+  if (!img || !img.classList) return;
+  const wasA = img.classList.contains("plate-drift-a");
+  img.classList.remove(wasA ? "plate-drift-a" : "plate-drift-b");
+  img.classList.add(wasA ? "plate-drift-b" : "plate-drift-a");
+}
+
+(function wireSceneRevealPointer() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  function bind() {
+    syncTextPaceControls();
+    const main = document.getElementById("main");
+    if (!main || typeof main.addEventListener !== "function") return;
+    main.addEventListener("click", event => {
+      if (!sceneReveal || event.defaultPrevented) return;
+      const game = document.getElementById("game-screen");
+      if (!game || game.classList.contains("hidden")) return;
+      if (keyboardTargetIsInteractive(event.target)) return;
+      if (typeof openModalDialogElement === "function" && openModalDialogElement()) return;
+      try {
+        const selection = typeof window.getSelection === "function" ? window.getSelection() : null;
+        if (selection && !selection.isCollapsed && String(selection).trim()) return; // selecting text, not reading on
+      } catch (e) { /* ignore */ }
+      advanceSceneReveal("pointer");
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+})();
 
 function gameplayChoiceButtons() {
   const choices = document.getElementById("choices");
@@ -600,6 +957,17 @@ function handleGameplayKeydown(event) {
   if (!game || game.classList.contains("hidden")) return false;
   // SUN-MODAL-HOTKEYS-01: never commit a choice behind an open dialog.
   if (typeof openModalDialogElement === "function" && openModalDialogElement()) return false;
+
+  // SUN-PACED-REVEAL-01: while paragraphs are waiting, Space/Enter/→ read on and
+  // digits stay inert, so no key can pick a choice the player has not seen.
+  if (sceneReveal) {
+    if (digitKey) return false;
+    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.key === "ArrowRight") {
+      if (typeof event.preventDefault === "function") event.preventDefault();
+      return advanceSceneReveal("story-key");
+    }
+    return false;
+  }
 
   const buttons = gameplayChoiceButtons();
   if (/^[1-9]$/.test(event.key || "")) {
@@ -658,7 +1026,9 @@ function formatRequiresReason(req) {
     for (const [who, rule] of Object.entries(trust)) {
       const need = typeof rule === "number" ? rule : (rule && rule.min);
       const have = (state.trust && state.trust[who]) || 0;
-      if (need !== undefined && have < need) return `Needs more trust from ${crewFirstName(who)}`;
+      // SUN-PRICE-TAGS-01: one generic line in plain words, not a meter reading.
+      // A dead or unrecovered person is never voiced; the generic reason covers that case.
+      if (need !== undefined && have < need && isAlive(who)) return `${crewFirstName(who)} won't take this from you yet.`;
     }
   }
   return "";
@@ -748,6 +1118,16 @@ function formatEffectsHtml(effects) {
     parts.push(`<span class="${cls}">${sign}${applied} ${labels[k]}${note}</span>`);
   }
   return parts.length ? ` <span class="choice-effects">[${parts.join(" ")}]</span>` : "";
+}
+
+// SUN-PRICE-TAGS-01: flipping the reader setting repaints the enabled buttons in
+// place (same scene, same state, same focus). Disabled buttons are never touched.
+function refreshChoiceCostLabels() {
+  const show = showCostsOnChoices();
+  for (const btn of gameplayChoiceButtons()) {
+    if (btn.disabled || typeof btn.__ssChoiceLabelHtml !== "string") continue;
+    btn.innerHTML = btn.__ssChoiceLabelHtml + (show ? (btn.__ssChoiceEffectsHtml || "") : "");
+  }
 }
 
 /** Quiet discoverability cue for romance / non-sexual bond offers. */
@@ -2301,6 +2681,7 @@ function refreshTitleResumeUI() {
 function makeChoice(choice) {
   // Recheck before any writes: resources may have changed since rendering.
   if (!canAffordEffects(choice.effects)) return;
+  const statusBefore = statusPulseSnapshot();
   if (choice.effects) updateStats(choice.effects);
   if (choice.flag && typeof choice.flag === "object") {
     Object.assign(state.flags, choice.flag);
@@ -2320,7 +2701,10 @@ function makeChoice(choice) {
   if (choice.lean && typeof choice.lean === "object") {
     Object.keys(choice.lean).forEach(side => lean(side, choice.lean[side]));
   }
+  pendingChoiceReply = choiceReplyLines(choice.reply);
   showScene(choice.next);
+  // Changes from the order and from the next scene's entry both show on the bar.
+  pulseChangedStatus(statusBefore);
   // Persist after scene is current so resume lands on the post-choice beat
   preserveCompletedSlotUntilChoice = false;
   persistSave({ silent: true });
