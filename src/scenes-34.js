@@ -140,8 +140,8 @@ registerScenes({
       // 0.23: after private hours close → Tomas recovery (Green Tether) if not yet recovered
       const next = state.recovered && state.recovered.tomas ? (state.recovered.jiro ? "act3_spine_next" : "act3_reckoning_pattern") : "act2_tether_sighting";
       return [
-        { text: "Take the temperature change as data. Move on.", next },
-        { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 } }
+        { text: "Take the temperature change as data. Move on.", next, reply: [`You note who looks up when you pass and who does not, and keep walking. By the next watch the ship reads the same: a degree cooler, wherever you go.`] },
+        { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 }, reply: [`You spend the hour on the junction panel in the common corridor, cover off, sleeves pushed back, where anyone can see. Nobody says anything about it.`, { who: "elias", text: `Elias stops on his round and hands you the right driver without being asked. Then he keeps walking.` }] }
       ];
     }
   },

@@ -79,15 +79,15 @@ registerScenes({
     },
     get choices() {
       const routes = [
-        { text: "Burn supplies to keep the ring warm and lit.", next: "vault_sacrifice", effects: { supplies: -8, cohesion: 5, integrity: 3 }, lean: { living: 3 }, affinity: { amara: 4, lena: 4 }, requires: { supplies: { min: 10 } } },
-        { text: "Protect the margin. Accept colder habitation.", next: "vault_sacrifice", effects: { supplies: 3, cohesion: -6, integrity: 2 }, lean: { future: 2 }, affinity: { elias: 5, jiro: 3 } }
+        { text: "Burn supplies to keep the ring warm and lit.", next: "vault_sacrifice", effects: { supplies: -8, cohesion: 5, integrity: 3 }, lean: { living: 3 }, affinity: { amara: 4, lena: 4 }, requires: { supplies: { min: 10 } }, reply: [{ who: "amara", text: `The ring stays warm and lit. Amara marks the cost on the yield sheet in red, and under it, in pencil: worth it.` }, { who: "lena", text: `Lena stops logging cold injuries for the week.` }] },
+        { text: "Protect the margin. Accept colder habitation.", next: "vault_sacrifice", effects: { supplies: 3, cohesion: -6, integrity: 2 }, lean: { future: 2 }, affinity: { elias: 5, jiro: 3 }, reply: [`The ring goes colder by a degree a day until it stops. People start sleeping in their jackets, and then stop mentioning it.`, { who: "elias", text: `"Correct," Elias says, and checks the margin figure twice, as if the number might be warmer than the corridor.` }] }
       ];
       const enabled = routes.some(choice =>
         (!choice.requires || meetsRequirements(choice.requires)) &&
         (!choice.effects || canAffordEffects(choice.effects))
       );
       if (!enabled) {
-        routes.push({ text: "Leave the board as it stands.", next: "vault_sacrifice" });
+        routes.push({ text: "Leave the board as it stands.", next: "vault_sacrifice", reply: [`The board stays as it stands. The shortages schedule themselves.`] });
       }
       return routes;
     }

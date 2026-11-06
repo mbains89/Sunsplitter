@@ -125,7 +125,7 @@ registerScenes({
     get text() { return `You draft the rules and post them.\n\nRations enforced. Work mandatory. Disobedience punished by reduced shares.\n\n${isAlive("elias") ? `Elias smiles with half his mouth.` : ""} ${isAlive("mira") ? `Mira looks at the list and says nothing.` : ""}\n\nTwo survivors stop speaking when you pass.\n\nOrder returns. Trust does not.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis", effects: { integrity: 1 } },
-      { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 } }
+      { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 }, reply: [`You do it at the galley hatch yourself: one ration short for everyone, your own included, the cut marked on the board in your hand.`, { who: "elias", text: `Elias watches you mark it. "Now it is real," he says. "Now they hate the rule instead of me. Thank you, Commander." He might even mean it.` }] }
     ]
   },
   lead_watch: {
@@ -138,7 +138,7 @@ registerScenes({
     get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The knowledge sits in your chest like a stone.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
-      { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
+      { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 }, reply: [{ who: "elias", text: `"Quietly," Elias agrees. He does not write the names down. He never needed to.` }] }
     ]
   },
   // PRE: existing engineering call; capacitor label only, no entry change

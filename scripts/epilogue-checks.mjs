@@ -127,7 +127,8 @@ export function epilogueChecks(runtime) {
           { text: "Take the temperature change as data. Move on.", next },
           { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 } }
         ];
-        expect(JSON.stringify(scenes.debt_notice.choices) === JSON.stringify(expectedChoices), "epilogue choices changed");
+        // exits and effects are pinned; the reply line (L-057) is prose and is not part of this contract
+        expect(JSON.stringify(scenes.debt_notice.choices.map(({ reply, ...choice }) => choice)) === JSON.stringify(expectedChoices), "epilogue choices changed");
         if (legacy) delete saved.sceneEntered;
         const raw = JSON.stringify(saved);
         expect(importSaveText(raw), "valid epilogue import rejected");
@@ -138,7 +139,7 @@ export function epilogueChecks(runtime) {
           if (!legacy) expect(readRawSave() === raw, "marked imported bytes changed");
           if (repeat) expect(readRawSave() === adopted, "repeat Continue rewrote save");
           adopted = readRawSave();
-          expect(JSON.stringify(scenes.debt_notice.choices) === JSON.stringify(expectedChoices), "restore changed exits");
+          expect(JSON.stringify(scenes.debt_notice.choices.map(({ reply, ...choice }) => choice)) === JSON.stringify(expectedChoices), "restore changed exits");
         }
       }
     } finally { window.confirm = confirm; }
