@@ -63,6 +63,17 @@ registerScenes({
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
         opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
+      // SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): crew disagreeing with each other, one-shot,
+      // gated on both living and on the run fact they argue about. One flag per pair, written by the answer.
+      if (isAlive("elias") && isAlive("tomas") && !state.flags.tomas_scapegoated && state.flags.ship_memory && !state.flags.pair_seal) {
+        opts.push({ text: "Elias and Tomas are at the Deck 4 dog. The argument is about the feedstock.", next: "pair_seal_ledger" });
+      }
+      if (isAlive("mira") && isAlive("jiro") && state.flags.margin_committed && !state.flags.pair_burn) {
+        opts.push({ text: "Jiro has asked Mira for her solution. The pane is closed.", next: "pair_burn_archive" });
+      }
+      if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
+        opts.push({ text: "Jiro's fix is on the tracker board, Vess's night log beside it. They are not looking at each other.", next: "pair_fix_track" });
+      }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
       }
@@ -128,8 +139,8 @@ registerScenes({
     },
     text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
     choices: [
-      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } },
-      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding" }
+      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 }, reply: [{ who: "mira", text: `The burn is clean and expensive. Mira reads the reaction-mass figure aloud once, to the tenth of a percent, and never says it again.` }] },
+      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding", reply: [{ who: "mira", text: `The seal takes on the third try. Mira stays at the collar with her palm flat on the weld until the pressure has held for an hour. "Rough," she reports. "Not failing. Rough is a condition I can live with. I will check it at oh-four-hundred."` }] }
     ]
   },
 

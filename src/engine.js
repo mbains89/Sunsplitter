@@ -1279,6 +1279,16 @@ function showWhatRemains() {
   if (!el) return;
   const facts = typeof whatRemainsFacts === "function" ? whatRemainsFacts() : [];
   el.textContent = facts.length ? facts.join("\n\n") : "What remains of this run is thin — names, debts, and the corridor you just left.";
+  // SUN-CREW-EPILOGUES-01: one paragraph per crew member under the reflection lines, in its own
+  // element so the 3–6 reflection lines (L-008) and the checks that pin them are unchanged.
+  const crewEl = document.getElementById("what-remains-crew");
+  const crewHeading = document.getElementById("what-remains-crew-heading");
+  if (crewEl) {
+    const paragraphs = typeof crewEpilogues === "function" ? crewEpilogues() : [];
+    crewEl.textContent = paragraphs.join("\n\n");
+    crewEl.classList.toggle("hidden", !paragraphs.length);
+    if (crewHeading) crewHeading.classList.toggle("hidden", !paragraphs.length);
+  }
   showScreen("what-remains");
   const heading = document.getElementById("what-remains-heading");
   if (heading && typeof heading.focus === "function") {
@@ -2068,6 +2078,8 @@ function validImportedSnapshot(data) {
   const flagDomains = Object.fromEntries(Object.entries({
     abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
     mira_root_cause: ["drive", "you", "both"], vess_item_two: ["floor", "chair"], amara_page: ["open", "closed", "hers"], sela_amber: ["meaning", "sentence", "silence"],
+    // SUN-CREW-FRICTION-01: one flag per pair scene, written by the Commander's answer.
+    pair_triage: ["chart", "count", "open"], pair_seal: ["bulkhead", "names", "both"], pair_burn: ["finding", "width", "both"], pair_fix: ["fix", "track", "both"],
     breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
     coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
     custody_answer: ["severed", "possession", "thawed", "shared"],
