@@ -64,22 +64,25 @@ registerScenes({
     get text() {
       if (!isAlive("amara")) return `The light in hydroponics is off. Nobody left it on.`;
       let t = `The kettle's gone cold and she doesn't refill it. That's how you know the hour's run over into something else.\n\n`;
-      t += `She takes a book down from behind the seed trays — cloth-bound, swollen with damp, the kind of thing that survives power loss — and opens it to a page with your rank at the top and no name under it.\n\n`;
-      t += `"Everyone aboard is owed by someone who isn't," she says. "I keep that ledger too. This is yours."\n\n`;
+      t += `She takes a book down from behind the seed trays — cloth-bound, swollen with damp — and opens it to a page with your rank at the top and no name under it.\n\n`;
+      t += `"There's a book I keep on who's owed what aboard," she says. "Handwritten, so it can't be pulled or argued with. This is your page."\n\n`;
       t += `She reads it to you the way she reads a yield sheet.\n\n`;
       if (state.flags.pursuit_amara_cost === "vent_delay") {
-        t += `"One cycle of a contaminated vent, held for roots, claimed on the board in your name while you were in my bed. Debit the ship: supplies, hull, the room's temper. Credit you: the roots lived. I wrote both columns. I'll not edit either."\n\n`;
+        t += `"One cycle of a contaminated vent, held for roots, claimed on the board in your name while you were inside me. I said I'd not edit that line. I haven't. Debit the ship: supplies, hull, the room's temper. Credit you: the roots lived. Both columns, my hand."\n\n`;
       } else if (state.flags.pursuit_amara_cost === "half") {
         t += `"Half a cycle of a contaminated vent, held for roots, haggled down. Debit the ship: a little. Credit you: a little. It's an honest half, love. I've seen it written up as a whole."\n\n`;
       } else {
-        t += `"The bay. One entry, and the rest of the page blank. Blank's honest."\n\n`;
+        t += `"The bay. One entry. Blank's honest."\n\n`;
       }
       if (state.flags.hydro === "full") t += `"Margin given to the green when the ship wanted it elsewhere. Credit."\n\n`;
-      if (state.flags.breath_answer === "garden") t += `"The garden, spent on breathing. That one's in your credit and it's in my hand, and the hand shook, so mind the ink."\n\n`;
-      if (state.promises.amara === "kept") t += `"A vent held shut with a reader inside it. Kept. That's not credit, love. That's the line you wrote, honoured. Different column."\n\n`;
+      if (state.flags.breath_answer === "garden") t += `"The garden, spent on breathing. That one's in your credit and it's in my hand. Mind the ink. It doesn't clear the other."\n\n`;
+      if (state.promises.amara === "kept") t += `"A vent held shut with a reader inside it. Kept. That's not credit, love. That's the line you wrote, honored. Different column."\n\n`;
       else if (state.promises.amara === "broken") t += `"A pocket vented with a reader still breathing. Broken. I don't write that in your column. I write it in mine, as the thing I'll not forget."\n\n`;
+      else if (state.promises.amara === "made") t += `"And a line of yours, banked. Not called yet, so not read."\n\n`;
       t += `She lays her hand flat on the page, not the book.\n\n`;
-      t += `"Who's owed? That's the question I'm for. On this page, love, nobody's owed enough to fight over. That isn't a balance. It's a book I can carry."\n\n`;
+      t += `"Who's owed? That's the question I'm for, and I'll not answer it on your page for you. I read it out so you'd know it's kept."\n\n`;
+      // Same read as the absolution hour: a withheld Amara says the harder thing.
+      if (!(stillFavoring("amara") || (state.affinity.amara || 0) >= 20)) t += `"You're drawing more than you return on this page, love. I said it kindly. I didn't say it wasn't so."\n\n`;
       t += `"Now. Do I leave it open?"`;
       return t;
     },
@@ -111,11 +114,11 @@ registerScenes({
       if (state.flags.amara_page === "open") {
         t = `"Open, then." She writes nothing. "Interest runs on an open page. I'll not pretend it doesn't, and I'll not charge it tonight." She puts the book back behind the trays with the page marked by a seed packet.`;
       } else if (state.flags.amara_page === "closed") {
-        t = `"Closed." She draws one line under the last entry, straight, with a rule she keeps for the purpose. "Closed isn't forgiven, love. Closed is I've stopped counting. You'll learn the difference the first time you want me to start again."`;
+        t = `"Closed." She draws one line under the last entry, straight, with the rule she keeps for it. "Closed isn't forgiven, love. Closed is I've stopped counting. You'll learn the difference the first time you want me to start again."`;
       } else {
-        t = `She turns the book around. Her page is long, every name on it in the same hand, and none of them aboard.\n\n"Three habitats. One street in Lagos. All of them owed me and none of them paid, because they couldn't, because they're dead. That's not a grievance. It's the debt kept where I can read it." She takes the book back before you can read the names. "Yours is short. Keep it short."`;
+        t = `She turns the book around. Her page is long, every name on it in the same hand, and none of them aboard.\n\n"Three habitats' worth. One street in Lagos. All of them owed me and none of them paid, because they couldn't, because they're dead. That's not a grievance. It's what the book's for."${state.promises.amara === "broken" ? ` A beat. "And one from this ship, this watch. That ink's not dry."` : ""} She takes the book back before you can read the names. "Yours is short. Keep it short."`;
       }
-      t += `\n\nThe light stays on when you go. It was always the whole invitation.`;
+      t += `\n\nThe light stays on when you go.`;
       return t;
     },
     choices: [

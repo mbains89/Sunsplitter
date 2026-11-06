@@ -1060,7 +1060,7 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-04 (L-050): Amara's end state, cited from the answer the run gave.
   if (state.flags.amara_page) {
-    const page = state.flags.amara_page === "open" ? `Amara read you your page in her ledger and left it open. Interest runs; she is not charging it.`
+    const page = state.flags.amara_page === "open" ? `Amara read you your page in her ledger and left it open. Interest runs; she had not charged it.`
       : state.flags.amara_page === "closed" ? `Amara read you your page in her ledger and closed it at your asking. Closed, not forgiven; she said you'd learn the difference.`
       : `Amara read you your page in her ledger, then showed you hers: the long one, every name on it dead and none of them paid.`;
     text += `\n\n${page}${isAlive("amara") ? "" : " That fact outlived her."}`;

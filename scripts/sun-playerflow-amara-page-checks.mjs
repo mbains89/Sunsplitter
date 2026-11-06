@@ -39,7 +39,8 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
     full: page(() => { state.flags.pursuit_amara_cost = "vent_delay"; state.flags.hydro = "full"; state.flags.breath_answer = "garden"; state.promises.amara = "kept"; }),
     half: page(() => { state.flags.pursuit_amara_cost = "half"; state.promises.amara = "broken"; }),
     blank: page(() => { state.promises.amara = "made"; }),
-    declined: page(() => { state.promises.amara = "declined"; })
+    declined: page(() => { state.promises.amara = "declined"; }),
+    withheld: page(() => { state.affinity.amara = 5; })
   };
   // Never rendered: dead, not a partner, shared-bay only, reply without an answer.
   fresh(); state.romance.amara = true; kill("amara", "fixture"); showScene("amara_page");
@@ -70,14 +71,16 @@ for (const answer of ["open", "closed", "hers"]) {
   assert.equal(r.flag, answer, `${answer}: flag not written`);
   assert.equal(r.reply, "amara_page_reply", `${answer}: did not reach her reply`);
   assert.ok(r.resourcesUnchanged, `${answer}: a resource changed`);
-  assert.ok(r.replyText.includes("the whole invitation"), `${answer}: reply text missing`);
+  assert.ok(r.replyText.includes("The light stays on when you go."), `${answer}: reply text missing`);
   assert.equal(r.after, "faction_split", `${answer}: exit did not reach faction_split`);
 }
 assert.ok(out.answers.open.replyText.includes("Interest runs") && out.answers.closed.replyText.includes("stopped counting") && out.answers.hers.replyText.includes("Lagos"), "reply text does not follow the answer");
 assert.ok(out.page.full.includes("One cycle of a contaminated vent") && out.page.full.includes("Margin given to the green") && out.page.full.includes("spent on breathing") && out.page.full.includes("Kept."), "page: full run entries missing");
 assert.ok(out.page.half.includes("Half a cycle") && out.page.half.includes("Broken.") && !out.page.half.includes("Margin given"), "page: half/broken entries wrong");
-assert.ok(out.page.blank.includes("Blank's honest") && !out.page.blank.includes("Kept.") && !out.page.blank.includes("Broken."), "page: untested promise was read aloud (L-024)");
-assert.ok(!out.page.declined.includes("Kept.") && !out.page.declined.includes("Broken."), "page: declined promise was read as tested");
+assert.ok(out.page.blank.includes("Blank's honest") && out.page.blank.includes("Not called yet, so not read") && !out.page.blank.includes("Kept.") && !out.page.blank.includes("Broken."), "page: untested promise was read as tested (L-024)");
+assert.ok(out.page.half.includes("drawing more than you return") === false, "page: withheld line shown while favored");
+assert.ok(!out.page.declined.includes("Kept.") && !out.page.declined.includes("Broken.") && !out.page.declined.includes("banked"), "page: declined promise was read as tested");
+assert.ok(out.page.withheld.includes("drawing more than you return"), "page: withheld line missing at low affinity");
 assert.notEqual(out.dead.scene, "amara_page", "dead Amara rendered the page");
 assert.ok(!out.dead.text.includes("Do I leave it open?"), "dead Amara's page text rendered");
 assert.equal(out.dead.flag, false, "dead Amara wrote the flag");
