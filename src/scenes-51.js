@@ -113,8 +113,80 @@ registerScenes({
           remember: "spent the last long-range window answering a dead ship's beacon"
         });
       }
+      // SUN-ROMANCE-ARC-03 (L-050): item two has a scene behind it. Partner only; she initiated above.
+      if (state.romance.vess) {
+        c.push({ text: "Solve it.", next: "vess_item_two", tag: "private" });
+      }
       return c;
     }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: vess_item_two              TICKET: SUN-ROMANCE-ARC-03 (L-050, Wave 1)
+  // PRE: Vess recovered and living, romance.vess; reached only from offshift_vess "Solve it.";
+  //   junctionChoice is already "vess". Text branches on flags.vess_intimate.
+  // WRITES: none on entry. The two answers write flags.vess_item_two ("floor" | "chair") plus
+  //   affinity/trust; no resource change.
+  // DEATH: none. DEAD/UNRECOVERED: entry redirects to faction_split (onEnter + living-cast
+  //   contract in scenes-55); no dead text is rendered.
+  // IMAGE: REUSE images/vess.jpg, the official portrait offshift_vess already uses. No new art.
+  // LOCK: ROADMAP §2 — shorter, different currency, asymmetric, power stays hers. She sets the
+  //   problem and rules on the answer; nothing here spends a ship resource.
+  // ═════════════════════════════════════════════════════════════════
+  vess_item_two: {
+    image: "images/vess.jpg",
+    onEnter: () => {
+      if (!isAlive("vess") || !state.romance.vess) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("vess")) return `The relay bay runs on console light and nobody.`;
+      let t = `She does not get up. That is the problem as stated.\n\n`;
+      t += `The chair is rated for one. The arm is worn pale where her elbow has lived. The other seat, the one she gave you for item one, is on the far side of the rack, which is not where item two is.\n\n`;
+      if (state.flags.vess_intimate) {
+        t += `"I said I would not ask again. I'm not asking. I'm stating a load rating and an occupancy of one, and I'm not moving." A beat, the half-beat-late one. "Dawnbreak solved this with a rota. There's no rota. Solve it."\n\n`;
+      } else {
+        t += `"The attempt was accepted and the window stayed with the ship. Logged as: pending. I don't reopen pending items. I state them." A beat, the half-beat-late one. "Load rating one. Occupancy one. Not moving. Solve it."\n\n`;
+      }
+      t += `"Captain—" The correction comes a beat behind, the way it always does. "Commander."`;
+      return t;
+    },
+    get choices() {
+      if (!isAlive("vess")) return [{ text: "Leave the bay.", next: "faction_split" }];
+      return [
+        { text: "Take the deck beside the chair. Let her keep it.", next: "vess_item_two_logged", flag: { vess_item_two: "floor" }, affinity: { vess: 4 } },
+        { text: "Share the chair. It is rated for one.", next: "vess_item_two_logged", flag: { vess_item_two: "chair" }, affinity: { vess: 6 }, trust: { vess: 2 } }
+      ];
+    }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: vess_item_two_logged       TICKET: SUN-ROMANCE-ARC-03 (L-050, Wave 1)
+  // PRE: Vess living; flags.vess_item_two set by vess_item_two. Her ruling on the answer.
+  // WRITES: none. DEATH: none. DEAD/UNRECOVERED: entry redirects.
+  // IMAGE: REUSE images/vess.jpg. No new art.
+  // NOTE: spends two CHARACTER_BIBLE beats here, once each: the "Dawnbreak log, personal" register
+  //   and the day she stops correcting "Captain".
+  // ═════════════════════════════════════════════════════════════════
+  vess_item_two_logged: {
+    image: "images/vess.jpg",
+    onEnter: () => {
+      if (!isAlive("vess")) return "faction_split";
+      if (!state.flags.vess_item_two) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("vess")) return `The relay bay runs on console light and nobody.`;
+      let t;
+      if (state.flags.vess_item_two === "chair") {
+        t = `The chair takes the load. It complains in the arm she does not use, and she lets it. Her elbow goes to the pale place out of six years of habit, finds yours there instead, and stays.\n\n"Rated for one. Occupancy two. No fault found." Then, in log register and not quite in log register: "Dawnbreak log, personal. Rating exceeded. Holding."\n\n`;
+      } else {
+        t = `You sit on the deck plating with your back to the rack, below the worn arm. She looks down at the arrangement for the length of a verification cycle.\n\n"Occupancy one. Company present. No fault found." Then, in log register and not quite in log register: "Dawnbreak log, personal. Chair held. Didn't have to."\n\n`;
+      }
+      t += `The console light does what it does. She answers the next thing you say a full second late, at human tempo, and this time it is not a gift she is handing you. It is the tempo she has.\n\n"Captain." She does not correct it.`;
+      return t;
+    },
+    choices: [
+      { text: "Let the item stay open.", next: "faction_split" }
+    ]
   },
 
   // ═══════════════════════════════════════════════════════════════

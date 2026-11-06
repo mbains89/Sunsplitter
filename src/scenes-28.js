@@ -103,6 +103,12 @@ registerScenes({
       } else {
         t += `You still have no destination. You can set one, or refuse the idea that a destination is required.\n\n`;
       }
+      // SUN-ROMANCE-ARC-03 (L-050): the spent window is named at the decision it closes. Text only.
+      if (state.flags.last_tx_spent) {
+        t += state.flags.vess_intimate && isAlive("vess") ? `There is no final transmission left to send. The last outward window went out carrying Vess's six years of logs. She has the record of that. So do you.\n\n`
+          : state.flags.vess_intimate ? `There is no final transmission left to send. The last outward window went out carrying Vess's six years of logs, before she died. The record of that is yours now.\n\n`
+          : `There is no final transmission left to send. The last outward window went to a dead ship's beacon, answering a name nobody alive was keeping.\n\n`;
+      }
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       if (debt.length) {
         t += `Some of the people you still need have been rationing their help: ${debt.map(k => crew[k] ? crew[k].name : k).join(", ")}.\n\n`;

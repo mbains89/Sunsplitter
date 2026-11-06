@@ -18,6 +18,8 @@ const VERSION = "0.36";
 //   lena_last_hour scene; read by the ending footer). One flag per arc end state, no meters.
 //   mira_root_cause ("drive" | "you" | "both"; written by the mira_root_cause answers; read by
 //   mira_root_cause_logged, offshift_mira and the ending footer).
+//   vess_item_two ("floor" | "chair"; written by the vess_item_two answers; read by
+//   vess_item_two_logged and the ending footer).
 
 function freshState() {
   return {
