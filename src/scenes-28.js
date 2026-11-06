@@ -30,7 +30,7 @@ registerScenes({
       return opts;
     },
     get image() {
-      return isAlive("sela") ? "images/sela_ritual.jpg" : "images/observation.jpg";
+      return isAlive("sela") ? "images/sela_ritual.jpg" : "images/art_r2_observation_wreck.jpg";
     }
   },
 

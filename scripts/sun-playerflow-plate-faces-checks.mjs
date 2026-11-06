@@ -43,6 +43,43 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   if (resolveSceneImage("status", scenes.status) !== "images/art_r2_observation_wreck.jpg") fallbackErrors.push("status without Elias did not use the observation fallback");
   resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("amara");
   if (resolveSceneImage("empty_berths", scenes.empty_berths) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("empty_berths without Amara did not use the berths fallback");
+  // SUN-PLATE-FACES-07 (Muse E.1-E.4/E.6): pinned face rosters and fallbacks, and the renders they change.
+  const PINNED_FACES = {
+    "images/observation.jpg": ["elias", "tomas"],
+    "images/vess_boarding.jpg": ["vess", "lena"],
+    "images/act3_reckoning_pattern.jpg": ["tomas", "lena", "mira", "sela"],
+    "images/arc_future_3.jpg": ["mira", "jiro"],
+    "images/power_crisis.jpg": ["mira"],
+    "images/arc_living_3.jpg": ["tomas", "elias"],
+    "images/lead_together.jpg": ["elias", "amara"],
+    "images/vault_sacrifice.jpg": ["mira", "elias"],
+    "images/ship_interrupt_resolve.jpg": ["mira"]
+  };
+  for (const [plate, faces] of Object.entries(PINNED_FACES)) {
+    if (JSON.stringify(PLATE_FACES[plate]) !== JSON.stringify(faces)) fallbackErrors.push(plate + " face roster is not " + faces.join(","));
+  }
+  const PINNED_FALLBACKS = {
+    "images/observation.jpg": "images/art_r2_observation_wreck.jpg",
+    "images/vess_boarding.jpg": "images/art_r2_empty_berths.jpg"
+  };
+  for (const [plate, fallback] of Object.entries(PINNED_FALLBACKS)) {
+    if (PLATE_FACE_FALLBACK[plate] !== fallback) fallbackErrors.push(plate + " does not fall back to " + fallback);
+  }
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("lena");
+  if (resolveSceneImage("vess_boarding", scenes.vess_boarding) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("vess_boarding without Lena did not use the berths fallback");
+  resetRunState(); state.recovered.jiro = state.recovered.vess = true;
+  if (resolveSceneImage("status", scenes.status) !== "images/art_r2_observation_wreck.jpg") fallbackErrors.push("status with Tomas unrecovered did not use the observation wreck");
+  resetRunState(); state.recovered.tomas = state.recovered.vess = true;
+  if (resolveSceneImage("competence_watch", scenes.competence_watch) !== "images/observation_bridge_alt_2.jpg") fallbackErrors.push("competence_watch with Jiro unrecovered did not use observation_bridge_alt_2");
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("sela");
+  // sun_payoff renders its HITL event plate (face-gated on Sela); its own dead-Sela image string is pinned too.
+  if (scenes.sun_payoff.image !== "images/art_r2_observation_wreck.jpg") fallbackErrors.push("sun_payoff dead-Sela image is not the observation wreck");
+  if (resolveSceneImage("sun_payoff", scenes.sun_payoff) === "images/sun_payoff.jpg") fallbackErrors.push("sun_payoff without Sela still shows Sela");
+  if (sceneImages.arc_future_4 !== "images/power_stress_1.jpg") fallbackErrors.push("arc_future_4 is not mapped to power_stress_1.jpg");
+  // Retired plates (people or baked text) must not render from any scene under any checked roster.
+  for (const plate of ["images/observation.jpg", "images/observation_bridge.jpg", "images/abandoned_section.jpg"]) {
+    if (rendered.has(plate)) fallbackErrors.push(plate + " still renders");
+  }
   return { checked, bad, plates: Object.keys(PLATE_FACES).length, fallbackErrors, fallbacks: [...new Set(Object.values(PLATE_FACE_FALLBACK))],
     rendered: [...rendered], faced: Object.keys(PLATE_FACES) };
 })())`));
