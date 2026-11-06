@@ -70,8 +70,93 @@ registerScenes({
           { text: "Let the lamp go amber and step back.", next: "faction_split", mark: { sela: "declined" } }
         ];
       }
-      return [ { text: "Stand with her until amber.", next: "faction_split" } ];
+      const c = [ { text: "Stand with her until amber.", next: "faction_split" } ];
+      // SUN-ROMANCE-ARC-05 (L-050): a partner may stay past amber; what follows is not the ritual.
+      if (state.romance.sela) c.push({ text: "Stay past amber.", next: "sela_past_amber", tag: "private" });
+      return c;
     }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: sela_past_amber            TICKET: SUN-ROMANCE-ARC-05 (L-050, Wave 1)
+  // PRE: Sela living and romance.sela; reached only from offshift_sela "Stay past amber.";
+  //   junctionChoice is "sela". Text reads pursuit_sela_cost, sela_vault_vow, custody_answer and
+  //   promises.sela (kept/broken only; an untested promise is not read aloud, L-024). Adjacent to,
+  //   never inside, the locked lamp-ritual prose: the lamp is amber before she speaks.
+  // WRITES: none on entry. The three answers write flags.sela_amber ("meaning" | "sentence" |
+  //   "silence") plus affinity/trust; no resource change.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when she is dead or not
+  //   a partner (onEnter + living-cast contract in scenes-55).
+  // IMAGE: REUSE images/sela.jpg, the portrait the resolver already serves for the off-shift. No new art.
+  // ═════════════════════════════════════════════════════════════════
+  sela_past_amber: {
+    image: "images/sela.jpg",
+    onEnter: () => {
+      if (!isAlive("sela") || !state.romance.sela) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("sela")) return `The lamp is cold. Nobody lit it.`;
+      let t = `The lamp goes amber on schedule. She does not relight it.\n\n`;
+      t += `"The ritual is finished," she says. "What follows is not the ritual, so I will say it in ordinary sentences, and I will say it with the lamp down, so that it is not mistaken for liturgy later."\n\n`;
+      if (state.flags.pursuit_sela_cost === "vow") {
+        t += `"You spoke the vow where the ship could log it. Neither of us secures the other a place in the vault. I have read the entry twice since. It is still there. It is the only entry about us I wanted to exist."\n\n`;
+      } else if (state.flags.pursuit_sela_cost === "private_vow") {
+        t += `"You spoke the vow to me and not to the ship. I accepted that. I have not forgotten that I accepted it. If the room ever asks, there is no entry to show them. There is my sentence, and I keep my sentences."\n\n`;
+      } else if (state.flags.sela_vault_vow === "refused") {
+        t += `"You refused the vow and left the plate. I counted that as honest. It is still counted. A refusal is also a complete sentence."\n\n`;
+      } else {
+        t += `"There was one measurement. I did not ask for a series, and I do not ask twice. The measurement stands."\n\n`;
+      }
+      if (state.flags.custody_answer === "shared") {
+        t += `"You hold the first key to the vault and I hold the second. Where I was raised, that sentence has one meaning. I will not translate it. You will work it out, or you will not, and the key is the same either way."\n\n`;
+      }
+      if (state.promises.sela === "kept") {
+        t += `"You stood between me and the room. I have not thanked you, because it was promised, and one does not thank a kept promise. One records it."\n\n`;
+      } else if (state.promises.sela === "broken") {
+        t += `"You let the room have its answer. I said the word spent and I meant it. It is still spent. I am standing here anyway, because standing here is not a claim on you. It is a fact about me."\n\n`;
+      }
+      t += `"Tonight is not a claim on the next watch either. I say that each time so that it stays true."\n\n`;
+      t += `She waits. She does not fill the silence. She never has.`;
+      return t;
+    },
+    get choices() {
+      if (!isAlive("sela")) return [{ text: "Leave the lamp.", next: "faction_split" }];
+      return [
+        { text: "Ask what the ritual means when it is for one person.", next: "sela_past_amber_reply", flag: { sela_amber: "meaning" }, affinity: { sela: 5 }, trust: { sela: 2 } },
+        { text: "Ask her for the sentence she is holding.", next: "sela_past_amber_reply", flag: { sela_amber: "sentence" }, affinity: { sela: 5 }, trust: { sela: 2 } },
+        { text: "Say nothing. Stay until the filter stops.", next: "sela_past_amber_reply", flag: { sela_amber: "silence" }, affinity: { sela: 5 }, trust: { sela: 2 } }
+      ];
+    }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: sela_past_amber_reply      TICKET: SUN-ROMANCE-ARC-05 (L-050, Wave 1)
+  // PRE: Sela living; flags.sela_amber set by sela_past_amber. Her answer to the answer.
+  // WRITES: none. DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects.
+  // IMAGE: REUSE images/sela.jpg. No new art.
+  // ═════════════════════════════════════════════════════════════════
+  sela_past_amber_reply: {
+    image: "images/sela.jpg",
+    onEnter: () => {
+      if (!isAlive("sela")) return "faction_split";
+      if (!state.flags.sela_amber) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("sela")) return `The lamp is cold. Nobody lit it.`;
+      let t;
+      if (state.flags.sela_amber === "meaning") {
+        t = `"For the ship it means the dead are named and the living are counted. For one person it means the person is counted on purpose."\n\nA pause the length of a name.\n\n"That is the whole of the meaning. I have not simplified it. There was never more than that, and it was never less."`;
+      } else if (state.flags.sela_amber === "sentence") {
+        t = `"No."\n\nShe says it in the same voice as everything else, which with her is the kind voice.\n\n"A finished sentence is a claim, and I said this was not one. I keep one sentence unfinished. It is mine. You may stand near it. That is what you are doing."`;
+      } else {
+        t = `The filter runs down to nothing. She does not fill the silence; she never has. When the dark is complete she says, "That was the correct amount of speech," and you understand that this is the nearest thing to a joke she makes, and that it was meant.`;
+      }
+      t += `\n\nShe leaves the lamp where it is. Tomorrow it will be lit for the ship again.`;
+      return t;
+    },
+    choices: [
+      { text: "Leave the lamp where it is.", next: "faction_split" }
+    ]
   },
 
   // SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 — image-only repair.
