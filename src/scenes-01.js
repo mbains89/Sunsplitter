@@ -6,13 +6,13 @@ registerScenes({
 
   time_pass: {
     get text() {
-      let base = `Days pass. Or what pass for days on a ship with no sun.\n\nThe hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections. The daylight panels still rise and set on a schedule that no longer means anything.`;
+      let base = `Days pass. Or what pass for days on a ship with no sun.\n\nThe hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections.`;
 
       if (state.flags.priority === "repairs") {
-        if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. The temporary patches hold better than expected. She has begun sleeping in engineering rather than the common area.`;
-        else base += `\n\nThe early seal work pays off in small ways. The temporary patches hold better than expected. Engineering stays occupied even without her.`;
+        if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. She has begun sleeping in engineering rather than the common area.`;
+        else base += `\n\nThe early seal work pays off in small ways. Engineering stays occupied even without her.`;
       } else if (state.flags.priority === "ration") {
-        base += `\n\nThe rationing is working. Supplies fall more slowly. People move more carefully.`;
+        base += `\n\nThe rationing is working. People move more carefully.`;
         if (isAlive("sela")) base += ` Sela has stopped asking for more paste.`;
         if (isAlive("amara")) base += ` Amara has started weighing every tray twice.`;
       } else if (state.flags.priority === "planet") {
@@ -53,11 +53,11 @@ registerScenes({
         base += `\n\nAmara left a second leaf on the common-area table. It is already browning. No one has thrown it away.`;
       }
       if (state.deathCause.rourke) {
-        base += `\n\nSomeone has moved Rourke's body bag to a colder section. The corner of medical is empty now. The absence is noticed.`;
+        base += `\n\nSomeone has moved Rourke's body bag to a colder section.`;
       }
 
-      base += `\n\nThen the alarm sounds.`;
-      base += `\n\nIn the quiet cycles the ship shows its original scale: corridors that never warm fully, a mess hall with nine places set and a hundred left stacked, a PA system that still has channels labeled for departments that do not exist on this voyage.`;
+      // SUN-DIET-TRIMS-01: the remembered-choice lines below open their own paragraph; the alarm closes the scene.
+      base += `\n\n`;
       if (isAlive("mira") && state.flags.power === "risk") {
         base += ` Mira's risky grid still holds. Competence without applause.`;
       }
@@ -73,6 +73,7 @@ registerScenes({
         base += ` The jury-rigged Deck 4 seal holds for now. Mira's notes call it provisional.`;
       }
 
+      base += `\n\nThen the alarm sounds.`;
       return base;
     },
     choices: [
