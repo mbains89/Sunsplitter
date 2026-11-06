@@ -75,11 +75,13 @@ registerScenes({
       {
         text: "Pull them out. Log the exposure.",
         next: "breath_after",
-        effects: { cohesion: -5, integrity: -1 }
+        effects: { cohesion: -5, integrity: -1 },
+        reply: [`You call the suits back before the trunks are clean. Every name goes on the exposure log, with every minute, where anyone can read who was sent.`, { who: "lena", text: `Lena opens a chart for each name on it. "Logged exposure I can treat," she says. "Unlogged, it is just people coughing in the dark."` }]
       },
       {
         text: "Seal the fouled branch. Spend nothing more here.",
-        next: "breath_after"
+        next: "breath_after",
+        reply: [`You seal the fouled branch where it is. The suits come out, the hatch dogs shut, and the trunk drops off the air schematic as if it had never carried air.`]
       }
     ]
   },

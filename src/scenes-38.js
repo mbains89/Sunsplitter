@@ -61,8 +61,8 @@ registerScenes({
   silence: {
     get text() { return `You do not speak.\n\nThe silence stretches. Someone starts to cry. ${isAlive("elias") ? `Elias loses patience.\n\n"Commander. We need orders. Now."` : ""}\n\nRourke dies while you are still deciding what to say. ${isAlive("lena") ? `Lena covers his face without looking at you.` : ""}\n\nThe weight of their eyes is heavier than the silence was.`; },
     choices: [
-      { text: "Break the silence. Find Lena.", alive: "lena", next: "intro_lena", effects: { cohesion: 2 } },
-      { text: "Break the silence. Demand a status report from whoever will give one.", next: "intro_lena", effects: { cohesion: -1 }, affinity: { elias: 4 } }
+      { text: "Break the silence. Find Lena.", alive: "lena", next: "intro_lena", effects: { cohesion: 2 }, reply: [{ who: "lena", text: `Your voice comes back rough. You say Lena's name once and cross the bay to her, and the room starts moving again behind you.` }] },
+      { text: "Break the silence. Demand a status report from whoever will give one.", next: "intro_lena", effects: { cohesion: -1 }, affinity: { elias: 4 }, reply: [`"Status," you say, to the whole room. "Anyone."`, { who: "elias", text: `Elias answers first. "One dead. Hull holding, for now. The doctor has the rest, Commander."` }] }
     ],
     onEnter: () => {
       kill("rourke", "died in silence while orders waited");
