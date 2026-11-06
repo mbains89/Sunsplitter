@@ -110,7 +110,9 @@ registerScenes({
       if (romanceOpen("lena")) {
         opts.push({ text: "Return to Lena while there is still time.", next: "bond_lena", alive: "lena", tag: "private" });
       }
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && state.flags.hydro === "full") {
+      // SUN-AMARA-WALKIN-GATE-01: closed by the shared night, by leaving them their privacy, or by
+      // asking them to stop, matching the spine offer; asking once used to re-offer the same walk-in.
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && !hasMark("amara", "interrupted") && state.flags.hydro === "full") {
         opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
       }
       opts.push({ text: "Keep the private hours for work. Move on.", next: "debt_notice", effects: { integrity: 1 } });
