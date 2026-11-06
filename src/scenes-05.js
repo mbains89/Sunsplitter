@@ -49,10 +49,10 @@ Not an alarm. A voice. Soft, almost childlike, cycling through fragments of the 
       if (state.flags.past === "lena_only") state.past_known_by.lena = true;
     },
     choices: [
-      { text: "Disable the voice. It is a system, not a ghost.", next: "arc_fork", effects: { cohesion: -3, integrity: 2 }, flag: { vault_voice: "off" }, lean: { future: 2 }, reply: [`You cut the audio at the panel. The voice stops partway through a name, and nobody in the room finishes it.`, { who: "elias", text: `Elias checks the cutoff himself. "A voice that is not giving orders is still giving orders," he says. "Not anymore."` }] },
+      { text: "Disable the voice. It is a system, not a ghost.", next: "arc_fork", effects: { cohesion: -3, integrity: 2 }, flag: { vault_voice: "off" }, lean: { future: 2 }, reply: [`You cut the audio at the panel. The voice stops partway through a name, and nobody in the room finishes it.`, { who: "elias", text: `Elias checks the cutoff himself and tags the breaker. "Off at the panel," he says. "Nobody turns it back on without your order, Commander."` }] },
       { text: "Leave it. Let people hear what they need to hear.", next: "boarding_stories", effects: { cohesion: 4, supplies: -1 }, flag: { vault_voice: "on" }, lean: { living: 2 }, requires: { cohesion: { min: 30 } } },
-      { text: "Restrict access. Only you and Mira hear it from now on.", next: "arc_fork", effects: { cohesion: -1, integrity: 1 }, flag: { vault_voice: "restricted" }, requires: { trust: { mira: 40 } }, alive: "mira", reply: [{ who: "mira", text: `Mira locks the audio to two command keys and hands you one. "Status reports only, routed to us. If it starts reading names again, I want root cause before anyone else hears it."` }] },
-      { text: "Leave the panel untouched. Move on.", next: "arc_fork", reply: [`You leave the panel as it is. Behind you the voice finishes the names, goes back to the briefing, and begins again.`] }
+      { text: "Restrict access. Only you and Mira hear it from now on.", next: "arc_fork", effects: { cohesion: -1, integrity: 1 }, flag: { vault_voice: "restricted" }, requires: { trust: { mira: 40 } }, alive: "mira", reply: [{ who: "mira", text: `Mira locks the audio to two command keys and hands you one. "Status reports only, routed to us. If it starts reading names again, I find root cause before anyone calls it a ghost."` }] },
+      { text: "Leave the panel untouched. Move on.", next: "arc_fork", reply: [`You leave the panel as it is. Behind you the voice goes on with the names, fainter at every hatch, until you cannot hear it.`] }
     ]
   },
 

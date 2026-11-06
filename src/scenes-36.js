@@ -50,10 +50,10 @@ She waits.
         return [{ text: "Move on. Medical is empty.", next: after }];
       }
       return [
-        { text: "There is a possibility. Prepare for both outcomes.", next: after, effects: { cohesion: -2, supplies: -6, embryos: -3 }, flag: { pregnancy_risk: true }, requires: { supplies: { min: 12 }, trust: { lena: 40 } }, lean: { living: 3 }, reply: [{ who: "lena", text: `"Then I plan for both and stock for both," Lena says, already writing. "Some of it comes out of the vault margin. I am logging it under my name, not yours. The vault will feel it first."` }] },
+        { text: "There is a possibility. Prepare for both outcomes.", next: after, effects: { cohesion: -2, supplies: -6, embryos: -3 }, flag: { pregnancy_risk: true }, requires: { supplies: { min: 12 }, trust: { lena: 40 } }, lean: { living: 3 }, reply: [{ who: "lena", text: `"Then I plan for both and stock for both," Lena says, already writing. "Some of it comes out of the vault margin. The draw goes on the board as medical. No names."` }] },
         { text: "It will not become a problem. Handle prevention.", next: after, effects: { supplies: -3, cohesion: 1 }, flag: { pregnancy_risk: false }, reply: [{ who: "lena", text: `Lena handles it that shift with the medical hatch shut and logs one line: prophylaxis, elective, complete. "Chart closed," she says. "Not because it was small. Because it belongs to the people in it."` }] },
         { text: "That is private. Do your job when asked.", next: after, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `"Understood, Commander." Lena writes one word on her chart and turns it face down. "When you do ask, ask early. Late costs more. That is not a threat. That is pharmacology."` }] },
-        { text: "End the discussion. There is nothing left to spend.", next: after, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `Lena does not argue with the stores. She has read them too. "Then it stays an open question," she says. "I hate those. I will keep this one open anyway. If the answer changes, I want to be the first to know."` }] }
+        { text: "End the discussion. There is nothing left to spend.", next: after, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `Lena does not argue. "Then it stays an open question," she says. "In my department those get more expensive by the day. If the answer changes, I want to be the first to know."` }] }
       ];
     }
   },
@@ -102,7 +102,7 @@ She waits.
           lean: { living: 4 },
           mark: { tomas: "held" },
           alive: "tomas",
-          reply: [{ who: "tomas", text: `Tomas lets out a breath he has been holding for longer than this conversation. "Always is a long word," he says. "I am going to hold you to every letter of it." For a moment he looks like a man who has eaten.` }]
+          reply: [{ who: "tomas", text: `Tomas lets out a breath he has been holding for longer than this conversation. "Always is a long word," he says. "I am going to hold you to every letter of it." The calm comes back slowly, and this time it holds.` }]
         },
         {
           text: "Tell him the future is the only thing that justifies any of this.",
@@ -112,7 +112,7 @@ She waits.
           lean: { future: 4 },
           mark: { tomas: "broke" },
           alive: "tomas",
-          reply: [{ who: "tomas", text: `Tomas hears it the way he would hear a ration cut. "Then that is the ledger, Commander." The calm comes back into his face all at once, and it is worse than the rawness was. He does not argue. He has stopped expecting to win.` }]
+          reply: [{ who: "tomas", text: `Tomas hears it the way he would hear a ration cut. "Then that is the ledger, Commander." The calm comes back into his face all at once, and it is worse than the rawness was. He does not argue.` }]
         },
         {
           text: "Ask him to hold on a little longer. You need him intact.",

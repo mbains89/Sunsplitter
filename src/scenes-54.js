@@ -81,7 +81,7 @@ registerScenes({
       {
         text: "Seal the fouled branch. Spend nothing more here.",
         next: "breath_after",
-        reply: [`You seal the fouled branch where it is. The suits come out, the hatch dogs shut, and the trunk drops off the air schematic as if it had never carried any.`]
+        reply: [`You seal the fouled branch where it is. The suits come out, the hatch dogs shut, and the trunk drops off the air schematic as if it had never carried air.`]
       }
     ]
   },
