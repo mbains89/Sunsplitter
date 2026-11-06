@@ -721,9 +721,11 @@ function whatRemainsFacts() {
 
 // SUN-CREW-EPILOGUES-01 (ROADMAP §14A Wave 1, workstream 4): one paragraph per crew member, alive
 // or dead, in the What Remains screen under the 3–6 reflection lines (which stay as L-008 has them).
-// Every sentence is a fact of this run: the logged cause of death, a tested promise, a private line,
-// a recorded answer. Untested promises are never mentioned (L-024). The dead are past tense only and
-// never speak. Unrecovered crew were never aboard and get one sentence saying so. Each paragraph is
+// Every sentence is a fact of this run: a tested promise, a private line, a recorded answer. The
+// logged cause of death is printed once, in the reflection lines above; a dead crew member's
+// paragraph opens on the person, not the cause (decision 21, 2026-11-06). Untested promises are
+// never mentioned (L-024). The dead are past tense only and never speak. Unrecovered crew were
+// never aboard and get one sentence saying so. Each paragraph is
 // written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:" rules): Lena clinical
 // fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
 // Tomas by present habits, Amara by what was tended and who is owed, Jiro by a logged position,
@@ -732,19 +734,19 @@ function crewEpilogues() {
   const f = state.flags;
   const dead = (k) => state.dead.includes(k);
   const cause = (k) => state.deathCause[k];
-  const clause = (k) => whatRemainsDeathClause(k, cause(k));
+  const gone = (k) => `${crew[k] ? crew[k].first : k} was dead when the run ended.`;
   const lastHour = (k, her) => f.junctionChoice === k ? ` The last private hour of the run was ${her}.` : "";
   const rootCause = f.burn_unverified || f.margin_spent_extra;
   const out = [];
 
   // Rourke: the opening dead. One line.
-  if (dead("rourke")) out.push(`${clause("rourke")}, in the first hour, with ring shrapnel in his chest.`);
+  if (dead("rourke")) out.push(`Rourke was dead inside the first hour, ring shrapnel in his chest.`);
 
   // Lena — a clinical fact and one detail.
   {
     let p;
     if (dead("lena")) {
-      p = `${clause("lena")}.`;
+      p = gone("lena");
       if (cause("lena") === "kept working until the clock ran out") p += ` Every treatment entry was complete except the one under her own name; the last line in the active chart was an unfinished set of observations on someone else.`;
     } else if (state.dying && state.dying.lena) {
       p = `Lena was alive when the run ended, on a clock she had charted herself.`;
@@ -766,7 +768,7 @@ function crewEpilogues() {
   // Elias — by what he covers.
   {
     let p;
-    if (dead("elias")) p = `${clause("elias")}. The corridors he covered have no one counting them.`;
+    if (dead("elias")) p = `${gone("elias")} The corridors he covered have no one counting them.`;
     else p = `Elias was still counting exits when the run ended.`;
     if (hasMark("elias", "approved_vent")) p += ` He approved the vent.`;
     if (f.ship_memory === "proper_seal") p += ` He argued the Deck 4 seal and got it; the feedstock went into a proper patch.`;
@@ -786,9 +788,10 @@ function crewEpilogues() {
   {
     let p;
     if (dead("mira")) {
-      p = `${clause("mira")}.`;
+      p = gone("mira");
       if (cause("mira") === "finished the repair") p += ` The repair outlasted her.`;
       else if (cause("mira") === "would not leave the board") p += ` The board was still hers when the bay sealed.`;
+      else p += f.patch === "failed" ? ` Deck 4 did not hold the final burn.` : ` What she rebuilt was still holding.`;
     } else {
       p = `Mira was alive when the run ended${f.patch === "failed" ? "; Deck 4 did not hold the final burn" : ", and what she rebuilt was still holding"}.`;
     }
@@ -813,7 +816,7 @@ function crewEpilogues() {
     out.push(`Tomas was never brought aboard.`);
   } else {
     let p;
-    if (dead("tomas")) p = `${clause("tomas")}.`;
+    if (dead("tomas")) p = `${gone("tomas")} ${f.trays_dead ? "He had eaten the paste in company, so the room stayed a room." : "He had tasted the soil bare-handed before planting; nobody commented."}`;
     else if (f.trays_dead) p = `Tomas was alive when the run ended. He still eats the paste in company, so the room stays a room.`;
     else p = `Tomas was alive when the run ended. He still tastes the soil bare-handed before planting; nobody comments.`;
     if (f.trays_dead && f.tomas_scapegoated) p += ` The trays died in the rushed catch, and the room held him responsible.`;
@@ -839,7 +842,7 @@ function crewEpilogues() {
     let p;
     const green = f.breath_answer === "garden" ? "had gone into the air loop as a filter that would die with the biofilm"
       : f.hydro === "full" ? "was still full" : f.hydro === "minimal" ? "was running minimal" : f.hydro === "rebuild" ? "was being rebuilt" : null;
-    if (dead("amara")) p = `${clause("amara")}.${green ? ` The green she tended ${green} without her.` : ``}`;
+    if (dead("amara")) p = `${gone("amara")}${green ? ` The green she tended ${green} without her.` : ``}`;
     else p = `Amara was alive when the run ended${green ? `; the green she tended ${green}` : ``}.`;
     if (hasMark("amara", "math_first")) p += ` She heard you put the math first.`;
     else if (hasMark("amara", "plants_matter")) p += ` She heard you say living things matter.`;
@@ -860,7 +863,7 @@ function crewEpilogues() {
     out.push(`Jiro was never cut out of the blister.`);
   } else {
     let p;
-    if (dead("jiro")) p = `${clause("jiro")}. His final position is logged.`;
+    if (dead("jiro")) p = `${gone("jiro")} His final position is logged.`;
     else p = `Jiro saw the run end with the ship where he said it was, inside his bar.`;
     if (f.burn_unverified) p += ` There is a burn in the ship's history he never got to verify; it lives in the error bars.`;
     if (hasMark("jiro", "bonded")) p += dead("jiro") ? ` He had shown you the dead database he argued with and won by default.` : ` He showed you the dead database he argues with and wins by default.`;
@@ -873,7 +876,7 @@ function crewEpilogues() {
   // Sela — names spoken at yellow.
   {
     let p;
-    if (dead("sela")) p = `${clause("sela")}.${hasMark("sela", "spoken") ? ` She had spoken once, at yellow, before that.` : ``}`;
+    if (dead("sela")) p = `${gone("sela")}${hasMark("sela", "spoken") ? ` She had spoken once, at yellow, before that.` : ``}`;
     else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${hasMark("sela", "spoken") ? ` She spoke once, at yellow, and was heard.` : ``}`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
@@ -892,7 +895,7 @@ function crewEpilogues() {
     out.push(`Vess was never brought aboard.`);
   } else {
     let p;
-    if (dead("vess")) p = `${clause("vess")}. The Dawnbreak registry has no one left to keep it in order.`;
+    if (dead("vess")) p = `${gone("vess")} The Dawnbreak registry has no one left to keep it in order.`;
     else p = `Vess kept the Dawnbreak registry exact, in order of loss, to the end of the run.`;
     if (f.busDowngraded) p += ` The environmental bus ran degraded to keep her relay core online.`;
     if (f.vess_intimate && f.last_tx_spent) p += ` The last outward window was hers: one directed burst, and then the external lane closed.`;

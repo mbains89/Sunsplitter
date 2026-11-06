@@ -8,8 +8,9 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
-| SUN-DIET-HUB-01 | Lead | D11 Deep step 1, C01: the corridor hub paragraph prints once a run. Draft PR; holds for a Myth read of the return line. |
-| SUN-DIET-REPLY-FOLD-01 | Lead | D11 Deep step 1, C11/C12: one-line answer screens become the previous choice's reply. Draft PR; holds for a Myth read. |
+| SUN-WHATREMAINS-DEATH-ONCE-01 | Lead | Decision 21: a death prints once in What Remains; the crew paragraph opens on the person. Carries the STATUS and queue close-out for #523–#526. |
+| SUN-DIET-VESS-MERGE-01 | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. Myth read before ready. |
+| SUN-DIET-MEMORY-FOLD-01 | Lead | D11 Deep step 1, C04: `ship_memory_payoff` folds into the final preamble. Myth read before ready. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
@@ -23,15 +24,13 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verify, coverage and the browser bot are green; face exposures stay at zero.
 
-## D11 Deep (ruled 2026-11-06): next tickets
+## D11 Deep (ruled 2026-11-06, no time target): next tickets
 
-Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`.
+Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`. Cuts are for slack and for setups with no payoff, judged one at a time; the 20-minute figure is not a target (Manraj, 2026-11-06 evening).
 
-- **Step 1** needs no lock. Besides the two in flight above:
-  - C04: fold `ship_memory_payoff` into the final preamble.
+- **Step 1** needs no lock. Landed: C01 (#524), C11/C12 (#525), the first trims (#526). Besides the two in flight above:
   - C06: trim the `vault_reveal` explainer.
   - C07: trim `time_pass`.
-  - C10: merge `vess_signal` and `vess_cost`.
   - C13: warmth vignettes.
   - C14: `power_crisis`.
   - C17: trim `crew_walk`.
@@ -40,26 +39,31 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
   - C22: trim `aftermath` and `arc_fork`.
 
   One PR each, a Myth read for the prose, and a re-measure after each.
-- **Step 2** waits on STATUS decision 19 (L-024, L-050, L-008).
+- **Step 2 is quality fixes (STATUS decision 19, ruled; no lock moves):**
+  - SUN-PROMISE-PAYOFF-01: every promise made is tested or cited later (L-024 stays).
+  - SUN-FRICTION-RESTATE-TRIM-01: all four pair scenes stay; trim only lines where a character restates a point.
+  - Deaths once in What Remains: in flight above (decision 21).
+  - Off-shift lead-ins are not cut (L-050 stays). What Remains is not cut (L-008 stays).
 - **Small tickets found today:**
-  - `status` says "one hundred percent" after the Living choice;
   - the `arc_living_4` "double cycle" sentence (decision 22);
   - the phone-landscape plate leaves `#main` about 75 px;
   - five flags written but never read;
-  - `offshift_jiro`'s two identical `isAlive("mira")` branches.
+  - `offshift_jiro`'s two identical `isAlive("mira")` branches;
+  - `time_pass`'s dangling "her" when Mira is dead;
+  - "Nine of you cleared the hatch." printed twice (prologue and `wake`).
 
 ## Waiting on Manraj
 
-- STATUS decision 19: the three locks for D11 Deep step 2.
 - Gate 1: a full run on the tip (the end-of-day playtest build) and one stranger's full read (D10).
-- STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17/21 (What Remains), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
+- STATUS decisions 24 (L-061, a hub visit counter) and 25 (plates behind the screens #525 left unfolded).
+- STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17 (What Remains crew block on the L-008 row), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
 - Close the stale PRs listed in STATUS.
 
 ## Helper asks (once each helper chat exists)
 
 | Helper | Ask |
 |---|---|
-| Myth | Done in the lead chat today (decision 15): #508, #509, #511, #516 and #521 read, edits applied. Next: the D11 step 1 prose trims as they open. |
+| Myth | Done in the lead chat (decision 15): #508, #509, #511, #516, #521, #524, #525 and #526 read, edits applied. Next: each D11 step 1 ticket and the decision-21 opener lines as they open. |
 | Hex | Measure how often each romance is pursued to its last scene after SUN-ROMANCE-ARC-01..05 land; propose trust or cost tuning if any arc is unreachable in practice. |
 | Muse | Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits, starting with `images/vess_boarding.jpg` (shows Lena's face, ungated). No new art until Wave 4. |
 
