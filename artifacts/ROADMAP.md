@@ -5,6 +5,7 @@
 **Steward:** Lead (Claude, per `AGENTS.md` v2, 2026-11-05). The Grok program-office header below is history; read Grok/Build as Lead.
 **Implementation authority:** none. This file authorizes no code, leftover drain, ticket remint, close-out, tag, certify, Netlify, or publication beyond landing this docs PR.
 **Close-out ruling (Manraj, 2026-11-05):** close out now. Executed as PR #492 (`version/0.30.1-main-closeout.1` → `main`, merge commit `e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a`, all three `main` gates green). Every "no main close-out" hold below is satisfied for that close-out only; the next close-out again needs Manraj's go. No tag, release, deploy, Netlify or certification came with it.
+**Growth ruling (Manraj, 2026-11-05):** the *Sunsplitter Feature Roadmap Proposal* is approved in full, each decision as the lead recommended. Four growth waves now sit between 0.36 and the external review (§14A); the review, cohort, commercial and rehearsal versions move to 0.41–0.44 (§4). The sub-locks it opens are recorded as L-050–L-056 in `LOCKS.md`; their language is in §2 and §14A. This ruling authorizes ticket PRs on the work branch for the waves in order. It mints no version paint, and it is not a close-out, tag, deploy, Netlify or certification go.
 **Prepared against GitHub `main`:** `8d23109b63b844e0703fb36643f14b91b8800c90`.
 **Candidate planning runtime:** `version/0.30.1-main-reconcile-ci.1@c3626434add931b4a8e164febb5c1c7b46bf9471` (after PR #345 Still Burning).
 **Player-facing version paint:** keep honesty with live tip (do not invent mint/certify 0.36). Last certified baseline remains `0.28.1d`.
@@ -14,7 +15,7 @@
 
 Decision gates (labeled; not OPEN):
 1. **0.36 PC Readiness** — close remaining tip-named 0.36 pack/playtest-gate items on the work tip; no invent OPEN; no mint/certify unless owner OPEN names it.
-2. **0.37 External Review** — planning target after 0.36 readiness; design/review prose only until owner OPEN.
+2. **0.37 External Review** — planning target after 0.36 readiness; design/review prose only until owner OPEN. *Superseded 2026-11-05:* External Review now executes at 0.41; 0.37 is Wave 1, Deeper Crew (§14A).
 
 This section does not mint 0.36 or 0.37 and does not authorize Netlify pins.
 
@@ -97,7 +98,7 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 
 - Sunsplitter is a short, grim narrative-survival browser game. The player commands a damaged colonization ark after Earth's sudden cascade.
 - The ship is a full O'Neill cylinder. Interior art uses rectangular rooms, bays, and straight corridors; no curved-ring interior architecture.
-- Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. No permanent character may be added.
+- Named non-player cast is exactly nine: Lena, Elias, Mira, Tomas, Amara, Jiro, Sela, Rourke, and Vess. Rourke dies early; Vess arrives later. No permanent character may be added. **L-051 (2026-11-05):** Story growth II widens the existing Landfall and Yellow Circle endings into full routes with this cast; a new post-ending act with its own cast is rejected.
 - **Commander identity (L-025, Option B):** player-shaped, second person, faceless, no portrait, gender assignment, or identity system. Reproductive facts are handled deliberately.
 - Constants do not drift: `04:19:07`, Tube 3, 214 berths, change orders 4417/4491, 61/19/42 systems, manifest tiers 1–4, nine through the hatch, spoken embryo residue **one hundred forty thousand and six**, and ship name `Sunsplitter`. HUD `embryos` remains a 0–100 pressure meter, not a headcount. Named line remains E-6103 Noor, Jakarta.
 - Earth departure remains a colonization mission overtaken by a sudden cascade measured in hours to roughly two days. The official account appears first; contested truths remain plural.
@@ -122,11 +123,12 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Sela is fully adult, age 20, with legible high-trust boundaries. Vess remains shorter, uses a different currency, stays asymmetric, and retains power.
 - Adult and explicit content is permanent. Distribution constraints do not silently soften canon.
 - No exclusivity meter, jealousy system, morality bar, romance score, or relationship dashboard.
-- A breast-cover/explicit-content toggle is **HELD** and requires a separate canon, asset, continuity, platform, and QA decision.
+- **L-050 (2026-11-05):** a pursued romance runs to a named end state: her offer, the private attention it costs the ship, and a late callback where that debt lands inside a hard decision, with a last scene consistent with the epilogue. Existing flags and trust carry it; no new meter. A dead or unrecovered partner ends the arc where she died, and the epilogue says so.
+- A breast-cover/explicit-content toggle is **HELD** and requires a separate canon, asset, continuity, platform, and QA decision. Re-affirmed 2026-11-05 (D6): it stays held at least until the stranger playtest reports whether anyone asked for it.
 
 ### Architecture and data shape
 
-- Pure static site: HTML, CSS, and JavaScript; no backend or required build step.
+- Pure static site: HTML, CSS, and JavaScript; no backend or required build step. **L-053 (2026-11-05)** opens one exception: an anonymous choice counter behind a serverless function on the existing host. It stores which choice was taken at a scene and nothing about the player, shows its count only after the player has chosen, and the game stays fully playable with the function down or blocked. No accounts, no cloud saves, no other backend.
 - Scenes remain pure data registered through JavaScript globals. A scene contains only `text | choices | onEnter | image` plus its registration key.
 - `onEnter` is the scene-level write hook. Rendering is side-effect-free.
 - The engine stays thin. No TypeScript, framework, bundler, component rewrite, or engine/state mechanical split before 1.0.
@@ -142,7 +144,8 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Primary interface is scene text, context, choices, and minimal utilities—not a conventional HUD, dashboard, notification layer, or quest surface.
 - Disabled choices disclose an honest reason. They do not disappear in ways that falsify cost or causality.
 - Autosave/Continue discloses enough metadata to earn trust without exposing hidden consequence state.
-- Saves remain local and account-free through 1.0. Cloud saves are out.
+- Saves remain local and account-free through 1.0. Cloud saves are out. **L-052 (2026-11-05):** three named local slots plus the existing export; the current single slot becomes slot 1 and legacy saves migrate without loss.
+- **L-054 (2026-11-05), cross-run memory:** the ship may carry a small, named set of facts between runs (endings reached, crew lost, plates seen, the memory board, the great forks taken) in its own state namespace. Cross-run facts never change a scene's outcome; a second run is never easier because of a first. They surface only on the title, tone and wake screens, the post-run memory board and the gallery, never inside an ending. **L-055:** once a run has ended, the title may offer a start from Act 2 or Act 3 using that run's own state at the act boundary; it grants nothing a fresh run could not reach.
 
 ### Art and presentation
 
@@ -220,18 +223,28 @@ The version lane has advanced well beyond `main`. Nothing on that lane is **SHIP
   ↓
 0.35 — Packaging and Private Itch
   ↓
-0.36 — PC Readiness
+0.36 — PC Readiness                      PAINT ON TIP; pack closed-for-FEED; NOT CERTIFIED
   ↓
-0.37 — External Review Pilot
+0.37 — Wave 1: Deeper Crew               OPEN 2026-11-05 (growth ruling); prose first
   ↓
-0.38 — Player Validation Cohort
+0.38 — Wave 2: Replay Tools
   ↓
-0.39 — Commercial Readiness
+0.39 — Wave 3: Story Growth II and Choice Statistics
   ↓
-0.40 — Launch Rehearsal / Release Candidate
+0.40 — Wave 4: Presentation
+  ↓
+0.41 — External Review Pilot
+  ↓
+0.42 — Player Validation Cohort
+  ↓
+0.43 — Commercial Readiness
+  ↓
+0.44 — Launch Rehearsal / Release Candidate
   ↓
 1.0 — Public Release
 ```
+
+Renumbered 2026-11-05 (D7, L-056): the four growth waves take 0.37–0.40 and the review path moves up by four. Earlier text that says "0.37" for the review, "0.39" for commercial or "0.40" for rehearsal is history and reads as 0.41, 0.43 and 0.44.
 
 Rules of the spine:
 
@@ -242,10 +255,11 @@ Rules of the spine:
 - Experience findings from the 0.33 playtest are classified before they become a later version slice. Classification happens after the playtest report, not during it.
 - Story, art-audit, and gameplay volume cannot jump the ART-R2 hold.
 - Mobile/accessibility work cannot be relabeled PC readiness; PC work cannot create a separate game.
-- Independent review is 0.37. PC readiness is 0.36. Public/commercial itch is 0.39. Do not reuse 0.31–0.33 for those jobs.
+- Independent review is 0.41. PC readiness is 0.36. Public/commercial itch is 0.43. Do not reuse 0.31–0.33 for those jobs.
+- The growth waves run in order and each ends at a Manraj gate with named evidence (§14A). A wave's tickets are one-PR tickets on the work branch; a wave does not mint version paint until Manraj names it.
 - No milestone authorizes close-out, certification, tag, release, publication, Netlify, itch.io public page, or deployment. Those are separate owner actions at their named gates.
 
-Stable lock identities in `LOCKS.md` keep their section anchors. Historical version labels inside those rows do not override this spine: L-010 executes at 0.37; L-011 at 0.36; L-012 at 0.39; L-013 splits across 0.40 and 1.0.
+Stable lock identities in `LOCKS.md` keep their section anchors. Historical version labels inside those rows do not override this spine: L-010 executes at 0.41; L-011 at 0.36; L-012 at 0.43; L-013 splits across 0.44 and 1.0.
 
 ---
 
@@ -312,7 +326,7 @@ Execution map under the owner-accepted spine:
 - PX-7 save trust executed at 0.32 and is exited.
 - PX-1 through PX-6 evidence is collected from the 0.33 playtest. It does not automatically become 0.34–0.37 work.
 - PX-8 mobile accessibility/performance executes at 0.34; desktop revalidation at 0.36.
-- PX-9 audience/distribution completes across 0.38–0.39.
+- PX-9 audience/distribution completes across 0.42–0.43 (0.38–0.39 before the 2026-11-05 renumbering).
 
 No prose, economy, tutorial, video, or interface expansion is justified merely because an internal model predicts it. First identify an observed problem, classify it, and attach evidence.
 
@@ -352,7 +366,7 @@ Executed at 0.32. Reopen only if the 0.33 playtest proves a save-loss, trap, or 
 
 ### PX-9 — Audience, Distribution, and Shareability
 
-0.38–0.39. Distribution constraints never soften canonical adult content.
+0.42–0.43 (was 0.38–0.39). Distribution constraints never soften canonical adult content.
 
 ---
 
@@ -387,9 +401,9 @@ Split across later versions. 0.33 does not absorb this work during playtest.
 
 ---
 
-## 10. L-010 — External Review Pilot, executes at 0.37
+## 10. L-010 — External Review Pilot, executes at 0.41 (was 0.37 before the 2026-11-05 renumbering)
 
-**Entry:** 0.36 passes.
+**Entry:** 0.36 passes and the growth waves 0.37–0.40 have exited, or Manraj opens 0.41 by name while 0.40 waits on audio or art.
 **Purpose:** fresh-stranger structural and experience audit after systemic truth, the 0.33 playtest response, mobile, private packaging, and PC work.
 
 ### Reviewer independence
@@ -440,9 +454,9 @@ PRs 84 and 85 are early landed evidence for keyboard and composition only; they 
 
 ---
 
-## 12. L-012 — Commercial Readiness, executes at 0.39
+## 12. L-012 — Commercial Readiness, executes at 0.43 (was 0.39)
 
-**Entry:** 0.38 cohort findings are closed or owner-ranked.
+**Entry:** 0.42 cohort findings are closed or owner-ranked.
 
 - itch.io remains the primary 1.0 storefront direction, subject to submission-time policy recheck.
 - Adult classification, AI disclosure, content descriptors, cover-art suitability, payment terms, and current platform rules are verified at submission time.
@@ -454,9 +468,9 @@ PRs 84 and 85 are early landed evidence for keyboard and composition only; they 
 
 ---
 
-## 13. L-013 — 0.40 release rehearsal and 1.0 launch gate
+## 13. L-013 — 0.44 release rehearsal and 1.0 launch gate (was 0.40)
 
-### 0.40 rehearsal
+### 0.44 rehearsal
 
 - Freeze one release-candidate identity from the exact governed lane.
 - Run strict verifier and V1–V6 gates at that exact candidate and again at exact merged `main` only if close-out is separately authorized.
@@ -536,7 +550,7 @@ Work allowed now:
 3. Content-notice and adult-classification fields as draft private metadata.
 4. Private download → open → save → resume path on phone.
 5. Draft non-public store/support/privacy copy. No public page.
-6. Record platform/rights issues for 0.39. Do not solve commercial policy here.
+6. Record platform/rights issues for 0.43 (commercial readiness). Do not solve commercial policy here.
 
 **Entry:** 0.34 device matrix passed.
 **Exit:** reproducible private package and digest exist; private open/save path works; no public itch page; no payment; no publication.
@@ -567,7 +581,75 @@ Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03
 
 **Hard holds:** no Electron/Tauri, no gamepad, no achievements, no cloud saves, no PC-only story branch, no 45/46, no certify, no main close-out.
 
-### 0.37 — External Review Pilot
+## 14A. Growth waves (Manraj's ruling of 2026-11-05)
+
+Source: the *Sunsplitter Feature Roadmap Proposal* (lead, 2026-11-05), approved in full. The proposal's reasoning and sources stay in that document; this section carries the approved scope. The brief behind it: grow the game before shipping, for adult-IF phone readers and PC narrative players alike; romance, hard decisions and memorable crew are the heart; the lead writes and lands prose, Manraj reviews in play; no new art and no audio until Wave 4.
+
+Rules that bind every wave:
+
+- Every lock in §2 holds unless a row below names the sub-lock it opens (L-050–L-056). No new named permanent crew. No meters, scores, grades or dashboards. Consequences are never labeled.
+- Scenes use only the declarative schema and existing helpers. New state keys get a recorded lock and schema coverage in the same change.
+- A wave's tickets are one-PR tickets on the work branch, reviewed by the lead and, for prose, offered to Myth before merge. A wave exits only at its Manraj gate with the named evidence; the next wave does not start early.
+- Version paint moves to the wave's number only when Manraj names it. Until then the wave's work carries the current paint.
+- Nothing here is a close-out, tag, deploy, Netlify, certification or public-page go.
+
+### 0.37 — Wave 1: Deeper Crew
+
+**Purpose:** make the crew the reason to replay. Prose first; code only where the prose needs a gate.
+
+**Workstreams**
+
+1. **Romance arcs with a middle (L-050).** Each of Lena, Mira, Amara, Sela and Vess gets a three-beat arc: her offer, the private attention it costs the ship, and a late callback where that debt lands inside a hard decision (a lethal, the vault, the final choice), with a last scene consistent with the epilogue. Existing flags and trust carry it. She initiates; the player must decline. Order of tickets: Lena, then Mira, Vess, Amara, Sela.
+2. **Consequences that come back.** Twelve to fifteen diegetic callbacks across existing scenes: crew cite a kept or broken promise, an attributable death, or the Commander's ideology when it matters. Uses the promise, mark and `deathCause` state that already exists.
+3. **Crew friction.** Three or four pair scenes where crew disagree with each other, not only with the Commander (Elias and Tomas on the seal, Mira and Jiro on the burn, and the like). No new crew.
+4. **Per-crew epilogues in What Remains.** One paragraph per crew member, alive or dead, naming what this run did to them: cause of death, promise state, romance, ideology. L-024 holds: untested promises stay omitted.
+
+**Entry:** this ruling. It needs no 0.36 exit credit and grants none.
+**Exit (gate 1):** Manraj plays a full run on the tip, and one person who has never seen the game reads a full run. Scene coverage, verify and the browser bot are green at the tip; face exposures stay at zero.
+
+**Hard holds:** ART-R2 beyond people-free fallbacks; audio; any meter or score; new named crew.
+
+### 0.38 — Wave 2: Replay Tools
+
+**Purpose:** the baseline a visual-novel reader expects, without a HUD.
+
+**Workstreams**
+
+1. **Text backlog.** A scrollable history of the run's scenes and choices, from the pause menu. Read-only; not a quest log.
+2. **Three save slots plus autosave (L-052).** Named slots on the title; slot 1 is the current save; legacy saves migrate without loss; export stays.
+3. **Gallery (L-054).** Plates unlock as they are seen, adult plates included; nothing unseen is shown.
+4. **Memory board (L-054).** After a run: the seven endings as silhouettes with the ones reached lit, and the five great forks (crisis path, vault, tether, the lethals, the final choice) showing the branch taken and a marker where something else was possible. No scene-level spoilers. Post-run only, so L-047 holds.
+5. **The ship remembers (L-054).** On a later run, a handful of lines acknowledge earlier endings: the title, the tone screen, one line in the wake. Never inside an ending.
+6. **Reader settings.** Text size, line spacing and a dyslexia-friendly font beside the existing high-contrast mode.
+
+**Entry:** gate 1 passed.
+**Exit (gate 2):** three to five strangers play; P0 findings closed and retested; P1s triaged. Recruiting is the first tools spend (D8).
+
+**Hard holds:** no cloud saves, no accounts, no HUD, no in-run progress surface.
+
+### 0.39 — Wave 3: Story Growth II and Choice Statistics
+
+**Workstreams**
+
+1. **Story growth II (L-051).** Widen the Landfall and Yellow Circle endings into full routes with the existing cast. Prose lands in one-PR scene tickets with the full scene declaration each time.
+2. **Anonymous choice statistics (L-053).** After a run, counts such as how many commanders vented the tank: counts only, no identity, a serverless function on the existing host, and a privacy note in the game. The game plays the same with it down.
+3. **Chapter start after a finished run (L-055).** Once a run has ended, the title offers a start from Act 2 or Act 3 using that run's state at the act boundary.
+
+**Entry:** gate 2 passed; the canon ruling for Story growth II is L-051.
+**Exit (gate 3):** both widened routes reachable in coverage; stats endpoint live and failing closed; chapter start verified by playerflow checks; Manraj plays both routes.
+
+### 0.40 — Wave 4: Presentation
+
+**Workstreams**
+
+1. Six to eight ambient beds by location and two or three music cues, licensed or generated, with a mute that persists.
+2. A looping title plate from the Imagine clip prompts on Manraj's Mac, once he gives the art go.
+3. The SFW toggle decision (L-040), taken on the gate-2 playtest evidence; the toggle itself stays held until then.
+
+**Entry:** gate 3 passed, plus Manraj's audio and art go.
+**Exit (gate 4):** audio and title land without a layout or performance regression on phone; Manraj signs off in play. If this wave is still waiting on audio or art, Manraj may open 0.41 by name.
+
+### 0.41 — External Review Pilot (was 0.37)
 
 **Purpose:** put the private candidate in front of two strangers who have never seen the code or prior reports.
 
@@ -578,22 +660,22 @@ Not a version mint. Does **not** open 0.36. Owner Sun Playtest closed 2026-09-03
 3. Full start-to-end runs plus explicit probes for dead speech, unpaid cost, save loss, softlock, and false ending.
 4. Ranked P0/P1/P2 report with scene/UI, device/browser, and reproduction.
 5. Retest only after owner-ranked repairs. Repairs are one-concern PRs, not a new mid-version invented here.
-6. Feed 0.38 cohort design. Do not start the cohort inside 0.37.
+6. Feed 0.42 cohort design. Do not start the cohort inside 0.41.
 
-**Entry:** 0.36 passed.
+**Entry:** 0.36 passed and the growth waves exited (§14A), or Manraj opens 0.41 by name.
 **Exit:** both reviewers finished or their blockers are ranked; P0 closed and retested; first-run-trust and save-integrity P1s are closed or owner-deferred with a named later version.
 
 **Hard holds:** PR 45/46, ART-R2 unless opened, main close-out, certification, auto-Netlify, public page, paying customers.
 
-### 0.38 — Player Validation Cohort
+### 0.42 — Player Validation Cohort (was 0.38)
 
 Bounded cohort on the exact private candidate. Separate correctness, accessibility, experience, and market findings. Define stop/continue thresholds before reading results.
 
-### 0.39 — Commercial Readiness
+### 0.43 — Commercial Readiness (was 0.39)
 
 Execute §12. Public itch, disclosures, rights, price, and store truth live here — not at 0.33 or 0.35.
 
-### 0.40 — Launch Rehearsal / RC
+### 0.44 — Launch Rehearsal / RC (was 0.40)
 
 Execute §13 rehearsal against one frozen identity.
 
@@ -605,7 +687,7 @@ Execute §13 launch gate. Manraj remains the final and separate go/no-go authori
 
 ## 15. Wait for playtest — do not pre-slice
 
-These items stay off 0.34–0.37 until the 0.33 playtest produces a classified finding or Manraj opens the named gate.
+These items stay off 0.34–0.36 and the growth waves until the 0.33 playtest produces a classified finding or Manraj opens the named gate. The 2026-11-05 growth ruling (§14A) opens only what it names; everything in this table still waits.
 
 | Item | Why it waits |
 |---|---|
@@ -653,6 +735,15 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Leftover drain reopen | REJECTED unless owner reopens it by name |
 | Close-out of this lane to `main` in the current window | DONE: Manraj go 2026-11-05, PR #492, `main` @ `e5a71fc` |
 | Certification of 0.33 | HELD; last certified remains 0.28.1d |
+| Romance arcs to named end states (D1) | LOCKED 2026-11-05, L-050; Wave 1 |
+| Story growth II: widen Landfall and Yellow Circle (D2) | LOCKED 2026-11-05, L-051; a new post-ending cast is REJECTED; Wave 3 |
+| Three local save slots plus export (D3) | LOCKED 2026-11-05, L-052; Wave 2 |
+| Anonymous choice counter on a serverless function (D4) | LOCKED 2026-11-05, L-053; the only backend exception; Wave 3 |
+| Cross-run ship memory: gallery, memory board, remembered endings (D5) | LOCKED 2026-11-05, L-054; never changes an outcome; Wave 2 |
+| Chapter start after a finished run | LOCKED 2026-11-05, L-055; Wave 3 |
+| Breast-cover/explicit-content toggle (D6) | HELD, re-affirmed 2026-11-05; decided on gate-2 evidence at Wave 4 |
+| Version renumbering: waves 0.37–0.40, review path 0.41–0.44 (D7) | LOCKED 2026-11-05, L-056 |
+| Tools budget: playtest recruiting first, art and audio at their waves (D8) | LOCKED 2026-11-05, recorded under L-056 |
 
 ---
 
@@ -701,13 +792,17 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | 0.34 | Phone a11y/perf matrix passes |
 | 0.35 | Private package + private itch path proven; no publication |
 | Playtest response | Post-0.35 / pre-0.36 version-lane follow-ups; see `SUN_PLAYTEST_RESPONSE_PLAN.md`; 0.36 not opened |
-| 0.36 | Same browser game works on PC without phone regression |
-| 0.37 | Independent pilot findings ranked and retested |
-| 0.38 | Cohort evidence supports product and commercial decisions |
-| 0.39 | Rights, policy, store, support, privacy, and package truth ready |
-| 0.40 | Frozen RC survives rehearsal |
+| 0.36 | Same browser game works on PC without phone regression; paint on tip, not certified |
+| 0.37 | Wave 1 Deeper Crew: romance arcs, callbacks, friction, per-crew epilogues; gate 1 = Manraj's run plus one stranger's full read |
+| 0.38 | Wave 2 Replay Tools: backlog, three slots, gallery, memory board, remembered endings, reader settings; gate 2 = 3–5 stranger playtest |
+| 0.39 | Wave 3 Story Growth II and Choice Statistics; gate 3 = both routes played, stats fail closed |
+| 0.40 | Wave 4 Presentation: audio, animated title, SFW decision; gate 4 = Manraj's sign-off in play |
+| 0.41 | Independent pilot findings ranked and retested |
+| 0.42 | Cohort evidence supports product and commercial decisions |
+| 0.43 | Rights, policy, store, support, privacy, and package truth ready |
+| 0.44 | Frozen RC survives rehearsal |
 | 1.0 | Owner-authorized public release at exact verified identity |
 
-**Current next action:** playtest response on the version lane (`SUN_PLAYTEST_RESPONSE_PLAN.md`). Do not mint or open 0.36.
+**Current next action:** Wave 1, 0.37 Deeper Crew (§14A), starting with `SUN-ROMANCE-ARC-01` (Lena). The earlier instruction stands for version paint: `SUN_PLAYTEST_RESPONSE_PLAN.md` is history, and the paint rule is unchanged. Do not mint or open 0.36 as a certified version; wave paint moves only when Manraj names it.
 
 **Hard holds that survive every later version in this file:** leave PR 45/46; ART-R2 held; no certify; last certified `0.28.1d`; no auto-Netlify; no main close-out; no leftover drain.

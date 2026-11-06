@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 4f0f08a (after PR #496)`
+`work_branch_tip: 8814738 (after PR #497)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -59,12 +59,14 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 494 | SUN-PLATE-FACES-06 | The face gate covers the five HITL plates that show crew, on every resolver path. Exposures went from 13 to 0. |
 | 495 | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
 | 496 | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
-| this PR | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
+| 497 | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
+| this PR | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
 
 ## Open
 
 **Lead queue (no owner decision needed):**
 
+- **Wave 1, 0.37 Deeper Crew (ROADMAP §14A):** `SUN-ROMANCE-ARC-01` (Lena) first, then Mira, Vess, Amara, Sela; then callbacks, crew friction and per-crew epilogues. One PR each, prose offered to Myth before merge. Gate 1 is Manraj's full run plus one stranger's full read.
 - Keep running `scripts/sun-browser-bot.mjs` batches after each batch of merges, and fix what it finds as one-PR tickets.
 - Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
 - Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
@@ -87,6 +89,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 
 **Ruled by Manraj, 2026-11-05:**
 
+- **Growth roadmap, D1–D8: approved in full** (the *Sunsplitter Feature Roadmap Proposal*, lead doc). Recorded as ROADMAP §14A and LOCKS L-050–L-056 in SUN-ROADMAP-WAVES-01. Romance arcs to named end states; Story growth II widens Landfall and Yellow Circle; three save slots; one anonymous choice counter; cross-run memory that never changes an outcome; chapter start after a finished run; SFW toggle stays held; waves take 0.37–0.40 and the review path moves to 0.41–0.44; recruiting is the first tools spend.
 - **2: yes.** Unreadable saves get an export escape hatch. This reverses the 0.32 fail-closed Export rule for unreadable bytes only. It lands as SUN-UNREADABLE-EXPORT-01.
 - **3: keep.** Amara stays on intro slide 1.
 - **6: A.** After an aborted hard burn, `final_choice` stops offering Hold. Landed in SUN-FINAL-HOLD-ONCE-01.
@@ -111,6 +114,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** SUN-HITL-SHADOW-02. Unshadow the 27 owner-approved event plates whose scenes' own `image` overrides their mapped plate, face-gating each one. Then the next browser-bot batch. **Manraj:** say when you want a preview deploy to play.
+**Lead:** `SUN-ROMANCE-ARC-01`, Lena's arc (ROADMAP §14A, Wave 1), then the next browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->

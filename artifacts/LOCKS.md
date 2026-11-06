@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `a65ebcd432a00f3bfad860d177cbffd3208d73570ee9a77648036b0795405931`
+**Roadmap source SHA-256:** `fbf30febb12bebae3886bda7eaa0bfb8417425753eae596b86fa69f8463160b3`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -76,11 +76,27 @@ Mira’s irises are ice-blue. Green-eyed Mira is drift. Hair remains dark brown 
 
 Official lock bytes remain `images/mira.jpg` and `images/bodysuit_mira.jpg`. Green-eye / freckled Mira plates are not identity-valid. This row does not authorize regen.
 
+## Ruled (growth roadmap; 2026-11-05)
+
+Manraj approved the *Sunsplitter Feature Roadmap Proposal* in full on 2026-11-05, each decision as the lead recommended. These rows open named sub-locks of L-002 and renumber the version spine; the approved language is in ROADMAP §2 and §14A. They authorize ticket PRs on the work branch for the waves in order. They mint no version paint and carry no close-out, release, deploy, Netlify, certification or publication credit. `landing_sha` is the commit that recorded the ruling.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-050 | LOCKED | Romance arcs run to a named end state (offer, cost, late callback inside a hard decision, last scene); existing flags and trust carry it; no meter (D1) | ROADMAP §2 romance; §14A Wave 1 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-051 | LOCKED | Story growth II widens the Landfall and Yellow Circle endings into full routes with the existing cast; a new post-ending cast is rejected (D2) | ROADMAP §2 product and canon; §14A Wave 3 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-052 | LOCKED | Three named local save slots plus export; slot 1 is the current save; legacy saves migrate (D3) | ROADMAP §2 UI and save model; §14A Wave 2 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-053 | LOCKED | One backend exception: an anonymous choice counter on a serverless function; counts only, shown after choosing, game plays with it down (D4) | ROADMAP §2 architecture; §14A Wave 3 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-054 | LOCKED | Cross-run ship memory in its own namespace: endings reached, crew lost, plates seen, memory board, great forks; never changes an outcome; never inside an ending (D5) | ROADMAP §2 UI and save model; §14A Wave 2 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-055 | LOCKED | Chapter start from Act 2 or Act 3 after a finished run, from that run's own state; grants nothing a fresh run could not reach | ROADMAP §2 UI and save model; §14A Wave 3 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+| L-056 | LOCKED | Version renumbering: growth waves are 0.37–0.40; External Review 0.41, Cohort 0.42, Commercial 0.43, Rehearsal 0.44, then 1.0. Tools budget: playtest recruiting first, art and audio at their waves (D7, D8) | ROADMAP §4; §14A; §18 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
+
+L-040 (the explicit-content toggle) stays HELD; Manraj re-affirmed it on 2026-11-05 (D6) and will decide on the gate-2 playtest evidence at Wave 4. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
+
 ## Held, deferred, rejected, and limited
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-040 | HELD | Breast-cover / explicit-content toggle | ROADMAP §§2, 14 |
+| L-040 | HELD | Breast-cover / explicit-content toggle; re-affirmed 2026-11-05, decided at Wave 4 on playtest evidence | ROADMAP §§2, 14, 14A |
 | L-041 | DEFERRED | Pair residual textures, debt, and pregnancy texture to evidence-gated 0.29 scope | ROADMAP §14 |
 | L-042 | REJECTED | Unrestricted AI roadmap editing; proposal PR only | ROADMAP §14 |
 | L-043 | DEFERRED | Engine/state mechanical split until after 1.0 or separate approval | ROADMAP §14 |
