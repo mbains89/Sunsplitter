@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-05`
+`updated_utc: 2026-11-06`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: cadf259 (after PR #503)`
+`work_branch_tip: 3f45133 (after PR #507)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -67,7 +67,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
 | 502 | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
 | 503 | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
-| this PR | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| 506 | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| this PR | SUN-CREW-EPILOGUES-01 | Wave 1, workstream 4. What Remains gains a second block, "The crew": one paragraph per crew member, alive or dead, in crew order, each in that character's own lens for the dead (Lena clinical fact, Elias by what he covers, Mira by what she built, Tomas by habits, Amara by what she tended, Jiro by a logged position, Sela by names at yellow, Vess by registry order), citing only this run's facts: the logged cause of death, tested promises, private lines, the vault decision against the side they stood for, recorded answers and pair outcomes. Untested promises stay silent (L-024); the dead are past tense; unrecovered crew get one sentence. Rendered in its own element under the unchanged 3–6 reflection lines, so L-008's cap and every check that pins them hold. `crewEpilogues()` in `src/state.js`; `sun-playerflow-crew-epilogues-checks.mjs`. No state, no choices, no art. |
 
 ## Open
 
@@ -119,6 +120,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - Both vow paths write `sela_vault_vow: "accepted"`, so `pursuit_sela_sex`'s private-vow memory branch never runs and `prom_make_sela` treats a private vow as logged. The new scenes read `pursuit_sela_cost` instead, which is honest; the memory bug is a one-line fix if you want it.
    - The second-key line in `custody_shared` and the past-amber line spend the bible's canon that shared custody is a proposal in her culture's dialect, without saying the word. Say so if that beat should wait for the per-crew epilogues or for Wave 3's Yellow Circle route (L-051).
 
+17. **What Remains length (L-008 against §14A workstream 4).** L-008 (ROADMAP §8) fixes What Remains at 3–6 lines; the growth ruling's workstream 4 asks for one paragraph per crew member there. This PR reads the two together: the 3–6 reflection lines stay exactly as they were, and the per-crew block sits under them as a second section, "The crew", about 300–500 words. Recommendation: record on the L-008 row that the §14A ruling added the crew section beneath the capped reflection (one line in LOCKS, next LOCKS edit). If you would rather keep the screen at 3–6 lines, say so and the block moves behind a "Read the crew" button on the same screen instead.
+
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
    - Six plates show a sliver of the Commander's cheek, jaw or ear, never the eyes: `records_changeorders`, `act2_tether_lie`, `act3_reckoning_cut`, `act3_reckoning_briefing`, `aftermath_seal` and `aftermath_seal_order` (the most visible). Does that pass the faceless rule?
@@ -152,6 +155,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** Wave 1 workstream 3, `SUN-CREW-FRICTION-01` (three or four pair scenes where crew disagree with each other). **Manraj:** the five romance arcs and the callbacks are in; a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** land `SUN-CREW-EPILOGUES-01` on Myth's read (decision 15), then a browser-bot batch on the tip; Wave 1 is then written and waits on gate 1. **Manraj:** paste the Myth block into the Myth chat (the holds on the open prose PRs); then a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second.
 
 <!-- STATUS_COMPLETE -->

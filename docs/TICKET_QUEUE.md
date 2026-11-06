@@ -8,22 +8,23 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
-| SUN-CALLBACKS-01 | Lead | This PR. Thirteen text-only callbacks across ten existing scenes, each gated on a run fact and a living speaker; `sun-playerflow-callbacks-checks.mjs` covers all of them. |
-| SUN-CREW-FRICTION-01 | Lead | Next. |
+| SUN-CREW-EPILOGUES-01 | Lead | This PR. `crewEpilogues()` renders one paragraph per crew member into `#what-remains-crew`; `sun-playerflow-crew-epilogues-checks.mjs` covers it. **Holds for the Myth chat's read before merge** (STATUS decision 15). |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
 | Ticket | Scope |
 |---|---|
 | SUN-ROMANCE-ARC-01..05 | Lena, Mira, Vess, Amara, Sela. One PR per arc. Landed: #499, #500, #501, #502, #503. |
-| SUN-CALLBACKS-01 | 12–15 diegetic callbacks across existing scenes (promise, attributable death, ideology). This PR: thirteen. |
-| SUN-CREW-FRICTION-01 | Three or four pair scenes where crew disagree with each other. |
-| SUN-CREW-EPILOGUES-01 | One paragraph per crew member in What Remains. |
+| SUN-CALLBACKS-01 | 12–15 diegetic callbacks across existing scenes (promise, attributable death, ideology). Landed: #506, thirteen. |
+| SUN-CREW-FRICTION-01 | Four pair scenes where crew disagree with each other. PR #508. |
+| SUN-CREW-EPILOGUES-01 | One paragraph per crew member in What Remains. This PR. |
 
 Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verify, coverage and the browser bot are green; face exposures stay at zero.
 
 ## Waiting on Manraj
 
+- Open the Myth chat and paste its block; the open prose PRs merge on Myth's read (or on Manraj dropping the hold, STATUS decision 15).
+- STATUS decision 17 (What Remains length: L-008 against §14A workstream 4).
 - Gate 1 (above) once the Wave 1 tickets land.
 - STATUS decision 8 (art questions from the roster audit).
 - Close the stale PRs listed in STATUS.
