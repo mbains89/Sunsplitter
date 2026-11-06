@@ -72,7 +72,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "21709dae05e2082f821a90b6e95a57720448689d65e636131b34c3c57c7471a1"; // SUN-ROMANCE-ARC-02: 228 ids with mira_root_cause pair
+const EXPECTED_SCENE_IDS_SHA256 = "0a0c05179c4011b7825488469d812a772005d10bb6f2096f7686ccd45d5c8fc5"; // SUN-ROMANCE-ARC-03: 230 ids with the vess_item_two pair
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
@@ -2925,7 +2925,10 @@ function offshiftVessImageTruthChecks(runtime) {
       if (row[field] !== expected) errors.push(`offshift_vess ${field} must use the official Vess portrait; got ${row[field]}`);
     }
     if (row.alt !== "Portrait of Vess.") errors.push("Off-Shift Vess portrait alternative drifted");
-    if (row.exits?.length !== 3 || row.exits.some(next => next !== "faction_split")) {
+    // SUN-ROMANCE-ARC-03: a partner also gets "Solve it." -> vess_item_two; the three existing exits stay.
+    const existingExits = row.exits?.filter(next => next === "faction_split") || [];
+    const extraExits = row.exits?.filter(next => next !== "faction_split") || [];
+    if (existingExits.length !== 3 || JSON.stringify(extraExits) !== JSON.stringify(row.romanced ? ["vess_item_two"] : [])) {
       errors.push("Off-Shift Vess existing exits changed");
     }
   }

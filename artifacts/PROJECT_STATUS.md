@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 44789f9 (after PR #499)`
+`work_branch_tip: 52ecdd8 (after PR #500)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -63,7 +63,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 497 | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
 | 498 | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
 | 499 | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
-| this PR | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
+| 500 | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
+| this PR | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
 
 ## Open
 
@@ -98,6 +99,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - Her backstory has two versions (`src/state.js` drive specialist vs `FABLE_CASCADE_BACKGROUND.md` commissioning engineer); the new scenes use neither.
    - The "you" answer spends the bible's spoken self fault-log ("Mira. Error. ...") inside an optional partner scene. Say so if it belongs elsewhere.
 
+11. **Vess, from SUN-ROMANCE-ARC-03 (Wave 1):**
+   - PX5-D06 / PX6-F03 is still unruled: accepting her offer writes `romance.vess` before the window choice, so "Keep the window" leaves a partner with no private hour. The new scene treats that player as a partner and says so in her words ("Logged as: pending"). Rule if you want acceptance-without-the-hour to count differently.
+   - `images/vess_boarding.jpg` (replaced in SUN-HITL-WIRE-02) matches `vess.jpg` but also shows Lena's face and is not in `PLATE_FACES`; it renders with Lena dead. One-line gate fix if you confirm the face is hers — Muse audit.
+   - The L-029 discard list still names `vess_boarding`, `vess_offer`, `vess_intimate` and `vess_signal` by filename although their bytes were replaced on 2026-09-27. Say whether the list should be re-cut to the current bytes.
+   - The scene spends two bible beats once each: the "Dawnbreak log, personal" register and the day she stops correcting "Captain" (the correcting reflex itself had never shipped; the scene shows one correction before the one she lets stand).
+
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
    - Six plates show a sliver of the Commander's cheek, jaw or ear, never the eyes: `records_changeorders`, `act2_tether_lie`, `act3_reckoning_cut`, `act3_reckoning_briefing`, `aftermath_seal` and `aftermath_seal_order` (the most visible). Does that pass the faceless rule?
@@ -131,6 +138,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** `SUN-ROMANCE-ARC-03`, Vess's arc (ROADMAP §14A, Wave 1); then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** `SUN-ROMANCE-ARC-04`, Amara's arc (ROADMAP §14A, Wave 1); then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->
