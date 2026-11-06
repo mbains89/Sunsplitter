@@ -288,8 +288,6 @@ const sceneImages = {
   prom_price: "images/prom_price.jpg",
   prom_price_keep: "images/prom_price_keep.jpg",
   prom_price_break: "images/prom_price_break.jpg",
-  breath_word_given: "images/breath_word_given.jpg",
-  breath_word_refused: "images/breath_word_refused.jpg",
   breath_racks: "images/breath_racks.jpg",
   custody_onset: "images/custody_onset.jpg",
   custody_thaw: "images/custody_thaw.jpg",

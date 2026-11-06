@@ -309,7 +309,7 @@ function runtimeErrors(runtime) {
       warmth_meal: "images/hydroponics.jpg",
       past_leak: "images/elias.jpg",
       bond_tomas: "images/bond_tomas.jpg",
-      hold_bolts_again: "images/vault.jpg",
+      hold_bolts: "images/vault.jpg", // SUN-DIET-REPLY-FOLD-01: hold_bolts_again is a reply on hold_bolts now
       pursuit_lena: "images/lingerie_lena.jpg",
       pursuit_amara: "images/lingerie_amara.jpg",
       prom_make_lena_ag: "images/afterglow_lena.jpg",

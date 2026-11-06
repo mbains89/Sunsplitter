@@ -198,6 +198,14 @@
       if (allSource.includes('"' + id + '"') || allSource.includes("'" + id + "'")) reachable.add(id);
     }
     ids.filter(id => id !== "ending_check" && !reachable.has(id)).forEach(id => warnings.push(`reachability: "${id}" not reachable from wake (static+source)`));
+    // SUN-DIET-REPLY-FOLD-01: a retired answer screen stays retired (its id resumes old saves at
+    // its exit) and a fixed exit must exist.
+    if (typeof RETIRED_SCENE_EXITS === "object" && RETIRED_SCENE_EXITS) {
+      for (const [rid, exit] of Object.entries(RETIRED_SCENE_EXITS)) {
+        if (scenes[rid]) errors.push(`${rid}: retired scene id is registered again`);
+        if (typeof exit === "string" && !scenes[exit]) errors.push(`${rid}: retired exit "${exit}" does not exist`);
+      }
+    }
     if (!scenes.ending_check) errors.push("missing required scene ending_check");
     if (!scenes.wake) errors.push("missing required scene wake");
     for (const id of ["act3_lethal_lena_clock", "act3_lethal_tomas_cost", "act3_lethal_elias_order", "act3_lethal_mira_board"]) {

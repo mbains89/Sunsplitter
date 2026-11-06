@@ -10,11 +10,11 @@ export function livingCastChecks(runtime) {
       assert.equal(result.length, 0, JSON.stringify(result.slice(0, 12)));
     } catch (error) { errors.push(`Living cast ${label}: ${error.message}`); }
   };
-  assert.equal(runtime.sceneIds.length, 242); // SUN-CREW-FRICTION-01: + four pair scenes and their replies
+  assert.equal(runtime.sceneIds.length, 231); // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 folded answer screens
 
   check("authored living branches and absent entry guards", `(() => {
     const failures = [];
-    if (Object.keys(livingCastContracts).length !== 139) failures.push("required 139-site guard inventory changed"); // SUN-CREW-FRICTION-01: + eight pair sites
+    if (Object.keys(livingCastContracts).length !== 134) failures.push("required 134-site guard inventory changed"); // SUN-CREW-FRICTION-01: + eight pair sites; SUN-DIET-REPLY-FOLD-01: - hold_bolts_again/_silent, filters_stencil_luck/_silent, arc_living_sela_answer (their speakers are reply who lines)
     const read = (scene, desc) => {
       const raw = desc.get ? desc.get.call(scene) : desc.value;
       return typeof raw === "function" ? raw.call(scene) : raw;

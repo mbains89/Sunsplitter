@@ -1566,7 +1566,7 @@ function resolveSceneImageUngated(id, scene) {
   if (id === "pregnancy_check") {
     return isAlive("lena") ? "images/lena.jpg" : "images/corridor_pressure_3.jpg";
   }
-  if (["filters_stencil", "filters_stencil_luck", "filters_stencil_silent", "offshift_sela"].includes(id)) {
+  if (["filters_stencil", "offshift_sela"].includes(id)) {
     return isAlive("sela") ? "images/sela.jpg" : "images/corridor_pressure_3.jpg";
   }
   // HITL wire (MEASURE_LIVE_VS_HITL_88 + OWNER): living Elias tether uses staged event_id plate;
@@ -1937,13 +1937,36 @@ function snapshotState() {
   return snap;
 }
 
+// SUN-DIET-REPLY-FOLD-01 (L-057): one-line answer screens folded into the previous choice's reply
+// and retired from the registry. Autosave lands on every screen, so a save can be parked on one;
+// it resumes at that screen's only exit, entered fresh, exactly as if its Continue had been
+// pressed. None of them wrote anything on entry that a save parked there does not already hold.
+const RETIRED_SCENE_EXITS = {
+  hold_bolts_again: "act3_spine_next",
+  hold_bolts_silent: "act3_spine_next",
+  breath_word_given: "breath_hub",
+  breath_word_refused: "breath_hub",
+  arc_living_sela_answer: "arc_living_3",
+  filters_stencil_luck: "offshift_sela",
+  filters_stencil_silent: "offshift_sela",
+  act3_lethal_tomas_stores: "act3_lethal_elias_order",
+  act3_lethal_tomas_structure: "act3_lethal_elias_order",
+  act3_lethal_elias_brace: "act3_lethal_mira_board",
+  act3_lethal_mira_collar: () => state.romance && state.romance.mira ? "mira_root_cause" : "faction_split"
+};
+function retiredSceneExit(id) {
+  if (!Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, id)) return null;
+  const exit = RETIRED_SCENE_EXITS[id];
+  return typeof exit === "function" ? exit() : exit;
+}
 
 function validSnapshotShape(data) {
   const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
   if (!isRecord(data)) return false;
 
   const sceneId = typeof data.scene === "string" && data.scene ? data.scene : "";
-  if (!sceneId || !Object.prototype.hasOwnProperty.call(scenes, sceneId)) return false;
+  if (!sceneId || !(Object.prototype.hasOwnProperty.call(scenes, sceneId) ||
+      Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, sceneId))) return false;
 
   for (const key of ["survivors", "integrity", "cohesion", "supplies", "embryos"]) {
     const value = data[key];
@@ -2012,6 +2035,9 @@ function applySnapshot(data) {
   if (typeof data.commanderCallsign === "string" && data.commanderCallsign) state.commanderCallsign = data.commanderCallsign;
   if (typeof data.commanderSeal === "string" && data.commanderSeal) state.commanderSeal = data.commanderSeal;
   if (typeof data.commanderOath === "string" && data.commanderOath) state.commanderOath = data.commanderOath;
+  // SUN-DIET-REPLY-FOLD-01: a retired answer screen resumes at its exit (loadGame enters it fresh).
+  const retiredExit = retiredSceneExit(sceneId);
+  if (retiredExit) state.scene = retiredExit;
   return true;
 }
 
@@ -2562,8 +2588,11 @@ function loadGame() {
   }
   showScreen("game");
   renderStatus();
-  const sceneEntered = data.sceneEntered === true;
-  showScene(state.scene, { skipOnEnter: sceneEntered, resume: true });
+  // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01):
+  // enter the exit and render it as a live entry, exactly as that screen's Continue did.
+  const retiredResume = state.scene !== data.scene;
+  const sceneEntered = data.sceneEntered === true && !retiredResume;
+  showScene(state.scene, { skipOnEnter: sceneEntered, resume: !retiredResume });
   // Older snapshots predate the scene-entry marker. Preserve their one-time
   // compatibility entry, then adopt the marker so later resumes stay pure.
   if (!sceneEntered && !persistSave({ silent: true })) {

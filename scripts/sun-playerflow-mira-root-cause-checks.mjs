@@ -18,10 +18,17 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   const story = () => document.getElementById("story").innerHTML;
   const row = {};
   // Board exits route a partner to the question and everyone else to faction_split.
+  // SUN-DIET-REPLY-FOLD-01: the collar result is now the board choice's reply, so its exit is that choice's next.
   for (const [name, setup] of [["partner", () => { state.romance.mira = true; }], ["other", () => {}]]) {
     row[name] = {};
     for (const branch of ["reserve", "collar"]) {
       fresh(); setup();
+      if (branch === "collar") {
+        showScene("act3_lethal_mira_board");
+        const exit = scenes.act3_lethal_mira_board.choices.find(c => c.text.startsWith("Cut the transfer collar"));
+        row[name][branch] = { next: exit.next };
+        continue;
+      }
       showScene("act3_lethal_mira_" + branch);
       const exit = scenes["act3_lethal_mira_" + branch].choices[0];
       row[name][branch] = { next: exit.next };

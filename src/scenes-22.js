@@ -1,55 +1,7 @@
 // Sunsplitter — scenes-22.js
-// 0.28.1c size hygiene. Pure mechanical. late: tomas structure + end
+// 0.28.1c size hygiene. Pure mechanical. late: tomas end (structure result is a reply on act3_lethal_tomas_cost, SUN-DIET-REPLY-FOLD-01)
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
-
-act3_lethal_tomas_structure: {
-  onEnter: () => {
-    if (!isAlive("tomas") || !state.recovered || !state.recovered.tomas) {
-      return "act3_lethal_elias_order";
-    }
-    const pureFuture = state.flags.vault_sacrifice === "future" &&
-      (state.flags.tomas === "future" || hasMark("tomas", "broke"));
-    if (pureFuture) {
-      const stranded = ["sela", "jiro", "vess", "amara", "mira", "elias", "lena"]
-        .find(key => isAlive(key));
-      if (!stranded) return "act3_lethal_elias_order";
-    } else if (state.flags.trays_dead) {
-      return "act3_lethal_elias_order";
-    }
-  },
-  get text() {
-    if (!isAlive("tomas")) return `The structural cost remains. Tomas does not.`;
-
-    const pureFuture = state.flags.vault_sacrifice === "future" &&
-      (state.flags.tomas === "future" || hasMark("tomas", "broke"));
-    if (pureFuture) {
-      const stranded = ["sela", "jiro", "vess", "amara", "mira", "elias", "lena"]
-        .find(key => isAlive(key));
-      if (!stranded || !crew[stranded]) return `The service throat has no living tag. The watch continues.`;
-      const name = crew[stranded].first;
-      return `The rack quench is clean.
-
-Nitrogen leaves the vault, holds the service throat, and carries ${name} back through it. Eight viability points vanish without making a sound.
-
-Tomas releases the hatch when the crossing is complete.
-
-"Eight from the vault," Tomas says. He keeps ${name}'s suit tag beside the new count.`;
-    }
-
-    return `The Sunsplitter rolls three degrees against the drift.
-
-The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.
-
-Tomas reads the new fracture line, then the green strip.
-
-"Seven from Integrity," Tomas says. He keeps the annex pressure trace beside the new fracture line.`;
-  },
-  choices: [
-    { text: "Keep the cost on the board. Continue.", next: "act3_lethal_elias_order" }
-  ],
-  image: "images/quiet_tomas.jpg"
-},
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
 // SCENE_ID: act3_lethal_tomas_end

@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-21.js
-// 0.28.1c size hygiene. Pure mechanical. late: tomas cost + stores
+// 0.28.1c size hygiene. Pure mechanical. late: tomas cost (stores and structure results are its replies, SUN-DIET-REPLY-FOLD-01)
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
@@ -76,20 +76,32 @@ He sets the helmet down long enough to leave the decision with you.`;
         return [{ text: "The throat has no living tag. Continue.", next: "act3_lethal_elias_order" }];
       }
       const name = crew[stranded].first;
+      // SUN-DIET-REPLY-FOLD-01 (L-057): the non-lethal results are the replies; act3_lethal_tomas_stores
+      // and act3_lethal_tomas_structure retired. ${name} lines are gated on the stranded crew member.
       return [
         {
           text: `Spend reserve oxygen and patch compound. Bring ${name} through.`,
-          next: "act3_lethal_tomas_stores",
+          next: "act3_lethal_elias_order",
           effects: { supplies: -8 },
           requires: { supplies: { min: 8 } },
-          alive: "tomas"
+          alive: "tomas",
+          reply: [
+            `Reserve oxygen enters the service throat hard enough to make the bulkhead ring. Patch compound follows in a white sheet.`,
+            { who: stranded, text: `${name} crosses before the temporary pressure fails. Tomas closes the manual release only after the living body is on this side.` },
+            { who: "tomas", text: `"Eight from stores," he says. "Put it beside the name."` }
+          ]
         },
         {
           text: "Quench the outer embryo rack. Use its nitrogen to hold the throat.",
-          next: "act3_lethal_tomas_structure",
+          next: "act3_lethal_elias_order",
           effects: { embryos: -8 },
           requires: { embryos: { min: 8 } },
-          alive: "tomas"
+          alive: "tomas",
+          reply: [
+            `The rack quench is clean.`,
+            { who: stranded, text: `Nitrogen leaves the vault, holds the service throat, and carries ${name} back through it. Eight viability points vanish without making a sound.` },
+            { who: "tomas", text: `Tomas releases the hatch when the crossing is complete. "Eight from the vault," he says. He keeps ${name}'s suit tag beside the new count.` }
+          ]
         },
         {
           text: "Confirm the seal. Tomas has told you he will open the throat from the vented side.",
@@ -106,17 +118,27 @@ He sets the helmet down long enough to leave the decision with you.`;
     return [
       {
         text: "Cut the annex loose. Lose the viable stock and keep Tomas inside.",
-        next: "act3_lethal_tomas_stores",
+        next: "act3_lethal_elias_order",
         effects: { supplies: -8 },
         requires: { supplies: { min: 8 } },
-        alive: "tomas"
+        alive: "tomas",
+        reply: [
+          `The collar charges fire. The annex falls away.`,
+          `Eight points leave Supplies before the green strip becomes too small to see.`,
+          { who: "tomas", text: `Tomas watches it without touching the suit. "The mouths pay," he says. "Write that. Not me. Not this time."` }
+        ]
       },
       {
         text: "Torque the hull. Let the spine pay and reseat the collar remotely.",
-        next: "act3_lethal_tomas_structure",
+        next: "act3_lethal_elias_order",
         effects: { integrity: -7 },
         requires: { integrity: { min: 17 } },
-        alive: "tomas"
+        alive: "tomas",
+        reply: [
+          `The Sunsplitter rolls three degrees against the drift.`,
+          `The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.`,
+          { who: "tomas", text: `Tomas reads the new fracture line, then the green strip. "Seven from Integrity," he says. He keeps the annex pressure trace beside the new fracture line.` }
+        ]
       },
       {
         text: "Preserve the stock and the hull. Let Tomas enter with nine minutes of feed for a twelve-minute reseat.",
@@ -127,95 +149,4 @@ He sets the helmet down long enough to leave the decision with you.`;
   },
   image: "images/tomas_break.jpg"
 },
-
-// ═══ SCENE DECLARATION ═══════════════════════════════════════════
-// SCENE_ID: act3_lethal_tomas_stores
-// VERSION:  0.25.0        TICKET: Lethal opportunities
-// PACKAGE:  Tomas — The Cost Comes Back
-// SPINE:    off-spine, reached via act3_lethal_tomas_cost choice 1
-//
-// PRECONDITIONS (live predicates, evaluated at render — never baked
-// at author time; must remain true if later versions add death vectors):
-//   requires: isAlive('tomas')
-//   requires: state.recovered.tomas === true
-//   loyalty-break predicate: flags.vault_sacrifice === 'future' and
-//     (flags.tomas === 'future' or hasMark('tomas', 'broke'))
-//   pure Future requires: one living stranded candidate selected via isAlive()
-//   recovery-debt requires: !state.flags.trays_dead
-//
-// STATE WRITES (exhaustive — every mutation this scene can cause):
-//   writes NOTHING.
-//
-// DEATH EXPOSURE: none
-// DEAD-SPEECH CHECK: Tomas dialogue/action guarded by isAlive('tomas'); any
-//   stranded named character is selected through isAlive() before acting
-// IMAGE: images/quiet_tomas.jpg [REUSE quiet_tomas; EXISTS; NO BAKED TEXT]
-// ═════════════════════════════════════════════════════════════════
-act3_lethal_tomas_stores: {
-  onEnter: () => {
-    if (!isAlive("tomas") || !state.recovered || !state.recovered.tomas) {
-      return "act3_lethal_elias_order";
-    }
-    const pureFuture = state.flags.vault_sacrifice === "future" &&
-      (state.flags.tomas === "future" || hasMark("tomas", "broke"));
-    if (pureFuture) {
-      const stranded = ["sela", "jiro", "vess", "amara", "mira", "elias", "lena"]
-        .find(key => isAlive(key));
-      if (!stranded) return "act3_lethal_elias_order";
-    } else if (state.flags.trays_dead) {
-      return "act3_lethal_elias_order";
-    }
-  },
-  get text() {
-    if (!isAlive("tomas")) return `The expenditure is logged. Tomas is not there to read it.`;
-
-    const pureFuture = state.flags.vault_sacrifice === "future" &&
-      (state.flags.tomas === "future" || hasMark("tomas", "broke"));
-    if (pureFuture) {
-      const stranded = ["sela", "jiro", "vess", "amara", "mira", "elias", "lena"]
-        .find(key => isAlive(key));
-      if (!stranded || !crew[stranded]) return `The service throat has no living tag. The watch continues.`;
-      const name = crew[stranded].first;
-      return `Reserve oxygen enters the service throat hard enough to make the bulkhead ring. Patch compound follows in a white sheet.
-
-${name} crosses before the temporary pressure fails. Tomas closes the manual release only after the living body is on this side.
-
-"Eight from stores," he says. "Put it beside the name."`;
-    }
-
-    return `The collar charges fire. The annex falls away.
-
-Eight points leave Supplies before the green strip becomes too small to see. Tomas watches it without touching the suit.
-
-"The mouths pay," he says. "Write that. Not me. Not this time."`;
-  },
-  choices: [
-    { text: "Post the expenditure. Continue.", next: "act3_lethal_elias_order" }
-  ],
-  image: "images/quiet_tomas.jpg"
-},
-
-// ═══ SCENE DECLARATION ═══════════════════════════════════════════
-// SCENE_ID: act3_lethal_tomas_structure
-// VERSION:  0.25.0        TICKET: Lethal opportunities
-// PACKAGE:  Tomas — The Cost Comes Back
-// SPINE:    off-spine, reached via act3_lethal_tomas_cost choice 2
-//
-// PRECONDITIONS (live predicates, evaluated at render — never baked
-// at author time; must remain true if later versions add death vectors):
-//   requires: isAlive('tomas')
-//   requires: state.recovered.tomas === true
-//   loyalty-break predicate: flags.vault_sacrifice === 'future' and
-//     (flags.tomas === 'future' or hasMark('tomas', 'broke'))
-//   pure Future requires: one living stranded candidate selected via isAlive()
-//   recovery-debt requires: !state.flags.trays_dead
-//
-// STATE WRITES (exhaustive — every mutation this scene can cause):
-//   writes NOTHING.
-//
-// DEATH EXPOSURE: none
-// DEAD-SPEECH CHECK: Tomas dialogue/action guarded by isAlive('tomas'); any
-//   stranded named character is selected through isAlive() before acting
-// IMAGE: images/quiet_tomas.jpg [REUSE quiet_tomas; EXISTS; NO BAKED TEXT]
-// ═════════════════════════════════════════════════════════════════
 });

@@ -14,7 +14,7 @@ export const FIXED_EVENT_ART = {
 const PORTRAIT_EVENTS = {
   private_stores: "elias",
   prom_deck4_keep: "elias", prom_deck4_break: "elias", pregnancy_check: "lena",
-  filters_stencil: "sela", filters_stencil_luck: "sela", filters_stencil_silent: "sela", offshift_sela: "sela"
+  filters_stencil: "sela", offshift_sela: "sela" // SUN-DIET-REPLY-FOLD-01: _luck/_silent are replies now
 };
 
 export function artEventChecks(runtime) {

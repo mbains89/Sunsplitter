@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-24.js
-// 0.28.1c size hygiene. Pure mechanical. late: mira board + reserve + collar + end
+// 0.28.1c size hygiene. Pure mechanical. late: mira board + reserve + end (collar result is a reply, SUN-DIET-REPLY-FOLD-01)
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
@@ -65,12 +65,19 @@ The sealed reserve can flood the bay and force the contactor open. The transfer 
         requires: { supplies: { min: 9 } },
         alive: "mira"
       },
+      // SUN-DIET-REPLY-FOLD-01 (L-057): the collar result is the reply, with its exit (a partner is
+      // asked for the root cause, SUN-ROMANCE-ARC-02); act3_lethal_mira_collar retired.
       {
         text: "Cut the transfer collar loose. Save Mira and accept a permanently weaker drive.",
-        next: "act3_lethal_mira_collar",
+        next: state.romance.mira ? "mira_root_cause" : "faction_split",
         effects: { integrity: -8 },
         requires: { integrity: { min: 18 } },
-        alive: "mira"
+        alive: "mira",
+        reply: [
+          `The collar separates on the third charge. A section of transfer hardware turns slowly beyond the observation strip, still glowing at the cut.`,
+          `The cross-feed vanishes because half the system no longer exists. The drive returns inside a smaller envelope.`,
+          { who: "mira", text: `Mira reads the limit twice. "Cross-feed gone. Post the lower ceiling."` }
+        ]
       },
       {
         text: volunteer
@@ -126,50 +133,9 @@ Mira watches the line remain flat for a full minute.
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
-// SCENE_ID: act3_lethal_mira_collar
-// VERSION:  0.25.0        TICKET: Lethal opportunities
-// PACKAGE:  Mira — The Cross-Feed
-// SPINE:    off-spine, reached via act3_lethal_mira_board choice 2
-//
-// PRECONDITIONS (live predicates, evaluated at render — never baked
-// at author time; must remain true if later versions add death vectors):
-//   requires: isAlive('mira')
-//
-// STATE WRITES (exhaustive — every mutation this scene can cause):
-//   writes NOTHING.
-//
-// DEATH EXPOSURE: none
-// DEAD-SPEECH CHECK: Mira dialogue/action guarded by isAlive('mira'); dead
-//   entry redirects before image/text/choices
-// IMAGE: images/debris_field.jpg [REUSE abandoned_section; EXISTS]
-// ═════════════════════════════════════════════════════════════════
-act3_lethal_mira_collar: {
-  onEnter: () => {
-    if (!isAlive("mira")) return "faction_split";
-  },
-  get text() {
-    if (!isAlive("mira")) return `The missing collar remains on the schematic. Engineering is empty.`;
-    return `The collar separates on the third charge.
-
-A section of transfer hardware turns slowly beyond the observation strip, still glowing at the cut. The cross-feed vanishes because half the system no longer exists.
-
-The drive returns inside a smaller envelope.
-
-Mira reads the limit twice.
-
-"Cross-feed gone. Post the lower ceiling."`;
-  },
-  get choices() {
-    // SUN-ROMANCE-ARC-02 (L-050): a partner is asked for the root cause before the watch resumes.
-    return [{ text: "Put the lower ceiling on the board. Continue.", next: state.romance.mira ? "mira_root_cause" : "faction_split" }];
-  },
-  image: "images/debris_field.jpg"
-},
-
-// ═══ SCENE DECLARATION ═══════════════════════════════════════════
 // SCENE_ID: mira_root_cause           TICKET: SUN-ROMANCE-ARC-02 (L-050, Wave 1)
-// PRE: Mira living and romance.mira; reached only from act3_lethal_mira_reserve or
-//   act3_lethal_mira_collar, i.e. after the Commander overrode local to keep her.
+// PRE: Mira living and romance.mira; reached only from act3_lethal_mira_reserve or the
+//   act3_lethal_mira_board collar choice, i.e. after the Commander overrode local to keep her.
 // WRITES: none on entry. The three answers write flags.mira_root_cause ("drive" | "you" |
 //   "both") plus affinity/trust; no resource change.
 // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when Mira is dead or

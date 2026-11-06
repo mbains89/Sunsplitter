@@ -72,7 +72,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "58d00f5096bb97913c8568d8c7a512747be20b4fbd855a70dacf01ff4014879d"; // SUN-CREW-FRICTION-01: 242 ids with the four pair scenes and their replies
+const EXPECTED_SCENE_IDS_SHA256 = "d63b58fff3f9fd1e8a99fc787f09eabc038de09367e7c3a092cde27f97974009"; // SUN-DIET-REPLY-FOLD-01: 231 ids, the SUN-CREW-FRICTION-01 set minus 11 answer screens retired
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
