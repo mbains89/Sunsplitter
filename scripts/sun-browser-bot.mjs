@@ -65,8 +65,14 @@ const contextOptions = { ...(VIEWPORT === "phone" ? devices["Pixel 7"] : { viewp
 const RESIZES = [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 768, height: 1024 }, { width: 1024, height: 768 }, { width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 720, height: 450 }];
 const findings = new Map();
 const note = (kind, detail) => { if (!NOISE.test(detail)) findings.set(`${kind} | ${detail}`, (findings.get(`${kind} | ${detail}`) || 0) + 1); };
+// The story fingerprint leaves out a choice's reply (proposed L-057): it opens the screen once,
+// is never saved, and a reload or Continue shows the scene without it.
 const SNAPSHOT = () => JSON.stringify([state.scene, state.survivors, state.supplies, state.integrity, state.cohesion,
-  state.dead.slice().sort(), document.getElementById("story").textContent.slice(0, 120)]);
+  state.dead.slice().sort(), (() => {
+    const story = document.getElementById("story").cloneNode(true);
+    story.querySelectorAll(".choice-reply").forEach(p => p.remove());
+    return story.textContent.slice(0, 120);
+  })()]);
 const ORDER = ["new-run-confirm", "commander-create", "tutorial-overlay", "crew-sheet", "what-remains-screen",
   "ending-screen", "cinematic-screen", "game-screen", "title-screen", "tone-screen"];
 let incomplete = 0;
