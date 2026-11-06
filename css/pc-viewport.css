@@ -41,11 +41,11 @@ body,
     min-height: 0;
   }
 
+  /* SUN-DESKTOP-CHOICE-OVERLAP-01: choices follow the text in normal flow, as they do on
+     taller desktops. The sticky panel kept them in view but opened on top of unread text
+     (vault_reveal hid 440px at 1280×800). #main scrolls, so they stay reachable. */
   #choices {
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
-    background: rgba(8, 9, 11, 0.94);
+    position: static;
     padding-top: 8px;
   }
 }

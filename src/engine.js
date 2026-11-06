@@ -509,6 +509,29 @@ function prefetchChoicePlates(choices) {
   }
 }
 
+// SUN-REPLY-ENGINE-01 (proposed L-057): a choice may carry `reply`, one to three lines in which the
+// person in front of you answers the order, rendered as the first paragraph of the next screen.
+// Shape: a string (narration), { who, text }, or an array of those. `who` is a crew key; a line
+// whose speaker is dead or absent when the next screen renders is dropped (the next scene's
+// onEnter may have just killed them). Held in memory only: never written to state or the save,
+// carried across onEnter redirects, dropped on resume and when the choice ends the run.
+let pendingChoiceReply = null;
+
+function choiceReplyLines(reply) {
+  if (!reply) return [];
+  const list = Array.isArray(reply) ? reply : [reply];
+  return list.map(entry => typeof entry === "string" ? { who: "", text: entry } : entry)
+    .filter(entry => entry && typeof entry.text === "string" && entry.text.trim());
+}
+
+function renderPendingChoiceReply() {
+  const lines = pendingChoiceReply || [];
+  pendingChoiceReply = null;
+  return lines.filter(line => !line.who || isAlive(line.who))
+    .map(line => `<p class="choice-reply">${String(line.text).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 function showScene(id, opts) {
   const renderedRevision = ++choiceRenderRevision;
   opts = opts || {};
@@ -516,6 +539,7 @@ function showScene(id, opts) {
   document.getElementById("scene-id").textContent = id;
 
   if (id === "ending_check") {
+    pendingChoiceReply = null;
     resolveEnding();
     if (!opts.resume) showCinematic("ending");
     return;
@@ -572,7 +596,8 @@ function showScene(id, opts) {
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 
-  document.getElementById("story").innerHTML = `<div class="scene-text">${html}</div>`;
+  const replyHtml = opts.resume ? (pendingChoiceReply = null, "") : renderPendingChoiceReply();
+  document.getElementById("story").innerHTML = `<div class="scene-text">${replyHtml}${html}</div>`;
 
   const choicesEl = document.getElementById("choices");
   choicesEl.innerHTML = "";
@@ -2435,6 +2460,7 @@ function makeChoice(choice) {
   if (choice.lean && typeof choice.lean === "object") {
     Object.keys(choice.lean).forEach(side => lean(side, choice.lean[side]));
   }
+  pendingChoiceReply = choiceReplyLines(choice.reply);
   showScene(choice.next);
   // Changes from the order and from the next scene's entry both show on the bar.
   pulseChangedStatus(statusBefore);
