@@ -386,8 +386,13 @@ export function sunPlayerflowPacedRevealChecks() {
     check(/<div class="title-actions">[\s\S]*id="btn-text-pace"[\s\S]*<\/div>/.test(index), "G: Text setting missing from the title utilities");
     check(/<div class="meta-actions">\s*<button id="meta-text-pace"/.test(index), "G: Text setting missing from the in-run meta bar");
     check(/#choices\.reveal-pending\s*\{\s*display:\s*none;/.test(css), "G: pending choices are not hidden");
-    const desk = css.match(/@media \(min-width: 1024px\) and \(max-height: 800px\)\s*\{\s*#choices\s*\{([^}]*)\}/);
+    // The short-desktop rule that puts choices after the text lives in pc-viewport.css since #510.
+    const pcv = readFileSync(resolve(ROOT, "css/pc-viewport.css"), "utf8");
+    const deskAt = pcv.search(/@media\s*\(min-width:\s*1024px\)\s*and\s*\(max-height:\s*800px\)/);
+    const desk = deskAt >= 0 ? pcv.slice(deskAt).match(/#choices\s*\{([^}]*)\}/) : null;
     check(desk && /position:\s*static/.test(desk[1]), "G: short-desktop choices are not back in normal flow after the text");
+    const sticky = css.match(/#main\.reveal-active #reveal-controls\s*\{([^}]*)\}/);
+    check(sticky && /position:\s*sticky/.test(sticky[1]) && /bottom:\s*0/.test(sticky[1]), "G: Read on must stay in view while text waits (sticky at the bottom of #main)");
   }
 
   return errors;
