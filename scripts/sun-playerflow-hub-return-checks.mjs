@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const RETURN_LINE = "The corridor again. The vault light is still on. There is still work.";
+const RETURN_LINE = "The vault light is still on. There is still work.";
 const PARAGRAPH = [
   "The vault light stays on behind you.",
   "The ship has two men back who were written off, and a list of names that is no longer only numbers.",

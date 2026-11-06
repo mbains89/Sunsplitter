@@ -20,20 +20,21 @@ registerScenes({
     },
     text: () => {
       // SUN-DIET-HUB-01: a return is read from existing state, never written here. Each key below is
-      // spent only by an offer this hub makes after the vault: the warmth and favor scenes are offered
-      // nowhere else, and the Tomas, Jiro and Amara-Tomas offers elsewhere need a recovered Tomas or
+      // spent only by an offer this hub makes after the vault: the warmth, favor and crew-friction pair
+      // scenes are offered nowhere else, and the Tomas, Jiro and Amara-Tomas offers elsewhere need a
+      // recovered Tomas or
       // Jiro, which the opening walk and the private hours never have. Elias's hour is left out
       // because the opening walk can spend it; a return that spent none of these shows the paragraph
       // again, which errs toward the old text, never toward hiding the first visit.
       const f = state.flags;
       const returning = !!(f.warmth_meal || f.warmth_laughter || f.warmth_music || f.pair_favor ||
-        f.pair_grudge || f.quiet_tomas_done || state.romance.amara_tomas ||
+        f.pair_grudge || f.pair_seal || f.pair_burn || f.pair_fix || f.quiet_tomas_done || state.romance.amara_tomas ||
         hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped") ||
         hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped") ||
         hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"));
       let t;
       if (returning) {
-        t = `The corridor again. The vault light is still on. There is still work.`;
+        t = `The vault light is still on. There is still work.`;
       } else {
         t = `The vault light stays on behind you.`;
         if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
