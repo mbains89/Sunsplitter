@@ -24,12 +24,8 @@ const SEED = 23;
 const PICKERS = ["random", "cheapest"];
 // Laps known to repeat, keyed by the lap as printed. Matching is by cycle, so a rotation of the
 // same loop is covered by one entry. Anything not listed here that repeats is a failure.
-const ALLOWED_REPEATS = {
-  "intimacy_window > romance_amara_tomas > intimacy_window":
-    "SUN-AMARA-WALKIN-GATE-01 fixes; remove when it lands",
-  "act3_spine_next > romance_amara_tomas > intimacy_window > debt_notice > act3_spine_next":
-    "SUN-AMARA-WALKIN-GATE-01 fixes; remove when it lands"
-};
+// The two Amara walk-in laps were listed here until SUN-AMARA-WALKIN-GATE-01 (#512) closed them.
+const ALLOWED_REPEATS = {};
 
 // One lap's identity as a cycle: drop the closing scene and rotate to the smallest rotation.
 function cycleKey(lap) {
