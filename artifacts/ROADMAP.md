@@ -352,6 +352,8 @@ Fixed-seed automated timing plus real first-run and replay playthroughs. Capture
 
 Use PX-1 evidence to set first-run/replay ranges and beat-spacing. The 30–60 minute aspiration remains a hypothesis until measured. Add no player-facing clock.
 
+- **D11, ruled by Manraj 2026-11-06:** there is no fixed run-length target ("We dont have to stick to the 20 min target. dont artificially limit the game due to that"). Cuts remove only slack, repetition, or setups that never pay off; nothing is cut to meet a number. The 15-minute frame is withdrawn, and so is the "Deep" option's ~20 prose-minute target. No lock moves: L-008, L-024 and L-050 stand (STATUS decision 19).
+
 ### PX-3 — Behavioral Economy and Outcome Envelope
 
 Define acceptable outcome distributions. Change balance only for dominance, misleading choice, impossible/vanishing outcome, or dishonest resource presentation. Do not optimize toward symmetry.
