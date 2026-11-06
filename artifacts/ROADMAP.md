@@ -131,6 +131,10 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Pure static site: HTML, CSS, and JavaScript; no backend or required build step. **L-053 (2026-11-05)** opens one exception: an anonymous choice counter behind a serverless function on the existing host. It stores which choice was taken at a scene and nothing about the player, shows its count only after the player has chosen, and the game stays fully playable with the function down or blocked. No accounts, no cloud saves, no other backend.
 - Scenes remain pure data registered through JavaScript globals. A scene contains only `text | choices | onEnter | image` plus its registration key.
 - `onEnter` is the scene-level write hook. Rendering is side-effect-free.
+- **L-057 (2026-11-06), choice replies:** a choice may carry `reply`: one to three short lines shown once at the top of the next screen. Each line is narration or `{ who, text }` for a crew key.
+  - It is presentation only: never written to state or the save, not replayed on Continue or a re-render, and dropped when the choice ends the run.
+  - The engine drops a line whose speaker is dead or unrecovered when the screen renders. Narration never names someone who may be absent.
+  - No other choice key is added, and a scene still contains only `text | choices | onEnter | image`.
 - The engine stays thin. No TypeScript, framework, bundler, component rewrite, or engine/state mechanical split before 1.0.
 - No combat loop, mining, inventory, crafting, quest log, skill tree, visible gameplay dashboard, or new management system.
 - New state keys require a recorded lock and same-change registry/schema coverage. Never invent keys speculatively.
@@ -143,6 +147,14 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Choices remain stacked, legible, and touch/keyboard safe. There is no platform-specific story branch.
 - Primary interface is scene text, context, choices, and minimal utilities—not a conventional HUD, dashboard, notification layer, or quest surface.
 - Disabled choices disclose an honest reason. They do not disappear in ways that falsify cost or causality.
+- **L-058 (2026-11-06), costs after the order (D14):** enabled choices carry no cost tags by default; the cost shows after the order on the existing status bar.
+  - A reader setting on the title and in the meta bar restores the tags.
+  - Disabled choices keep their honest reason, and a trust lock names a living, recovered person or no one.
+  - Nothing is clamped or hidden after the fact (L-021).
+- **L-059 (2026-11-06), paced reveal (D15):** scene text arrives one paragraph at a time by default, with Read on kept in view, Show all, and a paced/instant reader setting.
+  - Resume, re-render and Continue show the scene whole. Choices appear after the last paragraph.
+  - The plate may push in slowly inside its frame, only within the crop Muse has cleared, and never under reduced motion.
+  - The setting is per-browser presentation, not save state.
 - Autosave/Continue discloses enough metadata to earn trust without exposing hidden consequence state.
 - Saves remain local and account-free through 1.0. Cloud saves are out. **L-052 (2026-11-05):** three named local slots plus the existing export; the current single slot becomes slot 1 and legacy saves migrate without loss.
 - **L-054 (2026-11-05), cross-run memory:** the ship may carry a small, named set of facts between runs (endings reached, crew lost, plates seen, the memory board, the great forks taken) in its own state namespace. Cross-run facts never change a scene's outcome; a second run is never easier because of a first. They surface only on the title, tone and wake screens, the post-run memory board and the gallery, never inside an ending. **L-055:** once a run has ended, the title may offer a start from Act 2 or Act 3 using that run's own state at the act boundary; it grants nothing a fresh run could not reach.
@@ -620,7 +632,7 @@ Rules that bind every wave:
 3. **Gallery (L-054).** Plates unlock as they are seen, adult plates included; nothing unseen is shown.
 4. **Memory board (L-054).** After a run: the seven endings as silhouettes with the ones reached lit, and the five great forks (crisis path, vault, tether, the lethals, the final choice) showing the branch taken and a marker where something else was possible. No scene-level spoilers. Post-run only, so L-047 holds.
 5. **The ship remembers (L-054).** On a later run, a handful of lines acknowledge earlier endings: the title, the tone screen, one line in the wake. Never inside an ending.
-6. **Reader settings.** Text size, line spacing and a dyslexia-friendly font beside the existing high-contrast mode.
+6. **Reader settings.** Text size, line spacing and a dyslexia-friendly font, beside the existing high-contrast mode and the text-pace and cost-tag settings (L-058, L-059).
 
 **Entry:** gate 1 passed.
 **Exit (gate 2):** three to five strangers play; P0 findings closed and retested; P1s triaged. Recruiting is the first tools spend (D8).
