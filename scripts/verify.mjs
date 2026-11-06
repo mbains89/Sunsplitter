@@ -72,7 +72,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "b8b8abd6dfb8d8e332632b4df9915019e1b521388547abd07b10ba614eed4069"; // SUN-ROMANCE-ARC-05: 234 ids with the sela_past_amber pair
+const EXPECTED_SCENE_IDS_SHA256 = "58d00f5096bb97913c8568d8c7a512747be20b4fbd855a70dacf01ff4014879d"; // SUN-CREW-FRICTION-01: 242 ids with the four pair scenes and their replies
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);

@@ -168,7 +168,7 @@
       "prom_amara_alluded", "prom_tomas_alluded", "prom_elias_alluded",
       "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
       "junctionChoice", "lena_notes", "lena_last_hour", "mira_root_cause", "vess_item_two", "amara_page", "sela_amber", "mira_fault_known", "course_briefed",
-      "pair_shield", "pair_grudge", "pair_favor",
+      "pair_shield", "pair_grudge", "pair_favor", "pair_triage", "pair_seal", "pair_burn", "pair_fix",
       "warmth_meal", "warmth_laughter", "warmth_music",
       "manifest", "changeorders"
     ]);

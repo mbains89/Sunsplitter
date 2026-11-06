@@ -1670,6 +1670,8 @@ function validImportedSnapshot(data) {
   const flagDomains = Object.fromEntries(Object.entries({
     abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
     mira_root_cause: ["drive", "you", "both"], vess_item_two: ["floor", "chair"], amara_page: ["open", "closed", "hers"], sela_amber: ["meaning", "sentence", "silence"],
+    // SUN-CREW-FRICTION-01: one flag per pair scene, written by the Commander's answer.
+    pair_triage: ["chart", "count", "open"], pair_seal: ["bulkhead", "names", "both"], pair_burn: ["finding", "width", "both"], pair_fix: ["fix", "track", "both"],
     breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
     coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
     custody_answer: ["severed", "possession", "thawed", "shared"],

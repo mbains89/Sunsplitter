@@ -62,6 +62,17 @@ registerScenes({
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
         opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
+      // SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): crew disagreeing with each other, one-shot,
+      // gated on both living and on the run fact they argue about. One flag per pair, written by the answer.
+      if (isAlive("elias") && isAlive("tomas") && !state.flags.tomas_scapegoated && state.flags.ship_memory && !state.flags.pair_seal) {
+        opts.push({ text: "Elias and Tomas are at the Deck 4 dog. The argument is about the feedstock.", next: "pair_seal_ledger" });
+      }
+      if (isAlive("mira") && isAlive("jiro") && state.flags.margin_committed && !state.flags.pair_burn) {
+        opts.push({ text: "Jiro has asked Mira for the burn record. The pane is closed.", next: "pair_burn_archive" });
+      }
+      if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
+        opts.push({ text: "Two columns on the tracker board. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
+      }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
       }
