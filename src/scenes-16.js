@@ -45,7 +45,8 @@ registerScenes({
         opts.push({ text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas", tag: "bond" });
       }
       // 0.28.1b: Amara+Tomas private — closed by shared encounter OR privacy leave (not a fabricated relationship)
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && state.flags.hydro === "full") {
+      // SUN-AMARA-WALKIN-GATE-01: asking them to stop closes it too.
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && !hasMark("amara", "interrupted") && state.flags.hydro === "full") {
         opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
       }
       if (isAlive("jiro") && !hasMark("jiro", "bonded") && !hasMark("jiro", "bond_skipped")) {

@@ -671,27 +671,61 @@ function buildPrivatePhoneGuide({ commit, tree }) {
   return lines.join("\n");
 }
 
-function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externalFontStylesheets }) {
-  const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/"));
-  const networkApiPatterns = [
-    ["fetch", /\bfetch\s*\(/],
-    ["XMLHttpRequest", /\bXMLHttpRequest\b/],
-    ["WebSocket", /\bWebSocket\b/],
-    ["EventSource", /\bEventSource\b/],
-    ["sendBeacon", /\bsendBeacon\s*\(/],
-    ["document.cookie", /\bdocument\.cookie\b/],
-    ["geolocation", /\bnavigator\.geolocation\b/]
-  ];
+const NETWORK_API_PATTERNS = [
+  ["fetch", /\bfetch\s*\(/],
+  ["XMLHttpRequest", /\bXMLHttpRequest\b/],
+  ["WebSocket", /\bWebSocket\b/],
+  ["EventSource", /\bEventSource\b/],
+  ["sendBeacon", /\bsendBeacon\s*\(/],
+  ["document.cookie", /\bdocument\.cookie\b/],
+  ["geolocation", /\bnavigator\.geolocation\b/]
+];
+
+// SUN-PRIVATE-PACKAGE-STAMP-01: the only network API call a packaged runtime file may make.
+// The review-build stamp reads, by relative same-origin path, the manifest this builder writes
+// into the same package root. The exemption is one exact call text in one exact file, used at
+// most once; every other network API use anywhere (another fetch target, an absolute URL,
+// XMLHttpRequest, sendBeacon, WebSocket, ...) still fails the scan. Allowed calls are recorded
+// in the manifest's networkApiMatches with their allowance, never dropped silently.
+export const ALLOWED_NETWORK_API_CALLS = Object.freeze([
+  Object.freeze({
+    path: "src/review-build-stamp.js",
+    api: "fetch",
+    call: "fetch(\"PRIVATE_PACKAGE_MANIFEST.json\", { cache: \"no-store\" })",
+    allowance: "SAME_ORIGIN_PACKAGE_MANIFEST_READ"
+  })
+]);
+
+export function scanRuntimeNetworkUse(textRuntimeFiles, allowedCalls = ALLOWED_NETWORK_API_CALLS) {
   const networkApiMatches = [];
+  const forbiddenNetworkApiMatches = [];
   const externalReferences = [];
   for (const file of textRuntimeFiles) {
     const text = file.data.toString("utf8");
-    for (const [name, pattern] of networkApiPatterns) {
-      if (pattern.test(text)) networkApiMatches.push({ path: file.path, api: name });
+    let scanned = text;
+    for (const allowed of allowedCalls) {
+      if (allowed.path !== file.path) continue;
+      const at = scanned.indexOf(allowed.call);
+      if (at === -1) continue;
+      scanned = `${scanned.slice(0, at)}${scanned.slice(at + allowed.call.length)}`;
+      networkApiMatches.push({ path: file.path, api: allowed.api, allowance: allowed.allowance });
+    }
+    for (const [name, pattern] of NETWORK_API_PATTERNS) {
+      if (pattern.test(scanned)) {
+        const match = { path: file.path, api: name };
+        networkApiMatches.push(match);
+        forbiddenNetworkApiMatches.push(match);
+      }
     }
     for (const match of text.matchAll(/https?:\/\/[^\s'"`)]+/g)) externalReferences.push({ path: file.path, url: match[0] });
   }
-  if (networkApiMatches.length) throw new Error(`private-draft network API scan found: ${JSON.stringify(networkApiMatches)}`);
+  return { networkApiMatches, forbiddenNetworkApiMatches, externalReferences };
+}
+
+function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externalFontStylesheets }) {
+  const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/"));
+  const { networkApiMatches, forbiddenNetworkApiMatches, externalReferences } = scanRuntimeNetworkUse(textRuntimeFiles);
+  if (forbiddenNetworkApiMatches.length) throw new Error(`private-draft network API scan found: ${JSON.stringify(forbiddenNetworkApiMatches)}`);
   const expectedExternalReferences = externalFontStylesheets.map(item => ({ path: "css/style.css", url: item.url }));
   if (JSON.stringify(externalReferences) !== JSON.stringify(expectedExternalReferences)) {
     throw new Error(`private-draft external reference scan drifted: ${JSON.stringify(externalReferences)}`);
