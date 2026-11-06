@@ -923,7 +923,7 @@ function buildYellowCircleText(vaultSac) {
     text += `There is no grand destination. There is the next cycle, and the circles, and the people who still make them.\n\n`;
   }
   // SUN-ROMANCE-ARC-05 (L-050): this ending skips the footer, so the arc's end state is cited here.
-  if (state.flags.sela_amber && isAlive("sela")) text += `Once, the lamp was lit for one person, and you stayed past amber.\n\n`;
+  if (state.flags.sela_amber && isAlive("sela")) text += `Sela lit the lamp for one person once, and you stayed past amber.\n\n`;
   const memory = lastEndingMemory();
   if (memory) text += `Something private still sits with you: ${memory}\n\n`;
   text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.\n\nThat is rarer than landfall.`;
@@ -1065,7 +1065,7 @@ function buildEndingFooter(deadNames, title, fav, shape) {
     const amber = state.flags.sela_amber === "meaning" ? `You asked what it meant for one person; she told you it was the whole of it.`
       : state.flags.sela_amber === "sentence" ? `You asked for the sentence she keeps unfinished; she kept it, and let you stand near it.`
       : `You said nothing, which she counted as the correct amount.`;
-    text += `\n\nSela performed the ritual for one person once, and you stayed past amber. ${amber}${isAlive("sela") ? "" : " That fact remains after her."}`;
+    text += `\n\nSela performed the ritual for one person once, and you stayed past amber. ${amber}${isAlive("sela") ? "" : " That fact outlived her."}`;
   }
   // SUN-ROMANCE-ARC-04 (L-050): Amara's end state, cited from the answer the run gave.
   if (state.flags.amara_page) {

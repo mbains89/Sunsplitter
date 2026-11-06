@@ -99,21 +99,21 @@ registerScenes({
       let t = `The lamp goes amber on schedule. She does not relight it.\n\n`;
       t += `"The ritual is finished," she says. "What follows is not the ritual, so I will say it in ordinary sentences, and I will say it with the lamp down, so that it is not mistaken for liturgy later."\n\n`;
       if (state.flags.pursuit_sela_cost === "vow") {
-        t += `"You spoke the vow where the ship could log it. Neither of us secures the other a place in the vault. I have read the entry twice since. It is still there. It is the only entry about us I wanted to exist."\n\n`;
+        t += `"You spoke the vow where the ship could log it. Neither of us secures the other a place in the vault. I have not read the entry since. I know where it is. It is the only entry about us I wanted to exist."\n\n`;
       } else if (state.flags.pursuit_sela_cost === "private_vow") {
         t += `"You spoke the vow to me and not to the ship. I accepted that. I have not forgotten that I accepted it. If the room ever asks, there is no entry to show them. There is my sentence, and I keep my sentences."\n\n`;
       } else if (state.flags.sela_vault_vow === "refused") {
         t += `"You refused the vow and left the plate. I counted that as honest. It is still counted. A refusal is also a complete sentence."\n\n`;
       } else {
-        t += `"There was one measurement. I did not ask for a series, and I do not ask twice. The measurement stands."\n\n`;
+        t += `"There was one measurement. Nothing was asked after it, by either of us. The measurement stands."\n\n`;
       }
       if (state.flags.custody_answer === "shared") {
-        t += `"You hold the first key to the vault and I hold the second. Where I was raised, that sentence has one meaning. I will not translate it. You will work it out, or you will not, and the key is the same either way."\n\n`;
+        t += `"You hold the first key to the vault and I hold the second. I told you in the corridor what the second key is not. The sentence it is has one meaning. I will not translate it. The key does not change with the translation."\n\n`;
       }
       if (state.promises.sela === "kept") {
         t += `"You stood between me and the room. I have not thanked you, because it was promised, and one does not thank a kept promise. One records it."\n\n`;
       } else if (state.promises.sela === "broken") {
-        t += `"You let the room have its answer. I said the word spent and I meant it. It is still spent. I am standing here anyway, because standing here is not a claim on you. It is a fact about me."\n\n`;
+        t += `"You let the room have its answer. I said the word spent and I meant it. It is still spent. I am standing here regardless, because standing here is not a claim on you. It is a fact about me."\n\n`;
       }
       t += `"Tonight is not a claim on the next watch either. I say that each time so that it stays true."\n\n`;
       t += `She waits. She does not fill the silence. She never has.`;
@@ -147,15 +147,15 @@ registerScenes({
       if (state.flags.sela_amber === "meaning") {
         t = `"For the ship it means the dead are named and the living are counted. For one person it means the person is counted on purpose."\n\nA pause the length of a name.\n\n"That is the whole of the meaning. I have not simplified it. There was never more than that, and it was never less."`;
       } else if (state.flags.sela_amber === "sentence") {
-        t = `"No."\n\nShe says it in the same voice as everything else, which with her is the kind voice.\n\n"A finished sentence is a claim, and I said this was not one. I keep one sentence unfinished. It is mine. You may stand near it. That is what you are doing."`;
+        t = `"No."\n\nShe says it in the same voice as everything else.\n\n"A finished sentence is a claim, and I said this was not one. I keep one sentence unfinished. It is mine. You may stand near it. That is what you are doing."`;
       } else {
-        t = `The filter runs down to nothing. She does not fill the silence; she never has. When the dark is complete she says, "That was the correct amount of speech," and you understand that this is the nearest thing to a joke she makes, and that it was meant.`;
+        t = `The filter runs down to nothing. When the dark is complete she says, "That was the correct amount of speech."`;
       }
       t += `\n\nShe leaves the lamp where it is. Tomorrow it will be lit for the ship again.`;
       return t;
     },
     choices: [
-      { text: "Leave the lamp where it is.", next: "faction_split" }
+      { text: "Let it stay down.", next: "faction_split" }
     ]
   },
 

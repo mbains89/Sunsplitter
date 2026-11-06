@@ -144,7 +144,7 @@ registerScenes({
       let t = `The vault manifest is opened in front of the crew. Sela receives the second physical key.\n\n`;
       t += `"No unilateral triage after this," she says. "If the future is to be spent, it is spent with both names on the order."\n\n`;
       // SUN-ROMANCE-ARC-05 (L-050): a partner hears what the second key is where she was raised. Text only.
-      if (state.romance.sela) t += `Later, with no one else in the corridor, she says one more sentence about it. "Where I was raised, a second key to the vault is not a political instrument. I am telling you what you have signed. I am not asking you to answer it."\n\n`;
+      if (state.romance.sela) t += `Later, with no one else in the corridor, she adds three sentences. "Where I was raised, a second key to the vault is not a political instrument. I am telling you what you have signed. I am not asking you to answer it."\n\n`;
       t += `Command retains power. It no longer owns the vault alone.`;
       return t;
     },

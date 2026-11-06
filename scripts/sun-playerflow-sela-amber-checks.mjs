@@ -81,7 +81,7 @@ assert.equal(out.dead.flag, false, "dead Sela wrote the flag");
 assert.notEqual(out.notPartner.scene, "sela_past_amber", "non-partner rendered the scene");
 assert.notEqual(out.replyWithoutAnswer.scene, "sela_past_amber_reply", "reply rendered without an answer");
 assert.equal(out.price.vow.scene, "prom_price", "prom_price did not render");
-assert.ok(out.price.vow.text.includes("The vow is in the log") && out.price.privateVow.text.includes("Not as mine") && !out.price.unpursued.text.includes("vow") && !out.price.other.text.includes("The vow is in the log"), "prom_price vow lines gated wrong");
+assert.ok(out.price.vow.text.includes("The vow is in the log") && out.price.privateVow.text.includes("and not as mine") && !out.price.unpursued.text.includes("vow") && !out.price.other.text.includes("The vow is in the log"), "prom_price vow lines gated wrong");
 assert.deepEqual(out.price.vow.choices, out.price.other.choices, "prom_price choices changed");
 assert.ok(out.key.partner.text.includes("not a political instrument") && !out.key.other.text.includes("not a political instrument"), "custody_shared key line gated wrong");
 assert.deepEqual(out.key.partner.choices, out.key.other.choices, "custody_shared choices changed");
