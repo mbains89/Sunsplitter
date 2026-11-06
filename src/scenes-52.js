@@ -13,8 +13,8 @@ registerScenes({
       return `They're inventorying the trunk spares together, and it's the together that stops you at the hatch. Tomas hands tools before they're asked for. Jiro gives the schedule back in Tomas's own units: "Water the third rack in forty minutes; we're twenty from done, error of five." No apology has been said. You can hear that none is coming. Tomas, at the last crate: "I stopped needing to know where you were. Costs less." Jiro seals the lid. "Insufficient data was the true answer the whole time. Both columns." That's the entire treaty. They ratify it by carrying the crate together, badly, arguing about the weight.`;
     },
     choices: [
-      { text: "Leave them to it.", next: "act3_spine_next" },
-      { text: "Carry the third corner.", next: "act3_spine_next" }
+      { text: "Leave them to it.", next: "act3_spine_next", reply: [`You leave them to it. From the far end of the corridor you can still hear the argument about the weight. Neither of them is winning, and neither of them wants to.`] },
+      { text: "Carry the third corner.", next: "act3_spine_next", reply: [`You take the third corner without asking.`, { who: "jiro", text: `"Load per person down a third," Jiro reports, flat. "The argument about the weight continues at the same volume."` }, { who: "tomas", text: `Tomas takes some of the weight off your corner when he thinks you are not looking.` }] }
     ]
   },
 
@@ -99,8 +99,8 @@ registerScenes({
       return t.trim();
     },
     choices: [
-      { text: "Stay for the second pot.", next: "act3_spine_next" },
-      { text: "Take yours and go.", next: "act3_spine_next" }
+      { text: "Stay for the second pot.", next: "act3_spine_next", reply: [`You stay for the second pot, and for the scraping of it.`, { who: "tomas", text: `Tomas fills your bowl again without asking. "Seconds are a vote," he says. "I count those too."` }] },
+      { text: "Take yours and go.", next: "act3_spine_next", reply: [`You take your bowl and go.`, { who: "tomas", text: `"Bring the bowl back," Tomas calls after you. "And yourself, some night. The table keeps a count."` }] }
     ]
   },
 
@@ -124,8 +124,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Listen one more minute from the dark.", next: "act3_spine_next" },
-      { text: "Move on.", next: "act3_spine_next" }
+      { text: "Listen one more minute from the dark.", next: "act3_spine_next", reply: [`You give it the minute. There is a second joke, worse than the first, and it gets a laugh too. When you walk on, you take the long way round, so they never learn they had an audience.`] },
+      { text: "Move on.", next: "act3_spine_next", reply: [`You go back the way you came. The laugh follows you a few hatches down the corridor, then drops below hearing, which is not the same as stopping.`] }
     ]
   },
 
@@ -148,8 +148,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Stay until the track ends.", next: "act3_spine_next" },
-      { text: "Go.", next: "act3_spine_next" }
+      { text: "Stay until the track ends.", next: "act3_spine_next", reply: [`You stay until the track ends. It ends on a held note the little speaker cannot quite carry, and then the next one starts, and nobody moves to stop it.`, { who: "vess", text: `Vess doesn't look over. "You stayed," she says, a half-beat late. "Logged. Not as a complaint."` }] },
+      { text: "Go.", next: "act3_spine_next", reply: [`You go. Behind you the music keeps playing to the empty berths at the same half volume, as if it expected nothing else.`] }
     ]
   }
 });

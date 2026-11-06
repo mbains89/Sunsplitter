@@ -94,7 +94,7 @@ export function pregnancyLenaChecks(runtime) {
         { text: "That is private. Do your job when asked.", next, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" } },
         { text: "End the discussion. There is nothing left to spend.", next, flag: { pregnancy_risk: "unknown" } }
       ];
-      expect(JSON.stringify(scenes.pregnancy_check.choices) === JSON.stringify(expectedChoices), "medical descriptor changed");
+      expect(JSON.stringify(scenes.pregnancy_check.choices.map(({ reply, ...choice }) => choice)) === JSON.stringify(expectedChoices), "medical descriptor changed");
       const c = expectedChoices[pick], expected = JSON.parse(snapshot());
       expected.scene = next;
       for (const [k, v] of Object.entries(c.effects || {})) expected[k] += v;
