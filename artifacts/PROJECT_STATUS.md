@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 3c86527 (after PR #501)`
+`work_branch_tip: ec5bff3 (after PR #502)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -65,7 +65,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 499 | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
 | 500 | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
 | 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
-| this PR | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
+| 502 | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
+| this PR | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
 
 ## Open
 
@@ -110,7 +111,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - **"Amara route parked"** (TICKET_QUEUE standing hold; origin: the `prom_r_amara` non-trigger note, SUN_PLAYTEST_ART_EVENT_AUDIT_01 §113–127) forbids rewriting the romance-trigger gates without a repro. This ticket does not touch them: `romanceOpen`, `bond_amara`, `romance_amara_1` and `prom_r_amara` are unchanged and the repro check still passes. Say whether the hold stays as written or is lifted now that L-050 names her arc.
    - Her end state sits behind `offshift_amara`, which needs an attributable death (`eligAmara`). A partner in a run with no attributable death never reaches it. Widening `eligAmara` for partners would need a no-death branch of that scene; your call.
    - Unruled PX-5 items on her: D03 (vent delay and the second night as one transaction), D07 (should a prior decline close the shared-bay offer; is full hydro an intentional gate; should the shared bay feed debt and What Remains) and F03 (the shared bay's "or at least no refusal" — the audit asks for affirmative, separate consent from both). None touched here.
-   - The scene spends the bible's handwritten favor ledger (opened to the Commander's page) and its "Everyone aboard is owed by someone who isn't" line.
+   - The scene spends the bible's handwritten favor ledger (opened to the Commander's page).
+
+13. **Sela, from SUN-ROMANCE-ARC-05 (Wave 1):**
+   - PX5-D04 (may the private vow still reach the second night) and PX5-D05 (is the non-partner's "Stay past the yellow" an acceptance, presence or texture; it writes nothing) are still unruled. Neither is touched; the partner's new choice sits beside them.
+   - Both vow paths write `sela_vault_vow: "accepted"`, so `pursuit_sela_sex`'s private-vow memory branch never runs and `prom_make_sela` treats a private vow as logged. The new scenes read `pursuit_sela_cost` instead, which is honest; the memory bug is a one-line fix if you want it.
+   - The second-key line in `custody_shared` and the past-amber line spend the bible's canon that shared custody is a proposal in her culture's dialect, without saying the word. Say so if that beat should wait for the per-crew epilogues or for Wave 3's Yellow Circle route (L-051).
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -145,6 +151,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** `SUN-ROMANCE-ARC-05`, Sela's arc (ROADMAP §14A, Wave 1), the last of the five; then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** Wave 1 workstream 2, `SUN-CALLBACKS-01` (12–15 diegetic callbacks across existing scenes), after a browser-bot batch on the tip. **Manraj:** the five romance arcs are in; a full run on the tip is the first half of gate 1. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->
