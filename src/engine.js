@@ -1081,8 +1081,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   }
   // SUN-ROMANCE-ARC-02 (L-050): her arc's end state, cited from the answer the run gave.
   if (state.flags.mira_root_cause) {
-    const asked = state.flags.mira_root_cause === "drive" ? `Mira asked why you kept her out of the sealed bay, and you said the drive. She logged it at sixty percent, with its root cause.`
-      : state.flags.mira_root_cause === "you" ? `Mira asked why you kept her out of the sealed bay, and you said her. She filed a fault against herself and kept the console.`
+    const asked = state.flags.mira_root_cause === "drive" ? `Mira asked why you kept her out of the sealed bay, and you said the drive. She logged it: root cause, drive, confidence sixty percent.`
+      : state.flags.mira_root_cause === "you" ? `Mira asked why you kept her out of the sealed bay, and you said it was her. She filed a fault against herself and kept the console.`
       : `Mira asked why you kept her out of the sealed bay, and you gave her both. She is running the drive under the variance.`;
     text += `\n\n${asked}${isAlive("mira") ? "" : " That fact outlived her."}`;
   }

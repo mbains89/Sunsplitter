@@ -100,7 +100,7 @@ registerScenes({
         // SUN-FINAL-HOLD-ONCE-01: destination truth stays; the failed burn closes the hold.
         t += state.flags.planet === "committed"
           ? `The course is still locked on the rogue planet. The hard burn to hold it has already failed once, and Deck 4 will not carry it again.\n\n`
-          : `You still have no destination. The hard burn has already failed once, and Deck 4 will not carry it again.\n\n`;
+          : `You still have no destination. The hard burn toward one has already failed once, and Deck 4 will not carry it again.\n\n`;
       } else if (state.flags.planet === "committed") {
         t += `The course is still locked on the rogue planet. You can hold it, alter it, or abandon it.\n\n`;
       } else {
