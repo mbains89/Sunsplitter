@@ -20,6 +20,8 @@ const VERSION = "0.36";
 //   mira_root_cause_logged, offshift_mira and the ending footer).
 //   vess_item_two ("floor" | "chair"; written by the vess_item_two answers; read by
 //   vess_item_two_logged and the ending footer).
+//   amara_page ("open" | "closed" | "hers"; written by the amara_page answers; read by
+//   amara_page_reply and the ending footer).
 
 function freshState() {
   return {

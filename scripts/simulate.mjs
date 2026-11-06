@@ -10,7 +10,7 @@ import vm from "node:vm";
 
 export const POLICY_NAMES = ["living", "future", "pragmatic"];
 export const LOCKED_POLICY_NAMES = ["random", "cheapest", "priciest"];
-export const EXPECTED_SCENE_COUNT = 230; // SUN-ROMANCE-ARC-03: + vess_item_two, vess_item_two_logged
+export const EXPECTED_SCENE_COUNT = 232; // SUN-ROMANCE-ARC-04: + amara_page, amara_page_reply
 export const LOCKED_SEED = 20260817;
 export const STRICT_RUNS_PER_POLICY = 2_000;
 export const STRICT_SHARD_SIZE = 500;

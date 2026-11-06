@@ -10,11 +10,11 @@ export function livingCastChecks(runtime) {
       assert.equal(result.length, 0, JSON.stringify(result.slice(0, 12)));
     } catch (error) { errors.push(`Living cast ${label}: ${error.message}`); }
   };
-  assert.equal(runtime.sceneIds.length, 230); // SUN-ROMANCE-ARC-03: + vess_item_two pair
+  assert.equal(runtime.sceneIds.length, 232); // SUN-ROMANCE-ARC-04: + amara_page pair
 
   check("authored living branches and absent entry guards", `(() => {
     const failures = [];
-    if (Object.keys(livingCastContracts).length !== 127) failures.push("required 127-site guard inventory changed"); // SUN-ROMANCE-ARC-03: + vess_item_two pair
+    if (Object.keys(livingCastContracts).length !== 129) failures.push("required 129-site guard inventory changed"); // SUN-ROMANCE-ARC-04: + amara_page pair
     const read = (scene, desc) => {
       const raw = desc.get ? desc.get.call(scene) : desc.value;
       return typeof raw === "function" ? raw.call(scene) : raw;

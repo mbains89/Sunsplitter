@@ -24,7 +24,9 @@ ${name} is inside it, taking the manual readings the rebuilt loop still cannot.
 
 ${line}
 
-Amara is at the panel with her hand flat beside the vent control, not on it. "The pocket reads one body and bad air," she says. "The loop reads margin. Somebody here keeps the other book."`;
+Amara is at the panel with her hand flat beside the vent control, not on it. "The pocket reads one body and bad air," she says. "The loop reads margin. Somebody here keeps the other book."${state.romance.amara && state.flags.amara_vent_delayed ? `
+
+She doesn't look at you when she adds, lower: "You held a vent for me once and put your name on the board for it. Roots, that was. This is a reader. Don't mix the books, love."` : ""}`;
     },
     get choices() {
       const v = state.flags.prom_line_other;

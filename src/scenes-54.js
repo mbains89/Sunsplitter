@@ -96,6 +96,9 @@ registerScenes({
     text: () => {
       let t = `Amara does not look at you while she opens the mature cultures.\n\n`;
       t += `"This was the first piece of another world," she says. "Now it is a filter that will die with the biofilm."\n\n`;
+      // SUN-ROMANCE-ARC-04 (L-050): the private debt lands inside the hard decision. Text only.
+      if (state.romance.amara && state.flags.amara_vent_delayed) t += `"I kept roots alive on your name once, love, and the ship paid for it on the board. This is the roots paying it back. Don't you go feeling even."\n\n`;
+      else if (state.romance.amara) t += `"Don't stand there owing me, love. Stand there breathing."\n\n`;
       t += `The garden becomes disposable biology. The air improves. The later ration boards will not.`;
       return t;
     },

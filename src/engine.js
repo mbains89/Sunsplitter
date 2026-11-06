@@ -1058,6 +1058,13 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
   if (hasMark("tomas", "broke")) text += `\n\nTomas broke in front of you. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
+  // SUN-ROMANCE-ARC-04 (L-050): Amara's end state, cited from the answer the run gave.
+  if (state.flags.amara_page) {
+    const page = state.flags.amara_page === "open" ? `Amara read you your page in her ledger and left it open. Interest runs; she is not charging it.`
+      : state.flags.amara_page === "closed" ? `Amara read you your page in her ledger and closed it at your asking. Closed, not forgiven; she said you'd learn the difference.`
+      : `Amara read you your page in her ledger, then showed you hers: the long one, every name on it dead and none of them paid.`;
+    text += `\n\n${page}${isAlive("amara") ? "" : " That fact outlived her."}`;
+  }
   // SUN-ROMANCE-ARC-03 (L-050): Vess's end state, cited from the answer the run gave.
   if (state.flags.vess_item_two) {
     const chair = state.flags.vess_item_two === "chair" ? `Vess kept her chair and let you share it. Rated for one, occupancy two, confirmed.` : `Vess kept her chair and you took the deck beside it. Occupancy one, company present, confirmed.`;
@@ -1634,7 +1641,7 @@ function validImportedSnapshot(data) {
   ]);
   const flagDomains = Object.fromEntries(Object.entries({
     abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
-    mira_root_cause: ["drive", "you", "both"], vess_item_two: ["floor", "chair"],
+    mira_root_cause: ["drive", "you", "both"], vess_item_two: ["floor", "chair"], amara_page: ["open", "closed", "hers"],
     breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
     coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
     custody_answer: ["severed", "possession", "thawed", "shared"],

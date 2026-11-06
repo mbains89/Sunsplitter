@@ -31,10 +31,95 @@ registerScenes({
       if (close) t += `\n\n` + close;
       return t;
     },
+    get choices() {
+      const c = [
+        { text: "Ask her to say it wasn't yours.", next: "faction_split" },
+        { text: "Ask what you owe.", next: "faction_split" },
+        { text: "Say nothing and drink.", next: "faction_split" }
+      ];
+      // SUN-ROMANCE-ARC-04 (L-050): a partner may stay past the light; her ledger is behind it.
+      if (state.romance.amara) c.push({ text: "Stay past the light.", next: "amara_page", tag: "private" });
+      return c;
+    }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: amara_page                 TICKET: SUN-ROMANCE-ARC-04 (L-050, Wave 1)
+  // PRE: Amara living and romance.amara (solo shape only; the shared bay is untouched under
+  //   L-041); reached only from offshift_amara "Stay past the light."; junctionChoice is "amara".
+  //   Text reads pursuit_amara_cost, hydro, breath_answer and promises.amara (kept/broken only;
+  //   untested promises are not read aloud, L-024).
+  // WRITES: none on entry. The three answers write flags.amara_page ("open" | "closed" | "hers")
+  //   plus affinity/trust; no resource change.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when she is dead or
+  //   not a partner (onEnter + living-cast contract in scenes-55).
+  // IMAGE: REUSE images/quiet_amara.jpg, the off-shift plate. No new art.
+  // NOTE: spends CHARACTER_BIBLE's handwritten favor ledger, opened to the Commander's page.
+  // ═════════════════════════════════════════════════════════════════
+  amara_page: {
+    image: "images/quiet_amara.jpg",
+    onEnter: () => {
+      if (!isAlive("amara") || !state.romance.amara) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("amara")) return `The light in hydroponics is off. Nobody left it on.`;
+      let t = `The kettle's gone cold and she doesn't refill it. That's how you know the hour's run over into something else.\n\n`;
+      t += `She takes a book down from behind the seed trays — cloth-bound, swollen with damp, the kind of thing that survives power loss — and opens it to a page with your rank at the top and no name under it.\n\n`;
+      t += `"Everyone aboard is owed by someone who isn't," she says. "I keep that ledger too. This is yours."\n\n`;
+      t += `She reads it to you the way she reads a yield sheet.\n\n`;
+      if (state.flags.pursuit_amara_cost === "vent_delay") {
+        t += `"One cycle of a contaminated vent, held for roots, claimed on the board in your name while you were in my bed. Debit the ship: supplies, hull, the room's temper. Credit you: the roots lived. I wrote both columns. I'll not edit either."\n\n`;
+      } else if (state.flags.pursuit_amara_cost === "half") {
+        t += `"Half a cycle of a contaminated vent, held for roots, haggled down. Debit the ship: a little. Credit you: a little. It's an honest half, love. I've seen it written up as a whole."\n\n`;
+      } else {
+        t += `"The bay. One entry, and the rest of the page blank. Blank's honest."\n\n`;
+      }
+      if (state.flags.hydro === "full") t += `"Margin given to the green when the ship wanted it elsewhere. Credit."\n\n`;
+      if (state.flags.breath_answer === "garden") t += `"The garden, spent on breathing. That one's in your credit and it's in my hand, and the hand shook, so mind the ink."\n\n`;
+      if (state.promises.amara === "kept") t += `"A vent held shut with a reader inside it. Kept. That's not credit, love. That's the line you wrote, honoured. Different column."\n\n`;
+      else if (state.promises.amara === "broken") t += `"A pocket vented with a reader still breathing. Broken. I don't write that in your column. I write it in mine, as the thing I'll not forget."\n\n`;
+      t += `She lays her hand flat on the page, not the book.\n\n`;
+      t += `"Who's owed? That's the question I'm for. On this page, love, nobody's owed enough to fight over. That isn't a balance. It's a book I can carry."\n\n`;
+      t += `"Now. Do I leave it open?"`;
+      return t;
+    },
+    get choices() {
+      if (!isAlive("amara")) return [{ text: "Leave the bay.", next: "faction_split" }];
+      return [
+        { text: "Leave it open.", next: "amara_page_reply", flag: { amara_page: "open" }, affinity: { amara: 5 }, trust: { amara: 2 } },
+        { text: "Ask her to close it.", next: "amara_page_reply", flag: { amara_page: "closed" }, affinity: { amara: 5 }, trust: { amara: 2 } },
+        { text: "Ask to see her own page.", next: "amara_page_reply", flag: { amara_page: "hers" }, affinity: { amara: 5 }, trust: { amara: 2 } }
+      ];
+    }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: amara_page_reply           TICKET: SUN-ROMANCE-ARC-04 (L-050, Wave 1)
+  // PRE: Amara living; flags.amara_page set by amara_page. Her answer to the answer.
+  // WRITES: none. DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects.
+  // IMAGE: REUSE images/quiet_amara.jpg. No new art.
+  // ═════════════════════════════════════════════════════════════════
+  amara_page_reply: {
+    image: "images/quiet_amara.jpg",
+    onEnter: () => {
+      if (!isAlive("amara")) return "faction_split";
+      if (!state.flags.amara_page) return "faction_split";
+    },
+    get text() {
+      if (!isAlive("amara")) return `The light in hydroponics is off. Nobody left it on.`;
+      let t;
+      if (state.flags.amara_page === "open") {
+        t = `"Open, then." She writes nothing. "Interest runs on an open page. I'll not pretend it doesn't, and I'll not charge it tonight." She puts the book back behind the trays with the page marked by a seed packet.`;
+      } else if (state.flags.amara_page === "closed") {
+        t = `"Closed." She draws one line under the last entry, straight, with a rule she keeps for the purpose. "Closed isn't forgiven, love. Closed is I've stopped counting. You'll learn the difference the first time you want me to start again."`;
+      } else {
+        t = `She turns the book around. Her page is long, every name on it in the same hand, and none of them aboard.\n\n"Three habitats. One street in Lagos. All of them owed me and none of them paid, because they couldn't, because they're dead. That's not a grievance. It's the debt kept where I can read it." She takes the book back before you can read the names. "Yours is short. Keep it short."`;
+      }
+      t += `\n\nThe light stays on when you go. It was always the whole invitation.`;
+      return t;
+    },
     choices: [
-      { text: "Ask her to say it wasn't yours.", next: "faction_split" },
-      { text: "Ask what you owe.", next: "faction_split" },
-      { text: "Say nothing and drink.", next: "faction_split" }
+      { text: "Back to the watch.", next: "faction_split" }
     ]
   },
 

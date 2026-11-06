@@ -167,7 +167,7 @@
       "prom_deck4_edited", "prom_deck4_buried", "prom_line_other", "prom_line_held",
       "prom_amara_alluded", "prom_tomas_alluded", "prom_elias_alluded",
       "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
-      "junctionChoice", "lena_notes", "lena_last_hour", "mira_root_cause", "vess_item_two", "mira_fault_known", "course_briefed",
+      "junctionChoice", "lena_notes", "lena_last_hour", "mira_root_cause", "vess_item_two", "amara_page", "mira_fault_known", "course_briefed",
       "pair_shield", "pair_grudge", "pair_favor",
       "warmth_meal", "warmth_laughter", "warmth_music",
       "manifest", "changeorders"
