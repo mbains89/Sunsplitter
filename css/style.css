@@ -507,6 +507,15 @@ body::before {
   margin-bottom: 0;
 }
 
+/* SUN-REPLY-ENGINE-01: the answer to the order you just gave opens the next screen. Set apart
+   by a rule, not by colour alone; reads as part of the scene, not a notification. */
+.scene-text p.choice-reply {
+  color: var(--text, #e6e8ea);
+  border-left: 2px solid var(--border, #3a3f45);
+  padding-left: 12px;
+  margin-bottom: 1.25em;
+}
+
 #game-screen {
   display: flex;
   flex-direction: column;
