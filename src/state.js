@@ -729,26 +729,21 @@ function crewEpilogues() {
   const dead = (k) => state.dead.includes(k);
   const cause = (k) => state.deathCause[k];
   const clause = (k) => whatRemainsDeathClause(k, cause(k));
-  const tested = (k) => state.promises[k] === "kept" || state.promises[k] === "broken";
-  const vault = f.vault_sacrifice;
-  // The vault decision is cited only where it went against the side that crew member stood for.
-  const vaultAgainstFuture = vault === "living" ? `The vault bled so the living could keep breathing, over the future ${"%s"} had stood for.` : null;
-  const vaultAgainstLiving = vault === "future" ? `The vault was kept at the living's cost, over the living ${"%s"} had stood for.` : null;
-  const vaultLine = (template, who) => template ? ` ${template.replace("%s", who)}` : "";
   const lastHour = (k, her) => f.junctionChoice === k ? ` The last private hour of the run was ${her}.` : "";
+  const rootCause = f.burn_unverified || f.margin_spent_extra;
   const out = [];
 
   // Rourke: the opening dead. One line.
   if (dead("rourke")) out.push(`${clause("rourke")}, in the first hour, with ring shrapnel in his chest.`);
 
-  // Lena — clinical fact, one detail.
+  // Lena — a clinical fact and one detail.
   {
     let p;
     if (dead("lena")) {
       p = `${clause("lena")}.`;
-      if (cause("lena") === "kept working until the clock ran out") p += ` She charted her own time to the end and did not round it.`;
+      if (cause("lena") === "kept working until the clock ran out") p += ` Every treatment entry was complete except the one under her own name; the last line in the active chart was an unfinished set of observations on someone else.`;
     } else if (state.dying && state.dying.lena) {
-      p = `Lena was alive when the run ended, on a clock she had charted herself and did not round.`;
+      p = `Lena was alive when the run ended, on a clock she had charted herself.`;
     } else {
       p = `Lena was alive when the run ended.`;
     }
@@ -757,11 +752,9 @@ function crewEpilogues() {
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
     else if (state.promises.lena === "broken") p += ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
     if (state.romance.lena) p += ` A private line was crossed with her, and you were the one who stayed.`;
-    else if (hasMark("lena", "held_only")) p += ` You stayed without the rest; she charted it under the right word.`;
-    else if (hasMark("lena", "declined")) p += ` She offered once. The no went in the chart without comment.`;
+    else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
+    else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
     if (f.pair_triage === "chart") p += ` Rourke stayed a prognosis on her board.`;
-    else if (f.pair_triage === "count") p += ` Rourke went into Tomas's count by name, in her margin.`;
-    p += vaultLine(vaultAgainstLiving, "she");
     p += lastHour("lena", "hers");
     out.push(p);
   }
@@ -769,19 +762,18 @@ function crewEpilogues() {
   // Elias — by what he covers.
   {
     let p;
-    if (dead("elias")) p = `${clause("elias")}. The corridors he covered are nobody's now.`;
-    else p = `Elias was alive when the run ended. The corridors he covers are still his, and he still counts the exits.`;
+    if (dead("elias")) p = `${clause("elias")}. The corridors he covered have no one counting them.`;
+    else p = `Elias was alive when the run ended, still counting exits.`;
     if (hasMark("elias", "approved_vent")) p += ` He approved the vent.`;
-    if (f.ship_memory === "proper_seal") p += ` The feedstock went into a proper Deck 4 seal because he argued it.`;
+    if (f.ship_memory === "proper_seal") p += ` He argued the Deck 4 seal and got it; the feedstock went into a proper patch.`;
     else if (f.ship_memory === "open_wound") p += ` He argued the Deck 4 seal and lost it to the paste; the schematic kept the wound.`;
     else if (f.ship_memory === "jury_rig") p += ` He argued the Deck 4 seal and got half of one.`;
     if (state.promises.elias === "kept") p += ` The complete Deck Four record reached him first, as he had been told it would.`;
     else if (state.promises.elias === "broken" && f.prom_deck4_edited) p += ` He received an edited Deck Four record after the general log already had it.`;
-    else if (state.promises.elias === "broken" && f.prom_deck4_buried) p += ` The Deck Four record was buried; the ship told him before you did.`;
+    else if (state.promises.elias === "broken" && f.prom_deck4_buried) p += ` The Deck Four record was buried; he heard it from the wall.`;
     if (f.pair_shield) p += ` After Mira he said once what she was to him, and did not say it again.`;
-    if (f.pair_seal === "bulkhead") p += ` The feedstock stayed a bulkhead line on the galley slate.`;
-    else if (f.pair_seal === "names") p += ` The feedstock went on Tomas's slate under names; he checked the dog anyway.`;
-    p += vaultLine(vaultAgainstFuture, "he");
+    else if (f.pair_seal === "bulkhead") p += ` The feedstock stayed a bulkhead line on the galley slate.`;
+    if (f.vault_sacrifice === "future" && state.crisisPath === "custody") p += ` When the vault was kept at the living's cost, he counted the occupied sections once and called it the invoice.`;
     p += lastHour("elias", "his");
     out.push(p);
   }
@@ -796,17 +788,17 @@ function crewEpilogues() {
     } else {
       p = `Mira was alive when the run ended, and what she rebuilt was still holding.`;
     }
-    if (f.changeorders === "logged") p += ` The change orders went in the log with the justification field blank.`;
+    if (f.custody_answer === "severed") p += ` She cut the fused junction in the unpressurized skin and carried the cold after.`;
+    else if (f.changeorders === "logged") p += ` The change orders went in the log with the justification field blank.`;
     else if (f.changeorders === "buried") p += ` The change orders stayed buried.`;
-    if (hasMark("mira", "drive_first")) p += ` At the board she said the ship comes first.`;
-    else if (hasMark("mira", "people_first")) p += ` At the board she said she was a person, and also the repair.`;
-    if (state.promises.mira === "kept") p += ` The binding to Earth-era directives was refused; the living kept the vote.`;
-    else if (state.promises.mira === "broken") p += ` The ark was rebound to directives written by the dead.`;
+    if (hasMark("mira", "drive_first")) p += ` At the board she held you to the answer you gave her at the schematic: the ship first.`;
+    else if (hasMark("mira", "people_first")) p += ` At the board she read your answer back: a person, and also the repair.`;
+    if (state.promises.mira === "kept") p += ` The binding to the dead's directives was refused, and the interlocks were cleared of their signatures.`;
+    else if (state.promises.mira === "broken") p += ` The ark was rebound to directives written by the dead; the ration boards recalculated under signatures eight years old.`;
     if (state.romance.mira) p += ` A private line was crossed with her${f.mira_root_cause ? `, and she asked you the one question she could not verify from the trace` : ``}.`;
-    else if (hasMark("mira", "held_only")) p += ` You held her without the rest.`;
-    else if (hasMark("mira", "declined")) p += ` She offered once and filed the refusal without a fault.`;
-    if (f.pair_burn === "finding") p += ` The reckoning burn is logged as her fault report, root cause under it.`;
-    else if (f.pair_burn === "width") p += ` The reckoning burn is logged as Jiro's width, nothing under it; she logged that the order was given.`;
+    else if (hasMark("mira", "held_only")) p += ` You told her you cared, and that the chain of command came first that night.`;
+    else if (hasMark("mira", "declined")) p += ` She offered the honest hour; you stepped back.`;
+    if (f.pair_burn === "finding") p += rootCause ? ` The reckoning burn is logged as her fault report, root cause under it.` : ` The reckoning burn is logged as her finding: ninety-four, nothing under it.`;
     else if (f.pair_burn === "both") p += ` The reckoning burn stands in two logs that disagree.`;
     p += lastHour("mira", "hers");
     out.push(p);
@@ -823,20 +815,17 @@ function crewEpilogues() {
     if (f.trays_dead && f.tomas_scapegoated) p += ` The trays died in the rushed catch, and the room held him responsible.`;
     else if (f.trays_dead && f.manifest_lie) p += ` The trays died in the rushed catch; the manifest wrote it off as structural.`;
     else if (f.trays_dead) p += ` The trays died in the rushed catch; the manifest told the truth about it.`;
-    if (f.stores === "seize") p += ` The private stores were seized before he came aboard; he heard it from the two who kept them.`;
+    else if (f.stores === "seize") p += ` The private stores were seized before he came aboard.`;
     else if (f.stores === "vote") p += ` The stores were put to a vote he was not aboard for.`;
-    if (f.tomas === "living") p += ` When he asked, you told him the living come first.`;
-    else if (f.tomas === "future") p += ` When he asked, you told him the future is what justifies this.`;
-    else if (f.tomas === "hold") p += ` When he asked, you asked him to hold on a little longer.`;
-    if (hasMark("tomas", "broke")) p += ` He broke in front of you.`;
-    else if (hasMark("tomas", "held")) p += ` He said he might break, and held.`;
-    if (state.promises.tomas === "kept" && state.crisisPath === "custody") p += ` At the custody test the living received the shared mercy.`;
-    else if (state.promises.tomas === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault.`;
-    if (f.pair_grudge) p += ` He and Jiro settled the aft-trunk account without an apology.`;
-    if (f.pair_triage === "count") p += ` Rourke is in his count by name.`;
-    if (f.pair_seal === "names") p += ` The Deck 4 feedstock is on his slate under names.`;
-    if (vault === "future") p += ` The vault was kept at the living's cost; he counted the mouths that paid.`;
-    else if (vault === "living") p += ` The vault bled so the living could keep breathing; he counted them anyway.`;
+    if (f.tomas === "living") p += ` When he asked, you told him the living come first, and he held.`;
+    else if (f.tomas === "future") p += ` When he asked, you told him the future is what justifies this, and he broke in front of you.`;
+    else if (f.tomas === "hold") p += ` When he asked, you asked him to hold on a little longer, and he held.`;
+    if (state.promises.tomas === "kept" && state.crisisPath === "custody") p += ` At the custody test the living got the shared mercy; he counted the cost.`;
+    else if (state.promises.tomas === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
+    else if (f.vault_sacrifice === "future") p += ` He felt the air change in the habitation ring when the vault was kept.`;
+    if (f.pair_triage === "count") p += ` Rourke went into his count by name.`;
+    else if (f.pair_seal === "names") p += ` The Deck 4 feedstock went on his slate under names.`;
+    else if (f.pair_grudge) p += ` He and Jiro settled the aft-trunk account without an apology.`;
     p += lastHour("tomas", "his");
     out.push(p);
   }
@@ -844,41 +833,35 @@ function crewEpilogues() {
   // Amara — what she tended and who she owed.
   {
     let p;
-    const green = f.hydro === "full" ? "still full" : f.hydro === "minimal" ? "running minimal" : f.hydro === "rebuild" ? "being rebuilt" : null;
-    if (dead("amara")) p = `${clause("amara")}.${green ? ` The green she tended was ${green} without her.` : ``}`;
-    else p = `Amara was alive when the run ended${green ? `, and the green she tends was ${green}` : ``}.`;
+    const green = f.breath_answer === "garden" ? "had gone into the air loop as a filter that would die with the biofilm"
+      : f.hydro === "full" ? "was still full" : f.hydro === "minimal" ? "was running minimal" : f.hydro === "rebuild" ? "was being rebuilt" : null;
+    if (dead("amara")) p = `${clause("amara")}.${green ? ` The green she tended ${green} without her.` : ``}`;
+    else p = `Amara was alive when the run ended${green ? `; the green she tended ${green}` : ``}.`;
     if (hasMark("amara", "math_first")) p += ` She heard you put the math first.`;
-    else if (hasMark("amara", "plants_matter")) p += dead("amara") ? ` She heard you say living things matter.` : ` She heard you say living things matter, and is still waiting to see whether that was a sentence or a rule.`;
+    else if (hasMark("amara", "plants_matter")) p += ` She heard you say living things matter.`;
     if (f.amara_vent_delayed) p += ` One cycle of a contaminated vent was delayed on her account.`;
-    if (state.promises.amara === "kept") p += ` At the service-pocket test the vent stayed shut until the reader came out breathing.`;
-    else if (state.promises.amara === "broken") p += ` At the service-pocket test the pocket was vented while the reader was still breathing.`;
+    if (state.promises.amara === "kept") p += ` The pocket vent stayed shut until the reader came out breathing.`;
+    else if (state.promises.amara === "broken") p += ` The pocket was vented with the reader still breathing.`;
     if (state.romance.amara) p += ` A private line was crossed with her${f.amara_page ? `, and she opened her ledger to your page` : ``}.`;
     else if (state.romance.amara_tomas) p += ` You walked in on her and Tomas, and stayed.`;
-    else if (hasMark("amara", "held_only")) p += ` You held her without the rest.`;
-    else if (hasMark("amara", "declined")) p += ` She offered once; the books on that are closed.`;
+    else if (hasMark("amara", "held_only")) p += ` You took her company without the rest.`;
+    else if (hasMark("amara", "declined")) p += ` She asked if you wanted her; you said no and kept the line clean.`;
     if (f.pair_favor) p += ` She said aloud who you keep close.`;
-    p += vaultLine(vaultAgainstLiving, "she");
     p += lastHour("amara", "hers");
     out.push(p);
   }
 
   // Jiro — final position logged.
   if (!isRecovered("jiro")) {
-    out.push(`Jiro was never brought aboard.`);
+    out.push(`Jiro was never cut out of the blister.`);
   } else {
     let p;
-    if (dead("jiro")) p = `${clause("jiro")}. His final position is logged; nobody else aboard could certify it.`;
+    if (dead("jiro")) p = `${clause("jiro")}. His final position is logged.`;
     else p = `Jiro was alive when the run ended, and the ship was where he said, to the meter.`;
     if (f.burn_unverified) p += ` There is a burn in the ship's history he never got to verify; it lives in the error bars.`;
     if (hasMark("jiro", "bonded")) p += dead("jiro") ? ` He had shown you the dead database he argued with and won by default.` : ` He showed you the dead database he argues with and wins by default.`;
-    if (f.pair_grudge) p += ` The aft-trunk account with Tomas is settled; neither of them apologized.`;
     if (f.pair_burn === "width") p += ` The reckoning burn is logged as his width, nothing under it.`;
-    else if (f.pair_burn === "finding") p += ` The reckoning burn is logged as Mira's fault report; he ${dead("jiro") ? "flew" : "flies"} the width.`;
-    else if (f.pair_burn === "both") p += ` The reckoning burn stands in two logs that disagree.`;
     if (f.pair_fix === "fix") p += ` The tracker board carries his fix alone.`;
-    else if (f.pair_fix === "track") p += ` Vess's eleven-month track sits under his line on the board.`;
-    else if (f.pair_fix === "both") p += ` He and Vess reconciled the board, and the ship took it as gospel.`;
-    p += vaultLine(vaultAgainstFuture, "he");
     p += lastHour("jiro", "his");
     out.push(p);
   }
@@ -890,17 +873,12 @@ function crewEpilogues() {
     else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${hasMark("sela", "spoken") ? ` She spoke once, at yellow, and was heard.` : ``}`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
-    if (f.custody_answer === "shared") p += ` She was granted second physical authorization over the vault, which in her dialect is a proposal.`;
-    else if (f.custody_answer === "severed") p += ` At the custody fault the fused junction was cut in the skin, and the vault stayed as it was.`;
-    else if (f.custody_answer === "possession") p += ` At the custody fault the heat went through the inhabited ring; the vault remained possession.`;
-    else if (f.custody_answer === "thawed") p += ` At the custody fault the outer embryo racks were thawed to take the heat.`;
-    if (state.promises.sela === "kept") p += ` At the petition test she was not made the price of the crew's fear.`;
-    else if (state.promises.sela === "broken") p += ` At the petition test the room was allowed to put its fear on her.`;
+    if (f.custody_answer === "shared") p += dead("sela") ? ` She held the second physical key to the vault.` : ` She holds the second physical key to the vault; no unilateral triage after that.${state.romance.sela ? ` Where she was raised, that key is not a political instrument.` : ``}`;
+    if (state.promises.sela === "kept") p += ` When the petition named her, she was not given to it.`;
+    else if (state.promises.sela === "broken") p += ` When the petition named her, you gave the room what it asked for.`;
     if (state.romance.sela) p += ` She chose you without an audience.`;
-    else if (hasMark("sela", "held_only")) p += ` You stayed with her until amber, and no further.`;
-    else if (hasMark("sela", "declined")) p += ` She asked once, in a complete sentence, and took the no as one.`;
-    if (f.pair_favor) p += ` Amara noticed how much of your attention landed on her.`;
-    p += vaultLine(vaultAgainstLiving, "she");
+    else if (hasMark("sela", "held_only")) p += ` You sat with the ritual and made no further claim.`;
+    else if (hasMark("sela", "declined")) p += ` She asked for the true version; you left the plate alone.`;
     p += lastHour("sela", "hers");
     out.push(p);
   }
@@ -911,16 +889,15 @@ function crewEpilogues() {
   } else {
     let p;
     if (dead("vess")) p = `${clause("vess")}. The Dawnbreak registry has no one left to keep it in order.`;
-    else p = `Vess was alive when the run ended. The Dawnbreak registry is still exact, in order of loss.`;
+    else p = `Vess was alive when the run ended, and the Dawnbreak registry was still exact, in order of loss.`;
     if (f.busDowngraded) p += ` The environmental bus ran degraded to keep her relay core online.`;
-    if (f.vess_intimate && f.last_tx_spent) p += ` The last outward window went to one directed burst toward the Dawnbreak field.`;
+    if (f.vess_intimate && f.last_tx_spent) p += ` The last outward window was hers: one directed burst, and then the external lane closed.`;
     else if (f.last_tx_spent) p += ` The last outward window went to the orphan beacon she had held for review.`;
     else if (!dead("vess")) p += ` The last outward window stayed the ship's.`;
     if (state.romance.vess || hasMark("vess", "accepted")) p += ` She offered the attempt and you accepted; power stayed hers.`;
     else if (hasMark("vess", "declined")) p += ` She offered the attempt once; you declined, and she did not ask again.`;
     if (f.pair_fix === "track") p += ` Her eleven-month track is on the board under Jiro's fix.`;
     else if (f.pair_fix === "both") p += ` She and Jiro reconciled the board, and the ship took it as gospel.`;
-    else if (f.pair_fix === "fix") p += ` Her track was logged and stood down.`;
     p += lastHour("vess", "hers");
     out.push(p);
   }

@@ -67,19 +67,24 @@ for (const d of out.deaths) {
 expectOrder(out.unrecovered, "unrecovered");
 for (const k of ["tomas", "jiro", "vess"]) {
   const para = out.unrecovered[ORDER.indexOf(k)];
-  assert.ok(para.includes("never brought aboard") && !diedRe(FIRST[k]).test(para) && para.split(" ").length < 8, `unrecovered ${k}: ${para}`);
+  assert.ok((para.includes("never brought aboard") || para.includes("never cut out of the blister")) && !diedRe(FIRST[k]).test(para) && para.split(" ").length < 9, `unrecovered ${k}: ${para}`);
 }
 const promiseNear = (paragraphs, first) => new RegExp(`(?:promise.{0,80}${first}|${first}.{0,80}promise|tested|test\\b)`, "i").test(paragraphs[ORDER.indexOf(first.toLowerCase())]);
 for (const k of ["lena", "elias", "mira", "tomas", "amara", "sela"]) {
   assert.ok(!promiseNear(out.untested, FIRST[k]), `untested promise read aloud for ${k} (L-024)`);
 }
 assert.ok(!promiseNear(out.declined, "Lena") && !promiseNear(out.declined, "Sela"), "declined promise read aloud (L-024)");
-assert.ok(out.tested[1].includes("was tested, it stayed with the other patient") && out.tested[2].includes("edited Deck Four record") && out.tested[3].includes("binding to Earth-era directives was refused") && out.tested[4].includes("custody test the living received") && out.tested[5].includes("service-pocket test the pocket was vented") && out.tested[7].includes("petition test the room was allowed"), "tested promises not cited");
+assert.ok(out.tested[1].includes("was tested, it stayed with the other patient") && out.tested[2].includes("edited Deck Four record") && out.tested[3].includes("directives was refused") && out.tested[4].includes("custody test the living got") && out.tested[5].includes("pocket was vented with the reader still breathing") && out.tested[7].includes("petition named her, you gave the room"), "tested promises not cited");
 expectOrder(out.dense, "dense");
 const dense = out.dense.join("\n");
-for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into Tomas's count", "proper Deck 4 seal", "He approved the vent", "under names", "justification field blank", "the ship comes first", "fault report", "eats the paste in company", "stores were seized", "the living come first", "might break, and held", "settled the aft-trunk account", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical authorization", "attention landed on her", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "kept at the living's cost"]) {
+for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into his count by name", "went into a proper patch", "He approved the vent", "justification field blank", "the ship first", "fault report, root cause under it", "eats the paste in company", "the living come first, and he held", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical key", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "felt the air change in the habitation ring"]) {
   assert.ok(dense.includes(needle), `dense: missing "${needle}"`);
 }
+for (const [needle, owner] of [["Rourke went into his count", "tomas"], ["fault report", "mira"], ["took it as gospel", "vess"], ["who you keep close", "amara"]]) {
+  assert.equal(out.dense.filter(p => p.includes(needle)).length, 1, `dense: "${needle}" should appear in exactly one paragraph`);
+  assert.ok(out.dense[ORDER.indexOf(owner)].includes(needle), `dense: "${needle}" should sit in ${owner}'s paragraph`);
+}
+for (const [i, p] of out.dense.entries()) assert.ok(p.split(/(?<=[.!?])\s+(?=[A-Z])/).length <= 6, `dense: ${ORDER[i]} runs past six sentences: ${p}`);
 assert.ok(out.denseDead[ORDER.indexOf("jiro")].includes("argued with and won") && !creditRe.test(out.denseDead[ORDER.indexOf("jiro")]) && !creditRe.test(out.denseDead[ORDER.indexOf("amara")]), "dense dead: present-tense credit survived");
 assert.ok(out.pure, "crewEpilogues wrote state or differed on a second call");
 assert.equal(out.render.text, out.render.facts, "the reflection element no longer equals whatRemainsFacts()");
