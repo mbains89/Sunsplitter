@@ -4,6 +4,8 @@
 // Keep story content out of this file.
 
 const TONE_ACK_KEY = "sunsplitter_tone_ack_v1";
+// SUN-PRICE-TAGS-01: reader setting "Show costs on choices". "1" = on; anything else = off.
+const SHOW_COSTS_KEY = "sunsplitter_show_costs_v1";
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
@@ -179,6 +181,100 @@ function acknowledgeTone() {
 
 function revisitTone() {
   showScreen("tone");
+}
+
+// SUN-PRICE-TAGS-01 — reader setting "Show costs on choices". Default OFF.
+// Presentation only: never serialized into run state or save data, and it never
+// changes what a choice does. Disabled choices keep their honest reason either way.
+// Once the reader toggles it this session, that value wins over storage, so a
+// blocked or full localStorage still leaves a working toggle.
+let showCostsSessionValue = null;
+
+function showCostsOnChoices() {
+  if (showCostsSessionValue !== null) return showCostsSessionValue;
+  try {
+    return localStorage.getItem(SHOW_COSTS_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function setShowCostsOnChoices(on) {
+  showCostsSessionValue = !!on;
+  try {
+    localStorage.setItem(SHOW_COSTS_KEY, showCostsSessionValue ? "1" : "0");
+  } catch (e) { /* private mode — the setting still holds for this session */ }
+  syncShowCostsControls();
+  refreshChoiceCostLabels();
+  return showCostsSessionValue;
+}
+
+function toggleShowCosts() {
+  return setShowCostsOnChoices(!showCostsOnChoices());
+}
+
+function syncShowCostsControls() {
+  const on = showCostsOnChoices();
+  for (const id of ["btn-show-costs", "btn-show-costs-meta"]) {
+    const btn = document.getElementById(id);
+    if (btn) btn.setAttribute("aria-pressed", String(on));
+  }
+  const chip = document.getElementById("show-costs-chip");
+  if (chip) {
+    chip.textContent = on
+      ? "On · choices show their resource changes"
+      : "Off · choices show no costs · locked choices still say why";
+  }
+}
+
+(function wireShowCostsControls() {
+  if (typeof document === "undefined") return;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", syncShowCostsControls);
+  else syncShowCostsControls();
+})();
+
+// SUN-PRICE-TAGS-01 — after a choice, each status value that changed pulses once.
+// Feedback on the existing status bar only: no toast, no popup, no new layer.
+// #stat-announcer still carries the full status for screen readers.
+const STATUS_PULSE_IDS = {
+  survivors: "stat-survivors",
+  integrity: "stat-integrity",
+  cohesion: "stat-cohesion",
+  supplies: "stat-supplies",
+  embryos: "stat-embryos"
+};
+const STATUS_PULSE_MS = 1200;
+const statusPulseTimers = {};
+
+function statusPulseSnapshot() {
+  return {
+    survivors: typeof visibleLivingCrewCount === "function" ? visibleLivingCrewCount() : state.survivors,
+    integrity: state.integrity,
+    cohesion: state.cohesion,
+    supplies: state.supplies,
+    embryos: state.embryos
+  };
+}
+
+function pulseChangedStatus(before) {
+  if (!before) return [];
+  const after = statusPulseSnapshot();
+  const changed = [];
+  for (const [key, id] of Object.entries(STATUS_PULSE_IDS)) {
+    if (before[key] === after[key]) continue;
+    const el = document.getElementById(id);
+    if (!el || !el.classList) continue;
+    changed.push(key);
+    el.classList.remove("stat-pulse");
+    void el.offsetWidth; // restart the one-shot highlight when the same value changes again
+    el.classList.add("stat-pulse");
+    if (statusPulseTimers[key]) clearTimeout(statusPulseTimers[key]);
+    statusPulseTimers[key] = setTimeout(() => {
+      statusPulseTimers[key] = null;
+      el.classList.remove("stat-pulse");
+    }, STATUS_PULSE_MS);
+  }
+  return changed;
 }
 
 function resetRunState() {
@@ -507,6 +603,7 @@ function showScene(id, opts) {
   choicesEl.innerHTML = "";
 
   const choiceList = typeof scene.choices === "function" ? scene.choices() : (scene.choices || []);
+  const showCosts = showCostsOnChoices();
   choiceList.forEach(c => {
     // Death-gated options stay hidden (person is gone). Resource gates show disabled + reason.
     if (c.alive && !isAlive(c.alive)) return;
@@ -530,8 +627,13 @@ function showScene(id, opts) {
       btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>` +
         (reason ? `<span class="choice-reason">${escapeHtml(reason)}</span>` : "");
     } else {
+      // SUN-PRICE-TAGS-01: enabled choices read as orders; their resource changes
+      // show only when the reader turns on "Show costs on choices".
+      const labelHtml = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>`;
       const effectsHtml = formatEffectsHtml(c.effects);
-      btn.innerHTML = `<span class="choice-label">${escapeHtml(c.text)}${tagHtml}</span>${effectsHtml}`;
+      btn.__ssChoiceLabelHtml = labelHtml;
+      btn.__ssChoiceEffectsHtml = effectsHtml;
+      btn.innerHTML = labelHtml + (showCosts ? effectsHtml : "");
       btn.onclick = event => {
         if (btn.disabled || renderedRevision !== choiceRenderRevision) return;
         const pointerClick = event && event.detail > 0;
@@ -683,7 +785,9 @@ function formatRequiresReason(req) {
     for (const [who, rule] of Object.entries(trust)) {
       const need = typeof rule === "number" ? rule : (rule && rule.min);
       const have = (state.trust && state.trust[who]) || 0;
-      if (need !== undefined && have < need) return `Needs more trust from ${crewFirstName(who)}`;
+      // SUN-PRICE-TAGS-01: one generic line in plain words, not a meter reading.
+      // A dead or unrecovered person is never voiced; the generic reason covers that case.
+      if (need !== undefined && have < need && isAlive(who)) return `${crewFirstName(who)} won't take this from you yet.`;
     }
   }
   return "";
@@ -773,6 +877,16 @@ function formatEffectsHtml(effects) {
     parts.push(`<span class="${cls}">${sign}${applied} ${labels[k]}${note}</span>`);
   }
   return parts.length ? ` <span class="choice-effects">[${parts.join(" ")}]</span>` : "";
+}
+
+// SUN-PRICE-TAGS-01: flipping the reader setting repaints the enabled buttons in
+// place (same scene, same state, same focus). Disabled buttons are never touched.
+function refreshChoiceCostLabels() {
+  const show = showCostsOnChoices();
+  for (const btn of gameplayChoiceButtons()) {
+    if (btn.disabled || typeof btn.__ssChoiceLabelHtml !== "string") continue;
+    btn.innerHTML = btn.__ssChoiceLabelHtml + (show ? (btn.__ssChoiceEffectsHtml || "") : "");
+  }
 }
 
 /** Quiet discoverability cue for romance / non-sexual bond offers. */
@@ -2326,6 +2440,7 @@ function refreshTitleResumeUI() {
 function makeChoice(choice) {
   // Recheck before any writes: resources may have changed since rendering.
   if (!canAffordEffects(choice.effects)) return;
+  const statusBefore = statusPulseSnapshot();
   if (choice.effects) updateStats(choice.effects);
   if (choice.flag && typeof choice.flag === "object") {
     Object.assign(state.flags, choice.flag);
@@ -2347,6 +2462,8 @@ function makeChoice(choice) {
   }
   pendingChoiceReply = choiceReplyLines(choice.reply);
   showScene(choice.next);
+  // Changes from the order and from the next scene's entry both show on the bar.
+  pulseChangedStatus(statusBefore);
   // Persist after scene is current so resume lands on the post-choice beat
   preserveCompletedSlotUntilChoice = false;
   persistSave({ silent: true });
