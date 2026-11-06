@@ -28,9 +28,9 @@ const ABOARD = "Object.assign(state.recovered, { tomas: true, jiro: true, vess: 
 //  state writes besides the choice's declared effects/lean/affinity/trust/mark]
 const FOLDS = [
   ["bolts again", ABOARD, "hold_bolts", "You'd sign it again?", "act3_spine_next",
-    [`"Ask me on a day the trays are full. You will get a cleaner answer, and it will be worth less."`], {}],
+    [`"Ask me on a day the trays are full," Tomas says. "You will get a cleaner answer, and it will be worth less."`], {}],
   ["bolts silent", ABOARD, "hold_bolts", "Say nothing.", "act3_spine_next",
-    [`"Check the torque yourself if you want. The bolts hold. That was never the question."`], {}],
+    [`"Check the torque yourself if you want," Tomas says. "The bolts hold. That was never the question."`], {}],
   ["word given, Tomas aboard", ABOARD + "state.crisisPath = 'breath';", "breath_onset", '"The rescued will not', "breath_hub",
     [`Tomas nods once. The public word is given.`, `"Then we hold the line together. I'll prep the crisis options. None of them are clean."`], { breath_word: "given" }],
   ["word given, Tomas dead", ABOARD + "kill('tomas', 'fold fixture'); state.crisisPath = 'breath';", "breath_onset", '"The rescued will not', "breath_hub",
@@ -40,19 +40,19 @@ const FOLDS = [
   ["word refused, Tomas dead", ABOARD + "kill('tomas', 'fold fixture'); state.crisisPath = 'breath';", "breath_onset", '"I make no promises', "breath_hub",
     [`The refusal lands.`, `The rumor does not die. It only goes quieter.`], { breath_word: "refused" }],
   ["Sela's answer", ABOARD, "arc_living_2", "Ask what she would spend", "arc_living_3",
-    [`"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."`], {}],
+    [`Sela answers.`, `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."`], {}],
   ["stencil luck", ABOARD, "filters_stencil", "Luck, then.", "offshift_sela",
     [`"They will say luck, or they will say selection. I decline both. Something was asked of me, and I have not yet been told what."`], {}],
   ["stencil silent", ABOARD, "filters_stencil", "Say nothing.", "offshift_sela",
     [`She seats the filter and says its count aloud — just the number — the way one says a name at a graveside, when the name is all that is left to say.`], {}],
   ["Tomas stores, annex", ABOARD + "state.supplies = 40;", "act3_lethal_tomas_cost", "Cut the annex loose", "act3_lethal_elias_order",
-    [`The collar charges fire. The annex falls away.`, `Eight points leave Supplies before the green strip becomes too small to see. Tomas watches it without touching the suit.`, `"The mouths pay," he says. "Write that. Not me. Not this time."`], {}],
+    [`The collar charges fire. The annex falls away.`, `Eight points leave Supplies before the green strip becomes too small to see.`, `Tomas watches it without touching the suit. "The mouths pay," he says. "Write that. Not me. Not this time."`], {}],
   ["Tomas structure, annex", ABOARD + "state.integrity = 60;", "act3_lethal_tomas_cost", "Torque the hull", "act3_lethal_elias_order",
-    [`The Sunsplitter rolls three degrees against the drift.`, `The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.`, `Tomas reads the new fracture line, then the green strip. "Seven from Integrity," Tomas says. He keeps the annex pressure trace beside the new fracture line.`], {}],
+    [`The Sunsplitter rolls three degrees against the drift.`, `The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.`, `Tomas reads the new fracture line, then the green strip. "Seven from Integrity," he says. He keeps the annex pressure trace beside the new fracture line.`], {}],
   ["Tomas stores, stranded Sela", ABOARD + "state.supplies = 40; state.flags.vault_sacrifice = 'future'; state.flags.tomas = 'future';", "act3_lethal_tomas_cost", "Spend reserve oxygen", "act3_lethal_elias_order",
     [`Reserve oxygen enters the service throat hard enough to make the bulkhead ring. Patch compound follows in a white sheet.`, `Sela crosses before the temporary pressure fails. Tomas closes the manual release only after the living body is on this side.`, `"Eight from stores," he says. "Put it beside the name."`], {}],
   ["Tomas structure, stranded Jiro", ABOARD + "state.embryos = 60; state.flags.vault_sacrifice = 'future'; state.flags.tomas = 'future'; kill('sela', 'fold fixture');", "act3_lethal_tomas_cost", "Quench the outer embryo rack", "act3_lethal_elias_order",
-    [`The rack quench is clean.`, `Nitrogen leaves the vault, holds the service throat, and carries Jiro back through it. Eight viability points vanish without making a sound.`, `Tomas releases the hatch when the crossing is complete. "Eight from the vault," Tomas says. He keeps Jiro's suit tag beside the new count.`], {}],
+    [`The rack quench is clean.`, `Nitrogen leaves the vault, holds the service throat, and carries Jiro back through it. Eight viability points vanish without making a sound.`, `Tomas releases the hatch when the crossing is complete. "Eight from the vault," he says. He keeps Jiro's suit tag beside the new count.`], {}],
   ["Elias brace", ABOARD + "state.integrity = 60;", "act3_lethal_elias_order", "Blow the exterior brace", "act3_lethal_mira_board",
     [`The brace charges fire in order. Seven Integrity points leave the board as the exterior frame turns away into the dark.`, `The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.`, `Elias reads the narrower structural envelope once. "Threat contained. That side of the ship is no longer ours to spend."`], {}],
   ["Mira collar, partner", ABOARD + "state.integrity = 60; state.crisisPath = 'breath'; state.romance.mira = true;", "act3_lethal_mira_board", "Cut the transfer collar", "mira_root_cause",
@@ -149,11 +149,13 @@ const saves = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
         localStorage.clear(); resetRunState(); ${ABOARD}
         state.integrity = 60; state.ideology.living = 10; state.crisisPath = "breath";
         if (partner) state.romance.mira = true;
+        state.promises.tomas = "made"; state.flags.prom_tomas_alluded = true; // a spent one-shot line must not replay on resume
         if (id.startsWith("breath_word")) state.flags.breath_word = id.endsWith("given") ? "given" : "refused";
       };
       // Control: what pressing the retired screen's Continue did — enter its exit fresh.
       setup(); state.scene = id; showScene(retiredSceneExit(id));
       const control = JSON.stringify(state);
+      const controlStory = document.getElementById("story").innerHTML;
       setup();
       const snapshot = snapshotState(); snapshot.scene = id; if (legacy) delete snapshot.sceneEntered;
       let imported = true;
@@ -165,7 +167,7 @@ const saves = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
       const scene = state.scene;
       const slot = (() => { try { return JSON.parse(readRawSave()).scene; } catch (e) { return null; } })();
       const exits = (() => { const s = scenes[scene]; if (!s) return 0; const l = typeof s.choices === "function" ? s.choices() : s.choices; return (l || []).filter(c => (!c.alive || isAlive(c.alive)) && (!c.requires || meetsRequirements(c.requires)) && canAffordEffects(c.effects)).length; })();
-      results.push({ id, legacy, via, partner, imported, readable, resumed, scene, slot, exits, sameAsContinue: JSON.stringify(state) === control });
+      results.push({ id, legacy, via, partner, imported, readable, resumed, scene, slot, exits, sameAsContinue: JSON.stringify(state) === control, sameText: document.getElementById("story").innerHTML === controlStory });
     }
   } finally { window.confirm = confirm; }
   return results;
@@ -176,6 +178,7 @@ for (const s of saves) {
   if (s.scene === s.id || !s.scene) failures.push(`${tag}: resumed on the retired id`);
   // The exit is entered fresh, so its own entry may route on (act3_spine_next -> vess_signal, faction_split -> aftermath_seal).
   if (!s.sameAsContinue) failures.push(`${tag}: resumed state (${s.scene}) differs from pressing the retired screen's Continue`);
+  if (!s.sameText) failures.push(`${tag}: resumed screen (${s.scene}) renders differently from pressing the retired screen's Continue`);
   if (s.slot !== s.scene) failures.push(`${tag}: slot kept ${s.slot}, live scene ${s.scene}`);
   if (s.exits < 1) failures.push(`${tag}: resumed on ${s.scene} with no enabled exit`);
 }

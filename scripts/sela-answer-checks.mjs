@@ -17,7 +17,7 @@ export function selaAnswerChecks(runtime) {
         const expect = (ok, message) => { if (!ok) throw new Error(message); };
         const display = (id, opts) => { document.getElementById("choices").children = []; showScene(id, opts); };
         const story = () => document.getElementById("story").innerHTML;
-        const reply = '<p class="choice-reply">' + answer + '</p>';
+        const reply = '<p class="choice-reply">Sela answers.</p><p class="choice-reply">' + answer + '</p>';
         const opensWithAnswer = () => story().startsWith('<div class="scene-text">' + reply) &&
           story().indexOf(reply) < story().indexOf("parts allocation") && story().split(answer).length === 2;
         const click = label => {
@@ -74,7 +74,7 @@ export function selaAnswerChecks(runtime) {
       expected.scene = "arc_living_3"; expected.cohesion += 2;
       expected.affinity.sela += 8; expected.trust.sela += 8; expected.ideology.living += 2;
       const ask = scenes.arc_living_2.choices.find(c => c.text === question);
-      expect(JSON.stringify(ask.reply) === JSON.stringify([{ who: "sela", text: answer }]), "answer is not one Sela reply line");
+      expect(JSON.stringify(ask.reply) === JSON.stringify([{ who: "sela", text: "Sela answers." }, { who: "sela", text: answer }]), "answer is not the Sela tag line plus the exact Sela line");
       click(question);
       expect(JSON.stringify(state) === JSON.stringify(expected), "Ask changed more than its original effects");
       expect(opensWithAnswer(), "missing Sela response above the conflict");

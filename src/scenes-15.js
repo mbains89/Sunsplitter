@@ -166,9 +166,9 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
     // SUN-DIET-REPLY-FOLD-01 (L-057): his answer is the reply; hold_bolts_again/_silent retired.
     choices: [
       { text: "You'd sign it again?", next: "act3_spine_next", alive: "tomas",
-        reply: [{ who: "tomas", text: `"Ask me on a day the trays are full. You will get a cleaner answer, and it will be worth less."` }] },
+        reply: [{ who: "tomas", text: `"Ask me on a day the trays are full," Tomas says. "You will get a cleaner answer, and it will be worth less."` }] },
       { text: "Say nothing.", next: "act3_spine_next", alive: "tomas",
-        reply: [{ who: "tomas", text: `"Check the torque yourself if you want. The bolts hold. That was never the question."` }] }
+        reply: [{ who: "tomas", text: `"Check the torque yourself if you want," Tomas says. "The bolts hold. That was never the question."` }] }
     ]
   },
 

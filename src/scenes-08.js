@@ -66,7 +66,7 @@ registerScenes({
         // SUN-DIET-REPLY-FOLD-01 (L-057): her answer (exact quiet_sela prose, SUN-V035-PLAYTEST-SELA-ANSWER-01)
         // is the reply above the conflict; arc_living_sela_answer retired.
         { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_3", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela",
-          reply: [{ who: "sela", text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."` }] },
+          reply: [{ who: "sela", text: `Sela answers.` }, { who: "sela", text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."` }] },
         { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" }
       ];
       if (!isAlive("sela")) {

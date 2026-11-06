@@ -2588,9 +2588,11 @@ function loadGame() {
   }
   showScreen("game");
   renderStatus();
-  // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01).
-  const sceneEntered = data.sceneEntered === true && state.scene === data.scene;
-  showScene(state.scene, { skipOnEnter: sceneEntered, resume: true });
+  // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01):
+  // enter the exit and render it as a live entry, exactly as that screen's Continue did.
+  const retiredResume = state.scene !== data.scene;
+  const sceneEntered = data.sceneEntered === true && !retiredResume;
+  showScene(state.scene, { skipOnEnter: sceneEntered, resume: !retiredResume });
   // Older snapshots predate the scene-entry marker. Preserve their one-time
   // compatibility entry, then adopt the marker so later resumes stay pure.
   if (!sceneEntered && !persistSave({ silent: true })) {
