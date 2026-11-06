@@ -63,7 +63,9 @@ function reload(writer) {
 }
 
 const endings = new Set();
-for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37001]]) {
+// SUN-CREW-FRICTION-01: random/37001 stopped reaching a death aftermath once the pair scenes joined the
+// hub (its random stream shifted); random/37006 walks the Lena–Tomas pair, reaches act3_lethal_tomas_end and ends in Fracture.
+for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37006]]) {
   const route = simulateRun(root, { policy, seed });
   assert.equal(route.completed, true, `${policy}/${seed} must complete`);
   const writer = loadGame(root, { includeValidator: false });

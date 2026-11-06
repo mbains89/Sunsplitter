@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-05`
+`updated_utc: 2026-11-06`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: cadf259 (after PR #503)`
+`work_branch_tip: b1ae936 (after PR #522)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -20,7 +20,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
-`browser_bot_latest: cadf259 (src tree 2831f07, all five romance arcs in), 2026-11-06 — 28/28 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
+`browser_bot_latest: b1ae936 (src tree 8ee7595, after #508–#522), 2026-11-06 — 12/12 runs reached an ending (phone and desktop × touch, mouse, keys, tab; two chaos sets with reloads and resizes). Two title-button click timeouts appeared while seven processes shared the box; the same seed re-ran clean twice (0 findings).`
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -67,13 +67,38 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
 | 502 | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
 | 503 | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
-| this PR | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| 506 | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| 504 | SUN-MYTH-WORDING-01 | Myth's first review, landed as wording only: the tether floor trimmed to a two-beat order, the uncommitted failed-burn line given its antecedent, `offshift_elias` opens on the unmended jacket (the mending opener belonged to the cut alive-Mira branch), `arc_future_2` attributions turned into prose and the dangling "without him" removed, two Mira footer lines tightened. The `arc_future_2` speaker reassignment is left for decision 5. |
+| 505 | SUN-PLATE-FACES-07 | Muse's roster audit, landed as hide-only: `observation.jpg` (Tomas, Elias, baked crew text) and `observation_bridge.jpg` (baked HUD text) leave every fallback for the people-free ART-R2 wreck and bridge plates; `arc_future_4` leaves the three-welder plate; `vess_boarding.jpg` is gated on Lena, who is dead in about a third of its renders; nine defensive `PLATE_FACES` rosters. No new art, nothing shown more. |
+| 507 | SUN-VERIFY-MODES-DOC-01 | Docs only. The Mode A paragraph in `docs/VERIFY_MODES.md` now says the `src` pin fires only on the work-branch or fixture checkout, and that a ticket-branch bare PASS is real but not certification. |
+| 508 | SUN-CREW-FRICTION-01 | Wave 1, workstream 3. Four one-shot pair scenes where two crew disagree with each other in front of the Commander, each answering their own reflex question: Lena and Tomas on Rourke, chart against count, from `act2_spine_next` (`pair_triage_chart`); Elias and Tomas on the Deck 4 feedstock, bulkhead against slate, from the hub (`pair_seal_ledger`); Mira and Jiro on the reckoning burn, finding against width (`pair_burn_archive`); Jiro and Vess on whose position is truer, fix against track (`pair_fix_track`). Each keys its text on the run fact it argues about, offers three answers that write one flag and a small affinity nudge, shows both of them acting on the ruling in a reply scene, and is never offered again. No resources, no new crew, no new art: two owner-approved plates that had never reached the screen (`arc_living_3.jpg`, `arc_future_3.jpg`) carry the seal and burn pairs, face-gated to both speakers; the other two use a Tomas-only corridor and the people-free wreck. |
+| 509 | SUN-CREW-EPILOGUES-01 | Wave 1, workstream 4. What Remains gains a second block, "The crew": one paragraph per crew member, alive or dead, in crew order, each in that character's own lens for the dead (Lena clinical fact, Elias by what he covers, Mira by what she built, Tomas by habits, Amara by what she tended, Jiro by a logged position, Sela by names at yellow, Vess by registry order), citing only this run's facts: the logged cause of death, tested promises, private lines, the vault decision against the side they stood for, recorded answers and pair outcomes. Untested promises stay silent (L-024); the dead are past tense; unrecovered crew get one sentence. Rendered in its own element under the unchanged 3–6 reflection lines, so L-008's cap and every check that pins them hold. `crewEpilogues()` in `src/state.js`; `sun-playerflow-crew-epilogues-checks.mjs`. No state, no choices, no art. |
+| 510 | SUN-DESKTOP-CHOICE-OVERLAP-01 | On short desktops (1024 wide, 800 tall or less) the choices follow the text instead of sitting over it; at 1280×800 they hid up to 440 px of unread text on `vault_reveal`. |
+| 511 | SUN-FINAL-DESTINATION-READ-01 | The final order and Jiro's briefing say where the window opens (the rogue planet when a heading was committed or the position is certain); "You still have no destination." stays wherever no heading was committed. Myth read: ready as written. |
+| 512 | SUN-AMARA-WALKIN-GATE-01 | Asking Amara and Tomas to stop closes the walk-in at both offers (`intimacy_window` and the hub), ending a repeat lap. |
+| 513 | SUN-PRIVATE-PACKAGE-STAMP-01 | The private package builder allows exactly one same-origin manifest read in `review-build-stamp.js`, so it builds on the current tree again. Tooling. |
+| 514 | SUN-REPLY-ENGINE-01 | **L-057.** A choice may carry `reply`: one to three lines that open the next screen once. Speakers who are dead or unrecovered are dropped; never saved; not replayed on Continue; dropped on run-ending choices. Validator shape rules and a playerflow check. |
+| 515 | SUN-PRICE-TAGS-01 | **L-058 (D14).** Enabled choices show no cost tags by default; the status bar pulses after the order; "Show costs on choices" (title) and "Costs" (meta bar) restore them. Disabled choices keep their reason; trust locks name only a living, recovered person. |
+| 516 | SUN-REPLY-BEATS-ACT1 | **L-057 prose, Acts 1–2.** 47 replies in 18 scenes, so orders get an answer from the crew. Myth read applied (1 blocking, 12 edits). |
+| 517 | SUN-NO-REPEAT-LAP-01 | CI check: 2,000 seeded real-play runs never walk the same scene loop twice. The allowlist emptied once #512 landed. |
+| 518 | SUN-REACTION-REPORT-01 | `scripts/sun-reaction-report.mjs`: how often a decision gets no visible answer, with a determinism proof. Tooling, not in CI. |
+| 519 | SUN-STYLE-UNCLOSED-RULE-01 | A missing `}` in `style.css` had silently swallowed the title chip styles after `.new-run-confirm-chip`. |
+| 520 | SUN-PACED-REVEAL-01 | **L-059 (D15).** Scene text arrives a paragraph at a time by default (tap, Space, Enter or → reads on; Show all; "Text: paced / instant" on the title and meta bar); resume and Continue show the scene whole; choices follow the last paragraph; a slow plate push-in, off under reduced motion. Both of Manraj's conditions are met: Read on stays in view on phones (50 → 0 of 193 scenes at 390×844), and Muse's crop check of 120 plates holds `tether_dock_ruined.jpg` still. |
+| 521 | SUN-REPLY-BEATS-ACT3 | **L-057 prose, Act 3 and leftovers.** 54 replies in 22 scenes. Myth read applied (3 blocking, 12 edits). Decisions with no visible answer: 34.3% this morning → 3.0% (`sun-reaction-report --runs 40`). |
+| 522 | SUN-READON-STICKY-02 | A #520 follow-up. Read on is sticky only while `#main` shows at least 160 px, so in phone landscape or a squeezed layout it no longer covers the text. The browser bot taps the top of the passage. Independent review applied. |
 
 ## Open
 
 **Lead queue (no owner decision needed):**
 
-- **Wave 1, 0.37 Deeper Crew (ROADMAP §14A):** `SUN-ROMANCE-ARC-01` (Lena) first, then Mira, Vess, Amara, Sela; then callbacks, crew friction and per-crew epilogues. One PR each, prose offered to Myth before merge. Gate 1 is Manraj's full run plus one stranger's full read.
+- **Wave 1, 0.37 Deeper Crew (ROADMAP §14A): written.** It covers the five romance arcs (#499–#503), callbacks (#506), crew friction (#508) and per-crew epilogues (#509). Since the deep dive it also carries "orders get answers" (L-057: #514, #516, #521) and reader staging (L-058 #515, L-059 #520/#522). Gate 1 (Manraj's full run plus one stranger's full read) is next.
+- **D11 = Deep (ruled 2026-11-06).** The plan is in the project doc `claude/hex/2026-11-06-d11-run-length.md`: a measured median run is 101 screens, 45 prose minutes and about 58 minutes a sitting, against Deep's target of about 20 prose minutes. Step 1 (slack cuts, no lock) is under way as one-PR tickets: `SUN-DIET-HUB-01` (C01) and `SUN-DIET-REPLY-FOLD-01` (C11/C12). Step 2 waits on decision 19.
+- **Small tickets found today:**
+  - `status` says "one hundred percent" after the Living choice has taken viability to 95 (`src/scenes-39.js:68`).
+  - `arc_living_4` promises an unwired "double cycle" option (decision 22).
+  - In phone landscape the plate leaves `#main` about 75 px for text.
+  - Flags written but never read: `embryo_ceiling`, `leadership_style`, `vault_face`, `busDowngraded`, `reaction_mass_spent`.
+  - `offshift_jiro`'s two `isAlive("mira")` branches are identical.
 - Keep running `scripts/sun-browser-bot.mjs` batches after each batch of merges, and fix what it finds as one-PR tickets.
 - Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
 - Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
@@ -84,9 +109,9 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 
 **Open:**
 
-1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
-4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
-5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+1. **Playtest build.** Production still shows `0e7535d`, from September. Manraj ruled on 2026-11-05: skip the deploy for now. Private playtest zips are sent in the lead chat instead: `preview-a45a6ac` (a preview merge, not on the work branch) and `playtest-b1ae936` (the work-branch tip, end of 2026-11-06).
+4. **Story wording, for Myth review.** Done: Myth read all three and the trims landed in #504 (2026-11-06). Nothing left to rule.
+5. **Story consistency, for Myth.** The `offshift_elias` contradiction and the `arc_future_2` author note are fixed in #504. Still open, one question: may the `arc_future_2` vault-ceiling briefing move from Jiro, who is never aboard when the scene plays, to Sela, with the board fallback when she is dead? Myth's proposed text is in `claude/myth/2026-11-05.md` §2b. Lead's recommendation: yes; Sela is the keeper and the only crew member whose reflex is what the ceiling means. If no, the scene is already honest as landed.
 
 9. **Lena, from SUN-ROMANCE-ARC-01 (Wave 1):**
    - PX5-D01 is still unruled: may the last regenerative and the second night stay one transaction in `pursuit_lena`? The arc ships with it unchanged.
@@ -118,6 +143,25 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - PX5-D04 (may the private vow still reach the second night) and PX5-D05 (is the non-partner's "Stay past the yellow" an acceptance, presence or texture; it writes nothing) are still unruled. Neither is touched; the partner's new choice sits beside them.
    - Both vow paths write `sela_vault_vow: "accepted"`, so `pursuit_sela_sex`'s private-vow memory branch never runs and `prom_make_sela` treats a private vow as logged. The new scenes read `pursuit_sela_cost` instead, which is honest; the memory bug is a one-line fix if you want it.
    - The second-key line in `custody_shared` and the past-amber line spend the bible's canon that shared custody is a proposal in her culture's dialect, without saying the word. Say so if that beat should wait for the per-crew epilogues or for Wave 3's Yellow Circle route (L-051).
+
+14. **Crew friction, from SUN-CREW-FRICTION-01 (Wave 1):**
+   - Two owner-approved plates that had never reached the screen are wired to the new pair scenes: `arc_living_3.jpg` (Tomas and Elias, red-lit corridor, Commander's back) for the seal argument and `arc_future_3.jpg` (Mira and Jiro at a console in the records bay, Commander's back) for the burn argument. Muse rostered both on 2026-11-05 (`claude/muse/2026-11-05.md` B.5, B.6); the lead checked both against the portraits; no baked text; face-gated to both speakers. Veto returns them to the people-free wreck plate in one line.
+   - The four pair flags (`pair_triage`, `pair_seal`, `pair_burn`, `pair_fix`) are recorded in `src/state.js` against ROADMAP §14A workstream 3 (the growth ruling), as the arc flags were against L-050. ROADMAP §2 asks for a recorded lock per new state key; the lead cannot mint one. Recommendation: one row, L-060, "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters", landing in the next LOCKS edit. Say no and the flags stay recorded against §14A as they are.
+   - Choices in the four pairs carry affinity nudges of +2 / −1 (siding) or +1 / +1 (reconciling), the scale `pair_favor_confront` already uses. Balance is on hold (ROADMAP §15); this is not a rebalance, but say so if you want them at zero.
+15. **Myth review before merge: RULED 2026-11-06.** Myth and Muse reads run in the lead chat as independent reviewer agents; Manraj picked "This chat; reviews here (Recommended)". Today's reads: #508, #509, #511, #516 and #521 (Myth); #520's plate push-in (Muse); #522 (code). Each verdict and its applied edits are in a comment on the PR.
+16. **One lead at a time: RULED 2026-11-06.** The Orchestrator chat is the lead. The other session (`01S9qt…`) stops merging, and its PRs #508 and #509 passed to the Orchestrator and landed with Myth's edits.
+17. **What Remains length (L-008 against §14A workstream 4).** L-008 (ROADMAP §8) fixes What Remains at 3–6 lines; the growth ruling's workstream 4 asks for one paragraph per crew member there. #509 reads the two together: the 3–6 reflection lines stay exactly as they were, and the per-crew block sits under them as a second section, "The crew", about 300–500 words. Recommendation: record on the L-008 row that the §14A ruling added the crew section beneath the capped reflection (one line in LOCKS, next LOCKS edit). If you would rather keep the screen at 3–6 lines, say so and the block moves behind a "Read the crew" button on the same screen instead.
+18. **L-057, L-058, L-059: RULED 2026-11-06** and recorded in this PR (LOCKS rows, ROADMAP §2). They are choice replies, cost tags off by default (D14), and paced reveal (D15). Manraj's answers are verbatim in the project doc `claude/decisions/2026-11-06.md`.
+19. **D11, run length: RULED "Deep" 2026-11-06. Three locks need rulings before step 2:**
+    - **L-024**, promises made and tested: remove them, or keep them at about 1 prose minute.
+    - **L-050**, off-shift lead-ins to the romance arc end states: cut to about 100 words.
+    - **L-008**, ending and What Remains: −30%.
+
+    Deep also cuts approved crew friction (#508) from 2.5 to 1.1 scenes a run. That cut was not in the option Manraj picked, so it needs his confirmation too. Lead recommendation: rule each lock separately. Step 1 needs none of them.
+20. **Canon, from the #521 read.** Is it canon that Jiro flies the insertion pass, days 181–184? `offshift_jiro` now says so, and no other scene does.
+21. **What Remains, from the #509 read (ties to 17).** Every death prints twice, once in the reflection lines and again at the start of that person's crew paragraph. Keep both, or open a dead crew member's paragraph with their own line and leave the cause above?
+22. **`arc_living_4`'s "double cycle" sentence.** It has promised a third option since 0.28.1c, and the option was never wired. Myth recommends cutting the sentence; wiring it would be a new trade that needs Hex and you.
+23. **L-060 (proposed), the pair flags from #508.** One row: "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters." This was proposed as L-057 before L-057 was ruled for replies.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -152,6 +196,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** Wave 1 workstream 3, `SUN-CREW-FRICTION-01` (three or four pair scenes where crew disagree with each other). **Manraj:** the five romance arcs and the callbacks are in; a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** land D11 Deep step 1 (`SUN-DIET-HUB-01`, `SUN-DIET-REPLY-FOLD-01`, then the rest of step 1) with Myth reads and a re-measure after each; run a browser-bot batch on the tip. **Manraj:** play the end-of-day playtest build (gate 1, first half); rule decision 19's three locks so Deep step 2 can start; name the gate-1 stranger (D10).
 
 <!-- STATUS_COMPLETE -->
