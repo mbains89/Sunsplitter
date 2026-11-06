@@ -112,7 +112,10 @@ function playChunk(runtime, { chunkSeed, runs, measure, scenes, bindings }) {
       const scene = scenes[id];
       return ((typeof scene.choices === "function" ? scene.choices() : scene.choices) || []).filter(enabled);
     };
-    const screenNow = () => document.getElementById("story").innerHTML + "\u0000" +
+    // A choice's reply (proposed L-057) opens the next screen once and is consumed by that
+    // render, so a re-render after restore cannot show it. Compare the screen without it.
+    const withoutReply = html => String(html || "").replace(/<p class="choice-reply">[\\s\\S]*?<\\/p>/g, "");
+    const screenNow = () => withoutReply(document.getElementById("story").innerHTML) + "\u0000" +
       Array.from(choicesEl.children).map(button => button.innerHTML + (button.disabled ? "[disabled]" : "")).join("\u0000");
     const norm = html => String(html || "").replace(/<[^>]+>/g, " ").replace(/\\d+/g, "#").replace(/\\s+/g, " ").trim();
     const nextScreen = () => state.scene === "ending_check"
