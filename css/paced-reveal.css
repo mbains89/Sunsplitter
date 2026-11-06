@@ -46,7 +46,10 @@
    On phones the plate takes most of the screen, and a first paragraph of a few lines pushed
    the controls below the fold: 141 of 193 paced scenes at 390×844 started with Read on out
    of view. The fade keeps the line under it readable as it scrolls up past the controls. */
-#main.reveal-active #reveal-controls {
+/* Only while #main has room (engine.js sets .reveal-roomy at 120px and up): in phone landscape,
+   or when something above squeezes #main, a sticky bar would cover the text it leads into, so
+   there the controls stay in normal flow under the paragraph. */
+#main.reveal-active.reveal-roomy #reveal-controls {
   position: sticky;
   bottom: 0;
   z-index: 2;

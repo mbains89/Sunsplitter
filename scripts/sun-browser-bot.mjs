@@ -125,7 +125,10 @@ for (let run = 0; run < RUNS; run++) {
     } else if (INPUT === "tab") await press(control);
     else if (!all && rnd() < 0.5) {
       // Tap/click the passage itself: "anywhere on the story area" reads on.
-      if (INPUT === "touch") await page.tap("#story", { timeout: 2000 }).catch(e => note("tapfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
+      // Tap near the top of the passage, as a reader does. Since L-059 the sticky Read on bar
+      // sits over the bottom of #main while text waits, and a tap there also reads on, but
+      // Playwright will not tap #story at a point another element covers.
+      if (INPUT === "touch") await page.tap("#story", { timeout: 2000, position: { x: 16, y: 12 } }).catch(e => note("tapfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
       else await page.click("#story", { timeout: 2000 }).catch(e => note("clickfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
     } else await press(control);
     reveals++; revealPresses++;

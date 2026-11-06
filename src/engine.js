@@ -881,6 +881,23 @@ function restartPlateDrift(img) {
   img.classList.add(wasA ? "plate-drift-b" : "plate-drift-a");
 }
 
+// L-059: Read on sticks to the bottom of #main only while #main shows enough text for it.
+// On a portrait phone #main shows about 180px; in phone landscape, or when something above
+// squeezes it, it can drop to 30–75px, and a 66px sticky bar would cover the text it leads into.
+const REVEAL_STICKY_MIN_HEIGHT = 120;
+(function watchRevealRoom() {
+  if (typeof document === "undefined" || typeof ResizeObserver !== "function") return;
+  function bind() {
+    const main = document.getElementById("main");
+    if (!main) return;
+    const update = () => main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+    try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
+    update();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+})();
+
 (function wireSceneRevealPointer() {
   if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
   function bind() {
