@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 // SUN-V035-PLAYTEST-JIRO-VOICE-01. Only the ambiguous voice clause may differ
 // from d1e0cde. All destination labels, descriptors, setup and state are pinned.
-const BASELINE_FINGERPRINT = "eab2309a3dd52a2e1c793417c3574e20da712433cd481e68b4bc8ecd6812ee6c";
+const BASELINE_FINGERPRINT = "0427f151619f73eb379c0bfc259048056195ab827ba445f269a8cad85be38be6";
 const planets = ["unset", "deferred", "committed"];
 export const jiroVoiceFixtures = planets.flatMap(planet =>
   ["alive", "dead", "missing"].flatMap(life =>

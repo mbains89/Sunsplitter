@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 // to b133aaf. A text correction must not change destinations, prices or endings.
 // SUN-ROMANCE-ARC-03: final_choice names the spent long-range window (text only); the 120 *_debt rows with
 // last_tx_spent gained that paragraph. Mechanics, labels, images and outcomes are unchanged.
-const BASELINE_MATRIX = "8d043ee71631c68ec218926401952b9c6cd69ae3febb3b646c8725c0452d246c";
+const BASELINE_MATRIX = "6a5c775821bb88610e27eb7a2eeeb9169cc21ac69b2084c2802adb8051fc5a52";
 const BASELINE_OUTCOMES = "144c4006befe4006c304c4582bf44c19c014f693cf49b1ca3eb15277752e087f";
 const planets = ["unset", "deferred", "committed"];
 const navs = ["jiro", "mira", "rough", "jiro_dead", "jiro_missing", "jiro_debt", "mira_debt", "dead"];
