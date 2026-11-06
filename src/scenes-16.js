@@ -157,7 +157,7 @@ registerScenes({
       if (isAlive("mira")) {
         t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
       } else {
-        t += `\n\nThe geometry is clear from the boards: matchable, but the docking burn will spend reaction mass now, and the environmental bus will run degraded to power her relay core. No second window.`;
+        t += `\n\nThe geometry is clear from the boards: matchable, but the environmental bus will run degraded to power her relay core. No second window.`;
       }
       if (isAlive("elias")) {
         t += `\n\n"Eleven months of listening," Elias says. "She already knows our hull ID. Decide whether that is a gift or a problem after she is aboard."`;
