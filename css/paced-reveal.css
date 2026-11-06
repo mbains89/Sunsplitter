@@ -1,0 +1,168 @@
+/* SUN-PACED-REVEAL-01 — paced paragraph reveal, text setting, plate drift, choices after text.
+   Loaded after css/pc-viewport.css. Presentation only: engine.js toggles the classes
+   (.reveal-hidden, .reveal-fade, #choices.reveal-pending, #main.reveal-active,
+   #scene-image.plate-drift-a/b); nothing here changes scene text or which choices exist. */
+
+/* ---- Paced reveal ---- */
+.scene-text p.reveal-hidden {
+  display: none;
+}
+
+/* Choices stay in the DOM (keyboard handler, harness) but are not shown or focusable
+   until the last paragraph is out. */
+#choices.reveal-pending {
+  display: none;
+}
+
+#main.reveal-active {
+  /* Quick taps read on instead of double-tap zooming; pinch zoom and scrolling stay. */
+  touch-action: manipulation;
+}
+
+#main.reveal-active #story {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.scene-text p.reveal-fade,
+#choices.reveal-fade {
+  animation: reveal-fade-in 180ms ease-out both;
+}
+
+@keyframes reveal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#reveal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+#reveal-controls button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  padding: 10px 12px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#reveal-controls #reveal-next {
+  color: var(--text);
+  padding-left: 0;
+}
+
+#reveal-controls button:hover,
+#reveal-controls button:active {
+  color: #fff;
+  border-color: var(--border);
+}
+
+#reveal-controls #reveal-next:hover,
+#reveal-controls #reveal-next:active {
+  padding-left: 12px;
+}
+
+.reveal-mark {
+  display: inline-block;
+  color: var(--focus);
+  animation: reveal-mark-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes reveal-mark-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ---- Plate drift: the cinematic's slow push-in, without its opacity ramp, so a
+   scene plate is never dimmed. The image scales inside #scene-image-wrap
+   (overflow: hidden), so it stays in its frame and nothing reflows. ---- */
+#scene-image {
+  transform-origin: 50% 18%; /* matches object-position: heads stay put */
+}
+
+#scene-image.plate-drift-a {
+  animation: scene-plate-drift-a 22s ease-in-out infinite alternate both;
+}
+
+#scene-image.plate-drift-b {
+  animation: scene-plate-drift-b 22s ease-in-out infinite alternate both;
+}
+
+/* Two identical keyframes so swapping the class restarts the drift on a new plate. */
+@keyframes scene-plate-drift-a {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+@keyframes scene-plate-drift-b {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+/* ---- Desktop composition: choices follow the text in normal flow.
+   Overrides the 1024×≤800 sticky panel from css/pc-viewport.css, which opened on top
+   of unread text at 1280×800. The paced reveal holds choices until the text is out,
+   and they now sit after it, so they cannot cover it. ---- */
+@media (min-width: 1024px) and (max-height: 800px) {
+  #choices {
+    position: static;
+    z-index: auto;
+    background: none;
+    padding-top: 0;
+  }
+}
+
+/* ---- Reader settings: title utility, beside the content-notice group.
+   Buttons share the row, so another reader toggle can sit next to this one. ---- */
+.reader-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 8px;
+  width: 100%;
+}
+
+/* Typography is inherited, matching how the sibling title chips render today. */
+.reader-settings-actions .text-pace-chip {
+  flex: 1 0 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.reader-settings-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (min-width: 800px) and (max-height: 980px) {
+  #title-screen:has(#commander-create.visible) .reader-settings-actions,
+  #title-screen.commander-create-open .reader-settings-actions {
+    display: none;
+  }
+}
+
+/* ---- Reduced motion: no fade, no pulse, no drift. The reveal itself still paces. ---- */
+@media (prefers-reduced-motion: reduce) {
+  .scene-text p.reveal-fade,
+  #choices.reveal-fade,
+  .reveal-mark,
+  #scene-image.plate-drift-a,
+  #scene-image.plate-drift-b {
+    animation: none !important;
+  }
+
+  #scene-image {
+    transform: none !important;
+  }
+}

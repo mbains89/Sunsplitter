@@ -26,6 +26,14 @@ let choiceRenderRevision = 0;
 // Presentation only: never serialized into run state or save flags.
 let currentCinematic = null;
 let cinematicTimer = null;
+// SUN-PACED-REVEAL-01: reader preference and the in-scene paragraph reveal.
+// Presentation only, like the tone acknowledgement: never in run state, saves or exports.
+const TEXT_PACE_KEY = "sunsplitter_text_pace_v1";
+const REVEAL_MIN_WORDS = 40; // shorter scenes arrive whole
+const REVEAL_SETTLE_MS = 350; // a burst of taps/keys that finished the reveal cannot also pick a choice
+let textPaceSession = null; // survives a session when storage is blocked
+let sceneReveal = null; // { blocks, shown } while paragraphs are still waiting
+let revealSettledAt = -Infinity;
 
 function cancelCinematic() {
   if (cinematicTimer !== null) clearTimeout(cinematicTimer);
@@ -85,7 +93,8 @@ function finishCinematic() {
   const kind = currentCinematic.kind;
   cancelCinematic();
   showScreen(kind === "intro" ? "game" : "ending");
-  if (kind === "intro") showScene(state.scene, { skipOnEnter: true, resume: true });
+  // The first scene was rendered behind the intro; this is the player's first look at it.
+  if (kind === "intro") showScene(state.scene, { skipOnEnter: true, resume: true, firstView: true });
   return true;
 }
 
@@ -418,6 +427,7 @@ function showScene(id, opts) {
   opts = opts || {};
   state.scene = id;
   document.getElementById("scene-id").textContent = id;
+  clearSceneReveal();
 
   if (id === "ending_check") {
     resolveEnding();
@@ -450,7 +460,7 @@ function showScene(id, opts) {
   imgWrap.classList.remove("minimized"); // full size on every new scene
   window.__ssImagePinned = false; // 0.24.92: clear manual pin
   if (imgSrc) {
-    setManagedImageSource(img, imgSrc);
+    if (setManagedImageSource(img, imgSrc)) restartPlateDrift(img);
     img.alt = imageAlternative(imgSrc);
     imgWrap.classList.add("visible");
     if (isIntimateScene(id, scene)) imgWrap.classList.add("intimate");
@@ -511,6 +521,8 @@ function showScene(id, opts) {
         if (btn.disabled || renderedRevision !== choiceRenderRevision) return;
         const pointerClick = event && event.detail > 0;
         const now = Date.now();
+        // SUN-PACED-REVEAL-01: the tap or key that revealed the choices cannot also commit one.
+        if (now - revealSettledAt < REVEAL_SETTLE_MS) return;
         // Native keyboard/programmatic clicks have detail 0. Pointer bursts
         // must finish before a new scene can accept another pointer choice.
         if (pointerClick && (event.detail > 1 || now - lastChoicePointerCommitAt < 400)) return;
@@ -538,6 +550,10 @@ function showScene(id, opts) {
 
   renderStatus();
 
+  // SUN-PACED-REVEAL-01: hold later paragraphs and the choices until the player
+  // reads on. Resume and re-render paths always arrive whole.
+  beginSceneReveal(opts);
+
   // A choice replaces the focused button. Move the reading cursor to the new
   // passage without disturbing the explicit scroll reset above.
   const storyEl = document.getElementById("story");
@@ -546,6 +562,220 @@ function showScene(id, opts) {
     catch (e) { storyEl.focus(); }
   }
 }
+
+// ─── SUN-PACED-REVEAL-01: paced paragraph reveal, text setting, plate drift ───
+// Presentation only. Reads the paragraphs showScene already rendered; never
+// changes scene text, run state, saves, or which choices exist in #choices.
+
+function readTextPace() {
+  if (textPaceSession) return textPaceSession;
+  try {
+    return localStorage.getItem(TEXT_PACE_KEY) === "instant" ? "instant" : "paced";
+  } catch (e) {
+    return "paced";
+  }
+}
+
+function syncTextPaceControls() {
+  const paced = readTextPace() === "paced";
+  for (const id of ["btn-text-pace", "meta-text-pace"]) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = paced ? "Text: paced" : "Text: instant";
+  }
+  const chip = document.getElementById("text-pace-chip");
+  if (chip) {
+    chip.textContent = paced
+      ? "Paced · tap for each paragraph"
+      : "Instant · the whole scene at once";
+  }
+}
+
+function setTextPace(mode) {
+  const next = mode === "instant" ? "instant" : "paced";
+  textPaceSession = next;
+  try { localStorage.setItem(TEXT_PACE_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  syncTextPaceControls();
+  // Switching to instant mid-scene shows the rest now; focus stays on the toggle.
+  if (next === "instant") finishSceneReveal("setting");
+  return next;
+}
+
+function toggleTextPace() {
+  return setTextPace(readTextPace() === "paced" ? "instant" : "paced");
+}
+
+function revealPrefersReducedMotion() {
+  try {
+    return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (e) {
+    return false;
+  }
+}
+
+// The renderer's own paragraphs. Hosts without a parsed DOM (the headless
+// harness in scripts/simulate.mjs) return none, so they always render instant.
+function sceneRevealBlocks() {
+  const story = document.getElementById("story");
+  if (!story || typeof story.querySelectorAll !== "function") return [];
+  try { return Array.from(story.querySelectorAll(".scene-text > p")); }
+  catch (e) { return []; }
+}
+
+function sceneRevealWordCount(blocks) {
+  return blocks.reduce((sum, p) => sum + String(p.textContent || "").trim().split(/\s+/).filter(Boolean).length, 0);
+}
+
+function setSceneRevealChrome(pending) {
+  const choicesEl = document.getElementById("choices");
+  const controls = document.getElementById("reveal-controls");
+  const main = document.getElementById("main");
+  if (choicesEl) choicesEl.classList.toggle("reveal-pending", pending);
+  if (controls) controls.classList.toggle("hidden", !pending);
+  if (main) main.classList.toggle("reveal-active", pending);
+  const next = document.getElementById("reveal-next");
+  if (next && pending && sceneReveal) {
+    next.setAttribute("aria-label", `Read on: paragraph ${sceneReveal.shown + 1} of ${sceneReveal.blocks.length}`);
+  }
+}
+
+function clearSceneReveal() {
+  sceneReveal = null;
+  setSceneRevealChrome(false);
+  const choicesEl = document.getElementById("choices");
+  if (choicesEl) choicesEl.classList.remove("reveal-fade");
+}
+
+function beginSceneReveal(opts) {
+  opts = opts || {};
+  clearSceneReveal();
+  const rerender = (opts.resume || opts.skipOnEnter) && !opts.firstView;
+  if (rerender || readTextPace() !== "paced") return false;
+  const blocks = sceneRevealBlocks();
+  if (blocks.length < 2 || sceneRevealWordCount(blocks) < REVEAL_MIN_WORDS) return false;
+  blocks.forEach((p, index) => {
+    p.classList.remove("reveal-fade");
+    if (index > 0) p.classList.add("reveal-hidden");
+  });
+  sceneReveal = { blocks, shown: 1 };
+  setSceneRevealChrome(true);
+  return true;
+}
+
+function scrollRevealedIntoView(block) {
+  const main = document.getElementById("main");
+  const controls = document.getElementById("reveal-controls");
+  const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
+  if (!block || typeof block.scrollIntoView !== "function") return;
+  try {
+    const blockHeight = block.getBoundingClientRect().height;
+    const controlsHeight = sceneReveal && controls ? controls.getBoundingClientRect().height : 0;
+    const room = main ? main.clientHeight : Infinity;
+    // Keep "read on" in view under the new paragraph when both fit; otherwise start the paragraph at the top.
+    if (sceneReveal && controls && blockHeight + controlsHeight <= room) controls.scrollIntoView({ block: "nearest", behavior });
+    else block.scrollIntoView({ block: blockHeight <= room ? "nearest" : "start", behavior });
+  } catch (e) { /* layout-free hosts */ }
+}
+
+function showRevealBlock(block) {
+  block.classList.remove("reveal-hidden");
+  if (!revealPrefersReducedMotion()) block.classList.add("reveal-fade");
+}
+
+// source: "story-key" (Space/Enter/→ in the passage), "control-key" (keyboard on Read on /
+// Show all), "pointer" (tap/click), "setting" (the Text toggle).
+function advanceSceneReveal(source) {
+  const reveal = sceneReveal;
+  if (!reveal) return false;
+  const block = reveal.blocks[reveal.shown];
+  if (block) {
+    showRevealBlock(block);
+    reveal.shown += 1;
+  }
+  if (reveal.shown < reveal.blocks.length) {
+    setSceneRevealChrome(true);
+    scrollRevealedIntoView(block);
+    return true;
+  }
+  finishSceneReveal(source);
+  // From a keyboard control, focusing the first choice scrolls it in; otherwise keep the
+  // last paragraph in view with the choices under it.
+  if (source !== "control-key") scrollRevealedIntoView(block);
+  return true;
+}
+
+function finishSceneReveal(source) {
+  const reveal = sceneReveal;
+  if (!reveal) return false;
+  reveal.blocks.slice(reveal.shown).forEach(showRevealBlock);
+  reveal.shown = reveal.blocks.length;
+  const active = document.activeElement;
+  const controls = document.getElementById("reveal-controls");
+  const focusWasOnControls = !!(active && controls && typeof controls.contains === "function" && controls.contains(active));
+  sceneReveal = null;
+  setSceneRevealChrome(false);
+  revealSettledAt = Date.now();
+  const choicesEl = document.getElementById("choices");
+  if (choicesEl && !revealPrefersReducedMotion()) choicesEl.classList.add("reveal-fade");
+  if (source === "control-key") {
+    // Keyboard focus was on a control that just hid: move it to the first enabled choice.
+    const first = gameplayChoiceButtons().find(btn => !btn.disabled);
+    if (first && typeof first.focus === "function") first.focus();
+  } else if (source !== "setting" && focusWasOnControls) {
+    // A tapped control just hid; keep the reading cursor in the passage, not on <body>.
+    const storyEl = document.getElementById("story");
+    if (storyEl && typeof storyEl.focus === "function") {
+      try { storyEl.focus({ preventScroll: true }); } catch (e) { storyEl.focus(); }
+    }
+  }
+  // "story-key" leaves focus on the passage: digits 1-9 stay live (a focused choice button
+  // keeps native handling under SUN-CREW-FOCUS-DIGITS-01) and Tab reaches the first choice next.
+  return true;
+}
+
+function revealSourceFromEvent(event) {
+  return event && event.detail > 0 ? "pointer" : "control-key";
+}
+
+function readOnFromControl(event) {
+  return advanceSceneReveal(revealSourceFromEvent(event));
+}
+
+// The rest of the text lands where "read on" was, so a tap keeps the reader's place.
+function showAllFromControl(event) {
+  return finishSceneReveal(revealSourceFromEvent(event));
+}
+
+// Restart the slow plate drift only when the plate itself changes; a scene that
+// keeps its plate keeps drifting instead of snapping back.
+function restartPlateDrift(img) {
+  if (!img || !img.classList) return;
+  const wasA = img.classList.contains("plate-drift-a");
+  img.classList.remove(wasA ? "plate-drift-a" : "plate-drift-b");
+  img.classList.add(wasA ? "plate-drift-b" : "plate-drift-a");
+}
+
+(function wireSceneRevealPointer() {
+  if (typeof document === "undefined" || typeof document.addEventListener !== "function") return;
+  function bind() {
+    syncTextPaceControls();
+    const main = document.getElementById("main");
+    if (!main || typeof main.addEventListener !== "function") return;
+    main.addEventListener("click", event => {
+      if (!sceneReveal || event.defaultPrevented) return;
+      const game = document.getElementById("game-screen");
+      if (!game || game.classList.contains("hidden")) return;
+      if (keyboardTargetIsInteractive(event.target)) return;
+      if (typeof openModalDialogElement === "function" && openModalDialogElement()) return;
+      try {
+        const selection = typeof window.getSelection === "function" ? window.getSelection() : null;
+        if (selection && !selection.isCollapsed && String(selection).trim()) return; // selecting text, not reading on
+      } catch (e) { /* ignore */ }
+      advanceSceneReveal("pointer");
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+})();
 
 function gameplayChoiceButtons() {
   const choices = document.getElementById("choices");
@@ -600,6 +830,17 @@ function handleGameplayKeydown(event) {
   if (!game || game.classList.contains("hidden")) return false;
   // SUN-MODAL-HOTKEYS-01: never commit a choice behind an open dialog.
   if (typeof openModalDialogElement === "function" && openModalDialogElement()) return false;
+
+  // SUN-PACED-REVEAL-01: while paragraphs are waiting, Space/Enter/→ read on and
+  // digits stay inert, so no key can pick a choice the player has not seen.
+  if (sceneReveal) {
+    if (digitKey) return false;
+    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.key === "ArrowRight") {
+      if (typeof event.preventDefault === "function") event.preventDefault();
+      return advanceSceneReveal("story-key");
+    }
+    return false;
+  }
 
   const buttons = gameplayChoiceButtons();
   if (/^[1-9]$/.test(event.key || "")) {
