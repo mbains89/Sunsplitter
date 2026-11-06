@@ -1184,10 +1184,12 @@ function resolveSceneImageUngated(id, scene) {
     }
   }
 
-  // Competence / pattern plates historically show Jiro (and sometimes Tomas).
+  // Competence / pattern plates: act3_reckoning_pattern.jpg shows Tomas, Lena, Mira and Sela (faces
+  // gated below via PLATE_FACES); without Jiro these scenes use the people-free, text-free bridge.
+  // SUN-PLATE-FACES-07: observation_bridge.jpg carried baked "HULL INTEGRITY 23%" (ART_RULES rule 4).
   if (id === "competence_watch" || id === "act3_reckoning_pattern") {
     if (!isAlive("jiro")) {
-      return map.observation_bridge || "images/observation_bridge.jpg";
+      return "images/observation_bridge_alt_2.jpg";
     }
   }
 
@@ -1196,11 +1198,12 @@ function resolveSceneImageUngated(id, scene) {
     if (!isAlive("jiro") || !isAlive("tomas")) {
       return (id === "arc_future_3")
         ? (map.power_crisis || "images/power_crisis.jpg")
-        : (map.observation_bridge || "images/observation_bridge.jpg");
+        : "images/observation_bridge_alt_2.jpg"; // SUN-PLATE-FACES-07: people-free, no baked HUD text
     }
   }
 
-  // Living-arc conflict plate shows Tomas, Mira, and Amara.
+  // Living-arc conflict plate: the bytes show Tomas and Elias (PLATE_FACES); the scene-level guard
+  // below keeps its historical Tomas/Mira/Amara roster.
   if (id === "arc_living_3") {
     if (!isAlive("tomas") || !isAlive("mira") || !isAlive("amara")) {
       return "images/corridor_variant_2.jpg";
@@ -1216,18 +1219,19 @@ function resolveSceneImageUngated(id, scene) {
   }
 
   // Group / observation_crew family — never show while Tomas or Jiro unrecovered
-  // (map already parked most of these on observation.jpg; keep runtime guard).
+  // SUN-PLATE-FACES-07: observation.jpg shows Tomas and Elias plus baked crew text, so the guard now
+  // uses the people-free ART-R2 observation wreck.
   if (id === "status" || id === "lead_together" || id === "arc_fork" ||
       id === "act2_tether_truth" || id === "reckon_truth" || id === "observation_crew") {
     if (!isAlive("tomas") || !isAlive("jiro")) {
-      return "images/observation.jpg";
+      return "images/art_r2_observation_wreck.jpg";
     }
   }
 
   // Faction / debt / group plates: substitute whenever ANY of the eight named crew is not alive (0.25 Edit H).
   // Enumerated against live sceneImages map at implementation. When any of the eight is gone, debt_notice and
   // faction_split(_alt) fall back to the empty corridor_variant_3.jpg (corridor_variant.jpg shows Amara + Jiro);
-  // reckon_public / reckon_summary fall back to observation.jpg.
+  // reckon_public / reckon_summary fall back to the people-free art_r2_observation_wreck.jpg (SUN-PLATE-FACES-07).
   if (id === "faction_split" || id === "faction_split_alt" || id === "debt_notice" ||
       id === "reckon_public" || id === "reckon_summary") {
     const eight = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
@@ -1236,7 +1240,7 @@ function resolveSceneImageUngated(id, scene) {
       if (id === "debt_notice" || id === "faction_split" || id === "faction_split_alt") {
         return "images/corridor_variant_3.jpg";
       }
-      return "images/observation.jpg";
+      return "images/art_r2_observation_wreck.jpg";
     }
   }
 
@@ -1324,7 +1328,19 @@ const PLATE_FACES = {
   "images/rear_amara.jpg": ["amara"],
   "images/rear_sela.jpg": ["sela"],
   "images/priority_ration.jpg": ["elias", "lena", "mira", "amara", "sela"],
-  "images/berths_manifest.jpg": ["amara"]
+  "images/berths_manifest.jpg": ["amara"],
+  // SUN-PLATE-FACES-07 (Muse art audit at 52ecdd8, E.1/E.2/E.6): rosters read from the bytes against
+  // the official portraits. observation.jpg and vess_boarding.jpg change the render; the rest are
+  // defensive (their scenes are already guarded upstream).
+  "images/observation.jpg": ["elias", "tomas"],
+  "images/vess_boarding.jpg": ["vess", "lena"],
+  "images/act3_reckoning_pattern.jpg": ["tomas", "lena", "mira", "sela"],
+  "images/arc_future_3.jpg": ["mira", "jiro"],
+  "images/power_crisis.jpg": ["mira"],
+  "images/arc_living_3.jpg": ["tomas", "elias"],
+  "images/lead_together.jpg": ["elias", "amara"],
+  "images/vault_sacrifice.jpg": ["mira", "elias"],
+  "images/ship_interrupt_resolve.jpg": ["mira"]
 };
 // SUN-HITL-SHADOW-02: only plates whose bytes differ from the scene's own image. Byte-identical
 // copies under event names stay shadowed so the face gate keeps matching the original filename.
@@ -1352,7 +1368,10 @@ const PLATE_FACE_FALLBACK = {
   "images/observation_nightshift_ask.jpg": "images/art_r2_observation_wreck.jpg",
   "images/observation_nightshift_leave.jpg": "images/art_r2_observation_wreck.jpg",
   "images/custody_shared.jpg": "images/art_r2_observation_wreck.jpg",
-  "images/berths_manifest.jpg": "images/art_r2_empty_berths.jpg"
+  "images/berths_manifest.jpg": "images/art_r2_empty_berths.jpg",
+  // SUN-PLATE-FACES-07
+  "images/observation.jpg": "images/art_r2_observation_wreck.jpg",
+  "images/vess_boarding.jpg": "images/art_r2_empty_berths.jpg"
 };
 function plateFacesPresent(src) {
   const faces = PLATE_FACES[src];
