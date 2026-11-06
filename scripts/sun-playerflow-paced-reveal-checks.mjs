@@ -395,7 +395,9 @@ export function sunPlayerflowPacedRevealChecks() {
     check(sticky && /position:\s*sticky/.test(sticky[1]) && /bottom:\s*0/.test(sticky[1]), "G: Read on must stay in view while text waits (sticky at the bottom of #main when it has room)");
     check(!/#main\.reveal-active #reveal-controls\s*\{[^}]*position:\s*sticky/.test(css), "G: the sticky Read on must depend on #main having room (.reveal-roomy), not apply everywhere");
     const engineSrc = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
-    check(/REVEAL_STICKY_MIN_HEIGHT\s*=\s*\d+/.test(engineSrc) && /classList\.toggle\("reveal-roomy"/.test(engineSrc), "G: engine must mark #main reveal-roomy by its own height");
+    const roomAt = Number((engineSrc.match(/REVEAL_STICKY_MIN_HEIGHT\s*=\s*(\d+)/) || [])[1]);
+    // Above the bar's own 66px, and at most 176px so a portrait phone (#main about 178px at 390x844) keeps the sticky bar.
+    check(roomAt > 66 && roomAt <= 176 && /classList\.toggle\("reveal-roomy"/.test(engineSrc), "G: engine must mark #main reveal-roomy by its own height, with a threshold between 67 and 176px");
     // Muse crop check: tether_dock_ruined.jpg's subject already meets the frame edge, so it never drifts.
     check(/#scene-image\.plate-drift-a\[src\$="\/tether_dock_ruined\.jpg"\][\s\S]*?animation:\s*none/.test(css), "G: tether_dock_ruined.jpg must be excluded from the plate drift (Muse crop check)");
   }
