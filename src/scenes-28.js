@@ -105,9 +105,9 @@ registerScenes({
       }
       // SUN-ROMANCE-ARC-03 (L-050): the spent window is named at the decision it closes. Text only.
       if (state.flags.last_tx_spent) {
-        t += state.flags.vess_intimate && isAlive("vess") ? `There is no final transmission left to send. The last outward window went out carrying Vess's six years of logs. She has the record of that. So do you.\n\n`
-          : state.flags.vess_intimate ? `There is no final transmission left to send. The last outward window went out carrying Vess's six years of logs, before she died. The record of that is yours now.\n\n`
-          : `There is no final transmission left to send. The last outward window went to a dead ship's beacon, answering a name nobody alive was keeping.\n\n`;
+        t += state.flags.vess_intimate && isAlive("vess") ? `There is no final transmission left to send. The last outward window was Vess's: one directed burst, and then the external lane closed. She has the window. You have the record.\n\n`
+          : state.flags.vess_intimate ? `There is no final transmission left to send. The last outward window was Vess's: one directed burst, and then the external lane closed. She had the window. The record is yours now.\n\n`
+          : `There is no final transmission left to send. The last outward window went to a dead ship's beacon, answering a name that had been saying itself to nobody, on schedule.\n\n`;
       }
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       if (debt.length) {

@@ -64,16 +64,16 @@ for (const answer of ["floor", "chair"]) {
   const r = out.answers[answer];
   assert.equal(r.scene, "vess_item_two", `${answer}: item two did not render`);
   assert.ok(r.entryClean, `${answer}: entry wrote a flag or a resource`);
-  assert.ok(r.text.includes("Solve it.") && r.text.includes("Commander."), `${answer}: problem text missing`);
+  assert.ok(r.text.includes("Solve it.") && r.text.includes("Commander.") && r.text.includes("Item one stays on my page"), `${answer}: problem text missing`);
   assert.equal(r.flag, answer, `${answer}: flag not written`);
   assert.equal(r.logged, "vess_item_two_logged", `${answer}: did not reach her ruling`);
   assert.ok(r.resourcesUnchanged, `${answer}: a resource changed`);
   assert.ok(r.loggedText.includes("She does not correct it."), `${answer}: the Captain beat missing`);
   assert.equal(r.after, "faction_split", `${answer}: exit did not reach faction_split`);
 }
-assert.ok(out.answers.floor.loggedText.includes("Chair held") && out.answers.chair.loggedText.includes("Rating exceeded"), "ruling text does not follow the answer");
-assert.ok(out.text.intimate.includes("would not ask again") && !out.text.intimate.includes("pending"), "text: intimate branch wrong");
-assert.ok(out.text.pending.includes("Logged as: pending") && !out.text.pending.includes("would not ask again"), "text: window-kept branch wrong");
+assert.ok(out.answers.floor.loggedText.includes("chair held") && out.answers.chair.loggedText.includes("rating exceeded"), "ruling text does not follow the answer");
+assert.ok(out.text.intimate.includes("would not ask again") && !out.text.intimate.includes("Status: pending"), "text: intimate branch wrong");
+assert.ok(out.text.pending.includes("Status: pending") && !out.text.pending.includes("would not ask again"), "text: window-kept branch wrong");
 for (const name of ["unrecovered", "dead"]) {
   assert.notEqual(out[name].scene, "vess_item_two", `${name} Vess rendered item two`);
   assert.ok(!out[name].text.includes("Solve it."), `${name} Vess's text rendered`);
@@ -81,10 +81,10 @@ for (const name of ["unrecovered", "dead"]) {
 }
 assert.notEqual(out.notPartner.scene, "vess_item_two", "non-partner rendered item two");
 assert.notEqual(out.rulingWithoutAnswer.scene, "vess_item_two_logged", "ruling rendered without an answer");
-assert.ok(out.final.logs.text.includes("six years of logs") && !out.final.logs.text.includes("before she died") && !out.final.logs.tx, "final: spent-on-logs line wrong");
-assert.ok(out.final.logsDead.text.includes("before she died") && !out.final.logsDead.tx, "final: dead-partner line wrong");
+assert.ok(out.final.logs.text.includes("one directed burst") && out.final.logs.text.includes("She has the window") && !out.final.logs.tx, "final: spent-on-burst line wrong");
+assert.ok(out.final.logsDead.text.includes("She had the window") && !out.final.logsDead.tx, "final: dead-partner line wrong");
 assert.ok(out.final.beacon.text.includes("dead ship's beacon") && !out.final.beacon.tx, "final: beacon line wrong");
 assert.ok(!out.final.unspent.text.includes("no final transmission left") && out.final.unspent.tx, "final: unspent window lost its order");
-assert.ok(out.footer.floor.includes("took the deck") && out.footer.chair.includes("occupancy two") && out.footer.floor.includes("stopped correcting"), "footer: answer not cited");
+assert.ok(out.footer.floor.includes("took the deck") && out.footer.chair.includes("occupancy two") && out.footer.floor.includes("let it stand"), "footer: answer not cited");
 assert.ok(!out.footer.none.includes("kept her chair"), "footer: cited without a run fact");
 console.log("PASS sun-playerflow-vess-item-two: partner-only Solve it.; two answers, one flag, no resources; unrecovered, dead and unpartnered never render; final_choice names the spent window; footer cites the answer");

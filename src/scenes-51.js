@@ -92,7 +92,8 @@ registerScenes({
       t += `"Item one. Logged receipt forty-one cycles ago, oh-two-hundred. Automated. Ark-band handshake, station-keeping power signature. Verified eleven times."\n\n`;
       t += `She plays it. A preamble tone. A ship designator, repeating, patient as a metronome. Then the gap where an answer would go, and the preamble again.\n\n`;
       t += `"Crews don't maintain station-keeping beacons," she says, and for once she answers slowly, at human tempo — from her, slow is a gift. "Orphans do. Somewhere out there a ship is saying its own name to nobody, on schedule. I did that for six years. I know the accent." A beat, half a beat late, checking the joke is still allowed: "It's good work. Whoever's not alive over there is doing good work."\n\n`;
-      t += `"Disposition is yours. The registry stays exact either way. This one gets its own page."`;
+      // SUN-ROMANCE-ARC-03: the Captain reflex, seeded once here; vess_item_two_logged lets it stand.
+      t += `"Disposition is yours, Captain—" A beat. "Commander. The registry stays exact either way. This one gets its own page."`;
       if (state.romance.vess) {
         t += `\n\n"Item two, if you're staying: the chair is rated for one and I'm not moving. Solve it."`;
       }
@@ -141,20 +142,21 @@ registerScenes({
     get text() {
       if (!isAlive("vess")) return `The relay bay runs on console light and nobody.`;
       let t = `She does not get up. That is the problem as stated.\n\n`;
-      t += `The chair is rated for one. The arm is worn pale where her elbow has lived. The other seat, the one she gave you for item one, is on the far side of the rack, which is not where item two is.\n\n`;
+      t += `The chair is rated for one. The arm is worn pale where her elbow has lived. The other seat, the one she gave you for item one, is on the far side of the rack.\n\n`;
+      t += `"Item one stays on my page until you dispose of it. It'll keep. It kept forty-one cycles."\n\n`;
       if (state.flags.vess_intimate) {
-        t += `"I said I would not ask again. I'm not asking. I'm stating a load rating and an occupancy of one, and I'm not moving." A beat, the half-beat-late one. "Dawnbreak solved this with a rota. There's no rota. Solve it."\n\n`;
+        t += `"I said I would not ask again. I'm not asking. I'm stating a load rating and an occupancy of one, and I'm not moving." Half a beat late: "Procedure for this is a rota. A rota needs two shifts. Solve it."\n\n`;
       } else {
-        t += `"The attempt was accepted and the window stayed with the ship. Logged as: pending. I don't reopen pending items. I state them." A beat, the half-beat-late one. "Load rating one. Occupancy one. Not moving. Solve it."\n\n`;
+        t += `"Attempt accepted. Window kept by the ship. Status: pending. I don't reopen pending items. I state them." Half a beat late: "Load rating one. Occupancy one. Not moving. Solve it."\n\n`;
       }
-      t += `"Captain—" The correction comes a beat behind, the way it always does. "Commander."`;
+      t += `"Captain—" She hears it a beat after you do. "Commander."`;
       return t;
     },
     get choices() {
       if (!isAlive("vess")) return [{ text: "Leave the bay.", next: "faction_split" }];
       return [
-        { text: "Take the deck beside the chair. Let her keep it.", next: "vess_item_two_logged", flag: { vess_item_two: "floor" }, affinity: { vess: 4 } },
-        { text: "Share the chair. It is rated for one.", next: "vess_item_two_logged", flag: { vess_item_two: "chair" }, affinity: { vess: 6 }, trust: { vess: 2 } }
+        { text: "Take the deck beside the chair. Let her keep it.", next: "vess_item_two_logged", flag: { vess_item_two: "floor" }, affinity: { vess: 5 }, trust: { vess: 2 } },
+        { text: "Share the chair. It is rated for one.", next: "vess_item_two_logged", flag: { vess_item_two: "chair" }, affinity: { vess: 5 }, trust: { vess: 2 } }
       ];
     }
   },
@@ -177,15 +179,15 @@ registerScenes({
       if (!isAlive("vess")) return `The relay bay runs on console light and nobody.`;
       let t;
       if (state.flags.vess_item_two === "chair") {
-        t = `The chair takes the load. It complains in the arm she does not use, and she lets it. Her elbow goes to the pale place out of six years of habit, finds yours there instead, and stays.\n\n"Rated for one. Occupancy two. No fault found." Then, in log register and not quite in log register: "Dawnbreak log, personal. Rating exceeded. Holding."\n\n`;
+        t = `The chair takes the load. It complains in the arm she does not use, and she lets it. Her elbow goes to the pale place out of six years of habit, finds yours there instead, and stays.\n\n"Rated for one. Occupancy two. Confirmed." Then, in log register and not quite in log register: "Dawnbreak log, personal: rating exceeded. Holding."\n\n`;
       } else {
-        t = `You sit on the deck plating with your back to the rack, below the worn arm. She looks down at the arrangement for the length of a verification cycle.\n\n"Occupancy one. Company present. No fault found." Then, in log register and not quite in log register: "Dawnbreak log, personal. Chair held. Didn't have to."\n\n`;
+        t = `You sit on the deck plating with your back to the rack, below the worn arm. She looks down at the arrangement for the length of a verification cycle.\n\n"Occupancy one. Company present. Confirmed." Then, in log register and not quite in log register: "Dawnbreak log, personal: chair held. Uncontested."\n\n`;
       }
-      t += `The console light does what it does. She answers the next thing you say a full second late, at human tempo, and this time it is not a gift she is handing you. It is the tempo she has.\n\n"Captain." She does not correct it.`;
+      t += `The console light does what it does. She answers the next thing you say a full second late. Not a gift this time. Just her tempo.\n\n"Captain." She does not correct it.`;
       return t;
     },
     choices: [
-      { text: "Let the item stay open.", next: "faction_split" }
+      { text: "Let the entry stand.", next: "faction_split" }
     ]
   },
 

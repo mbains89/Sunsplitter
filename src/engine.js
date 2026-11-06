@@ -1060,8 +1060,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-03 (L-050): Vess's end state, cited from the answer the run gave.
   if (state.flags.vess_item_two) {
-    const chair = state.flags.vess_item_two === "chair" ? `Vess kept her chair and let you share it. Rated for one, occupancy two, no fault found.` : `Vess kept her chair and you took the deck beside it. Occupancy one, company present.`;
-    text += `\n\n${chair} She stopped correcting "Captain" that night.${isAlive("vess") ? "" : " That fact outlived her."}`;
+    const chair = state.flags.vess_item_two === "chair" ? `Vess kept her chair and let you share it. Rated for one, occupancy two, confirmed.` : `Vess kept her chair and you took the deck beside it. Occupancy one, company present, confirmed.`;
+    text += `\n\n${chair} That night she said "Captain" once and let it stand.${isAlive("vess") ? "" : " That fact outlived her."}`;
   }
   // SUN-ROMANCE-ARC-02 (L-050): her arc's end state, cited from the answer the run gave.
   if (state.flags.mira_root_cause) {
