@@ -14,6 +14,8 @@ const VERSION = "0.36";
 // Prefer state.recovered.vess over a separate vessAboard alias.
 // 0.24.1 crisis-request cost flags: pursuit_*_cost, lena_regen, mira_memory_public, amara_vent_delayed
 // 0.25: state.dying is a map { [name]: causeString }; legacy scalar "lena" normalized on load.
+// L-050 (2026-11-05, Wave 1 romance arcs): lena_last_hour (boolean; written once by the
+//   lena_last_hour scene; read by the ending footer). One flag per arc end state, no meters.
 
 function freshState() {
   return {

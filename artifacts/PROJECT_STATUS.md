@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 8814738 (after PR #497)`
+`work_branch_tip: f4500fb (after PR #498)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -20,6 +20,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
+`browser_bot_latest: f4500fb (src tree f013611), 2026-11-05 — 28/28 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -60,7 +61,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 495 | SUN-ART-R2-FALLBACKS-01 | A blocked plate falls back to an empty plate of its own setting (berths, observation, vault) from the held ART-R2 reserve. |
 | 496 | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
 | 497 | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
-| this PR | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
+| 498 | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
+| this PR | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
 
 ## Open
 
@@ -80,6 +82,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
 4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
 5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+
+9. **Lena, from SUN-ROMANCE-ARC-01 (Wave 1):**
+   - PX5-D01 is still unruled: may the last regenerative and the second night stay one transaction in `pursuit_lena`? The arc ships with it unchanged.
+   - Her backstory has two versions: `src/state.js` (trauma surgeon from the orbital hospitals, lost her staff) and `artifacts/FABLE_CASCADE_BACKGROUND.md` (commissioning medical officer, mid-shift, forty-one names). Neither is ruled canon; the new scene uses neither.
+   - The deferred "Lena disposition beat" (one word on the forty-one-name list, never rendered) could live in `lena_last_hour`. It commits to the Fable backstory, so it waits for the ruling above.
+   - `images/offshift_lena.jpg` (locked 2026-08-25 off-shift plate, never wired; dirty-blonde, freckles, blue eyes, coat open) could replace `medbay_dim` on `lena_last_hour`. Wiring it is an art call: yours.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -114,6 +122,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** `SUN-ROMANCE-ARC-01`, Lena's arc (ROADMAP §14A, Wave 1), then the next browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** `SUN-ROMANCE-ARC-02`, Mira's arc (ROADMAP §14A, Wave 1), with Myth review of the Lena lines in parallel; then the next browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->

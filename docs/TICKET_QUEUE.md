@@ -8,8 +8,8 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
-| SUN-ROADMAP-WAVES-01 | Lead | Records the 2026-11-05 growth ruling (ROADMAP §14A, LOCKS L-050–L-056). |
-| SUN-ROMANCE-ARC-01 (Lena) | Lead | Next. Three beats: offer, cost, late callback inside a hard decision, plus a last scene. Myth review before merge. |
+| SUN-ROMANCE-ARC-01 (Lena) | Lead | This PR. `lena_last_hour` plus the lethal-clock debt line and the ending footer. Myth review of the new lines requested below. |
+| SUN-ROMANCE-ARC-02 (Mira) | Lead | Next. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
@@ -32,7 +32,7 @@ Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verif
 
 | Helper | Ask |
 |---|---|
-| Myth | Review each romance-arc PR's new lines before merge (voice, continuity, dead-character honesty). Also the lead-written lines from #482 (tether floor), #483 (unreadable save) and #490 (failed burn); rule on the `offshift_elias` mending/unmended contradiction and the `arc_future_2` author note. |
+| Myth | Review the SUN-ROMANCE-ARC-01 lines: `lena_last_hour` (scenes-48), the partner line in `act3_lethal_lena_clock` (scenes-19), the held-only line in `offshift_lena`, and the two ending footer lines (engine.js `buildEndingFooter`). Then each later arc PR's new lines before merge (voice, continuity, dead-character honesty). Also the lead-written lines from #482 (tether floor), #483 (unreadable save) and #490 (failed burn); rule on the `offshift_elias` mending/unmended contradiction and the `arc_future_2` author note. |
 | Hex | Measure how often each romance is pursued to its last scene after SUN-ROMANCE-ARC-01..05 land; propose trust or cost tuning if any arc is unreachable in practice. |
 | Muse | Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits. No new art until Wave 4. |
 
