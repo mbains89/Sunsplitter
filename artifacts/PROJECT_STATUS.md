@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 52ecdd8 (after PR #500)`
+`work_branch_tip: 3c86527 (after PR #501)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -64,7 +64,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 498 | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
 | 499 | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
 | 500 | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
-| this PR | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
+| 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
+| this PR | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
 
 ## Open
 
@@ -105,6 +106,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - The L-029 discard list still names `vess_boarding`, `vess_offer`, `vess_intimate` and `vess_signal` by filename although their bytes were replaced on 2026-09-27. Say whether the list should be re-cut to the current bytes.
    - The scene spends two bible beats once each: the "Dawnbreak log, personal" register and the day she stops correcting "Captain" (the correcting reflex itself had never shipped; the scene shows one correction before the one she lets stand).
 
+12. **Amara, from SUN-ROMANCE-ARC-04 (Wave 1):**
+   - **"Amara route parked"** (TICKET_QUEUE standing hold; origin: the `prom_r_amara` non-trigger note, SUN_PLAYTEST_ART_EVENT_AUDIT_01 §113–127) forbids rewriting the romance-trigger gates without a repro. This ticket does not touch them: `romanceOpen`, `bond_amara`, `romance_amara_1` and `prom_r_amara` are unchanged and the repro check still passes. Say whether the hold stays as written or is lifted now that L-050 names her arc.
+   - Her end state sits behind `offshift_amara`, which needs an attributable death (`eligAmara`). A partner in a run with no attributable death never reaches it. Widening `eligAmara` for partners would need a no-death branch of that scene; your call.
+   - Unruled PX-5 items on her: D03 (vent delay and the second night as one transaction), D07 (should a prior decline close the shared-bay offer; is full hydro an intentional gate; should the shared bay feed debt and What Remains) and F03 (the shared bay's "or at least no refusal" — the audit asks for affirmative, separate consent from both). None touched here.
+   - The scene spends the bible's handwritten favor ledger (opened to the Commander's page) and its "Everyone aboard is owed by someone who isn't" line.
+
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
    - Six plates show a sliver of the Commander's cheek, jaw or ear, never the eyes: `records_changeorders`, `act2_tether_lie`, `act3_reckoning_cut`, `act3_reckoning_briefing`, `aftermath_seal` and `aftermath_seal_order` (the most visible). Does that pass the faceless rule?
@@ -138,6 +145,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** `SUN-ROMANCE-ARC-04`, Amara's arc (ROADMAP §14A, Wave 1); then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** `SUN-ROMANCE-ARC-05`, Sela's arc (ROADMAP §14A, Wave 1), the last of the five; then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->

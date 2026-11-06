@@ -285,6 +285,8 @@ requireLivingCast("lena_last_hour", ["lena"], "faction_split");
 requireLivingCast("mira_root_cause mira_root_cause_logged", ["mira"], "faction_split");
 // SUN-ROMANCE-ARC-03 (L-050): item two in the relay bay; same cast and exit as offshift_vess.
 requireLivingCast("vess_item_two vess_item_two_logged", ["vess"], "faction_split");
+// SUN-ROMANCE-ARC-04 (L-050): her ledger page after the absolution hour; same cast and exit as offshift_amara.
+requireLivingCast("amara_page amara_page_reply", ["amara"], "faction_split");
 // L-026 fresh zero/one/many entry behavior remains untouched. A marked saved
 // zero-invitation selector needs an exit without replaying junctionChoice.
 requireLivingCast("offshift_open", [], "faction_split", {
