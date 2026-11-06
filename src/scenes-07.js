@@ -35,8 +35,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Seal the records. The crew cannot use this truth yet.", next: "records_changeorders", effects: { cohesion: 2, integrity: 1 }, flag: { cascade_truth: "sealed" }, lean: { future: 2 }, affinity: { elias: 5 }, reply: [{ who: "elias", text: `Elias locks the archive himself and hands you the only key. "Good," he says. "Truth is a resource. You just put it in the vault with the rest."` }] },
-      { text: "Tell the senior crew. No more official stories between us.", next: "records_changeorders", effects: { cohesion: -5, supplies: -1 }, flag: { cascade_truth: "senior" }, lean: { living: 1 }, affinity: { lena: 4, tomas: 4, jiro: 3 }, reply: [`You tell them in the wardroom with the hatch shut.`, { who: "lena", text: `Lena hears it out and says, "Thank you for not making me find it." That is all she says.` }, { who: "mira", text: `Mira asks for a copy of the projection timestamps, and gets it, and reads it twice before she leaves.` }] },
+      { text: "Seal the records. The crew cannot use this truth yet.", next: "records_changeorders", effects: { cohesion: 2, integrity: 1 }, flag: { cascade_truth: "sealed" }, lean: { future: 2 }, affinity: { elias: 5 }, reply: [{ who: "elias", text: `Elias locks the archive himself and hands you the only key. "Good," he says. "Truth is a resource. You put it in the vault with the rest."` }] },
+      { text: "Tell the senior crew. No more official stories between us.", next: "records_changeorders", effects: { cohesion: -5, supplies: -1 }, flag: { cascade_truth: "senior" }, lean: { living: 1 }, affinity: { lena: 4, tomas: 4, jiro: 3 }, reply: [`You tell them in the wardroom with the hatch shut.`, { who: "lena", text: `Lena hears it a second time, on the record, and says, "Thank you for putting it on the chart." That is all she says.` }, { who: "mira", text: `Mira asks for a copy of the projection timestamps, and gets it, and reads it twice before she leaves.` }] },
       { text: "Broadcast it. The empty ship already knows. The living should too.", next: "records_changeorders", effects: { cohesion: -10, integrity: -2 }, flag: { cascade_truth: "open" }, lean: { living: 2 }, affinity: { tomas: 6, elias: -6 }, trust: { elias: -8, tomas: 6 }, reply: [`It goes out on every screen at once: boarding windows, priority lists, projections dated before the alerts. The ship reads it in silence. Then someone in the habitation ring laughs, once, the wrong kind of laugh, and someone else tells them to stop.`, { who: "elias", text: `Elias finds you afterward. "You told them they were chosen," he says. "Not saved. Chosen. Watch what that does to a ration line." He is gone before you can answer.` }] }
     ]
   },
@@ -90,7 +90,7 @@ registerScenes({
     },
     choices: [
       { text: "Open it. Take what the future can use.", next: "vault_sacrifice", effects: { supplies: 8, integrity: -8, embryos: 3 }, flag: { abandoned: "opened" }, lean: { future: 3 }, requires: { integrity: { min: 28 } }, reply: [{ who: "mira", text: `Mira takes the seal down by hand. Behind it: cold racks, crated transit gear, two sealed stores, and a corridor's worth of air that leaves faster than anyone likes. "Worth it," she says, reading the haul. "Barely. Log the barely."` }] },
-      { text: "Leave it sealed. Some risks are not worth the parts.", next: "vault_sacrifice", effects: { cohesion: 3, integrity: 2 }, flag: { abandoned: "sealed" }, lean: { living: 1 }, reply: [`The seal stays. Someone tapes a handwritten DO NOT OPEN over the fault light, then crosses out NOT and writes YET, then crosses that out too.`] }
+      { text: "Leave it sealed. Some risks are not worth the parts.", next: "vault_sacrifice", effects: { cohesion: 3, integrity: 2 }, flag: { abandoned: "sealed" }, lean: { living: 1 }, reply: [`The seal stays. Someone tapes a handwritten DO NOT OPEN over the fault light, then adds YET, then crosses YET out.`] }
     ]
   },
 

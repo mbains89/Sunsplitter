@@ -63,7 +63,7 @@ registerScenes({
         next: "seal_or_food",
         effects: { integrity: 2, cohesion: 1, supplies: -3 },
         flag: { coolant: "split" },
-        reply: [{ who: "mira", text: `"Half each," Mira says. "Both systems now fail later and together. I would rather have a date than a coin toss, Commander. You gave me a coin toss."` }, { who: "lena", text: `Lena halves the dosing chart with a ruler and says nothing at all.` }]
+        reply: [{ who: "mira", text: `"Half each," Mira says. "Loop and field both fail later now. Which goes first is fifty-fifty. I would rather have a date than a coin toss, Commander. You gave me a coin toss."` }, { who: "lena", text: `Lena rules a nearer expiry date onto the sterile-field label and says nothing at all.` }]
       }
     ],
     image: "images/corridor_variant.jpg"
