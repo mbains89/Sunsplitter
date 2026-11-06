@@ -20,13 +20,11 @@ registerScenes({
     },
     get text() {
       const shape = ideologyShape();
-      let t = `The quiet after the vault voice does not last.\n\n`;
-      t += `Two kinds of work are waiting. One lives in the numbers — drive, trajectory, the restart package that still draws power in the cold. The other lives in the warm sections — air, food, the people who still argue in the corridors.\n\n`;
+      let t = `Two kinds of work are waiting. One lives in the numbers — drive, trajectory, the restart package that still draws power in the cold. The other lives in the warm sections — air, food, the people who still argue in the corridors.\n\n`;
       if (shape === "future") t += `You have already leaned toward the future. The ship has noticed.\n\n`;
       else if (shape === "living") t += `You have already leaned toward the living. The ship has noticed.\n\n`;
       else t += `You have not yet forced the ship to choose a single language.\n\n`;
-      t += `Leadership is a separate question from ideology. You can hold hard rules and still protect the living. You can speak softly and still feed the vault. The next stretch of the voyage will not let you pretend those are the same choice.\n\n`;
-      t += `Embryo viability, hull, and cohesion will all be asked to pay. The board already knows which meters are soft.\n\n`;
+      t += `Leadership is a separate question from ideology. You can hold hard rules and still protect the living. You can speak softly and still feed the vault.\n\n`;
       t += `Where do you put your weight?`;
       return t;
     },

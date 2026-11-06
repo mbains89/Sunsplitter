@@ -5,14 +5,14 @@ registerScenes({
 
   aftermath: {
     get text() {
-      let t = `The immediate crisis is over. What remains is the cost.\n\n`;
+      let t = `What remains is the cost.\n\n`;
       const livingN = (typeof visibleLivingCrewCount === "function")
         ? visibleLivingCrewCount()
         : null;
       if (livingN == null) {
-        t += `The living remain. The manifests still pretend there could be more.\n\n`;
+        t += `The living remain.\n\n`;
       } else {
-        t += `${livingN} still living. The manifests still pretend there could be more.\n\n`;
+        t += `${livingN} still living.\n\n`;
       }
 
       if (state.flags.crisis === "vent") {
@@ -66,8 +66,8 @@ registerScenes({
         t += `The seized private stores sit in a locked crate. Nobody thanks you for them.\n\n`;
       }
       if (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound") {
-        if (isAlive("mira")) t += `Mira's eye keeps tracking the Deck 4 pressure icon even while she talks about the bulkhead. The seal is still soft in her head.\n\n`;
-        else t += `Someone has marked the Deck 4 pressure icon in red on the status board. The seal is still soft in the ship's memory.\n\n`;
+        if (isAlive("mira")) t += `Mira's eye keeps tracking the Deck 4 pressure icon even while she talks about the bulkhead.\n\n`;
+        else t += `Someone has marked the Deck 4 pressure icon in red on the status board.\n\n`;
       }
       if (typeof favoritism === "function") {
         const fav = favoritism();
@@ -78,7 +78,7 @@ registerScenes({
 
       // Lena's confession only if alive
       if (isAlive("lena")) {
-        t += `Lena finds you in the observation blister.\n\n"I can keep the remaining bodies alive for a while. I cannot keep their promises. You need to decide what this ship is for now. Because if you do not, someone else will."\n\nShe hesitates, then adds quietly: "And there is something else. My own readings. The exposure from the earlier work is not reversible. I have months, not years. Maybe less if we keep taking risks."`;
+        t += `Lena finds you in the observation blister.\n\n"I can keep the remaining bodies alive for a while. I cannot keep their promises."\n\nShe hesitates, then adds quietly: "And there is something else. My own readings. The exposure from the earlier work is not reversible. I have months, not years. Maybe less if we keep taking risks."`;
       } else {
         t += `There is no medical officer left to translate the cost into months. The ship simply continues, thinner than it was.`;
       }
