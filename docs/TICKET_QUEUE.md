@@ -48,7 +48,9 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
   - the `arc_living_4` "double cycle" sentence (decision 22);
   - the phone-landscape plate leaves `#main` about 75 px;
   - five flags written but never read;
-  - `offshift_jiro`'s two identical `isAlive("mira")` branches.
+  - `offshift_jiro`'s two identical `isAlive("mira")` branches;
+  - `time_pass`'s dangling "her" when Mira is dead;
+  - "Nine of you cleared the hatch." printed twice (prologue and `wake`).
 
 ## Waiting on Manraj
 

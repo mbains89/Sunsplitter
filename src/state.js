@@ -724,8 +724,8 @@ function whatRemainsFacts() {
 // Every sentence is a fact of this run: a tested promise, a private line, a recorded answer. The
 // logged cause of death is printed once, in the reflection lines above; a dead crew member's
 // paragraph opens on the person, not the cause (decision 21, 2026-11-06). Untested promises are
-// never mentioned (L-024). The dead are past tense only and
-// never speak. Unrecovered crew were never aboard and get one sentence saying so. Each paragraph is
+// never mentioned (L-024). The dead are past tense only and never speak. Unrecovered crew were
+// never aboard and get one sentence saying so. Each paragraph is
 // written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:" rules): Lena clinical
 // fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
 // Tomas by present habits, Amara by what was tended and who is owed, Jiro by a logged position,
@@ -791,6 +791,7 @@ function crewEpilogues() {
       p = gone("mira");
       if (cause("mira") === "finished the repair") p += ` The repair outlasted her.`;
       else if (cause("mira") === "would not leave the board") p += ` The board was still hers when the bay sealed.`;
+      else p += f.patch === "failed" ? ` Deck 4 did not hold the final burn.` : ` What she rebuilt was still holding.`;
     } else {
       p = `Mira was alive when the run ended${f.patch === "failed" ? "; Deck 4 did not hold the final burn" : ", and what she rebuilt was still holding"}.`;
     }
@@ -815,7 +816,7 @@ function crewEpilogues() {
     out.push(`Tomas was never brought aboard.`);
   } else {
     let p;
-    if (dead("tomas")) p = gone("tomas");
+    if (dead("tomas")) p = `${gone("tomas")} ${f.trays_dead ? "He had eaten the paste in company, so the room stayed a room." : "He had tasted the soil bare-handed before planting; nobody commented."}`;
     else if (f.trays_dead) p = `Tomas was alive when the run ended. He still eats the paste in company, so the room stays a room.`;
     else p = `Tomas was alive when the run ended. He still tastes the soil bare-handed before planting; nobody comments.`;
     if (f.trays_dead && f.tomas_scapegoated) p += ` The trays died in the rushed catch, and the room held him responsible.`;
