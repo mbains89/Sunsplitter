@@ -63,7 +63,10 @@ function reload(writer) {
 }
 
 const endings = new Set();
-for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37001]]) {
+// SUN-DIET-REPLY-FOLD-01: random/37001 drifted (eleven one-exit screens fewer, so the random policy's
+// draws land elsewhere) to a Fracture route with no death beat. random/37005 is the first random seed
+// after it that is still a Fracture route and reaches death aftermaths (Lena, Mira).
+for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37005]]) {
   const route = simulateRun(root, { policy, seed });
   assert.equal(route.completed, true, `${policy}/${seed} must complete`);
   const writer = loadGame(root, { includeValidator: false });

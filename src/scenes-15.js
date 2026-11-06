@@ -92,7 +92,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
   // ═══════════════════════════════════════════════════════════
 
   // ═══ SCENE GROUP DECLARATION ═════════════════════════════
-  // SCENE_IDS: hold_bolts, hold_bolts_again, hold_bolts_silent
+  // SCENE_IDS: hold_bolts (hold_bolts_again/_silent folded into its replies, SUN-DIET-REPLY-FOLD-01)
   // VERSION: 0.29        TICKET: Cascade Allusive 3/6
   // PACKAGE: The Bolts
   // SPINE: adjacent after act3_vault_face / act3_vault_face_read;
@@ -163,24 +163,13 @@ You say it out loud, once, to the frost. It is the first name anyone has spoken 
     image: "images/vault.jpg",
     onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
     text: `Tomas is torquing the vault's deck bolts. They do not need it. He does it anyway, on a schedule only he keeps.\n\n"I bolted this down myself. Mass margin said the vault or the second printer. The vault does not eat. We do."\n\nHe tips his slate: the load-out deviation, his signature at the bottom of it.\n\n"Somebody signed that trade, and it was me."`,
+    // SUN-DIET-REPLY-FOLD-01 (L-057): his answer is the reply; hold_bolts_again/_silent retired.
     choices: [
-      { text: "You'd sign it again?", next: "hold_bolts_again", alive: "tomas" },
-      { text: "Say nothing.", next: "hold_bolts_silent", alive: "tomas" }
+      { text: "You'd sign it again?", next: "act3_spine_next", alive: "tomas",
+        reply: [{ who: "tomas", text: `"Ask me on a day the trays are full. You will get a cleaner answer, and it will be worth less."` }] },
+      { text: "Say nothing.", next: "act3_spine_next", alive: "tomas",
+        reply: [{ who: "tomas", text: `"Check the torque yourself if you want. The bolts hold. That was never the question."` }] }
     ]
-  },
-
-  hold_bolts_again: {
-    image: "images/vault.jpg",
-    onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
-    text: `"Ask me on a day the trays are full. You will get a cleaner answer, and it will be worth less."`,
-    choices: [ { text: "Return to the watch.", next: "act3_spine_next" } ]
-  },
-
-  hold_bolts_silent: {
-    image: "images/vault.jpg",
-    onEnter: () => { if (!isAlive("tomas")) return "act3_spine_next"; },
-    text: `"Check the torque yourself if you want. The bolts hold. That was never the question."`,
-    choices: [ { text: "Return to the watch.", next: "act3_spine_next" } ]
   },
 
   // Spine after vault face → Vess window (0.24) then tomas_break / pregnancy / faction

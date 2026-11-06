@@ -4,7 +4,7 @@
 registerScenes({
 
   // ═══ SCENE GROUP DECLARATION ═════════════════════════════════════
-  // SCENE_IDS: filters_stencil, filters_stencil_luck, filters_stencil_silent
+  // SCENE_IDS: filters_stencil (filters_stencil_luck/_silent folded into its replies, SUN-DIET-REPLY-FOLD-01)
   // VERSION: 0.29        TICKET: Cascade Allusive 5/6
   // PACKAGE: The Stencil
   // SPINE: adjacent before offshift_sela; never inside its locked ritual prose
@@ -20,24 +20,13 @@ registerScenes({
     image: "images/sela_ritual.jpg",
     onEnter: () => { if (!isAlive("sela")) return "faction_split"; },
     text: `Sela is drawing a filter from the crate. The stencil on its side gives a congregation's name and a quantity meant for thousands. She sees you reading it and does not cover it.\n\n"I carried the congregation's crate through the tube, and the tube closed. I was meant to hand it off and walk back. The hand-off did not occur. I am the hand-off."`,
+    // SUN-DIET-REPLY-FOLD-01 (L-057): her answer is the reply over the ritual; filters_stencil_luck/_silent retired.
     choices: [
-      { text: "Luck, then.", next: "filters_stencil_luck", alive: "sela" },
-      { text: "Say nothing.", next: "filters_stencil_silent", alive: "sela" }
+      { text: "Luck, then.", next: "offshift_sela", alive: "sela",
+        reply: [{ who: "sela", text: `"They will say luck, or they will say selection. I decline both. Something was asked of me, and I have not yet been told what."` }] },
+      { text: "Say nothing.", next: "offshift_sela", alive: "sela",
+        reply: [{ who: "sela", text: `She seats the filter and says its count aloud — just the number — the way one says a name at a graveside, when the name is all that is left to say.` }] }
     ]
-  },
-
-  filters_stencil_luck: {
-    image: "images/sela_ritual.jpg",
-    onEnter: () => { if (!isAlive("sela")) return "faction_split"; },
-    text: `"They will say luck, or they will say selection. I decline both. Something was asked of me, and I have not yet been told what."`,
-    choices: [ { text: "Attend at yellow.", next: "offshift_sela" } ]
-  },
-
-  filters_stencil_silent: {
-    image: "images/sela_ritual.jpg",
-    onEnter: () => { if (!isAlive("sela")) return "faction_split"; },
-    text: `She seats the filter and says its count aloud — just the number — the way one says a name at a graveside, when the name is all that is left to say.`,
-    choices: [ { text: "Attend at yellow.", next: "offshift_sela" } ]
   },
 
   offshift_sela: {

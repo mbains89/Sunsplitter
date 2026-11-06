@@ -18,7 +18,9 @@ export function offshiftChoiceChecks(runtime) {
       for (let step = 0; step < 180; step++) {
         if (state.scene === "offshift_tomas") {
           // 106 since SUN-ROMANCE-ARC-02: this walk romances Mira, so the root-cause pair adds two steps.
-          return step === 106 && isAlive("tomas") && !isAlive("sela") &&
+          // 103 since SUN-DIET-REPLY-FOLD-01: the same walk, minus the hold_bolts_again,
+          // act3_lethal_tomas_stores and breath_word_given screens it used to tap through (now replies).
+          return step === 103 && isAlive("tomas") && !isAlive("sela") &&
             state.promises.sela === "made" && state.promises.tomas === "made" &&
             scenes.offshift_tomas.text.includes("He doesn't ask for anything.") &&
             scenes.offshift_tomas.choices.map(c => c.text).join("|") === "Eat with him.|Take yours and go.";

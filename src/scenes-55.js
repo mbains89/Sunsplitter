@@ -217,7 +217,6 @@ const livingCastImageOnly = {
   lena_shower: ["lena"], mira_shower: ["mira"],
   lena_rear: ["lena"], mira_rear: ["mira"], amara_rear: ["amara"], sela_rear: ["sela"],
   tomas_break: ["tomas"], act3_lethal_tomas_cost: ["tomas"],
-  act3_lethal_tomas_stores: ["tomas"], act3_lethal_tomas_structure: ["tomas"],
   act3_lethal_mira_board: ["mira"], act3_lethal_mira_reserve: ["mira"]
 };
 function requireLivingCast(ids, cast, next, options = {}) {
@@ -233,7 +232,7 @@ requireLivingCast("crisis cut_out self_risk", [], "aftermath", { render: trapped
 requireLivingCast("records_changeorders records_changeorders_after", ["mira"], "arc_future_4");
 requireLivingCast("act2_tether_manifest act2_tether_truth", ["tomas"], "act2_spine_next");
 requireLivingCast("act3_reckoning_briefing observation_nightshift observation_nightshift_ask observation_nightshift_leave", ["jiro"], "act3_lethal_lena_clock");
-requireLivingCast("hold_bolts hold_bolts_again hold_bolts_silent", ["tomas"], "act3_spine_next");
+requireLivingCast("hold_bolts", ["tomas"], "act3_spine_next");
 requireLivingCast("vess_offer vess_transmission vess_intimate", ["vess"], "act3_spine_next");
 requireLivingCast("aftermath_seal aftermath_seal_order aftermath_seal_holds", ["elias"], "offshift_open");
 requireLivingCast("romance_mira_1", ["mira"], "intimacy_window");
@@ -254,8 +253,6 @@ requireLivingCast("dying", ["rourke"], "intro_lena");
 requireLivingCast("quiet_amara berths_manifest", ["amara"], "lead_prompt");
 requireLivingCast("quiet_mira", ["mira"], "lead_prompt");
 requireLivingCast("quiet_sela", ["sela"], "lead_prompt");
-// SUN-V035-PLAYTEST-SELA-ANSWER-01: same saved-cast contract, mid-arc exit.
-requireLivingCast("arc_living_sela_answer", ["sela"], "arc_living_3");
 requireLivingCast("quiet_tomas", ["tomas"], "act3_spine_next");
 for (const who of ["elias", "tomas", "jiro"]) {
   requireLivingCast(`bond_${who}`, [who], () => state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt");
@@ -299,7 +296,7 @@ requireLivingCast("offshift_open", [], "faction_split", {
   preserveEntry: true,
   render: () => [eligLena, eligElias, eligMira, eligTomas, eligAmara, eligJiro, eligSela, eligVess].some(eligible => eligible())
 });
-requireLivingCast("filters_stencil filters_stencil_luck filters_stencil_silent", ["sela"], "faction_split");
+requireLivingCast("filters_stencil", ["sela"], "faction_split");
 requireLivingCast("pair_grudge_settle", ["tomas", "jiro"], "act3_spine_next");
 requireLivingCast("pair_favor_confront", ["amara", "sela"], "act3_spine_next");
 requireLivingCast("warmth_meal", ["tomas"], "act3_spine_next");

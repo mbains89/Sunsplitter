@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-23.js
-// 0.28.1c size hygiene. Pure mechanical. late: elias order + sealant + brace + end
+// 0.28.1c size hygiene. Pure mechanical. late: elias order + sealant + end (brace result is a reply, SUN-DIET-REPLY-FOLD-01)
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
@@ -58,12 +58,18 @@ Elias keeps one finger on B-four.
         requires: { supplies: { min: 8 } },
         alive: "elias"
       },
+      // SUN-DIET-REPLY-FOLD-01 (L-057): the brace result is the reply; act3_lethal_elias_brace retired.
       {
         text: "Blow the exterior brace. Stop the pressure front and let the hull pay.",
-        next: "act3_lethal_elias_brace",
+        next: "act3_lethal_mira_board",
         effects: { integrity: -7 },
         requires: { integrity: { min: 17 } },
-        alive: "elias"
+        alive: "elias",
+        reply: [
+          `The brace charges fire in order. Seven Integrity points leave the board as the exterior frame turns away into the dark.`,
+          `The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.`,
+          { who: "elias", text: `Elias reads the narrower structural envelope once. "Threat contained. That side of the ship is no longer ours to spend."` }
+        ]
       },
       {
         text: volunteers
@@ -116,44 +122,6 @@ Elias watches every downstream compartment hold before he releases the board.
     { text: "Log the empty rack. Continue.", next: "act3_lethal_mira_board" }
   ],
   image: "images/work_elias.jpg"
-},
-
-// ═══ SCENE DECLARATION ═══════════════════════════════════════════
-// SCENE_ID: act3_lethal_elias_brace
-// VERSION:  0.25.0        TICKET: Lethal opportunities
-// PACKAGE:  Elias — Station B-Four
-// SPINE:    off-spine, reached via act3_lethal_elias_order choice 2
-//
-// PRECONDITIONS (live predicates, evaluated at render — never baked
-// at author time; must remain true if later versions add death vectors):
-//   requires: isAlive('elias')
-//
-// STATE WRITES (exhaustive — every mutation this scene can cause):
-//   writes NOTHING.
-//
-// DEATH EXPOSURE: none
-// DEAD-SPEECH CHECK: Elias dialogue/action guarded by isAlive('elias'); dead
-//   entry redirects before image/text/choices
-// IMAGE: images/debris_field.jpg [REUSE abandoned_section; EXISTS]
-// ═════════════════════════════════════════════════════════════════
-act3_lethal_elias_brace: {
-  onEnter: () => {
-    if (!isAlive("elias")) return "act3_lethal_mira_board";
-  },
-  get text() {
-    if (!isAlive("elias")) return `The missing brace remains visible on the hull schematic. Security does not.`;
-    return `The brace charges fire in order.
-
-Seven Integrity points leave the board as the exterior frame turns away into the dark. The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.
-
-Elias reads the narrower structural envelope once.
-
-"Threat contained. That side of the ship is no longer ours to spend."`;
-  },
-  choices: [
-    { text: "Keep the missing brace on the schematic. Continue.", next: "act3_lethal_mira_board" }
-  ],
-  image: "images/debris_field.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════

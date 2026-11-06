@@ -1,5 +1,5 @@
 // Sunsplitter — scenes-53.js
-// 0.28.1c size hygiene. Pure mechanical. exclusive: crisis router + declare + breath onset to word
+// 0.28.1c size hygiene. Pure mechanical. exclusive: crisis router + declare + breath onset (word folded into its replies)
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
@@ -62,56 +62,31 @@ registerScenes({
       }
       return t;
     },
-    choices: [
-      {
-        text: '"The rescued will not be treated as the cause. We find another way."',
-        next: "breath_word_given"
-      },
-      {
-        text: '"I make no promises. Survival is hard math."',
-        next: "breath_word_refused"
-      }
-    ]
-  },
-
-  breath_word_given: {
-    image: "images/corridor_pressure_1.jpg",
-    onEnter: () => {
-      state.flags.breath_word = "given";
-    },
-    text: () => {
-      let t = "";
-      if (isAlive("tomas")) {
-        t += `Tomas nods once. The public word is given.\n\n`;
-        t += `"Then we hold the line together. I'll prep the crisis options. None of them are clean."`;
-      } else {
-        t += `The public word is given into the rumor. No one stands beside it to make it heavier.\n\n`;
-        t += `The crisis options still have to be prepped. None of them are clean.`;
-      }
-      return t;
-    },
-    choices: [
-      { text: "Proceed to the hub.", next: "breath_hub" }
-    ]
-  },
-
-  breath_word_refused: {
-    image: "images/corridor_pressure_2.jpg",
-    onEnter: () => {
-      state.flags.breath_word = "refused";
-    },
-    text: () => {
-      let t = `The refusal lands.\n\n`;
-      if (isAlive("tomas")) {
-        t += `Tomas does not argue.\n\n`;
-        t += `"Understood, Commander. The math is yours."\n\n`;
-      }
-      t += `The rumor does not die. It only goes quieter.`;
-      return t;
-    },
-    choices: [
-      { text: "Proceed to the hub.", next: "breath_hub" }
-    ]
+    // SUN-DIET-REPLY-FOLD-01 (L-057): the word writes breath_word on the choice (it was the answer
+    // screens' only entry write) and its answer is the reply; breath_word_given/_refused retired.
+    get choices() {
+      const given = isAlive("tomas")
+        ? [{ who: "tomas", text: `Tomas nods once. The public word is given.` },
+           { who: "tomas", text: `"Then we hold the line together. I'll prep the crisis options. None of them are clean."` }]
+        : [`The public word is given into the rumor. No one stands beside it to make it heavier.`,
+           `The crisis options still have to be prepped. None of them are clean.`];
+      return [
+        {
+          text: '"The rescued will not be treated as the cause. We find another way."',
+          next: "breath_hub",
+          flag: { breath_word: "given" },
+          reply: given
+        },
+        {
+          text: '"I make no promises. Survival is hard math."',
+          next: "breath_hub",
+          flag: { breath_word: "refused" },
+          reply: [`The refusal lands.`,
+            { who: "tomas", text: `Tomas does not argue. "Understood, Commander. The math is yours."` },
+            `The rumor does not die. It only goes quieter.`]
+        }
+      ];
+    }
   },
 
 });
