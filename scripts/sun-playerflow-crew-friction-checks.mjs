@@ -16,7 +16,7 @@ const PAIRS = [
   { id: "seal", scene: "pair_seal_ledger", reply: "pair_seal_after", flag: "pair_seal", cast: ["elias", "tomas"], host: "act3_spine_next", exit: "act3_spine_next",
     offer: "Elias and Tomas are at the Deck 4 dog.", answers: ["bulkhead", "names", "both"], needle: "The slate is full.", fact: "state.flags.ship_memory = 'proper_seal'; state.flags.feedstock = 'seal';" },
   { id: "burn", scene: "pair_burn_archive", reply: "pair_burn_after", flag: "pair_burn", cast: ["mira", "jiro"], host: "act3_spine_next", exit: "act3_spine_next",
-    offer: "Jiro has asked Mira for the burn record.", answers: ["finding", "width", "both"], needle: "which log it goes in", fact: "state.flags.margin_committed = true; state.flags.burn_unverified = true;" },
+    offer: "Jiro has asked Mira for her solution.", answers: ["finding", "width", "both"], needle: "which log it goes in", fact: "state.flags.margin_committed = true; state.flags.burn_unverified = true;" },
   { id: "fix", scene: "pair_fix_track", reply: "pair_fix_after", flag: "pair_fix", cast: ["jiro", "vess"], host: "act3_spine_next", exit: "act3_spine_next",
     offer: "Two columns on the tracker board.", answers: ["fix", "track", "both"], needle: "Which one does the ship fly?", fact: "state.flags.position_certain = true;" }
 ];
@@ -110,7 +110,7 @@ const t = out.text;
 assert.ok(t.rourkeStopped.includes("Treatment stopped. By order.") && t.rourkeStopped.includes("The order moved the time of death"), "triage: stopped branch missing");
 assert.ok(t.rourkeTried.includes("Forty-three minutes") && t.rourkeTried.includes("minute one"), "triage: tried branch missing");
 assert.ok(t.rourkeStayed.includes("Died with company") && t.rourkeStayed.includes("I don't chart the room"), "triage: stayed branch missing");
-assert.ok(t.rourkeNone.includes("deciding who was in charge") && !t.rourkeNone.includes("By order"), "triage: no-order branch wrong");
+assert.ok(t.rourkeNone.includes("getting itself a Commander") && !t.rourkeNone.includes("By order"), "triage: no-order branch wrong");
 assert.ok(t.sealProper.includes("went into that patch") && t.sealProper.includes("The seal holds. That's the account."), "seal: proper branch missing");
 assert.ok(t.sealWound.includes("Eaten.") && t.sealWound.includes("I don't hold it twice"), "seal: open-wound branch missing");
 assert.ok(t.sealThin.includes("paid in halves") && t.sealThin.includes("Somebody eats the halves"), "seal: jury-rig branch missing");

@@ -68,7 +68,7 @@ registerScenes({
         opts.push({ text: "Elias and Tomas are at the Deck 4 dog. The argument is about the feedstock.", next: "pair_seal_ledger" });
       }
       if (isAlive("mira") && isAlive("jiro") && state.flags.margin_committed && !state.flags.pair_burn) {
-        opts.push({ text: "Jiro has asked Mira for the burn record. The pane is closed.", next: "pair_burn_archive" });
+        opts.push({ text: "Jiro has asked Mira for her solution. The pane is closed.", next: "pair_burn_archive" });
       }
       if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
         opts.push({ text: "Two columns on the tracker board. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
