@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-06`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 07a9748 (after PR #525)`
+`work_branch_tip: e4fb732 (after PR #527)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -20,7 +20,8 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
-`browser_bot_latest: b1ae936 (src tree 8ee7595, after #508–#522), 2026-11-06 — 12/12 runs reached an ending (phone and desktop × touch, mouse, keys, tab; two chaos sets with reloads and resizes). Two title-button click timeouts appeared while seven processes shared the box; the same seed re-ran clean twice (0 findings).`
+`browser_bot_latest: 07a9748 (after #523–#526), 2026-11-06 — 4/4 runs reached an ending (phone/touch seed 1106: 2 runs, 0 findings; desktop/mouse/chaos seed 1107: 2 runs, 25 reloads, 8 resizes, 1 finding). The finding is RESUME_DRIFT at `act3_spine_next`: after reload and Continue, a later hub visit regains Tomas's one-shot "Names first, then numbers" allusion (pre-existing 0.27.2 resume logic, exposed by #524's short return line); ticketed as SUN-HUB-ALLUSION-RESUME-01.`
+
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -90,7 +91,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 526 | SUN-DIET-TRIMS-01 | **D11 Deep step 1.** Text-only trims of six spine and opening scenes, about 1.7 prose minutes a median run. Also cut the `status` "one hundred percent" line that lied after the Living choice. Myth read applied (3 restores, 1 word). |
 | 524 | SUN-DIET-HUB-01 | **D11 Deep step 1, C01.** The corridor hub paragraph prints on the first visit of a run; a return shows a 13-word line. About 0.75 minutes a run. The return is inferred from existing one-shot keys, never written; a clean visit counter would need a new state key (decision 24, L-061). Myth read applied. |
 | 525 | SUN-DIET-REPLY-FOLD-01 | **D11 Deep step 1, C11 and C12.** Eleven one-line answer screens fold into the previous choice's `reply`, words unchanged; about three fewer screens a run. Their scene ids are retired (`EXPECTED_SCENE_COUNT` 242 → 231) and `RETIRED_SCENE_EXITS` in the engine resumes old saves parked on one. `big-delete-ok` on Manraj's go. Myth and code read applied (19 edits). |
-| — | SUN-WHATREMAINS-DEATH-ONCE-01 | **Decision 21.** A death prints once in What Remains: the logged cause stays in the reflection lines, and a dead crew member's paragraph now opens on the person ("Lena was dead when the run ended.") instead of repeating the cause clause. L-008 unchanged. The crew-epilogues check pins the new shape and that the cause is never repeated. This PR also carries the STATUS and queue close-out for #523–#526 and the evening rulings. |
+| 527 | SUN-WHATREMAINS-DEATH-ONCE-01 | **Decision 21.** A death prints once in What Remains: the logged cause stays in the reflection lines, and a dead crew member's paragraph now opens on the person ("Lena was dead when the run ended.") instead of repeating the cause clause. L-008 unchanged. The crew-epilogues check pins the new shape and that the cause is never repeated. It also carried the STATUS and queue close-out for #523–#526 and the evening rulings. Myth read applied (Tomas habit line, Mira patch mirror). |
+| 529 | SUN-DIET-VESS-MERGE-01 | **D11 Deep step 1, C10.** Vess's recovery is one screen: the signal, then the docking cost (one restated sentence dropped), then the two docking choices unchanged. The one-exit "Prepare the intercept" screen is gone. `vess_cost` is retired (`RETIRED_SCENE_EXITS` → `vess_signal`; `EXPECTED_SCENE_COUNT` 231 → 230; out of `HITL_EVENT_PLATE_IDS`; `images/vess_cost.jpg` stays on disk, unwired). The cost writes move to entry, and both docking choices also set `busDowngraded` and `reaction_mass_spent`, so a pre-merge save parked on the signal still pays. Myth read applied (dead-Mira board line). |
 
 ## Open
 
@@ -102,6 +104,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
   - **Step 2 is quality fixes, not lock cuts (decision 19, ruled):** `SUN-PROMISE-PAYOFF-01` (every promise made is tested or cited later; about 80% of runs make one, about 23% see it tested); `SUN-FRICTION-RESTATE-TRIM-01` (keep all four pair scenes, trim only lines where a character restates a point); deaths once in What Remains (decision 21, this PR). The remaining slack items in the analysis (repeated stock-takes, numbers-only scenes, result screens) are judged one at a time.
 - **Small tickets found today:**
   - `arc_living_4` promises an unwired "double cycle" option (decision 22).
+  - SUN-HUB-ALLUSION-RESUME-01: a resumed corridor hub can reprint Tomas's one-shot allusion from an earlier visit (browser bot, seed 1107). The resume branch cannot tell "spent on this visit" from "spent earlier" in saved state; a clean fix wants the hub visit counter (decision 24, L-061) or a design proposal.
   - In phone landscape the plate leaves `#main` about 75 px for text.
   - Flags written but never read: `embryo_ceiling`, `leadership_style`, `vault_face`, `busDowngraded`, `reaction_mass_spent`.
   - `offshift_jiro`'s two `isAlive("mira")` branches are identical.
@@ -162,7 +165,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 18. **L-057, L-058, L-059: RULED 2026-11-06** and recorded in this PR (LOCKS rows, ROADMAP §2). They are choice replies, cost tags off by default (D14), and paced reveal (D15). Manraj's answers are verbatim in the project doc `claude/decisions/2026-11-06.md`.
 19. **D11 step 2 locks: RULED 2026-11-06 (evening), "all three are approved."** Manraj approved the lead's revised recommendations, so no lock moves: **L-024** stays and promises get their payoff (`SUN-PROMISE-PAYOFF-01`); **L-050** stays and the off-shift lead-ins are not cut; **L-008** stays and What Remains only stops printing deaths twice (decision 21); crew friction keeps all four scenes and trims only restated lines. Verbatim in the project doc `claude/decisions/2026-11-06.md`.
 20. **Canon, from the #521 read.** Is it canon that Jiro flies the insertion pass, days 181–184? `offshift_jiro` now says so, and no other scene does.
-21. **What Remains, deaths once: RULED 2026-11-06** (inside decision 19). The cause stays in the reflection lines; the crew paragraph opens on the person. Landed as SUN-WHATREMAINS-DEATH-ONCE-01 (this PR).
+21. **What Remains, deaths once: RULED 2026-11-06** (inside decision 19). The cause stays in the reflection lines; the crew paragraph opens on the person. Landed as SUN-WHATREMAINS-DEATH-ONCE-01 (#527).
 22. **`arc_living_4`'s "double cycle" sentence.** It has promised a third option since 0.28.1c, and the option was never wired. Myth recommends cutting the sentence; wiring it would be a new trade that needs Hex and you.
 23. **L-060 (proposed), the pair flags from #508.** One row: "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters." This was proposed as L-057 before L-057 was ruled for replies.
 24. **L-061 (proposed), a hub visit counter, from #524.** The corridor's first-visit paragraph is inferred from a dozen one-shot keys the hub's own offers spend, which errs toward showing the old text and is brittle to any new offer. A clean rule needs one new state key (a per-run `act3_spine_next` visit count, read only by that scene's text). Recommendation: yes, one row. Say no and the inference stays as landed.
