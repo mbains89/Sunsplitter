@@ -48,7 +48,7 @@ The seal timer reaches ten seconds.
 
     // SUN-CALLBACKS-01: the stores decision, cited by the man who keeps the ledger of mouths. Text only.
     const stores = state.flags.stores === "seize"
-      ? `\n\n"You seized the private stores when the ration thinned. The people who paid for that are the people paying now. I am only saying it so the ledger is in one place."`
+      ? `\n\n"You seized the private stores before I came aboard; I heard it from the two who kept them. They paid then. The mouths pay now. I am only saying it so the ledger is in one place."`
       : state.flags.stores === "vote"
         ? `\n\n"You put the stores to a vote once. Whoever pays this one did not get a vote."`
         : "";

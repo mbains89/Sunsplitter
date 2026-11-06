@@ -33,9 +33,7 @@ Metal folds around Station B-four and leaves the pressure dog reporting CLOSED w
 
     t += `\n\nElias reads the access map before the gauge.
 
-"What's the threat? The pressure front behind it. Six minutes to habitation. Remote is lying."${state.flags.rourke === "stopped" ? `
-
-"You stopped Rourke's treatment on the math. This is the same math with a hull behind it. I am not asking you to like it twice."` : ""}
+"What's the threat? The pressure front behind it. Six minutes to habitation. Remote is lying."
 
 The last pressure-rated sealant cartridges can force the dog from this side. The exterior brace can be blown clear, taking a permanent piece of the ship's structural envelope with it. The remaining control is inside the failing section.
 

@@ -47,7 +47,7 @@ The sealed reserve can flood the bay and force the contactor open. The transfer 
 "I can flatten phase before the envelope fails. No one else can. You still have to authorize local."`;
     }
     // SUN-CALLBACKS-01: the answer she was given at the schematic, applied. Text only.
-    if (hasMark("mira", "drive_first")) t += `\n\n"You told me once the ship comes first. Logged then. Still logged. I am applying it."`;
+    if (hasMark("mira", "drive_first")) t += `\n\n"You told me once the ship comes first. On the board then. Still on the board. Apply it."`;
     else if (hasMark("mira", "people_first")) t += `\n\n"You told me once the people come first. I am a person. I am also the repair. Both readings are on the board."`;
     return t;
   },

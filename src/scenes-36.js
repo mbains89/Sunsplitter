@@ -84,7 +84,7 @@ She waits.
         t += `"I have held every confession this crew has offered. I have sat with the dying and the guilty and the ones who want permission to stop caring. I am running out of something. Not faith. Something quieter."\n\n`;
       }
       // SUN-CALLBACKS-01: the ring's dead, through a present habit. Text only.
-      if (state.flags.crisis === "vent") t += `"I still set out plates for the ring at the evening meal. Habit is cheaper than grief, and it keeps longer."\n\n`;
+      if (state.flags.crisis === "vent") t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here. Habit is cheaper than grief, and it keeps longer."\n\n`;
       t += `He looks at the deck.\n\n"If you order me to keep pretending compassion is free, I will break. I am telling you now so you are not surprised when it happens."\n\n"If the next hatch closes on something living, ask who pays before you call it settled."`;
       return t;
     },

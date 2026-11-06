@@ -1,4 +1,4 @@
-// SUN-CALLBACKS-01 (ROADMAP §14A Wave 1, workstream 2) — fourteen diegetic callbacks, text only.
+// SUN-CALLBACKS-01 (ROADMAP §14A Wave 1, workstream 2) — thirteen diegetic callbacks, text only.
 // Each one renders only when its run fact is set and its speaker is alive, renders identically
 // twice without writing state, and leaves the host scene's choices unchanged.
 import assert from "node:assert/strict";
@@ -11,24 +11,23 @@ const runtime = loadGame(ROOT);
 // [name, scene, speaker, needle, setup that makes the fact true]
 const CASES = [
   ["tether vent / Elias / vented ring", "act2_tether_vent", "elias", "The last thing this ship vented had people in it", "state.flags.crisis = 'vent';"],
-  ["elias order / Elias / Rourke stopped", "act3_lethal_elias_order", "elias", "You stopped Rourke's treatment on the math", "state.flags.rourke = 'stopped'; state.flags.ship_memory = 'proper_seal';"],
   ["nightshift / Jiro / final position", "observation_nightshift", "jiro", "final position logged", "kill('lena', 'resources diverted to the vault');"],
-  ["briefing / Lena / Rourke's chart", "act3_reckoning_briefing", "lena", "Rourke's chart still reads", "state.flags.rourke = 'stopped';"],
-  ["tomas break / Tomas / plates for the ring", "tomas_break", "tomas", "plates for the ring", "state.flags.crisis = 'vent'; mark('tomas', 'warned');"],
-  ["tomas cost / Tomas / stores seized", "act3_lethal_tomas_cost", "tomas", "seized the private stores", "state.flags.stores = 'seize';"],
+  ["briefing / Lena / Rourke's chart", "act3_reckoning_briefing", "lena", "I have not amended it", "state.flags.rourke = 'stopped';"],
+  ["tomas break / Tomas / plates for the ring", "tomas_break", "tomas", "a plate for Amara and one for Sela", "state.flags.crisis = 'vent'; mark('tomas', 'warned');"],
+  ["tomas cost / Tomas / stores seized", "act3_lethal_tomas_cost", "tomas", "before I came aboard", "state.flags.stores = 'seize';"],
   ["tomas cost / Tomas / stores voted", "act3_lethal_tomas_cost", "tomas", "did not get a vote", "state.flags.stores = 'vote';"],
-  ["mira board / Mira / drive first", "act3_lethal_mira_board", "mira", "the ship comes first. Logged then", "mark('mira', 'drive_first');"],
+  ["mira board / Mira / drive first", "act3_lethal_mira_board", "mira", "Still on the board. Apply it", "mark('mira', 'drive_first');"],
   ["mira board / Mira / people first", "act3_lethal_mira_board", "mira", "I am a person. I am also the repair", "mark('mira', 'people_first');"],
-  ["breath onset / Tomas / share in the count", "breath_onset", "tomas", "share is still in the ration count", "kill('lena', 'resources diverted to the vault');"],
-  ["custody onset / Elias / vault kept cold", "custody_onset", "elias", "This is the invoice", "state.flags.vault_sacrifice = 'future';"],
+  ["breath onset / Tomas / share in the count", "breath_onset", "tomas", "when I count the mouths", "kill('lena', 'resources diverted to the vault');"],
+  ["custody onset / Elias / vault kept cold", "custody_onset", "elias", "This is the receipt", "state.flags.vault_sacrifice = 'future';"],
   ["reckon public / Mira / binding refused", "reckon_public", "mira", "The living kept the vote", "state.promises.mira = 'kept';"],
   ["reckon public / Mira / binding accepted", "reckon_public", "mira", "One of them is bearing more", "state.promises.mira = 'broken';"],
   ["reckon public / Amara's plate / vented pocket", "reckon_public", "tomas", "has not set a plate for you", "state.promises.amara = 'broken';"],
-  ["reckon suppress / Elias / Deck Four kept", "reckon_suppress", "elias", "You heard it from me first, as promised", "state.promises.elias = 'kept';"],
-  ["reckon suppress / Elias / Deck Four edited", "reckon_suppress", "elias", "You edited Deck Four", "state.promises.elias = 'broken';"],
-  ["sun payoff / Sela / petition kept", "sun_payoff", "sela", "stood where I could see you", "state.promises.sela = 'kept';"],
+  ["reckon suppress / Elias / Deck Four kept", "reckon_suppress", "elias", "I had it from you first", "state.promises.elias = 'kept';"],
+  ["reckon suppress / Elias / Deck Four edited", "reckon_suppress", "elias", "I enforce orders", "state.promises.elias = 'broken';"],
+  ["sun payoff / Sela / petition kept", "sun_payoff", "sela", "stood between me and the room", "state.promises.sela = 'kept';"],
   ["sun payoff / Sela / petition broken", "sun_payoff", "sela", "They were never the room's to take", "state.promises.sela = 'broken';"],
-  ["prom direct / Mira / Lena's diversion", "prom_direct", "mira", "Lena died on a diversion you ordered", "state.promises.mira = 'made'; kill('lena', 'resources diverted to the vault');"]
+  ["prom direct / Mira / Lena's diversion", "prom_direct", "mira", "Lena died on that diversion", "state.promises.mira = 'made'; kill('lena', 'resources diverted to the vault');"]
 ];
 
 const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {

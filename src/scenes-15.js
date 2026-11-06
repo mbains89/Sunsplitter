@@ -38,7 +38,7 @@ registerScenes({
 
 Day one hundred eighty-one is on the board behind him. Nobody does the subtraction out loud.`;
         // SUN-CALLBACKS-01: the first order on her chart, cited by the one who charted it. Text only.
-        if (state.flags.rourke === "stopped") t += `\n\n"Rourke's chart still reads: treatment stopped, by order. I have not changed the entry. I would have given the order. Both facts are on the chart."`;
+        if (state.flags.rourke === "stopped") t += `\n\nLena, to the board: "Rourke's chart still reads: treatment stopped, by order. I have not amended it. The prognosis under it was mine, and it was correct. Both entries stand."`;
       }
       if (isAlive("sela")) {
         t += `\n\n"We have traded a comfortable fog for an exact horizon," Sela says. "I prefer the horizon. I understand if others do not. They should say so to the horizon, not to Jiro."`;
@@ -57,7 +57,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
       let t = `Jiro has charts spread under the observation glass, working by less light than the work needs.\n\n"Alignment sims run at night. Still do. The sky picked the night shift once; I keep the shift out of superstition."\n\nHe squares a printout without looking up.\n\n"The burn we flew was computed nine weeks before the cascade. Contingency file. Somebody asked for it in June. Name is not in the header."`;
       // SUN-CALLBACKS-01: the dead get a final position logged. Text only; no cause named.
       const first = typeof firstAttributableDeath === "function" ? firstAttributableDeath() : null;
-      if (first) t += `\n\nHe turns one chart over before he goes on. "${first.name}: final position logged. I keep the dead where they are. It is the one measurement of them that stays accurate."`;
+      if (first) t += `\n\nHe turns one chart over before he goes on. "${first.name}: final position logged. Error bar zero. The one fix aboard I can certify to the centimeter. I keep the dead where they are."`;
       return t;
     },
     choices: [

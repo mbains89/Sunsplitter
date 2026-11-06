@@ -20,7 +20,7 @@ registerScenes({
       }
       // SUN-CALLBACKS-01: a tested promise and a vented pocket, cited where the accounting is public. Text only.
       if (isAlive("amara") && isAlive("tomas") && state.promises.amara === "broken") {
-        t += ` Amara has not set a plate for you since the pocket was vented. Tomas sets it, and says nothing about whose.`;
+        t += ` Amara has not set a plate for you since the pocket was vented. Tomas sets it and says nothing.`;
       }
       t += `\n\n`;
       if (isAlive("mira")) {
@@ -44,8 +44,8 @@ registerScenes({
       if (isAlive("elias")) {
         t += `Elias enforces it without being asked.\n\n`;
         // SUN-CALLBACKS-01: Deck Four's record, kept or edited, cited by its holder. Text only.
-        if (state.promises.elias === "kept") t += `He adds one thing. "Deck Four's record stays whole. You heard it from me first, as promised. Suppress the rest if you have to. Not that."\n\n`;
-        else if (state.promises.elias === "broken") t += `He adds one thing. "You edited Deck Four. I enforce this because it is an order. I tell the room less than I used to."\n\n`;
+        if (state.promises.elias === "kept") t += `He adds one thing. "Deck Four's record stays whole. I had it from you first. Suppress the rest if you have to. Not that."\n\n`;
+        else if (state.promises.elias === "broken") t += `He adds one thing. "${state.flags.prom_deck4_edited ? "You cut a door out of Deck Four." : "Deck Four came out of a buffer, not from you."} This is an order. I enforce orders. I tell the room less than I used to."\n\n`;
       }
       else t += `Compliance is enforced without being asked.\n\n`;
       t += `The silence that follows is different from the earlier silence. It has edges.\n\n`;

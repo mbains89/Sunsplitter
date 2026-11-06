@@ -112,7 +112,7 @@ Mira has already modeled it twice.
 
 "Under their rules the hull fails eleven percent less often and we get zero votes. Both numbers are load-bearing."`;
       // SUN-CALLBACKS-01: an attributable death, measured against the binding. Text only.
-      if (state.deathCause && state.deathCause.lena === "resources diverted to the vault") t += `\n\n"Lena died on a diversion you ordered. Under their rules the same diversion happens without an order and without a name on it. That is the difference I am asking you to measure."`;
+      if (state.deathCause && state.deathCause.lena === "resources diverted to the vault") t += `\n\n"The cradle bus stayed on the vault and Lena died on that diversion, with your name on the order. Under their rules the same bus stays on the vault with no order and no name. That is the difference I am asking you to measure."`;
       return t;
     },
     choices: [
