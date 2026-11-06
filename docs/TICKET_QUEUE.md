@@ -8,6 +8,7 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
+| SUN-CREW-FRICTION-01 | Lead | PR #508. Four pair scenes with replies (`pair_triage_chart`, `pair_seal_ledger`, `pair_burn_archive`, `pair_fix_track`); `sun-playerflow-crew-friction-checks.mjs` covers them. **Holds for the Myth chat's read before merge** (STATUS decision 15); the brief is in `claude/sunsplitter-helper-bootstraps.md`. |
 | SUN-CREW-EPILOGUES-01 | Lead | This PR. `crewEpilogues()` renders one paragraph per crew member into `#what-remains-crew`; `sun-playerflow-crew-epilogues-checks.mjs` covers it. **Holds for the Myth chat's read before merge** (STATUS decision 15). |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
@@ -16,7 +17,7 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 |---|---|
 | SUN-ROMANCE-ARC-01..05 | Lena, Mira, Vess, Amara, Sela. One PR per arc. Landed: #499, #500, #501, #502, #503. |
 | SUN-CALLBACKS-01 | 12–15 diegetic callbacks across existing scenes (promise, attributable death, ideology). Landed: #506, thirteen. |
-| SUN-CREW-FRICTION-01 | Four pair scenes where crew disagree with each other. PR #508. |
+| SUN-CREW-FRICTION-01 | Four pair scenes where crew disagree with each other: Lena–Tomas on Rourke, Elias–Tomas on the Deck 4 feedstock, Mira–Jiro on the burn, Jiro–Vess on the fix. PR #508. |
 | SUN-CREW-EPILOGUES-01 | One paragraph per crew member in What Remains. This PR. |
 
 Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verify, coverage and the browser bot are green; face exposures stay at zero.
@@ -24,6 +25,7 @@ Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verif
 ## Waiting on Manraj
 
 - Open the Myth chat and paste its block; the open prose PRs merge on Myth's read (or on Manraj dropping the hold, STATUS decision 15).
+- STATUS decisions 14 (two approved plates wired to the pair scenes; an L row for the pair flags) and 5 (`arc_future_2` speaker).
 - STATUS decision 17 (What Remains length: L-008 against §14A workstream 4).
 - Gate 1 (above) once the Wave 1 tickets land.
 - STATUS decision 8 (art questions from the roster audit).
@@ -33,7 +35,7 @@ Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verif
 
 | Helper | Ask |
 |---|---|
-| Myth | Review the SUN-ROMANCE-ARC-01 lines (`lena_last_hour`, scenes-48; the partner line in `act3_lethal_lena_clock`, scenes-19; the held-only line in `offshift_lena`; the ending footer in engine.js) the SUN-ROMANCE-ARC-02 lines (`mira_root_cause` and `mira_root_cause_logged`, scenes-24; the callback in `offshift_mira`, scenes-49; the footer) the SUN-ROMANCE-ARC-03 lines (`vess_item_two` and `vess_item_two_logged`, scenes-51; the spent-window paragraph in `final_choice`, scenes-28; the footer) the SUN-ROMANCE-ARC-04 lines (`amara_page` and `amara_page_reply`, scenes-50; the partner lines in `prom_vent`, scenes-45, and `breath_garden`, scenes-54; the footer) the SUN-ROMANCE-ARC-05 lines (`sela_past_amber` and `sela_past_amber_reply`, scenes-51; the vow line in `prom_price`, scenes-47; the second-key line in `custody_shared`, scenes-55; the footer and the Yellow Circle line in engine.js) and the thirteen SUN-CALLBACKS-01 lines (grep `SUN-CALLBACKS-01` in src/). Both landed after an independent fresh-agent read; a second read in your own chat is welcome. Then each later arc PR's new lines before merge (voice, continuity, dead-character honesty). Also the lead-written lines from #482 (tether floor), #483 (unreadable save) and #490 (failed burn); rule on the `offshift_elias` mending/unmended contradiction and the `arc_future_2` author note. |
+| Myth | **First, before merge:** read the SUN-CREW-FRICTION-01 lines on PR #508's branch (`pair_triage_chart`, `pair_triage_after`, `pair_seal_ledger`, `pair_seal_after`, `pair_burn_archive`, `pair_burn_after`, `pair_fix_track`, `pair_fix_after` in scenes-52; the three offers in scenes-16 and the one in scenes-12) for voice (each speaker answering their own reflex question, Mira diagnostic / Jiro positional, Tomas rank-not-name, Vess log-register), continuity with the run facts they quote, and dead-character honesty; post the report as a PR comment and in `claude/myth/`. Then, second reads: the SUN-ROMANCE-ARC-01 lines (`lena_last_hour`, scenes-48; the partner line in `act3_lethal_lena_clock`, scenes-19; the held-only line in `offshift_lena`; the ending footer in engine.js) the SUN-ROMANCE-ARC-02 lines (`mira_root_cause` and `mira_root_cause_logged`, scenes-24; the callback in `offshift_mira`, scenes-49; the footer) the SUN-ROMANCE-ARC-03 lines (`vess_item_two` and `vess_item_two_logged`, scenes-51; the spent-window paragraph in `final_choice`, scenes-28; the footer) the SUN-ROMANCE-ARC-04 lines (`amara_page` and `amara_page_reply`, scenes-50; the partner lines in `prom_vent`, scenes-45, and `breath_garden`, scenes-54; the footer) the SUN-ROMANCE-ARC-05 lines (`sela_past_amber` and `sela_past_amber_reply`, scenes-51; the vow line in `prom_price`, scenes-47; the second-key line in `custody_shared`, scenes-55; the footer and the Yellow Circle line in engine.js) and the thirteen SUN-CALLBACKS-01 lines (grep `SUN-CALLBACKS-01` in src/). Both landed after an independent fresh-agent read; a second read in your own chat is welcome. Then each later arc PR's new lines before merge (voice, continuity, dead-character honesty). Also the lead-written lines from #482 (tether floor), #483 (unreadable save) and #490 (failed burn); rule on the `offshift_elias` mending/unmended contradiction and the `arc_future_2` author note. |
 | Hex | Measure how often each romance is pursued to its last scene after SUN-ROMANCE-ARC-01..05 land; propose trust or cost tuning if any arc is unreachable in practice. |
 | Muse | Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits, starting with `images/vess_boarding.jpg` (shows Lena's face, ungated). No new art until Wave 4. |
 

@@ -21,14 +21,14 @@ registerScenes({
     },
     get choices() {
       const routes = [
-        { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara" },
-        { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 } }
+        { text: "Give Amara the margin. Keep something green alive.", next: "arc_living_2", effects: { supplies: -6, cohesion: 6, integrity: -2 }, lean: { living: 3 }, affinity: { amara: 10, lena: 3 }, trust: { amara: 8 }, flag: { hydro: "full" }, requires: { supplies: { min: 8 } }, alive: "amara", reply: [{ who: "amara", text: `Amara takes the margin without ceremony and has the wash cycle running by next shift. "That was a policy, then," she says. "Good. I will hold you to it, and so will the tomatoes."` }] },
+        { text: "Shut the green down. Recyclers and paste first.", next: "arc_living_2", effects: { supplies: 4, cohesion: -5, integrity: 3 }, lean: { future: 2 }, affinity: { amara: -6, elias: 4 }, trust: { amara: -6 }, reply: [`The trays go dark row by row.`, { who: "amara", text: `Amara shuts them down herself and asks no one to help. When she is done she touches the key at her throat, once. "Paste it is," she says. "I will remember who ordered the paste."` }] }
       ];
       const legal = choice => (!choice.alive || isAlive(choice.alive)) &&
         (!choice.requires || meetsRequirements(choice.requires)) &&
         canAffordEffects(choice.effects);
       if (!routes.some(legal)) {
-        routes.push({ text: "Leave the ring as it is.", next: "arc_living_2" });
+        routes.push({ text: "Leave the ring as it is.", next: "arc_living_2", reply: [`The ring stays as it is: warm, failing, and patient.`] });
       }
       return routes;
     }

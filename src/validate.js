@@ -2,14 +2,14 @@
 // Version 0.29 — + Cascade Allusive flag domains
 // Scene validation. Runs when ?validate=1 or localStorage.sunsplitter_validate=1.
 // Strict scene shape: only text | choices | onEnter | image
-// Choice shape: ALLOWED_CHOICE_KEYS (text/next/effects/affinity/flag/lean/requires/trust/alive/aliveAll/aliveAny/mark/remember/tag)
+// Choice shape: ALLOWED_CHOICE_KEYS (text/next/effects/affinity/flag/lean/requires/trust/alive/aliveAll/aliveAny/mark/remember/tag/reply)
 // Also: next-target graph, flag read/write, romance gate consistency, image map hygiene.
 
 (function () {
   const ALLOWED_KEYS = new Set(["text", "choices", "onEnter", "image"]);
   const ALLOWED_CHOICE_KEYS = new Set([
     "text", "next", "effects", "affinity", "flag", "lean", "requires",
-    "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag"
+    "trust", "alive", "aliveAll", "aliveAny", "mark", "remember", "tag", "reply"
   ]);
   const ROMANCE_IDS = ["lena", "mira", "amara", "sela", "vess"];
   const ROMANCE_ID_PATTERN = ROMANCE_IDS.join("|");
@@ -91,6 +91,17 @@
           if (!ALLOWED_CHOICE_KEYS.has(ck)) errors.push(`${id}: choice[${i}] illegal key "${ck}" (allowed: ${[...ALLOWED_CHOICE_KEYS].join(", ")})`);
         }
         if (!c.text) warnings.push(`${id}: choice[${i}] missing text`);
+        // SUN-REPLY-ENGINE-01: reply is a string, { who, text }, or an array of those; who is a crew key.
+        if (c.reply !== undefined) {
+          const replies = Array.isArray(c.reply) ? c.reply : [c.reply];
+          if (!replies.length || replies.length > 3) errors.push(`${id}: choice[${i}] reply must have 1-3 lines`);
+          replies.forEach((r, ri) => {
+            if (typeof r === "string") { if (!r.trim()) errors.push(`${id}: choice[${i}] reply[${ri}] empty`); return; }
+            if (!r || typeof r !== "object" || typeof r.text !== "string" || !r.text.trim()) { errors.push(`${id}: choice[${i}] reply[${ri}] needs text`); return; }
+            for (const rk of Object.keys(r)) if (rk !== "who" && rk !== "text") errors.push(`${id}: choice[${i}] reply[${ri}] illegal key "${rk}"`);
+            if (r.who && !(typeof crew === "object" && crew[r.who])) errors.push(`${id}: choice[${i}] reply[${ri}] who "${r.who}" is not a crew key`);
+          });
+        }
         if (!c.next) { errors.push(`${id}: choice[${i}] missing next`); return; }
         nextGraph[id].add(c.next);
         allNexts.add(c.next);
@@ -168,7 +179,7 @@
       "prom_amara_alluded", "prom_tomas_alluded", "prom_elias_alluded",
       "prom_lena_alluded", "prom_sela_alluded", "prom_mira_alluded",
       "junctionChoice", "lena_notes", "lena_last_hour", "mira_root_cause", "vess_item_two", "amara_page", "sela_amber", "mira_fault_known", "course_briefed",
-      "pair_shield", "pair_grudge", "pair_favor",
+      "pair_shield", "pair_grudge", "pair_favor", "pair_triage", "pair_seal", "pair_burn", "pair_fix",
       "warmth_meal", "warmth_laughter", "warmth_music",
       "manifest", "changeorders"
     ]);

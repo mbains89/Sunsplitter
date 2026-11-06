@@ -24,6 +24,12 @@ const VERSION = "0.36";
 //   amara_page_reply and the ending footer).
 //   sela_amber ("meaning" | "sentence" | "silence"; written by the sela_past_amber answers; read by
 //   sela_past_amber_reply, the ending footer and the Yellow Circle text).
+// ROADMAP §14A Wave 1 workstream 3 (growth ruling 2026-11-05, crew friction): one flag per pair scene,
+//   written by the Commander's answer, read by the pair's reply scene. No meters.
+//   pair_triage ("chart" | "count" | "open"; Lena and Tomas on Rourke, from act2_spine_next).
+//   pair_seal ("bulkhead" | "names" | "both"; Elias and Tomas on the Deck 4 feedstock, from the hub).
+//   pair_burn ("finding" | "width" | "both"; Mira and Jiro on the reckoning burn, from the hub).
+//   pair_fix ("fix" | "track" | "both"; Jiro and Vess on whose position is truer, from the hub).
 
 function freshState() {
   return {

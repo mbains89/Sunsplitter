@@ -96,15 +96,24 @@ registerScenes({
   final_choice: {
     get text() {
       let t = `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
+      // SUN-FINAL-DESTINATION-READ-01: an uncommitted run still has no destination, but it may have
+      // Jiro's posted window (position_certain) or a deferred survey; say which, and name the planet
+      // before the order that offers it.
+      const postedWindow = !!state.flags.position_certain;
       if (state.flags.patch === "aborted") {
         // SUN-FINAL-HOLD-ONCE-01: destination truth stays; the failed burn closes the hold.
         t += state.flags.planet === "committed"
           ? `The course is still locked on the rogue planet. The hard burn to hold it has already failed once, and Deck 4 will not carry it again.\n\n`
+          : postedWindow ? `You still have no destination. Jiro's window at the rogue planet is still on the board, and the hard burn toward it has already failed once. Deck 4 will not carry it again.\n\n`
           : `You still have no destination. The hard burn toward one has already failed once, and Deck 4 will not carry it again.\n\n`;
       } else if (state.flags.planet === "committed") {
         t += `The course is still locked on the rogue planet. You can hold it, alter it, or abandon it.\n\n`;
+      } else if (postedWindow) {
+        t += `You still have no destination. Jiro's arrival window is on the board: one corridor, one pass, at the rogue planet. A window is not an order. You can give one, or refuse the idea that a destination is required.\n\n`;
+      } else if (state.flags.planet === "deferred") {
+        t += `You still have no destination. The rogue planet from the first sweep is still on the charts, where you told it to wait. You can set course, or refuse the idea that a destination is required.\n\n`;
       } else {
-        t += `You still have no destination. You can set one, or refuse the idea that a destination is required.\n\n`;
+        t += `You still have no destination. The charts hold one candidate nobody has ordered the ship toward: a rogue planet, starless, ice over rock. You can set course, or refuse the idea that a destination is required.\n\n`;
       }
       // SUN-ROMANCE-ARC-03 (L-050): the spent window is named at the decision it closes. Text only.
       if (state.flags.last_tx_spent) {

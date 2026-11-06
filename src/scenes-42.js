@@ -125,7 +125,7 @@ registerScenes({
     get text() { return `You draft the rules and post them.\n\nRations enforced. Work mandatory. Disobedience punished by reduced shares.\n\n${isAlive("elias") ? `Elias smiles with half his mouth.` : ""} ${isAlive("mira") ? `Mira looks at the list and says nothing.` : ""}\n\nTwo survivors stop speaking when you pass.\n\nOrder returns. Trust does not.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis", effects: { integrity: 1 } },
-      { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 } }
+      { text: "Enforce the first ration cut yourself. Make the rule real.", next: "power_crisis", effects: { supplies: 5, cohesion: -5, integrity: 1 }, lean: { future: 2 }, reply: [`You do it at the galley hatch yourself: one ration short for everyone, your own included, the cut marked on the board in your hand.`, { who: "elias", text: `Elias watches you mark it. "Now it is real," he says. "Now they hate the rule instead of me. Thank you, Commander." He might even mean it.` }] }
     ]
   },
   lead_watch: {
@@ -138,7 +138,7 @@ registerScenes({
     get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The knowledge sits in your chest like a stone.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
-      { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 } }
+      { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 }, reply: [{ who: "elias", text: `"Quietly," Elias agrees. He does not write the names down. He never needed to.` }] }
     ]
   },
   // PRE: existing engineering call; capacitor label only, no entry change
@@ -148,9 +148,9 @@ registerScenes({
   power_crisis: {
     get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.\n\n${isAlive("mira") ? `"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.\n\nOr we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : ""}\n\nThe choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
     choices: [
-      { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" } },
-      { text: "Burn the drive-repair capacitors. Keep systems running now.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 } },
-      { text: "Ask Mira to invent a third option, even if it is riskier.", alive: "mira", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 } }
+      { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" }, reply: [{ who: "mira", text: `The observation blister goes dark at oh-two-hundred. Mira posts the load figures before anyone can complain: "Bus variance down to four percent. The view was costing us eleven." By the next shift someone has taped a printed photograph of stars over the dead panel.` }] },
+      { text: "Burn the drive-repair capacitors. Keep systems running now.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 }, reply: [{ who: "mira", text: `Mira wires the capacitor banks into the bus herself, one at a time, and logs each serial number like something she is burying. "Systems nominal," she reports. "The drive is no longer a question. Log that I said so."` }] },
+      { text: "Ask Mira to invent a third option, even if it is riskier.", alive: "mira", next: "private_stores", effects: { integrity: -4, supplies: -5, cohesion: 5 }, flag: { power: "risk" }, requires: { trust: { mira: 45 }, supplies: { min: 8 } }, lean: { future: 1 }, reply: [{ who: "mira", text: `Mira's third option is a cross-tie through the dead aft relay, run hotter than the spec allows. "Forty percent of the margin for ninety percent of the load. If it holds a week, it holds. If it does not, you will smell it before I tell you." She sets a check on it every two hours and logs each one.` }] }
     ]
   },
   // PRE: after power_crisis, before time_pass; the original early living roster
@@ -176,9 +176,9 @@ registerScenes({
     },
     get text() { return `${isAlive("elias") ? `Elias reports a problem he has been watching.` : ""}\n\nTwo of the remaining survivors have been holding back small private food stores. Not enough to change the math of the ship — enough to create a line between those who share and those who do not.\n\n${isAlive("elias") ? `"I can seize it and make an example. Or we can pretend we did not notice. Or you can address it yourself in front of everyone."` : ""}\n\nThe food is almost irrelevant. What it represents is not. Cohesion will notice either way.`; },
     choices: [
-      { text: "Seize the stores and make the rule clear: no private reserves.", next: "coolant_trade", effects: { supplies: 6, cohesion: -9, integrity: 1 }, flag: { stores: "seize" }, lean: { future: 2 } },
-      { text: "Ignore it. Some small secrets are the price of holding the group together.", next: "coolant_trade", effects: { cohesion: 3, supplies: -3 }, flag: { stores: "ignore" }, lean: { living: 1 } },
-      { text: "Call everyone together and put the question to them. Let the group decide the rule.", next: "coolant_trade", effects: { cohesion: 6, supplies: 2, integrity: -1 }, flag: { stores: "vote" } }
+      { text: "Seize the stores and make the rule clear: no private reserves.", next: "coolant_trade", effects: { supplies: 6, cohesion: -9, integrity: 1 }, flag: { stores: "seize" }, lean: { future: 2 }, reply: [{ who: "elias", text: `Elias does it at the evening meal, in front of everyone, without raising his voice: two tins, a bag of dried fruit, a tin of sweets someone carried through the cascade. He sets them on the common table. "Ship's stores," he says. Nobody touches them for an hour.` }] },
+      { text: "Ignore it. Some small secrets are the price of holding the group together.", next: "coolant_trade", effects: { cohesion: 3, supplies: -3 }, flag: { stores: "ignore" }, lean: { living: 1 }, reply: [{ who: "elias", text: `"Understood," Elias says, in the tone he keeps for things he will remember. The stores stay where they are. So does the line between the people who have them and the people who know.` }] },
+      { text: "Call everyone together and put the question to them. Let the group decide the rule.", next: "coolant_trade", effects: { cohesion: 6, supplies: 2, integrity: -1 }, flag: { stores: "vote" }, reply: [`You put it to them in the common room. It takes forty minutes and gets louder than you expected: rations by need, rations by work, rations by nobody's business. The vote carries for one common store. One hand stays down, and nobody looks to see whose.`] }
     ]
   }
 });
