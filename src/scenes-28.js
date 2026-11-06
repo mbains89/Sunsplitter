@@ -9,6 +9,9 @@ registerScenes({
       if (isAlive("sela")) {
         t += `Sela does not ask permission for the next circle. She asks what you will do with the ones already there.\n\n`;
         t += `"If you paint them over, the corridor becomes regulation again. If you leave them, people will keep using them as landmarks — and as an argument that warmth is not a soft metric."\n\n`;
+        // SUN-CALLBACKS-01: the petition test, filed with the marks. Text only.
+        if (state.promises.sela === "kept") t += `"At the petition you stood between me and the room. I have filed that under the same heading as the circles. It is not a small heading."\n\n`;
+        else if (state.promises.sela === "broken") t += `"The room put its fear on me, and you let it. The circles are still mine. They were never the room's to take, or yours to give."\n\n`;
       } else {
         t += `Their author is gone. The pigment remains. Someone will decide whether the ship keeps them.\n\n`;
       }
@@ -97,7 +100,7 @@ registerScenes({
         // SUN-FINAL-HOLD-ONCE-01: destination truth stays; the failed burn closes the hold.
         t += state.flags.planet === "committed"
           ? `The course is still locked on the rogue planet. The hard burn to hold it has already failed once, and Deck 4 will not carry it again.\n\n`
-          : `You still have no destination. The hard burn has already failed once, and Deck 4 will not carry it again.\n\n`;
+          : `You still have no destination. The hard burn toward one has already failed once, and Deck 4 will not carry it again.\n\n`;
       } else if (state.flags.planet === "committed") {
         t += `The course is still locked on the rogue planet. You can hold it, alter it, or abandon it.\n\n`;
       } else {

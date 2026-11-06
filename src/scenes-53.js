@@ -54,6 +54,9 @@ registerScenes({
       if (isAlive("tomas")) {
         t += `Tomas meets you at the bulkhead. His voice is steady and public.\n\n`;
         t += `"Commander. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`;
+        // SUN-CALLBACKS-01: who pays, through a present habit. Text only.
+        const first = typeof firstAttributableDeath === "function" ? firstAttributableDeath() : null;
+        if (first) t += `\n\n"I still count ${(crew[first.who] && crew[first.who].first) || first.name} when I count the mouths. I have not stopped. The air is about to stop me."`;
       } else {
         t += `The rumor is already moving: vent the late arrivals, save the filters. No one stands in front of it.`;
       }

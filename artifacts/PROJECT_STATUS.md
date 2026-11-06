@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: ec5bff3 (after PR #502)`
+`work_branch_tip: cadf259 (after PR #503)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -20,7 +20,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
-`browser_bot_latest: f4500fb (src tree f013611), 2026-11-05 — 28/28 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
+`browser_bot_latest: cadf259 (src tree 2831f07, all five romance arcs in), 2026-11-06 — 28/28 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -66,7 +66,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 500 | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
 | 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
 | 502 | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
-| this PR | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
+| 503 | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
+| this PR | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
 
 ## Open
 
@@ -151,6 +152,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** Wave 1 workstream 2, `SUN-CALLBACKS-01` (12–15 diegetic callbacks across existing scenes), after a browser-bot batch on the tip. **Manraj:** the five romance arcs are in; a full run on the tip is the first half of gate 1. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** Wave 1 workstream 3, `SUN-CREW-FRICTION-01` (three or four pair scenes where crew disagree with each other). **Manraj:** the five romance arcs and the callbacks are in; a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->

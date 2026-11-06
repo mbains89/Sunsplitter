@@ -55,7 +55,7 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       // SUN-TETHER-FLOOR-01: both routes cost; with no reserve water and no hull margin the scene
       // would render zero enabled exits. Governed floor writes nothing, like arc_fork / custody.
       if (!routes.some(choice => canAffordEffects(choice.effects))) {
-        routes.push({ text: "There is no water to vent and no margin to spend. Make the catch on what the frame has left.", next: "act2_tether_rush", lean: { future: 1 } });
+        routes.push({ text: "No water to vent and no hull to spare. Hard intercept on what is left.", next: "act2_tether_rush", lean: { future: 1 } });
       }
       return routes;
     }
@@ -76,6 +76,10 @@ Four kilometers. On a living world that was the length of a long walk home. Here
       }
       if (isAlive("amara")) {
         t += `\n\nAmara is already rewriting the ration boards. She does it in front of everyone, which is the point. "New ceiling's posted. No one gets to be surprised at dinner."`;
+      }
+      // SUN-CALLBACKS-01: the vented ring, cited by the man who approved it. Text only.
+      if (isAlive("elias") && state.flags.crisis === "vent") {
+        t += `\n\nElias watches the fog go. "The last thing this ship vented had people in it. This is water. I want the room to hear the difference. I am not asking it to forgive the first."`;
       }
       t += `\n\nThe catch needs a hand on the line. Someone goes out.`;
       return t;
