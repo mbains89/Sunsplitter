@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-05`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: f4500fb (after PR #498)`
+`work_branch_tip: 44789f9 (after PR #499)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -62,7 +62,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 496 | SUN-HITL-SHADOW-02 | 27 owner-approved HITL event plates that were mapped but shadowed by each scene's older image now render, each face-gated with a roster checked by eye. |
 | 497 | SUN-HITL-LATE-SIX-01 | The six approved Grok Imagine frames (XCckB, CzOb5, wT0pe, SJDX2, 8flOC, njQ5P) were never saved in September. They were recovered from the Grok `$ Art` chat with Manraj's go, and now replace the as-is plates. |
 | 498 | SUN-ROADMAP-WAVES-01 | Records Manraj's 2026-11-05 approval of the feature roadmap: four growth waves at 0.37–0.40, the review path renumbered to 0.41–0.44, and sub-locks L-050–L-056. Process only; no gameplay change. |
-| this PR | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
+| 499 | SUN-ROMANCE-ARC-01 | Wave 1, Lena. The hour she asked for in Last Off-Shift is now a scene (`lena_last_hour`), offered to a partner or to the player who held her hand and took nothing; her private debt is spoken inside the Act III lethal; the ending cites the hour and the held-only path from run facts. One flag (`lena_last_hour`), no resources, no new art. |
+| this PR | SUN-ROMANCE-ARC-02 | Wave 1, Mira. After the Commander overrides local at the cross-feed board to keep her, a partner is asked the question she cannot verify — the drive, or her — and answers; she replies in kind (`mira_root_cause`, `mira_root_cause_logged`). Last Off-Shift and the ending cite the answer. One flag (`mira_root_cause`: drive / you / both), no resources, no new art. |
 
 ## Open
 
@@ -90,6 +91,12 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - `images/offshift_lena.jpg` (locked 2026-08-25 off-shift plate, never wired; dirty-blonde, freckles, blue eyes, coat open) could replace `medbay_dim` on `lena_last_hour`. Wiring it is an art call: yours.
    - The hour is closed to a partner who broke the medical line at `prom_line` (`promises.lena === "broken"`), by the same rule that closes her other offers (`romanceOpen`). Say so if she should still open it.
    - The scene spends the bible's one mid-sentence self-dose (CHARACTER_BIBLE: "how the game says her clock moved") inside an optional partner scene. If that beat belongs on the spine instead, it moves.
+
+10. **Mira, from SUN-ROMANCE-ARC-02 (Wave 1):**
+   - PX5-D02 is still unruled: may the status-board disclosure and the second night stay one transaction in `pursuit_mira`? Shipped unchanged; the new scene reads the disclosure as a fact of the run.
+   - PX5-F02 ("between you and the only exit") and PX5-F04 ("someone new") are still in `pursuit_window` / `pursuit_mira`; wording fixes if you want them, one PR.
+   - Her backstory has two versions (`src/state.js` drive specialist vs `FABLE_CASCADE_BACKGROUND.md` commissioning engineer); the new scenes use neither.
+   - The "you" answer spends the bible's spoken self fault-log ("Mira. Error. ...") inside an optional partner scene. Say so if it belongs elsewhere.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -124,6 +131,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** `SUN-ROMANCE-ARC-02`, Mira's arc (ROADMAP §14A, Wave 1), with Myth review of the Lena lines in parallel; then the next browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** `SUN-ROMANCE-ARC-03`, Vess's arc (ROADMAP §14A, Wave 1); then a browser-bot batch on the tip. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
 
 <!-- STATUS_COMPLETE -->

@@ -15,6 +15,9 @@ registerScenes({
       t += `"The weld behind this panel. I rebuilt it in the dark during the crisis with forty percent of the correct filler and one hundred percent of the available time. Sixty percent it holds to landfall, error of ten either side. Sixty is not a number I log. A number without a root cause is a rumor in a uniform."\n\n`;
       t += `She hands you the worklight so you'll look where she's looking. "Nobody else knows the panel comes off in one move. Now two people do. You're the only redundancy I've got that isn't made of the same alloy as me. If it lets go, you'll know what's behind the alarm before the alarm does."`;
       if (state.romance.mira) {
+        // SUN-ROMANCE-ARC-02 (L-050): the answer she filed at the board is still open. Text only.
+        if (state.flags.mira_root_cause === "you") t += `\n\n"The fault I filed at the phase board is still open. I check it every watch. Status unchanged."`;
+        else if (state.flags.mira_root_cause === "both") t += `\n\n"The variance from the phase board is still posted. Nobody has resolved it. I did not expect anyone to."`;
         t += `\n\n"Your pulse is down eight from the hatch. Mine isn't. Noted for the record. Stay while I close this up, or don't — but decide before I re-solder, I only heat this once."`;
       }
       const close = closingPartnerLine();

@@ -16,6 +16,8 @@ const VERSION = "0.36";
 // 0.25: state.dying is a map { [name]: causeString }; legacy scalar "lena" normalized on load.
 // L-050 (2026-11-05, Wave 1 romance arcs): lena_last_hour (boolean; written once by the
 //   lena_last_hour scene; read by the ending footer). One flag per arc end state, no meters.
+//   mira_root_cause ("drive" | "you" | "both"; written by the mira_root_cause answers; read by
+//   mira_root_cause_logged, offshift_mira and the ending footer).
 
 function freshState() {
   return {

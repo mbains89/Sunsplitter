@@ -1058,6 +1058,13 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
   if (hasMark("tomas", "broke")) text += `\n\nTomas broke in front of you. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
+  // SUN-ROMANCE-ARC-02 (L-050): her arc's end state, cited from the answer the run gave.
+  if (state.flags.mira_root_cause) {
+    const asked = state.flags.mira_root_cause === "drive" ? `Mira asked why you kept her at the board, and you said the drive. She logged it at sixty percent.`
+      : state.flags.mira_root_cause === "you" ? `Mira asked why you kept her at the board, and you said her. She filed a fault against herself and kept the console.`
+      : `Mira asked why you kept her at the board, and you gave her both. She is running the drive under the variance.`;
+    text += `\n\n${asked}${isAlive("mira") ? "" : " That fact outlived her."}`;
+  }
   if (hasMark("mira", "drive_first") && isAlive("mira")) text += `\n\nMira still believes the drive can be saved because you once let her try.`;
   // No raw ideology debug dump in player-facing text (0.20.2)
   return text;
@@ -1622,6 +1629,7 @@ function validImportedSnapshot(data) {
   ]);
   const flagDomains = Object.fromEntries(Object.entries({
     abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
+    mira_root_cause: ["drive", "you", "both"],
     breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
     coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
     custody_answer: ["severed", "possession", "thawed", "shared"],

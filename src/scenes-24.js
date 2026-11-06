@@ -115,9 +115,10 @@ Mira watches the line remain flat for a full minute.
 
 "Remote is true. Keep the reserve marked empty."`;
   },
-  choices: [
-    { text: "Log the empty reserve. Continue.", next: "faction_split" }
-  ],
+  get choices() {
+    // SUN-ROMANCE-ARC-02 (L-050): a partner is asked for the root cause before the watch resumes.
+    return [{ text: "Log the empty reserve. Continue.", next: state.romance.mira ? "mira_root_cause" : "faction_split" }];
+  },
   image: "images/quiet_mira.jpg"
 },
 
@@ -155,10 +156,86 @@ Mira reads the limit twice.
 
 "Cross-feed gone. Post the lower ceiling."`;
   },
-  choices: [
-    { text: "Put the lower ceiling on the board. Continue.", next: "faction_split" }
-  ],
+  get choices() {
+    // SUN-ROMANCE-ARC-02 (L-050): a partner is asked for the root cause before the watch resumes.
+    return [{ text: "Put the lower ceiling on the board. Continue.", next: state.romance.mira ? "mira_root_cause" : "faction_split" }];
+  },
   image: "images/debris_field.jpg"
+},
+
+// ═══ SCENE DECLARATION ═══════════════════════════════════════════
+// SCENE_ID: mira_root_cause           TICKET: SUN-ROMANCE-ARC-02 (L-050, Wave 1)
+// PRE: Mira living and romance.mira; reached only from act3_lethal_mira_reserve or
+//   act3_lethal_mira_collar, i.e. after the Commander overrode local to keep her.
+// WRITES: none on entry. The three answers write flags.mira_root_cause ("drive" | "you" |
+//   "both") plus affinity/trust; no resource change.
+// DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when Mira is dead or
+//   not a partner (onEnter + living-cast contract in scenes-55).
+// IMAGE: REUSE images/quiet_mira.jpg (the board scene's own plate). No new art.
+// ═════════════════════════════════════════════════════════════════
+mira_root_cause: {
+  onEnter: () => {
+    if (!isAlive("mira") || !state.romance.mira) return "faction_split";
+  },
+  get text() {
+    if (!isAlive("mira")) return `Engineering answers with automatic traces and no living engineer.`;
+    let t = `The bay cools by the numbers. Mira stays at the phase board until both traces have been flat for the five minutes she gives them, and then she does something you have not seen her do: she turns her back on a live console to look at you.\n\n`;
+    if (state.pursuit.mira) {
+      t += `"I handed you my key and told you private was not a veto. You overrode local anyway. Reserve or collar, the ledger will say which. It will not say why."\n\n`;
+    } else {
+      t += `"I told you I could flatten phase before the envelope failed, and you spent the ship's margin to keep me out of that bay. The ledger will say which margin. It will not say why."\n\n`;
+    }
+    if (state.flags.pursuit_mira_cost === "disclosed") {
+      t += `"The status board already carries the bay audio. Everyone aboard has a root cause they would assign to this. Their variance is not my problem. Yours is."\n\n`;
+    } else if (state.flags.pursuit_mira_cost === "partial") {
+      t += `"The status board carries the vault talk and not the rest. The crew will assign a root cause from half a record. That is their variance. I want yours."\n\n`;
+    } else {
+      t += `"The crew saw the console. They did not see the rest. They will assign a root cause from the outside. I want yours."\n\n`;
+    }
+    t += `"Root cause. Was it the drive, or was it me?" She says it like a reading from a gauge that is not there. "I cannot verify the answer from the trace. Say it anyway."`;
+    return t;
+  },
+  get choices() {
+    if (!isAlive("mira")) return [{ text: "Continue without engineering.", next: "faction_split" }];
+    return [
+      { text: "The drive. The ship needs its engineer.", next: "mira_root_cause_logged", flag: { mira_root_cause: "drive" }, trust: { mira: 4 } },
+      { text: "You.", next: "mira_root_cause_logged", flag: { mira_root_cause: "you" }, affinity: { mira: 8 } },
+      { text: "Both. The variance is unresolved.", next: "mira_root_cause_logged", flag: { mira_root_cause: "both" }, affinity: { mira: 4 }, trust: { mira: 2 } }
+    ];
+  },
+  image: "images/quiet_mira.jpg"
+},
+
+// ═══ SCENE DECLARATION ═══════════════════════════════════════════
+// SCENE_ID: mira_root_cause_logged    TICKET: SUN-ROMANCE-ARC-02 (L-050, Wave 1)
+// PRE: Mira living; flags.mira_root_cause set by mira_root_cause. Her answer to the answer.
+// WRITES: none. DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects when Mira is dead.
+// IMAGE: REUSE images/quiet_mira.jpg. No new art.
+// NOTE: the "you" branch spends CHARACTER_BIBLE's spoken self fault-log ("Mira. Error. ...
+//   Corrective action: ...") here, once.
+// ═════════════════════════════════════════════════════════════════
+mira_root_cause_logged: {
+  onEnter: () => {
+    if (!isAlive("mira")) return "faction_split";
+    if (!state.flags.mira_root_cause) return "faction_split";
+  },
+  get text() {
+    if (!isAlive("mira")) return `Engineering answers with automatic traces and no living engineer.`;
+    let t;
+    if (state.flags.mira_root_cause === "drive") {
+      t = `She turns back to the board before she answers.\n\n"Logged. Confidence sixty percent. The other forty is not yours to measure."\n\nA pause the length of a trace settling.\n\n"Sixty is more than I had."`;
+    } else if (state.flags.mira_root_cause === "you") {
+      t = `"Then the ledger is wrong, and I know what to file."\n\nShe says it to the board, not to you, in the voice she keeps for the fault log.\n\n"Mira. Error. Accepted a private root cause for a public expenditure. Corrective action: none available. Status: operating."\n\nShe does not turn around for a while. When she does, the reading is steady.`;
+    } else {
+      t = `"Variance unresolved."\n\nShe writes it on the board where the crew will read it, beside the number you just paid.\n\n"That is a measurement. I can run a drive under a measurement. I could not run one under a story."`;
+    }
+    t += `\n\nThe traces hold flat. She posts the numbers that are true and nothing that is not.`;
+    return t;
+  },
+  choices: [
+    { text: "Back to the watch.", next: "faction_split" }
+  ],
+  image: "images/quiet_mira.jpg"
 },
 
 // ═══ SCENE DECLARATION ═══════════════════════════════════════════
