@@ -882,9 +882,10 @@ function restartPlateDrift(img) {
 }
 
 // L-059: Read on sticks to the bottom of #main only while #main shows enough text for it.
-// On a portrait phone #main shows about 180px or more. In phone landscape (844x390: 137px;
-// 640x360: 75px), or when something above squeezes it, a 66px sticky bar would cover a third
-// to all of the text it leads into, so below 160px the controls stay in normal flow.
+// On a portrait phone #main shows about 180px or more. When something above squeezes it (the
+// open crew panel; phone landscape before SUN-LANDSCAPE-PLATE-01 put the plate beside the text,
+// 844x390: 137px, 640x360: 75px), a 66px sticky bar would cover a third to all of the text it
+// leads into, so below 160px the controls stay in normal flow.
 const REVEAL_STICKY_MIN_HEIGHT = 160;
 (function watchRevealRoom() {
   if (typeof document === "undefined" || typeof ResizeObserver !== "function") return;

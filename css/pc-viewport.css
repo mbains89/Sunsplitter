@@ -75,6 +75,69 @@ body,
   }
 }
 
+/* SUN-LANDSCAPE-PLATE-01 — phone landscape (640×360, 844×390, 720×450): the plate sits beside
+   the text instead of above it. Stacked, the plate left #main 75px at 640×360 and 137px at
+   844×390, one or two lines. Beside, #main gets the full height between the bars and the plate
+   keeps the whole 784×1168 frame at the height that row allows. It stays pinned while the text
+   scrolls (ROADMAP §2). object-fit: contain, so if the row ends up shorter than the estimate
+   (larger text, open crew panel) the plate letterboxes instead of cropping anyone out.
+   .minimized changes nothing here: shrinking a plate beside the text frees no reading room.
+   After the short-desktop block above, so a short window 1024px or wider takes this layout too.
+   Portrait, tablets and desktops 501px or taller never match. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 520px) {
+  #app {
+    /* Status and meta bars measure 55 + 57px here; 132px also covers the plate's margins. */
+    --landscape-plate-w: calc((100dvh - var(--safe-top) - var(--safe-bottom) - 132px) * 784 / 1168);
+    display: grid;
+    grid-template-columns: calc(var(--landscape-plate-w) + 16px) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  #status {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  #crew-panel {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  #meta {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  #scene-image-wrap,
+  #scene-image-wrap.minimized,
+  #scene-image-wrap.intimate,
+  #scene-image-wrap.intimate.minimized {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    justify-self: start;
+    aspect-ratio: 784 / 1168;
+    width: var(--landscape-plate-w);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    margin: 8px 4px 8px 12px;
+  }
+
+  #scene-image,
+  #scene-image-wrap.intimate #scene-image {
+    object-fit: contain;
+  }
+
+  #main {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  #scene-image-wrap.visible + #main {
+    grid-column: 2;
+  }
+}
+
 .cinematic-actions {
   position: sticky;
   bottom: 0;
