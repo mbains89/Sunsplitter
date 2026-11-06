@@ -10,7 +10,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const MULTI = "vault_reveal"; // nine paragraphs, three choices, fixed text
+const MULTI = "vault_reveal"; // eight paragraphs, three choices, fixed text
+// SUN-DIET-TRIMS-01: nine became eight when the trim cut one paragraph of vault_reveal prose; only the fixture count moved.
 
 // Paragraph nodes parsed from the renderer's own markup; classList toggles land on these stubs.
 const INSTALL_PARAGRAPH_DOM = `(() => {
@@ -192,11 +193,11 @@ export function sunPlayerflowPacedRevealChecks() {
       out.makeChoiceWhilePending = { scene: state.scene, next: rendered.next };
       return out;
     })())`));
-    check(r.start.pending && r.start.blocks === 9 && r.start.shown === 1 && r.start.buttons === 3, `B2: ${MULTI} start ${JSON.stringify(r.start)}`);
-    check(r.start.readOnLabel === "Read on: paragraph 2 of 9", `B2: Read on label ${r.start.readOnLabel}`);
+    check(r.start.pending && r.start.blocks === 8 && r.start.shown === 1 && r.start.buttons === 3, `B2: ${MULTI} start ${JSON.stringify(r.start)}`);
+    check(r.start.readOnLabel === "Read on: paragraph 2 of 8", `B2: Read on label ${r.start.readOnLabel}`);
     check(r.digitHandled === false && r.afterDigit.scene === MULTI && r.afterDigit.shown === 1, `B2: digit picked or advanced while choices were hidden: ${JSON.stringify(r.afterDigit)}`);
     check(r.repeatHandled === false && r.afterRepeat.shown === 1, "B2: a held (repeat) key advanced the reveal");
-    check(r.steps.length === 8 && r.steps.every(s => s.handled), `B2: expected 8 key advances, got ${JSON.stringify(r.steps)}`);
+    check(r.steps.length === 7 && r.steps.every(s => s.handled), `B2: expected 7 key advances, got ${JSON.stringify(r.steps)}`);
     check(r.steps.slice(0, -1).every((s, i) => s.shown === i + 2 && s.pending && s.choicesPending), `B2: choices showed before the last block: ${JSON.stringify(r.steps)}`);
     check(!r.end.pending && !r.end.choicesPending && r.end.controlsHidden && r.end.hidden === 0 && !r.end.mainActive, `B2: end state ${JSON.stringify(r.end)}`);
     check(!r.end.focusIsChoice, "B2: Space/Enter/→ in the passage moved focus onto a choice (digits would go inert)");
