@@ -15,6 +15,11 @@
 //   --chaos       per choice: ~4% reload + Continue, ~3% open Crew, ~3% resize the viewport (phone/
 //                 tablet/desktop/landscape sizes); state must survive each, and choices must stay on screen
 //
+// SUN-PACED-REVEAL-01: scenes arrive a paragraph at a time. While "Read on" shows, the bot reads on
+// the way its input mode would (tap/click the passage or Read on, Space/Enter/→, Tab to Read on),
+// sometimes presses Show all, and flags choices shown early, a reveal that never ends, and a resume
+// that replays the reveal (--chaos reloads mid-reveal too). It waits out the settle guard before picking.
+//
 // Playwright resolves from SUNSPLITTER_PLAYWRIGHT_MODULE (path to index.js), then `playwright`,
 // then the global npm root.
 import { createServer } from "node:http";
@@ -65,11 +70,19 @@ const contextOptions = { ...(VIEWPORT === "phone" ? devices["Pixel 7"] : { viewp
 const RESIZES = [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 768, height: 1024 }, { width: 1024, height: 768 }, { width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 720, height: 450 }];
 const findings = new Map();
 const note = (kind, detail) => { if (!NOISE.test(detail)) findings.set(`${kind} | ${detail}`, (findings.get(`${kind} | ${detail}`) || 0) + 1); };
+// The story fingerprint leaves out a choice's reply (proposed L-057): it opens the screen once,
+// is never saved, and a reload or Continue shows the scene without it.
 const SNAPSHOT = () => JSON.stringify([state.scene, state.survivors, state.supplies, state.integrity, state.cohesion,
-  state.dead.slice().sort(), document.getElementById("story").textContent.slice(0, 120)]);
+  state.dead.slice().sort(), (() => {
+    const story = document.getElementById("story").cloneNode(true);
+    story.querySelectorAll(".choice-reply").forEach(p => p.remove());
+    return story.textContent.slice(0, 120);
+  })()]);
 const ORDER = ["new-run-confirm", "commander-create", "tutorial-overlay", "crew-sheet", "what-remains-screen",
   "ending-screen", "cinematic-screen", "game-screen", "title-screen", "tone-screen"];
 let incomplete = 0;
+let revealPresses = 0;
+const REVEAL_SETTLE_WAIT = 420; // engine REVEAL_SETTLE_MS is 350
 
 for (let run = 0; run < RUNS; run++) {
   const context = await browser.newContext(contextOptions);
@@ -100,6 +113,26 @@ for (let run = 0; run < RUNS; run++) {
     }
   };
   let steps = 0, ended = false, noExit = 0, same = 0, previous = "", expectResume = null, reloads = 0, resizes = 0;
+  let revealSteps = 0, revealScene = "", reveals = 0;
+  const readOn = async () => {
+    // keys mode stays on digit-key play: read on from the passage only (Show all via the keyboard
+    // lands focus on the first choice, where digits keep native handling; tab mode covers it).
+    const all = INPUT !== "keys" && rnd() < 0.15;
+    const control = all ? "#reveal-all" : "#reveal-next";
+    if (INPUT === "keys") {
+      await page.focus("#story").catch(() => {});
+      await page.keyboard.press([" ", "Enter", "ArrowRight"][Math.floor(rnd() * 3)]);
+    } else if (INPUT === "tab") await press(control);
+    else if (!all && rnd() < 0.5) {
+      // Tap/click the passage itself: "anywhere on the story area" reads on.
+      if (INPUT === "touch") await page.tap("#story", { timeout: 2000 }).catch(e => note("tapfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
+      else await page.click("#story", { timeout: 2000 }).catch(e => note("clickfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
+    } else await press(control);
+    reveals++; revealPresses++;
+    await page.waitForTimeout(40);
+    const done = await page.evaluate(() => document.getElementById("reveal-controls").classList.contains("hidden"));
+    if (done) await page.waitForTimeout(REVEAL_SETTLE_WAIT);
+  };
   while (steps++ < 900 && !ended) {
     await page.waitForTimeout(30);
     const screen = await page.evaluate(order => {
@@ -117,6 +150,8 @@ for (let run = 0; run < RUNS; run++) {
           await press("#btn-resume"); await page.waitForTimeout(150);
           const after = await page.evaluate(`(${SNAPSHOT.toString()})()`);
           if (after !== expectResume) note("RESUME_DRIFT", `${expectResume.slice(0, 200)} -> ${after.slice(0, 200)}`);
+          // A resumed scene arrives whole: no replayed reveal.
+          if (await visible("reveal-controls")) note("RESUME_REPLAYED_REVEAL", JSON.parse(after)[0]);
           expectResume = null;
         } else await press("#btn-begin");
         continue;
@@ -131,13 +166,27 @@ for (let run = 0; run < RUNS; run++) {
         const info = await page.evaluate(() => {
           const buttons = [...document.querySelectorAll("#choices .choice-btn")];
           const img = document.getElementById("scene-image");
+          const shown = e => !!e && getComputedStyle(e).display !== "none" && e.getClientRects().length > 0;
           return { count: buttons.length,
             enabled: buttons.map((b, i) => (!b.disabled && !b.classList.contains("disabled")) ? i : -1).filter(i => i >= 0),
             story: (document.getElementById("story").textContent || "").length,
+            pending: shown(document.getElementById("reveal-controls")),
+            choicesShown: shown(document.getElementById("choices")),
             img: img && img.getAttribute("src") ? { src: img.getAttribute("src"), ok: img.complete ? img.naturalWidth > 0 : null } : null };
         });
         if (!info.story) note("emptyStory", screen.scene);
         if (info.img && info.img.ok === false) note("brokenImage", `${info.img.src} @${screen.scene}`);
+        if (info.pending) {
+          // Paced reveal: read on until the choices appear. Reveal presses do not spend the step budget.
+          steps--;
+          if (info.choicesShown) note("REVEAL_CHOICES_EARLY", screen.scene);
+          if (screen.scene !== revealScene) { revealScene = screen.scene; revealSteps = 0; }
+          if (++revealSteps > 40) { note("REVEAL_STUCK", screen.scene); steps = 900; continue; }
+          if (CHAOS && rnd() < 0.04) { expectResume = await page.evaluate(`(${SNAPSHOT.toString()})()`); await page.reload(); reloads++; continue; }
+          await readOn();
+          continue;
+        }
+        if (!info.choicesShown && info.count) note("CHOICES_HIDDEN", screen.scene);
         if (!info.enabled.length) {
           if (++noExit > 20) { note("NO_EXIT", `${screen.scene} (${info.count} choices, none enabled)`); steps = 900; }
           await page.waitForTimeout(100); continue;
@@ -174,11 +223,11 @@ for (let run = 0; run < RUNS; run++) {
   }
   const end = await page.evaluate(() => ({ scene: typeof state !== "undefined" ? state.scene : "", dead: typeof state !== "undefined" ? state.dead.length : 0, title: ((document.getElementById("ending-title") || {}).textContent || "").trim() }));
   if (!ended) { incomplete++; note("INCOMPLETE", `run ${run} stopped at ${end.scene}`); }
-  console.log(`run ${run} ${VIEWPORT}/${INPUT}${CHAOS ? "/chaos" : ""}: steps=${steps} reloads=${reloads} resizes=${resizes} ended=${ended} ending="${end.title.slice(0, 40)}" dead=${end.dead}`);
+  console.log(`run ${run} ${VIEWPORT}/${INPUT}${CHAOS ? "/chaos" : ""}: steps=${steps} reveals=${reveals} reloads=${reloads} resizes=${resizes} ended=${ended} ending="${end.title.slice(0, 40)}" dead=${end.dead}`);
   await context.close();
 }
 await browser.close();
 server.close();
 for (const [finding, count] of findings) console.log(`FINDING ${finding}${count > 1 ? ` (x${count})` : ""}`);
-console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${findings.size} finding(s)`);
+console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es); ${findings.size} finding(s)`);
 process.exit(findings.size ? 1 : 0);

@@ -45,7 +45,8 @@ registerScenes({
         opts.push({ text: "Sit with Tomas without asking for anything.", next: "quiet_tomas", effects: { cohesion: 3 }, affinity: { tomas: 10 }, alive: "tomas", tag: "bond" });
       }
       // 0.28.1b: Amara+Tomas private — closed by shared encounter OR privacy leave (not a fabricated relationship)
-      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && state.flags.hydro === "full") {
+      // SUN-AMARA-WALKIN-GATE-01: asking them to stop closes it too.
+      if (isAlive("amara") && isAlive("tomas") && !state.romance.amara_tomas && !hasMark("amara", "privacy_left") && !hasMark("amara", "interrupted") && state.flags.hydro === "full") {
         opts.push({ text: "Walk in on Amara and Tomas — and decide whether to stay.", next: "romance_amara_tomas", aliveAll: ["amara", "tomas"], tag: "private" });
       }
       if (isAlive("jiro") && !hasMark("jiro", "bonded") && !hasMark("jiro", "bond_skipped")) {
@@ -138,8 +139,8 @@ registerScenes({
     },
     text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
     choices: [
-      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 } },
-      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding" }
+      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 }, reply: [{ who: "mira", text: `The burn is clean and expensive. Mira reads the reaction-mass figure aloud once, to the tenth of a percent, and never says it again.` }] },
+      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding", reply: [{ who: "mira", text: `The seal takes on the third try. Mira stays at the collar with her palm flat on the weld until the pressure has held for an hour. "Rough," she reports. "Not failing. Rough is a condition I can live with. I will check it at oh-four-hundred."` }] }
     ]
   },
 

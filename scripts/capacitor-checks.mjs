@@ -42,7 +42,8 @@ export function capacitorChecks(runtime) {
 
   check("original choices, one-time payment and both existing event orders", `
     const choices = scenes.power_crisis.choices;
-    const { text, ...burn } = choices[1];
+    // SUN-REPLY-BEATS-ACT1: reply is presentation (the answer on the next screen), not mechanics.
+    const { text, reply, ...burn } = choices[1];
     expect(JSON.stringify(burn) === JSON.stringify({
       next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 },
       flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 }

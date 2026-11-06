@@ -3196,11 +3196,15 @@ function arcForkCostChecks(runtime) {
 
     resetRunState();
     document.getElementById("choices").children = [];
+    // SUN-PRICE-TAGS-01: cost labels now belong to the reader setting; check them with it ON.
+    setShowCostsOnChoices(true);
     showScene("arc_fork");
     const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
       disabled: button.disabled,
       html: button.innerHTML
     }));
+    localStorage.removeItem(SHOW_COSTS_KEY);
+    showCostsSessionValue = null;
 
     resetRunState();
     state.integrity = 0;
@@ -3250,7 +3254,7 @@ function arcForkCostChecks(runtime) {
   }
   for (const label of ["-3 Hull", "-3 Cohesion", "-5 Embryos"]) {
     if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
-      errors.push(`arc_fork does not render immediate cost label ${label}`);
+      errors.push(`arc_fork does not render immediate cost label ${label} with Show costs ON`);
     }
   }
   if (fixture.depleted.choiceCount !== 3 || fixture.depleted.enabledCount !== 1 ||
@@ -3285,11 +3289,15 @@ function custodyPossessionTradeoffChecks(runtime) {
 
     resetRunState();
     document.getElementById("choices").children = [];
+    // SUN-PRICE-TAGS-01: cost labels now belong to the reader setting; check them with it ON.
+    setShowCostsOnChoices(true);
     showScene("custody_possession");
     const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
       disabled: button.disabled,
       html: button.innerHTML
     }));
+    localStorage.removeItem(SHOW_COSTS_KEY);
+    showCostsSessionValue = null;
 
     resetRunState();
     state.integrity = 3;
@@ -3346,7 +3354,7 @@ function custodyPossessionTradeoffChecks(runtime) {
   }
   for (const label of ["-3 Supplies", "-3 Hull", "-6 Cohesion"]) {
     if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
-      errors.push(`custody_possession does not render immediate tradeoff label ${label}`);
+      errors.push(`custody_possession does not render immediate tradeoff label ${label} with Show costs ON`);
     }
   }
   if (fixture.singlePaidChoiceCount !== 2) {
@@ -3386,11 +3394,15 @@ function vaultRevealTradeoffChecks(runtime) {
 
     resetRunState();
     document.getElementById("choices").children = [];
+    // SUN-PRICE-TAGS-01: cost labels now belong to the reader setting; check them with it ON.
+    setShowCostsOnChoices(true);
     showScene("vault_reveal");
     const defaultButtons = Array.from(document.getElementById("choices").children).map(button => ({
       disabled: button.disabled,
       html: button.innerHTML
     }));
+    localStorage.removeItem(SHOW_COSTS_KEY);
+    showCostsSessionValue = null;
     const sceneText = scenes.vault_reveal.text;
 
     resetRunState();
@@ -3449,7 +3461,7 @@ function vaultRevealTradeoffChecks(runtime) {
   }
   for (const label of ["+4 Cohesion", "-5 Embryos", "-3 Cohesion", "+1 Cohesion", "-3 Supplies"]) {
     if (!fixture.defaultButtons.some(button => button.html.includes(label))) {
-      errors.push(`vault_reveal does not render immediate tradeoff label ${label}`);
+      errors.push(`vault_reveal does not render immediate tradeoff label ${label} with Show costs ON`);
     }
   }
   for (const phrase of ["Living priority", "Future priority", "Dual mandate", "not a virtue test", "which reserve takes the first loss"]) {
@@ -3806,7 +3818,56 @@ function resourceFeedbackChecks(runtime) {
     state.cohesion = 98;
     const clampedPositive = formatEffectsHtml({ cohesion: 5 });
 
-    return { statusCases, survivors, vaultUnpaid, vaultExact, vaultTrust, conservation, clampedPositive };
+    // SUN-PRICE-TAGS-01: cost labels are honest when shown, absent from enabled
+    // buttons by default, and disabled reasons are identical either way.
+    resetRunState();
+    state.embryos = 100;
+    const ceilingDirect = formatEffectsHtml({ embryos: 5 });
+    const buttonsFor = (sceneId) => {
+      document.getElementById("choices").children = [];
+      showScene(sceneId, { skipOnEnter: true });
+      return document.getElementById("choices").children.map(button => ({
+        html: button.innerHTML,
+        disabled: !!button.disabled,
+        effectsHtml: button.__ssChoiceEffectsHtml || ""
+      }));
+    };
+    const vaultCostState = () => {
+      resetRunState();
+      state.trust.mira = 40;
+      state.cohesion = 10;
+      state.integrity = 100;
+    };
+    localStorage.removeItem(SHOW_COSTS_KEY);
+    showCostsSessionValue = null;
+    const costsDefault = showCostsOnChoices();
+    vaultCostState();
+    const costsOff = buttonsFor("vault_voice");
+    setShowCostsOnChoices(true);
+    const costsToggledOn = document.getElementById("choices").children.map(button => ({ html: button.innerHTML, disabled: !!button.disabled }));
+    vaultCostState();
+    const costsOn = buttonsFor("vault_voice");
+    resetRunState();
+    state.cohesion = 98;
+    state.trust.mira = 40;
+    const clampedRendered = buttonsFor("vault_voice");
+    setShowCostsOnChoices(false);
+    vaultCostState();
+    const costsOffAgain = buttonsFor("vault_voice");
+    resetRunState();
+    state.trust.mira = 39;
+    state.cohesion = 10;
+    const trustOff = reasonForChoice("vault_voice", "Restrict access.");
+    setShowCostsOnChoices(true);
+    resetRunState();
+    state.trust.mira = 39;
+    state.cohesion = 10;
+    const trustOn = reasonForChoice("vault_voice", "Restrict access.");
+    localStorage.removeItem(SHOW_COSTS_KEY);
+    showCostsSessionValue = null;
+
+    return { statusCases, survivors, vaultUnpaid, vaultExact, vaultTrust, conservation, clampedPositive,
+      ceilingDirect, costsDefault, costsOff, costsToggledOn, costsOn, clampedRendered, costsOffAgain, trustOff, trustOn };
   })()`);
 
   for (const statusCase of fixture.statusCases) {
@@ -3830,7 +3891,8 @@ function resourceFeedbackChecks(runtime) {
   if (!fixture.vaultExact.found || fixture.vaultExact.disabled || fixture.vaultExact.reason) {
     errors.push(`vault_voice exact-cost boundary mismatch: ${JSON.stringify(fixture.vaultExact)}`);
   }
-  if (!fixture.vaultTrust.disabled || fixture.vaultTrust.reason !== "Needs more trust from Mira") {
+  // SUN-PRICE-TAGS-01 rewords only the trust case, from "Needs more trust from Mira".
+  if (!fixture.vaultTrust.disabled || fixture.vaultTrust.reason !== "Mira won't take this from you yet.") {
     errors.push(`vault_voice hidden-trust reason mismatch: ${JSON.stringify(fixture.vaultTrust)}`);
   }
   if (!fixture.conservation.disabled || fixture.conservation.reason !== "Needs 4 Hull; 3 available") {
@@ -3838,6 +3900,57 @@ function resourceFeedbackChecks(runtime) {
   }
   if (!fixture.clampedPositive.includes("+2 Cohesion (clamped)")) {
     errors.push(`clamped positive effect display changed: ${JSON.stringify(fixture.clampedPositive)}`);
+  }
+  if (!fixture.ceilingDirect.includes('<span class="effect-pro">Embryos already at ceiling</span>')) {
+    errors.push(`ceiling effect display changed: ${JSON.stringify(fixture.ceilingDirect)}`);
+  }
+
+  // SUN-PRICE-TAGS-01 — default OFF: enabled buttons carry no effects markup; disabled keep reasons.
+  const effectsMarkup = /choice-effects|effect-pro|effect-con|already at (?:ceiling|floor)|\(clamped\)/;
+  const byText = (buttons, text) => buttons.find(button => button.html.includes(text)) || null;
+  if (fixture.costsDefault !== false) errors.push("Show costs on choices is not OFF by default");
+  const offEnabled = fixture.costsOff.filter(button => !button.disabled);
+  const offDisabled = fixture.costsOff.filter(button => button.disabled);
+  if (!offEnabled.length || !offEnabled.some(button => button.effectsHtml)) {
+    errors.push("vault_voice price-tag fixture rendered no enabled costed choice");
+  }
+  for (const button of offEnabled) {
+    if (effectsMarkup.test(button.html)) errors.push(`setting OFF: enabled button shows cost markup: ${button.html}`);
+  }
+  if (!offDisabled.length || offDisabled.some(button => !/<span class="choice-reason">[^<]+<\/span>/.test(button.html))) {
+    errors.push(`setting OFF: disabled button lost its reason: ${JSON.stringify(offDisabled)}`);
+  }
+  for (const button of [...fixture.costsOff, ...fixture.costsOn]) {
+    if (button.disabled && effectsMarkup.test(button.html)) errors.push(`disabled button shows cost markup: ${button.html}`);
+  }
+  // Setting ON (fresh render and in-place toggle): every enabled costed button shows the honest label.
+  for (const [label, buttons] of [["fresh render", fixture.costsOn], ["in-place toggle", fixture.costsToggledOn]]) {
+    const disable = byText(buttons, "Disable the voice.");
+    const restrict = byText(buttons, "Restrict access.");
+    const untouched = byText(buttons, "Leave the panel untouched.");
+    if (!disable || disable.disabled || !disable.html.includes('<span class="choice-effects">[<span class="effect-con">-3 Cohesion</span> <span class="effect-pro">Hull already at ceiling</span>]</span>')) {
+      errors.push(`setting ON (${label}): Disable the voice lost its honest cost label: ${JSON.stringify(disable)}`);
+    }
+    if (!restrict || restrict.disabled || !restrict.html.includes('<span class="effect-con">-1 Cohesion</span> <span class="effect-pro">Hull already at ceiling</span>')) {
+      errors.push(`setting ON (${label}): Restrict access lost its honest cost label: ${JSON.stringify(restrict)}`);
+    }
+    if (!untouched || effectsMarkup.test(untouched.html)) {
+      errors.push(`setting ON (${label}): a choice with no effects grew a cost label: ${JSON.stringify(untouched)}`);
+    }
+    const onDisabled = buttons.filter(button => button.disabled).map(button => button.html);
+    if (JSON.stringify(onDisabled) !== JSON.stringify(offDisabled.map(button => button.html))) {
+      errors.push(`setting ON (${label}) changed a disabled reason: ${JSON.stringify(onDisabled)}`);
+    }
+  }
+  const leaveClamped = byText(fixture.clampedRendered, "Leave it.");
+  if (!leaveClamped || leaveClamped.disabled || !leaveClamped.html.includes('<span class="effect-pro">+2 Cohesion (clamped)</span>')) {
+    errors.push(`setting ON: rendered clamped label changed: ${JSON.stringify(leaveClamped)}`);
+  }
+  if (JSON.stringify(fixture.costsOffAgain.map(button => button.html)) !== JSON.stringify(fixture.costsOff.map(button => button.html))) {
+    errors.push("turning Show costs back OFF did not restore the OFF rendering exactly");
+  }
+  if (JSON.stringify(fixture.trustOff) !== JSON.stringify(fixture.trustOn) || fixture.trustOn.reason !== "Mira won't take this from you yet.") {
+    errors.push(`trust reason differs between settings: ${JSON.stringify([fixture.trustOff, fixture.trustOn])}`);
   }
   return errors;
 }

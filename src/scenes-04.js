@@ -55,10 +55,10 @@ He lets that sit.
 
 "I am not asking for a confession. I am telling you that the truth is a resource. If cohesion keeps falling, I will spend it."`,
     choices: [
-      { text: "Admit it. Own the cost in front of him.", next: "transmission", effects: { cohesion: -4 }, flag: { past: "owned" } },
-      { text: "Tell him that the past is dead and the only ledger that matters is the living.", next: "transmission", effects: { cohesion: -6 }, flag: { past: "denied" } },
-      { text: "Ask what he wants in exchange for silence.", next: "transmission", effects: { cohesion: -2 }, flag: { past: "deal" } },
-      { text: "End the conversation. Give him nothing else tonight.", next: "transmission" }
+      { text: "Admit it. Own the cost in front of him.", next: "transmission", effects: { cohesion: -4 }, flag: { past: "owned" }, reply: [{ who: "elias", text: `Elias hears all of it without interrupting. When you finish, he nods once. "Now it is yours instead of mine," he says. "That is worth something. Less than you think." The records stay where they are.` }] },
+      { text: "Tell him that the past is dead and the only ledger that matters is the living.", next: "transmission", effects: { cohesion: -6 }, flag: { past: "denied" }, reply: [{ who: "elias", text: `"The living," Elias repeats. "The living are the ones who will read the records, Commander." He does not argue further. He has the records.` }] },
+      { text: "Ask what he wants in exchange for silence.", next: "transmission", effects: { cohesion: -2 }, flag: { past: "deal" }, reply: [{ who: "elias", text: `"Nothing yet," Elias says. "Good order. Quiet corridors. When I want something, I will ask in a way you cannot misread." He leaves the price unnamed, which is the price.` }] },
+      { text: "End the conversation. Give him nothing else tonight.", next: "transmission", reply: [{ who: "elias", text: `Elias steps aside to let you pass. "Tonight," he agrees.` }] }
     ],
     onEnter: () => { state.past_known = true; }
   },
