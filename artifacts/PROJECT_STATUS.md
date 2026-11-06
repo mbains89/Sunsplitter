@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-06`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: b1ae936 (after PR #522)`
+`work_branch_tip: 07a9748 (after PR #525)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -86,15 +86,21 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 520 | SUN-PACED-REVEAL-01 | **L-059 (D15).** Scene text arrives a paragraph at a time by default (tap, Space, Enter or → reads on; Show all; "Text: paced / instant" on the title and meta bar); resume and Continue show the scene whole; choices follow the last paragraph; a slow plate push-in, off under reduced motion. Both of Manraj's conditions are met: Read on stays in view on phones (50 → 0 of 193 scenes at 390×844), and Muse's crop check of 120 plates holds `tether_dock_ruined.jpg` still. |
 | 521 | SUN-REPLY-BEATS-ACT3 | **L-057 prose, Act 3 and leftovers.** 54 replies in 22 scenes. Myth read applied (3 blocking, 12 edits). Decisions with no visible answer: 34.3% this morning → 3.0% (`sun-reaction-report --runs 40`). |
 | 522 | SUN-READON-STICKY-02 | A #520 follow-up. Read on is sticky only while `#main` shows at least 160 px, so in phone landscape or a squeezed layout it no longer covers the text. The browser bot taps the top of the passage. Independent review applied. |
+| 523 | SUN-RULINGS-2026-11-06 | Docs only. L-057, L-058 and L-059 rows in LOCKS and ROADMAP §2; decisions 15 and 16; D11 = Deep; the STATUS and queue close-out for #508–#522. Independent review applied. |
+| 526 | SUN-DIET-TRIMS-01 | **D11 Deep step 1.** Text-only trims of six spine and opening scenes, about 1.7 prose minutes a median run. Also cut the `status` "one hundred percent" line that lied after the Living choice. Myth read applied (3 restores, 1 word). |
+| 524 | SUN-DIET-HUB-01 | **D11 Deep step 1, C01.** The corridor hub paragraph prints on the first visit of a run; a return shows a 13-word line. About 0.75 minutes a run. The return is inferred from existing one-shot keys, never written; a clean visit counter would need a new state key (decision 24, L-061). Myth read applied. |
+| 525 | SUN-DIET-REPLY-FOLD-01 | **D11 Deep step 1, C11 and C12.** Eleven one-line answer screens fold into the previous choice's `reply`, words unchanged; about three fewer screens a run. Their scene ids are retired (`EXPECTED_SCENE_COUNT` 242 → 231) and `RETIRED_SCENE_EXITS` in the engine resumes old saves parked on one. `big-delete-ok` on Manraj's go. Myth and code read applied (19 edits). |
+| — | SUN-WHATREMAINS-DEATH-ONCE-01 | **Decision 21.** A death prints once in What Remains: the logged cause stays in the reflection lines, and a dead crew member's paragraph now opens on the person ("Lena was dead when the run ended.") instead of repeating the cause clause. L-008 unchanged. The crew-epilogues check pins the new shape and that the cause is never repeated. This PR also carries the STATUS and queue close-out for #523–#526 and the evening rulings. |
 
 ## Open
 
 **Lead queue (no owner decision needed):**
 
 - **Wave 1, 0.37 Deeper Crew (ROADMAP §14A): written.** It covers the five romance arcs (#499–#503), callbacks (#506), crew friction (#508) and per-crew epilogues (#509). Since the deep dive it also carries "orders get answers" (L-057: #514, #516, #521) and reader staging (L-058 #515, L-059 #520/#522). Gate 1 (Manraj's full run plus one stranger's full read) is next.
-- **D11 = Deep (ruled 2026-11-06).** The plan is in the project doc `claude/hex/2026-11-06-d11-run-length.md`: a measured median run is 101 screens, 45 prose minutes and about 58 minutes a sitting, against Deep's target of about 20 prose minutes. Step 1 (slack cuts, no lock) is under way as one-PR tickets: `SUN-DIET-HUB-01` (C01) and `SUN-DIET-REPLY-FOLD-01` (C11/C12). Step 2 waits on decision 19.
+- **D11 = Deep (ruled 2026-11-06), with no time target.** Manraj's words that evening: "We dont have to stick to the 20 min target. dont artificially limit the game due to that." Cuts are for slack and for setups with no payoff, judged one at a time. The measurements are in the project doc `claude/hex/2026-11-06-d11-run-length.md` (a median run was 101 screens and 45 prose minutes before step 1).
+  - **Step 1 (slack, no lock) landed its first batch:** #526 (trims), #524 (C01 hub once), #525 (C11/C12 reply fold). Remaining step 1 tickets, one PR each with a Myth read and a re-measure: C04 (`ship_memory_payoff` into the final preamble), C06 (`vault_reveal` explainer), C07 (`time_pass`), C10 (`vess_signal` + `vess_cost`), C13 (warmth vignettes), C14 (`power_crisis`), C17 (`crew_walk`), C20 (opening), C21 (`offshift_open`), C22 (`aftermath`, `arc_fork`).
+  - **Step 2 is quality fixes, not lock cuts (decision 19, ruled):** `SUN-PROMISE-PAYOFF-01` (every promise made is tested or cited later; about 80% of runs make one, about 23% see it tested); `SUN-FRICTION-RESTATE-TRIM-01` (keep all four pair scenes, trim only lines where a character restates a point); deaths once in What Remains (decision 21, this PR). The remaining slack items in the analysis (repeated stock-takes, numbers-only scenes, result screens) are judged one at a time.
 - **Small tickets found today:**
-  - `status` says "one hundred percent" after the Living choice has taken viability to 95 (`src/scenes-39.js:68`).
   - `arc_living_4` promises an unwired "double cycle" option (decision 22).
   - In phone landscape the plate leaves `#main` about 75 px for text.
   - Flags written but never read: `embryo_ceiling`, `leadership_style`, `vault_face`, `busDowngraded`, `reaction_mass_spent`.
@@ -152,16 +158,13 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 16. **One lead at a time: RULED 2026-11-06.** The Orchestrator chat is the lead. The other session (`01S9qt…`) stops merging, and its PRs #508 and #509 passed to the Orchestrator and landed with Myth's edits.
 17. **What Remains length (L-008 against §14A workstream 4).** L-008 (ROADMAP §8) fixes What Remains at 3–6 lines; the growth ruling's workstream 4 asks for one paragraph per crew member there. #509 reads the two together: the 3–6 reflection lines stay exactly as they were, and the per-crew block sits under them as a second section, "The crew", about 300–500 words. Recommendation: record on the L-008 row that the §14A ruling added the crew section beneath the capped reflection (one line in LOCKS, next LOCKS edit). If you would rather keep the screen at 3–6 lines, say so and the block moves behind a "Read the crew" button on the same screen instead.
 18. **L-057, L-058, L-059: RULED 2026-11-06** and recorded in this PR (LOCKS rows, ROADMAP §2). They are choice replies, cost tags off by default (D14), and paced reveal (D15). Manraj's answers are verbatim in the project doc `claude/decisions/2026-11-06.md`.
-19. **D11, run length: RULED "Deep" 2026-11-06. Three locks need rulings before step 2:**
-    - **L-024**, promises made and tested: remove them, or keep them at about 1 prose minute.
-    - **L-050**, off-shift lead-ins to the romance arc end states: cut to about 100 words.
-    - **L-008**, ending and What Remains: −30%.
-
-    Deep also cuts approved crew friction (#508) from 2.5 to 1.1 scenes a run. That cut was not in the option Manraj picked, so it needs his confirmation too. Lead recommendation: rule each lock separately. Step 1 needs none of them.
+19. **D11 step 2 locks: RULED 2026-11-06 (evening), "all three are approved."** Manraj approved the lead's revised recommendations, so no lock moves: **L-024** stays and promises get their payoff (`SUN-PROMISE-PAYOFF-01`); **L-050** stays and the off-shift lead-ins are not cut; **L-008** stays and What Remains only stops printing deaths twice (decision 21); crew friction keeps all four scenes and trims only restated lines. Verbatim in the project doc `claude/decisions/2026-11-06.md`.
 20. **Canon, from the #521 read.** Is it canon that Jiro flies the insertion pass, days 181–184? `offshift_jiro` now says so, and no other scene does.
-21. **What Remains, from the #509 read (ties to 17).** Every death prints twice, once in the reflection lines and again at the start of that person's crew paragraph. Keep both, or open a dead crew member's paragraph with their own line and leave the cause above?
+21. **What Remains, deaths once: RULED 2026-11-06** (inside decision 19). The cause stays in the reflection lines; the crew paragraph opens on the person. Landed as SUN-WHATREMAINS-DEATH-ONCE-01 (this PR).
 22. **`arc_living_4`'s "double cycle" sentence.** It has promised a third option since 0.28.1c, and the option was never wired. Myth recommends cutting the sentence; wiring it would be a new trade that needs Hex and you.
 23. **L-060 (proposed), the pair flags from #508.** One row: "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters." This was proposed as L-057 before L-057 was ruled for replies.
+24. **L-061 (proposed), a hub visit counter, from #524.** The corridor's first-visit paragraph is inferred from a dozen one-shot keys the hub's own offers spend, which errs toward showing the old text and is brittle to any new offer. A clean rule needs one new state key (a per-run `act3_spine_next` visit count, read only by that scene's text). Recommendation: yes, one row. Say no and the inference stays as landed.
+25. **Plates behind folded screens, from #525.** About 2.5 more screens a median run could fold into reply lines, but each holds an owner-approved event plate that would then never show. Options: leave them as screens (as landed), or fold them and retire the plates from `HITL_EVENT_PLATE_IDS`. Recommendation: leave them; the plates were approved to be seen.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -196,6 +199,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** land D11 Deep step 1 (`SUN-DIET-HUB-01`, `SUN-DIET-REPLY-FOLD-01`, then the rest of step 1) with Myth reads and a re-measure after each; run a browser-bot batch on the tip. **Manraj:** play the end-of-day playtest build (gate 1, first half); rule decision 19's three locks so Deep step 2 can start; name the gate-1 stranger (D10).
+**Lead:** land the rest of D11 Deep step 1 (C10, C04, C07 next) and the decision-19 quality tickets, one PR each with a Myth read and a re-measure; run a browser-bot batch after each batch of merges. **Manraj:** play the playtest build on the tip (gate 1, first half); name the gate-1 stranger (D10); rule 24 (L-061) and 25 (plates behind folded screens).
 
 <!-- STATUS_COMPLETE -->
