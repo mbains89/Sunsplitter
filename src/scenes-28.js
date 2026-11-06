@@ -23,10 +23,10 @@ registerScenes({
     get choices() {
       const opts = [];
       if (isAlive("sela") || hasMark("sela", "spoken")) {
-        opts.push({ text: "Let the yellow marks stand as unofficial doctrine.", next: "ship_memory_payoff", effects: { cohesion: 5 }, flag: { sun_doctrine: "doctrine" }, lean: { living: 3 }, affinity: { sela: 10, jiro: 4, elias: -6 }, trust: { sela: 8 } });
+        opts.push({ text: "Let the yellow marks stand as unofficial doctrine.", next: "final_choice", effects: { cohesion: 5 }, flag: { sun_doctrine: "doctrine" }, lean: { living: 3 }, affinity: { sela: 10, jiro: 4, elias: -6 }, trust: { sela: 8 } });
       }
-      opts.push({ text: "Order them removed. One ship, one visual language.", next: "ship_memory_payoff", effects: { cohesion: -4, integrity: 1 }, flag: { sun_doctrine: "scrubbed" }, lean: { future: 2 }, affinity: { elias: 6, sela: -12, jiro: -4 }, trust: { sela: -10 } });
-      opts.push({ text: "Leave them without a speech. Neither doctrine nor ban.", next: "ship_memory_payoff", effects: { cohesion: 1 }, flag: { sun_doctrine: "silent" }, lean: { living: 1 } });
+      opts.push({ text: "Order them removed. One ship, one visual language.", next: "final_choice", effects: { cohesion: -4, integrity: 1 }, flag: { sun_doctrine: "scrubbed" }, lean: { future: 2 }, affinity: { elias: 6, sela: -12, jiro: -4 }, trust: { sela: -10 } });
+      opts.push({ text: "Leave them without a speech. Neither doctrine nor ban.", next: "final_choice", effects: { cohesion: 1 }, flag: { sun_doctrine: "silent" }, lean: { living: 1 } });
       return opts;
     },
     get image() {
@@ -34,31 +34,9 @@ registerScenes({
     }
   },
 
-  ship_memory_payoff: {
-    get text() {
-      const mem = state.flags.ship_memory;
-      let t = `Before the last orders, the ship collects its debts.\n\n`;
-      if (mem === "jury_rig") {
-        t += `Deck 4's thin patch has been humming at the edge of tolerance for days. Any hard course change or full burn will ask it to hold under stress it was never given material for.\n\n`;
-      } else if (mem === "open_wound") {
-        t += `Deck 4 never got its seal. The section is living on pressure luck and remote valves. A destination burn will find the soft place.\n\n`;
-      } else if (mem === "proper_seal") {
-        t += `Deck 4's proper seal still holds. That feedstock is gone from the galley math — but the bulkhead does not argue when the drive spins up.\n\n`;
-      } else {
-        t += `Structural memory is quiet for once. Other debts are louder.\n\n`;
-      }
-      if (state.flags.sun_doctrine === "doctrine") t += `The yellow marks remain. People orient by them without being told to.\n\n`;
-      else if (state.flags.sun_doctrine === "scrubbed") t += `Where the yellow was, there is only primer and the ghost of a circle.\n\n`;
-      if (state.flags.departure_truth === "plural") t += `No single boarding story won. The crew lives with the friction.\n\n`;
-      else if (state.flags.departure_truth === "records") t += `The records version of boarding is the one the officers cite when they need a hard sentence.\n\n`;
-      t += `The last choice is still yours. The ship has already made some of them permanent.`;
-      return t;
-    },
-    choices: [
-      { text: "Face the final orders.", next: "final_choice" }
-    ],
-    image: "images/bulkhead.jpg"
-  },
+  // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): ship_memory_payoff, the one-exit screen that sat
+  // here between sun_payoff and final_choice, is retired. Its text opens final_choice on first arrival
+  // (RETIRED_SCENE_EXITS in engine.js resumes a parked save there).
 
   patch_fails: {
     text: `The course change loads Deck 4.\n\nThe jury-rig — or the absence of a seal — gives a sound like a metal animal losing an argument. Remote valves slam. Hull numbers step down in public view.\n\nYou can still hold the destination. You will hold it with a wounded ring and a crew that watched the schematic predict this.`,
@@ -72,11 +50,16 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: final_choice
   // VERSION:  0.30.1        TICKET: SUN-LOCK-V4-V5-SIM-01
-  // SPINE:    on-spine after ship_memory_payoff (also reachable from patch_fails abort)
+  // SPINE:    on-spine after sun_payoff (also reachable from patch_fails abort)
   //
   // PRECONDITIONS:
-  //   reached from ship_memory_payoff or patch_fails abort; no extra live-crew gate
+  //   reached from the three sun_payoff doctrine choices or patch_fails abort; no extra live-crew gate
   //   hold choice requires flags.patch !== "aborted" (SUN-FINAL-HOLD-ONCE-01; text names the failed burn)
+  // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): the retired ship_memory_payoff text opens this
+  //   screen as its preamble on first arrival (flags.patch !== "aborted"): the Deck 4 patch state,
+  //   the yellow-marks doctrine and the departure truth, closed by the hinge line "The last choice is
+  //   still yours. The ship has already made some of them permanent." The patch_fails abort return
+  //   skips the preamble (the debts were collected on the first arrival). Text only; no new writes.
   // STATE WRITES:
   //   choice hold: flag.final = "hold"; optional integrity/cohesion effects on the no-buy-in hold
   //   choice comfort: flag.final = "comfort"; supplies paid equal to advertised min (15 or 18);
@@ -95,7 +78,29 @@ registerScenes({
   // ═════════════════════════════════════════════════════════════════
   final_choice: {
     get text() {
-      let t = `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
+      let t = ``;
+      // SUN-DIET-MEMORY-FOLD-01: the retired ship_memory_payoff screen, word for word, as the preamble
+      // of the first arrival. The patch_fails abort returns here with flags.patch === "aborted"; the
+      // debts were already collected then, so the preamble does not print twice.
+      if (state.flags.patch !== "aborted") {
+        const mem = state.flags.ship_memory;
+        t += `Before the last orders, the ship collects its debts.\n\n`;
+        if (mem === "jury_rig") {
+          t += `Deck 4's thin patch has been humming at the edge of tolerance for days. Any hard course change or full burn will ask it to hold under stress it was never given material for.\n\n`;
+        } else if (mem === "open_wound") {
+          t += `Deck 4 never got its seal. The section is living on pressure luck and remote valves. A destination burn will find the soft place.\n\n`;
+        } else if (mem === "proper_seal") {
+          t += `Deck 4's proper seal still holds. That feedstock is gone from the galley math — but the bulkhead does not argue when the drive spins up.\n\n`;
+        } else {
+          t += `Structural memory is quiet for once. Other debts are louder.\n\n`;
+        }
+        if (state.flags.sun_doctrine === "doctrine") t += `The yellow marks remain. People orient by them without being told to.\n\n`;
+        else if (state.flags.sun_doctrine === "scrubbed") t += `Where the yellow was, there is only primer and the ghost of a circle.\n\n`;
+        if (state.flags.departure_truth === "plural") t += `No single boarding story won. The crew lives with the friction.\n\n`;
+        else if (state.flags.departure_truth === "records") t += `The records version of boarding is the one the officers cite when they need a hard sentence.\n\n`;
+        t += `The last choice is still yours. The ship has already made some of them permanent.\n\n`;
+      }
+      t += `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
       // SUN-FINAL-DESTINATION-READ-01: an uncommitted run still has no destination, but it may have
       // Jiro's posted window (position_certain) or a deferred survey; say which, and name the planet
       // before the order that offers it.

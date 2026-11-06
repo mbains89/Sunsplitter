@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 
 // SUN-V035-PLAYTEST-JIRO-VOICE-01. Only the ambiguous voice clause may differ
 // from d1e0cde. All destination labels, descriptors, setup and state are pinned.
-const BASELINE_FINGERPRINT = "0427f151619f73eb379c0bfc259048056195ab827ba445f269a8cad85be38be6";
+// SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
+// 81 rows changed in the rendered text only (field 2, the preamble prefix). Labels, state and image unchanged.
+const BASELINE_FINGERPRINT = "8b6b5249ba14c9b5159c0048f445ac6b4755a3e71520aa5fc3d0b0afca1587ff";
 const planets = ["unset", "deferred", "committed"];
 export const jiroVoiceFixtures = planets.flatMap(planet =>
   ["alive", "dead", "missing"].flatMap(life =>
@@ -64,7 +66,11 @@ function exerciseJiroVoice(fixtures, mode) {
         display("act3_reckoning_cut"); click("Briefing. One hour.");
         expect(isAlive("jiro") && html().includes("Arrival window: opens day one hundred eighty-one"),
           "recovered Jiro did not actually brief");
-        display("ship_memory_payoff"); click("Face the final orders.");
+        // SUN-DIET-MEMORY-FOLD-01: the doctrine order now opens the final orders directly, with the
+        // retired ship_memory_payoff text as the preamble.
+        display("sun_payoff"); click("Leave them without a speech.");
+        expect(state.scene === "final_choice" && html().includes("Before the last orders, the ship collects its debts."),
+          "doctrine order did not open the final orders with the memory preamble");
         expect(state.recovered.jiro && isAlive("jiro") && !relationshipDebtors().includes("jiro"),
           "reproduction invented absence or debt");
         expect(scenes.final_choice.choices.find(c => c.flag.final === "hold").alive === "mira",

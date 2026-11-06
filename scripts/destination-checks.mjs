@@ -4,7 +4,9 @@ import { createHash } from "node:crypto";
 // to b133aaf. A text correction must not change destinations, prices or endings.
 // SUN-ROMANCE-ARC-03: final_choice names the spent long-range window (text only); the 120 *_debt rows with
 // last_tx_spent gained that paragraph. Mechanics, labels, images and outcomes are unchanged.
-const BASELINE_MATRIX = "6a5c775821bb88610e27eb7a2eeeb9169cc21ac69b2084c2802adb8051fc5a52";
+// SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
+// 480 rows changed in the rendered text only (field 2, the preamble prefix). Outcomes digest unchanged.
+const BASELINE_MATRIX = "bbe3b944dddbc4f2ea6dec5a9d196f58e3fceb19944bf591b6e71cd2b5c58ae7";
 const BASELINE_OUTCOMES = "144c4006befe4006c304c4582bf44c19c014f693cf49b1ca3eb15277752e087f";
 const planets = ["unset", "deferred", "committed"];
 const navs = ["jiro", "mira", "rough", "jiro_dead", "jiro_missing", "jiro_debt", "mira_debt", "dead"];
@@ -61,6 +63,14 @@ function exerciseDestination(fixtures, mode) {
     expect(html().includes("You still have no destination.") === !committed, "setup lost destination truth");
     expect(html().includes("The course is still locked on the rogue planet.") === committed,
       "setup lost committed-course truth");
+    // SUN-DIET-MEMORY-FOLD-01: the folded ship_memory_payoff text opens the first arrival only; the
+    // aborted-burn return has already collected those debts.
+    expect(html().includes("Before the last orders, the ship collects its debts.") === (state.flags.patch !== "aborted"),
+      "memory preamble printed on the wrong arrival");
+    const memoryLines = { proper_seal: "Deck 4's proper seal still holds.", jury_rig: "Deck 4's thin patch has been humming",
+      open_wound: "Deck 4 never got its seal." };
+    const memoryLine = memoryLines[state.flags.ship_memory] || "Structural memory is quiet for once.";
+    expect(html().includes(memoryLine) === (state.flags.patch !== "aborted"), "memory preamble lost the Deck 4 state");
     const hold = choices.find(c => c.flag.final === "hold");
     const oldLabels = {
       jiro: "Hold course for the rogue planet. We finish what we started.",
@@ -110,7 +120,10 @@ function exerciseDestination(fixtures, mode) {
         expect(state.flags.planet === planet && state.flags.signal === "ignore", "signal invented destination");
         display("act3_reckoning_cut"); click("Briefing. One hour.");
         expect(state.flags.planet === planet && isAlive("jiro"), "recovery changed destination");
-        display("ship_memory_payoff"); click("Face the final orders.");
+        // SUN-DIET-MEMORY-FOLD-01: the doctrine order now opens the final orders directly, with the
+        // retired ship_memory_payoff text as the preamble.
+        display("sun_payoff"); click("Leave them without a speech.");
+        expect(state.scene === "final_choice" && state.flags.sun_doctrine === "silent", "doctrine order did not open the final orders");
         expect(state.flags.planet === planet && state.flags.priority === f.opening, "route lost original choice");
         checkLabels(); continueTwice(snapshot(), html(), readRawSave());
       } else if (mode === "matrix") {
