@@ -72,7 +72,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "37f3cc37443f5f5a92428471416217c8784a210f23825c9d985ffd3fd73f8c81"; // SUN-ROMANCE-ARC-01: 226 ids with lena_last_hour
+const EXPECTED_SCENE_IDS_SHA256 = "21709dae05e2082f821a90b6e95a57720448689d65e636131b34c3c57c7471a1"; // SUN-ROMANCE-ARC-02: 228 ids with mira_root_cause pair
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);

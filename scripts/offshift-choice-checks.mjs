@@ -17,7 +17,8 @@ export function offshiftChoiceChecks(runtime) {
       const preferred = ["quiet_sela", "vent", "bond_tomas", "offshift_tomas", "arc_living_1"];
       for (let step = 0; step < 180; step++) {
         if (state.scene === "offshift_tomas") {
-          return step === 104 && isAlive("tomas") && !isAlive("sela") &&
+          // 106 since SUN-ROMANCE-ARC-02: this walk romances Mira, so the root-cause pair adds two steps.
+          return step === 106 && isAlive("tomas") && !isAlive("sela") &&
             state.promises.sela === "made" && state.promises.tomas === "made" &&
             scenes.offshift_tomas.text.includes("He doesn't ask for anything.") &&
             scenes.offshift_tomas.choices.map(c => c.text).join("|") === "Eat with him.|Take yours and go.";

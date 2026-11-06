@@ -281,6 +281,8 @@ for (const who of ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "v
 requireLivingCast("offshift_tomas_r", ["tomas"], "faction_split");
 // SUN-ROMANCE-ARC-01 (L-050): the hour Lena asked for; same cast and exit as offshift_lena.
 requireLivingCast("lena_last_hour", ["lena"], "faction_split");
+// SUN-ROMANCE-ARC-02 (L-050): the root-cause pair after the board; same cast and exit as the lethal.
+requireLivingCast("mira_root_cause mira_root_cause_logged", ["mira"], "faction_split");
 // L-026 fresh zero/one/many entry behavior remains untouched. A marked saved
 // zero-invitation selector needs an exit without replaying junctionChoice.
 requireLivingCast("offshift_open", [], "faction_split", {
