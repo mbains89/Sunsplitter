@@ -22,6 +22,8 @@ const VERSION = "0.36";
 //   vess_item_two_logged and the ending footer).
 //   amara_page ("open" | "closed" | "hers"; written by the amara_page answers; read by
 //   amara_page_reply and the ending footer).
+//   sela_amber ("meaning" | "sentence" | "silence"; written by the sela_past_amber answers; read by
+//   sela_past_amber_reply, the ending footer and the Yellow Circle text).
 
 function freshState() {
   return {

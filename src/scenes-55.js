@@ -143,6 +143,8 @@ registerScenes({
     text: () => {
       let t = `The vault manifest is opened in front of the crew. Sela receives the second physical key.\n\n`;
       t += `"No unilateral triage after this," she says. "If the future is to be spent, it is spent with both names on the order."\n\n`;
+      // SUN-ROMANCE-ARC-05 (L-050): a partner hears what the second key is where she was raised. Text only.
+      if (state.romance.sela) t += `Later, with no one else in the corridor, she adds three sentences. "Where I was raised, a second key to the vault is not a political instrument. I am telling you what you have signed. I am not asking you to answer it."\n\n`;
       t += `Command retains power. It no longer owns the vault alone.`;
       return t;
     },
@@ -287,6 +289,8 @@ requireLivingCast("mira_root_cause mira_root_cause_logged", ["mira"], "faction_s
 requireLivingCast("vess_item_two vess_item_two_logged", ["vess"], "faction_split");
 // SUN-ROMANCE-ARC-04 (L-050): her ledger page after the absolution hour; same cast and exit as offshift_amara.
 requireLivingCast("amara_page amara_page_reply", ["amara"], "faction_split");
+// SUN-ROMANCE-ARC-05 (L-050): past amber, after the ritual for one person; same cast and exit as offshift_sela.
+requireLivingCast("sela_past_amber sela_past_amber_reply", ["sela"], "faction_split");
 // L-026 fresh zero/one/many entry behavior remains untouched. A marked saved
 // zero-invitation selector needs an exit without replaying junctionChoice.
 requireLivingCast("offshift_open", [], "faction_split", {

@@ -16,6 +16,12 @@ Three of the crew came to you separately inside one watch. A petition is on the 
       if (isAlive("tomas")) t += `\n\n"They're not wrong that somebody pays," Tomas says. "They're wrong about the somebody."`;
       if (isAlive("jiro")) t += `\n\n"We are a long way from any court but this room," Jiro says. "I can give you the distance in months. It won't help."`;
       t += `\n\nSela reads the petition once, completely. "They have decided the vault must cost someone who can feel it. That is not mathematics. That is liturgy. I recognize liturgy."`;
+      // SUN-ROMANCE-ARC-05 (L-050): the vow lands inside the hard decision. Text only, partner-gated.
+      if (state.romance.sela && state.flags.pursuit_sela_cost === "vow") {
+        t += `\n\nShe does not look at the board when she adds, "The vow is in the log. Neither of us uses command authority to place the other in the vault. This is the room placing me out of it. It is not the same sentence. Do not let them tell you it is."`;
+      } else if (state.romance.sela && state.flags.pursuit_sela_cost === "private_vow") {
+        t += `\n\nShe does not look at the board when she adds, "The vow between us was not logged. I said I would not be the private exception. If you stand between me and the room, stand there as the Commander, and not as mine."`;
+      }
       return t;
     },
     choices: [
