@@ -179,20 +179,20 @@ mira_root_cause: {
   },
   get text() {
     if (!isAlive("mira")) return `Engineering answers with automatic traces and no living engineer.`;
-    let t = `The bay cools by the numbers. Mira stays at the phase board until both traces have been flat for the five minutes she gives them, and then she does something you have not seen her do: she turns her back on a live console to look at you.\n\n`;
+    let t = `The bay cools by the numbers. Mira stays at the phase board until the line has been flat for the five minutes she gives it. Then she turns from the console to you.\n\n`;
     if (state.pursuit.mira) {
-      t += `"I handed you my key and told you private was not a veto. You overrode local anyway. Reserve or collar, the ledger will say which. It will not say why."\n\n`;
+      t += `"I handed you my key and told you private was not a veto. You overrode local anyway. The ledger has the margin you spent. It does not have the reason."\n\n`;
     } else {
-      t += `"I told you I could flatten phase before the envelope failed, and you spent the ship's margin to keep me out of that bay. The ledger will say which margin. It will not say why."\n\n`;
+      t += `"I told you I could flatten phase before the envelope failed, and you spent the ship's margin to keep me out of that bay. The ledger has the margin. It does not have the reason."\n\n`;
     }
     if (state.flags.pursuit_mira_cost === "disclosed") {
-      t += `"The status board already carries the bay audio. Everyone aboard has a root cause they would assign to this. Their variance is not my problem. Yours is."\n\n`;
+      t += `"The status board already carries the first night's audio. Everyone aboard has a root cause they would assign to this. Their variance is not my problem. Yours is."\n\n`;
     } else if (state.flags.pursuit_mira_cost === "partial") {
       t += `"The status board carries the vault talk and not the rest. The crew will assign a root cause from half a record. That is their variance. I want yours."\n\n`;
     } else {
-      t += `"The crew saw the console. They did not see the rest. They will assign a root cause from the outside. I want yours."\n\n`;
+      t += `"The crew will read the margin on the board. They will not read the rest. They will assign a root cause from outside the bay. I want yours."\n\n`;
     }
-    t += `"Root cause. Was it the drive, or was it me?" She says it like a reading from a gauge that is not there. "I cannot verify the answer from the trace. Say it anyway."`;
+    t += `"Root cause. Was it the drive, or was it me? I cannot verify the answer from the trace. Say it anyway."`;
     return t;
   },
   get choices() {
@@ -223,11 +223,11 @@ mira_root_cause_logged: {
     if (!isAlive("mira")) return `Engineering answers with automatic traces and no living engineer.`;
     let t;
     if (state.flags.mira_root_cause === "drive") {
-      t = `She turns back to the board before she answers.\n\n"Logged. Confidence sixty percent. The other forty is not yours to measure."\n\nA pause the length of a trace settling.\n\n"Sixty is more than I had."`;
+      t = `She turns back to the board before she answers.\n\n"Logged. Root cause, drive. Confidence sixty percent. The other forty is not yours to measure."\n\nA pause the length of a trace settling.\n\n"Sixty is more than I had."`;
     } else if (state.flags.mira_root_cause === "you") {
-      t = `"Then the ledger is wrong, and I know what to file."\n\nShe says it to the board, not to you, in the voice she keeps for the fault log.\n\n"Mira. Error. Accepted a private root cause for a public expenditure. Corrective action: none available. Status: operating."\n\nShe does not turn around for a while. When she does, the reading is steady.`;
+      t = `"Then the ledger is wrong, and I know what to file."\n\nShe says it to the board, not to you, in the voice she keeps for the fault log.\n\n"Mira. Error. Public margin spent on a private root cause. Root cause: me. Corrective action: none available. Status: operating."\n\nShe does not turn around for a while. When she does, the reading is steady.`;
     } else {
-      t = `"Variance unresolved."\n\nShe writes it on the board where the crew will read it, beside the number you just paid.\n\n"That is a measurement. I can run a drive under a measurement. I could not run one under a story."`;
+      t = `"Variance unresolved."\n\nShe writes it on the status board, beside the number you just paid.\n\n"That is a measurement. I can run a drive under a measurement. I could not run one under a rumor."`;
     }
     t += `\n\nThe traces hold flat. She posts the numbers that are true and nothing that is not.`;
     return t;

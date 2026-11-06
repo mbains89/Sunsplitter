@@ -1060,9 +1060,9 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-02 (L-050): her arc's end state, cited from the answer the run gave.
   if (state.flags.mira_root_cause) {
-    const asked = state.flags.mira_root_cause === "drive" ? `Mira asked why you kept her at the board, and you said the drive. She logged it at sixty percent.`
-      : state.flags.mira_root_cause === "you" ? `Mira asked why you kept her at the board, and you said her. She filed a fault against herself and kept the console.`
-      : `Mira asked why you kept her at the board, and you gave her both. She is running the drive under the variance.`;
+    const asked = state.flags.mira_root_cause === "drive" ? `Mira asked why you kept her out of the sealed bay, and you said the drive. She logged it at sixty percent, with its root cause.`
+      : state.flags.mira_root_cause === "you" ? `Mira asked why you kept her out of the sealed bay, and you said her. She filed a fault against herself and kept the console.`
+      : `Mira asked why you kept her out of the sealed bay, and you gave her both. She is running the drive under the variance.`;
     text += `\n\n${asked}${isAlive("mira") ? "" : " That fact outlived her."}`;
   }
   if (hasMark("mira", "drive_first") && isAlive("mira")) text += `\n\nMira still believes the drive can be saved because you once let her try.`;

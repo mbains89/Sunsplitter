@@ -16,8 +16,9 @@ registerScenes({
       t += `She hands you the worklight so you'll look where she's looking. "Nobody else knows the panel comes off in one move. Now two people do. You're the only redundancy I've got that isn't made of the same alloy as me. If it lets go, you'll know what's behind the alarm before the alarm does."`;
       if (state.romance.mira) {
         // SUN-ROMANCE-ARC-02 (L-050): the answer she filed at the board is still open. Text only.
-        if (state.flags.mira_root_cause === "you") t += `\n\n"The fault I filed at the phase board is still open. I check it every watch. Status unchanged."`;
+        if (state.flags.mira_root_cause === "you") t += `\n\n"The fault I filed at the phase board is still open. No corrective action found. I have stopped looking for one."`;
         else if (state.flags.mira_root_cause === "both") t += `\n\n"The variance from the phase board is still posted. Nobody has resolved it. I did not expect anyone to."`;
+        else if (state.flags.mira_root_cause === "drive") t += `\n\n"The sixty I logged at the phase board had a root cause. You gave it. That is the difference."`;
         t += `\n\n"Your pulse is down eight from the hatch. Mine isn't. Noted for the record. Stay while I close this up, or don't — but decide before I re-solder, I only heat this once."`;
       }
       const close = closingPartnerLine();
