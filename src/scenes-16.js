@@ -1,5 +1,6 @@
 // Sunsplitter — scenes-16.js
-// 0.28.1c size hygiene. Pure mechanical. crises: spine_next + vess_signal + cost
+// 0.28.1c size hygiene. Pure mechanical. crises: spine_next + vess_signal (the cost screen merged in,
+// SUN-DIET-VESS-MERGE-01)
 // Strict scene shape only: text | choices | onEnter | image
 let act3SpineTomasAllusionOnEntry = false;
 
@@ -123,9 +124,28 @@ registerScenes({
   // power stays hers, fewer beats, one explicit sufficient. Not a fifth ladder.
   // ═════════════════════════════════════════════
 
+  // PRE: act3_spine_next routes here once per run while Vess is unrecovered and not dead (the
+  // scenes-55 living-cast contract exits to the hub if she is recorded dead)
+  // WRITES: on entry, the docking cost — flags busDowngraded + reaction_mass_spent and their two
+  // memories (moved here from the retired vess_cost; remember() dedupes, so a re-entry is idempotent)
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Mira's and Elias's lines are living-gated; the plate shows
+  // Mira and Elias and is face-gated by PLATE_FACES | IMAGE: images/vess_signal.jpg via the HITL
+  // event-plate map (scene.image transmission.jpg is the pre-HITL default it shadows)
+  // SUN-DIET-VESS-MERGE-01 (D11 Deep step 1, item C10): the vess_cost screen is merged in below the
+  // signal. Its only exit ("Prepare the intercept. Bring her in.") carried no effect, so the two
+  // docking choices sit on this screen now, unchanged. One sentence of the cost paragraph is dropped
+  // because it restated Mira's "no second window" from the paragraph above; the rest is the author's
+  // text. A save parked on vess_cost resumes here (RETIRED_SCENE_EXITS) as a live entry. A save parked
+  // on the pre-merge vess_signal resumes with its entry skipped, so both docking choices also set the
+  // two cost flags (idempotent); only the two memories stay unwritten on that one legacy path.
   vess_signal: {
     image: "images/transmission.jpg",
-    onEnter: () => {},
+    onEnter: () => {
+      state.flags.busDowngraded = true;
+      state.flags.reaction_mass_spent = true;
+      remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
+      remember("Environmental bus runs degraded for her relay core.");
+    },
     text: () => {
       let t = `The long-range board lights on a carrier that has lived in the noise floor for eleven months. `;
       if (isAlive("mira")) {
@@ -142,25 +162,12 @@ registerScenes({
       if (isAlive("elias")) {
         t += `\n\n"Eleven months of listening," Elias says. "She already knows our hull ID. Decide whether that is a gift or a problem after she is aboard."`;
       }
+      t += `\n\nMatching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThere is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`;
       return t;
     },
     choices: [
-      { text: "Prepare the intercept. Bring her in.", next: "vess_cost" }
-    ]
-  },
-
-  vess_cost: {
-    image: "images/transmission.jpg",
-    onEnter: () => {
-      state.flags.busDowngraded = true;
-      state.flags.reaction_mass_spent = true;
-      remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
-      remember("Environmental bus runs degraded for her relay core.");
-    },
-    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
-    choices: [
-      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 }, reply: [{ who: "mira", text: `The burn is clean and expensive. Mira reads the reaction-mass figure aloud once, to the tenth of a percent, and never says it again.` }] },
-      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding", reply: [{ who: "mira", text: `The seal takes on the third try. Mira stays at the collar with her palm flat on the weld until the pressure has held for an hour. "Rough," she reports. "Not failing. Rough is a condition I can live with. I will check it at oh-four-hundred."` }] }
+      { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 }, flag: { busDowngraded: true, reaction_mass_spent: true }, reply: [{ who: "mira", text: `The burn is clean and expensive. Mira reads the reaction-mass figure aloud once, to the tenth of a percent, and never says it again.` }] },
+      { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding", flag: { busDowngraded: true, reaction_mass_spent: true }, reply: [{ who: "mira", text: `The seal takes on the third try. Mira stays at the collar with her palm flat on the weld until the pressure has held for an hour. "Rough," she reports. "Not failing. Rough is a condition I can live with. I will check it at oh-four-hundred."` }] }
     ]
   },
 

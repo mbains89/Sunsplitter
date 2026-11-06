@@ -9,6 +9,9 @@
 //      a living-cast contract; each keeps an exit in RETIRED_SCENE_EXITS;
 //   4. a save parked on a retired screen (marked or legacy, autosave or Import) still loads and
 //      resumes at that screen's exit, entered fresh, and the slot adopts the exit.
+// SUN-DIET-VESS-MERGE-01 (item C10) retires vess_cost the same way, but by merging it into vess_signal
+// (no reply fold): guards 3 and 4 cover it here; its text, writes and choices are pinned in verify.mjs
+// (vessCourseRetirementChecks).
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,7 +24,8 @@ const RETIRED = {
   arc_living_sela_answer: "arc_living_3",
   filters_stencil_luck: "offshift_sela", filters_stencil_silent: "offshift_sela",
   act3_lethal_tomas_stores: "act3_lethal_elias_order", act3_lethal_tomas_structure: "act3_lethal_elias_order",
-  act3_lethal_elias_brace: "act3_lethal_mira_board", act3_lethal_mira_collar: "faction_split|mira_root_cause"
+  act3_lethal_elias_brace: "act3_lethal_mira_board", act3_lethal_mira_collar: "faction_split|mira_root_cause",
+  vess_cost: "vess_signal" // SUN-DIET-VESS-MERGE-01: merged, not folded; the exit is the merged screen itself
 };
 const ABOARD = "Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });";
 // [label, setup, from scene, choice text prefix, expected next scene, reply lines (exact), expected

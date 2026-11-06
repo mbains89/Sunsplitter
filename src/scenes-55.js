@@ -322,7 +322,7 @@ requireLivingCast("ship_interrupt ship_interrupt_resolve", [], "debt_notice", { 
 for (const [who, ids, recovery, next] of [
   ["tomas", "act2_tether_sighting act2_tether_vent act2_tether_rush", "act2_tether_dock", "act3_reckoning_pattern"],
   ["jiro", "act3_reckoning_pattern act3_reckoning_heading act3_reckoning_burn_stale", "act3_reckoning_cut", "act3_lethal_lena_clock"],
-  ["vess", "vess_signal vess_cost", "vess_boarding", "act3_spine_next"]
+  ["vess", "vess_signal", "vess_boarding", "act3_spine_next"] // SUN-DIET-VESS-MERGE-01: vess_cost merged into vess_signal
 ]) {
   const notDead = () => !state.dead.includes(who);
   requireLivingCast(ids, [], next, { enter: notDead, render: notDead });

@@ -72,7 +72,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "d63b58fff3f9fd1e8a99fc787f09eabc038de09367e7c3a092cde27f97974009"; // SUN-DIET-REPLY-FOLD-01: 231 ids, the SUN-CREW-FRICTION-01 set minus 11 answer screens retired
+const EXPECTED_SCENE_IDS_SHA256 = "f8290cea02ce2d0848c34e6360ae6c2473027b91c1127f0cef82a287018b3952"; // SUN-DIET-VESS-MERGE-01: 230 ids, the SUN-DIET-REPLY-FOLD-01 set minus vess_cost (merged into vess_signal)
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
@@ -4330,19 +4330,24 @@ function vessCourseRetirementChecks(runtime) {
     kill("mira", "L-027 fixture");
     const signalWithoutMira = renderText("vess_signal");
 
+    // SUN-DIET-VESS-MERGE-01: the cost screen is merged into vess_signal, which now carries its entry
+    // writes and its two docking choices; vess_cost itself is retired and resumes here.
     resetRunState();
-    const redirect = scenes.vess_cost.onEnter();
+    const redirect = scenes.vess_signal.onEnter();
     const cost = {
       redirect: redirect || null,
-      text: renderText("vess_cost"),
+      text: renderText("vess_signal"),
       busDowngraded: state.flags.busDowngraded,
       reactionMassSpent: state.flags.reaction_mass_spent,
       hasRetiredFlag: Object.prototype.hasOwnProperty.call(state.flags, "vess_course_lost"),
       memories: state.memories.slice(),
-      choices: scenes.vess_cost.choices.map(choice => ({
+      choices: scenes.vess_signal.choices.map(choice => ({
         next: choice.next,
-        effects: choice.effects || null
-      }))
+        effects: choice.effects || null,
+        flag: choice.flag || null
+      })),
+      retired: !scenes.vess_cost && retiredSceneExit("vess_cost") === "vess_signal",
+      carriesCost: /reaction-mass gauge falls/.test(renderText("vess_signal")) && /She is coming aboard\\./.test(renderText("vess_signal"))
     };
 
     const legacy = snapshotState();
@@ -4360,17 +4365,24 @@ function vessCourseRetirementChecks(runtime) {
   if (/late course|held back for a late/i.test(`${fixture.signalWithoutMira}\n${fixture.cost.text}`)) {
     errors.push("Vess recovery copy still promises an unavailable downstream course option");
   }
-  if (fixture.cost.hasRetiredFlag) errors.push("vess_cost still creates vess_course_lost");
+  if (fixture.cost.hasRetiredFlag) errors.push("vess_signal still creates vess_course_lost");
   if (!fixture.cost.busDowngraded || !fixture.cost.reactionMassSpent) {
     errors.push("Vess recovery no longer preserves busDowngraded and reaction_mass_spent");
   }
-  if (fixture.cost.redirect !== null) errors.push(`vess_cost unexpectedly redirects to ${fixture.cost.redirect}`);
+  if (fixture.cost.redirect !== null) errors.push(`vess_signal unexpectedly redirects to ${fixture.cost.redirect}`);
   if (fixture.cost.choices.length !== 2 || fixture.cost.choices.some(choice => choice.next !== "vess_boarding")) {
-    errors.push("vess_cost no longer preserves both boarding routes");
+    errors.push("vess_signal no longer preserves both boarding routes");
   }
   const paidEffects = fixture.cost.choices[0]?.effects;
   if (paidEffects?.supplies !== -3 || paidEffects?.integrity !== -1 || fixture.cost.choices[1]?.effects !== null) {
-    errors.push("vess_cost no longer preserves its paid and rough-seal costs");
+    errors.push("vess_signal no longer preserves its paid and rough-seal costs");
+  }
+  // SUN-DIET-VESS-MERGE-01
+  if (!fixture.cost.retired) errors.push("vess_cost is registered again or lost its vess_signal exit");
+  if (!fixture.cost.carriesCost) errors.push("vess_signal no longer carries the merged docking-cost paragraph");
+  // A pre-merge save parked on vess_signal resumes with entry skipped; the docking order still pays the cost.
+  if (fixture.cost.choices.some(choice => !choice.flag || choice.flag.busDowngraded !== true || choice.flag.reaction_mass_spent !== true)) {
+    errors.push("a Vess docking choice no longer writes busDowngraded and reaction_mass_spent");
   }
   if (!fixture.cost.memories.some(memory => memory.includes("recover Vess from Dawnbreak"))) {
     errors.push("Vess recovery memory was lost");
