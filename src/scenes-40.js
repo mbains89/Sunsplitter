@@ -88,7 +88,7 @@ ${isAlive("mira") ? `Engineering: Mira is asleep at her console — face lit by 
 
 ${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Two names from the boarding list never answered the final call.` : ""}
 
-Observation blister: daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
+Observation blister: stars drift at an uneven rate. Daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
 
 ${isAlive("tomas") && isAlive("jiro") && !state.flags.pair_grudge && !state.flags.tomas_scapegoated ? `A trunk hatch is open. Two recovered men are working the same seam and not sharing the tool.` : ""}
 

@@ -12,7 +12,7 @@ She finishes sealing the body bag, washes her hands twice, then faces you.
 
 She glances once at the empty recovery racks.
 
-"I will keep them alive as long as the ship lets me. That is the only promise I can make."`,
+"I will keep the rest alive as long as the ship lets me. That is the only promise I can make."`,
     choices: [
       { text: "Give her authority over all medical decisions without question.", next: "intro_elias", effects: { cohesion: 4, supplies: -3 }, flag: { lena_authority: true }, affinity: { lena: 15 }, trust: { lena: 12 }, reply: [{ who: "lena", text: `"Noted," Lena says. "Authority received, prognosis unchanged." She turns back to the racks. "I will waste nothing. Starting with your time."` }] },
       { text: "Tell her every major intervention needs your approval. Resources are that tight.", next: "intro_elias", effects: { cohesion: -3, supplies: 2 }, flag: { lena_authority: false }, affinity: { lena: -8 }, trust: { lena: -10 }, reply: [{ who: "lena", text: `Lena dries her hands before she answers. "Then every dose goes through you, and so does every death I could have stopped while I waited for a signature. Put that on the chart, Commander. I will."` }] }
@@ -20,7 +20,7 @@ She glances once at the empty recovery racks.
     onEnter: () => { if (!state.dead.includes("rourke")) kill("rourke", "died while command was taken"); }
   },
   intro_elias: {
-    text: `Elias Kane is waiting in the corridor outside medical.
+    text: `Elias Kane is waiting in the corridor outside medical. He does not wait long for people.
 
 "Rourke was always going to die. The question is how many more we write off before the math forces your hand. I can keep order. I can keep people working. I can keep the weapons locked and the corridors quiet. What I cannot do is pretend soft leadership will survive the first real shortage."
 

@@ -30,7 +30,7 @@ registerScenes({
     },
     get text() {
       let t = `The ship is quiet the way it never is: on purpose. You have an hour that belongs to no alarm. Then the hour starts asking for itself.\n\n`;
-      if (eligLena())  t += `Lena, verdict first, as always: "Medbay. One hour. Bring nothing. That is the entire prescription."\n\n`;
+      if (eligLena())  t += `The medbay channel clicks once. Lena, verdict first, as always: "Medbay. One hour. Bring nothing. That is the entire prescription."\n\n`;
       if (eligElias()) t += `Two knocks at your hatch, spaced like a countdown. You know whose knock keeps its own clock.\n\n`;
       if (eligMira())  t += `A message with a timestamp: "Deck two, junction seventeen. Nine minutes of your time. I've timed it."\n\n`;
       if (eligTomas() && !state.flags.trays_dead) t += `From the grow deck: "The trays smell like rain tonight. Come eat something that grew."\n\n`;
