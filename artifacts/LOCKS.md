@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `fbf30febb12bebae3886bda7eaa0bfb8417425753eae596b86fa69f8463160b3`
+**Roadmap source SHA-256:** `0edbfc3ba4b5faf4fb7901f6e84f995a7cfefb22bf8625ae96af739e0d89a71c`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -91,6 +91,18 @@ Manraj approved the *Sunsplitter Feature Roadmap Proposal* in full on 2026-11-05
 | L-056 | LOCKED | Version renumbering: growth waves are 0.37–0.40; External Review 0.41, Cohort 0.42, Commercial 0.43, Rehearsal 0.44, then 1.0. Tools budget: playtest recruiting first, art and audio at their waves (D7, D8) | ROADMAP §4; §14A; §18 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
 
 L-040 (the explicit-content toggle) stays HELD; Manraj re-affirmed it on 2026-11-05 (D6) and will decide on the gate-2 playtest evidence at Wave 4. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
+
+## Ruled (2026-11-06)
+
+Manraj ruled these on 2026-11-06 in the Orchestrator lead chat, each as the lead recommended; the answers are recorded verbatim in the project doc `claude/decisions/2026-11-06.md`. The approved language is in ROADMAP §2. These rulings authorize ticket PRs on the work branch. They mint no version paint and carry no close-out, release, deploy, Netlify, certification or publication credit. `landing_sha` is the commit that recorded the ruling.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-057 | LOCKED | A choice may carry `reply`: one to three lines that open the next screen once. Presentation only, never saved; a dead or unrecovered speaker's line is dropped | ROADMAP §2 architecture | 2026-11-06 | Manraj | `PENDING` |
+| L-058 | LOCKED | Cost tags are off on enabled choices by default; the cost shows after the order on the status bar; a reader setting restores tags; disabled choices keep their honest reason (D14) | ROADMAP §2 UI and save model | 2026-11-06 | Manraj | `PENDING` |
+| L-059 | LOCKED | Paced paragraph reveal by default, with a paced/instant reader setting; scenes show whole on resume; choices follow the last paragraph; plate push-in only within Muse's cleared crop (D15) | ROADMAP §2 UI and save model; art and presentation | 2026-11-06 | Manraj | `PENDING` |
+
+The same day Manraj named the Orchestrator chat the lead (STATUS decision 16), and ruled that Myth and Muse reads may run in the lead chat as independent reviewers (decision 15). Those are process rulings, recorded in STATUS, not locks.
 
 ## Held, deferred, rejected, and limited
 
