@@ -7,6 +7,8 @@ registerScenes({
 
   // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: consumes Tomas allusion flag on entry
   // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: roster-neutral corridor_variant_2; distinct from immediate warmth returns
+  // SUN-DIET-HUB-01: the corridor paragraph prints on the first visit of a run; a return prints one
+  // roster-neutral line instead. The Tomas allusion still fires on whichever visit consumes it.
   act3_spine_next: {
     image: "images/corridor_variant_2.jpg",
     onEnter: () => {
@@ -17,12 +19,30 @@ registerScenes({
       if (act3SpineTomasAllusionOnEntry) state.flags.prom_tomas_alluded = true;
     },
     text: () => {
-      let t = `The vault light stays on behind you.`;
-      if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
-      if (isAlive("vess")) {
-        t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
+      // SUN-DIET-HUB-01: a return is read from existing state, never written here. Each key below is
+      // spent only by an offer this hub makes after the vault: the warmth, favor and crew-friction pair
+      // scenes are offered nowhere else, and the Tomas, Jiro and Amara-Tomas offers elsewhere need a
+      // recovered Tomas or
+      // Jiro, which the opening walk and the private hours never have. Elias's hour is left out
+      // because the opening walk can spend it; a return that spent none of these shows the paragraph
+      // again, which errs toward the old text, never toward hiding the first visit.
+      const f = state.flags;
+      const returning = !!(f.warmth_meal || f.warmth_laughter || f.warmth_music || f.pair_favor ||
+        f.pair_grudge || f.pair_seal || f.pair_burn || f.pair_fix || f.quiet_tomas_done || state.romance.amara_tomas ||
+        hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped") ||
+        hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped") ||
+        hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"));
+      let t;
+      if (returning) {
+        t = `The vault light is still on. There is still work.`;
+      } else {
+        t = `The vault light stays on behind you.`;
+        if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
+        if (isAlive("vess")) {
+          t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
+        }
+        t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       }
-      t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
       if (state.promises.tomas === "made" && isAlive("tomas") &&
           (act3SpineTomasAllusionOnEntry || (renderingSavedScene && state.flags.prom_tomas_alluded))) {
