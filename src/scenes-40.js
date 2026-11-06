@@ -82,15 +82,13 @@ She turns the key once between her fingers.
   crew_walk: {
     get text() { return `You move through a ship sized for a civilization that did not board.
 
-Deck 2 berths: names still printed on locker lips. A house key on a locker lip, in a size no one on this crew wears. Bedding folded for people who never made the ring. The air recyclers run at a fraction of design load and still sound too loud.
-
-${isAlive("lena") ? `Medical: Lena catalogues every remaining drug by hand. Empty recovery racks line the far wall like an accusation. A covered body still occupies the corner.` : ""}
+Deck 2 berths: names still printed on locker lips. A house key on a locker lip, in a size no one on this crew wears.
 
 ${isAlive("mira") ? `Engineering: Mira is asleep at her console — face lit by warning lights. One is a drive fault she has not yet reported. Her hands, even asleep, rest near the manual overrides.` : ""}
 
-${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Seating for two hundred. The wash rack holds fewer cups than the manifest claimed. Two names from the boarding list never answered the final call.` : ""}
+${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Two names from the boarding list never answered the final call.` : ""}
 
-Observation blister: stars drift at an uneven rate. Daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
+Observation blister: daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
 
 ${isAlive("tomas") && isAlive("jiro") && !state.flags.pair_grudge && !state.flags.tomas_scapegoated ? `A trunk hatch is open. Two recovered men are working the same seam and not sharing the tool.` : ""}
 

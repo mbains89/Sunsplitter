@@ -29,16 +29,16 @@ registerScenes({
       // ≥2: render asks
     },
     get text() {
-      let t = `The ship is quiet the way it never is: on purpose. The crisis is paid for, the watch rotation holds without you, and for one shift the deck under your feet ticks as it cools instead of shuddering. You have an hour that belongs to no alarm. The air handler breathes in, holds, breathes out. Then the hour starts asking for itself.\n\n`;
-      if (eligLena())  t += `The medbay channel clicks once. Lena, verdict first, as always: "Medbay. One hour. Bring nothing. That is the entire prescription."\n\n`;
-      if (eligElias()) t += `Two knocks at your hatch, spaced like a countdown. No voice with them. You know whose knock keeps its own clock.\n\n`;
-      if (eligMira())  t += `A message with a timestamp and nothing wasted: "Deck two, junction seventeen. Nine minutes of your time. I've timed it."\n\n`;
+      let t = `The ship is quiet the way it never is: on purpose. You have an hour that belongs to no alarm. Then the hour starts asking for itself.\n\n`;
+      if (eligLena())  t += `Lena, verdict first, as always: "Medbay. One hour. Bring nothing. That is the entire prescription."\n\n`;
+      if (eligElias()) t += `Two knocks at your hatch, spaced like a countdown. You know whose knock keeps its own clock.\n\n`;
+      if (eligMira())  t += `A message with a timestamp: "Deck two, junction seventeen. Nine minutes of your time. I've timed it."\n\n`;
       if (eligTomas() && !state.flags.trays_dead) t += `From the grow deck: "The trays smell like rain tonight. Come eat something that grew."\n\n`;
       if (eligTomas() && state.flags.trays_dead) t += `From the grow deck: "The paste is still the enemy. Come lose to it in company for once."\n\n`;
-      if (eligAmara()) t += `No message from hydroponics. Just the light left on past cycle, the way she leaves it. That was always the whole invitation.\n\n`;
-      if (eligJiro())  t += `From observation: "Any hour you keep tonight, Commander. I have numbers that should be heard sitting down."\n\n`;
-      if (eligSela())  t += `A written note, folded once, complete sentences: "I will perform the ritual at yellow. I am asking you to attend. I have never asked anyone before."\n\n`;
-      if (eligVess())  t += `The relay bay pings, log-flat: "Query, non-urgent. One item held for review. Yours specifically. It will keep until it won't."\n\n`;
+      if (eligAmara()) t += `No message from hydroponics. Just the light left on past cycle, the way she leaves it.\n\n`;
+      if (eligJiro())  t += `From observation: "I have numbers that should be heard sitting down."\n\n`;
+      if (eligSela())  t += `A written note, complete sentences: "I will perform the ritual at yellow. I am asking you to attend. I have never asked anyone before."\n\n`;
+      if (eligVess())  t += `The relay bay pings, log-flat: "Query, non-urgent. One item held for review. It will keep until it won't."\n\n`;
       t += `One hour. One door.`;
       return t;
     },

@@ -8,9 +8,9 @@ registerScenes({
 
 She finishes sealing the body bag, washes her hands twice, then faces you.
 
-"I have enough antibiotics for two serious infections and one surgical kit with no anesthetics left. The air scrubbers are already filtering blood particulates. If we lose another hull seal, the CO₂ will climb faster than I can treat the symptoms."
+"I have enough antibiotics for two serious infections and one surgical kit with no anesthetics left. If we lose another hull seal, the CO₂ will climb faster than I can treat the symptoms."
 
-She glances once at the empty recovery racks — capacity for a full medical wing. Nine people do not need a wing.
+She glances once at the empty recovery racks.
 
 "I will keep them alive as long as the ship lets me. That is the only promise I can make."`,
     choices: [
@@ -20,13 +20,9 @@ She glances once at the empty recovery racks — capacity for a full medical win
     onEnter: () => { if (!state.dead.includes("rourke")) kill("rourke", "died while command was taken"); }
   },
   intro_elias: {
-    text: `Elias Kane is waiting in the corridor outside medical. He does not wait long for people.
+    text: `Elias Kane is waiting in the corridor outside medical.
 
-"Rourke was always going to die. The question is how many more we write off before the math forces your hand."
-
-He is tall, scarred, and already thinking three crises ahead.
-
-"I can keep order. I can keep people working. I can keep the weapons locked and the corridors quiet. What I cannot do is pretend soft leadership will survive the first real shortage."
+"Rourke was always going to die. The question is how many more we write off before the math forces your hand. I can keep order. I can keep people working. I can keep the weapons locked and the corridors quiet. What I cannot do is pretend soft leadership will survive the first real shortage."
 
 He studies you.
 
@@ -45,7 +41,7 @@ He studies you.
   // DEATH: none | DEAD SPEECH/APPEARANCE: all named speakers are present at this early fixed-roster beat
   // IMAGE: REUSE images/vault_reveal.jpg; ART-R2 remains separate
   vault_reveal: {
-    get text() { return `${isAlive("mira") ? `Mira stops you in the corridor outside the sealed cargo section.\n\n"You need to see this before you give any more orders."` : ""}\n\n${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.\n\n${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."` : ""}\n\nThe monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.\n\n${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}\n\n${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}\n\nThe argument that will define the rest of the voyage has names now. Future. Living. This lean will return — in who trusts you, what options stay open, and what the ship remembers. Leadership is a separate question: how hard you hold the living while you answer it.\n\nThe order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
+    get text() { return `${isAlive("mira") ? `Mira stops you in the corridor outside the sealed cargo section.\n\n"You need to see this before you give any more orders."` : ""}\n\n${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.\n\n${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Not a lifeboat. A colonization ark. Restart package first — embryos, archives, soil starters. The living complement was supposed to be thousands. We got nine through the hatch when the cascade closed the sky."` : ""}\n\nThe monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.\n\n${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}\n\n${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}\n\nThe order will reallocate power now and set which crisis options remain open. It is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
     get choices() {
       const mandates = [
         { text: "Living priority — divert vault power to habitation now. Cohesion rises; embryo viability takes the first loss.", next: "status", effects: { cohesion: 4, embryos: -5 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 }, reply: [{ who: "mira", text: `Mira logs the reallocation without looking up. "Vault draw down twelve percent. Viability takes the loss first. I will post the number daily, so nobody has to ask."` }, { who: "lena", text: `Behind you, Lena lets out a breath she has been holding since the hatch opened.` }] },
@@ -64,8 +60,7 @@ He studies you.
       let t = `You gather what remains of your people in the corridor outside medical.\n\n`;
       t += `${n} living.`;
       if (!isAlive("rourke")) t += ` One body already cooling.`;
-      t += ` The manifests still list capacity for a colony. Most of those berths will never be filled.\n\n`;
-      t += `Behind a sealed hatch: one hundred percent of a future that has never drawn breath.\n\n`;
+      t += `\n\n`;
       if (isAlive("mira")) {
         t += `Mira gives the report in a thin voice:\n\n"Primary drive offline. Auxiliary power only. Life support holding at sixty-two percent. Food and water maybe five weeks if we ration hard. Hull breach on Deck 3 sealed but temporary. Navigation half-blind. No destination. Vault power stable — for now."\n\n`;
       } else {
