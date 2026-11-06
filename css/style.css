@@ -705,6 +705,15 @@ body::before {
   color: #e0e0e0;
 }
 
+.ending-subheading {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  color: #bdbdbd;
+}
+
 .ending-text {
   max-width: 520px;
   color: var(--dim);

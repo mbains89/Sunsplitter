@@ -8,8 +8,8 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 
 | Ticket | Owner | State |
 |---|---|---|
-| SUN-CREW-FRICTION-01 | Lead | This PR. Four pair scenes with replies (`pair_triage_chart`, `pair_seal_ledger`, `pair_burn_archive`, `pair_fix_track`); `sun-playerflow-crew-friction-checks.mjs` covers them. **Holds for the Myth chat's read before merge** (STATUS decision 15); the brief is in `claude/sunsplitter-helper-bootstraps.md`. |
-| SUN-CREW-EPILOGUES-01 | Lead | Next. |
+| SUN-CREW-FRICTION-01 | Lead | PR #508. Four pair scenes with replies (`pair_triage_chart`, `pair_seal_ledger`, `pair_burn_archive`, `pair_fix_track`); `sun-playerflow-crew-friction-checks.mjs` covers them. **Holds for the Myth chat's read before merge** (STATUS decision 15); the brief is in `claude/sunsplitter-helper-bootstraps.md`. |
+| SUN-CREW-EPILOGUES-01 | Lead | This PR. `crewEpilogues()` renders one paragraph per crew member into `#what-remains-crew`; `sun-playerflow-crew-epilogues-checks.mjs` covers it. **Holds for the Myth chat's read before merge** (STATUS decision 15). |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
@@ -17,15 +17,16 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 |---|---|
 | SUN-ROMANCE-ARC-01..05 | Lena, Mira, Vess, Amara, Sela. One PR per arc. Landed: #499, #500, #501, #502, #503. |
 | SUN-CALLBACKS-01 | 12–15 diegetic callbacks across existing scenes (promise, attributable death, ideology). Landed: #506, thirteen. |
-| SUN-CREW-FRICTION-01 | Four pair scenes where crew disagree with each other: Lena–Tomas on Rourke, Elias–Tomas on the Deck 4 feedstock, Mira–Jiro on the burn, Jiro–Vess on the fix. This PR. |
-| SUN-CREW-EPILOGUES-01 | One paragraph per crew member in What Remains. |
+| SUN-CREW-FRICTION-01 | Four pair scenes where crew disagree with each other: Lena–Tomas on Rourke, Elias–Tomas on the Deck 4 feedstock, Mira–Jiro on the burn, Jiro–Vess on the fix. PR #508. |
+| SUN-CREW-EPILOGUES-01 | One paragraph per crew member in What Remains. This PR. |
 
 Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verify, coverage and the browser bot are green; face exposures stay at zero.
 
 ## Waiting on Manraj
 
-- Open the Myth chat and paste the SUN-CREW-FRICTION-01 brief; the PR merges on Myth's read (or on Manraj dropping the hold, STATUS decision 15).
+- Open the Myth chat and paste its block; the open prose PRs merge on Myth's read (or on Manraj dropping the hold, STATUS decision 15).
 - STATUS decisions 14 (two approved plates wired to the pair scenes; an L row for the pair flags) and 5 (`arc_future_2` speaker).
+- STATUS decision 17 (What Remains length: L-008 against §14A workstream 4).
 - Gate 1 (above) once the Wave 1 tickets land.
 - STATUS decision 8 (art questions from the roster audit).
 - Close the stale PRs listed in STATUS.
