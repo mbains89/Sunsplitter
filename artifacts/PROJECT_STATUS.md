@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-05`
+`updated_utc: 2026-11-06`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: cadf259 (after PR #503)`
+`work_branch_tip: 3f45133 (after PR #507)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -20,7 +20,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
-`browser_bot_latest: cadf259 (src tree 2831f07, all five romance arcs in), 2026-11-06 — 28/28 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
+`browser_bot_latest: 3f45133 (src tree ae5b7a3, after #504–#507), 2026-11-06 — 29/29 runs reached an ending, 0 findings (phone and desktop × mouse, keys, touch, tab; chaos reloads and resizes)`
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
@@ -67,13 +67,17 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 501 | SUN-ROMANCE-ARC-03 | Wave 1, Vess. Item two in the relay bay has a scene behind it: the chair rated for one, her terms, your answer, her ruling (`vess_item_two`, `vess_item_two_logged`); the final choice names the spent long-range window; the ending cites the answer. One flag (`vess_item_two`: floor / chair), no resources, no new art. |
 | 502 | SUN-ROMANCE-ARC-04 | Wave 1, Amara (solo shape). After the absolution hour a partner can stay past the light: she opens her ledger to the Commander's page and reads the run's entries, then asks whether to leave it open (`amara_page`, `amara_page_reply`); her private vent-delay debt is spoken inside `prom_vent` and `breath_garden`; the ending cites the answer. One flag (`amara_page`: open / closed / hers), no resources, no new art. The Amara route gates are untouched. |
 | 503 | SUN-ROMANCE-ARC-05 | Wave 1, Sela, the last of the five. After the ritual for one person a partner can stay past amber: she reads back the vow (logged, private, refused or never asked), the second key, and the promise if it was tested, then waits (`sela_past_amber`, `sela_past_amber_reply`); the vow is spoken inside the petition test and the second key is named in her dialect; the ending and the Yellow Circle cite the answer. One flag (`sela_amber`: meaning / sentence / silence), no resources, no new art. |
-| this PR | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| 506 | SUN-CALLBACKS-01 | Wave 1, workstream 2. Thirteen diegetic callbacks across existing scenes: Elias on the vented ring, the vault kept cold and Deck Four's record; Tomas on the ring's plates, the private stores and the dead's ration share; Jiro logging a final position; Lena on Rourke's chart; Mira on the answer she was given at the schematic, the refused or accepted binding and Lena's diversion; Sela on the petition; Amara's plate after a vented pocket. Text only, gated on run facts and living speakers; no state, no choices, no art. |
+| 504 | SUN-MYTH-WORDING-01 | Myth's first review, landed as wording only: the tether floor trimmed to a two-beat order, the uncommitted failed-burn line given its antecedent, `offshift_elias` opens on the unmended jacket (the mending opener belonged to the cut alive-Mira branch), `arc_future_2` attributions turned into prose and the dangling "without him" removed, two Mira footer lines tightened. The `arc_future_2` speaker reassignment is left for decision 5. |
+| 505 | SUN-PLATE-FACES-07 | Muse's roster audit, landed as hide-only: `observation.jpg` (Tomas, Elias, baked crew text) and `observation_bridge.jpg` (baked HUD text) leave every fallback for the people-free ART-R2 wreck and bridge plates; `arc_future_4` leaves the three-welder plate; `vess_boarding.jpg` is gated on Lena, who is dead in about a third of its renders; nine defensive `PLATE_FACES` rosters. No new art, nothing shown more. |
+| 507 | SUN-VERIFY-MODES-DOC-01 | Docs only. The Mode A paragraph in `docs/VERIFY_MODES.md` now says the `src` pin fires only on the work-branch or fixture checkout, and that a ticket-branch bare PASS is real but not certification. |
+| this PR | SUN-CREW-FRICTION-01 | Wave 1, workstream 3. Four one-shot pair scenes where two crew disagree with each other in front of the Commander, each answering their own reflex question: Lena and Tomas on Rourke, chart against count, from `act2_spine_next` (`pair_triage_chart`); Elias and Tomas on the Deck 4 feedstock, bulkhead against slate, from the hub (`pair_seal_ledger`); Mira and Jiro on the reckoning burn, finding against width (`pair_burn_archive`); Jiro and Vess on whose position is truer, fix against track (`pair_fix_track`). Each keys its text on the run fact it argues about, offers three answers that write one flag and a small affinity nudge, shows both of them acting on the ruling in a reply scene, and is never offered again. No resources, no new crew, no new art: two owner-approved plates that had never reached the screen (`arc_living_3.jpg`, `arc_future_3.jpg`) carry the seal and burn pairs, face-gated to both speakers; the other two use a Tomas-only corridor and the people-free wreck. |
 
 ## Open
 
 **Lead queue (no owner decision needed):**
 
-- **Wave 1, 0.37 Deeper Crew (ROADMAP §14A):** `SUN-ROMANCE-ARC-01` (Lena) first, then Mira, Vess, Amara, Sela; then callbacks, crew friction and per-crew epilogues. One PR each, prose offered to Myth before merge. Gate 1 is Manraj's full run plus one stranger's full read.
+- **Wave 1, 0.37 Deeper Crew (ROADMAP §14A):** the five romance arcs (#499–#503), the callbacks (#506) and the crew friction (this PR) are written; per-crew epilogues (`SUN-CREW-EPILOGUES-01`) are next. One PR each. Prose PRs from here hold for the Myth chat's read before merge (decision 15); arcs 3–5 and the callbacks landed on an independent agent read instead, and Myth has a second-read ask for them in the queue. Gate 1 is Manraj's full run plus one stranger's full read.
 - Keep running `scripts/sun-browser-bot.mjs` batches after each batch of merges, and fix what it finds as one-PR tickets.
 - Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
 - Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
@@ -85,8 +89,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 **Open:**
 
 1. **Playtest build.** Production shows `0e7535d`, from September. Manraj ruled 2026-11-05: skip for now, and preview when he wants to play.
-4. **Story wording, for Myth review.** The lines written by the lead: the tether floor (#482), the unreadable-save message (#483) and the failed-burn line (`final_choice`, SUN-FINAL-HOLD-ONCE-01).
-5. **Story consistency, for Myth.** The `offshift_elias` mending/unmended contradiction, and the `arc_future_2` author note.
+4. **Story wording, for Myth review.** Done: Myth read all three and the trims landed in #504 (2026-11-06). Nothing left to rule.
+5. **Story consistency, for Myth.** The `offshift_elias` contradiction and the `arc_future_2` author note are fixed in #504. Still open, one question: may the `arc_future_2` vault-ceiling briefing move from Jiro, who is never aboard when the scene plays, to Sela, with the board fallback when she is dead? Myth's proposed text is in `claude/myth/2026-11-05.md` §2b. Lead's recommendation: yes; Sela is the keeper and the only crew member whose reflex is what the ceiling means. If no, the scene is already honest as landed.
 
 9. **Lena, from SUN-ROMANCE-ARC-01 (Wave 1):**
    - PX5-D01 is still unruled: may the last regenerative and the second night stay one transaction in `pursuit_lena`? The arc ships with it unchanged.
@@ -118,6 +122,13 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - PX5-D04 (may the private vow still reach the second night) and PX5-D05 (is the non-partner's "Stay past the yellow" an acceptance, presence or texture; it writes nothing) are still unruled. Neither is touched; the partner's new choice sits beside them.
    - Both vow paths write `sela_vault_vow: "accepted"`, so `pursuit_sela_sex`'s private-vow memory branch never runs and `prom_make_sela` treats a private vow as logged. The new scenes read `pursuit_sela_cost` instead, which is honest; the memory bug is a one-line fix if you want it.
    - The second-key line in `custody_shared` and the past-amber line spend the bible's canon that shared custody is a proposal in her culture's dialect, without saying the word. Say so if that beat should wait for the per-crew epilogues or for Wave 3's Yellow Circle route (L-051).
+
+14. **Crew friction, from SUN-CREW-FRICTION-01 (Wave 1):**
+   - Two owner-approved plates that had never reached the screen are wired to the new pair scenes: `arc_living_3.jpg` (Tomas and Elias, red-lit corridor, Commander's back) for the seal argument and `arc_future_3.jpg` (Mira and Jiro at a console in the records bay, Commander's back) for the burn argument. Muse rostered both on 2026-11-05 (`claude/muse/2026-11-05.md` B.5, B.6); the lead checked both against the portraits; no baked text; face-gated to both speakers. Veto returns them to the people-free wreck plate in one line.
+   - The four pair flags (`pair_triage`, `pair_seal`, `pair_burn`, `pair_fix`) are recorded in `src/state.js` against ROADMAP §14A workstream 3 (the growth ruling), as the arc flags were against L-050. ROADMAP §2 asks for a recorded lock per new state key; the lead cannot mint one. Recommendation: one row, L-060, "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters", landing in the next LOCKS edit. Say no and the flags stay recorded against §14A as they are.
+   - Choices in the four pairs carry affinity nudges of +2 / −1 (siding) or +1 / +1 (reconciling), the scale `pair_favor_confront` already uses. Balance is on hold (ROADMAP §15); this is not a rebalance, but say so if you want them at zero.
+15. **Myth review before merge.** `claude/working-with-claude-on-sunsplitter.md` and the orchestrator skill both say player-facing prose waits for the Myth chat's read before merge. Arcs 3–5 (#501–#503) and the callbacks (#506) landed on an independent fresh-agent read instead, because the Myth chat did not exist when they were ready; the lead is naming that here rather than folding it in. From this PR on, prose PRs hold for Myth. Your unblocking action per PR is one paste into the Myth chat (the brief is in `claude/sunsplitter-helper-bootstraps.md`). If you would rather the agent read stand in for Myth while you are away, say so and the hold drops.
+16. **One lead at a time.** Two Claude sessions acted as lead on 2026-11-05/06 without colliding: the session Manraj has been ruling in (wrote #498–#503, #506, #507 and this PR; merged #504–#507) and the chat that named itself Orchestrator (wrote the working-with-Claude doc, the orchestrator skill and the helper bootstraps; opened #504 and #505; quiet on the repo since ~03:10 UTC). AGENTS.md and the skill both say one lead. Name the lead chat; the other stops merging and hands any open work back through a ticket PR. Until ruled, the session that holds the "keep progressing" instruction continues Wave 1 and the other session opens nothing. Details in `claude/sunsplitter-lead-handoff.md`.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -152,6 +163,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** Wave 1 workstream 3, `SUN-CREW-FRICTION-01` (three or four pair scenes where crew disagree with each other). **Manraj:** the five romance arcs and the callbacks are in; a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second. **Manraj:** play a full run on the tip when Wave 1 has landed its first arcs, and name one person who has never seen the game to read a full run (gate 1).
+**Lead:** land `SUN-CREW-FRICTION-01` once Myth has read it (or Manraj drops the hold, decision 15), then Wave 1 workstream 4, `SUN-CREW-EPILOGUES-01` (one paragraph per crew member in What Remains; L-024 holds). **Manraj:** paste the SUN-CREW-FRICTION-01 brief into the Myth chat (the hold on this PR); then a full run on the tip is the first half of gate 1, and naming one stranger to read a full run is the second.
 
 <!-- STATUS_COMPLETE -->

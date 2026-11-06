@@ -18,7 +18,9 @@ export function offshiftChoiceChecks(runtime) {
       for (let step = 0; step < 180; step++) {
         if (state.scene === "offshift_tomas") {
           // 106 since SUN-ROMANCE-ARC-02: this walk romances Mira, so the root-cause pair adds two steps.
-          return step === 106 && isAlive("tomas") && !isAlive("sela") &&
+          // 115 since SUN-CREW-FRICTION-01: the walk takes the three hub pair scenes (seal, burn, fix),
+          // three steps each (pair, reply, hub). act2_spine_next keeps "Back to the work." on the tie.
+          return step === 115 && isAlive("tomas") && !isAlive("sela") &&
             state.promises.sela === "made" && state.promises.tomas === "made" &&
             scenes.offshift_tomas.text.includes("He doesn't ask for anything.") &&
             scenes.offshift_tomas.choices.map(c => c.text).join("|") === "Eat with him.|Take yours and go.";

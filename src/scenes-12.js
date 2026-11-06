@@ -94,9 +94,15 @@ registerScenes({
     image: "images/corridor.jpg",
     onEnter: () => {},
     text: () => `${isAlive("tomas") ? "The annex is secured. Tomas is aboard. The ship has one more green thing and one more mouth.\n\n" : ""}The boards keep working. So do you.`,
-    choices: [
-      { text: "Back to the work.", next: "act3_reckoning_pattern" }
-    ]
+    get choices() {
+      const opts = [ { text: "Back to the work.", next: "act3_reckoning_pattern" } ];
+      // SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): Lena and Tomas on Rourke, once ("ration it").
+      // Listed after the spine exit so the deterministic walkers keep their path.
+      if (isAlive("lena") && isAlive("tomas") && !state.flags.pair_triage) {
+        opts.push({ text: "Stop at the medbay hatch. Tomas is reading Lena's board.", next: "pair_triage_chart" });
+      }
+      return opts;
+    }
   },
 
   // ═══════════════════════════════════════════════════════════════
