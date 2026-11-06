@@ -27,7 +27,7 @@ She reads the trace again.
     }
     // SUN-ROMANCE-ARC-01 (L-050): the private debt lands inside the hard decision. Text only.
     if (state.romance.lena) {
-      t += `\n\nShe lowers her voice for one sentence, the way she does when the sentence is for you and not for the board. "Do not put the nights on this chart. The packs are for a physician the ship still needs, or they are for nobody."`;
+      t += `\n\nShe lowers her voice for two sentences, the way she does when they are for you and not for the board. "Do not put the ${state.pursuit.lena ? "nights" : "night"} on this chart. The packs are for a physician the ship still needs, or they are for nobody."`;
     }
 
     t += `\n\nA sealed trauma circuit can be built from the remaining sterile packs and light stabilizer ampoules. It will keep her functional; it will not reverse the exposure. The other clean power source is the vault cradle bus. Ten viability points will not survive the transfer.

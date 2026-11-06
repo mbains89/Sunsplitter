@@ -1050,7 +1050,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   }
   // SUN-ROMANCE-ARC-01 (L-050): the arc's end state is cited from run facts only. lena_last_hour
   // is written after her only death site, so it always describes a living Lena.
-  if (state.flags.lena_last_hour && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed. She had the hour she asked for, awake, while she could still stand.`;
+  if (state.flags.lena_last_hour && hasMark("lena", "dying_held") && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed. One hour of it went to the cabinet count: awake, standing, variance zero.`;
+  else if (state.flags.lena_last_hour && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it. One hour of it went to the cabinet count: awake, standing, variance zero.`;
   else if (hasMark("lena", "dying_held") && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed.`;
   else if (hasMark("lena", "dying_held")) text += `\n\nLena's remaining time was spent with someone who stayed. That fact outlived her.`;
   else if (hasMark("lena", "held_only") && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it.`;

@@ -88,6 +88,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - Her backstory has two versions: `src/state.js` (trauma surgeon from the orbital hospitals, lost her staff) and `artifacts/FABLE_CASCADE_BACKGROUND.md` (commissioning medical officer, mid-shift, forty-one names). Neither is ruled canon; the new scene uses neither.
    - The deferred "Lena disposition beat" (one word on the forty-one-name list, never rendered) could live in `lena_last_hour`. It commits to the Fable backstory, so it waits for the ruling above.
    - `images/offshift_lena.jpg` (locked 2026-08-25 off-shift plate, never wired; dirty-blonde, freckles, blue eyes, coat open) could replace `medbay_dim` on `lena_last_hour`. Wiring it is an art call: yours.
+   - The hour is closed to a partner who broke the medical line at `prom_line` (`promises.lena === "broken"`), by the same rule that closes her other offers (`romanceOpen`). Say so if she should still open it.
+   - The scene spends the bible's one mid-sentence self-dose (CHARACTER_BIBLE: "how the game says her clock moved") inside an optional partner scene. If that beat belongs on the spine instead, it moves.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.

@@ -18,7 +18,8 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   for (const [name, setup] of [
     ["romance", () => { state.romance.lena = true; mark("lena", "dying_held"); }],
     ["held_only", () => { mark("lena", "held_only"); }],
-    ["neither", () => {}]
+    ["neither", () => {}],
+    ["broken", () => { state.romance.lena = true; mark("lena", "dying_held"); state.promises.lena = "broken"; }]
   ]) {
     fresh(); setup();
     showScene("offshift_lena");
@@ -47,12 +48,13 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   showScene("lena_last_hour");
   row.dead = { scene: state.scene, flag: !!state.flags.lena_last_hour, html: document.getElementById("story").innerHTML };
   // The lethal clock carries the private debt for a partner only.
-  const clock = (partner) => { fresh(); state.dying.lena = "kept working until the clock ran out"; if (partner) state.romance.lena = true; showScene("act3_lethal_lena_clock"); return document.getElementById("story").innerHTML; };
-  row.clock = { partner: clock(true).includes("Do not put the nights on this chart"), other: clock(false).includes("Do not put the nights on this chart") };
+  const clock = (partner, pursued) => { fresh(); state.dying.lena = "kept working until the clock ran out"; if (partner) state.romance.lena = true; if (pursued) state.pursuit.lena = true; showScene("act3_lethal_lena_clock"); return document.getElementById("story").innerHTML; };
+  row.clock = { one: clock(true, false).includes("Do not put the night on this chart"), many: clock(true, true).includes("Do not put the nights on this chart"), other: clock(false, false).includes("on this chart") };
   // Ending footer cites the end state from run facts.
   const footer = (setup) => { fresh(); setup(); state.integrity = 70; state.cohesion = 50; state.supplies = 50; resolveEnding(); if (typeof finishCinematic === "function" && currentCinematic) finishCinematic(); return document.getElementById("ending-text").textContent; };
   row.footer = {
     hour: footer(() => { state.romance.lena = true; mark("lena", "dying_held"); state.flags.lena_last_hour = true; }),
+    heldHour: footer(() => { mark("lena", "held_only"); state.flags.lena_last_hour = true; }),
     held: footer(() => { mark("lena", "held_only"); }),
     heldDead: footer(() => { mark("lena", "held_only"); kill("lena", "fixture"); }),
     none: footer(() => {})
@@ -74,15 +76,18 @@ for (const name of ["romance", "held_only"]) {
 }
 assert.ok(out.romance.text.includes("the private one"), "romance: private-name line missing");
 assert.ok(!out.romance.text.includes("Correct dose"), "romance: held-only line leaked");
+assert.equal(out.broken.offered, false, "broken: Stay the hour offered after a broken medical line");
 assert.ok(out.held_only.text.includes("Correct dose"), "held_only: held-only line missing");
 assert.ok(!out.held_only.text.includes("the private one"), "held_only: romance line leaked");
 assert.equal(out.neither.offered, false, "neither: Stay the hour offered without a partner");
 assert.notEqual(out.dead.scene, "lena_last_hour", "dead Lena rendered the hour");
 assert.ok(!out.dead.html.includes("Variance zero"), "dead Lena's hour text rendered");
 assert.equal(out.dead.flag, false, "dead Lena wrote the flag");
-assert.ok(out.clock.partner && !out.clock.other, "lethal clock debt line gated wrong");
-assert.ok(out.footer.hour.includes("the hour she asked for"), "footer: last hour not cited");
+assert.ok(out.clock.one && out.clock.many && !out.clock.other, "lethal clock debt line gated wrong (night/nights/partner)");
+assert.ok(out.footer.hour.includes("someone who stayed") && out.footer.hour.includes("variance zero"), "footer: partner's hour not cited");
+assert.ok(out.footer.heldHour.includes("presence without the rest") && out.footer.heldHour.includes("variance zero") && !out.footer.heldHour.includes("someone who stayed"), "footer: held-only hour overclaimed or missing");
 assert.ok(out.footer.held.includes("presence without the rest") && !out.footer.held.includes("outlived"), "footer: held-only not cited");
 assert.ok(out.footer.heldDead.includes("presence without the rest") && out.footer.heldDead.includes("outlived her"), "footer: dead held-only not cited");
+assert.ok(!out.footer.held.includes("variance zero"), "footer: hour cited without the scene");
 assert.ok(!out.footer.none.includes("Lena's remaining time") && !out.footer.none.includes("presence without the rest"), "footer: Lena cited without a run fact");
 console.log("PASS sun-playerflow-lena-last-hour: partner and held-only reach the hour, dead and unpartnered never; one flag, no resources; clock debt and footer gated on run facts");
