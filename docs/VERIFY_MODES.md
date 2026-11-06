@@ -45,7 +45,10 @@ node scripts/verify.mjs
 
 `VERIFY_HEAD_REF` is empty. `VERIFY_EXPECTED_SHA` defaults to `git rev-parse HEAD`.
 
-Empty `VERIFY_HEAD_REF` **is** the old reconciliation route. If lane `src/` has moved past `REQUIRED_SRC_TREE` (`f907a0e455b9ccb562769f3520244ef16099f752` at this writing), bare verify **FAIL**s with `main-reconcile HEAD:src changed from the authorized runtime tree`. That FAIL is correct for Mode A. Do not delete or skip the check to make a local tree look green.
+Empty `VERIFY_HEAD_REF` makes verify fall back to the checked-out branch name (`git rev-parse --abbrev-ref HEAD`). The authorized-`src` equality check runs only when that name is the reconciliation route: `version/0.30.1-main-reconcile-ci.1` or the fixture successor ticket.
+
+- On a checkout of the work branch itself, lane `src/` has moved past `REQUIRED_SRC_TREE` (`f907a0e455b9ccb562769f3520244ef16099f752` at this writing), so bare verify **FAIL**s with `main-reconcile HEAD:src changed from the authorized runtime tree`. That FAIL is correct for Mode A on that checkout. Do not delete or skip the check to make a local tree look green.
+- On a `ticket/*` checkout (any name other than the fixture successor ticket), the `src` pin is not the route, and bare verify can report `RELEASE GATE PASS`. That PASS means the identity, STATUS, LOCKS, fixture and playerflow checks passed on the ticket tree; it is not certification and not a sequential-gate close. Record it in a PR body as a bare-local pass on the ticket branch, naming the SHA.
 
 ### Mode B — PR / version-verify context
 
