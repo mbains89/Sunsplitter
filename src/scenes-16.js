@@ -71,7 +71,7 @@ registerScenes({
         opts.push({ text: "Jiro has asked Mira for her solution. The pane is closed.", next: "pair_burn_archive" });
       }
       if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
-        opts.push({ text: "Two columns on the tracker board. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
+        opts.push({ text: "Jiro's fix is on the tracker board, Vess's night log beside it. They are not looking at each other.", next: "pair_fix_track" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
