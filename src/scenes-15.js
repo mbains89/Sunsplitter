@@ -30,6 +30,13 @@ registerScenes({
         t += ` The cycle we waited narrowed the corridor further. Still one pass. Thinner.`;
       }
       t += `"`;
+      // SUN-FINAL-DESTINATION-READ-01: the window names where it opens, and that nobody has ordered
+      // the ship through it, so final_choice's "no destination" and its rogue-planet option read true.
+      if (state.flags.planet === "deferred") {
+        t += `\n\nNobody asks where. Everyone already knows: the rogue planet from the first sweep, the one you told to wait. Now it has a window. Going through it is still an order, and nobody has given that one.`;
+      } else if (state.flags.planet !== "committed") {
+        t += `\n\nNobody asks where. The charts answer anyway: one body inside the corridor, a rogue planet, starless, ice over rock. A window is a fact. Going through it is an order, and nobody has given that one.`;
+      }
       t += `\n\nThe room is quiet in a new way. For months every plan aboard has been built on fog. The fog is gone, and it turns out fog was doing some work: nobody can round anything off anymore.`;
       if (isAlive("lena")) {
         t += `\n\nLena breaks it, because of course she does. "He did my math while he was at it. I asked — don't make faces. Ninety to a hundred twenty cycles, and he refused to give me the kind number. First honest prognosis I've had that I didn't write myself."

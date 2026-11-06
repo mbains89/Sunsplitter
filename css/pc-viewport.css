@@ -132,6 +132,18 @@ body,
     border: 2px dashed GrayText;
   }
 
+  /* SUN-PRICE-TAGS-01: the costs toggle and the one-shot status pulse survive forced colours. */
+  #btn-show-costs[aria-pressed="true"],
+  #btn-show-costs-meta[aria-pressed="true"] {
+    border: 3px solid Highlight;
+    text-decoration: underline;
+  }
+
+  .stat-value.stat-pulse {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
   :focus-visible {
     outline: 3px solid Highlight;
     outline-offset: 2px;

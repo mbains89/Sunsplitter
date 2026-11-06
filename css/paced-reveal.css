@@ -1,0 +1,184 @@
+/* SUN-PACED-REVEAL-01 — paced paragraph reveal, text setting, plate drift, choices after text.
+   Loaded after css/pc-viewport.css. Presentation only: engine.js toggles the classes
+   (.reveal-hidden, .reveal-fade, #choices.reveal-pending, #main.reveal-active,
+   #scene-image.plate-drift-a/b); nothing here changes scene text or which choices exist. */
+
+/* ---- Paced reveal ---- */
+.scene-text p.reveal-hidden {
+  display: none;
+}
+
+/* Choices stay in the DOM (keyboard handler, harness) but are not shown or focusable
+   until the last paragraph is out. */
+#choices.reveal-pending {
+  display: none;
+}
+
+#main.reveal-active {
+  /* Quick taps read on instead of double-tap zooming; pinch zoom and scrolling stay. */
+  touch-action: manipulation;
+}
+
+#main.reveal-active #story {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.scene-text p.reveal-fade,
+#choices.reveal-fade {
+  animation: reveal-fade-in 180ms ease-out both;
+}
+
+@keyframes reveal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#reveal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+/* While text is waiting, "Read on" stays in view at the bottom of #main's visible area.
+   On phones the plate takes most of the screen, and a first paragraph of a few lines pushed
+   the controls below the fold: 141 of 193 paced scenes at 390×844 started with Read on out
+   of view. The fade keeps the line under it readable as it scrolls up past the controls. */
+/* Only while #main has room (engine.js sets .reveal-roomy at 160px and up): in phone landscape,
+   or when something above squeezes #main, a sticky bar would cover the text it leads into, so
+   there the controls stay in normal flow under the paragraph. */
+#main.reveal-active.reveal-roomy #reveal-controls {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-bottom: 0;
+  padding-top: 18px;
+  background: linear-gradient(to top, var(--bg) 70%, rgba(8, 9, 11, 0));
+}
+
+#reveal-controls button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  padding: 10px 12px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#reveal-controls #reveal-next {
+  color: var(--text);
+  padding-left: 0;
+}
+
+#reveal-controls button:hover,
+#reveal-controls button:active {
+  color: #fff;
+  border-color: var(--border);
+}
+
+#reveal-controls #reveal-next:hover,
+#reveal-controls #reveal-next:active {
+  padding-left: 12px;
+}
+
+.reveal-mark {
+  display: inline-block;
+  color: var(--focus);
+  animation: reveal-mark-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes reveal-mark-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ---- Plate drift: the cinematic's slow push-in, without its opacity ramp, so a
+   scene plate is never dimmed. The image scales inside #scene-image-wrap
+   (overflow: hidden), so it stays in its frame and nothing reflows. ---- */
+#scene-image {
+  transform-origin: 50% 18%; /* matches object-position: heads stay put */
+}
+
+#scene-image.plate-drift-a {
+  animation: scene-plate-drift-a 22s ease-in-out infinite alternate both;
+}
+
+#scene-image.plate-drift-b {
+  animation: scene-plate-drift-b 22s ease-in-out infinite alternate both;
+}
+
+/* Two identical keyframes so swapping the class restarts the drift on a new plate. */
+@keyframes scene-plate-drift-a {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+@keyframes scene-plate-drift-b {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+/* Muse crop check (2026-11-06, 120 scene plates): the push-in removes at most 1.7% a side,
+   0.6% at the top and 2.8% at the bottom on a phone. Only one plate loses anything that matters:
+   in tether_dock_ruined.jpg the subject's face already meets the frame edge at rest, so that
+   plate holds still. Three clipped baked-text letters (medical_bay, transmission, shower_sela)
+   were accepted. */
+#scene-image.plate-drift-a[src$="/tether_dock_ruined.jpg"],
+#scene-image.plate-drift-b[src$="/tether_dock_ruined.jpg"] {
+  animation: none;
+}
+
+/* ---- Desktop composition: choices follow the text in normal flow. Since #510
+   (SUN-DESKTOP-CHOICE-OVERLAP-01) that rule lives in css/pc-viewport.css. ---- */
+
+/* ---- Reader settings: title utility, beside the content-notice group.
+   Buttons share the row, so another reader toggle can sit next to this one. ---- */
+.reader-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 8px;
+  width: 100%;
+}
+
+/* Typography is inherited, matching how the sibling title chips render today. */
+.reader-settings-actions .text-pace-chip {
+  flex: 1 0 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.reader-settings-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (min-width: 800px) and (max-height: 980px) {
+  #title-screen:has(#commander-create.visible) .reader-settings-actions,
+  #title-screen.commander-create-open .reader-settings-actions {
+    display: none;
+  }
+}
+
+/* ---- Reduced motion: no fade, no pulse, no drift. The reveal itself still paces. ---- */
+@media (prefers-reduced-motion: reduce) {
+  .scene-text p.reveal-fade,
+  #choices.reveal-fade,
+  .reveal-mark,
+  #scene-image.plate-drift-a,
+  #scene-image.plate-drift-b {
+    animation: none !important;
+  }
+
+  #scene-image {
+    transform: none !important;
+  }
+}

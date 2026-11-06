@@ -62,15 +62,15 @@ registerScenes({
     },
     get choices() {
       const routes = [
-        { text: "Cannibalize habitation relays. Get the drive to answer, even partially.", next: "arc_future_2", effects: { integrity: 6, cohesion: -6, supplies: -3 }, lean: { future: 3 }, affinity: { mira: 6, elias: 6, lena: -4 }, trust: { mira: 4, elias: 5, lena: -4 } },
-        { text: "Leave habitation alone. Find another path that does not steal breath.", next: "arc_future_2", effects: { cohesion: 4, integrity: -2, supplies: -5 }, lean: { living: 2 }, affinity: { lena: 5, mira: 2 }, requires: { supplies: { min: 10 } } }
+        { text: "Cannibalize habitation relays. Get the drive to answer, even partially.", next: "arc_future_2", effects: { integrity: 6, cohesion: -6, supplies: -3 }, lean: { future: 3 }, affinity: { mira: 6, elias: 6, lena: -4 }, trust: { mira: 4, elias: 5, lena: -4 }, reply: [{ who: "mira", text: `Mira pulls the habitation relays herself and labels each one with the corridor it used to keep warm. The drive controller answers on the fourth attempt: a handshake, a pressure rise in the feed lines, then quiet. "Partial," she reports. "Feed pressure at eleven percent of nominal. Yesterday it was zero."` }, { who: "lena", text: `In medical, Lena adds two blankets to the ward inventory and one line to her chart: ambient temperature, falling.` }] },
+        { text: "Leave habitation alone. Find another path that does not steal breath.", next: "arc_future_2", effects: { cohesion: 4, integrity: -2, supplies: -5 }, lean: { living: 2 }, affinity: { lena: 5, mira: 2 }, requires: { supplies: { min: 10 } }, reply: [{ who: "mira", text: `"Then I route around it," Mira says, and does: eleven hours, two burned fingers, a relay path through the empty Deck 2 berths. The drive still will not carry a colony burn. The corridors stay warm.` }] }
       ];
       const enabled = routes.some(choice =>
         (!choice.requires || meetsRequirements(choice.requires)) &&
         (!choice.effects || canAffordEffects(choice.effects))
       );
       if (!enabled) {
-        routes.push({ text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2" });
+        routes.push({ text: "Stop the work. Carry the failed restart forward.", next: "arc_future_2", reply: [{ who: "mira", text: `Mira powers the schematic down screen by screen. "Restart failed," she logs. "Cause: no parts. Not: no will." She leaves the last screen on.` }] });
       }
       return routes;
     }
@@ -106,15 +106,15 @@ registerScenes({
     },
     get choices() {
       const routes = [
-        { text: "Lock conservation mode. Habitation takes the brownouts.", next: "arc_future_3", effects: { embryos: 5, cohesion: -9, integrity: -4, supplies: -3 }, lean: { future: 4 }, affinity: { jiro: 8, elias: 6, tomas: -8, lena: -4 }, trust: { jiro: 6, tomas: -6 }, requires: { embryos: { min: 55 } } },
-        { text: "Refuse the brownouts. Accept the permanent vault bleed.", next: "arc_future_3", effects: { embryos: -10, cohesion: 6, supplies: -2 }, lean: { living: 3 }, affinity: { tomas: 7, lena: 5, jiro: -6 }, flag: { embryo_ceiling: "lowered" } }
+        { text: "Lock conservation mode. Habitation takes the brownouts.", next: "arc_future_3", effects: { embryos: 5, cohesion: -9, integrity: -4, supplies: -3 }, lean: { future: 4 }, affinity: { jiro: 8, elias: 6, tomas: -8, lena: -4 }, trust: { jiro: 6, tomas: -6 }, requires: { embryos: { min: 55 } }, reply: [{ who: "elias", text: `By the next watch the corridors are cold enough to see breath. Elias walks them with the enforcement list and finds he does not need it.` }, { who: "lena", text: `Lena logs the first chilblains as "conservation mode, side effect" and underlines it twice.` }] },
+        { text: "Refuse the brownouts. Accept the permanent vault bleed.", next: "arc_future_3", effects: { embryos: -10, cohesion: 6, supplies: -2 }, lean: { living: 3 }, affinity: { tomas: 7, lena: 5, jiro: -6 }, flag: { embryo_ceiling: "lowered" }, reply: [`The corridors stay warm. In the vault, the viability figure gives up a point, and then another, where nobody has to watch it.`, { who: "sela", text: `Sela watches it anyway. At yellow she says the number out loud, once, and does not explain.` }] }
       ];
       const enabled = routes.some(choice =>
         (!choice.requires || meetsRequirements(choice.requires)) &&
         (!choice.effects || canAffordEffects(choice.effects))
       );
       if (!enabled) {
-        routes.push({ text: "There are no parts left. Let the vault bleed and record the lower ceiling.", next: "arc_future_3", flag: { embryo_ceiling: "lowered" }, lean: { living: 2 } });
+        routes.push({ text: "There are no parts left. Let the vault bleed and record the lower ceiling.", next: "arc_future_3", flag: { embryo_ceiling: "lowered" }, lean: { living: 2 }, reply: [`The lower ceiling goes on the board. Nobody signs under it.`] });
       }
       return routes;
     }
