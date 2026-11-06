@@ -100,7 +100,7 @@ Manraj ruled these on 2026-11-06 in the Orchestrator lead chat, each as the lead
 |---|---|---|---|---|---|---|
 | L-057 | LOCKED | A choice may carry `reply`: one to three lines that open the next screen once. Presentation only, never saved; a dead or unrecovered speaker's line is dropped | ROADMAP §2 architecture | 2026-11-06 | Manraj | `a6db6d50e7cd97cbf27515150812aa9dcd43dbdc` |
 | L-058 | LOCKED | Cost tags are off on enabled choices by default; the cost shows after the order on the status bar; a reader setting restores tags; disabled choices keep their honest reason (D14) | ROADMAP §2 UI and save model | 2026-11-06 | Manraj | `a6db6d50e7cd97cbf27515150812aa9dcd43dbdc` |
-| L-059 | LOCKED | Paced paragraph reveal by default, with a paced/instant reader setting; scenes show whole on resume; choices follow the last paragraph; plate push-in only within Muse's cleared crop (D15) | ROADMAP §2 UI and save model; art and presentation | 2026-11-06 | Manraj | `a6db6d50e7cd97cbf27515150812aa9dcd43dbdc` |
+| L-059 | LOCKED | Paced paragraph reveal by default, with a paced/instant reader setting; scenes show whole on resume; choices follow the last paragraph; plate push-in only within Muse's cleared crop (D15) | ROADMAP §2 UI and save model | 2026-11-06 | Manraj | `a6db6d50e7cd97cbf27515150812aa9dcd43dbdc` |
 
 The same day Manraj named the Orchestrator chat the lead (STATUS decision 16), and ruled that Myth and Muse reads may run in the lead chat as independent reviewers (decision 15). Those are process rulings, recorded in STATUS, not locks.
 

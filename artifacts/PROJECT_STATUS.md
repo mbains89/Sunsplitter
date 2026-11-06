@@ -109,7 +109,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 
 **Open:**
 
-1. **Playtest build.** Production still shows `0e7535d`, from September. Manraj ruled on 2026-11-05: skip the deploy for now. Private playtest zips of the work branch are sent in the lead chat instead (`preview-a45a6ac` on 2026-11-06, and the end-of-day build).
+1. **Playtest build.** Production still shows `0e7535d`, from September. Manraj ruled on 2026-11-05: skip the deploy for now. Private playtest zips are sent in the lead chat instead: `preview-a45a6ac` (a preview merge, not on the work branch) and `playtest-b1ae936` (the work-branch tip, end of 2026-11-06).
 4. **Story wording, for Myth review.** Done: Myth read all three and the trims landed in #504 (2026-11-06). Nothing left to rule.
 5. **Story consistency, for Myth.** The `offshift_elias` contradiction and the `arc_future_2` author note are fixed in #504. Still open, one question: may the `arc_future_2` vault-ceiling briefing move from Jiro, who is never aboard when the scene plays, to Sela, with the board fallback when she is dead? Myth's proposed text is in `claude/myth/2026-11-05.md` §2b. Lead's recommendation: yes; Sela is the keeper and the only crew member whose reflex is what the ceiling means. If no, the scene is already honest as landed.
 
@@ -150,14 +150,14 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
    - Choices in the four pairs carry affinity nudges of +2 / −1 (siding) or +1 / +1 (reconciling), the scale `pair_favor_confront` already uses. Balance is on hold (ROADMAP §15); this is not a rebalance, but say so if you want them at zero.
 15. **Myth review before merge: RULED 2026-11-06.** Myth and Muse reads run in the lead chat as independent reviewer agents; Manraj picked "This chat; reviews here (Recommended)". Today's reads: #508, #509, #511, #516 and #521 (Myth); #520's plate push-in (Muse); #522 (code). Each verdict and its applied edits are in a comment on the PR.
 16. **One lead at a time: RULED 2026-11-06.** The Orchestrator chat is the lead. The other session (`01S9qt…`) stops merging, and its PRs #508 and #509 passed to the Orchestrator and landed with Myth's edits.
-17. **What Remains length (L-008 against §14A workstream 4).** L-008 (ROADMAP §8) fixes What Remains at 3–6 lines; the growth ruling's workstream 4 asks for one paragraph per crew member there. This PR reads the two together: the 3–6 reflection lines stay exactly as they were, and the per-crew block sits under them as a second section, "The crew", about 300–500 words. Recommendation: record on the L-008 row that the §14A ruling added the crew section beneath the capped reflection (one line in LOCKS, next LOCKS edit). If you would rather keep the screen at 3–6 lines, say so and the block moves behind a "Read the crew" button on the same screen instead.
+17. **What Remains length (L-008 against §14A workstream 4).** L-008 (ROADMAP §8) fixes What Remains at 3–6 lines; the growth ruling's workstream 4 asks for one paragraph per crew member there. #509 reads the two together: the 3–6 reflection lines stay exactly as they were, and the per-crew block sits under them as a second section, "The crew", about 300–500 words. Recommendation: record on the L-008 row that the §14A ruling added the crew section beneath the capped reflection (one line in LOCKS, next LOCKS edit). If you would rather keep the screen at 3–6 lines, say so and the block moves behind a "Read the crew" button on the same screen instead.
 18. **L-057, L-058, L-059: RULED 2026-11-06** and recorded in this PR (LOCKS rows, ROADMAP §2). They are choice replies, cost tags off by default (D14), and paced reveal (D15). Manraj's answers are verbatim in the project doc `claude/decisions/2026-11-06.md`.
 19. **D11, run length: RULED "Deep" 2026-11-06. Three locks need rulings before step 2:**
     - **L-024**, promises made and tested: remove them, or keep them at about 1 prose minute.
     - **L-050**, off-shift lead-ins to the romance arc end states: cut to about 100 words.
     - **L-008**, ending and What Remains: −30%.
 
-    Deep also cuts approved crew friction (#508) from 2.5 to 1.1 scenes a run. Lead recommendation: rule each lock separately. Step 1 needs none of them.
+    Deep also cuts approved crew friction (#508) from 2.5 to 1.1 scenes a run. That cut was not in the option Manraj picked, so it needs his confirmation too. Lead recommendation: rule each lock separately. Step 1 needs none of them.
 20. **Canon, from the #521 read.** Is it canon that Jiro flies the insertion pass, days 181–184? `offshift_jiro` now says so, and no other scene does.
 21. **What Remains, from the #509 read (ties to 17).** Every death prints twice, once in the reflection lines and again at the start of that person's crew paragraph. Keep both, or open a dead crew member's paragraph with their own line and leave the cause above?
 22. **`arc_living_4`'s "double cycle" sentence.** It has promised a third option since 0.28.1c, and the option was never wired. Myth recommends cutting the sentence; wiring it would be a new trade that needs Hex and you.
