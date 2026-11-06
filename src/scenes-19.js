@@ -25,6 +25,10 @@ She reads the trace again.
     if (state.flags.lena_regen) {
       t += `\n\nThe last regenerative bought months. It did not become a second dose. The cold drawer is empty.`;
     }
+    // SUN-ROMANCE-ARC-01 (L-050): the private debt lands inside the hard decision. Text only.
+    if (state.romance.lena) {
+      t += `\n\nShe lowers her voice for two sentences, the way she does when they are for you and not for the board. "Do not put the ${state.pursuit.lena ? "nights" : "night"} on this chart. The packs are for a physician the ship still needs, or they are for nobody."`;
+    }
 
     t += `\n\nA sealed trauma circuit can be built from the remaining sterile packs and light stabilizer ampoules. It will keep her functional; it will not reverse the exposure. The other clean power source is the vault cradle bus. Ten viability points will not survive the transfer.
 

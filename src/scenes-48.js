@@ -74,6 +74,9 @@ registerScenes({
       }
       if (state.romance.lena) {
         t += `She waits until you've taken the folders, then uses your name — the one from before the rank, the one she spends only in private, only before something true. "That's everything I know about keeping them alive. This hour is the one thing I know about keeping me."`;
+      } else if (hasMark("lena", "held_only")) {
+        // SUN-ROMANCE-ARC-01 (L-050): the held-only partner is asked for the hour too. She initiates.
+        t += `She waits until you've taken the folders. "That's everything I know about keeping them alive. You sat with me once and took nothing; I charted it under the right word: competent. This hour is the one thing I know about keeping me."`;
       }
       const close = closingPartnerLine();
       if (close) t += `\n\n` + close;
@@ -84,11 +87,56 @@ registerScenes({
         { text: "Take both folders.", next: "faction_split" },
         { text: "Ask what she wants said at yellow.", next: "faction_split" }
       ];
-      if (state.romance.lena) {
-        c.push({ text: "Stay the hour.", next: "faction_split" });
+      // A broken medical line closes her offers (the existing romanceOpen rule); the hour follows it.
+      if ((state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken") {
+        c.push({ text: "Stay the hour.", next: "lena_last_hour", tag: "private" });
       }
       return c;
     }
+  },
+
+  // ═══ SCENE DECLARATION ═══════════════════════════════════════════
+  // SCENE_ID: lena_last_hour            TICKET: SUN-ROMANCE-ARC-01 (L-050, Wave 1)
+  // PRE: Lena living; reached only from offshift_lena "Stay the hour." (romance.lena or the
+  //   held_only mark); junctionChoice is already "lena".
+  // WRITES: flags.lena_last_hour = true on first entry, plus one memory. No resource change.
+  // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when Lena is dead
+  //   (onEnter + living-cast contract in scenes-55); no dead text is rendered.
+  // IMAGE: REUSE images/medbay_dim.jpg, the owner's pick for offshift_lena (quiet late medbay).
+  //   The face gate shows it only while Lena and Jiro are both present and otherwise serves the
+  //   corridor fallback. No new art.
+  // ═════════════════════════════════════════════════════════════════
+  lena_last_hour: {
+    image: "images/medbay_dim.jpg",
+    onEnter: () => {
+      if (!isAlive("lena")) return "faction_split";
+      if (!state.flags.lena_last_hour) {
+        state.flags.lena_last_hour = true;
+        remember("counted Lena's cabinet with her, line by line, variance zero");
+      }
+    },
+    get text() {
+      let t = `She does not let the hour be quiet.\n\n`;
+      t += `"Working if I can stand," she says, and stands. The sterilizer hood comes up. The cabinet comes open. She starts the count you have watched her start from the corridor side of the glass more than once, and then she stops and hands you the slate.\n\n`;
+      t += `"You count. I check. If I die on a watch, the ship loses the only person who knows this cabinet by feel. The folders fix that on paper. This fixes it in your hands."\n\n`;
+      t += `So you count. Ampoules by lot. What is left of the packs, by date. She corrects you twice without looking up — "that one is expired; it stays, expired is not empty" — and once she says nothing at all, and you understand later that was the one you got right.\n\n`;
+      t += `Halfway down the second shelf she takes a thin ampoule from her coat pocket, the size of a finger bone, and doses herself in the middle of a sentence about filter cartridges. The sentence does not pause. The hand holding the slate for you does not shake, and then, for a count of three, it does.\n\n`;
+      t += `"Charted," she says, when she sees you see it. "Under my name. Keep counting."\n\n`;
+      if (state.romance.lena) {
+        t += `Then the name again — the private one, the second time tonight, which she rations harder than ampoules. "This hour is on a ledger with everyone else's name on it. They will count it. Let them. I am not spending it apologizing."\n\n`;
+      } else {
+        t += `"You stayed once and did not take the rest," she says. "Correct dose. Do not revise it now out of sentiment. I would notice, and I would chart it."\n\n`;
+      }
+      t += `The count finishes. She reads your tally against hers, line by line, and does not round. "Variance zero. Charted." She shuts the cabinet with her hip, the way she does when both hands are full.\n\n`;
+      t += `"When the clock runs out, someone will stand where you are standing and need to know this cabinet. Now they can. That is what this hour was for. The last one I keep for watching them get it right."\n\n`;
+      t += `She turns the sterilizer hood off. The medbay is the dark it was when you came in.\n\n`;
+      t += `"Take the ship back. Charted."`;
+      return t;
+    },
+    choices: [
+      { text: "Take the ship back.", next: "faction_split" },
+      { text: "Tell her the count will be kept.", next: "faction_split", affinity: { lena: 4 } }
+    ]
   },
 
   // LOCK 4: only Mira-dead branch ships

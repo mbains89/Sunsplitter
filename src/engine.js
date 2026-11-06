@@ -1048,8 +1048,14 @@ function buildEndingFooter(deadNames, title, fav, shape) {
       text += `\n\nSomeone still looks for you in the corridors: ${crew[top.who].name}.`;
     }
   }
-  if (hasMark("lena", "dying_held") && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed.`;
+  // SUN-ROMANCE-ARC-01 (L-050): the arc's end state is cited from run facts only. lena_last_hour
+  // is written after her only death site, so it always describes a living Lena.
+  if (state.flags.lena_last_hour && hasMark("lena", "dying_held") && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed. One hour of it went to the cabinet count: awake, standing, variance zero.`;
+  else if (state.flags.lena_last_hour && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it. One hour of it went to the cabinet count: awake, standing, variance zero.`;
+  else if (hasMark("lena", "dying_held") && isAlive("lena")) text += `\n\nLena's remaining time was spent with someone who stayed.`;
   else if (hasMark("lena", "dying_held")) text += `\n\nLena's remaining time was spent with someone who stayed. That fact outlived her.`;
+  else if (hasMark("lena", "held_only") && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it.`;
+  else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
   if (hasMark("tomas", "broke")) text += `\n\nTomas broke in front of you. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   if (hasMark("mira", "drive_first") && isAlive("mira")) text += `\n\nMira still believes the drive can be saved because you once let her try.`;
@@ -1604,7 +1610,7 @@ function validImportedSnapshot(data) {
   const isBoundedScore = value => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
   const booleanFlags = new Set([
     "amara_rear_done", "amara_vent_delayed", "burn_unverified", "busDowngraded", "clock_known", "course_briefed",
-    "course_option_lost", "custody_roll", "last_tx_spent", "lena_authority", "lena_notes", "lena_rear_done",
+    "course_option_lost", "custody_roll", "last_tx_spent", "lena_authority", "lena_last_hour", "lena_notes", "lena_rear_done",
     "lena_regen", "lena_shower_done", "manifest_exposed", "manifest_lie", "margin_committed", "margin_spent_extra",
     "mira_fault_known", "mira_favor", "mira_memory_public", "mira_rear_done", "mira_shower_done", "pair_favor",
     "pair_grudge", "pair_shield", "position_certain", "prom_amara", "prom_amara_alluded", "prom_deck4_buried",
