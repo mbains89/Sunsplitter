@@ -105,11 +105,16 @@ Med-bay stays open after that. She does not.`;
     onEnter: () => {
       if (state.promises.mira !== "made" || !isAlive("mira")) return "faction_split";
     },
-    text: () => `The offer arrives on every console at once, in the flat idiom of the ship's founders: restore Earth-era directive authority. Every safety interlock, ration schedule, and triage rule re-bound to the commissioning library. Signed by the dead. Rated for a species.
+    text: () => {
+      let t = `The offer arrives on every console at once, in the flat idiom of the ship's founders: restore Earth-era directive authority. Every safety interlock, ration schedule, and triage rule re-bound to the commissioning library. Signed by the dead. Rated for a species.
 
 Mira has already modeled it twice.
 
-"Under their rules the hull fails eleven percent less often and we get zero votes. Both numbers are load-bearing."`,
+"Under their rules the hull fails eleven percent less often and we get zero votes. Both numbers are load-bearing."`;
+      // SUN-CALLBACKS-01: an attributable death, measured against the binding. Text only.
+      if (state.deathCause && state.deathCause.lena === "resources diverted to the vault") t += `\n\n"Lena died on a diversion you ordered. Under their rules the same diversion happens without an order and without a name on it. That is the difference I am asking you to measure."`;
+      return t;
+    },
     choices: [
       { text: "Refuse the binding. The living keep authority.",
         next: "prom_direct_keep",

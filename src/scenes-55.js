@@ -11,6 +11,8 @@ registerScenes({
     text: () => {
       let t = `The vault thermal spine is saturated. Heat must leave or the embryos cook.\n\n`;
       t += `There is no clean radiator left that does not touch an occupied section or the vault itself. The question is no longer technical. It is custody: who decides what the future is allowed to cost.`;
+      // SUN-CALLBACKS-01: the grid order, cited by the man who enforced it. Text only.
+      if (isAlive("elias") && state.flags.vault_sacrifice === "future") t += `\n\nElias reads the thermal trace once. "You cut the living to keep the vault cold when the grids failed. That was the order. This is the invoice. I would give it again."`;
       return t;
     },
     choices: [

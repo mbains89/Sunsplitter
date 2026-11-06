@@ -18,9 +18,16 @@ registerScenes({
       } else if (isAlive("tomas")) {
         t += ` Tomas nods through the entire accounting.`;
       }
+      // SUN-CALLBACKS-01: a tested promise and a vented pocket, cited where the accounting is public. Text only.
+      if (isAlive("amara") && isAlive("tomas") && state.promises.amara === "broken") {
+        t += ` Amara has not set a plate for you since the pocket was vented. Tomas sets it, and says nothing about whose.`;
+      }
       t += `\n\n`;
       if (isAlive("mira")) {
-        t += `When it is finished, Mira stands.\n\n"We're still here. That's the only order that matters."\n\nThe others rise, unevenly.`;
+        t += `When it is finished, Mira stands.\n\n`;
+        if (state.promises.mira === "kept") t += `"The old rules were refused. The living kept the vote. I check that against the drive every watch. It holds."\n\n`;
+        else if (state.promises.mira === "broken") t += `"The old rules are back. The hull fails eleven percent less often. We get zero votes. I said both numbers were load-bearing. One of them is bearing more."\n\n`;
+        t += `"We're still here. That's the only order that matters."\n\nThe others rise, unevenly.`;
       } else {
         t += `When it is finished, the room does not produce a speech. The others rise, unevenly.`;
       }
@@ -34,7 +41,12 @@ registerScenes({
   reckon_suppress: {
     get text() {
       let t = `You issue the order: no further discussion of the crisis. Work continues. Rations continue. The ship continues.\n\n`;
-      if (isAlive("elias")) t += `Elias enforces it without being asked.\n\n`;
+      if (isAlive("elias")) {
+        t += `Elias enforces it without being asked.\n\n`;
+        // SUN-CALLBACKS-01: Deck Four's record, kept or edited, cited by its holder. Text only.
+        if (state.promises.elias === "kept") t += `He adds one thing. "Deck Four's record stays whole. You heard it from me first, as promised. Suppress the rest if you have to. Not that."\n\n`;
+        else if (state.promises.elias === "broken") t += `He adds one thing. "You edited Deck Four. I enforce this because it is an order. I tell the room less than I used to."\n\n`;
+      }
       else t += `Compliance is enforced without being asked.\n\n`;
       t += `The silence that follows is different from the earlier silence. It has edges.\n\n`;
       if (isAlive("tomas")) t += `Tomas stops leading the quiet evening gatherings. `;
