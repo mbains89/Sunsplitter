@@ -43,6 +43,7 @@ registerScenes({
         next: "seal_or_food",
         effects: { integrity: 8, supplies: -2, cohesion: -3 },
         flag: { coolant: "loop" },
+        reply: [{ who: "mira", text: `Mira has the tank on the secondary loop inside the hour. The shaking in the deck plates drops to something you can sleep through.` }, { who: "lena", text: `Lena watches the last cold field go warm and writes the time on her wrist in pen. "For the record," she says. "So I know when we stopped being able to cut."` }],
         lean: { future: 1 },
         requires: { trust: { mira: 30 } },
         alive: "mira"
@@ -52,6 +53,7 @@ registerScenes({
         next: "seal_or_food",
         effects: { cohesion: 4, integrity: -4, supplies: -2 },
         flag: { coolant: "medical" },
+        reply: [{ who: "lena", text: `Lena seals the sterile field and labels it in her own hand. "Surgery stays possible," she says. "Try not to make me prove it."` }, { who: "mira", text: `Mira tapes a strain gauge to the secondary-loop housing and goes back to work. Every few hours she checks it. Every few hours it reads a little higher.` }],
         lean: { living: 1 },
         requires: { trust: { lena: 30 } },
         alive: "lena"
@@ -60,7 +62,8 @@ registerScenes({
         text: "Split it. Both systems degrade slower — neither is saved.",
         next: "seal_or_food",
         effects: { integrity: 2, cohesion: 1, supplies: -3 },
-        flag: { coolant: "split" }
+        flag: { coolant: "split" },
+        reply: [{ who: "mira", text: `"Half each," Mira says. "Both systems now fail later and together. I would rather have a date than a coin toss, Commander. You gave me a coin toss."` }, { who: "lena", text: `Lena halves the dosing chart with a ruler and says nothing at all.` }]
       }
     ],
     image: "images/corridor_variant.jpg"
