@@ -34,8 +34,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Hold the room a moment longer. Then decide the mission.", next: "sun_payoff", effects: { cohesion: 2 } },
-      { text: "End it. Make the final order now.", next: "sun_payoff" }
+      { text: "Hold the room a moment longer. Then decide the mission.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You hold the room. Someone passes water down the row, cup by cup, and nobody leaves until you do.`] },
+      { text: "End it. Make the final order now.", next: "sun_payoff", reply: [`You end it there. The room empties fast, the way rooms do when people have heard the costs said plainly and have work to get back to.`] }
     ]
   },
   reckon_suppress: {
@@ -55,8 +55,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Let the silence stand. Make the final order.", next: "sun_payoff", effects: { cohesion: -2 } },
-      { text: "Break it once — name one cost — then decide the mission.", next: "sun_payoff", effects: { cohesion: 1 } }
+      { text: "Let the silence stand. Make the final order.", next: "sun_payoff", effects: { cohesion: -2 }, reply: [`The silence stands. Over the next few shifts it sets into something that no longer needs enforcing. Nobody mistakes that for agreement.`] },
+      { text: "Break it once — name one cost — then decide the mission.", next: "sun_payoff", effects: { cohesion: 1 }, reply: [`You break it once, at the evening meal: one cost, named out loud, by you. Then you let the silence close again. It closes a little looser than before.`] }
     ]
   },
   reckon_memory: {
@@ -77,8 +77,8 @@ registerScenes({
       return `You give the survivors the right to decide how the near-loss is remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen. Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
     },
     choices: [
-      { text: "Let the memory stand. Make the final order.", next: "sun_payoff", effects: { cohesion: 2 } },
-      { text: "Close it. The mission still needs a decision.", next: "sun_payoff" }
+      { text: "Let the memory stand. Make the final order.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You let it stand, all of it. Nobody takes anything down, and over the next shifts people start choosing the corridors that pass it.`] },
+      { text: "Close it. The mission still needs a decision.", next: "sun_payoff", reply: [`You close it with one sentence and the next duty roster. Nothing is taken down, and nobody adds to it while you are watching.`] }
     ]
   },
   reckon_truth: {
@@ -90,8 +90,8 @@ registerScenes({
       return `You tell them the truth you have been carrying.\n\n${destination}\n\nYou ask what they still want from the time that remains.\n\nThe answers are not unified. Some want the planet. Some want speed. Some want comfort. Some want a final transmission aimed at nothing in particular.\n\nYou listen. Then you decide.`;
     },
     choices: [
-      { text: "You have heard enough. Make the final order.", next: "sun_payoff" },
-      { text: "Ask one more person what they still want. Then decide.", next: "sun_payoff", effects: { cohesion: 2, supplies: -1 } }
+      { text: "You have heard enough. Make the final order.", next: "sun_payoff", reply: [`You close it there. Not everyone was finished. You watch them fold the rest away for later, and you let them.`] },
+      { text: "Ask one more person what they still want. Then decide.", next: "sun_payoff", effects: { cohesion: 2, supplies: -1 }, reply: [`You ask one more. The answer is small and specific and has nothing to do with the planet, and you write it down as carefully as an order.`] }
     ]
   },
 });

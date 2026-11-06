@@ -50,8 +50,8 @@ registerScenes({
     },
     text: `Mira has the commissioning log open — to the unsigned pages, the way she keeps it.\n\n"Schedule compressed twice in the last month. Change orders 4417 and 4491. Justification field empty on both. That is not a conclusion. It is a gap where a reason should be."\n\nShe sets the log where the record terminal can image it, or not. Her hands wait.`,
     choices: [
-      { text: "Enter it into the record.", next: "records_changeorders_after", flag: { changeorders: "logged" } },
-      { text: "Leave it out.", next: "records_changeorders_after", flag: { changeorders: "buried" } }
+      { text: "Enter it into the record.", next: "records_changeorders_after", flag: { changeorders: "logged" }, reply: [{ who: "mira", text: `Mira images the unsigned pages into the record and checks the entry twice. "Entered. It proves the schedule moved. Nothing else. I want that on the same line."` }] },
+      { text: "Leave it out.", next: "records_changeorders_after", flag: { changeorders: "buried" }, reply: [{ who: "mira", text: `"Understood." Mira closes the log. She does not close it all the way.` }] }
     ]
   },
 
