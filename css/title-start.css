@@ -219,6 +219,15 @@
   width: 100%;
 }
 
+/* SUN-PRICE-TAGS-01 — one reader toggle beside the other title utilities; not a settings panel.
+   It inherits the neighbouring chip + button look. Pressed shows a thick gold left edge
+   (a non-colour cue) that survives hover and keyboard focus; the chip text says On/Off. */
+#title-screen #btn-show-costs[aria-pressed="true"] {
+  border-left-width: 6px;
+  border-left-style: solid;
+  border-left-color: #f2c14e;
+}
+
 /* SUN-FIX-UIUX-P2-CREATE-CTA-VIEW-01 — desktop ~900 first-open BEGIN RUN / CANCEL stay in view.
    Splash copy collapses only while the create panel is open. CTAs stick to the panel bottom.
    No engine.js. Phone rules unchanged. */
@@ -236,7 +245,9 @@
   #title-screen:has(#commander-create.visible) .save-transfer-actions,
   #title-screen.commander-create-open .save-transfer-actions,
   #title-screen:has(#commander-create.visible) .content-notice-actions,
-  #title-screen.commander-create-open .content-notice-actions {
+  #title-screen.commander-create-open .content-notice-actions,
+  #title-screen:has(#commander-create.visible) .reader-setting-actions,
+  #title-screen.commander-create-open .reader-setting-actions {
     display: none;
   }
   #title-screen:has(#commander-create.visible) #commander-create,
@@ -284,6 +295,7 @@
   #title-screen .title-actions .btn:hover,
   #title-screen .save-transfer-actions .btn:hover,
   #title-screen .content-notice-actions .btn:hover,
+  #title-screen .reader-setting-actions .btn:hover,
   #title-screen #new-run-confirm .btn:hover,
   #title-screen #commander-create .btn:hover {
     border-style: dashed;
@@ -299,6 +311,7 @@
   #title-screen .title-actions .btn:focus-visible,
   #title-screen .save-transfer-actions .btn:focus-visible,
   #title-screen .content-notice-actions .btn:focus-visible,
+  #title-screen .reader-setting-actions .btn:focus-visible,
   #title-screen #new-run-confirm .btn:focus-visible,
   #title-screen #commander-create .btn:focus-visible {
     border-style: solid;
@@ -314,6 +327,7 @@
   #title-screen .title-actions .btn:active,
   #title-screen .save-transfer-actions .btn:active,
   #title-screen .content-notice-actions .btn:active,
+  #title-screen .reader-setting-actions .btn:active,
   #title-screen #new-run-confirm .btn:active,
   #title-screen #commander-create .btn:active {
     border-style: solid;
