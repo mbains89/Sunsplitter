@@ -290,6 +290,11 @@ requireLivingCast("vess_item_two vess_item_two_logged", ["vess"], "faction_split
 requireLivingCast("amara_page amara_page_reply", ["amara"], "faction_split");
 // SUN-ROMANCE-ARC-05 (L-050): past amber, after the ritual for one person; same cast and exit as offshift_sela.
 requireLivingCast("sela_past_amber sela_past_amber_reply", ["sela"], "faction_split");
+// SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): the four pair scenes and their replies.
+requireLivingCast("pair_triage_chart pair_triage_after", ["lena", "tomas"], "act3_reckoning_pattern");
+requireLivingCast("pair_seal_ledger pair_seal_after", ["elias", "tomas"], "act3_spine_next");
+requireLivingCast("pair_burn_archive pair_burn_after", ["mira", "jiro"], "act3_spine_next");
+requireLivingCast("pair_fix_track pair_fix_after", ["jiro", "vess"], "act3_spine_next");
 // L-026 fresh zero/one/many entry behavior remains untouched. A marked saved
 // zero-invitation selector needs an exit without replaying junctionChoice.
 requireLivingCast("offshift_open", [], "faction_split", {

@@ -10,7 +10,7 @@ import vm from "node:vm";
 
 export const POLICY_NAMES = ["living", "future", "pragmatic"];
 export const LOCKED_POLICY_NAMES = ["random", "cheapest", "priciest"];
-export const EXPECTED_SCENE_COUNT = 223; // SUN-DIET-REPLY-FOLD-01: - 11 answer screens folded into replies (RETIRED_SCENE_EXITS)
+export const EXPECTED_SCENE_COUNT = 231; // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 answer screens folded into replies (RETIRED_SCENE_EXITS)
 export const LOCKED_SEED = 20260817;
 export const STRICT_RUNS_PER_POLICY = 2_000;
 export const STRICT_SHARD_SIZE = 500;

@@ -63,10 +63,9 @@ function reload(writer) {
 }
 
 const endings = new Set();
-// SUN-DIET-REPLY-FOLD-01: random/37001 drifted (eleven one-exit screens fewer, so the random policy's
-// draws land elsewhere) to a Fracture route with no death beat. random/37005 is the first random seed
-// after it that is still a Fracture route and reaches death aftermaths (Lena, Mira).
-for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37005]]) {
+// SUN-CREW-FRICTION-01: random/37001 stopped reaching a death aftermath once the pair scenes joined the
+// hub (its random stream shifted); random/37006 walks the Lena–Tomas pair, reaches act3_lethal_tomas_end and ends in Fracture.
+for (const [policy, seed] of [["living", 37001], ["future", 37001], ["pragmatic", 37001], ["pragmatic", 37006], ["random", 37006]]) {
   const route = simulateRun(root, { policy, seed });
   assert.equal(route.completed, true, `${policy}/${seed} must complete`);
   const writer = loadGame(root, { includeValidator: false });
