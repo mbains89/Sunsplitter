@@ -5,8 +5,9 @@ import { createHash } from "node:crypto";
 // SUN-ROMANCE-ARC-03: final_choice names the spent long-range window (text only); the 120 *_debt rows with
 // last_tx_spent gained that paragraph. Mechanics, labels, images and outcomes are unchanged.
 // SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
-// 480 rows changed in the rendered text only (field 2, the preamble prefix). Outcomes digest unchanged.
-const BASELINE_MATRIX = "bbe3b944dddbc4f2ea6dec5a9d196f58e3fceb19944bf591b6e71cd2b5c58ae7";
+// 480 rows changed in the rendered text only (field 2: the preamble replaces the general opener, which the
+// abort return keeps); everything after that opener is unchanged. Outcomes digest unchanged.
+const BASELINE_MATRIX = "c5da79df77dd8e94339186f87f09725edfb7b8b2a7cea623edfb73167d8db636";
 const BASELINE_OUTCOMES = "144c4006befe4006c304c4582bf44c19c014f693cf49b1ca3eb15277752e087f";
 const planets = ["unset", "deferred", "committed"];
 const navs = ["jiro", "mira", "rough", "jiro_dead", "jiro_missing", "jiro_debt", "mira_debt", "dead"];

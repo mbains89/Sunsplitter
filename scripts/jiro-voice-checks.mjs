@@ -3,8 +3,9 @@ import { createHash } from "node:crypto";
 // SUN-V035-PLAYTEST-JIRO-VOICE-01. Only the ambiguous voice clause may differ
 // from d1e0cde. All destination labels, descriptors, setup and state are pinned.
 // SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
-// 81 rows changed in the rendered text only (field 2, the preamble prefix). Labels, state and image unchanged.
-const BASELINE_FINGERPRINT = "8b6b5249ba14c9b5159c0048f445ac6b4755a3e71520aa5fc3d0b0afca1587ff";
+// 81 rows changed in the rendered text only (field 2: the preamble replaces the general opener); everything
+// after that opener is unchanged. Labels, state and image unchanged.
+const BASELINE_FINGERPRINT = "6e2b21033f39f8e1801771b1fec8601d7c1a491b81adbf65c46e42dc622f8d55";
 const planets = ["unset", "deferred", "committed"];
 export const jiroVoiceFixtures = planets.flatMap(planet =>
   ["alive", "dead", "missing"].flatMap(life =>

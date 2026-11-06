@@ -99,8 +99,11 @@ registerScenes({
         if (state.flags.departure_truth === "plural") t += `No single boarding story won. The crew lives with the friction.\n\n`;
         else if (state.flags.departure_truth === "records") t += `The records version of boarding is the one the officers cite when they need a hard sentence.\n\n`;
         t += `The last choice is still yours. The ship has already made some of them permanent.\n\n`;
+      } else {
+        // The hinge above already frames the final orders on first arrival; the abort return keeps
+        // this opener so its screen does not start cold (Myth read, SUN-DIET-MEMORY-FOLD-01).
+        t += `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
       }
-      t += `The remaining decisions are the ones that will define what the Sunsplitter becomes.\n\n`;
       // SUN-FINAL-DESTINATION-READ-01: an uncommitted run still has no destination, but it may have
       // Jiro's posted window (position_certain) or a deferred survey; say which, and name the planet
       // before the order that offers it.
