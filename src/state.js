@@ -226,7 +226,6 @@ const sceneImages = {
   vess_intimate:        "images/vess_intimate.jpg",
   ship_interrupt:   "images/ship_interrupt.jpg",
   ship_interrupt_resolve: "images/ship_interrupt_resolve.jpg",
-  ship_memory_payoff: "images/bulkhead.jpg",
   sun_payoff:       "images/sun_payoff.jpg",
   boarding_stories: "images/corridor.jpg",
   patch_fails:      "images/vent.jpg",
