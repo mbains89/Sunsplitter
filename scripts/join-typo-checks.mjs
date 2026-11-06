@@ -86,7 +86,8 @@ function runJoinFixtures(fixtures, mode) {
         display("faction_split");
         const before = snapshot(), raw = scenes.faction_split.text;
         expect(state.scene === "faction_split", "fixture redirected");
-        rows.push([f, raw.replace(/\s/g, ""), scenes.faction_split.choices,
+        // SUN-REPLY-BEATS-ACT3: L-057 replies are presentation, not descriptor; the predecessor fingerprint excludes them.
+        rows.push([f, raw.replace(/\s/g, ""), scenes.faction_split.choices.map(({ reply, ...choice }) => choice),
           resolveSceneImage("faction_split", scenes.faction_split), before]);
         expect(snapshot() === before, "render wrote state");
         expect(gameplayChoiceButtons().some(b => !b.disabled), "no affordable exit");
@@ -101,7 +102,7 @@ function runJoinFixtures(fixtures, mode) {
           { text: "Give them the right to remember the dead and the near-loss in their own words.", next: "reckon_summary", effects: { cohesion: 2 }, flag: { reckon: "memory" }, lean: { living: 1 } },
           { text: "Tell them the truth you have been carrying — planet, odds, and what remains.", next: "reckon_summary", effects: { cohesion: 1 }, flag: { reckon: "truth" }, lean: { living: 1 } }
         ];
-        expect(JSON.stringify(scenes.faction_split.choices) === JSON.stringify(original), "choice descriptor changed");
+        expect(JSON.stringify(scenes.faction_split.choices.map(({ reply, ...choice }) => choice)) === JSON.stringify(original), "choice descriptor changed");
         const choice = original[f.pick], expected = JSON.parse(snapshot());
         expected.scene = choice.next; Object.assign(expected.flags, choice.flag);
         for (const [key, value] of Object.entries(choice.effects)) expected[key] += value;

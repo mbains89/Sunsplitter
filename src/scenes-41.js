@@ -97,8 +97,8 @@ This is not a mystery. It is a design that assumed a different launch day. The S
     },
     choices: [
       // Forward only — must not re-enter lead_prompt declaration (0.20.2)
-      { text: "Let them work. Do not turn competence into another speech.", next: "power_crisis", effects: { cohesion: 3 }, lean: { living: 1 } },
-      { text: "Log the gains. Quiet success still has to be counted.", next: "power_crisis", effects: { integrity: 2, cohesion: 1 }, lean: { future: 1 } }
+      { text: "Let them work. Do not turn competence into another speech.", next: "power_crisis", effects: { cohesion: 3 }, lean: { living: 1 }, reply: [`You say nothing and let them work. Nobody is thanked. Nobody is interrupted either, and for one cycle the ship sounds like a crew instead of a crisis.`] },
+      { text: "Log the gains. Quiet success still has to be counted.", next: "power_crisis", effects: { integrity: 2, cohesion: 1 }, lean: { future: 1 }, reply: [`You log it line by line on the public board: what was fixed, by whom, at what hour. No adjectives. A few of them stop to read their own names.`] }
     ]
   },
 
@@ -117,9 +117,9 @@ She turns the plate so you can see the latest version.
 
 When you leave she has already started the next circle — same diameter, cleaner line. The hatch stays empty.`,
     choices: [
-      { text: "Tell her the yellow is a fact worth protecting.", next: "prom_make_sela", affinity: { sela: 10 }, effects: { cohesion: 3, supplies: -1 }, lean: { living: 2 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" } },
-      { text: "Ask what she would refuse to optimize away.", next: "prom_make_sela", affinity: { sela: 8 }, effects: { cohesion: 2 }, lean: { living: 1 }, mark: { sela: "spoken" } },
-      { text: "Say nothing. Leave the plate where it is.", next: "prom_make_sela", affinity: { sela: 4 }, effects: { cohesion: 1 } }
+      { text: "Tell her the yellow is a fact worth protecting.", next: "prom_make_sela", affinity: { sela: 10 }, effects: { cohesion: 3, supplies: -1 }, lean: { living: 2 }, mark: { sela: "spoken" }, flag: { sela_attention: "present" }, reply: [{ who: "sela", text: `Sela lowers the brush. "Thank you, Commander. A fact worth protecting needs more than one person who remembers it." She does not look up again. The next line she paints is slower.` }] },
+      { text: "Ask what she would refuse to optimize away.", next: "prom_make_sela", affinity: { sela: 8 }, effects: { cohesion: 2 }, lean: { living: 1 }, mark: { sela: "spoken" }, reply: [{ who: "sela", text: `"The names," Sela says, without hesitating. "At yellow I say the name of each of our dead, in full. It is slow. It will become slower. I will not shorten it to save time."` }] },
+      { text: "Say nothing. Leave the plate where it is.", next: "prom_make_sela", affinity: { sela: 4 }, effects: { cohesion: 1 }, reply: [{ who: "sela", text: `Sela does not fill the silence either. When you stand to go, she turns the plate an inch toward the light, so it will be the first thing the next person sees.` }] }
     ],
     onEnter: () => {
       remember("Sela called the Earth sunrise panels a system that has not been told the truth.");
@@ -160,8 +160,8 @@ He has no rank and no console. He was a hospital chaplain before the pads. On th
 
 He does not ask for a promise. He waits to see whether you can sit without filling the silence with orders.`,
     choices: [
-      { text: "Tell him you heard him.", next: "act3_spine_next", affinity: { tomas: 10 }, trust: { tomas: 8 }, effects: { cohesion: 2 }, lean: { living: 1 } },
-      { text: "Leave the silence unbroken.", next: "act3_spine_next", affinity: { tomas: 5 }, trust: { tomas: 3 } }
+      { text: "Tell him you heard him.", next: "act3_spine_next", affinity: { tomas: 10 }, trust: { tomas: 8 }, effects: { cohesion: 2 }, lean: { living: 1 }, reply: [{ who: "tomas", text: `"Then I will keep bringing them," Tomas says. "Not every day. On the days the numbers get loud." After that the silence is easier to sit in, for both of you.` }] },
+      { text: "Leave the silence unbroken.", next: "act3_spine_next", affinity: { tomas: 5 }, trust: { tomas: 3 }, reply: [{ who: "tomas", text: `Neither of you fills it. When Tomas finally stands, he says, "You can sit. That is rarer on this ship than you would think." Then he goes back to work.` }] }
     ]
   },
 
