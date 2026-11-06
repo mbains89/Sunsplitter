@@ -393,6 +393,8 @@ export function sunPlayerflowPacedRevealChecks() {
     check(desk && /position:\s*static/.test(desk[1]), "G: short-desktop choices are not back in normal flow after the text");
     const sticky = css.match(/#main\.reveal-active #reveal-controls\s*\{([^}]*)\}/);
     check(sticky && /position:\s*sticky/.test(sticky[1]) && /bottom:\s*0/.test(sticky[1]), "G: Read on must stay in view while text waits (sticky at the bottom of #main)");
+    // Muse crop check: tether_dock_ruined.jpg's subject already meets the frame edge, so it never drifts.
+    check(/#scene-image\.plate-drift-a\[src\$="\/tether_dock_ruined\.jpg"\][\s\S]*?animation:\s*none/.test(css), "G: tether_dock_ruined.jpg must be excluded from the plate drift (Muse crop check)");
   }
 
   return errors;

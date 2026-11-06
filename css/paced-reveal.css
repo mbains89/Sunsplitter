@@ -124,6 +124,16 @@
   to { transform: scale(1.035); }
 }
 
+/* Muse crop check (2026-11-06, 120 scene plates): the push-in removes at most 1.7% a side,
+   0.6% at the top and 2.8% at the bottom on a phone. Only one plate loses anything that matters:
+   in tether_dock_ruined.jpg the subject's face already meets the frame edge at rest, so that
+   plate holds still. Three clipped baked-text letters (medical_bay, transmission, shower_sela)
+   were accepted. */
+#scene-image.plate-drift-a[src$="/tether_dock_ruined.jpg"],
+#scene-image.plate-drift-b[src$="/tether_dock_ruined.jpg"] {
+  animation: none;
+}
+
 /* ---- Desktop composition: choices follow the text in normal flow. Since #510
    (SUN-DESKTOP-CHOICE-OVERLAP-01) that rule lives in css/pc-viewport.css. ---- */
 
