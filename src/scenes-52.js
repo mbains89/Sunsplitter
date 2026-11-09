@@ -260,7 +260,7 @@ registerScenes({
       } else if (state.flags.margin_spent_extra) {
         t += `"The solution was verified," Mira says. "The figure is in the archive. The cycle the ship spent arguing cost margin. It did not cost confidence. Two line items."\n\n`;
         t += `"One item." Jiro doesn't look up from the pane. "Eight corrections by hand at six-hour intervals while the ship argued it properly, and a width I can give you to the meter. The margin went where the width went, Commander. One column. Mine."\n\n`;
-        t += `"Your column has the symptom. The gauge fell further than the solution required. Log the width without the cause and the solution takes the blame from whoever reads it next."\n\n`;
+        t += `"Your column has the symptom. The gauge fell further than the solution required. Root cause: the cycle, not the solution. Log the width without the cause and the solution takes the blame from whoever reads it next."\n\n`;
         t += `"Day one hundred eighty-one, one corridor, one pass. We make it or we don't. Nobody who needs that log will be reading it."\n\n`;
       } else {
         t += `"Ninety-four," Mira says. "The other six belongs to the universe. That's the finding. It hasn't changed since I gave it."\n\n`;
