@@ -55,7 +55,7 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
 ## Waiting on Manraj
 
 - Gate 1: a full run on the tip (`playtest-c4d748c`, sent 2026-11-09) and one stranger's full read (D10).
-- STATUS decisions 25 (#529's `vess_cost.jpg`, and the plates behind the screens #525 left unfolded), 26 (one late hour a night), 27 (the promise payoff design), 28 (the other session) and 24 (L-061, a hub visit counter).
+- STATUS decisions 25 (#529's `vess_cost.jpg`, and the plates behind the screens #525 left unfolded), 26 (one late hour a night), 27 (the promise payoff design), 28 (which lead session continues) and 24 (L-061, a hub visit counter).
 - STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17 (What Remains crew block on the L-008 row), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
 - Close the stale PRs listed in STATUS.
 
