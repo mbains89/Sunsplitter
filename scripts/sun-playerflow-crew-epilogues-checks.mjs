@@ -1,8 +1,10 @@
 // SUN-CREW-EPILOGUES-01 (ROADMAP §14A Wave 1, workstream 4) — one paragraph per crew member in What
 // Remains, under the 3–6 reflection lines, in its own element. Every crew member gets exactly one
-// paragraph in crew order; "X died" appears for X if and only if X is dead; unrecovered crew were
-// never aboard; the dead get no present-tense credit; untested promises are never mentioned (L-024);
-// the reflection lines and their element are unchanged; the block is pure.
+// paragraph in crew order; "X was dead" opens X's paragraph if and only if X is dead, and the logged
+// cause clause prints once, in the reflection lines, never again in the paragraph (decision 21,
+// SUN-WHATREMAINS-DEATH-ONCE-01); unrecovered crew were never aboard; the dead get no present-tense
+// credit; untested promises are never mentioned (L-024); the reflection lines and their element are
+// unchanged; the block is pure.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,7 +21,8 @@ const DEATHS = [
   ["amara", "vented with the lower ring"], ["jiro", "vented with the lower ring"], ["jiro", "vented breathing in the service pocket"],
   ["sela", "vented at twenty"], ["vess", "lost the shared medical line to Lena"], ["vess", "vented breathing in the service pocket"]
 ];
-const diedRe = (first) => new RegExp(`\\b${first} (?:died\\b|went back for the living and did not return|finished the repair and died)`);
+const diedRe = (first) => new RegExp(`\\b${first} was dead (?:when the run ended|inside the first hour)\\b`);
+const causeRe = /\b(?:died|went back for the living and did not return|finished the repair and died)\b/;
 const creditRe = /\b(?:he|she) (?:still|keeps|counts|tends|tastes|eats|covers|is|argues|flies|wins|logs|speaks|waits|watches|looks|says)\b/;
 
 const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
@@ -29,7 +32,7 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   // All alive, nothing else: nine paragraphs in order.
   fresh(); row.alive = crewEpilogues();
   // Every authored death, one at a time.
-  row.deaths = ${JSON.stringify(DEATHS)}.map(([who, cause]) => { fresh(); kill(who, cause); return { who, cause, paragraphs: crewEpilogues() }; });
+  row.deaths = ${JSON.stringify(DEATHS)}.map(([who, cause]) => { fresh(); kill(who, cause); return { who, cause, clause: whatRemainsDeathClause(who, cause), facts: whatRemainsFacts().join("\\n"), paragraphs: crewEpilogues() }; });
   // Unrecovered trio.
   resetRunState(); kill("rourke", "died in silence while orders waited"); row.unrecovered = crewEpilogues();
   // L-024: untested promises never mentioned; tested ones are.
@@ -63,6 +66,9 @@ for (const d of out.deaths) {
   for (const k of ORDER) assert.equal(diedRe(FIRST[k]).test(joined), k === d.who || k === "rourke", `${d.who}/${d.cause}: death sentence wrong for ${FIRST[k]}`);
   const para = d.paragraphs[ORDER.indexOf(d.who)];
   assert.ok(!creditRe.test(para), `${d.who}/${d.cause}: present-tense credit for the dead: ${para}`);
+  // Decision 21: the cause prints once, above. The paragraph opens on the person and never repeats it.
+  assert.ok(d.facts.includes(d.clause), `${d.who}/${d.cause}: the reflection lines lost the cause clause "${d.clause}"`);
+  assert.ok(!para.includes(d.clause) && !causeRe.test(para.split(/(?<=[.!?])\s+/)[0]), `${d.who}/${d.cause}: the paragraph repeats the cause: ${para}`);
 }
 expectOrder(out.unrecovered, "unrecovered");
 for (const k of ["tomas", "jiro", "vess"]) {
@@ -90,4 +96,4 @@ assert.ok(out.pure, "crewEpilogues wrote state or differed on a second call");
 assert.equal(out.render.text, out.render.facts, "the reflection element no longer equals whatRemainsFacts()");
 assert.equal(out.render.crew, out.render.joined, "the crew element does not carry the epilogues");
 assert.ok(!out.render.headingHidden && !out.render.screen, "the crew heading or the screen is hidden");
-console.log(`PASS sun-playerflow-crew-epilogues: ${ORDER.length} paragraphs in crew order; death sentences exact for ${DEATHS.length} authored causes; unrecovered never aboard; no present-tense credit for the dead; untested promises silent; rendered in its own element under the unchanged reflection lines`);
+console.log(`PASS sun-playerflow-crew-epilogues: ${ORDER.length} paragraphs in crew order; the dead open on the person and the cause prints once above for ${DEATHS.length} authored causes; unrecovered never aboard; no present-tense credit for the dead; untested promises silent; rendered in its own element under the unchanged reflection lines`);
