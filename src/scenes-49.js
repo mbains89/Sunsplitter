@@ -27,11 +27,12 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Keep it between the two of you.", next: "faction_split" },
-        { text: "Order it into the log anyway.", next: "faction_split", effects: { cohesion: -1 } }
+        // SUN-ROMANCE-ENDINGS-REACH-01: a partner's late hour follows this one.
+        { text: "Keep it between the two of you.", next: afterHour("mira") },
+        { text: "Order it into the log anyway.", next: afterHour("mira"), effects: { cohesion: -1 } }
       ];
       if (state.romance.mira) {
-        c.push({ text: "Stay while she closes it up.", next: "faction_split" });
+        c.push({ text: "Stay while she closes it up.", next: afterHour("mira") });
       }
       return c;
     }
@@ -85,15 +86,16 @@ registerScenes({
         ];
       }
       const made = ["lena", "sela", "elias", "mira"].some(p => state.promises[p] === "made" && isAlive(p));
+      // SUN-ROMANCE-ENDINGS-REACH-01: a partner's late hour follows this one.
       if (made) {
         return [
-          { text: "Agree to weigh it in daylight.", next: "faction_split" },
-          { text: "Tell him a promise is a promise.", next: "faction_split" }
+          { text: "Agree to weigh it in daylight.", next: afterHour("tomas") },
+          { text: "Tell him a promise is a promise.", next: afterHour("tomas") }
         ];
       }
       return [
-        { text: "Eat with him.", next: "faction_split" },
-        { text: "Take yours and go.", next: "faction_split" }
+        { text: "Eat with him.", next: afterHour("tomas") },
+        { text: "Take yours and go.", next: afterHour("tomas") }
       ];
     }
   },
@@ -121,7 +123,7 @@ registerScenes({
       if (close) t += `\n\n` + close;
       return t;
     },
-    choices: [ { text: "Finish the meal.", next: "faction_split" } ]
+    get choices() { return [ { text: "Finish the meal.", next: afterHour("tomas") } ]; }
   },
 
 });

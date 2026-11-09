@@ -35,7 +35,9 @@ const INTRO_SLIDE_ART = [
   "images/ship_exterior_2.jpg",
   "images/onboarding_background.jpg"
 ];
-const EXISTING_WAKE_OFFICIAL = "Nine of you cleared the hatch. The official story is that the cascade gave you hours, maybe two days.";
+// SUN-CONTINUITY-01: the head count lives in the title prologue and intro slide 2; wake keeps the official story only.
+const EXISTING_WAKE_OFFICIAL = "The official story is that the cascade gave you hours, maybe two days.";
+const PROLOGUE_HEAD_COUNT = "Nine of you cleared the hatch.";
 const INVENTED_OPENING = [
   "standoff operation",
   "fragment train",
@@ -100,6 +102,9 @@ function sourceErrors() {
   }
   if (!wakeSource.includes(EXISTING_WAKE_OFFICIAL)) {
     errors.push("wake lost the existing official-account sentence");
+  }
+  if (!EXISTING_INTRO_LINES[1].includes(PROLOGUE_HEAD_COUNT) || wakeSource.includes(PROLOGUE_HEAD_COUNT)) {
+    errors.push("the head count must be read once, in the prologue, not repeated in wake");
   }
   const openingSurfaces = [indexSource, engineSource.match(/function showCinematic[\s\S]*?\n\}/)?.[0] || ""];
   for (const phrase of INVENTED_OPENING) {
