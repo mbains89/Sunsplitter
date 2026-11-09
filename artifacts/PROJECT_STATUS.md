@@ -20,7 +20,7 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `sequential_gate_closure: none credited from 0.28.2 onward`
 `pc_readiness_0_36: tip-named pack closed-for-FEED (NOT certified; 0.36 PAINT; last certified 0.28.1d)`
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
-`browser_bot_latest: ee4470f (#535 head, on c4d748c), 2026-11-09 — 9/9 chaos runs reached an ending, 0 findings (seed 1107 desktop/mouse and phone/touch, seed 2207 desktop/mouse; 166 reloads plus Continue). Earlier: b1ae936, 12/12 runs, 0 findings on rerun.`
+`browser_bot_latest: dfb93d0 (after #538), 2026-11-09 — 8/8 runs reached an ending, 0 findings (phone/touch chaos, desktop/mouse chaos, desktop/keys, desktop/tab; 62 reloads plus Continue). Before that: ee4470f (#535 head), 9/9 chaos runs, 0 findings.`
 
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
