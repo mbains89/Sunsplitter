@@ -3662,7 +3662,11 @@ function renderPurityChecks(runtime) {
     state.promises.tomas = "made";
     const spineRedirect = scenes.act3_spine_next.onEnter();
     const spine = renderTwice(scenes.act3_spine_next);
+    // SUN-HUB-RESUME-01: entry writes nothing; every exit of the visit that shows the line spends it.
     const tomasFlag = state.flags.prom_tomas_alluded;
+    const spineExitsSpend = scenes.act3_spine_next.choices.every(c => c.flag && c.flag.prom_tomas_alluded === true);
+    state.flags.prom_tomas_alluded = true;
+    const spineSpent = readText(scenes.act3_spine_next);
 
     resetRunState();
     state.affinity.amara = 20;
@@ -3696,6 +3700,8 @@ function renderPurityChecks(runtime) {
       spine,
       spineRedirect: spineRedirect || null,
       tomasFlag,
+      spineExitsSpend,
+      spineSpent,
       offered,
       offeredMemoryAfterEntry,
       offeredMemoryAfterRender,
@@ -3730,8 +3736,9 @@ function renderPurityChecks(runtime) {
   for (const needle of ["Junction eleven quoted the dead", "Inventory: one promise", "I have inventoried what you have given me"]) {
     if (!fixture.reckoning.first.includes(needle)) errors.push(`reckoning promise allusion missing: ${needle}`);
   }
-  if (fixture.spineRedirect || !fixture.tomasFlag || !fixture.spine.first.includes("Names first, then numbers")) {
-    errors.push("Tomas promise allusion did not consume and render on the non-redirected spine entry");
+  if (fixture.spineRedirect || fixture.tomasFlag || !fixture.spineExitsSpend ||
+      !fixture.spine.first.includes("Names first, then numbers") || fixture.spineSpent.includes("Names first, then numbers")) {
+    errors.push("Tomas promise allusion did not render on the non-redirected spine entry, or its exits do not spend it once");
   }
 
   const offeredMemory = "Amara offered absolution for Dr. Lena Voss";

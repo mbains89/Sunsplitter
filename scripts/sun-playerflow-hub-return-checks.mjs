@@ -8,7 +8,8 @@
 //      later visit offers the first visit's choices (labels, exits, effects, order) less only the
 //      offers already spent;
 //   2. keys the opening walk or the private hours can spend do not turn a first visit into a return;
-//   3. rendering the hub text writes nothing, on a first visit and on a return;
+//   3. rendering the hub text writes nothing, on a first visit and on a return; the allusion is spent
+//      by the exits of the visit that shows it (SUN-HUB-RESUME-01), so the save of that visit keeps it;
 //   4. seeded real play: the first rendered visit always prints the paragraph, it prints at most
 //      twice a run, and a second print follows only Elias's hour (whose mark the opening walk can
 //      also set, so it cannot prove a return).
@@ -48,7 +49,11 @@ const runtime = loadGame(ROOT);
 const loop = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   ${PRELUDE}
   const buttons = () => choicesEl.children.map(b => ({ label: b.__ssChoiceLabelHtml || b.innerHTML, disabled: !!b.disabled }));
-  const visit = () => ({ scene: state.scene, story: story(), buttons: buttons(), choices: JSON.parse(JSON.stringify(hub.choices)) });
+  // SUN-HUB-RESUME-01: the visit that shows the Tomas allusion spends it on every exit (choice flag);
+  // the menu comparison below is of what the player is offered, so that write is read separately.
+  const offered = () => hub.choices.map(c => { const o = JSON.parse(JSON.stringify(c)); delete o.flag; return o; });
+  const spends = () => hub.choices.map(c => JSON.stringify(c.flag || null));
+  const visit = () => ({ scene: state.scene, story: story(), buttons: buttons(), choices: offered(), spends: spends() });
   const choose = start => {
     const sc = scenes[state.scene];
     const list = (typeof sc.choices === "function" ? sc.choices() : sc.choices) || [];
@@ -79,6 +84,11 @@ for (const [i, row] of later.entries()) {
 assert.ok(!first.story.includes(ALLUSION) && !later[0].story.includes(ALLUSION), "no Tomas allusion before a promise");
 assert.ok(later[1].story.includes(ALLUSION), "the Tomas allusion must fire on the later visit that consumes it");
 assert.ok(!later[2].story.includes(ALLUSION), "the Tomas allusion fires once");
+// SUN-HUB-RESUME-01: the visit that shows the allusion spends it by every exit, and no other visit writes it.
+for (const [i, row] of loop.entries()) {
+  const expected = row.story.includes(ALLUSION) ? JSON.stringify({ prom_tomas_alluded: true }) : "null";
+  assert.ok(row.spends.length && row.spends.every(f => f === expected), `visit ${i + 1}: exits must ${expected === "null" ? "write no flag" : "spend the allusion"} (${row.spends.join(", ")})`);
+}
 for (const name of CREW_NAMES) assert.ok(!RETURN_LINE.includes(name), `the return line must name no one (${name})`);
 
 // Each visit offers the previous visit's choices, in the same order with the same exits and
