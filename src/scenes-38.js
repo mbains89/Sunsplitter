@@ -4,7 +4,7 @@
 registerScenes({
 
   wake: {
-    get text() { return `The medical bay smells of ozone and blood.\n\nA status board still scrolls launch errors that no one has authority to clear.\n\n${isAlive("lena") && isAlive("rourke") ? `Dr. Lena Voss works on a man who will not last the hour.` : ""} ${isAlive("elias") ? `Elias Kane stands by the hatch, arms folded, already counting who is left.` : ""}\n\nSomewhere deeper in the ship, other voices move — too few of them.\n\nThe official story is that the cascade gave you hours, maybe two days. The rest is still being written in the dark sections you have not opened yet.\n\nYou are the Commander. What you order in the next minutes will not stay in this room.`; },
+    get text() { return `The medical bay smells of ozone and blood.\n\nA status board still scrolls launch errors that no one has authority to clear.\n\n${isAlive("lena") && isAlive("rourke") ? `Dr. Lena Voss works on a man who will not last the hour.` : ""} ${isAlive("elias") ? `Elias Kane stands by the hatch, arms folded, already counting who is left.` : ""}\n\nSomewhere deeper in the ship, other voices move — too few of them.\n\nThe official story is that the cascade gave you hours, maybe two days. The rest is still being written in the dark sections you have not opened yet.\n\nWhat you order in the next minutes will not stay in this room.`; },
     choices: [
       { text: "Sit up. Take command. Demand what Lena and Elias already know.", aliveAll: ["lena", "elias"], next: "intro_lena", effects: { cohesion: 3 }, flag: { rourke: "ignored" } },
       { text: "Go to the dying man first.", alive: "rourke", next: "dying", effects: { cohesion: 5 } },

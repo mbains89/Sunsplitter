@@ -22,7 +22,6 @@ registerScenes({
         }).length;
         const bunkWord = ({ 1: "One", 2: "Two", 3: "Three", 4: "Four" })[ventedBunks] || String(ventedBunks);
         t += ventedBunks === 1 ? `${bunkWord} empty bunk.` : `${bunkWord} empty bunks.`;
-        if (!isAlive("sela")) t += ` Sela's last yellow circle still fixed on the bulkhead — adult work, left where she put it.`;
         t += ` The air recyclers still carry a faint metallic taste`;
         if (isAlive("lena")) t += ` that Lena says is not chemical`;
         t += `.\n\n`;
@@ -62,13 +61,6 @@ registerScenes({
         t += `\n\n`;
       }
 
-      if (state.flags.stores === "seize") {
-        t += `The seized private stores sit in a locked crate. Nobody thanks you for them.\n\n`;
-      }
-      if (state.flags.ship_memory === "jury_rig" || state.flags.ship_memory === "open_wound") {
-        if (isAlive("mira")) t += `Mira's eye keeps tracking the Deck 4 pressure icon even while she talks about the bulkhead.\n\n`;
-        else t += `Someone has marked the Deck 4 pressure icon in red on the status board.\n\n`;
-      }
       if (typeof favoritism === "function") {
         const fav = favoritism();
         if (fav && isAlive(fav.favored) && isAlive("elias") && fav.favored !== "elias") {
