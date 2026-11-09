@@ -915,8 +915,9 @@ function whatRemainsChecks(runtime) {
   if (!six[1]?.includes("Rourke died with company") || !six[2]?.includes("Mira died breathing")) {
     errors.push("six-line fixture did not preserve all deaths across two ordered lines");
   }
-  if (six[4] !== "At the service-pocket test, the pocket was vented while the reader was still breathing.") {
-    errors.push("death-causing promise did not win the promise slot");
+  // SUN-PROMISE-DEATH-ONCE-01: the death line above carries the death, so the promise line drops it.
+  if (six[4] !== "At the service-pocket test, the vent did not stay shut.") {
+    errors.push("death-causing promise did not win the promise slot, or restated the death");
   }
 
   const tomasCrisisGate = runtime.evaluate(`(() => {
