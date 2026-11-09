@@ -22,7 +22,6 @@ This is the live page: where the work branch is, what landed, what is open, and 
 `pc_readiness_0_36_bot_evidence: docs/SUN_036_BROWSER_EVIDENCE.md — candidate evidence for the ROADMAP §11 exit; not an exit`
 `browser_bot_latest: 07a9748 (after #523–#526), 2026-11-06 — 4/4 runs reached an ending (phone/touch seed 1106: 2 runs, 0 findings; desktop/mouse/chaos seed 1107: 2 runs, 25 reloads, 8 resizes, 1 finding). The finding is RESUME_DRIFT at `act3_spine_next`: after reload and Continue, a later hub visit regains Tomas's one-shot "Names first, then numbers" allusion (pre-existing 0.27.2 resume logic, exposed by #524's short return line); ticketed as SUN-HUB-ALLUSION-RESUME-01.`
 
-
 - `main` is `e5a71fc`, the close-out of the lane through `8ff92ad` (PR #492, Manraj's go 2026-11-05). All three `main` gates passed on the head. That is evidence, not certification. `source_main_sha` above stays the lane's starting point. The next close-out needs Manraj's go.
 - **Netlify production is not the work branch.** The live production deploy, observed 2026-11-05 through the Netlify API, is commit `0e7535d` from 2026-09-23. That is roughly 300 commits behind the tip. Earlier STATUS text named `a91a26d` as the owner playtest pin, but the API shows `0e7535d` live. Any redeploy or repin needs Manraj's explicit go.
 - `VERSION.md` paints `0.36`. That is paint, not certification.
@@ -100,13 +99,13 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 
 - **Wave 1, 0.37 Deeper Crew (ROADMAP §14A): written.** It covers the five romance arcs (#499–#503), callbacks (#506), crew friction (#508) and per-crew epilogues (#509). Since the deep dive it also carries "orders get answers" (L-057: #514, #516, #521) and reader staging (L-058 #515, L-059 #520/#522). Gate 1 (Manraj's full run plus one stranger's full read) is next.
 - **D11 = Deep (ruled 2026-11-06), with no time target.** Manraj's words that evening: "We dont have to stick to the 20 min target. dont artificially limit the game due to that." Cuts are for slack and for setups with no payoff, judged one at a time. The measurements are in the project doc `claude/hex/2026-11-06-d11-run-length.md`: a median run was 101 screens and 45 prose minutes before step 1, and 99 screens and about 42 prose minutes on `07a9748` after its first batch.
-  - **Step 1 (slack, no lock) landed its first batch:** #526 (trims), #524 (C01 hub once), #525 (C11/C12 reply fold). Remaining step 1 tickets, one PR each with a Myth read and a re-measure: C04 (`ship_memory_payoff` into the final preamble), C06 (`vault_reveal` explainer), C07 (`time_pass`), C10 (`vess_signal` + `vess_cost`), C13 (warmth vignettes), C14 (`power_crisis`), C17 (`crew_walk`), C20 (opening), C21 (`offshift_open`), C22 (`aftermath`, `arc_fork`).
-  - **Step 2 is quality fixes, not lock cuts (decision 19, ruled):** `SUN-PROMISE-PAYOFF-01` (every promise made is tested or cited later; about 80% of runs make one, about 23% see it tested); `SUN-FRICTION-RESTATE-TRIM-01` (keep all four pair scenes, trim only lines where a character restates a point); deaths once in What Remains (decision 21, this PR). The remaining slack items in the analysis (repeated stock-takes, numbers-only scenes, result screens) are judged one at a time.
+  - **Step 1 (slack, no lock) landed its first batch:** #526 (trims), #524 (C01 hub once), #525 (C11/C12 reply fold), #529 (C10 Vess merge). Remaining step 1 tickets, one PR each with a Myth read and a re-measure: C04 (`ship_memory_payoff` into the final preamble), C06 (`vault_reveal` explainer), C07 (`time_pass`), C13 (warmth vignettes), C14 (`power_crisis`), C17 (`crew_walk`), C20 (opening), C21 (`offshift_open`), C22 (`aftermath`, `arc_fork`).
+  - **Step 2 is quality fixes, not lock cuts (decision 19, ruled):** `SUN-PROMISE-PAYOFF-01` (every promise made is tested or cited later; about 80% of runs make one, about 23% see it tested); `SUN-FRICTION-RESTATE-TRIM-01` (keep all four pair scenes, trim only lines where a character restates a point); deaths once in What Remains (decision 21, landed in #527). The remaining slack items in the analysis (repeated stock-takes, numbers-only scenes, result screens) are judged one at a time.
 - **Small tickets found today:**
   - `arc_living_4` promises an unwired "double cycle" option (decision 22).
   - SUN-HUB-ALLUSION-RESUME-01: a resumed corridor hub can reprint Tomas's one-shot allusion from an earlier visit (browser bot, seed 1107). The resume branch cannot tell "spent on this visit" from "spent earlier" in saved state; a clean fix wants the hub visit counter (decision 24, L-061) or a design proposal.
   - In phone landscape the plate leaves `#main` about 75 px for text.
-  - Flags written but never read: `embryo_ceiling`, `leadership_style`, `vault_face`, `busDowngraded`, `reaction_mass_spent`.
+  - Flags written but never read: `embryo_ceiling`, `leadership_style`, `vault_face`, `reaction_mass_spent`. (`busDowngraded` is read: Vess's paragraph in What Remains, `crewEpilogues()` in `src/state.js`.)
   - `offshift_jiro`'s two `isAlive("mira")` branches are identical.
   - `time_pass` leaves a dangling "her" when Mira is dead.
   - "Nine of you cleared the hatch." appears twice, in the prologue and in `wake`.
@@ -170,6 +169,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 23. **L-060 (proposed), the pair flags from #508.** One row: "Wave 1 friction and epilogue state: one flag per pair scene, written by the Commander's answer, read only by text; no meters." This was proposed as L-057 before L-057 was ruled for replies.
 24. **L-061 (proposed), a hub visit counter, from #524.** The corridor's first-visit paragraph is inferred from a dozen one-shot keys the hub's own offers spend, which errs toward showing the old text and is brittle to any new offer. A clean rule needs one new state key (a per-run `act3_spine_next` visit count, read only by that scene's text). Recommendation: yes, one row. Say no and the inference stays as landed.
 25. **Plates behind folded screens, from #525.** About 2.5 more screens a median run could fold into reply lines, but each holds an owner-approved event plate that would then never show, including the only use of `work_elias.jpg`. Options: leave them as screens (as landed), or fold them and retire the plates from `HITL_EVENT_PLATE_IDS`. Recommendation: leave them; the plates were approved to be seen.
+   - **#529 (C10) puts the same question to one plate.** Merging `vess_cost` into `vess_signal` takes `vess_cost` out of `HITL_EVENT_PLATE_IDS`, so `images/vess_cost.jpg` (HITL stage pack 2026-09-27) is never shown. It is a near-twin of `vess_signal.jpg`: the same room, Mira and Elias at the board, the Commander from behind. Options: retire it with the merge, or keep the two screens. Reviewer recommendation: retire it; the screen that stays shows the same scene. #529 holds for this answer.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -204,6 +204,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** land the rest of D11 Deep step 1 (C10, C04, C07 next) and the decision-19 quality tickets, one PR each with a Myth read and a re-measure; run a browser-bot batch after each batch of merges. **Manraj:** play the playtest build on the tip (gate 1, first half); name the gate-1 stranger (D10); rule 24 (L-061) and 25 (plates behind folded screens).
+**Lead:** land the rest of D11 Deep step 1 (C04, C07 next) and the decision-19 quality tickets, one PR each with a Myth read and a re-measure; run a browser-bot batch after each batch of merges. **Manraj:** play the playtest build on the tip (gate 1, first half); name the gate-1 stranger (D10); rule 24 (L-061) and 25 (plates behind folded screens, now including `vess_cost.jpg` from #529).
 
 <!-- STATUS_COMPLETE -->
