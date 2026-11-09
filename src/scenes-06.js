@@ -24,8 +24,7 @@ registerScenes({
       if (shape === "future") t += `You have already leaned toward the future. The ship has noticed.\n\n`;
       else if (shape === "living") t += `You have already leaned toward the living. The ship has noticed.\n\n`;
       else t += `You have not yet forced the ship to choose a single language.\n\n`;
-      t += `Leadership is a separate question from ideology. You can hold hard rules and still protect the living. You can speak softly and still feed the vault.\n\n`;
-      t += `Where do you put your weight?`;
+      t += `Leadership is a separate question from ideology. You can hold hard rules and still protect the living. You can speak softly and still feed the vault.`;
       return t;
     },
     get choices() {
