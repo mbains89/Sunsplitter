@@ -85,6 +85,15 @@ body,
    After the short-desktop block above, so a short window 1024px or wider takes this layout too.
    Portrait, tablets and desktops 501px or taller never match. */
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 520px) {
+  /* Muse crop check (#533): the plate now sits at the left edge, where some Android landscape
+     phones report a side cutout inset (8-18px of the plate fell under it in emulation). Pad the
+     sides by the safe area so no part of the plate hides under a cutout; zero wherever insets
+     are zero, so other phones and iPhones are unchanged. */
+  body {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
   #app {
     /* Status and meta bars measure 55 + 57px here; 132px also covers the plate's margins. */
     --landscape-plate-w: calc((100dvh - var(--safe-top) - var(--safe-bottom) - 132px) * 784 / 1168);
