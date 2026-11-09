@@ -29,14 +29,18 @@ registerScenes({
     ]
   },
 
+  // SUN-ROMANCE-ENDINGS-REACH-01: also a partner's late hour after the Commander spent the junction
+  // hour with someone else (entered directly, without filters_stencil); then junctionChoice keeps
+  // that pick, her second note opens the scene and no closing line prints. Exits: afterHour("sela").
   offshift_sela: {
     image: "images/sela_ritual.jpg",
     onEnter: () => {
-      state.flags.junctionChoice = "sela";
+      if (!lateHour("sela")) state.flags.junctionChoice = "sela";
       remember("attended the ritual performed for one person");
     },
     get text() {
-      let t = `The lamp is already warming when you arrive, amber climbing toward yellow, and the filter behind it hums at the pitch of a held breath. The light crosses her hands first. For one hour this small yellow circle is the only sunrise anyone on this ship will get, and she is spending it on an audience of one.\n\n`;
+      let t = lateHour("sela") ? `Past cycle-turn, a second note reaches you, complete sentences: "I have not lit the lamp. I will light it when you come."\n\n` : ``;
+      t += `The lamp is already warming when you arrive, amber climbing toward yellow, and the filter behind it hums at the pitch of a held breath. The light crosses her hands first. For one hour this small yellow circle is the only sunrise anyone on this ship will get, and she is spending it on an audience of one.\n\n`;
       // Names of the dead
       const deadList = (state.dead || []).filter(k => k !== "rourke").map(k => (crew[k] && crew[k].name) || k);
       if (deadList.length) {
@@ -48,18 +52,18 @@ registerScenes({
       if (romanceOpen("sela")) {
         t += `\n\nThe lamp holds at full yellow. "The next part is not liturgy. The next part is a question, and I am only asking it once, because I only have the one." She waits. She does not fill the silence. She never has.`;
       }
-      const close = closingPartnerLine();
+      const close = lateHour("sela") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
       return t;
     },
     get choices() {
       if (romanceOpen("sela")) {
         return [
-          { text: "Stay past the yellow.", next: "faction_split" },
-          { text: "Let the lamp go amber and step back.", next: "faction_split", mark: { sela: "declined" } }
+          { text: "Stay past the yellow.", next: afterHour("sela") },
+          { text: "Let the lamp go amber and step back.", next: afterHour("sela"), mark: { sela: "declined" } }
         ];
       }
-      const c = [ { text: "Stand with her until amber.", next: "faction_split" } ];
+      const c = [ { text: "Stand with her until amber.", next: afterHour("sela") } ];
       // SUN-ROMANCE-ARC-05 (L-050): a partner may stay past amber; what follows is not the ritual.
       if (state.romance.sela) c.push({ text: "Stay past amber.", next: "sela_past_amber", tag: "private" });
       return c;
@@ -69,9 +73,11 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: sela_past_amber            TICKET: SUN-ROMANCE-ARC-05 (L-050, Wave 1)
   // PRE: Sela living and romance.sela; reached only from offshift_sela "Stay past amber.";
-  //   junctionChoice is "sela". Text reads pursuit_sela_cost, sela_vault_vow, custody_answer and
-  //   promises.sela (kept/broken only; an untested promise is not read aloud, L-024). Adjacent to,
-  //   never inside, the locked lamp-ritual prose: the lamp is amber before she speaks.
+  //   junctionChoice is "sela", or another pick when offshift_sela was her late hour
+  //   (SUN-ROMANCE-ENDINGS-REACH-01); the reply's exit goes to afterHour("sela").
+  //   Text reads pursuit_sela_cost, sela_vault_vow, custody_answer and promises.sela (kept/broken
+  //   only; an untested promise is not read aloud, L-024). Adjacent to, never inside, the locked
+  //   lamp-ritual prose: the lamp is amber before she speaks.
   // WRITES: none on entry. The three answers write flags.sela_amber ("meaning" | "sentence" |
   //   "silence") plus affinity/trust; no resource change.
   // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when she is dead or not
@@ -143,13 +149,13 @@ registerScenes({
       t += `\n\nShe leaves the lamp where it is. Tomorrow it will be lit for the ship again.`;
       return t;
     },
-    choices: [
-      { text: "Let it stay down.", next: "faction_split" }
-    ]
+    get choices() { return [ { text: "Let it stay down.", next: afterHour("sela") } ]; }
   },
 
   // SUN-V035-PLAYTEST-OFFSHIFT-VESS-01 — image-only repair.
-  // PRECONDITION: eligVess() / isAlive("vess") via offshift_open.
+  // PRECONDITION: eligVess() / isAlive("vess") via offshift_open, or a partner's late hour after
+  // the Commander spent the junction hour with someone else (SUN-ROMANCE-ENDINGS-REACH-01): then
+  // junctionChoice keeps that pick, a bridge line opens the scene and no closing line prints.
   // WRITES (unchanged): onEnter junctionChoice + beacon memory; choices may
   // write cohesion -1, last_tx_spent, and the selected beacon memory.
   // DEATH EXPOSURE: none. Vess speaks; live admission unchanged. Invalid-save
@@ -158,11 +164,12 @@ registerScenes({
   offshift_vess: {
     image: "images/vess.jpg",
     onEnter: () => {
-      state.flags.junctionChoice = "vess";
+      if (!lateHour("vess")) state.flags.junctionChoice = "vess";
       remember("heard the beacon Vess was holding");
     },
     get text() {
-      let t = `The relay bay runs on console light, cyan off the racks, and her chair is worn pale on one arm where six years of one elbow rested. She gives you the other seat. The hour smells of cold solder and old plastic — the smell of equipment kept alive past its design life by somebody who had to.\n\n`;
+      let t = lateHour("vess") ? `Past cycle-turn, the relay bay light is still on when you pass. It pings once, log-flat: "Query, non-urgent, still open. The item kept."\n\n` : ``;
+      t += `The relay bay runs on console light, cyan off the racks, and her chair is worn pale on one arm where six years of one elbow rested. She gives you the other seat. The hour smells of cold solder and old plastic — the smell of equipment kept alive past its design life by somebody who had to.\n\n`;
       t += `"Item one. Logged receipt forty-one cycles ago, oh-two-hundred. Automated. Ark-band handshake, station-keeping power signature. Verified eleven times."\n\n`;
       t += `She plays it. A preamble tone. A ship designator, repeating, patient as a metronome. Then the gap where an answer would go, and the preamble again.\n\n`;
       t += `"Crews don't maintain station-keeping beacons," she says, and for once she answers slowly, at human tempo — from her, slow is a gift. "Orphans do. Somewhere out there a ship is saying its own name to nobody, on schedule. I did that for six years. I know the accent." A beat, half a beat late, checking the joke is still allowed: "It's good work. Whoever's not alive over there is doing good work."\n\n`;
@@ -171,19 +178,19 @@ registerScenes({
       if (state.romance.vess) {
         t += `\n\n"Item two, if you're staying: the chair is rated for one and I'm not moving. Solve it."`;
       }
-      const close = closingPartnerLine();
+      const close = lateHour("vess") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
       return t;
     },
     get choices() {
       const c = [
-        { text: "Tell the crew.", next: "faction_split", effects: { cohesion: -1 }, remember: "relayed the orphan beacon to the crew" },
-        { text: "Hold it between you.", next: "faction_split", remember: "kept the orphan beacon between the two of you" }
+        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "relayed the orphan beacon to the crew" },
+        { text: "Hold it between you.", next: afterHour("vess"), remember: "kept the orphan beacon between the two of you" }
       ];
       if (!state.flags.last_tx_spent) {
         c.push({
           text: "Answer it.",
-          next: "faction_split",
+          next: afterHour("vess"),
           flag: { last_tx_spent: true },
           remember: "spent the last long-range window answering a dead ship's beacon"
         });
@@ -199,7 +206,8 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: vess_item_two              TICKET: SUN-ROMANCE-ARC-03 (L-050, Wave 1)
   // PRE: Vess recovered and living, romance.vess; reached only from offshift_vess "Solve it.";
-  //   junctionChoice is already "vess". Text branches on flags.vess_intimate.
+  //   junctionChoice is "vess", or another pick when offshift_vess was her late hour
+  //   (SUN-ROMANCE-ENDINGS-REACH-01). Text branches on flags.vess_intimate.
   // WRITES: none on entry. The two answers write flags.vess_item_two ("floor" | "chair") plus
   //   affinity/trust; no resource change.
   // DEATH: none. DEAD/UNRECOVERED: entry redirects to faction_split (onEnter + living-cast
@@ -260,9 +268,7 @@ registerScenes({
       t += `The console light does what it does. She answers the next thing you say a full second late. Not a gift this time. Just her tempo.\n\n"Captain." She does not correct it.`;
       return t;
     },
-    choices: [
-      { text: "Let the entry stand.", next: "faction_split" }
-    ]
+    get choices() { return [ { text: "Let the entry stand.", next: afterHour("vess") } ]; }
   },
 
   // ═══════════════════════════════════════════════════════════════

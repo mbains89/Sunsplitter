@@ -735,7 +735,8 @@ function crewEpilogues() {
   const dead = (k) => state.dead.includes(k);
   const cause = (k) => state.deathCause[k];
   const gone = (k) => `${crew[k] ? crew[k].first : k} was dead when the run ended.`;
-  const lastHour = (k, her) => f.junctionChoice === k ? ` The last private hour of the run was ${her}.` : "";
+  // SUN-ROMANCE-ENDINGS-REACH-01: a partner who stayed after the junction hour had the last one.
+  const lastHour = (k, her) => lastPrivateHour() === k ? ` The last private hour of the run was ${her}.` : "";
   const rootCause = f.burn_unverified || f.margin_spent_extra;
   const out = [];
 
@@ -1064,6 +1065,9 @@ function partnerUnchosen() {
   if (!jc || jc === "none") return null;
   const partners = ["lena", "mira", "amara", "sela", "vess"].filter(w => state.romance[w] && isAlive(w));
   for (const p of partners) {
+    // SUN-ROMANCE-ENDINGS-REACH-01: a partner whose late hour is still to come is not left behind;
+    // that hour opens on her light instead.
+    if (lateHourPending(p)) continue;
     if (p !== jc) {
       // only report if they were eligible
       if (p === "lena" && eligLena()) return p;
@@ -1084,6 +1088,47 @@ function closingPartnerLine() {
   if (p === "vess") return "The relay bay light is on when you pass. Shut by morning.";
   if (p === "lena") return "Down-corridor, the medbay channel light burns past cycle-turn. Then it doesn't.";
   return "";
+}
+
+// SUN-ROMANCE-ENDINGS-REACH-01 (decision 12 widened, ruled 2026-11-08): a romance arc's last scene
+// no longer depends on the junction pick. After the hour the Commander chose, each living, aboard
+// partner whose last scene has not played gets one late hour, in crew order, and reaches the last
+// scene through that partner's own stay choice, as before. The late hour is the partner's own
+// off-shift scene: Lena's and Vess's last scenes continue theirs, and the endings cite Sela's
+// ritual. Amara's absolution hour needs a death to absolve, so with none she opens the ledger
+// directly. Mira's arc ends at the Act III board, before the junction, and is not routed here.
+// Each `open` is the arc's existing stay gate; `done` is the arc's existing end-state flag. No
+// state is written: the exits read junctionChoice, the arc flags and who is alive and aboard.
+const LATE_HOURS = {
+  lena:  { entry: () => "offshift_lena", open: () => (!!state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken", done: () => !!state.flags.lena_last_hour },
+  amara: { entry: () => eligAmara() ? "offshift_amara" : "amara_page", open: () => !!state.romance.amara, done: () => !!state.flags.amara_page },
+  sela:  { entry: () => "offshift_sela", open: () => !!state.romance.sela, done: () => !!state.flags.sela_amber },
+  vess:  { entry: () => "offshift_vess", open: () => !!state.romance.vess, done: () => !!state.flags.vess_item_two }
+};
+// True while `who`'s scenes play after an hour the Commander spent with someone else.
+function lateHour(who) {
+  const jc = state.flags.junctionChoice;
+  return !!jc && jc !== "none" && jc !== who;
+}
+function lateHourPending(who) {
+  const hour = LATE_HOURS[who];
+  return !!hour && lateHour(who) && isAlive(who) && hour.open() && !hour.done();
+}
+// The exit of every off-shift scene; `from` is the crew member whose hour is ending. The junction
+// pick's hour leads to the first late hour, each late hour to the next, the last to the spine.
+function afterHour(from) {
+  const order = Object.keys(LATE_HOURS);
+  const start = from === state.flags.junctionChoice ? 0 : order.indexOf(from) + 1;
+  for (const who of order.slice(start)) if (lateHourPending(who)) return LATE_HOURS[who].entry();
+  return "faction_split";
+}
+// Whose hour was the run's last private one: the junction pick, or a partner who stayed after it.
+function lastPrivateHour() {
+  const jc = state.flags.junctionChoice;
+  if (!jc || jc === "none") return null;
+  let last = jc;
+  for (const who of Object.keys(LATE_HOURS)) if (who !== jc && LATE_HOURS[who].done()) last = who;
+  return last;
 }
 
 // Register scene maps; throw on duplicate IDs so act splits cannot silently collide
