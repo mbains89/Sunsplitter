@@ -4,18 +4,13 @@ Live coordination queue for the lead and helper chats (AGENTS.md v2 §1). Status
 
 Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.30.1-<name>`, one concern each.
 
-## Next
+## In flight
 
-One PR each, with a Myth read for any prose.
-
-| Ticket | Owner | Scope |
+| Ticket | Owner | State |
 |---|---|---|
-| SUN-PROMISE-PAYOFF | Lead | STATUS decision 19 (L-024 unchanged): every promise made pays off, tested or cited later. Design first: the lead sends Manraj each promise and where it pays off, and prose starts only on his approval. |
-| SUN-REMAINS-DEATH-ONCE-01 | Lead | STATUS decision 21 (L-008 unchanged): a death prints once in What Remains. The cause stays in the reflection lines; a dead crew member's paragraph opens on the person. |
-| SUN-FRICTION-TRIMS-01 | Lead | STATUS decision 19: the four pair scenes from #508 stay; trim only restated lines. |
-| SUN-CONTINUITY-01 | Lead; Myth proposes | Continuity fixes from the motions deep dive (item 9): the missing are missed, Vess named, template leaks, contradictions. |
-| SUN-LANDSCAPE-PLATE-01 | Lead | In phone landscape the plate leaves `#main` about 75 px for text. |
-| SUN-DIET-VESS-01 | Lead | Slack (C10): `vess_signal` and `vess_cost` become one screen. Re-measure after. |
+| SUN-WHATREMAINS-DEATH-ONCE-01 | Lead | Decision 21: a death prints once in What Remains; the crew paragraph opens on the person. Carries the STATUS and queue close-out for #523–#526. |
+| SUN-DIET-VESS-MERGE-01 | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. Myth read before ready. |
+| SUN-DIET-MEMORY-FOLD-01 | Lead | D11 Deep step 1, C04: `ship_memory_payoff` folds into the final preamble. Myth read before ready. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
@@ -29,29 +24,46 @@ One PR each, with a Myth read for any prose.
 
 Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verify, coverage and the browser bot are green; face exposures stay at zero.
 
-## D11 run length (ruled 2026-11-06): no target
+## D11 Deep (ruled 2026-11-06, no time target): next tickets
 
-There is no run-length target (STATUS decision 19; ROADMAP §PX-2). Cuts remove only slack, repetition, or setups that never pay off, each judged on its own. Earlier measurements are in the project doc `claude/hex/2026-11-06-d11-run-length.md`; on `07a9748` a median run is 99 screens.
+Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`. Cuts are for slack and for setups with no payoff, judged one at a time; the 20-minute figure is not a target (Manraj, 2026-11-06 evening).
 
-- **Step 1, landed:** #524 SUN-DIET-HUB-01 (C01, the hub paragraph once a run), #525 SUN-DIET-REPLY-FOLD-01 (C11/C12, eleven answer screens into replies, 242 → 231 scenes) and #526 SUN-DIET-TRIMS-01 (C06, C07, C17, C20–C22, ten opening and spine scenes trimmed). Each had a Myth read, applied before merge.
-- **Slack candidates, judged one at a time:** C10 is `SUN-DIET-VESS-01` above. Then C04 (fold `ship_memory_payoff` into the final preamble), C13 (warmth vignettes) and C14 (`power_crisis`). Each is one PR with a Myth read and a re-measure.
+- **Step 1** needs no lock. Landed: C01 (#524), C11/C12 (#525), the first trims (#526). Besides the two in flight above:
+  - C06: trim the `vault_reveal` explainer.
+  - C07: trim `time_pass`.
+  - C13: warmth vignettes.
+  - C14: `power_crisis`.
+  - C17: trim `crew_walk`.
+  - C20: trim the opening.
+  - C21: trim `offshift_open`.
+  - C22: trim `aftermath` and `arc_fork`.
+
+  One PR each, a Myth read for the prose, and a re-measure after each.
+- **Step 2 is quality fixes (STATUS decision 19, ruled; no lock moves):**
+  - SUN-PROMISE-PAYOFF-01: every promise made is tested or cited later (L-024 stays).
+  - SUN-FRICTION-RESTATE-TRIM-01: all four pair scenes stay; trim only lines where a character restates a point.
+  - Deaths once in What Remains: in flight above (decision 21).
+  - Off-shift lead-ins are not cut (L-050 stays). What Remains is not cut (L-008 stays).
 - **Small tickets found today:**
   - the `arc_living_4` "double cycle" sentence (decision 22);
+  - the phone-landscape plate leaves `#main` about 75 px;
   - five flags written but never read;
-  - `offshift_jiro`'s two identical `isAlive("mira")` branches.
+  - `offshift_jiro`'s two identical `isAlive("mira")` branches;
+  - `time_pass`'s dangling "her" when Mira is dead;
+  - "Nine of you cleared the hatch." printed twice (prologue and `wake`).
 
 ## Waiting on Manraj
 
-- The `SUN-PROMISE-PAYOFF` design, when the lead sends it.
 - Gate 1: a full run on the tip (the end-of-day playtest build) and one stranger's full read (D10).
-- STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17 (the What Remains crew section on the L-008 row), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
+- STATUS decisions 24 (L-061, a hub visit counter) and 25 (plates behind the screens #525 left unfolded).
+- STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17 (What Remains crew block on the L-008 row), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
 - Close the stale PRs listed in STATUS.
 
 ## Helper asks (once each helper chat exists)
 
 | Helper | Ask |
 |---|---|
-| Myth | Done in the lead chat today (decision 15): #508, #509, #511, #516, #521, #524, #525 and #526 read, edits applied. Next: the decision-19 tickets and the slack candidates as they open. |
+| Myth | Done in the lead chat (decision 15): #508, #509, #511, #516, #521, #524, #525 and #526 read, edits applied. Next: each D11 step 1 ticket and the decision-21 opener lines as they open. |
 | Hex | Measure how often each romance is pursued to its last scene after SUN-ROMANCE-ARC-01..05 land; propose trust or cost tuning if any arc is unreachable in practice. |
 | Muse | Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits, starting with `images/vess_boarding.jpg` (shows Lena's face, ungated). No new art until Wave 4. |
 
