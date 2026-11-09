@@ -10,7 +10,7 @@ registerScenes({
 
       if (state.flags.priority === "repairs") {
         if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. She has begun sleeping in engineering rather than the common area.`;
-        else base += `\n\nThe early seal work pays off in small ways. Engineering stays occupied even without her.`;
+        else base += `\n\nMira's early seal work pays off in small ways. Engineering stays occupied even without her.`;
       } else if (state.flags.priority === "ration") {
         base += `\n\nThe rationing is working. People move more carefully.`;
         if (isAlive("sela")) base += ` Sela has stopped asking for more paste.`;
