@@ -100,16 +100,16 @@ registerScenes({
       const r = state.flags.rourke;
       if (r === "stopped") {
         t += `"Rourke," Tomas says. "Treatment stopped. By order." He reads it the way he'd read a seed count that came up short. "I wasn't aboard to be asked about that. I'm aboard now. He goes in the count. A name, not an entry."\n\n`;
-        t += `"He goes in the chart as what he was." Lena caps the pen. "Chest full of shrapnel from the ring. The last stabilizers were in him before anyone gave an order. The order moved the time of death. It did not move the death. That line is for prognoses. I don't write names on it."\n\n`;
+        t += `"He goes in the chart as what he was." Lena caps the pen. "Chest full of shrapnel from the ring. The last stabilizers were in him before anyone gave an order. The order moved the time of death. It did not move the death. That line is for prognoses."\n\n`;
       } else if (r === "stayed") {
         t += `"Rourke," Tomas says. "Died with company." He reads it twice. "Somebody sat with him. That's the first thing I've found on this ship I'd have done myself. He goes in the count. A name, not an entry."\n\n`;
-        t += `"He goes in the chart as already lost on first look." Lena caps the pen. "Chest full of shrapnel from the ring. The last stabilizers were in him before anyone sat down. The sitting was for the room. I don't chart the room. That line is for prognoses. I don't write names on it."\n\n`;
+        t += `"He goes in the chart as already lost on first look." Lena caps the pen. "Chest full of shrapnel from the ring. The last stabilizers were in him before anyone sat down. The sitting was for the room. I don't chart the room. That line is for prognoses."\n\n`;
       } else if (r === "tried") {
         t += `"Rourke," Tomas says. "Forty-three minutes." He reads it the way he'd read a seed count that came up short. "Forty-three minutes of supplies went into a man she'd already called, because you asked her to. Somebody breathing pays for those minutes down the line. I count him. I count the minutes too."\n\n`;
-        t += `"I knew at minute one what I knew at forty-three." Lena caps the pen. "Chart the minutes as mine, not the ship's. He stays on that line as what he was: ring shrapnel, chest, already lost. That line is for prognoses. I don't write names on it."\n\n`;
+        t += `"I knew at minute one what I knew at forty-three." Lena caps the pen. "Chart the minutes as mine, not the ship's. He stays on that line as what he was: ring shrapnel, chest, already lost. That line is for prognoses."\n\n`;
       } else {
         t += `"Rourke," Tomas says. He reads the cause twice. "Died while the room was getting itself a Commander. That's a sentence I'd like out of the count, and I can't have it out. He goes in. A name, not an entry."\n\n`;
-        t += `"He died of the ring." Lena caps the pen. "Chest full of shrapnel. The last stabilizers were in him before the room did anything at all. Who was in charge is not a medical finding. That line is for prognoses. I don't write names on it."\n\n`;
+        t += `"He died of the ring." Lena caps the pen. "Chest full of shrapnel. The last stabilizers were in him before the room did anything at all. Who was in charge is not a medical finding. That line is for prognoses."\n\n`;
       }
       t += `"A manifest with a dead man on it is still a manifest," Tomas says, "and he goes in it the same as every tray and every mouth that ever fed this ship goes in it, because a count that leaves out the dead isn't a count, it's a menu. Who paid for the line below the living? Everyone on it. That's why I keep it."\n\n`;
       t += `"Who's hurt on the line below the living? Nobody." Lena turns the board face down. "That's why I don't."\n\n`;
@@ -182,13 +182,13 @@ registerScenes({
         t += `"A thin patch is a threat with a date on it." Elias's hand stays on the dog. "The date isn't on your slate. When it comes, I'll tell you which section."\n\n`;
       } else {
         t += `"Ten days of paste is what went into that patch instead," Tomas says. "Ten days is thirty meals a mouth. I wasn't aboard to be asked. I'm asking now who paid, because it's paid."\n\n`;
-        t += `"The seal." Elias doesn't take his hand off the dog. "The threat was the seal. The feedstock went in the seal. The seal holds. That's the account."\n\n`;
+        t += `"The seal." Elias doesn't take his hand off the dog. "The threat was the seal. The seal holds. That's the account."\n\n`;
       }
       if (state.flags.ship_interrupt === "deferred") {
         t += `"It talked back, last flex," Elias adds. "Somebody answered late. The schematic has that too."\n\n`;
       }
       t += `"Somebody eats ${spend}," Tomas says. "I want them on the slate under names. Not under 'bulkhead.'"\n\n`;
-      t += `"Nothing comes through that bulkhead while the dog holds." Elias looks at the dog, not at either of you. "Put 'bulkhead' on the slate. It's the one line on it that can take the rest."\n\n`;
+      t += `Elias looks at the dog, not at either of you. "Put 'bulkhead' on the slate. It's the one line on it that can take the rest."\n\n`;
       t += `Both of them wait. The dog is cold under his hand. The slate is full.`;
       return t;
     },
@@ -255,7 +255,7 @@ registerScenes({
         t += `"The solution is archived," Mira says. "Archived means I finished it after the burn. It changes nothing a burn can still change."\n\n`;
         t += `"It changes the width of the bar I live in." Jiro doesn't look up from the pane. "I flew nineteen days inside that bar. I'd like its edges. To the meter if you have it, to the kilometer if you don't."\n\n`;
         t += `"The edges are a fault report. Root cause: a burn ordered on eleven-day-old numbers I had not checked yet. If I open it, that sentence goes in the log with a figure under it."\n\n`;
-        t += `"Then it's in the log. A position doesn't care what caused it. I don't log causes. I log where."\n\n`;
+        t += `"Then it's in the log. A position doesn't care what caused it. I log where."\n\n`;
         t += `"And the next reader of that log trusts the width, and the cause that made it wide isn't under it." She has not raised her voice. The pane is still closed.\n\n`;
       } else if (state.flags.margin_spent_extra) {
         t += `"The solution was verified," Mira says. "The figure is in the archive. The cycle the ship spent arguing cost margin. It did not cost confidence. Two line items."\n\n`;
@@ -264,14 +264,14 @@ registerScenes({
         t += `"Day one hundred eighty-one, one corridor, one pass. We make it or we don't. Nobody who needs that log will be reading it."\n\n`;
       } else {
         t += `"Ninety-four," Mira says. "The other six belongs to the universe. That's the finding. It hasn't changed since I gave it."\n\n`;
-        t += `"Six is a width." Jiro doesn't look up from the pane. "I'd like it in kilometers, not in percent. Percent is a confidence. I fly a width."\n\n`;
-        t += `"Width is derived. The confidence is the finding. The width is what you do with it afterward."\n\n`;
+        t += `"Six is a width." Jiro doesn't look up from the pane. "Percent is a confidence. I fly a width."\n\n`;
+        t += `"Width is derived. The confidence is the finding."\n\n`;
         t += `"Thirty-eight minutes of my air loop went into the finding, Commander. I was breathing them. I'd like the width to the meter, so I know what they bought."\n\n`;
         t += `"They bought ninety-four." She says it exactly as she said it the first time, because it has not changed.\n\n`;
       }
       t += state.flags.burn_unverified ? `"What broke is the order of operations," Mira says. "That is the finding."\n\n`
         : state.flags.margin_spent_extra ? `"The cycle broke the margin. The solution held," Mira says. "That is the finding."\n\n`
-        : `"Nothing broke," Mira says. "Ninety-four is the finding, and the finding is what I log."\n\n`;
+        : `"Nothing broke," Mira says.\n\n`;
       t += `"Where we are is inside forty kilometers," Jiro says. "That is the fix."\n\n`;
       t += `Neither of them has moved off the sentence they came in with. The pane stays closed until somebody says which log it goes in.`;
       return t;
@@ -344,7 +344,7 @@ registerScenes({
       let t = `Jiro has the fix on the tracker board: one line, one bar, the number under it to the meter. Vess has her night log on a slate beside it, eleven months long, and she has set the two down next to each other without being asked to.\n\n`;
       t += `"Eleven months of your hull ID," she says. "Every night. Bearing and strength, timestamped. It walked across my sky at a rate. The rate has a number. I'm not rounding it."\n\n`;
       t += `"A bearing is a direction with a time on it." Jiro says it to the board. "A fix is where. Your log says where you were when you heard us. It doesn't say where we were."\n\n`;
-      t += `"It says what was out there listening, and from where, for eleven months. That's a track. Dawnbreak ran two logs. Nav and ears."\n\n`;
+      t += `"It says what was out there listening, and from where. That's a track. Dawnbreak ran two logs. Nav and ears."\n\n`;
       t += `"And when they disagreed?"\n\n`;
       t += `"We trusted the one that was still alive." Flat. Timestamp, stop. It is not a joke, and she does not check whether it was allowed to be one.\n\n`;
       t += `"The one that's still alive is on the board," Jiro says. "Inside forty kilometers, fixed from independent sources since I came out. Yours is one source."\n\n`;
