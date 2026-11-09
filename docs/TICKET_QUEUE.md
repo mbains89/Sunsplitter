@@ -44,7 +44,7 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
   - Friction restatements: landed as SUN-FRICTION-TRIMS-01 (#531).
   - Deaths once in What Remains: landed (#527, decision 21).
   - Off-shift lead-ins are not cut (L-050 stays). What Remains is not cut (L-008 stays).
-- **Small tickets.** Landed: the phone-landscape plate (#533), `offshift_jiro` (#531), `time_pass` and the hatch count (#528), the hub resume line (#535). Open:
+- **Small tickets.** Landed: the phone-landscape plate (#533), `offshift_jiro`, `time_pass` and the hatch count (#528), the hub resume line (#535). Open:
   - the `arc_living_4` "double cycle" sentence (decision 22);
   - five flags written but never read;
   - a death printed three times when a broken promise kills its holder;
