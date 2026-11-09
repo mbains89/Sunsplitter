@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-09`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: c4d748c (after PR #532)`
+`work_branch_tip: ded0f80 (after PR #535)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
