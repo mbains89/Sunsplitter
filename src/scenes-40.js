@@ -80,7 +80,9 @@ She turns the key once between her fingers.
     ]
   },
   crew_walk: {
-    get text() { return `Deck 2 berths: a house key on a locker lip, in a size no one on this crew wears.
+    get text() { return `You move through the ship.
+
+Deck 2 berths: a house key on a locker lip, in a size no one on this crew wears.
 
 ${isAlive("mira") ? `Engineering: Mira is asleep at her console — face lit by warning lights. One is a drive fault she has not yet reported. Her hands, even asleep, rest near the manual overrides.` : ""}
 
