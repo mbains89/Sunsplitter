@@ -106,8 +106,8 @@ assert.ok(out.lenaBrokenNoDeath.paragraphs[ORDER.indexOf("lena")].includes("it m
 // SUN-PROMISE-DEATH-ONCE-01 (decision 21): a broken promise that kills prints the death once, in the
 // reflection death line with its cause. The promise line and the holder's sentence still say the
 // promise broke (L-024) and no longer say the other one died. L-008: 3–6 reflection lines.
-const FATAL_LINE = { amara: "At the service-pocket test, the vent did not stay shut.", lena: "At the shared-line test, the medical line moved to Lena." };
-const FATAL_SENTENCE = { amara: " The pocket vent did not stay shut.", lena: " When the one line that holds a crashing patient was tested, it moved to her." };
+const FATAL_LINE = { amara: "At the service-pocket test, the vent did not stay shut.", lena: "At the shared-line test, the medical line did not stay with the other patient." };
+const FATAL_SENTENCE = { amara: " The pocket vent did not stay shut, and she logged it herself, every field, exact.", lena: " When the one line that holds a crashing patient was tested, it moved to her." };
 const restated = /other patient died|still breathing/;
 assert.equal(out.promiseDeaths.length, 6, "promise-death cases missing");
 for (const c of out.promiseDeaths) {

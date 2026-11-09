@@ -645,7 +645,7 @@ function whatRemainsPromiseLine(owner) {
     lena: {
       kept: "At the shared-line test, the medical line stayed with the other patient.",
       broken: "At the shared-line test, the medical line moved to Lena and the other patient died.",
-      fatal: "At the shared-line test, the medical line moved to Lena."
+      fatal: "At the shared-line test, the medical line did not stay with the other patient."
     },
     sela: {
       kept: "At the petition test, Sela was not made the price of the crew's fear.",
@@ -857,7 +857,7 @@ function crewEpilogues() {
     else if (hasMark("amara", "plants_matter")) p += ` She heard you say living things matter.`;
     if (f.amara_vent_delayed) p += ` One cycle of a contaminated vent was delayed on her account.`;
     if (state.promises.amara === "kept") p += ` The pocket vent stayed shut until the reader came out breathing.`;
-    else if (state.promises.amara === "broken") p += whatRemainsPromiseCausedDeath("amara") ? ` The pocket vent did not stay shut.` : ` The pocket was vented with the reader still breathing.`;
+    else if (state.promises.amara === "broken") p += whatRemainsPromiseCausedDeath("amara") ? ` The pocket vent did not stay shut, and she logged it herself, every field, exact.` : ` The pocket was vented with the reader still breathing.`;
     if (state.romance.amara) p += ` She asked if you wanted her; you said yes and meant it${f.amara_page ? `, and she opened her ledger to your page` : ``}.`;
     else if (state.romance.amara_tomas) p += ` You walked in on her and Tomas, and stayed.`;
     else if (hasMark("amara", "held_only")) p += ` You wanted her company without sex that night, and said so.`;
