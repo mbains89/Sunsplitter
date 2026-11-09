@@ -10,7 +10,7 @@ export function livingCastChecks(runtime) {
       assert.equal(result.length, 0, JSON.stringify(result.slice(0, 12)));
     } catch (error) { errors.push(`Living cast ${label}: ${error.message}`); }
   };
-  assert.equal(runtime.sceneIds.length, 231); // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 folded answer screens
+  assert.equal(runtime.sceneIds.length, 230); // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 folded answer screens; SUN-DIET-MEMORY-FOLD-01: - ship_memory_payoff
 
   check("authored living branches and absent entry guards", `(() => {
     const failures = [];
