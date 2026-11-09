@@ -616,6 +616,8 @@ function whatRemainsCrisisFact() {
   return clauses.length ? clauses.join("; ") + "." : null;
 }
 
+// Only two promise tests kill: prom_vent_break (Amara's) and prom_line_break (Lena's). The victim's
+// death is always in state.dead, so whatRemainsDeathFacts() has already printed it with its cause.
 function whatRemainsPromiseCausedDeath(owner) {
   if (state.promises[owner] !== "broken") return false;
   const causes = Object.values(state.deathCause || {});
@@ -628,10 +630,13 @@ function whatRemainsPromiseLine(owner) {
   const result = state.promises[owner];
   if (result !== "kept" && result !== "broken") return null;
   if (owner === "tomas" && state.crisisPath !== "custody") return null;
+  // SUN-PROMISE-DEATH-ONCE-01 (decision 21): when the break killed someone, the death line above
+  // carries the death and its cause, so the promise line says only that the promise broke.
   const lines = {
     amara: {
       kept: "At the service-pocket test, the vent stayed shut until the reader came out breathing.",
-      broken: "At the service-pocket test, the pocket was vented while the reader was still breathing."
+      broken: "At the service-pocket test, the pocket was vented while the reader was still breathing.",
+      fatal: "At the service-pocket test, the vent did not stay shut."
     },
     tomas: {
       kept: "At the custody test, the living received the shared mercy promised to Tomas.",
@@ -639,7 +644,8 @@ function whatRemainsPromiseLine(owner) {
     },
     lena: {
       kept: "At the shared-line test, the medical line stayed with the other patient.",
-      broken: "At the shared-line test, the medical line moved to Lena and the other patient died."
+      broken: "At the shared-line test, the medical line moved to Lena and the other patient died.",
+      fatal: "At the shared-line test, the medical line moved to Lena."
     },
     sela: {
       kept: "At the petition test, Sela was not made the price of the crew's fear.",
@@ -660,7 +666,9 @@ function whatRemainsPromiseLine(owner) {
     }
     return null;
   }
-  return lines[owner] ? lines[owner][result] : null;
+  if (!lines[owner]) return null;
+  if (lines[owner].fatal && whatRemainsPromiseCausedDeath(owner)) return lines[owner].fatal;
+  return lines[owner][result];
 }
 
 function whatRemainsPromiseFact() {
@@ -722,11 +730,12 @@ function whatRemainsFacts() {
 // or dead, in the What Remains screen under the 3–6 reflection lines (which stay as L-008 has them).
 // Every sentence is a fact of this run: a tested promise, a private line, a recorded answer. The
 // logged cause of death is printed once, in the reflection lines above; a dead crew member's
-// paragraph opens on the person, not the cause (decision 21, 2026-11-06). Untested promises are
-// never mentioned (L-024). The dead are past tense only and never speak. Unrecovered crew were
-// never aboard and get one sentence saying so. Each paragraph is
-// written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:" rules): Lena clinical
-// fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
+// paragraph opens on the person, not the cause (decision 21, 2026-11-06). When a broken promise
+// killed someone, the holder's sentence says where the line or the vent went, not that the other
+// one died (SUN-PROMISE-DEATH-ONCE-01). Untested promises are never mentioned (L-024). The dead are
+// past tense only and never speak. Unrecovered crew were never aboard and get one sentence saying
+// so. Each paragraph is written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:"
+// rules): Lena clinical fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
 // Tomas by present habits, Amara by what was tended and who is owed, Jiro by a logged position,
 // Sela by names at yellow, Vess by registry order.
 function crewEpilogues() {
@@ -756,7 +765,7 @@ function crewEpilogues() {
     if (f.rourke === "stopped") p += ` Rourke's chart still reads treatment stopped, by order; the prognosis under it was hers, and she never amended either line.`;
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
-    else if (state.promises.lena === "broken") p += ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
+    else if (state.promises.lena === "broken") p += whatRemainsPromiseCausedDeath("lena") ? ` When the one line that holds a crashing patient was tested, it moved to her.` : ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
     if (state.romance.lena) p += ` You crossed the line with her without pity, and you were the one who stayed.`;
     else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
     else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
@@ -848,7 +857,7 @@ function crewEpilogues() {
     else if (hasMark("amara", "plants_matter")) p += ` She heard you say living things matter.`;
     if (f.amara_vent_delayed) p += ` One cycle of a contaminated vent was delayed on her account.`;
     if (state.promises.amara === "kept") p += ` The pocket vent stayed shut until the reader came out breathing.`;
-    else if (state.promises.amara === "broken") p += ` The pocket was vented with the reader still breathing.`;
+    else if (state.promises.amara === "broken") p += whatRemainsPromiseCausedDeath("amara") ? ` The pocket vent did not stay shut.` : ` The pocket was vented with the reader still breathing.`;
     if (state.romance.amara) p += ` She asked if you wanted her; you said yes and meant it${f.amara_page ? `, and she opened her ledger to your page` : ``}.`;
     else if (state.romance.amara_tomas) p += ` You walked in on her and Tomas, and stayed.`;
     else if (hasMark("amara", "held_only")) p += ` You wanted her company without sex that night, and said so.`;
