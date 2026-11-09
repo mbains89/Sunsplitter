@@ -174,11 +174,7 @@ registerScenes({
         { text: "Ask for the worst number.", next: afterHour("jiro"), reply: [{ who: "jiro", text: `"One," Jiro says. "That's the number of passes. Every other figure I've given you tonight comes with an error bar. That one doesn't." He lets it sit, then turns the lights back down.` }] }
       ];
       const needs = [{ who: "jiro", text: `"The helm for four days," Jiro says. "One eighty-one through one eighty-four, and nobody leaning over my shoulder. Give me that and you get an honest error bar the whole way through."` }];
-      if (isAlive("mira")) {
-        c.push({ text: "Ask what he needs to make it true.", next: afterHour("jiro"), reply: needs });
-      } else {
-        c.push({ text: "Ask what he needs to make it true.", next: afterHour("jiro"), reply: needs });
-      }
+      c.push({ text: "Ask what he needs to make it true.", next: afterHour("jiro"), reply: needs });
       return c;
     }
   },
