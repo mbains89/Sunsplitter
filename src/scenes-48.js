@@ -56,15 +56,19 @@ registerScenes({
     }
   },
 
+  // SUN-ROMANCE-ENDINGS-REACH-01: also the late hour of a partner (or held-only) when the Commander
+  // spent the junction hour with someone else; then junctionChoice keeps that pick, a bridge line
+  // opens the scene and no closing line prints. Every exit is afterHour("lena").
   offshift_lena: {
     image: "images/medical_bay.jpg",
     onEnter: () => {
-      state.flags.junctionChoice = "lena";
+      if (!lateHour("lena")) state.flags.junctionChoice = "lena";
       state.flags.lena_notes = true;
       remember("took Lena's succession notes and heard how she wants the clock to end");
     },
     get text() {
-      let t = `The sterilizer hood is dark for once, and the medbay smells like tea instead of antiseptic — real leaves, hoarded from somewhere, steaming in two specimen cups. That's the hour, right there: steam you can watch rise, going nowhere, answering no alarm.\n\n`;
+      let t = lateHour("lena") ? `Down-corridor, the medbay channel light is still burning past cycle-turn. The prescription stands.\n\n` : ``;
+      t += `The sterilizer hood is dark for once, and the medbay smells like tea instead of antiseptic — real leaves, hoarded from somewhere, steaming in two specimen cups. That's the hour, right there: steam you can watch rise, going nowhere, answering no alarm.\n\n`;
       t += `Two paper folders on the exam table, her handwriting on both. "Succession notes," she says. "Every living body on this ship, what keeps it running, in the order the next person will need to know it. Handwriting, because handwriting survives power loss and I won't."\n\n`;
       t += `Then the other folder, thinner. "How I want the clock to end. Short version: when it runs out, no last dose. I want the last hour, not the last treatment. Awake. Working if I can stand, watching someone competent work if I can't. Cause of death gets logged as the disease. It did the work; it gets the credit."\n\n`;
       if (state.flags.lena_regen) {
@@ -78,14 +82,14 @@ registerScenes({
         // SUN-ROMANCE-ARC-01 (L-050): the held-only partner is asked for the hour too. She initiates.
         t += `She waits until you've taken the folders. "That's everything I know about keeping them alive. You sat with me once and took nothing; I charted it under the right word: competent. This hour is the one thing I know about keeping me."`;
       }
-      const close = closingPartnerLine();
+      const close = lateHour("lena") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
       return t;
     },
     get choices() {
       const c = [
-        { text: "Take both folders.", next: "faction_split" },
-        { text: "Ask what she wants said at yellow.", next: "faction_split" }
+        { text: "Take both folders.", next: afterHour("lena") },
+        { text: "Ask what she wants said at yellow.", next: afterHour("lena") }
       ];
       // A broken medical line closes her offers (the existing romanceOpen rule); the hour follows it.
       if ((state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken") {
@@ -98,7 +102,8 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: lena_last_hour            TICKET: SUN-ROMANCE-ARC-01 (L-050, Wave 1)
   // PRE: Lena living; reached only from offshift_lena "Stay the hour." (romance.lena or the
-  //   held_only mark); junctionChoice is already "lena".
+  //   held_only mark). junctionChoice is "lena", or another crew member's when offshift_lena was
+  //   her late hour (SUN-ROMANCE-ENDINGS-REACH-01); exits go to afterHour("lena").
   // WRITES: flags.lena_last_hour = true on first entry, plus one memory. No resource change.
   // DEATH: none. DEAD SPEECH/APPEARANCE: entry redirects to faction_split when Lena is dead
   //   (onEnter + living-cast contract in scenes-55); no dead text is rendered.
@@ -133,10 +138,12 @@ registerScenes({
       t += `"Take the ship back. Charted."`;
       return t;
     },
-    choices: [
-      { text: "Take the ship back.", next: "faction_split" },
-      { text: "Tell her the count will be kept.", next: "faction_split", affinity: { lena: 4 } }
-    ]
+    get choices() {
+      return [
+        { text: "Take the ship back.", next: afterHour("lena") },
+        { text: "Tell her the count will be kept.", next: afterHour("lena"), affinity: { lena: 4 } }
+      ];
+    }
   },
 
   // LOCK 4: only Mira-dead branch ships
@@ -161,10 +168,13 @@ registerScenes({
       if (close) t += `\n\n` + close;
       return t;
     },
-    choices: [
-      { text: "Take the wafer.", next: "faction_split" },
-      { text: "Ask who mends the jacket now.", next: "faction_split" }
-    ]
+    get choices() {
+      // SUN-ROMANCE-ENDINGS-REACH-01: a partner's late hour follows this one.
+      return [
+        { text: "Take the wafer.", next: afterHour("elias") },
+        { text: "Ask who mends the jacket now.", next: afterHour("elias") }
+      ];
+    }
   },
 
 });
