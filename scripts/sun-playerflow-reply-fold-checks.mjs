@@ -21,7 +21,9 @@ const RETIRED = {
   arc_living_sela_answer: "arc_living_3",
   filters_stencil_luck: "offshift_sela", filters_stencil_silent: "offshift_sela",
   act3_lethal_tomas_stores: "act3_lethal_elias_order", act3_lethal_tomas_structure: "act3_lethal_elias_order",
-  act3_lethal_elias_brace: "act3_lethal_mira_board", act3_lethal_mira_collar: "faction_split|mira_root_cause"
+  act3_lethal_elias_brace: "act3_lethal_mira_board", act3_lethal_mira_collar: "faction_split|mira_root_cause",
+  // SUN-DIET-MEMORY-FOLD-01 (C04): the memory pass-through's text is final_choice's first-arrival preamble.
+  ship_memory_payoff: "final_choice"
 };
 const ABOARD = "Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });";
 // [label, setup, from scene, choice text prefix, expected next scene, reply lines (exact), expected

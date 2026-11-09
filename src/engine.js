@@ -1538,7 +1538,8 @@ function resolveSceneImageUngated(id, scene) {
     silence: "images/covered_body.jpg",
     offshift_lena: "images/medbay_dim.jpg",
     breath_blacksleep: "images/medbay_dim.jpg",
-    ship_memory_payoff: "images/corridor_pressure_4.jpg",
+    // SUN-DIET-MEMORY-FOLD-01: ship_memory_payoff is retired (its text opens final_choice, which keeps
+    // images/final_choice.jpg); the corridor_pressure_4 alias went with it.
     patch_fails: "images/power_stress_2.jpg",
     custody_possession: "images/corridor_pressure_1.jpg",
     prom_deck4: "images/corridor_pressure_3.jpg",
@@ -1953,7 +1954,11 @@ const RETIRED_SCENE_EXITS = {
   act3_lethal_tomas_stores: "act3_lethal_elias_order",
   act3_lethal_tomas_structure: "act3_lethal_elias_order",
   act3_lethal_elias_brace: "act3_lethal_mira_board",
-  act3_lethal_mira_collar: () => state.romance && state.romance.mira ? "mira_root_cause" : "faction_split"
+  act3_lethal_mira_collar: () => state.romance && state.romance.mira ? "mira_root_cause" : "faction_split",
+  // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): the memory pass-through's text now opens
+  // final_choice on first arrival; a save parked on it has no patch flag yet, so the resumed
+  // final_choice prints the same debts the parked screen showed, then the final orders.
+  ship_memory_payoff: "final_choice"
 };
 function retiredSceneExit(id) {
   if (!Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, id)) return null;

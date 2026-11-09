@@ -5,7 +5,8 @@ export const FIXED_EVENT_ART = {
   silence: "images/covered_body.jpg",
   offshift_lena: "images/medbay_dim.jpg",
   breath_blacksleep: "images/medbay_dim.jpg",
-  ship_memory_payoff: "images/corridor_pressure_4.jpg",
+  // SUN-DIET-MEMORY-FOLD-01: ship_memory_payoff (corridor_pressure_4 alias) is retired; its text is
+  // final_choice's first-arrival preamble, under final_choice's own plate (checked below).
   patch_fails: "images/power_stress_2.jpg",
   custody_possession: "images/corridor_pressure_1.jpg",
   prom_deck4: "images/corridor_pressure_3.jpg",
@@ -36,6 +37,20 @@ export function artEventChecks(runtime) {
         const gated = PLATE_FACES[image] && !PLATE_FACES[image].every(isAlive) ? "images/corridor_variant_3.jpg" : image;
         if (resolveSceneImage(id, scenes[id]) !== gated) return false;
       }
+      if (JSON.stringify(state) !== before) return false;
+    }
+    return true;
+  })()`);
+  // SUN-DIET-MEMORY-FOLD-01: the folded memory preamble rides final_choice's own plate, which stays
+  // put across every structural memory and roster, first arrival and abort return, without writes.
+  check("folded memory preamble keeps the final-orders plate", `(() => {
+    for (const roster of ["fresh", "recovered", "depleted"]) for (const memory of [null, "proper_seal", "jury_rig", "open_wound"]) for (const patch of [null, "aborted"]) {
+      resetRunState(); state.flags.ship_memory = memory; if (patch) state.flags.patch = patch;
+      state.recovered.tomas = state.recovered.jiro = state.recovered.vess = roster !== "fresh";
+      if (roster === "depleted") state.dead.push("lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess");
+      const before = JSON.stringify(state);
+      if (resolveSceneImage("final_choice", scenes.final_choice) !== "images/final_choice.jpg") return false;
+      if (scenes.final_choice.text.includes("Before the last orders, the ship collects its debts.") !== !patch) return false;
       if (JSON.stringify(state) !== before) return false;
     }
     return true;
@@ -80,7 +95,8 @@ export function artEventChecks(runtime) {
   })()`);
   check("current saved renders keep exact state and new image without entry replay", `(() => {
     const ids = [...Object.keys(${JSON.stringify(FIXED_EVENT_ART)}), ...Object.keys(${JSON.stringify(PORTRAIT_EVENTS)}),
-      "act2_tether_hand_elias", "act2_tether_hand_mira", "act2_tether_hand_sela", "arc_living_2", "vent", "aftermath", "crisis", "priority_repairs"];
+      "act2_tether_hand_elias", "act2_tether_hand_mira", "act2_tether_hand_sela", "arc_living_2", "vent", "aftermath", "crisis", "priority_repairs",
+      "final_choice"]; // SUN-DIET-MEMORY-FOLD-01: the folded memory preamble's screen
     for (const id of ids) for (const dead of [false, true]) {
       resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true;
       state.flags.crisis = "vent";
