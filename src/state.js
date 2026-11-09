@@ -1095,13 +1095,14 @@ function closingPartnerLine() {
 // partner whose last scene has not played gets one late hour, in crew order, and reaches the last
 // scene through that partner's own stay choice, as before. The late hour is the partner's own
 // off-shift scene: Lena's and Vess's last scenes continue theirs, and the endings cite Sela's
-// ritual. Amara's absolution hour needs a death to absolve, so with none she opens the ledger
-// directly. Mira's arc ends at the Act III board, before the junction, and is not routed here.
+// ritual. Amara's late hour is her absolution hour; with no death to absolve it is the kettle and
+// her stay choice only, so the ledger stays opt-in. Mira's arc ends at the Act III board, before
+// the junction, and is not routed here.
 // Each `open` is the arc's existing stay gate; `done` is the arc's existing end-state flag. No
 // state is written: the exits read junctionChoice, the arc flags and who is alive and aboard.
 const LATE_HOURS = {
   lena:  { entry: () => "offshift_lena", open: () => (!!state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken", done: () => !!state.flags.lena_last_hour },
-  amara: { entry: () => eligAmara() ? "offshift_amara" : "amara_page", open: () => !!state.romance.amara, done: () => !!state.flags.amara_page },
+  amara: { entry: () => "offshift_amara", open: () => !!state.romance.amara, done: () => !!state.flags.amara_page },
   sela:  { entry: () => "offshift_sela", open: () => !!state.romance.sela, done: () => !!state.flags.sela_amber },
   vess:  { entry: () => "offshift_vess", open: () => !!state.romance.vess, done: () => !!state.flags.vess_item_two }
 };
@@ -1114,6 +1115,13 @@ function lateHourPending(who) {
   const hour = LATE_HOURS[who];
   return !!hour && lateHour(who) && isAlive(who) && hour.open() && !hour.done();
 }
+// A late hour's first words. Late hours run in crew order, so the ones before `who` tonight are the
+// living partners ahead of her with their gates open: the first is past cycle-turn, each later one later.
+function lateHourOpener(who) {
+  const order = Object.keys(LATE_HOURS);
+  const before = order.slice(0, order.indexOf(who)).filter(w => lateHour(w) && isAlive(w) && LATE_HOURS[w].open()).length;
+  return ["Past cycle-turn", "Later", "Toward morning", "Nearly morning"][before];
+}
 // The exit of every off-shift scene; `from` is the crew member whose hour is ending. The junction
 // pick's hour leads to the first late hour, each late hour to the next, the last to the spine.
 function afterHour(from) {
@@ -1122,12 +1130,17 @@ function afterHour(from) {
   for (const who of order.slice(start)) if (lateHourPending(who)) return LATE_HOURS[who].entry();
   return "faction_split";
 }
-// Whose hour was the run's last private one: the junction pick, or a partner who stayed after it.
+// Whose hour was the run's last private one: the junction pick's, or the last partner whose late
+// hour followed it, whether or not she stayed (her hour was private either way, as the pick's is).
+// Every partner death site comes before the junction, so a partner living now with her gate open had
+// her late hour; done() also covers one who stayed and died later, should a later death site appear.
 function lastPrivateHour() {
   const jc = state.flags.junctionChoice;
   if (!jc || jc === "none") return null;
   let last = jc;
-  for (const who of Object.keys(LATE_HOURS)) if (who !== jc && LATE_HOURS[who].done()) last = who;
+  for (const who of Object.keys(LATE_HOURS)) {
+    if (who !== jc && LATE_HOURS[who].open() && (LATE_HOURS[who].done() || isAlive(who))) last = who;
+  }
   return last;
 }
 

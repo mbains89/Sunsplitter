@@ -1,7 +1,7 @@
 // SUN-ROMANCE-ENDINGS-REACH-01 (decision 12 widened, ruled 2026-11-08) — a romance arc's last scene
 // no longer depends on the Off-Shift junction pick. After the hour the Commander chose, a living,
-// aboard partner whose last scene has not played gets one late hour (her own off-shift scene, or
-// Amara's ledger page directly when no death is attributable) and reaches the last scene through
+// aboard partner whose last scene has not played gets one late hour (her own off-shift scene; with
+// no attributable death Amara's is the kettle and her stay choice only) and reaches the last scene through
 // her own stay choice. junctionChoice keeps the pick; nothing new is written. Dead or unrecovered
 // partners never appear; the partner who was the pick is not visited twice; two partners chain in
 // crew order and each is visited once. Mira's last scene sits at the Act III board and is checked
@@ -19,7 +19,7 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   const choicesOf = id => { const sc = scenes[id]; const raw = sc.choices; return (typeof raw === "function" ? raw.call(sc) : raw) || []; };
   const LAST = { lena: "lena_last_hour", amara: "amara_page", sela: "sela_past_amber", vess: "vess_item_two" };
   const FLAG = { lena: "lena_last_hour", amara: "amara_page", sela: "sela_amber", vess: "vess_item_two" };
-  const BRIDGE = { lena: "The prescription stands.", amara: "the light in hydroponics is still on", sela: "a second note reaches you", vess: "Query, non-urgent, still open." };
+  const BRIDGE = { lena: "The prescription stands.", amara: "the light in hydroponics is still on", sela: "She has not let it reach yellow.", vess: "Query, non-urgent, still open." };
   const CLOSE = { lena: "medbay channel light burns past cycle-turn", amara: "hydroponics light outlasts you", sela: "reaches amber on schedule", vess: "Shut by morning." };
   // The junction pick's own hour: its scene and how to make it eligible.
   const PICKS = {
@@ -108,6 +108,15 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
     vessLast: para("Vess").includes("The last private hour of the run was hers."),
     lenaLast: para("Lena").includes("The last private hour of the run was hers."),
     jiroLast: para("Jiro").includes("The last private hour of the run was his.") };
+  // 4b. A declined late hour is still the last hour spent; each later late hour opens later (Myth read).
+  fresh(); partner("lena"); partner("vess");
+  showScene("offshift_lena"); makeChoice(choicesOf("offshift_lena").find(c => c.next === "lena_last_hour"));
+  makeChoice(choicesOf("lena_last_hour")[0]);
+  const vessOpener = story().includes("Past cycle-turn, the relay bay light");
+  makeChoice(choicesOf("offshift_vess").find(c => c.text === "Hold it between you."));
+  row.declined = { scene: state.scene, last: lastPrivateHour(), vessOpener };
+  fresh(); ["lena", "amara", "sela", "vess"].forEach(partner); state.flags.junctionChoice = "jiro";
+  row.openers = ["lena", "amara", "sela", "vess"].map(lateHourOpener);
   // 5. Gates: Lena's broken medical line closes the late hour as it closes her stay; the zero route is untouched.
   fresh(); partner("lena"); state.promises.lena = "broken"; showScene("offshift_jiro"); makeChoice(choicesOf("offshift_jiro")[0]);
   row.gates.lenaBroken = state.scene;
@@ -124,7 +133,7 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
 
 for (const [key, r] of Object.entries(out.reach)) {
   const [who] = key.split("/");
-  const entry = { lena: "offshift_lena", sela: "offshift_sela", vess: "offshift_vess", amara: r.amaraDeath ? "offshift_amara" : "amara_page" }[who];
+  const entry = { lena: "offshift_lena", sela: "offshift_sela", vess: "offshift_vess", amara: "offshift_amara" }[who];
   const last = { lena: "lena_last_hour", amara: "amara_page", sela: "sela_past_amber", vess: "vess_item_two" }[who];
   assert.equal(r.closingLineAboutHer, false, `${key}: the pick's hour still says her light went out`);
   assert.equal(r.lateEntry, entry, `${key}: the hour did not lead to her late hour (got ${r.lateEntry})`);
@@ -156,6 +165,8 @@ assert.deepEqual([out.chain.jiroLast, out.chain.lenaLast, out.chain.vessLast], [
 assert.equal(out.gates.lenaBroken, "faction_split", "a broken medical line opened Lena's late hour");
 assert.deepEqual(out.gates.noneExit, ["faction_split"], "a 'none' junction routed a late hour");
 assert.deepEqual(out.resume, { scene: "offshift_sela", jc: "jiro", bridge: true }, "resume on a late hour lost the pick or the bridge");
+assert.deepEqual(out.declined, { scene: "faction_split", last: "vess", vessOpener: true }, "a declined late hour lost the last private hour, or the first late hour lost its opener");
+assert.deepEqual(out.openers, ["Past cycle-turn", "Later", "Toward morning", "Nearly morning"], "later late hours do not open later in the night");
 
 // 7. Real play: a romancer pursues one partner per run and picks the junction uniformly at random.
 const real = JSON.parse(loadGame(ROOT).evaluate(`JSON.stringify((() => {

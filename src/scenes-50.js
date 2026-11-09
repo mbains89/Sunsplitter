@@ -6,8 +6,10 @@ registerScenes({
   // PRE: Last Off-Shift selects living Amara | WRITES: junction choice and one deduplicated absolution memory on entry
   // DEATH: none | DEAD SPEECH/APPEARANCE: Amara is eligibility-gated by offshift_open | IMAGE: existing quiet-Amara plate
   // SUN-ROMANCE-ENDINGS-REACH-01: also a partner's late hour after the Commander spent the junction
-  // hour with someone else, still only with an attributable death (eligAmara); then junctionChoice
-  // keeps that pick, a bridge line opens the scene and no closing line prints. Exits: afterHour.
+  // hour with someone else, with or without an attributable death. With none (a late hour only) the
+  // absolution is not played: the kettle, then the cup or her stay choice, so the ledger stays
+  // opt-in. junctionChoice keeps the pick, a bridge line opens the scene and no closing line prints.
+  // Exits: afterHour.
   offshift_amara: {
     image: "images/quiet_amara.jpg",
     onEnter: () => {
@@ -15,13 +17,15 @@ registerScenes({
       const first = firstAttributableDeath();
       const whoName = first ? first.name : "the dead";
       const granted = stillFavoring("amara") || (state.affinity.amara || 0) >= 20;
-      remember(`Amara ${granted ? "offered" : "withheld"} absolution for ${whoName}`);
+      if (first) remember(`Amara ${granted ? "offered" : "withheld"} absolution for ${whoName}`);
     },
     get text() {
       const first = firstAttributableDeath();
       const whoName = first ? first.name : "the dead";
-      let t = lateHour("amara") ? `Past cycle-turn, the light in hydroponics is still on, the way she leaves it.\n\n` : ``;
+      let t = lateHour("amara") ? `${lateHourOpener("amara")}, the light in hydroponics is still on, the way she leaves it.\n\n` : ``;
       t += `Night-cycle hydroponics. Condensation ticks off the leaves one drop at a time, the only clock she keeps, and the kettle between you is real heat you can hold your hands over — an hour of warmth spent here and nowhere else on the ship. Two cups. She was expecting you or she always sets two.\n\n`;
+      // No death to absolve (a partner's late hour only): the kettle and the stay, nothing else.
+      if (!first) return t + `"Sit. The kettle's honest even when the company isn't."`;
       t += `"You'll have come about ${whoName}," she says, no cruelty in it, no cushion either. "Sit. The kettle's honest even when the company isn't."\n\n`;
       t += `She lets you get all the way to the bottom of the first cup before she says the rest. "I'll not tell you it wasn't your doing. I'll tell you I'm still here. Mind the difference."\n\n`;
       // Granted vs withheld from favoritism / debt read
@@ -36,6 +40,12 @@ registerScenes({
       return t;
     },
     get choices() {
+      // No death to absolve: the cup, or her stay choice. The ledger is behind the stay, as always.
+      if (!firstAttributableDeath()) {
+        const c = [ { text: "Say nothing and drink.", next: afterHour("amara") } ];
+        if (state.romance.amara) c.push({ text: "Stay past the light.", next: "amara_page", tag: "private" });
+        return c;
+      }
       const c = [
         { text: "Ask her to say it wasn't yours.", next: afterHour("amara") },
         { text: "Ask what you owe.", next: afterHour("amara") },
@@ -50,10 +60,8 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: amara_page                 TICKET: SUN-ROMANCE-ARC-04 (L-050, Wave 1)
   // PRE: Amara living and romance.amara (solo shape only; the shared bay is untouched under
-  //   L-041); reached from offshift_amara "Stay past the light.", or directly as her late hour when
-  //   the Commander spent the junction hour with someone else and no death is attributable, so the
-  //   absolution hour has nothing to absolve (SUN-ROMANCE-ENDINGS-REACH-01; one bridge line opens
-  //   the page then). junctionChoice is "amara" or that other pick.
+  //   L-041); reached only from offshift_amara "Stay past the light.", in the junction pick's hour
+  //   or in her late hour (SUN-ROMANCE-ENDINGS-REACH-01). junctionChoice is "amara" or that other pick.
   //   Text reads pursuit_amara_cost, hydro, breath_answer and promises.amara (kept/broken only;
   //   untested promises are not read aloud, L-024).
   // WRITES: none on entry. The three answers write flags.amara_page ("open" | "closed" | "hers")
@@ -70,9 +78,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("amara")) return `The light in hydroponics is off. Nobody left it on.`;
-      // SUN-ROMANCE-ENDINGS-REACH-01: entered without the absolution hour, the kettle needs its table.
-      let t = lateHour("amara") && !eligAmara() ? `Past cycle-turn, the light in hydroponics is still on, the way she leaves it. Two cups are set out, and the kettle between them.\n\n` : ``;
-      t += `The kettle's gone cold and she doesn't refill it. That's how you know the hour's run over into something else.\n\n`;
+      let t = `The kettle's gone cold and she doesn't refill it. That's how you know the hour's run over into something else.\n\n`;
       t += `She takes a book down from behind the seed trays — cloth-bound, swollen with damp — and opens it to a page with your rank at the top and no name under it.\n\n`;
       t += `"There's a book I keep on who's owed what aboard," she says. "Handwritten, so it can't be pulled or argued with. This is your page."\n\n`;
       t += `She reads it to you the way she reads a yield sheet.\n\n`;
