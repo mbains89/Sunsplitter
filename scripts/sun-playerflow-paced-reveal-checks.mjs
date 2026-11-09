@@ -401,6 +401,44 @@ export function sunPlayerflowPacedRevealChecks() {
     check(roomAt > 66 && roomAt <= 176 && /classList\.toggle\("reveal-roomy"/.test(engineSrc), "G: engine must mark #main reveal-roomy by its own height, with a threshold between 67 and 176px");
     // Muse crop check: tether_dock_ruined.jpg's subject already meets the frame edge, so it never drifts.
     check(/#scene-image\.plate-drift-a\[src\$="\/tether_dock_ruined\.jpg"\][\s\S]*?animation:\s*none/.test(css), "G: tether_dock_ruined.jpg must be excluded from the plate drift (Muse crop check)");
+
+    // SUN-LANDSCAPE-PLATE-01: in phone landscape the plate sits beside the text. Stacked, it left
+    // #main 75px at 640x360 and 137px at 844x390 (Read on out of view in 196 of 196 paced scenes at
+    // 640x360). Chromium after the change: #main 248/278/338px (69-75%), Read on in view 196/196.
+    const at = pcv.search(/@media\s*\(orientation:\s*landscape\)\s*and\s*\(max-height:\s*\d+px\)/);
+    const block = at >= 0 ? pcv.slice(at, pcv.indexOf("\n}\n", at) + 2) : "";
+    const query = block.slice(0, block.indexOf("{"));
+    check(at >= 0, "G landscape: pc-viewport.css has no (orientation: landscape) and (max-height) block for the plate");
+    check(at > deskAt, "G landscape: the landscape block must come after the short-desktop block so it wins on short windows 1024px and wider");
+    const matches = (w, h) => {
+      if (/orientation:\s*landscape/.test(query) && !(w > h)) return false;
+      for (const [, kind, axis, px] of query.matchAll(/(min|max)-(width|height):\s*(\d+)px/g)) {
+        const v = axis === "width" ? w : h;
+        if (kind === "min" ? v < Number(px) : v > Number(px)) return false;
+      }
+      return true;
+    };
+    for (const [w, h] of [[640, 360], [844, 390], [720, 450], [568, 320], [915, 412], [932, 430]]) check(matches(w, h), `G landscape: ${w}x${h} does not take the landscape layout`);
+    for (const [w, h] of [[390, 844], [360, 640], [768, 1024], [1024, 768], [1024, 600], [1280, 720], [1280, 800], [1920, 1080]]) check(!matches(w, h), `G landscape: ${w}x${h} must keep its layout but matches ${query.trim()}`);
+    const rule = selector => (block.match(new RegExp(`${selector.replace(/[.+]/g, "\\$&")}\\s*\\{([^}]*)\\}`)) || [])[1] || "";
+    check(/grid-column:\s*2/.test(rule("#scene-image-wrap.visible + #main")), "G landscape: with a plate, #main must take the column beside it");
+    check(/display:\s*grid/.test(rule("#app")), "G landscape: #app must lay the plate and the text side by side");
+    const plate = rule("#scene-image-wrap.intimate.minimized");
+    for (const v of ["#scene-image-wrap,", "#scene-image-wrap.minimized,", "#scene-image-wrap.intimate,"]) check(block.includes(v), `G landscape: the plate rule must cover ${v.slice(0, -1)}`);
+    check(/aspect-ratio:\s*784\s*\/\s*1168/.test(plate) && /grid-column:\s*1/.test(plate) && /grid-row:\s*3/.test(plate) && !/display:\s*none|position:\s*(absolute|fixed)/.test(plate),
+      "G landscape: the plate keeps its 784x1168 frame, pinned in the column beside #main, minimized or not");
+    // Crop honesty: when the row is shorter than the estimate (open crew panel, larger text) the plate letterboxes.
+    check(/object-fit:\s*contain/.test(rule("#scene-image-wrap.intimate #scene-image")), "G landscape: the plate must letterbox (object-fit: contain), never cover-crop");
+    // Model with the bars Chromium measures (status 55px + meta 57px): the plate fits its row and #main keeps 45%+.
+    const width = (block.match(/--landscape-plate-w:\s*calc\(\(100dvh[^;]*?-\s*(\d+)px\)\s*\*\s*784\s*\/\s*1168\)/) || [])[1];
+    check(width, "G landscape: plate width must come from the viewport height at the 784/1168 ratio");
+    for (const [w, h] of [[640, 360], [844, 390], [720, 450]]) {
+      const plateW = (h - Number(width)) * 784 / 1168;
+      const row = h - 55 - 57;
+      const textW = Math.min(w, 720) - plateW - 16;
+      check(plateW * 1168 / 784 <= row - 16 && row >= 0.45 * h && row >= roomAt && textW >= 360,
+        `G landscape: ${w}x${h} model plate ${plateW.toFixed(0)}px wide, row ${row}px, text ${textW.toFixed(0)}px wide`);
+    }
   }
 
   return errors;
@@ -412,5 +450,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-paced-reveal", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-paced-reveal (harness stays instant; blocks = paragraphs; choices held to the last block; keys/controls/focus/settle; instant + blocked storage; resume/re-render whole; reduced motion; plate drift; desktop flow)");
+  console.log("PASS sun-playerflow-paced-reveal (harness stays instant; blocks = paragraphs; choices held to the last block; keys/controls/focus/settle; instant + blocked storage; resume/re-render whole; reduced motion; plate drift; desktop flow; phone-landscape plate beside the text)");
 }
