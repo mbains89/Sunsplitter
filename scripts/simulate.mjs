@@ -160,7 +160,7 @@ export function readScriptManifest(rootDir) {
 // SUN-CLEAN-PINS-01: the engine is src/engine.js plus any src/engine-<part>.js that index.html
 // loads. A check that matches engine text reads it here, in manifest order, so the match holds
 // whichever of those files owns the code. With one engine file this is that file, byte for byte.
-export const ENGINE_SCRIPT_RE = /^src\/engine(?:-[a-z0-9-]+)?\.js$/;
+export const ENGINE_SCRIPT_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
 
 export function readEngineSource(rootDir) {
   const parts = readScriptManifest(rootDir).scripts.filter(path => ENGINE_SCRIPT_RE.test(path));
@@ -844,8 +844,8 @@ function runSelfTest() {
   assert.ok(gatePreflightErrors({ gate: "strict", profile: "strict", seed: LOCKED_SEED, runs: STRICT_RUNS_PER_POLICY, shardSize: STRICT_SHARD_SIZE, workerHeapMb: WORKER_HEAP_MB + 1 }).some(error => error.includes("heap 384 MB")));
   assert.ok(gatePreflightErrors(parseCli(["--profile", "strict", "--policy", "living", "--gate", "strict"])).some(error => error.includes("diagnostic-only")));
   // SUN-CLEAN-PINS-01: engine text is read in manifest order across src/engine.js and src/engine-<part>.js only.
-  for (const path of ["src/engine.js", "src/engine-save.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), true, path);
-  for (const path of ["src/state.js", "src/scenes-01.js", "src/validate.js", "src/engineering.js", "src/engine.js.bak", "lib/engine.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), false, path);
+  for (const path of ["src/engine.js", "src/engine-save.js", "src/engine-scene-art.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), true, path);
+  for (const path of ["src/state.js", "src/scenes-01.js", "src/validate.js", "src/engineering.js", "src/engine.js.bak", "lib/engine.js", "src/engine-.js", "src/engine--save.js", "src/engine_save.js", "src/engine-Save.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), false, path);
   const engineFixture = mkdtempSync(resolve(tmpdir(), "sun-engine-source-"));
   try {
     mkdirSync(resolve(engineFixture, "src"));
@@ -857,6 +857,8 @@ function runSelfTest() {
     assert.equal(readEngineSource(engineFixture), "CORE");
     writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine-save.js", "src/engine.js"].map(tag).join("\n"));
     assert.equal(readEngineSource(engineFixture), "SAVE\nCORE");
+    writeFileSync(resolve(engineFixture, "index.html"), ["src/engine.js", "src/state.js", "src/engine-save.js"].map(tag).join("\n"));
+    assert.equal(readEngineSource(engineFixture), "CORE\nSAVE");
     writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine-save.js"].map(tag).join("\n"));
     assert.throws(() => readEngineSource(engineFixture), /does not load src\/engine\.js/);
   } finally {
