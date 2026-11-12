@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const TOPFIELDS = ["Crew", "Hull", "Coh", "Sup", "Emb"];
@@ -20,7 +21,7 @@ export function playtestTutorialTopfieldsChecks(runtime) {
   ].join("\n");
   const runtimeSrc = [
     readFileSync(resolve(ROOT, "src/validate.js"), "utf8"),
-    readFileSync(resolve(ROOT, "src/engine.js"), "utf8")
+    readEngineSource(ROOT)
   ].join("\n");
 
   if (html.includes("src/tutorial-topfields.js")) {

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 // SUN-HITL-UNSHADOW-01 — static proof that scene.image cannot blank a mapped
 // plate and that Crew close / tab restore rebind #scene-image.
@@ -9,7 +10,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export function hitlUnshadowChecks() {
   const errors = [];
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engine = readEngineSource(ROOT);
   if (engine.length < 90000) errors.push("engine.js below 90KB class");
   if (engine.includes("PLACEHOLDER") || engine.includes("SEE_LOCAL_PATCH")) {
     errors.push("engine.js hollow marker");

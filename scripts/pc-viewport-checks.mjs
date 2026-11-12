@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readEngineSource } from "./simulate.mjs";
 
 export function pcViewportChecks(root) {
   const errors = [];
   const css = readFileSync(resolve(root, "css/pc-viewport.css"), "utf8");
   const index = readFileSync(resolve(root, "index.html"), "utf8");
   const style = readFileSync(resolve(root, "css/style.css"), "utf8");
-  const engine = readFileSync(resolve(root, "src/engine.js"), "utf8");
+  const engine = readEngineSource(root);
   if (!index.includes('href="css/pc-viewport.css"')) errors.push("index missing viewport sheet");
   if (!css.includes("@media (min-width: 1024px) and (max-height: 800px)")) errors.push("short desktop query missing");
   if (!css.includes("max-height: min(52dvh, 360px)")) errors.push("art cap missing");

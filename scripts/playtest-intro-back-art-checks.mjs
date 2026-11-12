@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -19,7 +20,7 @@ const FORBIDDEN_INTRO_SLIDE_ART = [
 export function playtestIntroBackArtChecks(runtime) {
   const errors = [];
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engine = readEngineSource(ROOT);
   const validate = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
   const runtimeSource = engine + "\n" + validate;
   if (!html.includes('id="cinematic-screen"') || !html.includes('id="cinematic-image"')) {

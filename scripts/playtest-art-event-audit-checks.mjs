@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { readEngineSource } from "./simulate.mjs";
 
 // SUN-PLAYTEST-ART-EVENT-AUDIT-01. Audit table + one in-tree retarget +
 // Grok brief stubs. No new image bytes. No ART-R2 binary campaign.
@@ -124,7 +125,7 @@ function sha256(relativePath) {
 function sourceErrors() {
   const errors = [];
   const stateSource = readFileSync(resolve(ROOT, "src/state.js"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const bondSource = readFileSync(resolve(ROOT, "src/scenes-30.js"), "utf8");
   const livingCastSource = readFileSync(resolve(ROOT, "src/scenes-55.js"), "utf8");
   const audit = readFileSync(resolve(ROOT, AUDIT_PATH), "utf8");

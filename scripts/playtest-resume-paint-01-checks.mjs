@@ -1,6 +1,7 @@
 // SUN-V036-RESUME-PAINT-01
 import fs from "fs";
-const eng = fs.readFileSync("src/engine.js", "utf8");
+import { readEngineSource } from "./simulate.mjs";
+const eng = readEngineSource(".");
 const st = fs.readFileSync("src/state.js", "utf8");
 const ver = fs.readFileSync("VERSION.md", "utf8").split("\n")[0].trim();
 let fail = 0;
