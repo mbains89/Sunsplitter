@@ -364,10 +364,52 @@ function hasMark(who, tag) {
   return !!cur[tag];
 }
 
+// SUN-RECAP-HONESTY-01: "Something private still sits with you" cites only memories of a private
+// hour, a private word or a private promise; logged orders and public acts never print there. Matched
+// by the opening words of each remember() text below, so a reworded memory drops out rather than leaks.
+const PRIVATE_MEMORY_OPENINGS = [
+  "You and Lena crossed a line", "You and Mira crossed a line", "You and Amara claimed the hydroponics bay",
+  "Sela chose you without an audience", "You shared the hydroponics bay with Amara and Tomas",
+  "Shared the last long-range window and a private hour with Vess", "The ship interrupted a private hour",
+  "Lena came back while her clock", "Sela chose a second series under a private vow",
+  "Sela said refusal is half", "Sela called the Earth sunrise panels", "Amara put a living leaf",
+  "Elias named the cost of your seat", "Tomas told you he was running out", "You held Rourke's hand",
+  "You kept one name from a locker list", "Elias shared a non-regulation drink", "Elias admitted he was selection security",
+  "Tomas dealt cards", "Tomas said he refuses to call", "Jiro let you into the dull half", "Jiro said if command went silent",
+  "You promised ", "If the vault and the living need the same mercy",
+  "You took Lena's succession notes", "You counted Lena's cabinet", "Elias surrendered his off-log contingency",
+  "Mira told you about the weld", "Amara offered absolution", "Amara withheld absolution",
+  "You took the course numbers privately", "You attended the ritual performed for one person",
+  "You heard the beacon Vess was holding", "You kept the orphan beacon between the two of you",
+  "Elias said she was what the job was for"
+];
+function isPrivateMemory(text) {
+  const t = String(text || "");
+  return PRIVATE_MEMORY_OPENINGS.some(opening => t.startsWith(opening));
+}
+
+// The newest private memory, as a sentence, or null. `skip` drops a memory the caller must not cite.
+function lastPrivateMemory(skip) {
+  const memories = Array.isArray(state.memories) ? state.memories : [];
+  for (let i = memories.length - 1; i >= 0; i--) {
+    const memory = String(memories[i]);
+    if (!isPrivateMemory(memory) || (skip && skip(memory))) continue;
+    return /[.!?]$/.test(memory) ? memory : memory + ".";
+  }
+  return null;
+}
+
 function remember(text) {
   if (!text) return;
   if (state.memories.includes(text)) return;
-  if (state.memories.length < 12) state.memories.push(text);
+  // SUN-RECAP-HONESTY-01: the list stays at 12 (the save import cap), but a private memory is never
+  // crowded out by logged orders: it takes the place of the oldest non-private one, else the oldest.
+  if (state.memories.length >= 12) {
+    if (!isPrivateMemory(text)) return;
+    const drop = state.memories.findIndex(memory => !isPrivateMemory(memory));
+    state.memories.splice(drop < 0 ? 0 : drop, 1);
+  }
+  state.memories.push(text);
 }
 
 function lean(side, amount) {
@@ -482,9 +524,20 @@ function visibleLivingCrewCount() {
 }
 
 
+// SUN-RECAP-HONESTY-01: a private hour was spent this run (a crossed line, a held hour, or one the
+// ship interrupted). Read from existing romance/marks/flags only.
+function privateHourTaken() {
+  return ROMANCEABLE.some(k => state.romance[k] || hasMark(k, "held_only")) ||
+    !!state.romance.amara_tomas || !!state.flags.ship_interrupt_fired;
+}
+
 function relationshipDebtors() {
   // Living crew who notice heavy favoritism / exclusive romance and cool off.
   // Not jealousy minigame — people measuring who gets private time.
+  // SUN-RECAP-HONESTY-01: nobody measures private hours that were never spent, and nobody whose
+  // own numbers say they are fine is listed: trust 60+ (above every starting trust) or affinity 30+
+  // (the ending's "still looks for you" bar). See the return below.
+  if (!privateHourTaken()) return [];
   const keys = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"].filter(isAlive);
   const fav = favoritism();
   const romanced = ["lena", "mira", "amara", "sela", "vess"].filter(k => state.romance[k]);
@@ -499,8 +552,9 @@ function relationshipDebtors() {
     if (favored && topAff - aff >= 18) debtors.push(k);
     else if (romanced.length >= 1 && aff < 22 && topAff >= 35) debtors.push(k);
   }
-  // Cap so debt stays readable
-  return debtors.slice(0, 4);
+  // Cap so debt stays readable. SUN-RECAP-HONESTY-01: then drop anyone whose own numbers say they
+  // are fine, so the list only ever loses names the old rule printed.
+  return debtors.slice(0, 4).filter(k => (state.trust[k] || 0) < 60 && (state.affinity[k] || 0) < 30);
 }
 
 // ═══ CONTENT-BLOCK DECLARATION ══════════════════════════════════
@@ -592,16 +646,16 @@ function whatRemainsCrisisFact() {
     split: "At the vault fault, both habitation and the restart package were degraded"
   };
   const breathClauses = {
-    racks: "The Breath They Cost ended with sterile filters and outer embryo racks stripped into the air loop",
-    trunks: "The Breath They Cost ended with crew clearing the contaminated scrubber trunks by hand",
-    garden: "The Breath They Cost ended with the hydroponics garden converted into a disposable scrubber",
-    blacksleep: "The Breath They Cost ended with the vulnerable in controlled black sleep while Lena managed the loop awake"
+    racks: "the air-loop biofilm ended with sterile filters and outer embryo racks stripped into the air loop",
+    trunks: "the air-loop biofilm ended with crew clearing the contaminated scrubber trunks by hand",
+    garden: "the air-loop biofilm ended with the hydroponics garden converted into a disposable scrubber",
+    blacksleep: "the air-loop biofilm ended with the vulnerable in controlled black sleep while Lena managed the loop awake"
   };
   const custodyClauses = {
-    possession: "Custody of Tomorrow ended with heat dumped through the inhabited ring while the vault stayed whole",
-    thawed: "Custody of Tomorrow ended with outer embryo racks thawed to absorb the heat",
-    severed: "Custody of Tomorrow ended with Mira severing the fused junction and carrying the cold-radiation injury",
-    shared: "Custody of Tomorrow ended with Sela holding the second physical key"
+    possession: "the thermal-spine overload ended with heat dumped through the inhabited ring while the vault stayed whole",
+    thawed: "the thermal-spine overload ended with outer embryo racks thawed to absorb the heat",
+    severed: "the thermal-spine overload ended with Mira severing the fused junction and carrying the cold-radiation injury",
+    shared: "the thermal-spine overload ended with Sela holding the second physical key"
   };
   const clauses = [];
   const vault = vaultClauses[state.flags.vault_sacrifice];
@@ -613,7 +667,10 @@ function whatRemainsCrisisFact() {
     const custody = custodyClauses[state.flags.custody_answer];
     if (custody) clauses.push(custody);
   }
-  return clauses.length ? clauses.join("; ") + "." : null;
+  // SUN-RECAP-HONESTY-01: the crisis clauses name the event, not its package title.
+  if (!clauses.length) return null;
+  const line = clauses.join("; ") + ".";
+  return line.charAt(0).toUpperCase() + line.slice(1);
 }
 
 // Only two promise tests kill: prom_vent_break (Amara's) and prom_line_break (Lena's). The victim's
@@ -689,7 +746,10 @@ function whatRemainsPromiseFact() {
 }
 
 function whatRemainsRelationalFact() {
-  const partners = ROMANCEABLE.filter(key => state.romance[key]);
+  // SUN-RECAP-HONESTY-01: the shared night in the bay makes Amara and Tomas partners too.
+  const shared = !!state.romance.amara_tomas;
+  const partners = ["lena", "mira", "amara", "tomas", "sela", "vess"]
+    .filter(key => state.romance[key] || (shared && (key === "amara" || key === "tomas")));
   if (!partners.length) return null;
   const living = partners.filter(isAlive);
   const dead = partners.filter(key => !isAlive(key));
@@ -788,7 +848,7 @@ function crewEpilogues() {
     else if (state.promises.elias === "broken" && f.prom_deck4_buried) p += ` The Deck Four record was buried; he heard it from the wall.`;
     if (f.pair_shield) p += ` After Mira he said once what she was to him, and did not say it again.`;
     else if (f.pair_seal === "bulkhead") p += ` On the galley slate that account reads one word: bulkhead.`;
-    if (f.vault_sacrifice === "future" && state.crisisPath === "custody") p += ` When the vault was kept at the living's cost, he counted the occupied sections once and called it the invoice.`;
+    if (f.vault_sacrifice === "future" && state.crisisPath === "custody" && !dead("elias")) p += ` When the vault was kept at the living's cost, he counted the occupied sections once and called it the receipt.`;
     p += lastHour("elias", "his");
     out.push(p);
   }
@@ -885,8 +945,12 @@ function crewEpilogues() {
   // Sela — names spoken at yellow.
   {
     let p;
-    if (dead("sela")) p = `${gone("sela")}${hasMark("sela", "spoken") ? ` She had spoken once, at yellow, before that.` : ``}`;
-    else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${hasMark("sela", "spoken") ? ` She spoke once, at yellow, and was heard.` : ``}`;
+    // SUN-RECAP-HONESTY-01: "at yellow" is her lamp hour, so the line needs that hour attended: her
+    // junction pick, or her late hour after another pick (lastPrivateHour's rule).
+    const atYellow = hasMark("sela", "spoken") && (f.junctionChoice === "sela" ||
+      (lateHour("sela") && LATE_HOURS.sela.open() && (LATE_HOURS.sela.done() || isAlive("sela"))));
+    if (dead("sela")) p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : ``}`;
+    else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${atYellow ? ` She spoke once, at yellow, and was heard.` : ``}`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
     if (f.custody_answer === "shared") p += dead("sela") ? ` She held the second physical key to the vault.` : ` She holds the second physical key to the vault; no unilateral triage after that${state.romance.sela ? `, and where she was raised, that key is not a political instrument` : ``}.`;

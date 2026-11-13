@@ -18,7 +18,7 @@ export function midgameThirdConsequenceChecks() {
   if (!src.includes("state.flags.manifest_lie")) {
     errors.push("faction_split does not read flags.manifest_lie");
   }
-  if (!src.includes("A third of the vault, eaten to stay alive")) {
+  if (!src.includes("A third of the germplasm vault, eaten to stay alive")) { // SUN-RECAP-HONESTY-01: names which vault
     errors.push("exposed + Tomas-alive branch missing locked eaten-third line");
   }
   if (!src.includes("a third gone, two-thirds green")) {

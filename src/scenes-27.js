@@ -31,16 +31,8 @@ registerScenes({
       else if (state.flags.rourke === "stayed") t += ` You stayed with Rourke.`;
       else if (state.flags.rourke === "tried") t += ` You spent supplies on Rourke.`;
       t += `\n`;
-      // SUN-CASCADE-ALLUSIVE-PAYOFF-01: late pay of midgame changeorders write.
-      if (state.flags.changeorders === "logged") {
-        t += isAlive("mira")
-          ? `Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.\n`
-          : `Change orders 4417 and 4491 are still in the record.\n`;
-      } else if (state.flags.changeorders === "buried") {
-        t += isAlive("mira")
-          ? `Mira's unsigned pages never entered the record. The reckoning has no page to point at.\n`
-          : `The unsigned pages never entered the record. You left them out.\n`;
-      }
+      // SUN-RECAP-HONESTY-01: the change orders (SUN-CASCADE-ALLUSIVE-PAYOFF-01) are paid on faction_split,
+      // the screen before this one, and are not restated here.
       if (state.romance.mira && isAlive("mira")) t += `You and Mira crossed a line.\n`;
       else if (state.romance.mira) t += `You and Mira crossed a line. She is no longer here to carry it.\n`;
       if (state.romance.lena && isAlive("lena")) t += `You and Lena crossed a line.\n`;
@@ -70,7 +62,9 @@ registerScenes({
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) t += `The crew has noticed your private preference for ${crew[fav.favored].name}.\n`;
       else if (fav && crew[fav.favored]) t += `The crew noticed your private preference for ${crew[fav.favored].name}. That preference is now a ghost.\n`;
-      if (state.memories.length) t += `\nSomething private still sits with you: ${state.memories[state.memories.length - 1]}\n`;
+      // SUN-RECAP-HONESTY-01: the newest private memory, never a logged order or public act.
+      const privateMemory = lastPrivateMemory();
+      if (privateMemory) t += `\nSomething private still sits with you: ${privateMemory}\n`;
       t += `\nThe crew is watching. The next decision is the one the ship will remember.`;
       return t;
     },

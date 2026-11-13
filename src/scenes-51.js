@@ -36,7 +36,7 @@ registerScenes({
     image: "images/sela_ritual.jpg",
     onEnter: () => {
       if (!lateHour("sela")) state.flags.junctionChoice = "sela";
-      remember("attended the ritual performed for one person");
+      remember("You attended the ritual performed for one person.");
     },
     get text() {
       let t = lateHour("sela") ? `${lateHourOpener("sela")}, the yellow lamp is still held at amber. She has not let it reach yellow.\n\n` : ``;
@@ -165,7 +165,7 @@ registerScenes({
     image: "images/vess.jpg",
     onEnter: () => {
       if (!lateHour("vess")) state.flags.junctionChoice = "vess";
-      remember("heard the beacon Vess was holding");
+      remember("You heard the beacon Vess was holding.");
     },
     get text() {
       let t = lateHour("vess") ? `${lateHourOpener("vess")}, the relay bay light is still on when you pass. The bay pings once, log-flat: "Query, non-urgent, still open. The item kept."\n\n` : ``;
@@ -185,7 +185,7 @@ registerScenes({
     get choices() {
       const c = [
         { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "relayed the orphan beacon to the crew" },
-        { text: "Hold it between you.", next: afterHour("vess"), remember: "kept the orphan beacon between the two of you" }
+        { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you." }
       ];
       if (!state.flags.last_tx_spent) {
         c.push({

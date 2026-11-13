@@ -83,7 +83,11 @@ registerScenes({
         t += `Too few remain for ideology to have a proper argument. The ship is mostly quiet.\n\n`;
       }
 
-      if (shape === "future") t += `The ship has leaned Future. The cold is policy now.\n\n`;
+      // SUN-RECAP-HONESTY-01: a vault choice already said above which way the ship went (it sets the
+      // shape), so the lean is not restated; nor is a mid-voyage lean that matches it.
+      const sac = state.flags.vault_sacrifice;
+      if (sac === "future" || sac === "living") { /* said by the vault line */ }
+      else if (shape === "future") t += `The ship has leaned Future. The cold is policy now.\n\n`;
       else if (shape === "living") t += `The ship has leaned Living. The warmth has a permanent cost on the screens.\n\n`;
       else t += `Neither side owns the ship. The argument is still live.\n\n`;
 
@@ -112,7 +116,7 @@ registerScenes({
       // SUN-MIDGAME-THIRD-CONSEQUENCE-01: pay unused Green Tether disclosure write.
       if (state.flags.manifest_exposed) {
         t += isAlive("tomas")
-          ? `A third of the vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
+          ? `A third of the germplasm vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
           : isAlive("amara")
             ? `Amara still has the arithmetic: a third gone, two-thirds green. Tomas is not here to answer the charge.\n\n`
             : `The crew still remembers the eaten third of the germplasm vault. The man who ate it is not here to answer.\n\n`;
@@ -146,7 +150,8 @@ registerScenes({
         if (isAlive("elias")) t += ` Elias has not forgotten.`;
         t += ` Neither have the people who needed it.\n\n`;
       }
-      if (state.flags.mid_arc === "future") t += `The mid-voyage work leaned Future. The living sections felt it.\n\n`;
+      if (state.flags.mid_arc === shape) { /* same lean as above */ }
+      else if (state.flags.mid_arc === "future") t += `The mid-voyage work leaned Future. The living sections felt it.\n\n`;
       else if (state.flags.mid_arc === "living") t += `The mid-voyage work leaned Living. The vault sections felt it.\n\n`;
       if (state.flags.elias_power === "high") {
         t += isAlive("elias")
@@ -156,10 +161,7 @@ registerScenes({
       if (hasMark("elias", "bonded") && isAlive("elias")) t += `Elias still answers faster when you ask without an audience.\n\n`;
       if (hasMark("tomas", "bonded") && isAlive("tomas")) t += `Tomas's silence toward you is less braced.\n\n`;
       if (hasMark("jiro", "bonded") && isAlive("jiro")) t += `Jiro's reports carry an extra careful line.\n\n`;
-      const debtors = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
-      if (debtors.length) {
-        t += `Some of the living have gone quiet in practical ways — not speeches, just fewer offers: ${debtors.map(k => crew[k] ? crew[k].name : k).join(", ")}.\n\n`;
-      }
+      // SUN-RECAP-HONESTY-01: the debtor list prints once, in the ending, not here and at final_choice too.
       if (state.past_known_by && state.past_known_by.lena && isAlive("lena")) {
         t += `Lena knows enough of your ground-side file to factor it into medical priorities. She has not made a speech about it.\n\n`;
       }
