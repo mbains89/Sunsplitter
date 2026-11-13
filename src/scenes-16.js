@@ -58,7 +58,7 @@ registerScenes({
         t = `At the far end of the spine, the vault light stays on.`;
         if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
         if (isAlive("vess")) {
-          t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
+          t += `\n\nA third name is on the board now. Vess is still finding which bulkheads answer.`;
         }
         // SUN-RECAP-HONESTY-01: the fracture is named only when a private hour was spent.
         t += privateHourTaken() ? `\n\nThere is still work. There is still the fracture the private hours left in the corridor.` : `\n\nThere is still work.`;
