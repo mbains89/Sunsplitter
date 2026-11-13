@@ -16,7 +16,7 @@ registerScenes({
       const rushed = !!state.flags.tether_rushed;
       let t = `Elias suits up the way he does everything: once, in order, no wasted motion. He checks the tether shackle three times because three is the number, not because he's afraid.`;
       if (isAlive("mira")) {
-        t += `\n\nMira stops him at the lock on a private channel. "The collar's failure modes are sequential, not simultaneous. If the primary shear ring binds, you have twelve seconds of secondary before the pressure wave. I told the room forty times the rating. That was for the room. This is for you." She does not wait for acknowledgment.`;
+        t += `\n\nMira stops him at the lock on a private channel. "The collar's failure modes are sequential, not simultaneous. If the primary shear ring binds, you have twelve seconds of secondary before the pressure wave. I gave the room the summary. This is for you." She does not wait for acknowledgment.`;
       }
       t += `\n\nOn the line, four kilometers of nothing under his boots, his comm stays flat. "On approach. Annex is bleeding light from the aft seam. ${rushed ? "Closing fast. This will bang." : "Closing slow. This will hold."} Ready."`;
       return t;

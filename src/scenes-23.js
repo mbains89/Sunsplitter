@@ -66,7 +66,7 @@ Elias keeps one finger on B-four.
         requires: { integrity: { min: 17 } },
         alive: "elias",
         reply: [
-          `The brace charges fire in order. Seven Integrity points leave the board as the exterior frame turns away into the dark.`,
+          `The brace charges fire in order. Hull integrity drops by seven as the exterior frame turns away into the dark.`,
           `The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.`,
           { who: "elias", text: `Elias reads the narrower structural envelope once. "Threat contained. That side of the ship is no longer ours to spend."` }
         ]

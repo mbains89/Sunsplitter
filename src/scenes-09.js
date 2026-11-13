@@ -120,7 +120,7 @@ registerScenes({
       } else {
         t += `You tried to protect both. The ship is no longer offering that luxury.\n\n`;
       }
-      if (isAlive("elias")) t += `Elias: "If the vault dies, this was just a slow funeral with better lighting. Feed the future."\n\n`;
+      if (isAlive("elias")) t += `Elias: "If the vault dies, every death so far bought nothing. Feed the future."\n\n`;
       if (isAlive("jiro")) t += `Jiro: "The trajectory was always for the package. We were the escort."\n\n`;
       if (isAlive("lena")) t += `Lena: "I can treat the people in this room. I cannot treat a percentage on a screen."\n\n`;
       if (isAlive("tomas")) t += `Tomas: "Whatever you choose, someone will carry it. Choose knowing that."\n\n`;
