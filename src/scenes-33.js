@@ -52,7 +52,7 @@ registerScenes({
         if (state.flags.amara_vent_delayed) {
           remember("Amara claimed a second night and a public delay of a contaminated grow vent. The clean-air margin moved for living stock.");
         } else {
-          remember("Amara claimed a second night and a partial vent delay. Tomas and the ledger both have a version.");
+          remember("Amara claimed a second night and a partial vent delay. The board and the ledger both have a version.");
         }
       }
     },

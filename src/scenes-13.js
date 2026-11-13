@@ -36,7 +36,7 @@ registerScenes({
       }
       t += `\n\nThe blister sheared off with the spine section in the breach. No comms, its own air loop, written off in the first casualty count. Jiro's station.`;
       if (isAlive("tomas") && state.recovered.tomas) {
-        t += `\n\n"Jiro." Tomas says the name like it has a hole burned through it. "If that's him, he's been alive out there the whole time we grieved him at half-rations. I'll keep the rest of what I think until he can hear it. He's earned that much and exactly that much."`;
+        t += `\n\n"Jiro." Tomas says the name like it has a hole burned through it. "If that's him, he's been alive out there the whole time you grieved him at half-rations. I'll keep the rest of what I think until he can hear it. He's earned that much and exactly that much."`;
       }
       if (isAlive("lena")) {
         t += `\n\n"Nineteen days on a closed air loop," Lena says. "He'll be hypercapnic, dehydrated, and right about everything. Bring him in before the first two finish the job the breach started."`;

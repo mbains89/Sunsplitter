@@ -65,6 +65,32 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   for (const [plate, fallback] of Object.entries(PINNED_FALLBACKS)) {
     if (PLATE_FACE_FALLBACK[plate] !== fallback) fallbackErrors.push(plate + " does not fall back to " + fallback);
   }
+  // SUN-PLATE-FACES-AUDIT-01 (Muse audits a-m and n-z): pinned rosters, and the ruined-dock plate
+  // (Tomas holding a tray) under a stale or edited save with the trays dead and Tomas absent.
+  const AUDIT_FACES = {
+    "images/tether_dock_ruined.jpg": ["tomas"],
+    "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
+    "images/cascade_records.jpg": ["mira", "jiro"],
+    "images/custody_severed.jpg": ["mira"],
+    "images/mira_thermal_cut.jpg": ["mira"],
+    "images/medical_bay.jpg": ["lena", "elias", "rourke"],
+    "images/lena.jpg": ["lena"]
+  };
+  for (const [plate, faces] of Object.entries(AUDIT_FACES)) {
+    if (JSON.stringify(PLATE_FACES[plate]) !== JSON.stringify(faces)) fallbackErrors.push(plate + " face roster is not " + faces.join(","));
+  }
+  for (const [label, setup] of [
+    ["Tomas unrecovered", () => { state.recovered.jiro = state.recovered.vess = true; }],
+    ["Tomas dead", () => { state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("tomas"); }]
+  ]) {
+    resetRunState(); setup(); state.flags.trays_dead = true;
+    const src = resolveSceneImage("act2_tether_dock", scenes.act2_tether_dock);
+    if (src !== "images/corridor_variant_3.jpg" || PLATE_FACES[src]) fallbackErrors.push("act2_tether_dock with trays dead and " + label + " rendered " + src + ", not the people-free corridor");
+  }
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.flags.trays_dead = true;
+  if (resolveSceneImage("act2_tether_dock", scenes.act2_tether_dock) !== "images/tether_dock_ruined.jpg") fallbackErrors.push("act2_tether_dock with trays dead and Tomas aboard no longer shows the ruined dock");
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("mira");
+  if (resolveSceneImage("crisis", scenes.crisis) !== "images/corridor_variant_2.jpg") fallbackErrors.push("crisis without Mira did not use corridor_variant_2");
   resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("lena");
   if (resolveSceneImage("vess_boarding", scenes.vess_boarding) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("vess_boarding without Lena did not use the berths fallback");
   resetRunState(); state.recovered.jiro = state.recovered.vess = true;
