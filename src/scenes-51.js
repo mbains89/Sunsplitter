@@ -39,7 +39,7 @@ registerScenes({
       remember("attended the ritual performed for one person");
     },
     get text() {
-      let t = lateHour("sela") ? `${lateHourOpener("sela")}, the yellow lamp is still held at amber. She has not let it reach yellow.\n\n` : ``;
+      let t = lateHour("sela") ? `Past cycle-turn, the yellow lamp is still held at amber. She has not let it reach yellow.\n\n` : ``;
       t += `The lamp is already warming when you arrive, amber climbing toward yellow, and the filter behind it hums at the pitch of a held breath. The light crosses her hands first. For one hour this small yellow circle is the only sunrise anyone on this ship will get, and she is spending it on an audience of one.\n\n`;
       // Names of the dead
       const deadList = (state.dead || []).filter(k => k !== "rourke").map(k => (crew[k] && crew[k].name) || k);
@@ -174,7 +174,7 @@ registerScenes({
       remember("heard the beacon Vess was holding");
     },
     get text() {
-      let t = lateHour("vess") ? `${lateHourOpener("vess")}, the relay bay light is still on when you pass. The bay pings once, log-flat: "Query, non-urgent, still open. The item kept."\n\n` : ``;
+      let t = lateHour("vess") ? `Past cycle-turn, the relay bay light is still on when you pass. The bay pings once, log-flat: "Query, non-urgent, still open. The item kept."\n\n` : ``;
       t += `The relay bay runs on console light, cyan off the racks, and her chair is worn pale on one arm where six years of one elbow rested. She gives you the other seat. The hour smells of cold solder and old plastic — the smell of equipment kept alive past its design life by somebody who had to.\n\n`;
       t += `"Item one. Logged receipt forty-one cycles ago, oh-two-hundred. Automated. Ark-band handshake, station-keeping power signature. Verified eleven times."\n\n`;
       t += `She plays it. A preamble tone. A ship designator, repeating, patient as a metronome. Then the gap where an answer would go, and the preamble again.\n\n`;
