@@ -1598,7 +1598,8 @@ function resolveSceneImageUngated(id, scene) {
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
-    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela")) {
+    // SUN-PLATE-FACES-AUDIT-01: the kneeling welder in crisis.jpg reads as Mira (Muse a-m audit).
+    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela") || !isAlive("mira")) {
       return "images/corridor_variant_2.jpg";
     }
   }
@@ -1702,7 +1703,7 @@ const PLATE_FACES = {
   "images/corridor.jpg": ["vess"],
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
-  "images/crisis.jpg": ["amara", "jiro", "sela"],
+  "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
   "images/empty_berths.jpg": ["amara"],
   // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
   // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
@@ -1759,7 +1760,17 @@ const PLATE_FACES = {
   "images/arc_living_3.jpg": ["tomas", "elias"],
   "images/lead_together.jpg": ["elias", "amara"],
   "images/vault_sacrifice.jpg": ["mira", "elias"],
-  "images/ship_interrupt_resolve.jpg": ["mira"]
+  "images/ship_interrupt_resolve.jpg": ["mira"],
+  // SUN-PLATE-FACES-AUDIT-01 (Muse audits a-m and n-z): rosters read from the bytes against the
+  // official portraits. tether_dock_ruined.jpg (Tomas holding a tray) is returned for act2_tether_dock
+  // when the trays died; the rest are defensive (their scenes are guarded upstream or never show
+  // them). mira_thermal_cut.jpg is byte-identical to custody_severed.jpg, so both names are mapped.
+  "images/tether_dock_ruined.jpg": ["tomas"],
+  "images/cascade_records.jpg": ["mira", "jiro"],
+  "images/custody_severed.jpg": ["mira"],
+  "images/mira_thermal_cut.jpg": ["mira"],
+  "images/medical_bay.jpg": ["lena", "elias", "rourke"],
+  "images/lena.jpg": ["lena"]
 };
 // SUN-HITL-SHADOW-02: only plates whose bytes differ from the scene's own image. Byte-identical
 // copies under event names stay shadowed so the face gate keeps matching the original filename.

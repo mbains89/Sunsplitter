@@ -152,9 +152,9 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
   // DEATH: none | DEAD SPEECH: entry gates require living, recovered Tomas | IMAGE: REUSE quiet_tomas.jpg
   quiet_tomas: {
     onEnter: () => { state.flags.quiet_tomas_done = true; },
-    text: `Brother Tomas sits where the common area still has a shadow that feels intentional.
+    text: `Tomas sits where the common area still has a shadow that feels intentional.
 
-He has no rank and no console. He was a hospital chaplain before the pads. On this ship he keeps the human cost on the ledger when everyone else is trying to close it.
+Still no rank, still no console. Before the pads he was a hospital chaplain; on this ship he keeps the human cost on the ledger when everyone else is trying to close it.
 
 "They will come to you with numbers," he says. "I will come to you with names. I am not asking you to ignore the numbers. I am asking you not to pretend the names are noise."
 
