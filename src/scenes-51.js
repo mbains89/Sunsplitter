@@ -62,9 +62,9 @@ registerScenes({
           // SUN-PRIVATE-HOURS-01: her one question and her answer close the scene in the reply,
           // before afterHour() opens any late hour.
           { text: "Stay past the yellow.", next: afterHour("sela"), reply: [
-            { who: "sela", text: `"This is the question. When I light the lamp for the ship again, may I keep one place in it that is only yours?"` },
+            { who: "sela", text: `"This is the question. When I perform the ritual for the ship again, may I keep one place in it that is only yours?"` },
             `You stay. The lamp holds at yellow longer than the ritual needs, and she watches it the whole time instead of you.`,
-            { who: "sela", text: `"That is an answer. I will not ask again. I said that I would not."` }
+            { who: "sela", text: `"That is an answer. I will not ask again."` }
           ] },
           { text: "Let the lamp go amber and step back.", next: afterHour("sela"), mark: { sela: "declined" } }
         ];

@@ -40,7 +40,7 @@ registerScenes({
       const waiting = { bond_mira: "mira", bond_amara: "amara", bond_sela: "sela", bond_lena: "lena" }[state.flags.interrupt_return];
       let t = `The red fades to amber.\n\n`;
       if (how === "answered") t += waiting
-        ? `You arrive with tools and the section stabilizes. ${crew[waiting].first} will hear why you were late, and will not pretend it cost nothing.\n\n`
+        ? `You arrive with tools and the section stabilizes. ${crew[waiting].first} is still waiting, and now you are late.\n\n`
         : `You arrive with tools and the section stabilizes. Whoever you left behind understands the math and does not pretend it did not cost something.\n\n`;
       else if (how === "deferred") t += waiting
         ? `Someone else bleeds time on the patch. The private hour is still ahead of you. Later, the schematic will show a messier seal than if you had gone yourself.\n\n`

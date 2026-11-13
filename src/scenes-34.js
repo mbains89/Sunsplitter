@@ -99,8 +99,9 @@ registerScenes({
         if (state.romance.amara_tomas && isAlive("amara") && isAlive("tomas")) {
           r += `You shared the hydroponics bay with Amara and Tomas.\n\n`;
         }
-        r += debt.length
-          ? `The common corridor is no warmer than the last time you came back to it. ${joinNames(debt)} ${debt.length === 1 ? "gives" : "give"} you the work and nothing extra.`
+        const still = debt.filter(k => !["tomas", "jiro", "vess"].includes(k) && !(k === "amara" && hasMark("amara", "privacy_left")));
+        r += still.length
+          ? `The common corridor is no warmer than the last time you came back to it. ${joinNames(still)} ${still.length === 1 ? "gives" : "give"} you the work and nothing extra.`
           : `Nobody in the common corridor makes a speech about it.`;
         return r;
       }
