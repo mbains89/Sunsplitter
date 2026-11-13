@@ -1,11 +1,10 @@
 // Plate and presence honesty: pinned image hashes and roster truth for wired plates, Vess's hair
-// canon, and the living/dead guards on the warmth and cut-out scenes.
+// canon, and the living/dead/unrecovered presence guards on the warmth and cut-out scenes.
 // Moved out of scripts/verify.mjs unchanged; verify.mjs imports and runs every check here.
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadGame } from "../simulate.mjs";
 import { ROOT } from "./shared.mjs";
 
 export function warmthLaughterChecks(runtime) {

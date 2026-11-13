@@ -5,7 +5,6 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadGame } from "../simulate.mjs";
 import { ROOT } from "./shared.mjs";
 
 export function crewOverviewChecks(runtime) {
