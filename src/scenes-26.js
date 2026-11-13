@@ -63,10 +63,11 @@ registerScenes({
     get text() {
       if (state.flags.crisis === "vent") {
         let t = `You give the remaining survivors the right to decide how the dead are remembered.\n\nThey keep Sela's last circle on the bulkhead. They keep Amara's key on a shelf in the common area.`;
-        // SUN-DEATH-REACTIONS-01: every crew death since the wake, in order of death (Rourke stays out,
-        // as on the warmth_meal soil bed). Tomas was annex crew before the breach; he knew them all.
-        const named = (state.dead || []).filter(k => k !== "rourke");
-        const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+        // SUN-DEATH-REACTIONS-01: every crew death, in order of death. Tomas knows the ones before his
+        // recovery from the casualty board (pair_triage_chart: Rourke "goes in the count. A name, not an
+        // entry."); the rest died after he came aboard.
+        const named = (state.dead || []).slice();
+        const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
         const nameWord = `${words[named.length] || named.length} name${named.length === 1 ? "" : "s"}`;
         const list = whatRemainsJoinNames(named);
         t += isAlive("tomas")
@@ -75,9 +76,10 @@ registerScenes({
         t += `\n\nAfter that, the ship feels slightly less like a place where people disappear without record.`;
         return t;
       }
-      const named = (state.dead || []).filter(k => k !== "rourke");
+      // Only when someone besides Rourke has died; the list itself is the whole count, Rourke first.
+      const named = (state.dead || []).slice();
       let dead = "";
-      if (named.length) {
+      if (named.some(k => k !== "rourke")) {
         dead = isAlive("tomas")
           ? ` Tomas speaks the names of the dead once — ${whatRemainsJoinNames(named)} — and then does not speak them again.`
           : ` The names of the dead are read off the manifest once — ${whatRemainsJoinNames(named)} — and then not again.`;

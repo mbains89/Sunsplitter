@@ -52,21 +52,21 @@ registerScenes({
     text: () => {
       // SUN-DEATH-REACTIONS-01: the load line and the rumor are true only while their people exist.
       let t = deadSinceTether().length
-        ? `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking anyway. The empty berths have bought them no slack.\n\n`
+        ? `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking on the load anyway. The empty berths have bought them no slack.\n\n`
         : `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking on the load of every body you insisted on keeping alive.\n\n`;
       const accusers = ["lena", "elias", "mira", "amara", "sela"].some(isAlive);
       if (isAlive("tomas")) {
         t += `Tomas meets you at the bulkhead. His voice is steady and public.\n\n`;
         t += accusers
           ? `"Commander. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`
-          : `"Commander. Everyone left aboard but you is one of the rescued, and the air is counting us anyway. I need to hear you say the rescued will not be treated as the cause."`;
+          : `"Commander. Everyone left aboard but you came in through a rescue hatch. When the air runs short, that is an easy line to draw. I need to hear you say the rescued will not be treated as the cause."`;
         // SUN-CALLBACKS-01: who pays, through a present habit. Text only.
         const first = typeof firstAttributableDeath === "function" ? firstAttributableDeath() : null;
         if (first) t += `\n\n"I still count ${(crew[first.who] && crew[first.who].first) || first.name} when I count the mouths. I have not stopped. The air is about to stop me."`;
       } else {
         t += accusers
           ? `The rumor is already moving: vent the late arrivals, save the filters. No one stands in front of it.`
-          : `Everyone left aboard but you is one of the rescued, and the air is already counting them. No one stands in front of it.`;
+          : `Everyone left aboard but you came in through a rescue hatch. When the air runs short, that is an easy line to draw, and no one is left to stand in front of it.`;
       }
       return t;
     },

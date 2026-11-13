@@ -89,7 +89,7 @@ She waits.
       const tableNames = whatRemainsJoinNames(table);
       if (state.flags.crisis === "vent") {
         t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here.`;
-        if (table.length) t += ` ${tableNames} I did, and ${table.length === 1 ? "that plate is" : "those plates are"} the hardest to set.`;
+        if (table.length) t += ` I did eat with ${tableNames}, and ${table.length === 1 ? "that plate is" : "those plates are"} the hardest to set.`;
         t += ` Habit is cheaper than grief, and it keeps longer."\n\n`;
       } else if (table.length) {
         t += `"I set a plate for ${tableNames} at the evening meal, in the place I am used to seeing filled. Habit is cheaper than grief, and it keeps longer."\n\n`;

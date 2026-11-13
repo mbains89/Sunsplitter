@@ -74,7 +74,7 @@ Tomas's suit tag remains beyond the hatch after the collar reports seated.`;
   get choices() {
     const where = state.dying && state.dying.tomas === "refused the order and paid for it" ? "Service throat, past the inner line" : "Annex collar, beyond the hatch";
     const reply = isAlive("amara")
-      ? { who: "amara", text: `Amara takes his shift at the grow lights without being asked. "He kept the books on everyone else. Somebody has to keep his."` }
+      ? { who: "amara", text: `Amara opens her ledger to his page and leaves it open. "He kept the books on everyone else. Somebody has to keep his."` }
       : isAlive("lena")
         ? { who: "lena", text: `Lena closes his chart herself. "Exposure. He was the only patient I ever had who asked who else was waiting."` }
         : isAlive("jiro")
