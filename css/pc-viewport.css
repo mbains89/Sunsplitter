@@ -99,6 +99,9 @@ body,
   #scene-image,
   #scene-image-wrap.intimate #scene-image {
     object-fit: contain;
+    /* Muse crop check (#555): centre the letterbox; the inherited 18% top position left a plate
+       that is not 784×1168 with 20px of bar above and 88px below. */
+    object-position: center;
   }
 }
 
