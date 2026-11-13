@@ -26,24 +26,39 @@ registerScenes({
       // SUN-DIET-HUB-01: a return is read from existing state, never written here. Each key below is
       // spent only by an offer this hub makes after the vault: the warmth, favor and crew-friction pair
       // scenes are offered nowhere else, and the Tomas, Jiro and Amara-Tomas offers elsewhere need a
-      // recovered Tomas or
-      // Jiro, which the opening walk and the private hours never have. Elias's hour is left out
-      // because the opening walk can spend it; a return that spent none of these shows the paragraph
-      // again, which errs toward the old text, never toward hiding the first visit.
+      // recovered Tomas or Jiro, which the opening walk and the private hours never have. Elias's hour
+      // is left out because the opening walk can spend it; a return that spent none of these shows the
+      // paragraph again, which errs toward the old text, never toward hiding the first visit. Telling
+      // that return apart needs a visit record the state does not keep (L-061, unruled).
+      // SUN-HUB-REPEAT-01: one count per offer, so `spent` is the number of this hub's own offers the
+      // run has taken; with Elias's hour added it rises by one on every return the hub can tell apart.
       const f = state.flags;
-      const returning = !!(f.warmth_meal || f.warmth_laughter || f.warmth_music || f.pair_favor ||
-        f.pair_grudge || f.pair_seal || f.pair_burn || f.pair_fix || f.quiet_tomas_done || state.romance.amara_tomas ||
-        hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped") ||
-        hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped") ||
-        hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"));
+      const spent = [f.warmth_meal, f.warmth_laughter, f.warmth_music, f.pair_favor, f.pair_grudge,
+        f.pair_seal, f.pair_burn, f.pair_fix, f.quiet_tomas_done,
+        state.romance.amara_tomas || hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"),
+        hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped"),
+        hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped")].filter(Boolean).length;
       let t;
-      if (returning) {
-        t = `The vault light is still on. There is still work.`;
+      if (spent) {
+        // SUN-HUB-REPEAT-01: the vault refrain prints on one return at most, and a later return names
+        // only the corridor, so it never claims where the player has just come from. When nothing but
+        // the Continue exit is left, the line says so.
+        const step = spent + (hasMark("elias", "bonded") || hasMark("elias", "bond_skipped") ? 1 : 0);
+        const offersLeft = scenes.act3_spine_next.choices.length - 1;
+        if (!offersLeft) t = `Every door along the spine has had its hour. What is left is the work.`;
+        else if (step === 1) t = `The vault light is still on. There is still work.`;
+        else t = [
+          `Back in the spine corridor. The deck hums underfoot.`,
+          `The corridor again. Down the spine, a hatch cycles shut and settles.`,
+          `You step back into the spine. The air handlers hold their one low note.`
+        ][(step - 2) % 3];
       } else {
-        t = `The vault light stays on behind you.`;
+        // SUN-HUB-REPEAT-01: the first visit follows Vess's arrival, not the vault, so the light is
+        // placed down the corridor rather than behind the player.
+        t = `At the far end of the spine, the vault light stays on.`;
         if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
         if (isAlive("vess")) {
-          t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
+          t += `\n\nA third name is on the board now. Vess is still finding which bulkheads answer.`;
         }
         // SUN-RECAP-HONESTY-01: the fracture is named only when a private hour was spent.
         t += privateHourTaken() ? `\n\nThere is still work. There is still the fracture the private hours left in the corridor.` : `\n\nThere is still work.`;
@@ -82,21 +97,21 @@ registerScenes({
         opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
-        opts.push({ text: "Tomas and Jiro are working the same trunk and not speaking.", next: "pair_grudge_settle" });
+        opts.push({ text: "Go to the trunk, where Tomas and Jiro are working and not speaking.", next: "pair_grudge_settle" });
       }
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
-        opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
+        opts.push({ text: "Hear Amara out. She wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
       // SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): crew disagreeing with each other, one-shot,
       // gated on both living and on the run fact they argue about. One flag per pair, written by the answer.
       if (isAlive("elias") && isAlive("tomas") && !state.flags.tomas_scapegoated && state.flags.ship_memory && !state.flags.pair_seal) {
-        opts.push({ text: "Elias and Tomas are at the Deck 4 dog. The argument is about the feedstock.", next: "pair_seal_ledger" });
+        opts.push({ text: "Go to the Deck 4 dog. Elias and Tomas are arguing about the feedstock.", next: "pair_seal_ledger" });
       }
       if (isAlive("mira") && isAlive("jiro") && state.flags.margin_committed && !state.flags.pair_burn) {
-        opts.push({ text: "Jiro has asked Mira for her solution. The pane is closed.", next: "pair_burn_archive" });
+        opts.push({ text: "Go to the records bay. Jiro has asked Mira for her solution, and the pane is closed.", next: "pair_burn_archive" });
       }
       if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
-        opts.push({ text: "Jiro's fix is on the tracker board, Vess's night log beside it. They are not looking at each other.", next: "pair_fix_track" });
+        opts.push({ text: "Go to the tracker board, where Jiro's fix and Vess's night log sit side by side. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? ((state.dead || []).some(k => k !== "rourke") ? "Follow the sound of everyone left in one room." : "Follow the sound of the whole crew in one room.") : "Follow the smell of green down-corridor.", next: "warmth_meal" });
@@ -105,7 +120,7 @@ registerScenes({
         opts.push({ text: "There's laughter around the spine bend. Stop before they see you.", next: "warmth_laughter" });
       }
       if (!state.flags.warmth_music) {
-        opts.push({ text: "There's music coming from the empty berths.", next: "warmth_music" });
+        opts.push({ text: "Follow the music coming from the empty berths.", next: "warmth_music" });
       }
       // Preserve pregnancy check if any romance occurred; then tomas_break is reachable
       // 0.24.2: Vess pregnancy gate keys on physical intimacy (vess_intimate), not offer acceptance
