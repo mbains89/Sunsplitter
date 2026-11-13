@@ -1376,7 +1376,7 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
-  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and now and then reaches for one another without being told to.\n\n`;
+  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and now and then reaches for one another.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
   text += buildFinalOrderText(final);
@@ -1494,7 +1494,7 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("lena", "held_only") && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it.`;
   else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
   // SUN-BLEAK-ENDING-HONESTY-01: what tomas_break's reply shows, not a breakdown it does not show.
-  if (hasMark("tomas", "broke")) text += `\n\nWhen you told Tomas the future justifies the cost, his calm came back all at once, and it was worse than the rawness. That fact does not leave the ship.`;
+  if (hasMark("tomas", "broke")) text += `\n\nYou told Tomas the future is what justifies this. He took it like a ration cut, and did not argue. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-05 (L-050): Sela's end state, cited from the answer the run gave.
   if (state.flags.sela_amber) {

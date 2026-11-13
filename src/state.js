@@ -592,20 +592,20 @@ function whatRemainsDeathClause(key, cause) {
     case "vented with the lower ring":
       return `${name} died when the lower ring was vented`;
     case "vented at twenty":
-      return `${name} died at twenty when the lower ring was vented`;
+      return `${name} died when the lower ring was vented; she was twenty`;
     case "resources diverted to the vault":
       return `${name} died after medical power was diverted to the vault`;
     // SUN-BLEAK-ENDING-HONESTY-01: this cause is written only after the Commander kept the packs and
     // power committed elsewhere at act3_lethal_lena_clock, so the clause names that order.
     case "kept working until the clock ran out":
-      return `${name} died after her treatment was ordered withheld`;
+      return `${name} died finishing the watch, with the packs and power kept elsewhere`;
     case "refused the order and paid for it":
       return `${name} died after refusing the order`;
     case "went back for the living and did not return":
       return `${name} went back for the living and did not return`;
     // SUN-BLEAK-ENDING-HONESTY-01: written only when the Commander sealed B-four with Elias inside.
     case "held the line":
-      return `${name} died sealed into Station B-four by order`;
+      return `${name} died sealed into Station B-four`;
     case "would not leave the board":
       return `${name} died after refusing to leave the board`;
     case "finished the repair":
@@ -813,7 +813,7 @@ function crewEpilogues() {
 
   // Rourke: the opening dead. SUN-BLEAK-ENDING-HONESTY-01 (decision 21): his death and its cause are
   // the reflection line's; the paragraph opens on him, like the others, with his crew-sheet fact.
-  if (dead("rourke")) out.push(`Rourke was dead when the run ended. He was docking crew, and knew the ship better than most.`);
+  if (dead("rourke")) out.push(`Rourke was dead when the run ended. He had been docking crew, and knew the ship better than most; the rest of the crew learned it without him.`);
 
   // Lena — a clinical fact and one detail.
   {
