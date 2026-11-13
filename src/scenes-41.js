@@ -132,9 +132,9 @@ When you leave she has already started the next circle — same diameter, cleane
 
 
   quiet_mira: {
-    text: `You touch her shoulder. Mira jerks awake with a sound that is almost a word.
+    text: `You touch her shoulder. Mira Solis jerks awake with a sound that is almost a word.
 
-Drive systems specialist. The patch on her suit is the only clean thing on the woman who has been keeping the boards from going dark.
+Drive systems specialist. The patch on her suit is the first clean name you get for the woman who has been keeping the boards from going dark.
 
 "How long?" she asks. Then she sees the fault light still open and answers herself.
 
@@ -154,7 +154,7 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
     onEnter: () => { state.flags.quiet_tomas_done = true; },
     text: `Tomas sits where the common area still has a shadow that feels intentional.
 
-He has no rank and no console. On this ship he keeps the human cost on the ledger when everyone else is trying to close it.
+Still no rank, still no console. Before the pads he was a hospital chaplain; on this ship he keeps the human cost on the ledger when everyone else is trying to close it.
 
 "They will come to you with numbers," he says. "I will come to you with names. I am not asking you to ignore the numbers. I am asking you not to pretend the names are noise."
 
