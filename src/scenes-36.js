@@ -77,7 +77,7 @@ She waits.
 
       let t = `Tomas finds you alone.\n\nFor the first time since he came aboard his calm is gone. His voice is low and raw.\n\n`;
       if (state.flags.vault_sacrifice === "future") {
-        t += `"You chose the vault before I was aboard to argue it. The ring still feels it. People noticed. I noticed."\n\n`;
+        t += `"You chose the vault before I was aboard to argue it. I have walked the habitation ring since, and I can tell you the names of the people who sleep in the dark it left. People noticed. I noticed."\n\n`;
       } else if (state.flags.vault_sacrifice === "living") {
         t += `"You chose the living. The vault numbers dropped. Some of them will not forgive that. I am not sure I will either — or that I should."\n\n`;
       } else {
