@@ -28,27 +28,20 @@ Gate 1: Manraj plays a full run on the tip; one stranger reads a full run; verif
 
 Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`. Cuts are for slack and for setups with no payoff, judged one at a time; the 20-minute figure is not a target (Manraj, 2026-11-06 evening).
 
-- **Step 1** needs no lock. Landed: C01 (#524), C11/C12 (#525), the first trims (#526), C04 (#532). C10 is in flight above. Still to write:
-  - C06: trim the `vault_reveal` explainer.
-  - C07: trim `time_pass`.
-  - C13: warmth vignettes.
-  - C14: `power_crisis`.
-  - C17: trim `crew_walk`.
-  - C20: trim the opening.
-  - C21: trim `offshift_open`.
-  - C22: trim `aftermath` and `arc_fork`.
+- **Step 1** needs no lock. Landed: C01 (#524), C11/C12 (#525), the first trims (#526), C04 (#532), C06/C07/C17/C20/C22 (#538). C10 is in flight above. Still to write, each brought to Manraj first because it retires a scene:
+  - C13: cut two warmth vignettes; the meal gets a single exit.
+  - C14: cut `power_crisis`; the capacitor proof check retires.
 
-  One PR each, a Myth read for the prose, and a re-measure after each.
+  C21 (`offshift_open`) is held: decision 19 says off-shift is not cut.
 - **Step 2 is quality fixes (STATUS decision 19, ruled; no lock moves):**
   - SUN-PROMISE-PAYOFF-01: every promise made is tested or cited later (L-024 stays). Hex's design is in the project doc `claude/hex/2026-11-08-promise-payoff.md`; it waits on STATUS decision 27.
   - Friction restatements: landed as SUN-FRICTION-TRIMS-01 (#531).
-  - Deaths once in What Remains: landed (#527, decision 21).
+  - Deaths once in What Remains: landed (#527, decision 21; promise deaths #537).
   - Off-shift lead-ins are not cut (L-050 stays). What Remains is not cut (L-008 stays).
-- **Small tickets.** Landed: the phone-landscape plate (#533), `offshift_jiro`, `time_pass` and the hatch count (#528), the hub resume line (#535). Open:
+- **Small tickets.** Landed: the phone-landscape plate (#533), `offshift_jiro`, `time_pass` and the hatch count (#528), the hub resume line (#535), promise deaths once (#537), the `wake` Commander line (#538). Open:
   - the `arc_living_4` "double cycle" sentence (decision 22);
   - five flags written but never read;
-  - a death printed three times when a broken promise kills its holder;
-  - "You are the Commander." read three times in the opening;
+  - "You are the Commander." reads twice (title prologue and cinematic replay; a design change, not a trim);
   - the plate cover-crops about 40% at 768×1024;
   - `final_choice`'s "Other debts are louder." with nothing after it (probably unreachable).
 
@@ -63,7 +56,7 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
 
 | Helper | Ask |
 |---|---|
-| Myth | Done in the lead chat (decision 15): #508, #509, #511, #516, #521, #524, #525, #526, #529, #531, #532 and #534 read, edits applied. Next: each D11 step 1 ticket as it opens. |
+| Myth | Done in the lead chat (decision 15): #508, #509, #511, #516, #521, #524, #525, #526, #529, #531, #532, #534, #537 and #538 read, edits applied. Next: each D11 step 1 ticket as it opens. |
 | Hex | Done: the romance reach measurement (weekly watch 2026-11-07; fixed by #534) and the promise payoff design (2026-11-08). Next: re-measure run length after the next step 1 batch. |
 | Muse | Audit the face map in `src/engine.js` `PLATE_FACES` against the official portraits, starting with `images/vess_boarding.jpg` (shows Lena's face, ungated). No new art until Wave 4. |
 
