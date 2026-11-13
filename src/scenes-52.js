@@ -33,9 +33,9 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 } },
-      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 } },
-      { text: "Say nothing.", next: "act3_spine_next" }
+      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 }, reply: [{ who: "amara", text: `"I know, love. Agreeing's the cheap part." Amara turns back to the pump log. "The rest you pay out where the whole garden can see it."` }] },
+      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 }, reply: [{ who: "amara", text: `"Everyone aboard is my concern. I wrote that job description myself." Amara lets the pumps have the silence. "Go on, then. I've said it once. I'll not nag."` }] },
+      { text: "Say nothing.", next: "act3_spine_next", reply: [`Amara reads the silence the way she reads a yield sheet. She nods once, as if you had answered, and lets the pumps have the room.`] }
     ]
   },
 
