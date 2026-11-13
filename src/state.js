@@ -822,6 +822,8 @@ function crewEpilogues() {
     } else {
       p = `Lena was alive when the run ended.`;
     }
+    // SUN-FLAG-PAYOFFS-01: the succession notes from offshift_lena (lena_notes).
+    if (f.lena_notes) p += dead("lena") ? ` Her succession notes were in your keeping, in her handwriting, in the order the next person would need them.` : ` Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose.`;
     if (f.rourke === "stopped") p += ` Rourke's chart still reads treatment stopped, by order; the prognosis under it was hers, and she never amended either line.`;
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
@@ -839,6 +841,11 @@ function crewEpilogues() {
     let p;
     if (dead("elias")) p = `${gone("elias")} The corridors he covered have no one counting them.`;
     else p = `Elias was still counting exits when the run ended.`;
+    // SUN-FLAG-PAYOFFS-01: the manifest line read beside Elias at act3_vault_face_read. No state records
+    // who was at the terminal, so this infers it: Sela reads there when she is alive, Elias only when
+    // she is not. That holds because Sela's one death (vent, scenes-02) comes before the vault face;
+    // sun-playerflow-flag-payoffs-checks fails if a Sela death site becomes reachable after it.
+    if (f.vault_face_read && dead("sela")) p += dead("elias") ? ` His manifest count had a second column, one entry long, in your name.` : ` His manifest count has a second column, one entry long, in your name.`;
     if (hasMark("elias", "approved_vent")) p += ` He approved the vent.`;
     if (f.ship_memory === "proper_seal") p += ` He argued the Deck 4 seal and got it; the feedstock went into a proper patch.`;
     else if (f.ship_memory === "open_wound") p += ` He argued the Deck 4 seal and lost it to the paste; the schematic kept the wound.`;
@@ -951,6 +958,8 @@ function crewEpilogues() {
       (lateHour("sela") && LATE_HOURS.sela.open() && (LATE_HOURS.sela.done() || isAlive("sela"))));
     if (dead("sela")) p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` Before that, she spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
     else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${atYellow ? ` She spoke once, at yellow, and was heard.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` She spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
+    // SUN-FLAG-PAYOFFS-01: the manifest line read beside Sela (inferred as in Elias's block above).
+    if (f.vault_face_read && !dead("sela")) p += ` One line of the vault manifest was said in your voice beside her: E-6104, name field empty; she did not ask for the next.`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
     if (f.custody_answer === "shared") p += dead("sela") ? ` She held the second physical key to the vault.` : ` She holds the second physical key to the vault; no unilateral triage after that${state.romance.sela ? `, and where she was raised, that key is not a political instrument` : ``}.`;

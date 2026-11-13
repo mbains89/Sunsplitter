@@ -99,7 +99,7 @@ He sets the helmet down long enough to leave the decision with you.`;
           alive: "tomas",
           reply: [
             `The rack quench is clean.`,
-            { who: stranded, text: `Nitrogen leaves the vault, holds the service throat, and carries ${name} back through it. Eight viability points vanish without making a sound.` },
+            { who: stranded, text: `Nitrogen leaves the vault, holds the service throat, and carries ${name} back through it. The vault's viability figure falls by eight without a sound.` },
             { who: "tomas", text: `Tomas releases the hatch when the crossing is complete. "Eight from the vault," he says. He keeps ${name}'s suit tag beside the new count.` }
           ]
         },
@@ -124,7 +124,7 @@ He sets the helmet down long enough to leave the decision with you.`;
         alive: "tomas",
         reply: [
           `The collar charges fire. The annex falls away.`,
-          `Eight points leave Supplies before the green strip becomes too small to see.`,
+          `The eight points of food stock go with it. The green strip shrinks until it is too small to see.`,
           { who: "tomas", text: `Tomas watches it without touching the suit. "The mouths pay," he says. "Write that. Not me. Not this time."` }
         ]
       },
@@ -136,7 +136,7 @@ He sets the helmet down long enough to leave the decision with you.`;
         alive: "tomas",
         reply: [
           `The Sunsplitter rolls three degrees against the drift.`,
-          `The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.`,
+          `The spine takes the load. Hull integrity drops by seven on the board. The annex collar reseats with a sound felt through every deck.`,
           { who: "tomas", text: `Tomas reads the new fracture line, then the green strip. "Seven from Integrity," he says. He keeps the annex pressure trace beside the new fracture line.` }
         ]
       },

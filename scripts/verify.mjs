@@ -1933,7 +1933,7 @@ function cascadeAndMirrorChecks(runtime) {
   const originalFour = ["lena", "mira", "amara", "sela"];
   const mirrorNeedles = {
     lena: other => `I know about ${other}.`,
-    mira: other => `Private interval logged. ${other} remain known conditions, not faults.`,
+    mira: other => `Private interval logged. ${other} remains a known condition, not a fault.`,
     amara: other => `I know who else gets your quiet hours: ${other}.`,
     sela: other => `I know about ${other}.`
   };

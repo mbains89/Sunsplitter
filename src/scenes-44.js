@@ -51,10 +51,12 @@ registerScenes({
   },
 
   // PRE: isAlive(elias) && !promises.elias | WRITES: choice flag + remember | DEATH: none | IMG: reuse
+  // SUN-SIGNAL-RETURN-01: entered only from the transmission detour, so every exit goes back to the
+  // signal decision while flags.signal is unset (vault_voice once it is set).
   prom_make_elias: {
     image: "images/elias.jpg",
     onEnter: () => {
-      if (!isAlive("elias") || state.promises.elias) return "vault_voice";
+      if (!isAlive("elias") || state.promises.elias) return state.flags.signal ? "vault_voice" : "transmission";
     },
     get text() {
       let t = `Elias is at the Deck Four seal with a hand lamp, reading the frame the way other men read faces.`;
@@ -93,7 +95,9 @@ He looks at you once. That is the whole request.`;
 Then he's gone, at patrol pace, exactly.`
         : `"Understood." The lamp comes back on. He starts the seal check over from the top plate, which is not a thing the seal needs. You leave him to it.`;
     },
-    choices: [ { text: "Leave him the corridor.", next: "vault_voice" } ]
+    get choices() {
+      return [ { text: "Leave him the corridor.", next: state.flags.signal ? "vault_voice" : "transmission" } ];
+    }
   },
 
   // PRE: isAlive(sela) && !promises.sela | WRITES: choice flag + remember | DEATH: none | IMG: reuse

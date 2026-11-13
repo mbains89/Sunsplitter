@@ -141,7 +141,7 @@ registerScenes({
       }
       t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
       if (isAlive("mira")) {
-        t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
+        t += `\n\nThe board shows the intercept geometry: relative velocity is matchable, and there is no second window on this heading. Mira does not look away from the board. "Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online."`;
       } else {
         t += `\n\nThe geometry is clear from the boards: matchable, but the docking burn will spend reaction mass now, and the environmental bus will run degraded to power her relay core. No second window.`;
       }
@@ -163,7 +163,7 @@ registerScenes({
       remember("Spent reaction mass on the docking burn to recover Vess from Dawnbreak.");
       remember("Environmental bus runs degraded for her relay core.");
     },
-    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation. There is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`,
+    text: () => `Matching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThe window does not stay open by hesitation.\n\nShe is coming aboard.`,
     choices: [
       { text: "Dock the fragment.", next: "vess_boarding", effects: { supplies: -3, integrity: -1 }, reply: [{ who: "mira", text: `The burn is clean and expensive. Mira reads the reaction-mass figure aloud once, to the tenth of a percent, and never says it again.` }] },
       { text: "Dock on dead systems. Accept the rough seal.", next: "vess_boarding", reply: [{ who: "mira", text: `The seal takes on the third try. Mira stays at the collar with her palm flat on the weld until the pressure has held for an hour. "Rough," she reports. "Not failing. Rough is a condition I can live with. I will check it at oh-four-hundred."` }] }
