@@ -64,17 +64,17 @@ registerScenes({
     onEnter: () => {
       if (!lateHour("lena")) state.flags.junctionChoice = "lena";
       state.flags.lena_notes = true;
-      remember("took Lena's succession notes and heard how she wants the clock to end");
+      remember("You took Lena's succession notes and heard how she wants the clock to end.");
     },
     get text() {
       let t = lateHour("lena") ? `Down-corridor, the medbay channel light is still burning past cycle-turn. The prescription stands.\n\n` : ``;
       t += `The sterilizer hood is dark for once, and the medbay smells like tea instead of antiseptic — real leaves, hoarded from somewhere, steaming in two specimen cups. That's the hour, right there: steam you can watch rise, going nowhere, answering no alarm.\n\n`;
       t += `Two paper folders on the exam table, her handwriting on both. "Succession notes," she says. "Every living body on this ship, what keeps it running, in the order the next person will need to know it. Handwriting, because handwriting survives power loss and I won't."\n\n`;
-      t += `Then the other folder, thinner. "How I want the clock to end. Short version: when it runs out, no last dose. I want the last hour, not the last treatment. Awake. Working if I can stand, watching someone competent work if I can't. Cause of death gets logged as the disease. It did the work; it gets the credit."\n\n`;
+      t += `Then the other folder, thinner. "How I want the clock to end. Short version: when it runs out, no last dose. I want the last hour, not the last treatment. Awake. Working if I can stand, watching someone competent work if I can't. Cause of death gets logged as the exposure. It did the work; it gets the credit."\n\n`;
       if (state.flags.lena_regen) {
         t += `"The treatment bought me steadiness, not distance. Worth it. I'd sign for it again."\n\n`;
       } else {
-        t += `"The math got shorter when we spent that dose elsewhere. I signed for that too. Both signatures were mine."\n\n`;
+        t += `"The last heavy stabilizers went into Rourke, and my math got shorter. I signed for that. I would again."\n\n`;
       }
       if (state.romance.lena) {
         t += `She waits until you've taken the folders, then uses your name — the one from before the rank, the one she spends only in private, only before something true. "That's everything I know about keeping them alive. This hour is the one thing I know about keeping me."`;
@@ -84,7 +84,7 @@ registerScenes({
       }
       const close = lateHour("lena") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when no folder line or close follows
     },
     get choices() {
       const c = [
@@ -117,7 +117,7 @@ registerScenes({
       if (!isAlive("lena")) return "faction_split";
       if (!state.flags.lena_last_hour) {
         state.flags.lena_last_hour = true;
-        remember("counted Lena's cabinet with her, line by line, variance zero");
+        remember("You counted Lena's cabinet with her, line by line, variance zero.");
       }
     },
     get text() {

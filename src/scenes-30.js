@@ -23,7 +23,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("mira")) return `Engineering is empty.`;
-      return `Mira is alone with the drive schematic and a cooling mug she has not touched.\n\n"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."\n\nShe finally turns. Grease on her wrist. Tired eyes. No performance.\n\n"I am not asking for a future. I am asking for one honest hour that is not the ship."`;
+      return `Mira is alone with the drive schematic and a cooling mug she has not touched.\n\n"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."\n\nShe finally turns. Grease on her wrist. Tired eyes. No performance.\n\n"One honest hour, off the board. I cannot verify what it does to either of us. I am asking anyway."`;
     },
     get choices() {
       if (!isAlive("mira")) return [{ text: "Leave.", next: "intimacy_window" }];
@@ -130,7 +130,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("sela")) return `The bulkhead is unmarked tonight.`;
-      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.\n\n"You keep returning. That is data."\n\nA pause. She chooses the next sentence carefully.\n\n"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."\n\nHer voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
+      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.\n\n"You keep returning. I have counted."\n\nA pause. She chooses the next sentence carefully.\n\n"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."\n\nHer voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
     },
     get choices() {
       if (!isAlive("sela")) return [{ text: "Leave.", next: "intimacy_window" }];

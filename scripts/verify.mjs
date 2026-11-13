@@ -991,7 +991,7 @@ function cascadeAndMirrorChecks(runtime) {
   const originalFour = ["lena", "mira", "amara", "sela"];
   const mirrorNeedles = {
     lena: other => `I know about ${other}.`,
-    mira: other => `Private interval logged. ${other} remain known conditions, not faults.`,
+    mira: other => `Private interval logged. ${other} remains a known condition, not a fault.`,
     amara: other => `I know who else gets your quiet hours: ${other}.`,
     sela: other => `I know about ${other}.`
   };
@@ -1874,7 +1874,7 @@ function adoptedChecks() {
     }
   };
   const results = [
-    ["SUN-CASCADE-ALLUSIVE-PAYOFF-01 change orders paid on reckon_summary", guarded(() => cascadeAllusivePayoffChecks())],
+    ["SUN-CASCADE-ALLUSIVE-PAYOFF-01 change orders paid once, on faction_split", guarded(() => cascadeAllusivePayoffChecks())],
     ["SUN-CASCADE-SECOND-FLAG-PAYOFF-01 manifest paid on reckon_public", guarded(() => cascadeSecondFlagPayoffChecks())],
     ["SUN-MIDGAME-DELAYED-CONSEQUENCE-01/02 change orders + manifest paid on faction_split", guarded(() => midgameDelayedConsequenceChecks())],
     ["SUN-MIDGAME-THIRD-CONSEQUENCE-01 manifest_exposed / manifest_lie paid on faction_split", guarded(() => midgameThirdConsequenceChecks())],

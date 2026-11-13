@@ -36,15 +36,15 @@ registerScenes({
     image: "images/sela_ritual.jpg",
     onEnter: () => {
       if (!lateHour("sela")) state.flags.junctionChoice = "sela";
-      remember("attended the ritual performed for one person");
+      remember("You attended the ritual performed for one person.");
     },
     get text() {
       let t = lateHour("sela") ? `${lateHourOpener("sela")}, the yellow lamp is still held at amber. She has not let it reach yellow.\n\n` : ``;
       t += `The lamp is already warming when you arrive, amber climbing toward yellow, and the filter behind it hums at the pitch of a held breath. The light crosses her hands first. For one hour this small yellow circle is the only sunrise anyone on this ship will get, and she is spending it on an audience of one.\n\n`;
       // Names of the dead
-      const deadList = (state.dead || []).filter(k => k !== "rourke").map(k => (crew[k] && crew[k].name) || k);
+      const deadList = (state.dead || []).map(k => (crew[k] && crew[k].name) || k);
       if (deadList.length) {
-        t += `She says the names of this run's dead at yellow, each one complete, unhurried: ${deadList.join(", ")}. Then she is quiet for exactly as long as the names took, which you understand, watching her, is the point.\n\n`;
+        t += `She says the names of the dead at yellow, each one complete, unhurried: ${deadList.join(", ")}. Then she is quiet for exactly as long as the names took, which you understand, watching her, is the point.\n\n`;
       } else {
         t += `She is quiet for a long count. No names yet. The lamp still climbs.\n\n`;
       }
@@ -59,7 +59,13 @@ registerScenes({
     get choices() {
       if (romanceOpen("sela")) {
         return [
-          { text: "Stay past the yellow.", next: afterHour("sela") },
+          // SUN-PRIVATE-HOURS-01: her one question and her answer close the scene in the reply,
+          // before afterHour() opens any late hour.
+          { text: "Stay past the yellow.", next: afterHour("sela"), reply: [
+            { who: "sela", text: `"This is the question. When I perform the ritual for the ship again, may I keep one place in it that is only yours?"` },
+            `You stay. The lamp holds at yellow longer than the ritual needs, and she watches it the whole time instead of you.`,
+            { who: "sela", text: `"That is an answer. I will not ask again."` }
+          ] },
           { text: "Let the lamp go amber and step back.", next: afterHour("sela"), mark: { sela: "declined" } }
         ];
       }
@@ -165,7 +171,7 @@ registerScenes({
     image: "images/vess.jpg",
     onEnter: () => {
       if (!lateHour("vess")) state.flags.junctionChoice = "vess";
-      remember("heard the beacon Vess was holding");
+      remember("You heard the beacon Vess was holding.");
     },
     get text() {
       let t = lateHour("vess") ? `${lateHourOpener("vess")}, the relay bay light is still on when you pass. The bay pings once, log-flat: "Query, non-urgent, still open. The item kept."\n\n` : ``;
@@ -184,8 +190,8 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "relayed the orphan beacon to the crew" },
-        { text: "Hold it between you.", next: afterHour("vess"), remember: "kept the orphan beacon between the two of you" }
+        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew." },
+        { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you." }
       ];
       if (!state.flags.last_tx_spent) {
         c.push({

@@ -44,7 +44,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
       if (state.flags.vault_sacrifice === "future") {
         t += `\n\n"Your vault choice is already in the traffic. You kept the package. I understand the arithmetic. I also understand what it costs the people who are still breathing."`;
       } else if (state.flags.vault_sacrifice === "living") {
-        t += `\n\n"Your vault choice is already in the traffic. You kept the living. I have been alone long enough to know what that decision is worth."`;
+        t += `\n\n"Your vault choice is already in the traffic. You kept the living. I've been alone long enough to know what that decision is worth."`;
       }
       const deadNamed = (state.dead || []).filter(k => k !== "rourke" && crew[k]).map(k => crew[k].first || k);
       if (deadNamed.length) {
@@ -59,15 +59,15 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
       if (activeRoms.length) {
         const firstNames = activeRoms.map(k => crew[k] ? crew[k].first : k);
         if (firstNames.length === 1) {
-          t += `\n\n"Your private channels are not as sealed as the manuals assume. One of them is still warm. ${firstNames[0]}. I am not asking you to close it. I am asking whether there is room for a second log."`;
+          t += `\n\n"Your private channels are not as sealed as the manuals assume. One of them is still warm. ${firstNames[0]}. I'm not asking you to close it. I'm asking whether there's room for a second log."`;
         } else {
           const names = firstNames.length === 2
             ? firstNames[0] + " and " + firstNames[1]
             : firstNames.slice(0, -1).join(", ") + ", and " + firstNames[firstNames.length - 1];
-          t += `\n\n"Your private channels are not as sealed as the manuals assume. Some of them are still warm. ${names}. I am not asking you to close it. I am asking whether there is room for a second log."`;
+          t += `\n\n"Your private channels are not as sealed as the manuals assume. Some of them are still warm. ${names}. I'm not asking you to close them. I'm asking whether there's room for a second log."`;
         }
       } else {
-        t += `\n\n"I have been talking to this hull longer than you have been answering. The first yes is the only one that matters. After that the procedure is either mutual or it is not."`;
+        t += `\n\n"I've been talking to this hull longer than you've been answering. The first yes is the only one that matters. After that the procedure is either mutual or it is not."`;
       }
       t += `\n\nShe waits. The flatness is a skill; the waiting is not.`;
       return t;

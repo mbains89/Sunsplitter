@@ -65,7 +65,7 @@ Sela steps up beside you. Not behind.
 
 "Spent, then."
 
-The first incomplete sentence you have heard from her. Then complete ones, exact.
+Not a sentence. From her, that is an alarm. Then complete ones, exact.
 
 "You said: no one will use you as the price of their fear. The sentence is spent. I will be precise for you from now on, Commander. Precision is what I have left to give. You will receive all of it."`;
     },

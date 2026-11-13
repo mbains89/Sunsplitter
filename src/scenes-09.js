@@ -43,7 +43,7 @@ registerScenes({
       if (state.flags.past === "owned" && isAlive("elias")) {
         t += `\n\nElias's eyes flick to you once. The past you owned in front of him is still on the table between the words.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: Lena's branch ends on "\n\n"
     },
     get choices() {
       const routes = [
@@ -111,6 +111,8 @@ registerScenes({
       }
       const pri = state.flags.vault_priority || "both";
       let t = `A power fault hits the vault and habitation ring at the same time.\n\n${isAlive("mira") ? `Mira can stabilize only one grid fully.` : ""} The other will take irreversible damage. The embryo count will not recover from a living choice; the living will not recover from a full vault divert.\n\n`;
+      // SUN-FLAG-PAYOFFS-01: the lower ceiling accepted at arc_future_2 (embryo_ceiling) is still on the board.
+      if (state.flags.embryo_ceiling === "lowered") t += `The vault comes into this fault already bleeding: the lower ceiling you accepted is still on the board, and anything the vault loses now comes off it.\n\n`;
       if (pri === "future") {
         t += `You already said the future is what matters. ${isAlive("elias") ? `Elias watches to see if you meant it.` : ""}\n\n`;
       } else if (pri === "living") {
@@ -118,11 +120,11 @@ registerScenes({
       } else {
         t += `You tried to protect both. The ship is no longer offering that luxury.\n\n`;
       }
-      if (isAlive("elias")) t += `Elias: "If the vault dies, this was just a slow funeral with better lighting. Feed the future."\n\n`;
+      if (isAlive("elias")) t += `Elias: "If the vault dies, every death so far bought nothing. Feed the future."\n\n`;
       if (isAlive("jiro")) t += `Jiro: "The trajectory was always for the package. We were the escort."\n\n`;
       if (isAlive("lena")) t += `Lena: "I can treat the people in this room. I cannot treat a percentage on a screen."\n\n`;
       if (isAlive("tomas")) t += `Tomas: "Whatever you choose, someone will carry it. Choose knowing that."\n\n`;
-      if (isAlive("amara")) t += `Amara: "The trays are still green. That is not a percentage. That is breath."\n\n`;
+      if (isAlive("amara")) t += `Amara: "The trays are still green. That's not a percentage. That's breath."\n\n`;
       if (isAlive("sela")) t += `Sela says nothing. Her latest yellow circle is taped above the vault hatch.\n\n`;
       if (isAlive("mira")) t += `Mira waits on the switch. "I need an order."`;
       return t;

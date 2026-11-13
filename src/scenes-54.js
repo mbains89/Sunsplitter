@@ -10,8 +10,8 @@ registerScenes({
   breath_hub: {
     image: "images/power_stress_1.jpg",
     text: () => {
-      let t = `The air is turning. Four options remain that do not require naming a living person for the vents.\n\n`;
-      t += `One is ungated. The rest demand someone still breathing and still able.`;
+      let t = `The air is turning. There are still ways to hold the loop that do not mean naming a living person for the vents.\n\n`;
+      t += `One needs nothing but hands. The others burn stock, or need someone still breathing and still able.`;
       return t;
     },
     choices: [
@@ -55,7 +55,7 @@ registerScenes({
     },
     text: () => {
       let t = `Outer racks are stripped. Sterile filters and cryogenic reserves move into the air loop. The biofilm dies back.\n\n`;
-      t += `One hundred forty thousand and six becomes a smaller number. The uncompromised-vault claim is closed.`;
+      t += `One hundred forty thousand and six becomes a smaller number. No one can say now that the vault came through whole.`;
       return t;
     },
     choices: [ { text: "Accept the count and move on.", next: "breath_after" } ]

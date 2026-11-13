@@ -30,7 +30,7 @@ She reads the trace again.
       t += `\n\nShe lowers her voice for two sentences, the way she does when they are for you and not for the board. "Do not put the ${state.pursuit.lena ? "nights" : "night"} on this chart. The packs are for a physician the ship still needs, or they are for nobody."`;
     }
 
-    t += `\n\nA sealed trauma circuit can be built from the remaining sterile packs and light stabilizer ampoules. It will keep her functional; it will not reverse the exposure. The other clean power source is the vault cradle bus. Ten viability points will not survive the transfer.
+    t += `\n\nA sealed trauma circuit can be built from the remaining sterile packs and light stabilizer ampoules. It will keep her functional; it will not reverse the exposure. The other clean power source is the vault cradle bus. The vault's viability figure will lose ten in the transfer.
 
 Without either, Lena can finish the watch. The clock will finish with her.`;
     return t;
@@ -95,7 +95,7 @@ act3_lethal_lena_sterile: {
   },
   get text() {
     if (!isAlive("lena")) return `Medical is empty. The expenditure remains on the board.`;
-    return `Eight points leave Supplies as sealed packs come open.
+    return `The stores board drops by eight as sealed packs come open.
 
 The circuit takes two attempts to hold pressure. On the third, Lena's blood trace comes back under the red line and stays there.
 

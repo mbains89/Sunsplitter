@@ -27,7 +27,7 @@ registerScenes({
       if (state.flags.pursuit_amara_cost === "vent_delay") {
         t += `"If they ask, tell the truth," she says. "I delayed a contaminated vent to keep roots alive. You claimed it while you were inside me. That is the version I will not edit."\n\n`;
       } else {
-        t += `"Half a cycle is still a choice," she says. "The board will see the claim. I am done managing other people's feelings about who you choose and what it costs."\n\n`;
+        t += `"Half a cycle's still a choice, love," she says. "The board will see the claim. I'll not keep anyone else's books on who you choose and what it costs."\n\n`;
       }
       t += `The intimacy and the filtration decision share the same lock cycle.`;
       return t;
@@ -64,7 +64,7 @@ registerScenes({
       let t = `Sela does not raise her voice. She never needs to. The lingerie is simple, exact, adult. The pigment plate is between you again.\n\n`;
       t += `"You already know the true version. I am asking whether it was a single measurement or a series."\n\n`;
       t += `She does not move closer until the next sentence is finished.\n\n`;
-      t += `"Neither of us may use command authority to secure the other a place in the vault. Survival value alone. If you stay, you speak that vow where the ship can log it. I will not be the private exception. The relationship has to cost the discretion, or it is only a soft place for you. I refuse that."\n\n`;
+      t += `"Neither of us may use command authority to secure the other a place in the vault. Survival value alone decides it. If you stay, you speak that vow where the ship can log it. I will not be the private exception. The relationship has to cost the discretion, or it is only a soft place for you. I refuse that."\n\n`;
       t += `She is exact. She is not offering a symbol as a substitute for her body. The bulkhead is cold behind her.`;
       return t;
     },
@@ -83,7 +83,7 @@ registerScenes({
       if (state.flags.pursuit_sela_cost === "vow") {
         t += `"The log has the entry. The crew will see it if they look. That is their measurement. I will not solve it for you. Neither of us gets a private vault privilege because of this."\n\n`;
       } else {
-        t += `"The private word is not nothing, but it is less than a logged cost. I accepted it. Do not make me soft in the story. The vow still holds between us."\n\n`;
+        t += `"The private word is not nothing, but it is less than a logged cost. I accepted it. Do not tell it afterward as less than it was. The vow still holds between us."\n\n`;
       }
       t += `The bulkhead still holds the earlier yellow circle. The ship has a new private mark and a new irreversible one.`;
       return t;

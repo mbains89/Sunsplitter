@@ -76,7 +76,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
   observation_nightshift_ask: {
     image: "images/observation.jpg",
     onEnter: () => { if (!isAlive("jiro")) return "act3_lethal_lena_clock"; },
-    text: `"Not tonight. Position I can give you to the meter. Cause is not my column."\n\nA beat.\n\n"Not tonight."`,
+    text: `"Not tonight. Position I can give you inside forty kilometers. Cause is not my column."\n\nA beat.\n\n"Not tonight."`,
     choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
   },
 
@@ -107,7 +107,6 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
 
   act3_vault_face: {
     image: "images/vault.jpg",
-    onEnter: () => { state.flags.vault_face = true; },
     text: () => {
       let t = `Third watch. You take the long way back. Two decks up the annex still smells of soil; down here the vault is odorless, and a light is on that shouldn't be.`;
       if (isAlive("sela")) {
