@@ -1768,7 +1768,9 @@ const HITL_EVENT_PLATE_IDS = new Set([
   "act2_tether_truth", "act2_tether_lie", "act3_reckoning_heading", "act3_reckoning_burn_stale",
   "act3_reckoning_burn_verified", "act3_reckoning_delay", "act3_reckoning_cut", "act3_reckoning_briefing",
   "observation_nightshift", "observation_nightshift_ask", "observation_nightshift_leave", "vess_signal",
-  "vess_cost", "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
+  // SUN-DIET-VESS-MERGE-01: vess_cost is retired (merged into vess_signal); its plate stays on disk
+  // and in PLATE_FACES, referenced by no scene.
+  "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
   "aftermath_seal_order", "aftermath_seal_holds", "sun_payoff", "ship_interrupt", "pair_grudge_settle",
   "custody_shared",
   // SUN-HITL-LATE-SIX-01: njQ5P is berths_manifest's own plate; empty_berths keeps empty_berths.jpg.
@@ -1958,7 +1960,11 @@ const RETIRED_SCENE_EXITS = {
   // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): the memory pass-through's text now opens
   // final_choice on first arrival; a save parked on it has no patch flag yet, so the resumed
   // final_choice prints the same debts the parked screen showed, then the final orders.
-  ship_memory_payoff: "final_choice"
+  ship_memory_payoff: "final_choice",
+  // SUN-DIET-VESS-MERGE-01: the cost screen is merged into the signal screen, which now carries its
+  // docking choices and its entry writes (idempotent: flags re-set, memories deduped by remember()).
+  // A save parked on vess_cost resumes on the merged screen with the same two choices it had.
+  vess_cost: "vess_signal"
 };
 function retiredSceneExit(id) {
   if (!Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, id)) return null;

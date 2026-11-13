@@ -219,7 +219,7 @@ const sceneImages = {
   act3_lethal_elias_sealant: "images/work_elias.jpg",
   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
   vess_signal:          "images/vess_signal.jpg",
-  vess_cost:            'images/vess_cost.jpg',
+  // SUN-DIET-VESS-MERGE-01: vess_cost retired into vess_signal; images/vess_cost.jpg stays on disk, unmapped.
   vess_boarding:        "images/vess_boarding.jpg",
   vess_offer:           "images/vess_offer.jpg",
   vess_transmission:    'images/vess_transmission.jpg',
