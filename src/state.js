@@ -1072,10 +1072,12 @@ function partnerUnchosen() {
   const jc = state.flags.junctionChoice;
   if (!jc || jc === "none") return null;
   const partners = ["lena", "mira", "amara", "sela", "vess"].filter(w => state.romance[w] && isAlive(w));
+  // SUN-LATE-HOUR-CAP-01: only the one partner whose late hour follows tonight is not left behind
+  // (that hour opens on her light instead). Every other partner is, and the first of them in this
+  // order gets the closing line she had before the late hours existed, which is true for her again.
+  const late = lateHourPartner();
   for (const p of partners) {
-    // SUN-ROMANCE-ENDINGS-REACH-01: a partner whose late hour is still to come is not left behind;
-    // that hour opens on her light instead.
-    if (lateHourPending(p)) continue;
+    if (p === late) continue;
     if (p !== jc) {
       // only report if they were eligible
       if (p === "lena" && eligLena()) return p;
@@ -1099,13 +1101,17 @@ function closingPartnerLine() {
 }
 
 // SUN-ROMANCE-ENDINGS-REACH-01 (decision 12 widened, ruled 2026-11-08): a romance arc's last scene
-// no longer depends on the junction pick. After the hour the Commander chose, each living, aboard
-// partner whose last scene has not played gets one late hour, in crew order, and reaches the last
-// scene through that partner's own stay choice, as before. The late hour is the partner's own
-// off-shift scene: Lena's and Vess's last scenes continue theirs, and the endings cite Sela's
-// ritual. Amara's late hour is her absolution hour; with no death to absolve it is the kettle and
-// her stay choice only, so the ledger stays opt-in. Mira's arc ends at the Act III board, before
-// the junction, and is not routed here.
+// no longer depends on the junction pick. After the hour the Commander chose, a living, aboard
+// partner whose last scene has not played gets a late hour and reaches the last scene through her
+// own stay choice, as before. The late hour is the partner's own off-shift scene: Lena's and
+// Vess's last scenes continue theirs, and the endings cite Sela's ritual. Amara's late hour is her
+// absolution hour; with no death to absolve it is the kettle and her stay choice only, so the
+// ledger stays opt-in. Mira's arc ends at the Act III board, before the junction, and is not
+// routed here.
+// SUN-LATE-HOUR-CAP-01 (STATUS decision 26): one late hour a night. It goes to the first such
+// partner in crew order (the key order below); when it ends the night ends, whether she was stayed
+// with or declined, and a late hour never leads to another. Private attention stays scarce
+// (ROADMAP §2), and each last scene's claim to the hour stays true.
 // Each `open` is the arc's existing stay gate; `done` is the arc's existing end-state flag. No
 // state is written: the exits read junctionChoice, the arc flags and who is alive and aboard.
 const LATE_HOURS = {
@@ -1123,33 +1129,33 @@ function lateHourPending(who) {
   const hour = LATE_HOURS[who];
   return !!hour && lateHour(who) && isAlive(who) && hour.open() && !hour.done();
 }
-// A late hour's first words. Late hours run in crew order, so the ones before `who` tonight are the
-// living partners ahead of her with their gates open: the first is past cycle-turn, each later one later.
-function lateHourOpener(who) {
-  const order = Object.keys(LATE_HOURS);
-  const before = order.slice(0, order.indexOf(who)).filter(w => lateHour(w) && isAlive(w) && LATE_HOURS[w].open()).length;
-  return ["Past cycle-turn", "Later", "Toward morning", "Nearly morning"][before];
+// The one partner whose late hour follows the junction pick's hour tonight: the first in crew
+// order who is living, aboard, not the pick, with her arc's gate open and her last scene unplayed.
+function lateHourPartner() {
+  return Object.keys(LATE_HOURS).find(lateHourPending) || null;
 }
 // The exit of every off-shift scene; `from` is the crew member whose hour is ending. The junction
-// pick's hour leads to the first late hour, each late hour to the next, the last to the spine.
+// pick's hour leads to the one late hour, if a partner has one coming; a late hour leads only to
+// the spine.
 function afterHour(from) {
-  const order = Object.keys(LATE_HOURS);
-  const start = from === state.flags.junctionChoice ? 0 : order.indexOf(from) + 1;
-  for (const who of order.slice(start)) if (lateHourPending(who)) return LATE_HOURS[who].entry();
-  return "faction_split";
+  if (from !== state.flags.junctionChoice) return "faction_split";
+  const who = lateHourPartner();
+  return who ? LATE_HOURS[who].entry() : "faction_split";
 }
-// Whose hour was the run's last private one: the junction pick's, or the last partner whose late
+// Whose hour was the run's last private one: the junction pick's, or the one partner whose late
 // hour followed it, whether or not she stayed (her hour was private either way, as the pick's is).
-// Every partner death site comes before the junction, so a partner living now with her gate open had
-// her late hour; done() also covers one who stayed and died later, should a later death site appear.
+// A last scene is reached only from its own off-shift scene, so a partner other than the pick with
+// her end-state flag written stayed in her late hour (the last such in crew order, for a save made
+// before the cap, when late hours ran on in that order). Otherwise the late hour, if there was
+// one, went to the first partner in crew order with her gate open, and she declined the stay.
+// Every partner death site comes before the junction, so a partner living now was living then.
 function lastPrivateHour() {
   const jc = state.flags.junctionChoice;
   if (!jc || jc === "none") return null;
-  let last = jc;
-  for (const who of Object.keys(LATE_HOURS)) {
-    if (who !== jc && LATE_HOURS[who].open() && (LATE_HOURS[who].done() || isAlive(who))) last = who;
-  }
-  return last;
+  const others = Object.keys(LATE_HOURS).filter(who => who !== jc);
+  return others.filter(who => LATE_HOURS[who].done()).pop()
+    || others.find(who => LATE_HOURS[who].open() && isAlive(who))
+    || jc;
 }
 
 // Register scene maps; throw on duplicate IDs so act splits cannot silently collide

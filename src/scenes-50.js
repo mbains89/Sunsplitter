@@ -22,7 +22,7 @@ registerScenes({
     get text() {
       const first = firstAttributableDeath();
       const whoName = first ? first.name : "the dead";
-      let t = lateHour("amara") ? `${lateHourOpener("amara")}, the light in hydroponics is still on, the way she leaves it.\n\n` : ``;
+      let t = lateHour("amara") ? `Past cycle-turn, the light in hydroponics is still on, the way she leaves it.\n\n` : ``;
       t += `Night-cycle hydroponics. Condensation ticks off the leaves one drop at a time, the only clock she keeps, and the kettle between you is real heat you can hold your hands over — an hour of warmth spent here and nowhere else on the ship. Two cups. She was expecting you or she always sets two.\n\n`;
       // No death to absolve (a partner's late hour only): the kettle and the stay, nothing else.
       if (!first) return t + `"Sit. The kettle's honest even when the company isn't."`;
