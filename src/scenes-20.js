@@ -80,7 +80,7 @@ Medical is now a room with records and no doctor.`;
   // SUN-DEATH-REACTIONS-01: one living voice answers the death, once, at the top of the next screen.
   get choices() {
     const reply = isAlive("tomas")
-      ? { who: "tomas", text: `"She told me I would live, in the bored voice she kept for true things," Tomas says at the medical hatch. "I will set her place at the meal."` }
+      ? { who: "tomas", text: `"She told me I would live, in the bored voice she kept for true things," Tomas says at the medical hatch. "Write her in the count as Lena. Not as medical."` }
       : isAlive("elias")
         ? { who: "elias", text: `Elias takes the medical keys off her board and clips them to his belt. "Medical is uncovered. I hold the keys until somebody can use them."` }
         : isAlive("jiro")

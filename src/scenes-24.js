@@ -270,9 +270,9 @@ The access door remains above safe-open temperature longer than the suit feed la
     // Elias answers it himself in pair_shield_cold, so that route carries no reply.
     if (next === "pair_shield_cold") return [{ text: "Leave the completed trace on the board. Continue.", next }];
     const reply = isAlive("jiro")
-      ? { who: "jiro", text: `Jiro logs it in the nav record before the bay has cooled. "Mira Solis. Cross-feed bay, local station. Final position."` }
+      ? { who: "jiro", text: `Jiro logs it in the nav record the moment the suit feed stops. "Mira Solis. Cross-feed bay, local station. Final position."` }
       : isAlive("tomas")
-        ? { who: "tomas", text: `Tomas says her name at the evening meal, once, and sets a plate nobody touches. "She kept the drive turning and never once called it a kindness."` }
+        ? { who: "tomas", text: `Tomas stands at the bay door until it is cool enough to touch. "She kept the drive turning and never once called it a kindness."` }
         : `The drive board shows the corrected phase. Nobody signs for it.`;
     return [
       { text: "Leave the completed trace on the board. Continue.", next, reply: [reply] }

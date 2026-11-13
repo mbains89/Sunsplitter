@@ -93,7 +93,7 @@ registerScenes({
           flag: { breath_word: "refused" },
           reply: [`The refusal lands.`,
             { who: "tomas", text: `Tomas does not argue. "Understood, Commander. The math is yours."` },
-            accusers ? `The rumor does not die. It only goes quieter.` : `The count does not stop. It only goes quieter.`]
+            accusers ? `The rumor does not die. It only goes quieter.` : `Nobody is left to say it aloud. The line stays drawn anyway.`]
         }
       ];
     }

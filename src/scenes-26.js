@@ -84,7 +84,7 @@ registerScenes({
           ? ` Tomas speaks the names of the dead once — ${whatRemainsJoinNames(named)} — and then does not speak them again.`
           : ` The names of the dead are read off the manifest once — ${whatRemainsJoinNames(named)} — and then not again.`;
       }
-      return `You give the survivors the right to decide how the near-loss is remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen.${dead} Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
+      return `You give the survivors the right to decide how the near-loss${dead ? " and the dead are" : " is"} remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen.${dead} Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
     },
     choices: [
       { text: "Let the memory stand.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You let it stand, all of it. Nobody takes anything down, and over the next shifts people start choosing the corridors that pass it.`] },

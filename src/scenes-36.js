@@ -92,7 +92,7 @@ She waits.
         if (table.length) t += ` I did eat with ${tableNames}, and ${table.length === 1 ? "that plate is" : "those plates are"} the hardest to set.`;
         t += ` Habit is cheaper than grief, and it keeps longer."\n\n`;
       } else if (table.length) {
-        t += `"I set a plate for ${tableNames} at the evening meal, in the place I am used to seeing filled. Habit is cheaper than grief, and it keeps longer."\n\n`;
+        t += `"I set a plate${table.length > 1 ? " each" : ""} for ${tableNames} at the evening meal, in the ${table.length > 1 ? "places" : "place"} I am used to seeing filled. Habit is cheaper than grief, and it keeps longer."\n\n`;
       }
       t += `He looks at the deck.\n\n"If you order me to keep pretending compassion is free, I will break. I am telling you now so you are not surprised when it happens."\n\n"If the next hatch closes on something living, ask who pays before you call it settled."`;
       return t;
