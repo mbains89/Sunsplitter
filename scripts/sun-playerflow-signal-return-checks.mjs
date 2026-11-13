@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const RETURN_LINE = "The signal is still repeating on the board when you get back. No one has logged an order on it.";
+const RETURN_LINE = "The signal is still repeating on the board when you get back: the same degraded string, the same coordinates that match nothing. No one has logged an order on it.";
 const DETOUR_LABEL = "Before the signal — hear Elias out on the ground-side file.";
 const BRIEFING = ["There is a signal. Faint. Repeating.", "A repeating carrier wave surfaces on the passive array."];
 const SIGNALS = { chase: "Change course enough to investigate.", ignore: "Log it and hold course.", study: "Have Mira try to decode more" };
