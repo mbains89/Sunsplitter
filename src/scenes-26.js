@@ -63,18 +63,26 @@ registerScenes({
     get text() {
       if (state.flags.crisis === "vent") {
         let t = `You give the remaining survivors the right to decide how the dead are remembered.\n\nThey keep Sela's last circle on the bulkhead. They keep Amara's key on a shelf in the common area.`;
-        const ventNamed = ["amara", "sela", "jiro"].filter(id => {
-          if (id === "jiro" && typeof isRecovered === "function" && !isRecovered("jiro")) return false;
-          return !isAlive(id);
-        });
-        const nameWord = ventNamed.length === 1 ? "one name" : ventNamed.length === 2 ? "two names" : ventNamed.length === 3 ? "three names" : `${ventNamed.length} names`;
+        // SUN-DEATH-REACTIONS-01: every crew death since the wake, in order of death (Rourke stays out,
+        // as on the warmth_meal soil bed). Tomas was annex crew before the breach; he knew them all.
+        const named = (state.dead || []).filter(k => k !== "rourke");
+        const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+        const nameWord = `${words[named.length] || named.length} name${named.length === 1 ? "" : "s"}`;
+        const list = whatRemainsJoinNames(named);
         t += isAlive("tomas")
-          ? ` Tomas speaks the ${nameWord} once, carefully, and then does not speak them again.`
-          : ` The ${nameWord} are read off the manifest once, by whoever is holding it, and then not again.`;
+          ? ` Tomas speaks the ${nameWord} once, carefully — ${list} — and then does not speak them again.`
+          : ` The ${nameWord} are read off the manifest once — ${list} — by whoever is holding it, and then not again.`;
         t += `\n\nAfter that, the ship feels slightly less like a place where people disappear without record.`;
         return t;
       }
-      return `You give the survivors the right to decide how the near-loss is remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen. Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
+      const named = (state.dead || []).filter(k => k !== "rourke");
+      let dead = "";
+      if (named.length) {
+        dead = isAlive("tomas")
+          ? ` Tomas speaks the names of the dead once — ${whatRemainsJoinNames(named)} — and then does not speak them again.`
+          : ` The names of the dead are read off the manifest once — ${whatRemainsJoinNames(named)} — and then not again.`;
+      }
+      return `You give the survivors the right to decide how the near-loss is remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen.${dead} Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
     },
     choices: [
       { text: "Let the memory stand. Make the final order.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You let it stand, all of it. Nobody takes anything down, and over the next shifts people start choosing the corridors that pass it.`] },

@@ -50,25 +50,35 @@ registerScenes({
       if (state.crisisPath == null) state.crisisPath = "breath";
     },
     text: () => {
-      let t = `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking on the load of every body you insisted on keeping alive.\n\n`;
+      // SUN-DEATH-REACTIONS-01: the load line and the rumor are true only while their people exist.
+      let t = deadSinceTether().length
+        ? `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking anyway. The empty berths have bought them no slack.\n\n`
+        : `A corrosive biofilm has bloomed through the primary air loop. The scrubbers are choking on the load of every body you insisted on keeping alive.\n\n`;
+      const accusers = ["lena", "elias", "mira", "amara", "sela"].some(isAlive);
       if (isAlive("tomas")) {
         t += `Tomas meets you at the bulkhead. His voice is steady and public.\n\n`;
-        t += `"Commander. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`;
+        t += accusers
+          ? `"Commander. Some of the crew are already saying we should vent the newly recovered to buy the rest of us clean air. I need to hear you say the rescued will not be treated as the cause."`
+          : `"Commander. Everyone left aboard but you is one of the rescued, and the air is counting us anyway. I need to hear you say the rescued will not be treated as the cause."`;
         // SUN-CALLBACKS-01: who pays, through a present habit. Text only.
         const first = typeof firstAttributableDeath === "function" ? firstAttributableDeath() : null;
         if (first) t += `\n\n"I still count ${(crew[first.who] && crew[first.who].first) || first.name} when I count the mouths. I have not stopped. The air is about to stop me."`;
       } else {
-        t += `The rumor is already moving: vent the late arrivals, save the filters. No one stands in front of it.`;
+        t += accusers
+          ? `The rumor is already moving: vent the late arrivals, save the filters. No one stands in front of it.`
+          : `Everyone left aboard but you is one of the rescued, and the air is already counting them. No one stands in front of it.`;
       }
       return t;
     },
     // SUN-DIET-REPLY-FOLD-01 (L-057): the word writes breath_word on the choice (it was the answer
     // screens' only entry write) and its answer is the reply; breath_word_given/_refused retired.
     get choices() {
+      const accusers = ["lena", "elias", "mira", "amara", "sela"].some(isAlive);
       const given = isAlive("tomas")
         ? [{ who: "tomas", text: `Tomas nods once. The public word is given.` },
            { who: "tomas", text: `"Then we hold the line together. I'll prep the crisis options. None of them are clean."` }]
-        : [`The public word is given into the rumor. No one stands beside it to make it heavier.`,
+        : [accusers ? `The public word is given into the rumor. No one stands beside it to make it heavier.`
+             : `The public word is given into the quiet. No one stands beside it to make it heavier.`,
            `The crisis options still have to be prepped. None of them are clean.`];
       return [
         {
@@ -83,7 +93,7 @@ registerScenes({
           flag: { breath_word: "refused" },
           reply: [`The refusal lands.`,
             { who: "tomas", text: `Tomas does not argue. "Understood, Commander. The math is yours."` },
-            `The rumor does not die. It only goes quieter.`]
+            accusers ? `The rumor does not die. It only goes quieter.` : `The count does not stop. It only goes quieter.`]
         }
       ];
     }

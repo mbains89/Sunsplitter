@@ -84,7 +84,16 @@ She waits.
         t += `"I have held every confession this crew has offered. I have sat with the dying and the guilty and the ones who want permission to stop caring. I am running out of something. Not faith. Something quieter."\n\n`;
       }
       // SUN-CALLBACKS-01: the ring's dead, through a present habit. Text only.
-      if (state.flags.crisis === "vent") t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here. Habit is cheaper than grief, and it keeps longer."\n\n`;
+      // SUN-DEATH-REACTIONS-01: and the dead he ate beside after the tether, in order of death.
+      const table = deadSinceTether();
+      const tableNames = whatRemainsJoinNames(table);
+      if (state.flags.crisis === "vent") {
+        t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here.`;
+        if (table.length) t += ` ${tableNames} I did, and ${table.length === 1 ? "that plate is" : "those plates are"} the hardest to set.`;
+        t += ` Habit is cheaper than grief, and it keeps longer."\n\n`;
+      } else if (table.length) {
+        t += `"I set a plate for ${tableNames} at the evening meal, in the place I am used to seeing filled. Habit is cheaper than grief, and it keeps longer."\n\n`;
+      }
       t += `He looks at the deck.\n\n"If you order me to keep pretending compassion is free, I will break. I am telling you now so you are not surprised when it happens."\n\n"If the next hatch closes on something living, ask who pays before you call it settled."`;
       return t;
     },
