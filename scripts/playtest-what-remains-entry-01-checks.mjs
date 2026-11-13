@@ -1,7 +1,8 @@
 // SUN-V036-WHAT-REMAINS-ENTRY-01
 import fs from "fs";
+import { readEngineSource } from "./simulate.mjs";
 const html = fs.readFileSync("index.html", "utf8");
-const eng = fs.readFileSync("src/engine.js", "utf8");
+const eng = readEngineSource(".");
 const css = fs.readFileSync("css/style.css", "utf8");
 let fail = 0;
 function need(cond, msg) {

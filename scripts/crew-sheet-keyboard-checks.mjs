@@ -1,5 +1,8 @@
 // SUN-CODEX-004: real browser focus/default button activation, not DOM shims.
 // Requires Playwright; use CHROMIUM_PATH for an installed Chromium executable.
+// CI has no browser, so no workflow runs this file. Run it by hand where Playwright and
+// Chrome are installed:
+//   node scripts/crew-sheet-keyboard-checks.mjs
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
@@ -41,10 +44,23 @@ beforeEach(async () => {
   await page.locator("#cinematic-skip").click();
   await page.locator("#tutorial-dismiss").click();
   assert.equal(await page.evaluate(() => state.scene), "wake");
+  await settleReveal();
   await page.locator("#btn-crew").click();
   await page.locator('#crew-panel [data-crew="elias"]').click();
 });
 afterEach(async () => { await context?.close(); });
+
+// SUN-PACED-REVEAL-01 keeps digits inert while paragraphs wait and for REVEAL_SETTLE_MS after
+// they finish. Show the whole passage and wait that out, so the reveal cannot mask a key that
+// the crew sheet should have stopped, and digits are live again once the sheet is closed.
+const settleReveal = async () => {
+  const wait = await page.evaluate(() => {
+    if (sceneReveal) finishSceneReveal("story-key");
+    return REVEAL_SETTLE_MS + 50;
+  });
+  await page.waitForTimeout(wait);
+  assert.equal(await page.evaluate(() => !!sceneReveal), false, "reveal must be finished before keyboard checks");
+};
 
 const snapshot = () => page.evaluate(() => ({
   scene: state.scene, state: JSON.stringify(state), save: localStorage.getItem(SAVE_KEY)
@@ -79,7 +95,9 @@ test("initial focus and forward/reverse Tab stay inside the character sheet", as
 
 test("number, Enter and Space shortcuts cannot act from sheet content", async () => {
   // Exercise Enter/Space's single-enabled-choice path as well as number keys.
-  await page.evaluate(() => { closeCrewSheet(); showScene("time_pass"); openCrewSheet("elias"); });
+  await page.evaluate(() => { closeCrewSheet(); showScene("time_pass"); });
+  await settleReveal();
+  await page.evaluate(() => { openCrewSheet("elias"); });
   assert.equal(await page.locator("#choices button:enabled").count(), 1);
   const before = await snapshot();
   await page.locator("#crew-sheet-name").evaluate(el => { el.tabIndex = -1; el.focus(); });

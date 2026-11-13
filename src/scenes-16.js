@@ -2,22 +2,26 @@
 // 0.28.1c size hygiene. Pure mechanical. crises: spine_next + vess_signal (the cost screen merged in,
 // SUN-DIET-VESS-MERGE-01)
 // Strict scene shape only: text | choices | onEnter | image
-let act3SpineTomasAllusionOnEntry = false;
+
+// SUN-HUB-RESUME-01: the Tomas allusion is due while his promise is made, he lives and the line is
+// unspent. Text and choices read only this saved state, so Continue prints exactly what the live
+// visit printed: the visit that shows the line keeps it on resume, and a return never replays it.
+function act3SpineTomasAllusionDue() {
+  return state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded;
+}
 
 registerScenes({
 
-  // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: consumes Tomas allusion flag on entry
+  // PRE: post-vault spine, Vess recovered, living Tomas with made unalluded promise | WRITES: none on entry;
+  //   on the visit that shows the Tomas allusion, every exit spends it (choice flag prom_tomas_alluded)
   // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas prose/options are living-gated | IMAGE: roster-neutral corridor_variant_2; distinct from immediate warmth returns
   // SUN-DIET-HUB-01: the corridor paragraph prints on the first visit of a run; a return prints one
   // roster-neutral line instead. The Tomas allusion still fires on whichever visit consumes it.
   act3_spine_next: {
     image: "images/corridor_variant_2.jpg",
     onEnter: () => {
-      act3SpineTomasAllusionOnEntry = false;
       // 0.24: Vess arrival window opens once after vault face; guaranteed, no refuse-contact
       if ((!state.recovered || !state.recovered.vess) && !state.dead.includes("vess")) return "vess_signal";
-      act3SpineTomasAllusionOnEntry = state.promises.tomas === "made" && isAlive("tomas") && !state.flags.prom_tomas_alluded;
-      if (act3SpineTomasAllusionOnEntry) state.flags.prom_tomas_alluded = true;
     },
     text: () => {
       // SUN-DIET-HUB-01: a return is read from existing state, never written here. Each key below is
@@ -45,8 +49,7 @@ registerScenes({
         t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
       }
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
-      if (state.promises.tomas === "made" && isAlive("tomas") &&
-          (act3SpineTomasAllusionOnEntry || (renderingSavedScene && state.flags.prom_tomas_alluded))) {
+      if (act3SpineTomasAllusionDue()) {
         t += `\n\nTomas finds you in the corridor on the way past. "Names first, then numbers. You put the order of mercy on record once. I count easier since."`;
       }
       return t;
@@ -114,6 +117,8 @@ registerScenes({
       } else {
         opts.push({ text: "Continue.", next: "act3_lethal_elias_order" });
       }
+      // SUN-HUB-RESUME-01: leaving the visit that shows the allusion spends it, by whichever exit.
+      if (act3SpineTomasAllusionDue()) opts.forEach(c => { c.flag = Object.assign({}, c.flag, { prom_tomas_alluded: true }); });
       return opts;
     }
   },

@@ -23,6 +23,7 @@ import {
   POLICY_NAMES,
   assertV6,
   loadGame,
+  readEngineSource,
   readScriptManifest,
   runPolicySet,
   sceneIdDigest,
@@ -51,6 +52,13 @@ import { newRunChecks } from "./new-run-checks.mjs";
 import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
 import { pcViewportChecks } from "./pc-viewport-checks.mjs";
 import { reviewBuildStampChecks } from "./review-build-stamp-checks.mjs";
+import { cascadeAllusivePayoffChecks } from "./cascade-allusive-payoff-checks.mjs";
+import { cascadeSecondFlagPayoffChecks } from "./cascade-second-flag-payoff-checks.mjs";
+import { lethalResumeDeathbeatChecks } from "./lethal-resume-deathbeat-checks.mjs";
+import { midgameDelayedConsequenceChecks } from "./midgame-delayed-consequence-checks.mjs";
+import { midgameThirdConsequenceChecks } from "./midgame-third-consequence-checks.mjs";
+import { ventBunksChecks } from "./vent-bunks-checks.mjs";
+import { playtestCrewBoardFollowClarity01Checks } from "./playtest-crew-board-follow-clarity-01-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -72,7 +80,7 @@ const EXPECTED_SCRIPTS = [
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "f8290cea02ce2d0848c34e6360ae6c2473027b91c1127f0cef82a287018b3952"; // SUN-DIET-VESS-MERGE-01: 230 ids, the SUN-DIET-REPLY-FOLD-01 set minus vess_cost (merged into vess_signal)
+const EXPECTED_SCENE_IDS_SHA256 = "409f5932e2afd9ce09fcf42a11dbad2c0c7de1ba4f0ca55f5d6ae44fc9a35bcd"; // SUN-DIET-VESS-MERGE-01: 229 ids, the SUN-DIET-MEMORY-FOLD-01 set minus vess_cost (merged into vess_signal)
 
 function sameArray(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
@@ -153,7 +161,7 @@ function mobileUsabilityContractChecks() {
   const errors = [];
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const requiredRules = [
     ["viewport-fit=cover", "safe-area viewport opt-in"],
     ["--touch: 48px", "48px phone touch contract"],
@@ -235,7 +243,7 @@ function accessibilitySourceChecks() {
   const errors = [];
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const requiredHtml = [
     ['<main id="main">', "main landmark"],
     ['id="scene-heading" class="sr-only"', "scene heading"],
@@ -286,7 +294,7 @@ function accessibilitySourceChecks() {
 function performanceSourceChecks() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 4) {
     errors.push("all four runtime art surfaces, including cinematic, must request asynchronous decode");
   }
@@ -915,8 +923,9 @@ function whatRemainsChecks(runtime) {
   if (!six[1]?.includes("Rourke died with company") || !six[2]?.includes("Mira died breathing")) {
     errors.push("six-line fixture did not preserve all deaths across two ordered lines");
   }
-  if (six[4] !== "At the service-pocket test, the pocket was vented while the reader was still breathing.") {
-    errors.push("death-causing promise did not win the promise slot");
+  // SUN-PROMISE-DEATH-ONCE-01: the death line above carries the death, so the promise line drops it.
+  if (six[4] !== "At the service-pocket test, the vent did not stay shut.") {
+    errors.push("death-causing promise did not win the promise slot, or restated the death");
   }
 
   const tomasCrisisGate = runtime.evaluate(`(() => {
@@ -1071,7 +1080,7 @@ function finalOrderEndingChecks(runtime) {
 async function saveTransferChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   for (const required of [
     'id="btn-export-save"',
     'onclick="exportSaveFile()"',
@@ -1531,7 +1540,7 @@ async function saveTransferChecks(runtime) {
 function contentNoticeRevisitChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const titleBlock = indexSource.match(/<div id="title-screen"[\s\S]*?<section id="cinematic-screen"/)?.[0] || "";
   if (!titleBlock.includes('id="btn-content-notice"') || !titleBlock.includes('onclick="revisitTone()"')) {
@@ -3662,7 +3671,11 @@ function renderPurityChecks(runtime) {
     state.promises.tomas = "made";
     const spineRedirect = scenes.act3_spine_next.onEnter();
     const spine = renderTwice(scenes.act3_spine_next);
+    // SUN-HUB-RESUME-01: entry writes nothing; every exit of the visit that shows the line spends it.
     const tomasFlag = state.flags.prom_tomas_alluded;
+    const spineExitsSpend = scenes.act3_spine_next.choices.every(c => c.flag && c.flag.prom_tomas_alluded === true);
+    state.flags.prom_tomas_alluded = true;
+    const spineSpent = readText(scenes.act3_spine_next);
 
     resetRunState();
     state.affinity.amara = 20;
@@ -3696,6 +3709,8 @@ function renderPurityChecks(runtime) {
       spine,
       spineRedirect: spineRedirect || null,
       tomasFlag,
+      spineExitsSpend,
+      spineSpent,
       offered,
       offeredMemoryAfterEntry,
       offeredMemoryAfterRender,
@@ -3730,8 +3745,9 @@ function renderPurityChecks(runtime) {
   for (const needle of ["Junction eleven quoted the dead", "Inventory: one promise", "I have inventoried what you have given me"]) {
     if (!fixture.reckoning.first.includes(needle)) errors.push(`reckoning promise allusion missing: ${needle}`);
   }
-  if (fixture.spineRedirect || !fixture.tomasFlag || !fixture.spine.first.includes("Names first, then numbers")) {
-    errors.push("Tomas promise allusion did not consume and render on the non-redirected spine entry");
+  if (fixture.spineRedirect || fixture.tomasFlag || !fixture.spineExitsSpend ||
+      !fixture.spine.first.includes("Names first, then numbers") || fixture.spineSpent.includes("Names first, then numbers")) {
+    errors.push("Tomas promise allusion did not render on the non-redirected spine entry, or its exits do not spend it once");
   }
 
   const offeredMemory = "Amara offered absolution for Dr. Lena Voss";
@@ -5537,6 +5553,50 @@ function titleContinueCrewCountChecks(runtime) {
   return errors;
 }
 
+// SUN-CLEAN-ORPHAN-CHECKS-01: regression checks that were written for this gate and never
+// registered, so nothing ran them. The two that need a runtime get one of their own, so they
+// cannot disturb the shared runtime or be disturbed by it. The two scripts keep their own
+// entry points and run as child processes from the repository root; each must exit 0 and
+// print its pass line, so a script that asserts nothing cannot read as a pass.
+const ADOPTED_CHECK_SCRIPTS = [
+  ["SUN-BUGHUNT-01 board counts, vent memorial, cylinder wording", "scripts/sun-bughunt-01-checks.mjs", "sun-bughunt-01-checks: PASS"],
+  ["SUN-V036-WHAT-REMAINS-ENTRY-01 What Remains entry points", "scripts/playtest-what-remains-entry-01-checks.mjs", "WHAT_REMAINS_ENTRY_OK"]
+];
+
+function adoptedChecks() {
+  const guarded = check => {
+    try {
+      const out = check();
+      return Array.isArray(out) ? out : [`check returned ${typeof out}, expected an array of errors`];
+    } catch (error) {
+      return [error.stack || error.message];
+    }
+  };
+  const results = [
+    ["SUN-CASCADE-ALLUSIVE-PAYOFF-01 change orders paid on reckon_summary", guarded(() => cascadeAllusivePayoffChecks())],
+    ["SUN-CASCADE-SECOND-FLAG-PAYOFF-01 manifest paid on reckon_public", guarded(() => cascadeSecondFlagPayoffChecks())],
+    ["SUN-MIDGAME-DELAYED-CONSEQUENCE-01/02 change orders + manifest paid on faction_split", guarded(() => midgameDelayedConsequenceChecks())],
+    ["SUN-MIDGAME-THIRD-CONSEQUENCE-01 manifest_exposed / manifest_lie paid on faction_split", guarded(() => midgameThirdConsequenceChecks())],
+    ["SUN-LETHAL-RESUME-DEATHBEAT-01 resumed lethal scene does not re-enter", guarded(() => lethalResumeDeathbeatChecks())],
+    ["SUN-FIX-VENT-BUNKS-01 aftermath bunk and living counts", guarded(() => ventBunksChecks(loadGame(ROOT)))],
+    ["SUN-CREW-BOARD-FOLLOW-CLARITY-01 first Crew tap shows the board", guarded(() => playtestCrewBoardFollowClarity01Checks(loadGame(ROOT)))]
+  ];
+  for (const [label, script, passLine] of ADOPTED_CHECK_SCRIPTS) {
+    const run = spawnSync(process.execPath, [resolve(ROOT, script)], { cwd: ROOT, encoding: "utf8", timeout: 60_000 });
+    const lines = `${run.stderr || ""}\n${run.stdout || ""}`.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    const telling = lines.filter(line => /Error|FAIL/.test(line));
+    const detail = (telling.length ? telling : lines).slice(0, 4).join(" | ");
+    const errors = [];
+    if (run.error || run.status !== 0) {
+      errors.push(`${script} exited ${run.status ?? run.signal ?? run.error?.code}: ${detail}`);
+    } else if (!String(run.stdout || "").includes(passLine)) {
+      errors.push(`${script} exited 0 without printing "${passLine}"`);
+    }
+    results.push([label, errors]);
+  }
+  return results;
+}
+
 function printCheck(label, errors, detail = "") {
   if (errors.length) {
     console.error(`FAIL ${label}${detail ? ` (${detail})` : ""}`);
@@ -5917,6 +5977,11 @@ async function main() {
     printCheck(`V6 untested dead-holder promise (${holder})`, v6.errors,
       `before=${v6.beforeEnding}; after=${v6.afterEnding}; ending=${v6.endingTitle}`);
     failures.push(...v6.errors.map(error => `V6/${holder}: ${error}`));
+  }
+
+  for (const [label, errors] of adoptedChecks()) {
+    printCheck(label, errors);
+    failures.push(...errors);
   }
 
   if (failures.length) {

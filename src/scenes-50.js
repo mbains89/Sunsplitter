@@ -5,19 +5,27 @@ registerScenes({
 
   // PRE: Last Off-Shift selects living Amara | WRITES: junction choice and one deduplicated absolution memory on entry
   // DEATH: none | DEAD SPEECH/APPEARANCE: Amara is eligibility-gated by offshift_open | IMAGE: existing quiet-Amara plate
+  // SUN-ROMANCE-ENDINGS-REACH-01: also a partner's late hour after the Commander spent the junction
+  // hour with someone else, with or without an attributable death. With none (a late hour only) the
+  // absolution is not played: the kettle, then the cup or her stay choice, so the ledger stays
+  // opt-in. junctionChoice keeps the pick, a bridge line opens the scene and no closing line prints.
+  // Exits: afterHour.
   offshift_amara: {
     image: "images/quiet_amara.jpg",
     onEnter: () => {
-      state.flags.junctionChoice = "amara";
+      if (!lateHour("amara")) state.flags.junctionChoice = "amara";
       const first = firstAttributableDeath();
       const whoName = first ? first.name : "the dead";
       const granted = stillFavoring("amara") || (state.affinity.amara || 0) >= 20;
-      remember(`Amara ${granted ? "offered" : "withheld"} absolution for ${whoName}`);
+      if (first) remember(`Amara ${granted ? "offered" : "withheld"} absolution for ${whoName}`);
     },
     get text() {
       const first = firstAttributableDeath();
       const whoName = first ? first.name : "the dead";
-      let t = `Night-cycle hydroponics. Condensation ticks off the leaves one drop at a time, the only clock she keeps, and the kettle between you is real heat you can hold your hands over — an hour of warmth spent here and nowhere else on the ship. Two cups. She was expecting you or she always sets two.\n\n`;
+      let t = lateHour("amara") ? `${lateHourOpener("amara")}, the light in hydroponics is still on, the way she leaves it.\n\n` : ``;
+      t += `Night-cycle hydroponics. Condensation ticks off the leaves one drop at a time, the only clock she keeps, and the kettle between you is real heat you can hold your hands over — an hour of warmth spent here and nowhere else on the ship. Two cups. She was expecting you or she always sets two.\n\n`;
+      // No death to absolve (a partner's late hour only): the kettle and the stay, nothing else.
+      if (!first) return t + `"Sit. The kettle's honest even when the company isn't."`;
       t += `"You'll have come about ${whoName}," she says, no cruelty in it, no cushion either. "Sit. The kettle's honest even when the company isn't."\n\n`;
       t += `She lets you get all the way to the bottom of the first cup before she says the rest. "I'll not tell you it wasn't your doing. I'll tell you I'm still here. Mind the difference."\n\n`;
       // Granted vs withheld from favoritism / debt read
@@ -27,15 +35,21 @@ registerScenes({
       } else {
         t += `"The rest, you haven't earned back. The garden's had no hour from you since, the crew's had no face at meals. Absolution isn't a thing I pour, it's a thing you grow. Mind I said back, not never."`;
       }
-      const close = closingPartnerLine();
+      const close = lateHour("amara") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
       return t;
     },
     get choices() {
+      // No death to absolve: the cup, or her stay choice. The ledger is behind the stay, as always.
+      if (!firstAttributableDeath()) {
+        const c = [ { text: "Say nothing and drink.", next: afterHour("amara") } ];
+        if (state.romance.amara) c.push({ text: "Stay past the light.", next: "amara_page", tag: "private" });
+        return c;
+      }
       const c = [
-        { text: "Ask her to say it wasn't yours.", next: "faction_split" },
-        { text: "Ask what you owe.", next: "faction_split" },
-        { text: "Say nothing and drink.", next: "faction_split" }
+        { text: "Ask her to say it wasn't yours.", next: afterHour("amara") },
+        { text: "Ask what you owe.", next: afterHour("amara") },
+        { text: "Say nothing and drink.", next: afterHour("amara") }
       ];
       // SUN-ROMANCE-ARC-04 (L-050): a partner may stay past the light; her ledger is behind it.
       if (state.romance.amara) c.push({ text: "Stay past the light.", next: "amara_page", tag: "private" });
@@ -46,7 +60,8 @@ registerScenes({
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: amara_page                 TICKET: SUN-ROMANCE-ARC-04 (L-050, Wave 1)
   // PRE: Amara living and romance.amara (solo shape only; the shared bay is untouched under
-  //   L-041); reached only from offshift_amara "Stay past the light."; junctionChoice is "amara".
+  //   L-041); reached only from offshift_amara "Stay past the light.", in the junction pick's hour
+  //   or in her late hour (SUN-ROMANCE-ENDINGS-REACH-01). junctionChoice is "amara" or that other pick.
   //   Text reads pursuit_amara_cost, hydro, breath_answer and promises.amara (kept/broken only;
   //   untested promises are not read aloud, L-024).
   // WRITES: none on entry. The three answers write flags.amara_page ("open" | "closed" | "hers")
@@ -121,9 +136,7 @@ registerScenes({
       t += `\n\nThe light stays on when you go.`;
       return t;
     },
-    choices: [
-      { text: "Back to the watch.", next: "faction_split" }
-    ]
+    get choices() { return [ { text: "Back to the watch.", next: afterHour("amara") } ]; }
   },
 
   offshift_jiro: {
@@ -157,14 +170,11 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Ask for the worst number.", next: "faction_split", reply: [{ who: "jiro", text: `"One," Jiro says. "That's the number of passes. Every other figure I've given you tonight comes with an error bar. That one doesn't." He lets it sit, then turns the lights back down.` }] }
+        // SUN-ROMANCE-ENDINGS-REACH-01: a partner's late hour follows this one.
+        { text: "Ask for the worst number.", next: afterHour("jiro"), reply: [{ who: "jiro", text: `"One," Jiro says. "That's the number of passes. Every other figure I've given you tonight comes with an error bar. That one doesn't." He lets it sit, then turns the lights back down.` }] }
       ];
       const needs = [{ who: "jiro", text: `"The helm for four days," Jiro says. "One eighty-one through one eighty-four, and nobody leaning over my shoulder. Give me that and you get an honest error bar the whole way through."` }];
-      if (isAlive("mira")) {
-        c.push({ text: "Ask what he needs to make it true.", next: "faction_split", reply: needs });
-      } else {
-        c.push({ text: "Ask what he needs to make it true.", next: "faction_split", reply: needs });
-      }
+      c.push({ text: "Ask what he needs to make it true.", next: afterHour("jiro"), reply: needs });
       return c;
     }
   },

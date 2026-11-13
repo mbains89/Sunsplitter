@@ -226,7 +226,6 @@ const sceneImages = {
   vess_intimate:        "images/vess_intimate.jpg",
   ship_interrupt:   "images/ship_interrupt.jpg",
   ship_interrupt_resolve: "images/ship_interrupt_resolve.jpg",
-  ship_memory_payoff: "images/bulkhead.jpg",
   sun_payoff:       "images/sun_payoff.jpg",
   boarding_stories: "images/corridor.jpg",
   patch_fails:      "images/vent.jpg",
@@ -617,6 +616,8 @@ function whatRemainsCrisisFact() {
   return clauses.length ? clauses.join("; ") + "." : null;
 }
 
+// Only two promise tests kill: prom_vent_break (Amara's) and prom_line_break (Lena's). The victim's
+// death is always in state.dead, so whatRemainsDeathFacts() has already printed it with its cause.
 function whatRemainsPromiseCausedDeath(owner) {
   if (state.promises[owner] !== "broken") return false;
   const causes = Object.values(state.deathCause || {});
@@ -629,10 +630,13 @@ function whatRemainsPromiseLine(owner) {
   const result = state.promises[owner];
   if (result !== "kept" && result !== "broken") return null;
   if (owner === "tomas" && state.crisisPath !== "custody") return null;
+  // SUN-PROMISE-DEATH-ONCE-01 (decision 21): when the break killed someone, the death line above
+  // carries the death and its cause, so the promise line says only that the promise broke.
   const lines = {
     amara: {
       kept: "At the service-pocket test, the vent stayed shut until the reader came out breathing.",
-      broken: "At the service-pocket test, the pocket was vented while the reader was still breathing."
+      broken: "At the service-pocket test, the pocket was vented while the reader was still breathing.",
+      fatal: "At the service-pocket test, the vent did not stay shut."
     },
     tomas: {
       kept: "At the custody test, the living received the shared mercy promised to Tomas.",
@@ -640,7 +644,8 @@ function whatRemainsPromiseLine(owner) {
     },
     lena: {
       kept: "At the shared-line test, the medical line stayed with the other patient.",
-      broken: "At the shared-line test, the medical line moved to Lena and the other patient died."
+      broken: "At the shared-line test, the medical line moved to Lena and the other patient died.",
+      fatal: "At the shared-line test, the medical line did not stay with the other patient."
     },
     sela: {
       kept: "At the petition test, Sela was not made the price of the crew's fear.",
@@ -661,7 +666,9 @@ function whatRemainsPromiseLine(owner) {
     }
     return null;
   }
-  return lines[owner] ? lines[owner][result] : null;
+  if (!lines[owner]) return null;
+  if (lines[owner].fatal && whatRemainsPromiseCausedDeath(owner)) return lines[owner].fatal;
+  return lines[owner][result];
 }
 
 function whatRemainsPromiseFact() {
@@ -723,11 +730,12 @@ function whatRemainsFacts() {
 // or dead, in the What Remains screen under the 3–6 reflection lines (which stay as L-008 has them).
 // Every sentence is a fact of this run: a tested promise, a private line, a recorded answer. The
 // logged cause of death is printed once, in the reflection lines above; a dead crew member's
-// paragraph opens on the person, not the cause (decision 21, 2026-11-06). Untested promises are
-// never mentioned (L-024). The dead are past tense only and never speak. Unrecovered crew were
-// never aboard and get one sentence saying so. Each paragraph is
-// written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:" rules): Lena clinical
-// fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
+// paragraph opens on the person, not the cause (decision 21, 2026-11-06). When a broken promise
+// killed someone, the holder's sentence says where the line or the vent went, not that the other
+// one died (SUN-PROMISE-DEATH-ONCE-01). Untested promises are never mentioned (L-024). The dead are
+// past tense only and never speak. Unrecovered crew were never aboard and get one sentence saying
+// so. Each paragraph is written in that character's own lens for the dead (CHARACTER_BIBLE "Dead:"
+// rules): Lena clinical fact plus one detail, Elias by what is covered, Mira by what was built and whether it holds,
 // Tomas by present habits, Amara by what was tended and who is owed, Jiro by a logged position,
 // Sela by names at yellow, Vess by registry order.
 function crewEpilogues() {
@@ -735,7 +743,8 @@ function crewEpilogues() {
   const dead = (k) => state.dead.includes(k);
   const cause = (k) => state.deathCause[k];
   const gone = (k) => `${crew[k] ? crew[k].first : k} was dead when the run ended.`;
-  const lastHour = (k, her) => f.junctionChoice === k ? ` The last private hour of the run was ${her}.` : "";
+  // SUN-ROMANCE-ENDINGS-REACH-01: a partner who stayed after the junction hour had the last one.
+  const lastHour = (k, her) => lastPrivateHour() === k ? ` The last private hour of the run was ${her}.` : "";
   const rootCause = f.burn_unverified || f.margin_spent_extra;
   const out = [];
 
@@ -756,7 +765,7 @@ function crewEpilogues() {
     if (f.rourke === "stopped") p += ` Rourke's chart still reads treatment stopped, by order; the prognosis under it was hers, and she never amended either line.`;
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
-    else if (state.promises.lena === "broken") p += ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
+    else if (state.promises.lena === "broken") p += whatRemainsPromiseCausedDeath("lena") ? ` When the one line that holds a crashing patient was tested, it moved to her.` : ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
     if (state.romance.lena) p += ` You crossed the line with her without pity, and you were the one who stayed.`;
     else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
     else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
@@ -848,7 +857,7 @@ function crewEpilogues() {
     else if (hasMark("amara", "plants_matter")) p += ` She heard you say living things matter.`;
     if (f.amara_vent_delayed) p += ` One cycle of a contaminated vent was delayed on her account.`;
     if (state.promises.amara === "kept") p += ` The pocket vent stayed shut until the reader came out breathing.`;
-    else if (state.promises.amara === "broken") p += ` The pocket was vented with the reader still breathing.`;
+    else if (state.promises.amara === "broken") p += whatRemainsPromiseCausedDeath("amara") ? ` The pocket vent did not stay shut, and she logged it herself, every field, exact.` : ` The pocket was vented with the reader still breathing.`;
     if (state.romance.amara) p += ` She asked if you wanted her; you said yes and meant it${f.amara_page ? `, and she opened her ledger to your page` : ``}.`;
     else if (state.romance.amara_tomas) p += ` You walked in on her and Tomas, and stayed.`;
     else if (hasMark("amara", "held_only")) p += ` You wanted her company without sex that night, and said so.`;
@@ -1064,6 +1073,9 @@ function partnerUnchosen() {
   if (!jc || jc === "none") return null;
   const partners = ["lena", "mira", "amara", "sela", "vess"].filter(w => state.romance[w] && isAlive(w));
   for (const p of partners) {
+    // SUN-ROMANCE-ENDINGS-REACH-01: a partner whose late hour is still to come is not left behind;
+    // that hour opens on her light instead.
+    if (lateHourPending(p)) continue;
     if (p !== jc) {
       // only report if they were eligible
       if (p === "lena" && eligLena()) return p;
@@ -1084,6 +1096,60 @@ function closingPartnerLine() {
   if (p === "vess") return "The relay bay light is on when you pass. Shut by morning.";
   if (p === "lena") return "Down-corridor, the medbay channel light burns past cycle-turn. Then it doesn't.";
   return "";
+}
+
+// SUN-ROMANCE-ENDINGS-REACH-01 (decision 12 widened, ruled 2026-11-08): a romance arc's last scene
+// no longer depends on the junction pick. After the hour the Commander chose, each living, aboard
+// partner whose last scene has not played gets one late hour, in crew order, and reaches the last
+// scene through that partner's own stay choice, as before. The late hour is the partner's own
+// off-shift scene: Lena's and Vess's last scenes continue theirs, and the endings cite Sela's
+// ritual. Amara's late hour is her absolution hour; with no death to absolve it is the kettle and
+// her stay choice only, so the ledger stays opt-in. Mira's arc ends at the Act III board, before
+// the junction, and is not routed here.
+// Each `open` is the arc's existing stay gate; `done` is the arc's existing end-state flag. No
+// state is written: the exits read junctionChoice, the arc flags and who is alive and aboard.
+const LATE_HOURS = {
+  lena:  { entry: () => "offshift_lena", open: () => (!!state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken", done: () => !!state.flags.lena_last_hour },
+  amara: { entry: () => "offshift_amara", open: () => !!state.romance.amara, done: () => !!state.flags.amara_page },
+  sela:  { entry: () => "offshift_sela", open: () => !!state.romance.sela, done: () => !!state.flags.sela_amber },
+  vess:  { entry: () => "offshift_vess", open: () => !!state.romance.vess, done: () => !!state.flags.vess_item_two }
+};
+// True while `who`'s scenes play after an hour the Commander spent with someone else.
+function lateHour(who) {
+  const jc = state.flags.junctionChoice;
+  return !!jc && jc !== "none" && jc !== who;
+}
+function lateHourPending(who) {
+  const hour = LATE_HOURS[who];
+  return !!hour && lateHour(who) && isAlive(who) && hour.open() && !hour.done();
+}
+// A late hour's first words. Late hours run in crew order, so the ones before `who` tonight are the
+// living partners ahead of her with their gates open: the first is past cycle-turn, each later one later.
+function lateHourOpener(who) {
+  const order = Object.keys(LATE_HOURS);
+  const before = order.slice(0, order.indexOf(who)).filter(w => lateHour(w) && isAlive(w) && LATE_HOURS[w].open()).length;
+  return ["Past cycle-turn", "Later", "Toward morning", "Nearly morning"][before];
+}
+// The exit of every off-shift scene; `from` is the crew member whose hour is ending. The junction
+// pick's hour leads to the first late hour, each late hour to the next, the last to the spine.
+function afterHour(from) {
+  const order = Object.keys(LATE_HOURS);
+  const start = from === state.flags.junctionChoice ? 0 : order.indexOf(from) + 1;
+  for (const who of order.slice(start)) if (lateHourPending(who)) return LATE_HOURS[who].entry();
+  return "faction_split";
+}
+// Whose hour was the run's last private one: the junction pick's, or the last partner whose late
+// hour followed it, whether or not she stayed (her hour was private either way, as the pick's is).
+// Every partner death site comes before the junction, so a partner living now with her gate open had
+// her late hour; done() also covers one who stayed and died later, should a later death site appear.
+function lastPrivateHour() {
+  const jc = state.flags.junctionChoice;
+  if (!jc || jc === "none") return null;
+  let last = jc;
+  for (const who of Object.keys(LATE_HOURS)) {
+    if (who !== jc && LATE_HOURS[who].open() && (LATE_HOURS[who].done() || isAlive(who))) last = who;
+  }
+  return last;
 }
 
 // Register scene maps; throw on duplicate IDs so act splits cannot silently collide

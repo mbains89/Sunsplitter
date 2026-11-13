@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-checks.mjs";
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
 import { playtestTitleContrastChecks } from "./playtest-title-contrast-checks.mjs";
@@ -35,7 +36,9 @@ const INTRO_SLIDE_ART = [
   "images/ship_exterior_2.jpg",
   "images/onboarding_background.jpg"
 ];
-const EXISTING_WAKE_OFFICIAL = "Nine of you cleared the hatch. The official story is that the cascade gave you hours, maybe two days.";
+// SUN-CONTINUITY-01: the head count lives in the title prologue and intro slide 2; wake keeps the official story only.
+const EXISTING_WAKE_OFFICIAL = "The official story is that the cascade gave you hours, maybe two days.";
+const PROLOGUE_HEAD_COUNT = "Nine of you cleared the hatch.";
 const INVENTED_OPENING = [
   "standoff operation",
   "fragment train",
@@ -61,7 +64,7 @@ function parseExistingIntroLines(indexSource) {
 function sourceErrors() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const wakeSource = readFileSync(resolve(ROOT, "src/scenes-38.js"), "utf8");
   try {
     const parsed = parseExistingIntroLines(indexSource);
@@ -100,6 +103,9 @@ function sourceErrors() {
   }
   if (!wakeSource.includes(EXISTING_WAKE_OFFICIAL)) {
     errors.push("wake lost the existing official-account sentence");
+  }
+  if (!EXISTING_INTRO_LINES[1].includes(PROLOGUE_HEAD_COUNT) || wakeSource.includes(PROLOGUE_HEAD_COUNT)) {
+    errors.push("the head count must be read once, in the prologue, not repeated in wake");
   }
   const openingSurfaces = [indexSource, engineSource.match(/function showCinematic[\s\S]*?\n\}/)?.[0] || ""];
   for (const phrase of INVENTED_OPENING) {

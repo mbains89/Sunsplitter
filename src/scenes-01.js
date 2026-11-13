@@ -9,10 +9,10 @@ registerScenes({
       let base = `Days pass. Or what pass for days on a ship with no sun.\n\nThe hull produces a recurring metallic knock that people initially mistake for another person moving in the dark sections.`;
 
       if (state.flags.priority === "repairs") {
-        if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways. She has begun sleeping in engineering rather than the common area.`;
-        else base += `\n\nThe early seal work pays off in small ways. Engineering stays occupied even without her.`;
+        if (isAlive("mira")) base += `\n\nMira's early work on the seals pays off in small ways.`;
+        else base += `\n\nMira's early seal work pays off in small ways. Engineering stays occupied even without her.`;
       } else if (state.flags.priority === "ration") {
-        base += `\n\nThe rationing is working. People move more carefully.`;
+        base += `\n\nThe rationing is working.`;
         if (isAlive("sela")) base += ` Sela has stopped asking for more paste.`;
         if (isAlive("amara")) base += ` Amara has started weighing every tray twice.`;
       } else if (state.flags.priority === "planet") {
@@ -30,7 +30,7 @@ registerScenes({
       }
 
       if (state.flags.power === "cut") {
-        base += `\n\nLarge sections of the ship remain dark. The observation blister is cold and unused. People stay closer together in the lit areas.`;
+        base += `\n\nLarge sections of the ship remain dark. People stay closer together in the lit areas.`;
       } else if (state.flags.power === "burn") {
         if (isAlive("mira")) base += `\n\nSystems remain online, but Mira has already written off any realistic chance of restoring full drive power without a miracle.`;
         else base += `\n\nSystems remain online, but any realistic chance of restoring full drive power has already been written off.`;
@@ -39,7 +39,7 @@ registerScenes({
       if (state.flags.planet === "committed") {
         base += `\n\nThe course remains locked on the rogue planet. Fourteen months. No one speaks of turning back, but no one speaks of arrival either.`;
       } else {
-        base += `\n\nYou still have no destination. The ship drifts. Purpose is a resource you have not yet spent.`;
+        base += `\n\nYou still have no destination. Purpose is a resource you have not yet spent.`;
       }
 
       // v0.08 delayed personal echoes

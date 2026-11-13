@@ -25,6 +25,8 @@ const RETIRED = {
   filters_stencil_luck: "offshift_sela", filters_stencil_silent: "offshift_sela",
   act3_lethal_tomas_stores: "act3_lethal_elias_order", act3_lethal_tomas_structure: "act3_lethal_elias_order",
   act3_lethal_elias_brace: "act3_lethal_mira_board", act3_lethal_mira_collar: "faction_split|mira_root_cause",
+  // SUN-DIET-MEMORY-FOLD-01 (C04): the memory pass-through's text is final_choice's first-arrival preamble.
+  ship_memory_payoff: "final_choice",
   vess_cost: "vess_signal" // SUN-DIET-VESS-MERGE-01: merged, not folded; the exit is the merged screen itself
 };
 const ABOARD = "Object.assign(state.recovered, { tomas: true, jiro: true, vess: true });";
