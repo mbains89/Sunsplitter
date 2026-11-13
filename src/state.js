@@ -845,7 +845,7 @@ function crewEpilogues() {
     else if (f.tomas === "hold") p += ` When he asked, you asked him to hold on a little longer, and he held.`;
     if (state.promises.tomas === "kept" && state.crisisPath === "custody") p += ` At the custody test the living got the shared mercy; he counted the cost.`;
     else if (state.promises.tomas === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
-    else if (f.vault_sacrifice === "future") p += ` He felt the air change in the habitation ring when the vault was kept.`;
+    else if (f.vault_sacrifice === "future") p += ` The vault had already been kept when the annex docked; he counted who in the habitation ring paid for it.`;
     if (f.pair_triage === "count") p += ` Rourke went into his count by name.`;
     else if (f.pair_seal === "names") p += ` The Deck 4 feedstock went on his slate under names.`;
     else if (f.pair_grudge) p += ` He and Jiro settled the aft-trunk account without an apology.`;
