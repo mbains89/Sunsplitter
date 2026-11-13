@@ -22,7 +22,7 @@ She glances once at the empty recovery racks.
   intro_elias: {
     text: `Elias Kane is waiting in the corridor outside medical. He does not wait long for people.
 
-"Rourke was always going to die. The question is how many more we write off before the math forces your hand. I can keep order. I can keep people working. I can keep the weapons locked and the corridors quiet. What I cannot do is pretend soft leadership will survive the first real shortage."
+"Rourke. Docking crew. He was always going to die. The question is how many more we write off before the math forces your hand. I can keep order. I can keep people working. I can keep the weapons locked and the corridors quiet. What I cannot do is pretend soft leadership will survive the first real shortage."
 
 He studies you.
 
@@ -41,7 +41,7 @@ He studies you.
   // DEATH: none | DEAD SPEECH/APPEARANCE: all named speakers are present at this early fixed-roster beat
   // IMAGE: REUSE images/vault_reveal.jpg; ART-R2 remains separate
   vault_reveal: {
-    get text() { return `${isAlive("mira") ? `Mira stops you in the corridor outside the sealed cargo section.\n\n"You need to see this before you give any more orders."` : ""}\n\n${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.\n\n${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Restart package first — embryos, archives, soil starters."` : ""}\n\nThe monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.\n\n${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}\n\n${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}\n\nThe order is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
+    get text() { return `${isAlive("mira") ? `${["stayed", "stopped", "tried"].includes(state.flags.rourke) ? "Mira" : "Mira Solis, the drive engineer,"} stops you in the corridor outside the sealed cargo section.\n\n"You need to see this before you give any more orders."` : ""}\n\n${isAlive("mira") ? `She opens a secondary hatch.` : ""} Cold air rolls out. Rows of cryogenic cylinders line the walls, each one marked with a genetic code and a viability percentage. Below them, sealed containers of soil starters, fertilizer compounds, and genetic archives.\n\n${isAlive("mira") ? `"This is what the Sunsplitter was actually built for. Restart package first — embryos, archives, soil starters."` : ""}\n\nThe monitoring panel still cycles: EMBRYOS VIABLE — 100%. POWER DRAW — STABLE. Empty crew manifests scroll in a side pane and nobody has had the nerve to clear them.\n\n${isAlive("elias") ? `Elias stands in the doorway, arms folded. "Now you know what the real cargo is. Every decision from here on is about which future we feed."` : ""}\n\n${isAlive("lena") ? `Lena, from behind you: "We are also still alive. Do not forget which side of the glass you are on."` : ""}\n\nThe order is not a virtue test. It is a declaration of which reserve takes the first loss.`; },
     get choices() {
       const mandates = [
         { text: "Living priority — divert vault power to habitation now. Cohesion rises; embryo viability takes the first loss.", next: "status", effects: { cohesion: 4, embryos: -5 }, flag: { vault_priority: "living" }, lean: { living: 6 }, affinity: { lena: 8, tomas: 10, elias: -6 }, trust: { lena: 10, tomas: 12, elias: -8, jiro: -4 }, reply: [{ who: "mira", text: `Mira logs the reallocation without looking up. "Vault draw down twelve percent. Viability takes the loss first. I will post the number daily, so nobody has to ask."` }, { who: "lena", text: `Behind you, Lena lets out a breath she has been holding since the hatch opened.` }] },
@@ -58,9 +58,16 @@ He studies you.
     get text() {
       const n = visibleLivingCrewCount();
       let t = `You gather what remains of your people in the corridor outside medical.\n\n`;
-      t += `${n} living.`;
+      t += `${n} living besides you.`;
       if (!isAlive("rourke")) t += ` One body already cooling.`;
       t += `\n\n`;
+      const roll = [];
+      if (isAlive("lena")) roll.push(`Lena Voss, medical.`);
+      if (isAlive("elias")) roll.push(`Elias Kane, security.`);
+      if (isAlive("mira")) roll.push(`Mira Solis, drive systems.`);
+      if (isAlive("amara")) roll.push(`Amara Vale, hydroponics.`);
+      if (isAlive("sela")) roll.push(`Sela, twenty, no posting, who paints yellow suns on the bulkheads.`);
+      if (roll.length) t += `The roll is short. ${roll.join(" ")}\n\n`;
       if (isAlive("mira")) {
         t += `Mira gives the report in a thin voice:\n\n"Primary drive offline. Auxiliary power only. Life support holding at sixty-two percent. Food and water maybe five weeks if we ration hard. Hull breach on Deck 3 sealed but temporary. Navigation half-blind. No destination."\n\n`;
       } else {

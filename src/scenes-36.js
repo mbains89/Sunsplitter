@@ -4,7 +4,7 @@
 registerScenes({
 
   history_elias: {
-    text: `Elias finds you alone near the docking ring — the place Rourke died.
+    text: `Elias finds you alone near the docking ring — where Rourke took the shrapnel.
 
 "You already know I have the ground-side file. What you do not know is which names on the original boarding list were struck so yours could clear."
 

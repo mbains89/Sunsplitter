@@ -72,7 +72,7 @@ ${isAlive("amara") ? `Amara Vale — the woman with the house key from Lagos on 
 
 She turns the key once between her fingers.
 
-"I grew food for three habitats before the cascade. This bay was sized for hundreds. We are nine. That does not make the last green trays optional. If we lose them, morale drops harder than the calories."` : ""}`; },
+"I grew food for three habitats before the cascade. This bay was sized for hundreds. We are six. That does not make the last green trays optional. If we lose them, morale drops harder than the calories."` : ""}`; },
     choices: [
       { text: "Full power to hydroponics. Real food and something living.", next: "crew_walk", effects: { supplies: 9, integrity: -7, cohesion: 5 }, flag: { hydro: "full" }, lean: { living: 2 }, affinity: { amara: 8 }, trust: { amara: 6 }, reply: [{ who: "amara", text: `The array comes up blue-white and humming. Amara stands in it a moment with her eyes closed, then catches you watching. "You saw nothing. And it was not free. The lights in the ring will tell you the price by morning."` }] },
       { text: "Minimal power only. Protect life support first.", next: "crew_walk", effects: { supplies: -4, integrity: 4, cohesion: -3 }, flag: { hydro: "minimal" }, lean: { future: 1 }, affinity: { amara: -4 }, trust: { amara: -3 }, reply: [{ who: "amara", text: `Amara powers the trays down to a single row. "I will keep that row alive out of spite," she says. "When we are a month into paste, you will come and look at it. Everyone will."` }] },
