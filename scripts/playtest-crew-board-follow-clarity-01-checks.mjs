@@ -10,7 +10,9 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
   const errors = [];
   const engine = readEngineSource(ROOT);
   const validate = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
-  const overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8");
+  // index.html only names this file in a data attribute; the live hook is in validate.js.
+  let overlay = "";
+  try { overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8"); } catch (_) {}
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   if (!html.includes('id="btn-crew"') || !html.includes('id="crew-panel"') || !html.includes('id="crew-sheet"')) {
     errors.push("Crew board markup tokens missing");
@@ -41,11 +43,11 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
         count: /Crew · \\d+ living \\/ \\d+ listed/.test(panel.innerHTML),
         trust: panel.innerHTML.includes("Trust: 40/100")
       };
-      // The headless DOM has no selectors: there, check the chip is painted and open the
-      // sheet through the function a chip click calls.
+      // The headless DOM has no selectors: there, check the chip is painted and make the call
+      // the chip's onclick makes (renderCrewPanel with that key; Lena is preselected on open).
       const miraBtn = typeof panel.querySelector === "function" ? panel.querySelector('[data-crew="mira"]') : null;
       if (miraBtn && typeof miraBtn.click === "function") miraBtn.click();
-      else if (panel.innerHTML.includes('data-crew="mira"')) openCrewSheet("mira");
+      else if (panel.innerHTML.includes('data-crew="mira"')) renderCrewPanel("mira");
       const afterChip = {
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
         name: document.getElementById("crew-sheet-name").textContent

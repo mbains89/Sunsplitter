@@ -3,9 +3,10 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // SUN-CREWPLATE-F07-01 — Escape and direct class-flip closes must rebind #scene-image.
-// The SUN-HITL-UNSHADOW-01 static proof that used to sit here matched text in src/engine.js;
-// the fix lives in the overlay src/hitl-unshadow.js, so that proof returned six errors on the
-// tip and nothing called it. Removed in SUN-CLEAN-ORPHAN-CHECKS-01; the overlay is checked below.
+// The SUN-HITL-UNSHADOW-01 static proof that used to sit here matched text in src/engine.js
+// that is not there (the rebind lives in src/hitl-unshadow.js), so it returned six errors and
+// nothing called it. Removed in SUN-CLEAN-ORPHAN-CHECKS-01. Only the F07 close paths are
+// checked below.
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // Tip overlay at 520be6ad wraps toggleCrewPanel only. Escape is not covered.

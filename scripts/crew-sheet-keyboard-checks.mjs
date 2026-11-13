@@ -1,6 +1,7 @@
 // SUN-CODEX-004: real browser focus/default button activation, not DOM shims.
 // Requires Playwright; use CHROMIUM_PATH for an installed Chromium executable.
-// CI has no browser, so no workflow runs this file. Run it by hand with the browser bot:
+// CI has no browser, so no workflow runs this file. Run it by hand where Playwright and
+// Chrome are installed:
 //   node scripts/crew-sheet-keyboard-checks.mjs
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -50,8 +51,8 @@ beforeEach(async () => {
 afterEach(async () => { await context?.close(); });
 
 // SUN-PACED-REVEAL-01 keeps digits inert while paragraphs wait and for REVEAL_SETTLE_MS after
-// they finish. Show the whole passage and wait that out, so a key that does nothing here is
-// being stopped by the crew sheet and not by the reveal.
+// they finish. Show the whole passage and wait that out, so the reveal cannot mask a key that
+// the crew sheet should have stopped, and digits are live again once the sheet is closed.
 const settleReveal = async () => {
   const wait = await page.evaluate(() => {
     if (sceneReveal) finishSceneReveal("story-key");

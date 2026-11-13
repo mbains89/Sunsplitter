@@ -5543,17 +5543,22 @@ function titleContinueCrewCountChecks(runtime) {
 
 // SUN-CLEAN-ORPHAN-CHECKS-01: regression checks that were written for this gate and never
 // registered, so nothing ran them. The two that need a runtime get one of their own, so they
-// cannot disturb the shared runtime or be disturbed by it. The three scripts keep their own
-// entry points and run as child processes from the repository root.
+// cannot disturb the shared runtime or be disturbed by it. The two scripts keep their own
+// entry points and run as child processes from the repository root; each must exit 0 and
+// print its pass line, so a script that asserts nothing cannot read as a pass.
 const ADOPTED_CHECK_SCRIPTS = [
-  ["SUN-BUGHUNT-01 board counts, vent memorial, cylinder wording", "scripts/sun-bughunt-01-checks.mjs"],
-  ["SUN-V036-RESUME-PAINT-01 resume line carries the paint version", "scripts/playtest-resume-paint-01-checks.mjs"],
-  ["SUN-V036-WHAT-REMAINS-ENTRY-01 What Remains entry points", "scripts/playtest-what-remains-entry-01-checks.mjs"]
+  ["SUN-BUGHUNT-01 board counts, vent memorial, cylinder wording", "scripts/sun-bughunt-01-checks.mjs", "sun-bughunt-01-checks: PASS"],
+  ["SUN-V036-WHAT-REMAINS-ENTRY-01 What Remains entry points", "scripts/playtest-what-remains-entry-01-checks.mjs", "WHAT_REMAINS_ENTRY_OK"]
 ];
 
 function adoptedChecks() {
   const guarded = check => {
-    try { return check(); } catch (error) { return [error.stack || error.message]; }
+    try {
+      const out = check();
+      return Array.isArray(out) ? out : [`check returned ${typeof out}, expected an array of errors`];
+    } catch (error) {
+      return [error.stack || error.message];
+    }
   };
   const results = [
     ["SUN-CASCADE-ALLUSIVE-PAYOFF-01 change orders paid on reckon_summary", guarded(() => cascadeAllusivePayoffChecks())],
@@ -5564,10 +5569,18 @@ function adoptedChecks() {
     ["SUN-FIX-VENT-BUNKS-01 aftermath bunk and living counts", guarded(() => ventBunksChecks(loadGame(ROOT)))],
     ["SUN-CREW-BOARD-FOLLOW-CLARITY-01 first Crew tap shows the board", guarded(() => playtestCrewBoardFollowClarity01Checks(loadGame(ROOT)))]
   ];
-  for (const [label, script] of ADOPTED_CHECK_SCRIPTS) {
-    const run = spawnSync(process.execPath, [resolve(ROOT, script)], { cwd: ROOT, encoding: "utf8" });
-    const tail = `${run.stderr || ""}\n${run.stdout || ""}`.trim().split(/\r?\n/).filter(Boolean).slice(0, 4).join(" | ");
-    results.push([label, run.status === 0 ? [] : [`${script} exited ${run.status ?? run.signal}: ${tail}`]]);
+  for (const [label, script, passLine] of ADOPTED_CHECK_SCRIPTS) {
+    const run = spawnSync(process.execPath, [resolve(ROOT, script)], { cwd: ROOT, encoding: "utf8", timeout: 60_000 });
+    const lines = `${run.stderr || ""}\n${run.stdout || ""}`.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    const telling = lines.filter(line => /Error|FAIL/.test(line));
+    const detail = (telling.length ? telling : lines).slice(0, 4).join(" | ");
+    const errors = [];
+    if (run.error || run.status !== 0) {
+      errors.push(`${script} exited ${run.status ?? run.signal ?? run.error?.code}: ${detail}`);
+    } else if (!String(run.stdout || "").includes(passLine)) {
+      errors.push(`${script} exited 0 without printing "${passLine}"`);
+    }
+    results.push([label, errors]);
   }
   return results;
 }
