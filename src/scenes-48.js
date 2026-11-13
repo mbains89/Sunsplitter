@@ -89,7 +89,7 @@ registerScenes({
     get choices() {
       const c = [
         { text: "Take both folders.", next: afterHour("lena") },
-        { text: "Ask what she wants said at yellow.", next: afterHour("lena") }
+        { text: "Ask what she wants said at yellow.", next: afterHour("lena"), reply: [{ who: "lena", text: `"Name, cause, time," Lena says. "Cause is the exposure. Then one line: she was working. Nobody rounds that up to brave."` }] }
       ];
       // A broken medical line closes her offers (the existing romanceOpen rule); the hour follows it.
       if ((state.romance.lena || hasMark("lena", "held_only")) && state.promises.lena !== "broken") {
@@ -141,7 +141,7 @@ registerScenes({
     get choices() {
       return [
         { text: "Take the ship back.", next: afterHour("lena") },
-        { text: "Tell her the count will be kept.", next: afterHour("lena"), affinity: { lena: 4 } }
+        { text: "Tell her the count will be kept.", next: afterHour("lena"), affinity: { lena: 4 }, reply: [{ who: "lena", text: `"Weekly," Lena says. "By lot, by date, nothing rounded. After me, someone checks yours. That is the whole handover."` }] }
       ];
     }
   },

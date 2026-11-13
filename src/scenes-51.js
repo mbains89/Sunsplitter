@@ -190,15 +190,16 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew." },
-        { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you." }
+        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew.", reply: [{ who: "vess", text: `"Logged for general release," Vess says. Half a beat late: "They'll ask me to play it. I'll play it as often as they ask. It's earned the airtime."` }] },
+        { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you.", reply: [{ who: "vess", text: `"Restricted. Two readers." Vess keys the file shut. "Smallest distribution list I've ever kept. First one I didn't keep alone."` }] }
       ];
       if (!state.flags.last_tx_spent) {
         c.push({
           text: "Answer it.",
           next: afterHour("vess"),
           flag: { last_tx_spent: true },
-          remember: "spent the last long-range window answering a dead ship's beacon"
+          remember: "spent the last long-range window answering a dead ship's beacon",
+          reply: [`Vess spends the last long-range window on it in one directed burst: your ship's designator, sent back at the beacon's own patient interval.`, { who: "vess", text: `"Transmitted. No reply expected," she logs. "That isn't why you answer."` }]
         });
       }
       // SUN-ROMANCE-ARC-03 (L-050): item two has a scene behind it. Partner only; she initiated above.
