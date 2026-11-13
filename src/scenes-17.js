@@ -15,7 +15,7 @@ registerScenes({
       }
     },
     text: () => {
-      let t = `The fragment comes onto the aft collar with no working attitude thrusters of its own, and the pressure equalize makes the whole cylinder complain. The hatch opens on Vess, twenty-two, Dawnbreak's comms officer: a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair still held back for solo work. She looks at you too long, then not at all.
+      let t = `The fragment comes onto the aft collar with no working attitude thrusters of its own, and the pressure equalize makes the whole cylinder complain. The hatch opens on Vess, twenty-two, Dawnbreak's comms officer: a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair, still held back out of solo habit. She looks at you too long, then not at all.
 
 "Commander. Your hull ID has been in my night log for eleven months. I said the names of the Dawnbreak dead every night so somebody did. Yours I already knew."
 

@@ -36,7 +36,7 @@ That burst would be the last time this ship speaks outward.`;
       remember("Shared the last long-range window and a private hour with Vess.");
     },
     text: () => {
-      let t = `Vess sends it first. The burst goes out toward the Dawnbreak debris field: her registry, every name in order of loss, the way she has said them each night. The high-gain holds for the last name and degrades for good. Nothing answers. She did not expect anything to. Then she copies her night logs into your queue, every entry.
+      let t = `Vess spends the window first. The burst goes out toward the Dawnbreak debris field: her registry, every name in order of loss, the way she has said them each night. The high-gain holds for the last name and degrades for good. Nothing answers. She did not expect anything to. Then she copies her night logs into your queue, every entry.
 
 She does not wait for a second invitation. The door override is hers — she has been reading the ship's access tree since the beacon first resolved your hull. The underlayer comes off on her schedule. She is inexperienced with people and exact with survival; the difference is visible in the way she does not ask whether the light stays on.
 
