@@ -10,7 +10,7 @@ registerScenes({
   breath_hub: {
     image: "images/power_stress_1.jpg",
     text: () => {
-      let t = `The air is turning. There are still ways to hold it that do not mean naming a living person for the vents.\n\n`;
+      let t = `The air is turning. There are still ways to hold the loop that do not mean naming a living person for the vents.\n\n`;
       t += `One needs nothing but hands. The others burn stock, or need someone still breathing and still able.`;
       return t;
     },
