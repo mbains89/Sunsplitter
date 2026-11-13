@@ -64,7 +64,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
           const names = firstNames.length === 2
             ? firstNames[0] + " and " + firstNames[1]
             : firstNames.slice(0, -1).join(", ") + ", and " + firstNames[firstNames.length - 1];
-          t += `\n\n"Your private channels are not as sealed as the manuals assume. Some of them are still warm. ${names}. I'm not asking you to close it. I'm asking whether there's room for a second log."`;
+          t += `\n\n"Your private channels are not as sealed as the manuals assume. Some of them are still warm. ${names}. I'm not asking you to close them. I'm asking whether there's room for a second log."`;
         }
       } else {
         t += `\n\n"I've been talking to this hull longer than you've been answering. The first yes is the only one that matters. After that the procedure is either mutual or it is not."`;

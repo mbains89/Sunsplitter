@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 export function selaAnswerChecks(runtime) {
   const errors = [];
   const question = "Ask what she would spend to keep a warm world possible.";
-  const answer = '"Everything that is mine to spend. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."';
+  const answer = '"I would spend all that is mine. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."';
   const check = (label, source) => {
     try {
       assert.equal(runtime.evaluate(`(() => {
@@ -57,7 +57,7 @@ export function selaAnswerChecks(runtime) {
     expect(state.scene === "arc_living_3", "question did not lead to the conflict");
     expect(opensWithAnswer(), "answer is not the first paragraph, once, above the parts argument");
     expect(JSON.parse(readRawSave()).scene === "arc_living_3", "conflict was not autosaved");
-    expect(!readRawSave().includes("Everything that is mine to spend."), "reply was written to the save");
+    expect(!readRawSave().includes("I would spend all that is mine."), "reply was written to the save");
     const before = JSON.stringify(state);
     display(state.scene, { skipOnEnter: true, resume: true });
     expect(!story().includes(answer) && story().includes("parts allocation"), "answer replayed on re-render");

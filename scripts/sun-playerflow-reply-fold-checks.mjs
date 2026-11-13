@@ -42,7 +42,7 @@ const FOLDS = [
   ["word refused, Tomas dead", ABOARD + "kill('tomas', 'fold fixture'); state.crisisPath = 'breath';", "breath_onset", '"I make no promises', "breath_hub",
     [`The refusal lands.`, `The rumor does not die. It only goes quieter.`], { breath_word: "refused" }],
   ["Sela's answer", ABOARD, "arc_living_2", "Ask what she would spend", "arc_living_3",
-    [`Sela answers.`, `"Everything that is mine to spend. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."`], {}],
+    [`Sela answers.`, `"I would spend all that is mine. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."`], {}],
   ["stencil luck", ABOARD, "filters_stencil", "Luck, then.", "offshift_sela",
     [`"They will say luck, or they will say selection. I decline both. Something was asked of me, and I have not yet been told what."`], {}],
   ["stencil silent", ABOARD, "filters_stencil", "Say nothing.", "offshift_sela",
