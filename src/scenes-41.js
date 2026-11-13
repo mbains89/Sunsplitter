@@ -132,9 +132,9 @@ When you leave she has already started the next circle — same diameter, cleane
 
 
   quiet_mira: {
-    text: `You touch her shoulder. Mira Solis jerks awake with a sound that is almost a word.
+    text: `You touch her shoulder. Mira jerks awake with a sound that is almost a word.
 
-Drive systems specialist. The patch on her suit is the first clean name you get for the woman who has been keeping the boards from going dark.
+Drive systems specialist. The patch on her suit is the only clean thing on the woman who has been keeping the boards from going dark.
 
 "How long?" she asks. Then she sees the fault light still open and answers herself.
 
