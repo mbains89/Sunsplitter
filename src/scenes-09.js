@@ -111,6 +111,8 @@ registerScenes({
       }
       const pri = state.flags.vault_priority || "both";
       let t = `A power fault hits the vault and habitation ring at the same time.\n\n${isAlive("mira") ? `Mira can stabilize only one grid fully.` : ""} The other will take irreversible damage. The embryo count will not recover from a living choice; the living will not recover from a full vault divert.\n\n`;
+      // SUN-FLAG-PAYOFFS-01: the lower ceiling accepted at arc_future_2 (embryo_ceiling) is still on the board.
+      if (state.flags.embryo_ceiling === "lowered") t += `The vault comes into this fault already bleeding. The lower ceiling you accepted is still on the board, unrecovered, and whatever this choice costs comes off the lower number.\n\n`;
       if (pri === "future") {
         t += `You already said the future is what matters. ${isAlive("elias") ? `Elias watches to see if you meant it.` : ""}\n\n`;
       } else if (pri === "living") {
