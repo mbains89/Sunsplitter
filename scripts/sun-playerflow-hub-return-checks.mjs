@@ -23,7 +23,7 @@ const RETURN_LINE = "The vault light is still on. There is still work.";
 const PARAGRAPH = [
   "The vault light stays on behind you.",
   "The ship has two men back who were written off, and a list of names that is no longer only numbers.",
-  "A third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.",
+  "A third name is on the board now. Vess is still finding which bulkheads answer.",
   // SUN-RECAP-HONESTY-01: the paragraph's last line names the fracture only after a private hour
   // (checked below), so the paragraph is matched on its common opening, as its own paragraph.
   "<p>There is still work."

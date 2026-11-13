@@ -15,7 +15,7 @@ registerScenes({
       }
     },
     text: () => {
-      let t = `The fragment docks ugly — no working attitude thrusters, only a hard magnetic grab and a pressure equalize that makes the whole cylinder complain. The hatch opens on a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair still held back from six years of solo work. She looks at you too long, then not at all.
+      let t = `The fragment comes onto the aft collar with no working attitude thrusters of its own, and the pressure equalize makes the whole cylinder complain. The hatch opens on Vess, twenty-two, Dawnbreak's comms officer: a tall, wiry figure in a suit patched by the same hands for six years. Long white-silver hair still held back for solo work. She looks at you too long, then not at all.
 
 "Commander. Your hull ID has been in my night log for eleven months. I said the names of the Dawnbreak dead every night so somebody did. Yours I already knew."
 
@@ -37,7 +37,7 @@ The flat voice cracks on the last word. She recovers it immediately, the way a l
       if (!isAlive("vess")) return "act3_spine_next";
     },
     text: () => {
-      let t = `She finds you in the observation blister before the first full watch is over. The suit is off; the underlayer is clean enough to show she cared about the first impression. She stands too close or too far — the distance is wrong in both directions.
+      let t = `Vess finds you in the observation blister before the first full watch is over. The suit is off; the underlayer is clean enough to show she cared about the first impression. She stands too close or too far — the distance is wrong in both directions.
 
 "I have read the manuals on pair-bonding under isolation. The success rate is low. The failure mode is worse. I am offering the attempt. You may refuse. The refusal will be logged as a clean decision."`;
       // Informed / run-reading first offer — cites actual run state
