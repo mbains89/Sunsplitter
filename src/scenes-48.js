@@ -84,7 +84,7 @@ registerScenes({
       }
       const close = lateHour("lena") ? "" : closingPartnerLine();
       if (close) t += `\n\n` + close;
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when no folder line or close follows
     },
     get choices() {
       const c = [
