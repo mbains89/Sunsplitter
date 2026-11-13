@@ -86,7 +86,7 @@ Deck 2 berths: a house key on a locker lip, in a size no one on this crew wears.
 
 ${isAlive("mira") ? `Engineering: Mira is asleep at her console — face lit by warning lights. One is a drive fault she has not yet reported. Her hands, even asleep, rest near the manual overrides.` : ""}
 
-${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Two names from the boarding list never answered the final call.` : ""}
+${isAlive("amara") ? `Common area: Amara sits alone with a cold cup. Two names from the boarding list have not answered a muster since the breach.` : ""}
 
 Observation blister: stars drift at an uneven rate. Daylight panels still cycle an obsolete Earth sunrise over empty rows. The star tracker console is dark.
 
