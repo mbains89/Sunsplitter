@@ -592,17 +592,20 @@ function whatRemainsDeathClause(key, cause) {
     case "vented with the lower ring":
       return `${name} died when the lower ring was vented`;
     case "vented at twenty":
-      return `${name} died when the lower ring vented at twenty`;
+      return `${name} died at twenty when the lower ring was vented`;
     case "resources diverted to the vault":
       return `${name} died after medical power was diverted to the vault`;
+    // SUN-BLEAK-ENDING-HONESTY-01: this cause is written only after the Commander kept the packs and
+    // power committed elsewhere at act3_lethal_lena_clock, so the clause names that order.
     case "kept working until the clock ran out":
-      return `${name} died after working until her clock ran out`;
+      return `${name} died after her treatment was ordered withheld`;
     case "refused the order and paid for it":
       return `${name} died after refusing the order`;
     case "went back for the living and did not return":
       return `${name} went back for the living and did not return`;
+    // SUN-BLEAK-ENDING-HONESTY-01: written only when the Commander sealed B-four with Elias inside.
     case "held the line":
-      return `${name} died holding the line`;
+      return `${name} died sealed into Station B-four by order`;
     case "would not leave the board":
       return `${name} died after refusing to leave the board`;
     case "finished the repair":
@@ -808,8 +811,9 @@ function crewEpilogues() {
   const rootCause = f.burn_unverified || f.margin_spent_extra;
   const out = [];
 
-  // Rourke: the opening dead. One line.
-  if (dead("rourke")) out.push(`Rourke was dead inside the first hour, ring shrapnel in his chest.`);
+  // Rourke: the opening dead. SUN-BLEAK-ENDING-HONESTY-01 (decision 21): his death and its cause are
+  // the reflection line's; the paragraph opens on him, like the others, with his crew-sheet fact.
+  if (dead("rourke")) out.push(`Rourke was dead when the run ended. He was docking crew, and knew the ship better than most.`);
 
   // Lena — a clinical fact and one detail.
   {
@@ -817,10 +821,11 @@ function crewEpilogues() {
     if (dead("lena")) {
       p = gone("lena");
       if (cause("lena") === "kept working until the clock ran out") p += ` Every treatment entry was complete except the one under her own name; the last line in the active chart was an unfinished set of observations on someone else.`;
-    } else if (state.dying && state.dying.lena) {
-      p = `Lena was alive when the run ended, on a clock she had charted herself.`;
     } else {
-      p = `Lena was alive when the run ended.`;
+      // SUN-BLEAK-ENDING-HONESTY-01: every living Lena gave her own prognosis at aftermath (not
+      // reversible; months, not years). The trauma circuit or the cradle bus keeps her functional
+      // and clears state.dying.lena, but reverses nothing, so the clock she charted still runs.
+      p = `Lena was alive when the run ended, on a clock she had charted herself.`;
     }
     // SUN-FLAG-PAYOFFS-01: the succession notes from offshift_lena (lena_notes).
     if (f.lena_notes) p += dead("lena") ? ` Her succession notes were in your keeping, in her handwriting, in the order the next person would need them.` : ` Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose.`;
@@ -901,7 +906,7 @@ function crewEpilogues() {
     else if (f.stores === "seize") p += ` The private stores were seized before he came aboard.`;
     else if (f.stores === "vote") p += ` The stores were put to a vote he was not aboard for.`;
     if (f.tomas === "living") p += ` When he asked, you told him the living come first, and he held.`;
-    else if (f.tomas === "future") p += ` When he asked, you told him the future is what justifies this, and he broke in front of you.`;
+    else if (f.tomas === "future") p += ` When he asked, you told him the future is what justifies this; his calm came back all at once, and he did not argue.`;
     else if (f.tomas === "hold") p += ` When he asked, you asked him to hold on a little longer, and he held.`;
     if (state.promises.tomas === "kept" && state.crisisPath === "custody") p += ` At the custody test the living got the shared mercy; he counted the cost.`;
     else if (state.promises.tomas === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
@@ -954,10 +959,24 @@ function crewEpilogues() {
     let p;
     // SUN-RECAP-HONESTY-01: "at yellow" is her lamp hour, so the line needs that hour attended: her
     // junction pick, or her late hour after another pick (lastPrivateHour's rule).
-    const atYellow = hasMark("sela", "spoken") && (f.junctionChoice === "sela" ||
-      (lateHour("sela") && LATE_HOURS.sela.open() && (LATE_HOURS.sela.done() || isAlive("sela"))));
-    if (dead("sela")) p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` Before that, she spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
-    else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${atYellow ? ` She spoke once, at yellow, and was heard.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` She spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
+    const selaHour = f.junctionChoice === "sela" ||
+      (lateHour("sela") && LATE_HOURS.sela.open() && (LATE_HOURS.sela.done() || isAlive("sela")));
+    const atYellow = hasMark("sela", "spoken") && selaHour;
+    if (dead("sela")) {
+      p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` Before that, she spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
+      // SUN-BLEAK-ENDING-HONESTY-01: one fact for a Sela the vent took before she spoke (the vent is her
+      // only death site): the circle the vent screen leaves above the sealed bulkhead, or what
+      // sun_payoff's order did to the circles.
+      if (p === gone("sela") && cause("sela") === "vented at twenty") p += f.sun_doctrine === "scrubbed"
+        ? ` Her yellow circles were ordered painted over.`
+        : ` Her last yellow circle is still fixed above the sealed bulkhead.`;
+    }
+    // SUN-BLEAK-ENDING-HONESTY-01: the amber lamp exists only in her hour, so it is cited only after it.
+    // Without her hour, the circles the run showed at sun_payoff, as its doctrine answer left them.
+    else p = `Sela was alive when the run ended${selaHour ? `; the lamp still goes amber on schedule`
+      : f.sun_doctrine === "doctrine" ? `; her yellow circles stand as unofficial doctrine`
+      : f.sun_doctrine === "scrubbed" ? `; her yellow circles were ordered painted over`
+      : f.sun_doctrine === "silent" ? `; her yellow circles are still up, with no order either way` : ``}.${atYellow ? ` She spoke once, at yellow, and was heard.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` She spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
     // SUN-FLAG-PAYOFFS-01: the manifest line read beside Sela (inferred as in Elias's block above).
     if (f.vault_face_read && !dead("sela")) p += ` One line of the vault manifest was said in your voice beside her: E-6104, name field empty; she did not ask for the next.`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;

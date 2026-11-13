@@ -55,7 +55,12 @@ registerScenes({
     },
     text: () => {
       let t = `Outer racks are stripped. Sterile filters and cryogenic reserves move into the air loop. The biofilm dies back.\n\n`;
-      t += `One hundred forty thousand and six becomes a smaller number. No one can say now that the vault came through whole.`;
+      // SUN-BLEAK-ENDING-HONESTY-01: "came through whole" only while the embryos were at full viability
+      // before this choice's -12 (embryos cap at 100, effects are unscaled). This is the embryo vault; the
+      // germplasm vault is named apart wherever it is meant (#556).
+      t += state.embryos + 12 >= 100
+        ? `One hundred forty thousand and six becomes a smaller number. No one can say now that the vault came through whole.`
+        : `One hundred forty thousand and six becomes a smaller number. Viability had already fallen; now whole racks are gone.`;
       return t;
     },
     choices: [ { text: "Accept the count and move on.", next: "breath_after" } ]

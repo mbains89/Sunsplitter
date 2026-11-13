@@ -47,7 +47,9 @@ registerScenes({
       else if (state.romance.vess) t += `Vess offered the attempt and you accepted. That fact outlived her.\n`;
       if (state.flags.pregnancy_risk === true) t += `A living pregnancy is possible.\n`;
       if (state.past_known && isAlive("elias")) t += `Elias knows how you got your seat.\n`;
-      else if (state.past_known) t += `Your past leaked. The man who used it is gone.\n`;
+      // SUN-BLEAK-ENDING-HONESTY-01: the file never leaks on screen. past_known is written only when
+      // Elias tells you he holds it (past_leak, history_elias), and no scene has him spend it.
+      else if (state.past_known) t += `Elias knew how you got your seat. He never spent it.\n`;
       if (isAlive("lena") && state.dying && state.dying.lena) t += `Lena is on a clock.\n`;
       // Tomas memory only if the private conversation actually happened
       if (state.flags.tomas === "living" && isAlive("tomas")) t += `Tomas was told the living come first.\n`;
