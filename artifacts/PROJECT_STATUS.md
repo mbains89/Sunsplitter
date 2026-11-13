@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-09`
+`updated_utc: 2026-11-13`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: dfb93d0 (after PR #538)`
+`work_branch_tip: e513a5a (after PR #542; this PR, #543, carries the rows for #537–#543)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -100,6 +100,10 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 535 | SUN-HUB-RESUME-01 | Continue on the corridor hub no longer replays Tomas's spent one-shot line ("Names first, then numbers…"). The hub's entry wrote the flag and a resume fallback re-printed it on every later visit; now entry writes nothing, the line shows while it is due, and leaving that visit spends it through the existing choice `flag` field. No new key; live play identical over 20,000+ screens. Drifts: 74 → 0 in about 12,000 headless saves; 2 in 51 → 0 in 232 real-browser reloads. New `sun-playerflow-resume-text` check. |
 | 537 | SUN-PROMISE-DEATH-ONCE-01 | **Decision 21, finished.** When a broken promise kills someone else (Amara's service-pocket vent kills Jiro or Vess; Lena's shared medical line kills Mira, Jiro or Vess), What Remains no longer prints that death three times. The reflection death line keeps the death and its cause. The promise line says only that the promise broke ("the vent did not stay shut"; "the medical line did not stay with the other patient"). The holder's sentence owns the break in her own lens. Runs with a death printed more than once: 262 → 0 of 4,000; the other 3,738 are byte-identical. Myth read applied (2 edits). |
 | 538 | SUN-DIET-TRIMS-02 | **D11 Deep step 1, C06, C07, C17, C20, C22.** Text-only trims of `vault_reveal`, `time_pass`, `crew_walk`, `wake`, `status`, `aftermath` and `arc_fork`; about 104 fewer words a median run (−0.43 prose minutes). "It is not a virtue test." is kept as "The order is not a virtue test."; "You are the Commander." no longer repeats in `wake`. No choice, effect, flag or pin moved. Myth read applied (2 restores). |
+| 540 | SUN-CLEAN-PINS-01 | Cleanup lane. `readEngineSource(rootDir)` in `scripts/simulate.mjs` returns the engine source in manifest order; 16 checks that matched strings in `src/engine.js` read through it, so a later engine split moves no pin. Scripts only; no check result changed. Merged by the cleanup chat under Manraj's 2026-11-13 ruling (tooling and docs PRs that touch no game code). |
+| 541 | SUN-CLEAN-ORPHAN-CHECKS-01 | Cleanup lane. Eleven checks that nothing ran are registered in `verify.mjs`, repaired or deleted; verify now prints 100 PASS lines on a ticket checkout (99 plus the expected Mode-A line on the work branch). Found the Lena chip bug fixed in #543. Scripts only. |
+| 542 | SUN-CLEAN-VERIFY-SPLIT-01 | Cleanup lane. `scripts/verify.mjs` split into section files under one runner. Scripts only. |
+| 543 | SUN-CREW-CHIP-FIRST-TAP-01 | Opening Crew no longer makes the first tap on Lena's chip deselect her: the board's opening paint of Lena is marked as a default, and only a chip the player picked toggles off. UI state only, never saved; no prose. New headless check `sun-playerflow-crew-chip-first-tap`; `crew-sheet-keyboard-checks` 8/8 (base 5/8). This PR also carries #539's STATUS and queue text (rows for #537 and #538), which `tip-sync-churn` would not let land alone. |
 
 ## Open
 
@@ -120,7 +124,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 - Playtest bugs Manraj reports become one-PR tickets on the work branch (ROADMAP §14/§15). Manraj will play once there is more substantial progress (2026-11-05).
 - Helper-chat bootstraps are saved in the Sunsplitter project (`claude/sunsplitter-helper-bootstraps.md`), ready when Manraj opens those chats.
 
-**Stale PRs to close.** Manraj closes these; the lead's close calls are blocked by the session's permission policy. #297 and #304 (Copilot; #297 is on the do-not-merge list), #389 and #390 (superseded by #481), #407 (superseded), #436, #445 and #465 (retired multi-bot roadmap docs), #451 (superseded by the landed 0.36 keyboard work), #452 (superseded by #474–#477 and #484).
+**Stale PRs to close.** Manraj closes these; the lead's close calls are blocked by the session's permission policy. #539 (its text landed in #543). #297 and #304 (Copilot; #297 is on the do-not-merge list), #389 and #390 (superseded by #481), #407 (superseded), #436, #445 and #465 (retired multi-bot roadmap docs), #451 (superseded by the landed 0.36 keyboard work), #452 (superseded by #474–#477 and #484).
 
 ## Decisions for Manraj
 
@@ -179,6 +183,8 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 26. **One late hour a night? (from #534).** With several partners, every partner now gets her late hour. On `0a08376`, random play had three-hour nights in 34 of 300 runs and four-hour nights in 7; deliberate play never exceeds two. Each last scene claims to be singular ("…spent here and nowhere else on the ship"), and ROADMAP §2 names "scarce private attention". Myth and the lead recommend a cap: one late hour a night, to the first pending partner in crew order, with the others keeping their old closing lines. It narrows decision 12, so it is yours. Until then #534 opens chained hours later in the night ("Later", "Toward morning", "Nearly morning").
 27. **SUN-PROMISE-PAYOFF-01 design (Hex, project doc `claude/hex/2026-11-08-promise-payoff.md`).** Four rulings before it is built: (a) may a promise ever resolve broken in the same act that kills its holder (the early-crisis vent, Tomas's seal)? Hex recommends no, and an at-stake line instead; (b) under `proper_seal`, Elias's promise is offered and alluded to but its test never fires (7 of 43 Elias promises): drop the gate or change the make text?; (c) may three tests move ahead of the Act 3 lethals?; (d) breaking Lena's line earlier would let Jiro die soon after his rescue, in 86 of 800 runs instead of 16. Is that acceptable?
 28. **Which lead session continues (decision 16 allows one).** Since the evening of 2026-11-06, two Claude Code sessions have acted as lead. `013z2UzJR…` landed #527, wrote #529 and #532, and wrote the project handoff. `013z2UzK5…` opened #528, then ran the 2026-11-08 go: it landed #528 and #530–#535, including #532 after a lead-chat Myth read. Which session continues as lead, and should the other stop opening PRs?
+29. **Cleanup lane: RULED 2026-11-11 and 2026-11-13 (in the cleanup chat, recorded in the project docs `claude/cleanup/2026-11-11.md` and `2026-11-13.md`).** A cleanup chat opens one PR per cleanup ticket. On 2026-11-11 Manraj also answered L-043 (engine split deferred to after 1.0) with "Open it now": `engine.js` may split into plain script files, still no bundler; the LOCKS row and ROADMAP §2 line still need recording, in the first cleanup PR that touches `src/`. On 2026-11-13 he let the cleanup chat merge its own PRs that touch no game code (nothing under `src/`, `css/`, `images/`, `index.html`, guards, workflows, LOCKS, ROADMAP, VERSION or AGENTS) after green CI and an independent review; #540–#542 landed that way. An owner exception to AGENTS.md §1/§4, not written into the contract.
+30. **Commander face in `lead_prompt.jpg` (Muse, 2026-11-13).** The plate shows a man's full face and eyes, matching no crew portrait; the owner's approval record lists it as the Commander's reference image. It renders in every run (`lead_prompt`, where the text has Elias in the blister). AGENTS.md §5 says the Commander stays faceless. Options: rewire `lead_prompt` to the empty observation plate `art_r2_observation_wreck.jpg`, or keep it. Recommendation: rewire.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
