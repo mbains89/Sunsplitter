@@ -46,7 +46,9 @@ Amara looks over Tomas's shoulder and does not look away. There is an invitation
     get choices() {
       if (!isAlive("amara") || !isAlive("tomas")) return [{ text: "Move on.", next: "intimacy_window" }];
       return [
-        { text: "Leave them the privacy they have claimed.", next: "debt_notice", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 }, mark: { amara: "privacy_left" } },
+        // SUN-PRIVATE-HOURS-01: the reply says the hour was theirs; debt_notice's later-return text
+        // reports the corridor as it already was and charges nothing for this hour.
+        { text: "Leave them the privacy they have claimed.", next: "debt_notice", effects: { cohesion: 3 }, affinity: { amara: 4, tomas: 4 }, mark: { amara: "privacy_left" }, reply: [`You leave them the bay and close the hatch behind you. The hour is theirs.`] },
         { text: "Stay. Join what they are offering.", next: "romance_amara_tomas_sex", effects: { cohesion: 4 } },
         { text: "Ask them to stop. This is a complication the ship cannot afford.", next: "intimacy_window", effects: { cohesion: -3 }, affinity: { amara: -4, tomas: -4 }, mark: { amara: "interrupted" } }
       ];
