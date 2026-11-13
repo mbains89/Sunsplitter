@@ -56,7 +56,7 @@ registerScenes({
     },
     choices: [
       { text: "Let the silence stand.", next: "sun_payoff", effects: { cohesion: -2 }, reply: [`The silence stands. Over the next few shifts it sets into something that no longer needs enforcing. Nobody mistakes that for agreement.`] },
-      { text: "Break it once. Name one cost out loud.", next: "sun_payoff", effects: { cohesion: 1 }, reply: [`You break it once, at the evening meal: one cost, named out loud, by you. Then you let the silence close again. It closes a little looser than before.`] }
+      { text: "Break it once. Name one cost.", next: "sun_payoff", effects: { cohesion: 1 }, reply: [`You break it once, at the evening meal: one cost, named out loud, by you. Then you let the silence close again. It closes a little looser than before.`] }
     ]
   },
   reckon_memory: {

@@ -190,7 +190,7 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew.", reply: [{ who: "vess", text: `"Logged for general release," Vess says. Half a beat late: "They'll ask me to play it. I'll play it as often as they ask. It's earned the airtime."` }] },
+        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew.", reply: [{ who: "vess", text: `"Logged for general release," Vess says. Half a beat late: "Copy's on the mess-deck board. It's earned the airtime."` }] },
         { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you.", reply: [{ who: "vess", text: `"Restricted. Two readers." Vess keys the file shut. "Smallest distribution list I've ever kept. First one I didn't keep alone."` }] }
       ];
       if (!state.flags.last_tx_spent) {
