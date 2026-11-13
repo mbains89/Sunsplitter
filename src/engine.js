@@ -601,8 +601,12 @@ function showScene(id, opts) {
   } finally {
     renderingSavedScene = false;
   }
+  // SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
+  // conditional line that printed nothing) is dropped here, so paced reveal never spends a
+  // "Read on" tap on nothing. Paced, instant and resume all render from this one markup.
   const html = String(raw)
     .split(/\n\n+/)
+    .filter(p => p.trim())
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 
@@ -1335,7 +1339,7 @@ function buildYellowCircleText(vaultSac) {
   if (state.flags.sela_amber && isAlive("sela")) text += `Sela lit the lamp for one person once, and you stayed past amber.\n\n`;
   const memory = lastEndingMemory();
   if (memory) text += `Something private still sits with you: ${memory}\n\n`;
-  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.\n\nThat is rarer than landfall.`;
+  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.`;
   return text;
 }
 

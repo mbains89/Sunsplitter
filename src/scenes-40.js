@@ -42,7 +42,7 @@ ${isAlive("mira") ? `Hours later Mira returns with a single file.
 
 ${isAlive("elias") ? `Elias laughs once, without humor. "So we freeze in the dark instead of starving in the dark."` : ""}
 
-${isAlive("lena") ? `Lena: "It's something."` : ""}
+${isAlive("lena") ? `Lena: "Fourteen months is a prognosis. I can work with a prognosis."` : ""}
 
 ${isAlive("sela") ? `Sela watches the schematic as if it might become a sun.` : ""} The navigation board is still empty of the man who was supposed to own it.`; },
     choices: [

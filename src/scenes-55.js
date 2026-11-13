@@ -27,7 +27,7 @@ registerScenes({
   custody_hub: {
     image: "images/vault.jpg",
     text: () => {
-      let t = `Four answers. One is ungated. The rest require a living specialist who still has the authority or the body to spend.\n\n`;
+      let t = `One answer is always open, and it runs through the inhabited ring. The others cost the vault, or need someone living with the authority or the body to spend.\n\n`;
       t += `Whatever you choose becomes the permanent answer to who owns the future on this ship.`;
       return t;
     },

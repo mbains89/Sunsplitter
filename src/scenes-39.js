@@ -69,7 +69,7 @@ He studies you.
       if (isAlive("sela")) roll.push(`Sela, twenty, no posting, who paints yellow suns on the bulkheads.`);
       if (roll.length) t += `The roll is short. ${roll.join(" ")}\n\n`;
       if (isAlive("mira")) {
-        t += `Mira gives the report in a thin voice:\n\n"Primary drive offline. Auxiliary power only. Life support holding at sixty-two percent. Food and water maybe five weeks if we ration hard. Hull breach on Deck 3 sealed but temporary. Navigation half-blind. No destination."\n\n`;
+        t += `Mira gives the report in a thin voice:\n\n"Primary drive offline. Auxiliary power only. Life support holding at sixty-two percent. Food and water: five weeks at hard ration. Hull breach on Deck 3 sealed but temporary. Navigation half-blind. No destination."\n\n`;
       } else {
         t += `The systems board gives the report without a voice: drive offline, life support at sixty-two percent.\n\n`;
       }

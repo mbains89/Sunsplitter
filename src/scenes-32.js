@@ -37,7 +37,7 @@ registerScenes({
       if (debt.length) {
         t += `Already, ${debt.map(k => crew[k].name).join(", ")} have gone quieter when you pass.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when no one has gone quiet
     },
     get choices() {
       const opts = [];
@@ -68,7 +68,9 @@ registerScenes({
     get text() {
       let t = `Mira has washed the grease off. The lingerie is deliberate — not soft, not accidental. She stands between you and the only exit of the drive bay and does not pretend this is spontaneous.\n\n`;
       t += `"I will stay. But the price is not private."\n\n`;
-      t += `She taps the console. The ship retained the first night: intimate audio fragments and the private command language you used about the vault.\n\n`;
+      // SUN-PRIVATE-HOURS-01: the second approach comes in the same stretch of private time as the
+      // first, and the vault talk is the Commander's own command log from the vault decision before it.
+      t += `She taps the console. The ship retained the first time: intimate audio fragments. It also retained the command language you used about the vault.\n\n`;
       t += `"Disclose the full retention to the status board. Not a summary. The intimate record and the vault talk together. If you want me again, the closed door ends. People will know what we said when we thought the ship was only listening for systems. That is the cost."\n\n`;
       t += `The bay is dim. She is already half out of the suit. The request is the same shape as an order she is forcing you to own.`;
       return t;
