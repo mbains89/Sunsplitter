@@ -601,8 +601,12 @@ function showScene(id, opts) {
   } finally {
     renderingSavedScene = false;
   }
+  // SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
+  // conditional line that printed nothing) is dropped here, so paced reveal never spends a
+  // "Read on" tap on nothing. Paced, instant and resume all render from this one markup.
   const html = String(raw)
     .split(/\n\n+/)
+    .filter(p => p.trim())
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 

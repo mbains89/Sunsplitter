@@ -43,7 +43,7 @@ registerScenes({
       if (state.flags.past === "owned" && isAlive("elias")) {
         t += `\n\nElias's eyes flick to you once. The past you owned in front of him is still on the table between the words.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: Lena's branch ends on "\n\n"
     },
     get choices() {
       const routes = [
