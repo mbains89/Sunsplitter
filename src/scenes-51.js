@@ -42,9 +42,9 @@ registerScenes({
       let t = lateHour("sela") ? `${lateHourOpener("sela")}, the yellow lamp is still held at amber. She has not let it reach yellow.\n\n` : ``;
       t += `The lamp is already warming when you arrive, amber climbing toward yellow, and the filter behind it hums at the pitch of a held breath. The light crosses her hands first. For one hour this small yellow circle is the only sunrise anyone on this ship will get, and she is spending it on an audience of one.\n\n`;
       // Names of the dead
-      const deadList = (state.dead || []).filter(k => k !== "rourke").map(k => (crew[k] && crew[k].name) || k);
+      const deadList = (state.dead || []).map(k => (crew[k] && crew[k].name) || k);
       if (deadList.length) {
-        t += `She says the names of this run's dead at yellow, each one complete, unhurried: ${deadList.join(", ")}. Then she is quiet for exactly as long as the names took, which you understand, watching her, is the point.\n\n`;
+        t += `She says the names of the dead at yellow, each one complete, unhurried: ${deadList.join(", ")}. Then she is quiet for exactly as long as the names took, which you understand, watching her, is the point.\n\n`;
       } else {
         t += `She is quiet for a long count. No names yet. The lamp still climbs.\n\n`;
       }

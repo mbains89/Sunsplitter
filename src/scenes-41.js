@@ -113,7 +113,7 @@ She does not startle when you sit. After a stretch of silence she speaks without
 
 She turns the plate so you can see the latest version.
 
-"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."
+"It was warm. That is not a memory to cry over. It is a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."
 
 When you leave she has already started the next circle — same diameter, cleaner line. The hatch stays empty.`,
     choices: [
@@ -169,7 +169,7 @@ He does not ask for a promise. He waits to see whether you can sit without filli
   quiet_amara: {
     text: `Amara is on her knees between the trays, checking root systems by hand. When she sees you she does not stand.
 
-"The paste will keep us alive," she says. "It will not keep us human. That is not a metaphor. I have watched people forget the taste of green things and then forget why they were supposed to care about anything else."
+"The paste will keep us alive," she says. "It won't keep us human. That's not a metaphor, love. I have watched people forget the taste of green things and then forget why they were supposed to care about anything else."
 
 She presses a small leaf into your palm. It is pale and not much, but it is alive.
 

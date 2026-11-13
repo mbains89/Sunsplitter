@@ -137,7 +137,7 @@ He sets the helmet down long enough to leave the decision with you.`;
         reply: [
           `The Sunsplitter rolls three degrees against the drift.`,
           `The spine takes the load. Seven Integrity points leave the board. The annex collar reseats with a sound felt through every deck.`,
-          { who: "tomas", text: `Tomas reads the new fracture line, then the green strip. "Seven from Integrity," he says. He keeps the annex pressure trace beside the new fracture line.` }
+          { who: "tomas", text: `Tomas reads the new fracture line, then the green strip. "Seven from the spine," he says. He keeps the annex pressure trace beside the new fracture line.` }
         ]
       },
       {

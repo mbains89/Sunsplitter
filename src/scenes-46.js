@@ -22,7 +22,9 @@ registerScenes({
         : v === "jiro"
         ? `The fault arcs through the nav bay first. Jiro is carried in with burns already going gray at the edges.
 
-"I've run out of margin twice before," he says. "Take the reading, Commander. Don't round it kindly."`
+${state.promises.amara === "kept"
+          ? `"Twice in one watch," he says. "Take the reading, Commander. It's worse than the last one."`
+          : `"I've run out of margin twice before," he says. "Take the reading, Commander. Don't round it kindly."`}`
         : `The fault takes the relay bench with it. Vess comes in walking wrong and insisting she isn't.
 
 "Dawnbreak protocol for shared air was: youngest yields," she says, flat. "I never got to yield. Filed, in case it matters now."`;
