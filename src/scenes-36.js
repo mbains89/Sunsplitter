@@ -75,9 +75,9 @@ She waits.
         return `The space where Tomas would have found you stays empty. Someone else has already taken his quiet shifts. The ship does not offer his warning.`;
       }
 
-      let t = `Tomas finds you alone.\n\nFor the first time since the launch his calm is gone. His voice is low and raw.\n\n`;
+      let t = `Tomas finds you alone.\n\nFor the first time since he came aboard his calm is gone. His voice is low and raw.\n\n`;
       if (state.flags.vault_sacrifice === "future") {
-        t += `"You chose the vault. I felt the air change in the habitation ring. People noticed. I noticed."\n\n`;
+        t += `"You chose the vault before I was aboard to argue it. The ring still feels it. People noticed. I noticed."\n\n`;
       } else if (state.flags.vault_sacrifice === "living") {
         t += `"You chose the living. The vault numbers dropped. Some of them will not forgive that. I am not sure I will either — or that I should."\n\n`;
       } else {

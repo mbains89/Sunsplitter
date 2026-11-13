@@ -130,7 +130,7 @@ for (const c of out.promiseDeaths) {
 }
 expectOrder(out.dense, "dense");
 const dense = out.dense.join("\n");
-for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into his count by name", "went into a proper patch", "He approved the vent", "justification field blank", "the ship first", "fault report, root cause under it", "eats the paste in company", "the living come first, and he held", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical key", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "felt the air change in the habitation ring"]) {
+for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into his count by name", "went into a proper patch", "He approved the vent", "justification field blank", "the ship first", "fault report, root cause under it", "eats the paste in company", "the living come first, and he held", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical key", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "counted what the habitation ring paid for it"]) {
   assert.ok(dense.includes(needle), `dense: missing "${needle}"`);
 }
 for (const [needle, owner] of [["Rourke went into his count", "tomas"], ["fault report", "mira"], ["took it as gospel", "vess"], ["who you keep close", "amara"]]) {
