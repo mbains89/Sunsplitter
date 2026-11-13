@@ -1,5 +1,5 @@
 // SUN-LETHAL-RESUME-DEATHBEAT-01 — static proof current saves skip lethal onEnter.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readEngineSource } from "./simulate.mjs";
@@ -10,6 +10,9 @@ export function lethalResumeDeathbeatChecks() {
   const errors = [];
   const engine = readEngineSource(ROOT);
   const verify = readFileSync(resolve(ROOT, "scripts/verify.mjs"), "utf8");
+  // The gate's check functions live in verify.mjs and in the modules under scripts/verify/.
+  const gateModules = readdirSync(resolve(ROOT, "scripts/verify")).filter(name => name.endsWith(".mjs")).sort();
+  const gate = [verify, ...gateModules.map(name => readFileSync(resolve(ROOT, "scripts/verify", name), "utf8"))].join("\n");
   const lenaEnd = readFileSync(resolve(ROOT, "src/scenes-20.js"), "utf8");
   if (!engine.includes("sceneEntered: true")) {
     errors.push("snapshotState no longer marks sceneEntered on current saves");
@@ -20,8 +23,8 @@ export function lethalResumeDeathbeatChecks() {
   if (!engine.includes("if (scene.onEnter && !opts.skipOnEnter)")) {
     errors.push("showScene no longer honors skipOnEnter");
   }
-  if (!verify.includes("function resumeEntryIdempotenceChecks")) {
-    errors.push("resumeEntryIdempotenceChecks missing from verify.mjs");
+  if (!gate.includes("function resumeEntryIdempotenceChecks(")) {
+    errors.push("resumeEntryIdempotenceChecks missing from the verify gate");
   }
   if (!verify.includes("resume preserves completed scene entry")) {
     errors.push("resumeEntryIdempotenceChecks is not invoked");
