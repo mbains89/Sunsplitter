@@ -16,7 +16,7 @@ registerScenes({
 
 "There is one long-range window left on this bus before the degradation takes the high-gain permanently. I want it. One directed burst toward the Dawnbreak debris field, or the residual Earth noise if the geometry still favors it. After that the external contact lane is closed. The logs I kept for six years can live in your memory instead of only mine."
 
-The currency is forward-looking and external. It is not Mira's archival lane. It is the last time this ship speaks outward.`;
+That burst would be the last time this ship speaks outward.`;
       if (isAlive("mira")) {
         t += `\n\nMira, if she is listening on the secondary, does not interrupt. The board already shows the window count.`;
       }
