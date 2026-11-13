@@ -51,7 +51,7 @@ registerScenes({
         // 0.27.2 allusion carrier — one-shot, anti-gotcha only
         if (state.promises.sela === "made" &&
             (act3ReckoningAllusionsOnEntry.sela || (renderingSavedScene && state.flags.prom_sela_alluded))) {
-          t += `\n\n"I have inventoried what you have given me. One sentence about fear. It is rationed correctly."`;
+          t += `\n\n"I have inventoried what you have given me. It is one sentence about fear. It is rationed correctly."`;
         }
       }
       return t;

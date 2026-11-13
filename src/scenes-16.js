@@ -138,7 +138,7 @@ registerScenes({
       } else {
         t += `The automatic filters finally pull a clean string.`;
       }
-      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
+      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Docking on your aft collar. Acknowledge.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
       if (isAlive("mira")) {
         t += `\n\nThe board shows the intercept geometry: relative velocity is matchable, and there is no second window on this heading. Mira does not look away from the board. "Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online."`;
       } else {

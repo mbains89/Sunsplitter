@@ -8,7 +8,7 @@ registerScenes({
       let t = `The yellow marks have become a fact of the ship.\n\n`;
       if (isAlive("sela")) {
         t += `Sela does not ask permission for the next circle. She asks what you will do with the ones already there.\n\n`;
-        t += `"If you paint them over, the corridor becomes regulation again. If you leave them, people will keep using them as landmarks — and as an argument that warmth is not a soft metric."\n\n`;
+        t += `"If you paint them over, the corridor becomes regulation again. If you leave them, people will keep using them as landmarks — and as an argument that warmth can be measured."\n\n`;
         // SUN-CALLBACKS-01: the petition test, filed with the marks. Text only.
         if (state.promises.sela === "kept") t += `"At the petition you stood between me and the room. I have filed that under the same heading as the circles. It is not a small heading."\n\n`;
         else if (state.promises.sela === "broken") t += `"The room put its fear on me, and you let it. The circles are still mine. They were never the room's to take, or yours to give."\n\n`;
