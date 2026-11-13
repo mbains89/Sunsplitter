@@ -10,7 +10,7 @@ act3_lethal_lena_power: {
   },
   get text() {
     if (!isAlive("lena")) return `The vault transfer remains in the power log. Medical is empty.`;
-    return `The outer cradle pumps go dark in sequence. Ten viability points leave the board before the medical isolator reaches full current.
+    return `The outer cradle pumps go dark in sequence. The vault's viability figure falls by ten before the medical isolator reaches full current.
 
 Lena's trace falls below the red line. The vault trace does not recover.
 

@@ -107,7 +107,6 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
 
   act3_vault_face: {
     image: "images/vault.jpg",
-    onEnter: () => { state.flags.vault_face = true; },
     text: () => {
       let t = `Third watch. You take the long way back. Two decks up the annex still smells of soil; down here the vault is odorless, and a light is on that shouldn't be.`;
       if (isAlive("sela")) {
