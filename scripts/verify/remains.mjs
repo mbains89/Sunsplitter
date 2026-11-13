@@ -31,7 +31,7 @@ export function whatRemainsChecks(runtime) {
   const expected = [
     "Across the recorded orders, Future carried more weight.",
     "Rourke died with company.",
-    "At the vault fault, the restart package was kept and habitation paid the cost; Custody of Tomorrow ended with Mira severing the fused junction and carrying the cold-radiation injury.",
+    "At the vault fault, the restart package was kept and habitation paid the cost; the thermal-spine overload ended with Mira severing the fused junction and carrying the cold-radiation injury.",
     "The Earth-era directive binding was refused; authority stayed with the living.",
     "A private line was crossed with Mira; she was alive when the run ended."
   ];

@@ -19,7 +19,7 @@ registerScenes({
       if (act2TetherAllusionsOnEntry.amara) state.flags.prom_amara_alluded = true;
     },
     text: () => {
-      let t = `The contact resolves on the third scope pass: the agri-annex, whole, trailing four kilometers back on nothing but its own dying momentum. The observation strip still glows green. Someone is keeping the grow-lamps fed.
+      let t = `The contact resolves on the third scope pass: the agri-annex, whole, trailing four kilometers back on nothing but its own dying momentum. The observation strip still glows green. Someone is keeping the grow-lamps fed. The annex roster has one name on it: Brother Tomas, a hospital chaplain before the pads.
 
 Four kilometers. On a living world that was the length of a long walk home. Here it is the distance a green light has been falling while nobody was looking back.`;
       if (isAlive("mira")) {

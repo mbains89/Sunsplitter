@@ -24,8 +24,11 @@ const PARAGRAPH = [
   "The vault light stays on behind you.",
   "The ship has two men back who were written off, and a list of names that is no longer only numbers.",
   "A third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.",
-  "There is still work. There is still the fracture the private hours left in the corridor."
+  // SUN-RECAP-HONESTY-01: the paragraph's last line names the fracture only after a private hour
+  // (checked below), so the paragraph is matched on its common opening, as its own paragraph.
+  "<p>There is still work."
 ];
+const FRACTURE = "There is still the fracture the private hours left in the corridor.";
 const ALLUSION = "Names first, then numbers.";
 const CREW_NAMES = ["Lena", "Elias", "Mira", "Tomas", "Amara", "Jiro", "Sela", "Vess", "Rourke"];
 
@@ -133,7 +136,9 @@ const preSpent = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   }
   return out;
 })())`));
+assert.ok(!first.story.includes(FRACTURE), "the scripted loop spent no private hour but named the fracture");
 for (const [name, html] of Object.entries(preSpent)) {
+  assert.equal(html.includes(FRACTURE), name === "private_hours" || name === "ship_interrupt_fired", `${name}: the fracture line must print only after a private hour`);
   assert.ok(html.includes(PARAGRAPH[0]) && html.includes(PARAGRAPH[3]), `${name} before the hub must not turn the first visit into a return`);
   assert.ok(!html.includes(RETURN_LINE), `${name}: first visit printed the return line`);
 }
