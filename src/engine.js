@@ -1797,6 +1797,11 @@ function plateFacesPresent(src) {
   return !faces || faces.every(isAlive);
 }
 
+// SUN-CREW-CHIP-FIRST-TAP-01: the board opens with Lena's facts painted, a default the player
+// did not pick. A chip toggles off only when the player picked it, so the first tap on Lena
+// opens her like any other name. UI state for one paint; never saved.
+let crewPanelDefaultPaint = false;
+
 function toggleCrewPanel() {
   const el = document.getElementById("crew-panel");
   if (!el) return;
@@ -1806,7 +1811,9 @@ function toggleCrewPanel() {
   const toggle = document.getElementById("btn-crew");
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
-    renderCrewPanel("lena");
+    crewPanelDefaultPaint = true;
+    try { renderCrewPanel("lena"); }
+    finally { crewPanelDefaultPaint = false; }
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
     if (wrap && wrap.classList.contains("visible")) {
@@ -1884,10 +1891,11 @@ function renderCrewPanel(selectedKey) {
   const listedN = order.filter(k => crew[k]).length;
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
+  const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
       const key = btn.getAttribute("data-crew");
-      renderCrewPanel(selectedKey === key ? null : key);
+      renderCrewPanel(pickedKey === key ? null : key);
       if (typeof el.querySelector === "function") {
         const replacement = el.querySelector(`[data-crew="${key}"]`);
         if (replacement && typeof replacement.focus === "function") replacement.focus();
