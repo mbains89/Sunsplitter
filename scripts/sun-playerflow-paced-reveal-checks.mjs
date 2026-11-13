@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { loadGame } from "./simulate.mjs";
+import { loadGame, readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MULTI = "vault_reveal"; // eight paragraphs, three choices, fixed text
@@ -395,7 +395,7 @@ export function sunPlayerflowPacedRevealChecks() {
     const sticky = css.match(/#main\.reveal-active\.reveal-roomy #reveal-controls\s*\{([^}]*)\}/);
     check(sticky && /position:\s*sticky/.test(sticky[1]) && /bottom:\s*0/.test(sticky[1]), "G: Read on must stay in view while text waits (sticky at the bottom of #main when it has room)");
     check(!/#main\.reveal-active #reveal-controls\s*\{[^}]*position:\s*sticky/.test(css), "G: the sticky Read on must depend on #main having room (.reveal-roomy), not apply everywhere");
-    const engineSrc = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+    const engineSrc = readEngineSource(ROOT);
     const roomAt = Number((engineSrc.match(/REVEAL_STICKY_MIN_HEIGHT\s*=\s*(\d+)/) || [])[1]);
     // Above the bar's own 66px, and at most 176px so a portrait phone (#main about 178px at 390x844) keeps the sticky bar.
     check(roomAt > 66 && roomAt <= 176 && /classList\.toggle\("reveal-roomy"/.test(engineSrc), "G: engine must mark #main reveal-roomy by its own height, with a threshold between 67 and 176px");

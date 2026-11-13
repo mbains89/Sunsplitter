@@ -23,6 +23,7 @@ import {
   POLICY_NAMES,
   assertV6,
   loadGame,
+  readEngineSource,
   readScriptManifest,
   runPolicySet,
   sceneIdDigest,
@@ -153,7 +154,7 @@ function mobileUsabilityContractChecks() {
   const errors = [];
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const requiredRules = [
     ["viewport-fit=cover", "safe-area viewport opt-in"],
     ["--touch: 48px", "48px phone touch contract"],
@@ -235,7 +236,7 @@ function accessibilitySourceChecks() {
   const errors = [];
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const requiredHtml = [
     ['<main id="main">', "main landmark"],
     ['id="scene-heading" class="sr-only"', "scene heading"],
@@ -286,7 +287,7 @@ function accessibilitySourceChecks() {
 function performanceSourceChecks() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 4) {
     errors.push("all four runtime art surfaces, including cinematic, must request asynchronous decode");
   }
@@ -1072,7 +1073,7 @@ function finalOrderEndingChecks(runtime) {
 async function saveTransferChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   for (const required of [
     'id="btn-export-save"',
     'onclick="exportSaveFile()"',
@@ -1532,7 +1533,7 @@ async function saveTransferChecks(runtime) {
 function contentNoticeRevisitChecks(runtime) {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const titleBlock = indexSource.match(/<div id="title-screen"[\s\S]*?<section id="cinematic-screen"/)?.[0] || "";
   if (!titleBlock.includes('id="btn-content-notice"') || !titleBlock.includes('onclick="revisitTone()"')) {

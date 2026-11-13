@@ -1,13 +1,14 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // SUN-CREW-BOARD-FOLLOW-CLARITY-01 — first Crew tap shows the living board.
 export function playtestCrewBoardFollowClarity01Checks(runtime) {
   const errors = [];
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engine = readEngineSource(ROOT);
   const validate = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
   const overlay = readFileSync(resolve(ROOT, "src/crew-board-follow-clarity.js"), "utf8");
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");

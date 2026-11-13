@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -9,7 +10,7 @@ export function playtestArtDoubleclickChecks(runtime) {
   const errors = [];
   const css = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
   const artCss = readFileSync(resolve(ROOT, "css/art-panel.css"), "utf8");
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engine = readEngineSource(ROOT);
   const runtimeSrc = readFileSync(resolve(ROOT, "src/validate.js"), "utf8");
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   if (!css.includes("width: min(calc(100% - 32px), 48dvh, 430px)")) {

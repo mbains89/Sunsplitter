@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { readEngineSource } from "./simulate.mjs";
 
 // SUN-V035-ART-R2-PLAYTEST-CLOSE-01. Cluster closeout for the PLAYTEST_SUN
 // art/event mismatches already retargeted by PRs 133–141. Proof only: no
@@ -92,7 +93,7 @@ function sha256(relativePath) {
 function sourceErrors() {
   const errors = [];
   const stateSource = readFileSync(resolve(ROOT, "src/state.js"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const sceneSources = {
     romance_lena_1: readFileSync(resolve(ROOT, "src/scenes-03.js"), "utf8"),
     romance_amara_1: readFileSync(resolve(ROOT, "src/scenes-30.js"), "utf8"),

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 import { playtestTitleWhitespaceChecks } from "./playtest-title-whitespace-checks.mjs";
 import { playtestTitleRotatingShipChecks } from "./playtest-title-rotating-ship-checks.mjs";
 import { playtestTitleContrastChecks } from "./playtest-title-contrast-checks.mjs";
@@ -63,7 +64,7 @@ function parseExistingIntroLines(indexSource) {
 function sourceErrors() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
-  const engineSource = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engineSource = readEngineSource(ROOT);
   const wakeSource = readFileSync(resolve(ROOT, "src/scenes-38.js"), "utf8");
   try {
     const parsed = parseExistingIntroLines(indexSource);

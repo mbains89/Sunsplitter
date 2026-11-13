@@ -3,7 +3,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import vm from "node:vm";
@@ -154,6 +155,17 @@ export function readScriptManifest(rootDir) {
     if (!/^(?:https?:)?\/\//i.test(src)) scripts.push(src.replace(/^\.\//, ""));
   }
   return { indexPath, scripts };
+}
+
+// SUN-CLEAN-PINS-01: the engine is src/engine.js plus any src/engine-<part>.js that index.html
+// loads. A check that matches engine text reads it here, in manifest order, so the match holds
+// whichever of those files owns the code. With one engine file this is that file, byte for byte.
+export const ENGINE_SCRIPT_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
+
+export function readEngineSource(rootDir) {
+  const parts = readScriptManifest(rootDir).scripts.filter(path => ENGINE_SCRIPT_RE.test(path));
+  if (!parts.includes("src/engine.js")) throw new Error("index.html does not load src/engine.js");
+  return parts.map(path => readFileSync(resolve(rootDir, path), "utf8")).join("\n");
 }
 
 export function sceneIdDigest(sceneIds) {
@@ -831,6 +843,27 @@ function runSelfTest() {
   assert.ok(smokeErrors(smokeReport, { normalizedHash: "b" }, smokeFixture).some(error => error.includes("repeat hash mismatch")));
   assert.ok(gatePreflightErrors({ gate: "strict", profile: "strict", seed: LOCKED_SEED, runs: STRICT_RUNS_PER_POLICY, shardSize: STRICT_SHARD_SIZE, workerHeapMb: WORKER_HEAP_MB + 1 }).some(error => error.includes("heap 384 MB")));
   assert.ok(gatePreflightErrors(parseCli(["--profile", "strict", "--policy", "living", "--gate", "strict"])).some(error => error.includes("diagnostic-only")));
+  // SUN-CLEAN-PINS-01: engine text is read in manifest order across src/engine.js and src/engine-<part>.js only.
+  for (const path of ["src/engine.js", "src/engine-save.js", "src/engine-scene-art.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), true, path);
+  for (const path of ["src/state.js", "src/scenes-01.js", "src/validate.js", "src/engineering.js", "src/engine.js.bak", "lib/engine.js", "src/engine-.js", "src/engine--save.js", "src/engine_save.js", "src/engine-Save.js"]) assert.equal(ENGINE_SCRIPT_RE.test(path), false, path);
+  const engineFixture = mkdtempSync(resolve(tmpdir(), "sun-engine-source-"));
+  try {
+    mkdirSync(resolve(engineFixture, "src"));
+    const tag = path => `<script src="${path}"></script>`;
+    writeFileSync(resolve(engineFixture, "src/state.js"), "STATE");
+    writeFileSync(resolve(engineFixture, "src/engine.js"), "CORE");
+    writeFileSync(resolve(engineFixture, "src/engine-save.js"), "SAVE");
+    writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine.js"].map(tag).join("\n"));
+    assert.equal(readEngineSource(engineFixture), "CORE");
+    writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine-save.js", "src/engine.js"].map(tag).join("\n"));
+    assert.equal(readEngineSource(engineFixture), "SAVE\nCORE");
+    writeFileSync(resolve(engineFixture, "index.html"), ["src/engine.js", "src/state.js", "src/engine-save.js"].map(tag).join("\n"));
+    assert.equal(readEngineSource(engineFixture), "CORE\nSAVE");
+    writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine-save.js"].map(tag).join("\n"));
+    assert.throws(() => readEngineSource(engineFixture), /does not load src\/engine\.js/);
+  } finally {
+    rmSync(engineFixture, { recursive: true, force: true });
+  }
   console.log("PASS simulator self-test — injected V1/V4/V5, reconciled economy plus hidden-spend/phantom-credit negatives, strict rejection, process-shard coverage, canonical hashing, and baseline negatives verified");
 }
 

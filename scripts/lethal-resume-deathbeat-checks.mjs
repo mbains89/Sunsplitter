@@ -2,12 +2,13 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEngineSource } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export function lethalResumeDeathbeatChecks() {
   const errors = [];
-  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const engine = readEngineSource(ROOT);
   const verify = readFileSync(resolve(ROOT, "scripts/verify.mjs"), "utf8");
   const lenaEnd = readFileSync(resolve(ROOT, "src/scenes-20.js"), "utf8");
   if (!engine.includes("sceneEntered: true")) {
