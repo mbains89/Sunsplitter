@@ -1,10 +1,11 @@
-// Interface at runtime: the Crew disclosure and its read-only stats, accessibility labels, the
-// Supplies reserve and band, image residency and background resume, and scroll reset between
-// surfaces.
+// Interface: the Crew disclosure and its read-only stats, accessibility labels, the Supplies
+// reserve and band, image residency and background resume, scroll reset between surfaces, the
+// content notice revisited from the title, and keyboard choice controls.
 // Moved out of scripts/verify.mjs unchanged; verify.mjs imports and runs every check here.
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readEngineSource } from "../simulate.mjs";
 import { ROOT } from "./shared.mjs";
 
 export function crewOverviewChecks(runtime) {
@@ -473,6 +474,207 @@ export function screenTransitionScrollChecks(runtime) {
   }
   if (!fixture.crewVisible || !fixture.imageMinimized || fixture.imagePinned) {
     errors.push(`Crew did not release scene-image space on a short phone: ${JSON.stringify(fixture)}`);
+  }
+  return errors;
+}
+
+export function contentNoticeRevisitChecks(runtime) {
+  const errors = [];
+  const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
+  const engineSource = readEngineSource(ROOT);
+  const cssSource = readFileSync(resolve(ROOT, "css/style.css"), "utf8");
+  const titleBlock = indexSource.match(/<div id="title-screen"[\s\S]*?<section id="cinematic-screen"/)?.[0] || "";
+  if (!titleBlock.includes('id="btn-content-notice"') || !titleBlock.includes('onclick="revisitTone()"')) {
+    errors.push("title/utilities missing content-notice revisit control");
+  }
+  if (!titleBlock.includes('id="content-notice-chip"') || !titleBlock.includes("Revisit content notice")) {
+    errors.push("content-notice clarity chip/label missing on title");
+  }
+  if (!indexSource.includes("Adult sexual content is permanent.")) {
+    errors.push("content notice lost adult permanence copy");
+  }
+  if (/id=["']settings-screen["']|id=["']settings-panel["']|id=["']settings-dashboard["']/.test(indexSource)) {
+    errors.push("content-notice revisit created a settings dashboard");
+  }
+  if (/breast[-_ ]?cover|explicit-content[-_ ]?toggle|soft[-_ ]?censor/i.test(indexSource + engineSource + cssSource)) {
+    errors.push("breast-cover or soft-censor toggle appeared");
+  }
+  const revisitBlock = engineSource.match(/function revisitTone\s*\([^)]*\)\s*\{[\s\S]*?\n\}/)?.[0] || "";
+  if (!revisitBlock.includes('showScreen("tone")')) {
+    errors.push("revisitTone does not reopen the existing tone screen");
+  }
+
+  const fixture = runtime.evaluate(`(() => {
+    localStorage.clear();
+    acknowledgeTone();
+    const afterAccept = {
+      ack: localStorage.getItem(TONE_ACK_KEY),
+      titleVisible: !document.getElementById("title-screen").classList.contains("hidden"),
+      toneHidden: document.getElementById("tone-screen").classList.contains("hidden")
+    };
+    const revisitFn = typeof revisitTone === "function" ? revisitTone : null;
+    if (revisitFn) revisitFn();
+    const afterRevisit = {
+      invoked: !!revisitFn,
+      toneVisible: !document.getElementById("tone-screen").classList.contains("hidden"),
+      titleHidden: document.getElementById("title-screen").classList.contains("hidden"),
+      ackKept: localStorage.getItem(TONE_ACK_KEY) === "1"
+    };
+    acknowledgeTone();
+    const afterSecondAck = {
+      titleVisible: !document.getElementById("title-screen").classList.contains("hidden"),
+      toneHidden: document.getElementById("tone-screen").classList.contains("hidden"),
+      ackKept: localStorage.getItem(TONE_ACK_KEY) === "1"
+    };
+    return { afterAccept, afterRevisit, afterSecondAck };
+  })()`);
+
+  if (fixture.afterAccept.ack !== "1" || !fixture.afterAccept.titleVisible || !fixture.afterAccept.toneHidden) {
+    errors.push("first content-notice accept did not keep the acknowledgement and land on title");
+  }
+  if (!fixture.afterRevisit.invoked || !fixture.afterRevisit.toneVisible || !fixture.afterRevisit.titleHidden) {
+    errors.push("content notice is not revisitable from title/utilities after first accept");
+  }
+  if (!fixture.afterRevisit.ackKept) {
+    errors.push("revisiting the content notice cleared the acknowledgement");
+  }
+  if (!fixture.afterSecondAck.titleVisible || !fixture.afterSecondAck.toneHidden || !fixture.afterSecondAck.ackKept) {
+    errors.push("second notice acknowledgement did not return to title with permanence intact");
+  }
+  return errors;
+}
+
+export function keyboardChoiceChecks(runtime) {
+  const errors = [];
+  const fixture = runtime.evaluate(`(() => {
+    const originalChoices = scenes.wake.choices;
+    const choicesEl = document.getElementById("choices");
+    const game = document.getElementById("game-screen");
+    const renderFixture = choices => {
+      resetRunState(); // Each keyboard case starts before either death route.
+      scenes.wake.choices = choices;
+      choicesEl.children = [];
+      state.scene = "wake";
+      showScene("wake");
+      return choicesEl.children.slice();
+    };
+    const keyEvent = (key, extra = {}) => Object.assign({
+      key,
+      target: { tagName: "DIV" },
+      defaultPrevented: false,
+      repeat: false,
+      altKey: false,
+      ctrlKey: false,
+      metaKey: false,
+      prevented: false,
+      preventDefault() { this.prevented = true; }
+    }, extra);
+
+    resetRunState();
+    game.classList.remove("hidden");
+    let buttons = renderFixture([
+      { text: "First", next: "dying" },
+      { text: "Locked", next: "dying", effects: { supplies: -999 } },
+      { text: "Third", next: "silence" }
+    ]);
+    const shortcuts = buttons.map(btn => btn.getAttribute("aria-keyshortcuts"));
+
+    const disabledEvent = keyEvent("2");
+    const disabledHandled = handleGameplayKeydown(disabledEvent);
+    const disabledScene = state.scene;
+
+    const numberEvent = keyEvent("3");
+    const numberHandled = handleGameplayKeydown(numberEvent);
+    const numberScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "Only", next: "dying" }
+    ]);
+    const singleShortcut = buttons[0].getAttribute("aria-keyshortcuts");
+    const enterEvent = keyEvent("Enter");
+    const enterHandled = handleGameplayKeydown(enterEvent);
+    const enterScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "Only", next: "silence" }
+    ]);
+    const spaceEvent = keyEvent(" ");
+    const spaceHandled = handleGameplayKeydown(spaceEvent);
+    const spaceScene = state.scene;
+
+    buttons = renderFixture([
+      { text: "First", next: "dying" },
+      { text: "Second", next: "silence" }
+    ]);
+    buttons[0].tagName = "BUTTON";
+    const focusedEvent = keyEvent("1", { target: buttons[0] });
+    const focusedHandled = handleGameplayKeydown(focusedEvent);
+    const focusedScene = state.scene;
+
+    const modifiedEvent = keyEvent("2", { ctrlKey: true });
+    const modifiedHandled = handleGameplayKeydown(modifiedEvent);
+    const modifiedScene = state.scene;
+
+    game.classList.add("hidden");
+    const hiddenEvent = keyEvent("1");
+    const hiddenHandled = handleGameplayKeydown(hiddenEvent);
+    const hiddenScene = state.scene;
+    game.classList.remove("hidden");
+
+    scenes.wake.choices = originalChoices;
+    return {
+      shortcuts,
+      disabledHandled,
+      disabledPrevented: disabledEvent.prevented,
+      disabledScene,
+      numberHandled,
+      numberPrevented: numberEvent.prevented,
+      numberScene,
+      singleShortcut,
+      enterHandled,
+      enterPrevented: enterEvent.prevented,
+      enterScene,
+      spaceHandled,
+      spacePrevented: spaceEvent.prevented,
+      spaceScene,
+      focusedHandled,
+      focusedPrevented: focusedEvent.prevented,
+      focusedScene,
+      modifiedHandled,
+      modifiedPrevented: modifiedEvent.prevented,
+      modifiedScene,
+      hiddenHandled,
+      hiddenPrevented: hiddenEvent.prevented,
+      hiddenScene
+    };
+  })()`);
+
+  if (JSON.stringify(fixture.shortcuts) !== JSON.stringify(["1", "2", "3"])) {
+    errors.push(`rendered choices do not expose stable number shortcuts: ${JSON.stringify(fixture.shortcuts)}`);
+  }
+  if (fixture.disabledHandled || fixture.disabledPrevented || fixture.disabledScene !== "wake") {
+    errors.push("number key activated or consumed a disabled rendered choice");
+  }
+  if (!fixture.numberHandled || !fixture.numberPrevented || fixture.numberScene !== "silence") {
+    errors.push("number key did not activate its rendered enabled choice");
+  }
+  if (fixture.singleShortcut !== "1 Enter Space") {
+    errors.push(`single enabled choice shortcut metadata ${JSON.stringify(fixture.singleShortcut)} is incomplete`);
+  }
+  if (!fixture.enterHandled || !fixture.enterPrevented || fixture.enterScene !== "dying") {
+    errors.push("Enter did not advance the single unambiguous choice");
+  }
+  if (!fixture.spaceHandled || !fixture.spacePrevented || fixture.spaceScene !== "silence") {
+    errors.push("Space did not advance the single unambiguous choice");
+  }
+  if (fixture.focusedHandled || fixture.focusedPrevented || fixture.focusedScene !== "wake") {
+    errors.push("global shortcut intercepted native button focus handling");
+  }
+  if (fixture.modifiedHandled || fixture.modifiedPrevented || fixture.modifiedScene !== "wake") {
+    errors.push("global shortcut intercepted a modified key chord");
+  }
+  if (fixture.hiddenHandled || fixture.hiddenPrevented || fixture.hiddenScene !== "wake") {
+    errors.push("gameplay shortcut remained active outside the game screen");
   }
   return errors;
 }
