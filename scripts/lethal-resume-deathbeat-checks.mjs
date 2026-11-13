@@ -23,7 +23,7 @@ export function lethalResumeDeathbeatChecks() {
   if (!engine.includes("if (scene.onEnter && !opts.skipOnEnter)")) {
     errors.push("showScene no longer honors skipOnEnter");
   }
-  if (!gate.includes("function resumeEntryIdempotenceChecks")) {
+  if (!gate.includes("function resumeEntryIdempotenceChecks(")) {
     errors.push("resumeEntryIdempotenceChecks missing from the verify gate");
   }
   if (!verify.includes("resume preserves completed scene entry")) {
