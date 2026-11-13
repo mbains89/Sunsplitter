@@ -14,11 +14,11 @@ const PAIRS = [
   { id: "triage", scene: "pair_triage_chart", reply: "pair_triage_after", flag: "pair_triage", cast: ["lena", "tomas"], host: "act2_spine_next", exit: "act3_reckoning_pattern",
     offer: "Stop at the medbay hatch.", answers: ["chart", "count", "open"], needle: "The count is open.", fact: "" },
   { id: "seal", scene: "pair_seal_ledger", reply: "pair_seal_after", flag: "pair_seal", cast: ["elias", "tomas"], host: "act3_spine_next", exit: "act3_spine_next",
-    offer: "Elias and Tomas are at the Deck 4 dog.", answers: ["bulkhead", "names", "both"], needle: "The slate is full.", fact: "state.flags.ship_memory = 'proper_seal'; state.flags.feedstock = 'seal';" },
+    offer: "Go to the Deck 4 dog.", answers: ["bulkhead", "names", "both"], needle: "The slate is full.", fact: "state.flags.ship_memory = 'proper_seal'; state.flags.feedstock = 'seal';" },
   { id: "burn", scene: "pair_burn_archive", reply: "pair_burn_after", flag: "pair_burn", cast: ["mira", "jiro"], host: "act3_spine_next", exit: "act3_spine_next",
-    offer: "Jiro has asked Mira for her solution.", answers: ["finding", "width", "both"], needle: "which log it goes in", fact: "state.flags.margin_committed = true; state.flags.burn_unverified = true;" },
+    offer: "Go to the records bay.", answers: ["finding", "width", "both"], needle: "which log it goes in", fact: "state.flags.margin_committed = true; state.flags.burn_unverified = true;" },
   { id: "fix", scene: "pair_fix_track", reply: "pair_fix_after", flag: "pair_fix", cast: ["jiro", "vess"], host: "act3_spine_next", exit: "act3_spine_next",
-    offer: "Jiro's fix is on the tracker board", answers: ["fix", "track", "both"], needle: "Which one does the ship fly?", fact: "state.flags.position_certain = true;" }
+    offer: "Go to the tracker board", answers: ["fix", "track", "both"], needle: "Which one does the ship fly?", fact: "state.flags.position_certain = true;" }
 ];
 
 const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {

@@ -12,7 +12,7 @@ registerScenes({
       state.romance.vess = true;
     },
     text: () => {
-      let t = `She does not celebrate the yes. She opens a second request the same way she opened the first — as procedure.
+      let t = `Vess does not celebrate the yes. She opens a second request the same way she opened the first — as procedure.
 
 "There is one long-range window left on this bus before the degradation takes the high-gain permanently. I want it. One directed burst toward the Dawnbreak debris field, or the residual Earth noise if the geometry still favors it. After that the external contact lane is closed. The logs I kept for six years can live in your memory instead of only mine."
 
@@ -36,7 +36,9 @@ That burst would be the last time this ship speaks outward.`;
       remember("Shared the last long-range window and a private hour with Vess.");
     },
     text: () => {
-      let t = `She does not wait for a second invitation. The door override is hers — she has been reading the ship's access tree since the beacon first resolved your hull. The underlayer comes off on her schedule. She is inexperienced with people and exact with survival; the difference is visible in the way she does not ask whether the light stays on.
+      let t = `Vess spends the window first. The burst goes out toward the Dawnbreak debris field: her registry, every name in order of loss, the way she has said them each night. The high-gain holds for the last name and degrades for good. Nothing answers. She did not expect anything to. Then she copies her night logs into your queue, every entry.
+
+She does not wait for a second invitation. The door override is hers — she has been reading the ship's access tree since the beacon first resolved your hull. The underlayer comes off on her schedule. She is inexperienced with people and exact with survival; the difference is visible in the way she does not ask whether the light stays on.
 
 Power stays with her. The pace is hers. When the flat voice finally cracks again it is not procedure. It is the first sound she has made in six years that was not logged for a dead crew.
 
