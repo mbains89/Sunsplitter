@@ -763,7 +763,7 @@ function crewEpilogues() {
       p = `Lena was alive when the run ended.`;
     }
     // SUN-FLAG-PAYOFFS-01: the succession notes from offshift_lena (lena_notes).
-    if (f.lena_notes) p += dead("lena") ? ` Her succession notes were in your keeping, in her handwriting, in the order the next person would need them.` : ` Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose, the last hour awake.`;
+    if (f.lena_notes) p += dead("lena") ? ` Her succession notes were in your keeping, in her handwriting, in the order the next person would need them.` : ` Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose.`;
     if (f.rourke === "stopped") p += ` Rourke's chart still reads treatment stopped, by order; the prognosis under it was hers, and she never amended either line.`;
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
@@ -895,7 +895,7 @@ function crewEpilogues() {
     if (dead("sela")) p = `${gone("sela")}${hasMark("sela", "spoken") ? ` She had spoken once, at yellow, before that.` : ``}`;
     else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${hasMark("sela", "spoken") ? ` She spoke once, at yellow, and was heard.` : ``}`;
     // SUN-FLAG-PAYOFFS-01: the manifest line read beside Sela (inferred as in Elias's block above).
-    if (f.vault_face_read && !dead("sela")) p += ` One line of the vault manifest was said in your voice beside her, E-6104, name field empty; she did not ask for the next.`;
+    if (f.vault_face_read && !dead("sela")) p += ` One line of the vault manifest was said in your voice beside her: E-6104, name field empty; she did not ask for the next.`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
     if (f.custody_answer === "shared") p += dead("sela") ? ` She held the second physical key to the vault.` : ` She holds the second physical key to the vault; no unilateral triage after that${state.romance.sela ? `, and where she was raised, that key is not a political instrument` : ``}.`;

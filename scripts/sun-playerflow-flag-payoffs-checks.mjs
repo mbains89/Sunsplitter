@@ -13,10 +13,10 @@ import { fileURLToPath } from "node:url";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EMBRYO = "The vault comes into this fault already bleeding. The lower ceiling you accepted is still on the board, unrecovered, and whatever this choice costs comes off the lower number.";
-const LENA_ALIVE = " Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose, the last hour awake.";
+const EMBRYO = "The vault comes into this fault already bleeding: the lower ceiling you accepted is still on the board, and anything the vault loses now comes off it.";
+const LENA_ALIVE = " Her succession notes are in your keeping, in her handwriting; the thinner folder still says no last dose.";
 const LENA_DEAD = " Her succession notes were in your keeping, in her handwriting, in the order the next person would need them.";
-const SELA = " One line of the vault manifest was said in your voice beside her, E-6104, name field empty; she did not ask for the next.";
+const SELA = " One line of the vault manifest was said in your voice beside her: E-6104, name field empty; she did not ask for the next.";
 const ELIAS_ALIVE = " His manifest count has a second column, one entry long, in your name.";
 const ELIAS_DEAD = " His manifest count had a second column, one entry long, in your name.";
 const ORDER = ["rourke", "lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"];
