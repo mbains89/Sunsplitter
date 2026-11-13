@@ -132,9 +132,9 @@ When you leave she has already started the next circle — same diameter, cleane
 
 
   quiet_mira: {
-    text: `You touch her shoulder. Mira Solis jerks awake with a sound that is almost a word.
+    text: `You touch her shoulder. Mira jerks awake with a sound that is almost a word.
 
-Drive systems specialist. The patch on her suit is the first clean name you get for the woman who has been keeping the boards from going dark.
+Drive systems specialist. The patch on her suit is the only clean thing on the woman who has been keeping the boards from going dark.
 
 "How long?" she asks. Then she sees the fault light still open and answers herself.
 
@@ -142,9 +142,9 @@ Drive systems specialist. The patch on her suit is the first clean name you get 
 
 She waits. Not soft. Hungry for an answer that will let her work.`,
     choices: [
-      { text: "Tell her people come first when it is that or the ship.", next: "lead_prompt", affinity: { mira: 8 }, trust: { mira: 6 }, mark: { mira: "people_first" }, lean: { living: 1 } },
-      { text: "Tell her the ship has to hold or none of this matters.", next: "lead_prompt", affinity: { mira: 6 }, trust: { mira: 5 }, mark: { mira: "drive_first" }, lean: { future: 1 } },
-      { text: "Say nothing. Let the quiet stand.", next: "lead_prompt", affinity: { mira: 4 } }
+      { text: "Tell her people come first when it is that or the ship.", next: "lead_prompt", affinity: { mira: 8 }, trust: { mira: 6 }, mark: { mira: "people_first" }, lean: { living: 1 }, reply: [{ who: "mira", text: `"Life support first. The drive gets the remainder," Mira says, already re-sorting the fault queue. "That is a priority order. I can work a priority order."` }] },
+      { text: "Tell her the ship has to hold or none of this matters.", next: "lead_prompt", affinity: { mira: 6 }, trust: { mira: 5 }, mark: { mira: "drive_first" }, lean: { future: 1 }, reply: [{ who: "mira", text: `"Drive and structure first. Life support at minimum spec," Mira says. "Minimum spec is a number, not a mood. I will hold it to the decimal."` }] },
+      { text: "Say nothing. Let the quiet stand.", next: "lead_prompt", affinity: { mira: 4 }, reply: [`Mira waits four seconds, which for her is a long time. Then she picks a failure herself and goes back to work without saying which.`] }
     ]
   },
   // PRE: entry choices in crew_walk / act3_spine_next require isAlive("tomas")
@@ -175,8 +175,8 @@ She presses a small leaf into your palm. It is pale and not much, but it is aliv
 
 "If you decide the plants are a luxury, say so clearly. I would rather know."`,
     choices: [
-      { text: "Promise the living things still matter.", next: "prom_make_amara", affinity: { amara: 8 }, mark: { amara: "plants_matter" } },
-      { text: "Tell her the math will decide, not sentiment.", next: "prom_make_amara", affinity: { amara: -4 }, mark: { amara: "math_first" } }
+      { text: "Promise the living things still matter.", next: "prom_make_amara", affinity: { amara: 8 }, mark: { amara: "plants_matter" }, reply: [{ who: "amara", text: `"Said clearly. Good," Amara says, and closes your fingers over the leaf. "Keep that somewhere it'll get light."` }] },
+      { text: "Tell her the math will decide, not sentiment.", next: "prom_make_amara", affinity: { amara: -4 }, mark: { amara: "math_first" }, reply: [{ who: "amara", text: `"Clear enough," Amara says. She does not take the leaf back. "The math and I will get on fine, love. It's the people doing it I worry about."` }] }
     ],
     onEnter: () => remember("Amara put a living leaf in your hand.")
   },

@@ -47,8 +47,8 @@ registerScenes({
     },
     get choices() {
       const routes = [
-        { text: "Back down a step. Adjust the rule that caused this.", next: "arc_living_4", effects: { cohesion: 6, integrity: -2, supplies: -2 }, lean: { living: 2 }, affinity: { tomas: 8, lena: 4 }, trust: { tomas: 10 }, mark: { conflict: "backed" } },
-        { text: "Hold the line. Refusal does not rewrite orders.", next: "arc_living_4", effects: { cohesion: -8, integrity: 3 }, lean: { future: 2 }, affinity: { elias: 8, tomas: -8 }, trust: { elias: 8, tomas: -12 }, mark: { conflict: "held" } }
+        { text: "Back down a step. Give ground on what started this.", next: "arc_living_4", effects: { cohesion: 6, integrity: -2, supplies: -2 }, lean: { living: 2 }, affinity: { tomas: 8, lena: 4 }, trust: { tomas: 10 }, mark: { conflict: "backed" } },
+        { text: "Hold the line. The orders stand as given.", next: "arc_living_4", effects: { cohesion: -8, integrity: 3 }, lean: { future: 2 }, affinity: { elias: 8, tomas: -8 }, trust: { elias: 8, tomas: -12 }, mark: { conflict: "held" } }
       ];
       const enabled = routes.some(choice =>
         (!choice.requires || meetsRequirements(choice.requires)) &&

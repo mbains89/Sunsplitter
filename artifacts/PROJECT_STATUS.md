@@ -3,7 +3,7 @@
 `schema_version: 3`
 `updated_utc: 2026-11-13`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: e513a5a (after PR #542; this PR, #543, carries the rows for #537–#543)`
+`work_branch_tip: 584038c (after PR #554; this PR carries the rows for #544–#556)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -104,6 +104,18 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 541 | SUN-CLEAN-ORPHAN-CHECKS-01 | Cleanup lane. Eleven checks that nothing ran are registered in `verify.mjs`, repaired or deleted; verify now prints 100 PASS lines on a ticket checkout (99 plus the expected Mode-A line on the work branch). Found the Lena chip bug fixed in #543. Scripts only. |
 | 542 | SUN-CLEAN-VERIFY-SPLIT-01 | Cleanup lane. `scripts/verify.mjs` split into section files under one runner. Scripts only. |
 | 543 | SUN-CREW-CHIP-FIRST-TAP-01 | Opening Crew no longer makes the first tap on Lena's chip deselect her: the board's opening paint of Lena is marked as a default, and only a chip the player picked toggles off. UI state only, never saved; no prose. New headless check `sun-playerflow-crew-chip-first-tap`; `crew-sheet-keyboard-checks` 8/8 (base 5/8). This PR also carries #539's STATUS and queue text (rows for #537 and #538), which `tip-sync-churn` would not let land alone. |
+| 544 | SUN-CLEAN-VERIFY-SPLIT-02 | Cleanup lane, scripts only: the second `verify.mjs` section split. |
+| 545 | SUN-PLATE-FACES-AUDIT-01 | Muse face-map audit of every runtime plate (a–m and n–z). `tether_dock_ruined.jpg` → `["tomas"]` (a stale or edited save could show his face with him dead or absent); `crisis.jpg` gates Mira (the welder; Sela is not in it, still listed pending Manraj); defensive entries for `cascade_records`, `custody_severed`/`mira_thermal_cut`, `medical_bay`, `lena`. Rendered plates byte-identical over 400 real-play runs. Muse check: approve. |
+| 546 | SUN-TOMAS-ABOARD-01 | Tomas no longer speaks of what happened before his recovery: the vault choice always precedes it (400/400 runs), so `tomas_break` and his crew paragraph say he came aboard after it; "you grieved him", one first look, `quiet_tomas` a reminder not a second introduction. Myth read applied. |
+| 547 | SUN-SIGNAL-RETURN-01 | "Before the signal — hear Elias out" now returns to the signal decision (104/400 runs had skipped it; now 400/400 decide), detected from existing state; each signal order gets a reply. New `sun-playerflow-signal-return` check. Myth read applied. |
+| 548 | SUN-VOICE-PASS-B-01 | 26 wording fixes from the voice audits: Sela's fragments one per stress event, Vess's contractions, Jiro's numbers, Tomas, Amara. Myth read applied. |
+| 549 | SUN-OPENING-CONTINUITY-01 | Act 1 counts and introductions agree with canon (the nine are you, Rourke, Lena, Elias, Mira, Amara, Sela, Tomas, Jiro; Vess the tenth; the Crew meter leaves you out): "5 living besides you" with a roll, Amara's "We are six", name-and-role at first mention, Rourke's place of death. Myth read applied. Two `scenes-41.js` lines it changed were lost in the lead's conflict resolution and are restored in this PR. |
+| 550 | SUN-VOICE-PASS-A-01 | 33 wording fixes: Lena, Elias, Mira; four narrator lines that graded the player; designer wording on screen ("Ten viability points", "One is ungated") now in-world with every cost still a number. Myth read applied. |
+| 551 | SUN-FLAG-PAYOFFS-01 | Three setups that never paid off now do, each only with its flag: the permanent vault bleed (`embryo_ceiling`), Lena's succession notes (`lena_notes`), the manifest line read aloud (`vault_face_read`); `vault_face` no longer written. Myth read applied. |
+| 552 | SUN-PRIVATE-HOURS-01 | `debt_notice` plays once and reads right for one name; declining Amara and Tomas no longer cools the crew; the interrupt no longer cuts a moment that never began; Sela's once-only question is written; `pursuit_mira` true on every route. Myth read applied. |
+| 553 | SUN-EMPTY-PARAGRAPHS-01 | Blank paragraphs dropped in `showScene`, so paced reveal never spends a "Read on" tap on nothing (1,034 of 60,023 screens had one; now 0). No visible text changed. |
+| 555 | SUN-TABLET-PLATE-CROP-01 | Tablet portrait and 900×720: the plate box follows the 784×1168 ratio with `object-fit: contain`, so the whole plate shows (61% → 100% at 768×1024, 23% → 100% at 900×720). 18 other sizes identical. Muse check applied (centred letterbox). |
+| 556 | SUN-RECAP-HONESTY-01 | Recap and ending claims match the run: the debtor list names only people with reason (prints at the ending); "Something private" names a private memory (Lena's off-shift memory now kept); Sela's yellow line where true; Elias "receipt" only alive; ending and What Remains agree on the lean; Deck 4 and the two vaults named honestly. Myth read applied. |
 
 ## Open
 
@@ -185,6 +197,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 28. **Which lead session continues (decision 16 allows one).** Since the evening of 2026-11-06, two Claude Code sessions have acted as lead. `013z2UzJR…` landed #527, wrote #529 and #532, and wrote the project handoff. `013z2UzK5…` opened #528, then ran the 2026-11-08 go: it landed #528 and #530–#535, including #532 after a lead-chat Myth read. Which session continues as lead, and should the other stop opening PRs?
 29. **Cleanup lane: RULED 2026-11-11 and 2026-11-13 (in the cleanup chat, recorded in the project docs `claude/cleanup/2026-11-11.md` and `2026-11-13.md`).** A cleanup chat opens one PR per cleanup ticket. On 2026-11-11 Manraj also answered L-043 (engine split deferred to after 1.0) with "Open it now": `engine.js` may split into plain script files, still no bundler; the LOCKS row and ROADMAP §2 line still need recording, in the first cleanup PR that touches `src/`. On 2026-11-13 he let the cleanup chat merge its own PRs that touch no game code (nothing under `src/`, `css/`, `images/`, `index.html`, guards, workflows, LOCKS, ROADMAP, VERSION or AGENTS) after green CI and an independent review; #540–#542 landed that way. An owner exception to AGENTS.md §1/§4, not written into the contract.
 30. **Commander face in `lead_prompt.jpg` (Muse, 2026-11-13).** The plate shows a man's full face and eyes, matching no crew portrait; the owner's approval record lists it as the Commander's reference image. It renders in every run (`lead_prompt`, where the text has Elias in the blister). AGENTS.md §5 says the Commander stays faceless. Options: rewire `lead_prompt` to the empty observation plate `art_r2_observation_wreck.jpg`, or keep it. Recommendation: rewire.
+31. **Today's batch of owner questions (2026-11-13).** The full list with the lead's recommendations is the project doc `claude/decisions/pending-2026-11-13.md` (29 items): Wave 2 entry; decision 27's four answers; L-043 recorded; decision 28; `lead_prompt.jpg`; Tomas chaplain or grower; Jiro among the nine; one timeline; Amara's boarding; Sela's custody offer in public; the `romance_amara_tomas` consent wording; decision 26 (the cap is built and held as #557; it drops Vess's last-scene reach from 396 to 140 of 396 romancer runs, so the lead now recommends no for now); C13 keep and C14 trim; and the Wave 2 design rulings.
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -219,6 +232,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** bring C13 and C14 (the two step 1 cuts that retire scenes) to Manraj with their cost; land #529 on decision 25; build SUN-PROMISE-PAYOFF-01 once decision 27 is ruled; run a browser-bot batch after each batch of merges. **Manraj:** play `playtest-c4d748c` (gate 1, first half); name the gate-1 stranger (D10); rule 25 (#529's plate), 26 (one late hour a night), 27 (promise payoff) and 28 (which lead session continues); 24 (L-061) is still open.
+**Lead:** land the second-round cold-read fixes (post-death reactions, bleak-run ending honesty, unanswered orders, the corridor hub refrain), one PR each with a Myth read; send a fresh playtest build; land #529 on decision 25. **Manraj:** rule the batch in `claude/decisions/pending-2026-11-13.md` (Wave 2 entry, decision 27, L-043 and decision 28 first); play the next playtest build (gate 1, first half); name the gate-1 stranger (D10).
 
 <!-- STATUS_COMPLETE -->
