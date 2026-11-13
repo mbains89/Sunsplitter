@@ -39,7 +39,7 @@ She shuts the water off herself. The clock is still running.`;
       }
       return `There is a rinse station off the engineering console that still holds pressure. She pulls you into it without ceremony. Water over skin, ozone and heat, her hands still exact even when they are not working the board.
 
-"They will still invent the rest," she says. "This part is just for the two of us and the ship that is already adjusting power."
+"Four minutes of hot water at this pressure," she says. "I am logging the water. Not this."
 
 She turns the water off. The bay is waiting.`;
     },
