@@ -75,6 +75,42 @@ body,
   }
 }
 
+/* SUN-TABLET-PLATE-CROP-01 — tablet portrait (768×1024, 820×1180, 834×1194) and any other window
+   under the 1024 grid that is taller than 700px. The plate box took the full column (702px wide)
+   under style.css's 640px height cap, and object-fit: cover cut the 784×1168 frame to fit: 39% of
+   every plate was off screen, 32% of it from the bottom. The box now takes the width that height
+   cap allows at the locked ratio (shrink, never crop): 430×640 at 768×1024, centred. The caps
+   themselves are untouched, so the plate is as tall as before and #main and the choices sit
+   where they did (to 0.03px of layout rounding). object-fit: contain, so a plate that is not
+   784×1168 letterboxes instead of losing an edge. The width is explicit, not auto, so the box
+   holds its size before the image loads. .minimized keeps its style.css rule (width: auto under
+   a 200/230px cap), which already follows the ratio. Phones (480px and narrower), windows 700px
+   and shorter, and the 1024 grid never match. scripts/pc-viewport-checks.mjs pins this. */
+@media (min-width: 481px) and (max-width: 1023px) and (min-height: 701px) {
+  #scene-image-wrap {
+    /* Last term: width style.css's max-height allows at the locked 784×1168 ratio. */
+    width: min(calc(100% - 16px), calc(min(72vh, 640px) * 784 / 1168));
+  }
+
+  #scene-image-wrap.intimate {
+    width: min(calc(100% - 16px), calc(min(78vh, 680px) * 784 / 1168));
+  }
+
+  #scene-image,
+  #scene-image-wrap.intimate #scene-image {
+    object-fit: contain;
+  }
+}
+
+/* The 900×700 class above caps the plate at min(36dvh, 240px) up to 760px tall. From 701 to 760
+   the box was 702×240, 23% of the plate. Same fix under that cap. */
+@media (min-width: 800px) and (max-width: 1023px) and (min-height: 701px) and (max-height: 760px) {
+  #scene-image-wrap,
+  #scene-image-wrap.intimate {
+    width: min(calc(100% - 16px), calc(min(36dvh, 240px) * 784 / 1168));
+  }
+}
+
 /* SUN-LANDSCAPE-PLATE-01 — phone landscape (640×360, 844×390, 720×450): the plate sits beside
    the text instead of above it. Stacked, the plate left #main 75px at 640×360 and 137px at
    844×390, one or two lines. Beside, #main gets the full height between the bars and the plate
