@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// SUN-BUGHUNT-01 regression checks. Not registered in verify.mjs (Ori registers after $S2).
+// SUN-BUGHUNT-01 regression checks. verify.mjs runs this file as a child process
+// (SUN-CLEAN-ORPHAN-CHECKS-01).
 // Run: node scripts/sun-bughunt-01-checks.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
