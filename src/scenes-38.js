@@ -45,7 +45,7 @@ registerScenes({
   rourke_try: {
     get text() { return `${isAlive("lena") ? `Lena works for forty-three minutes.` : ""}\n\nRourke still dies.\n\nThe supplies are gone. The result is the same.\n\n${isAlive("lena") ? `Lena strips off her gloves. "I told you."` : ""}\n\n${isAlive("mira") ? `But Mira Solis, the drive engineer, looks at you differently.` : ""} The silence after is heavier than the work.\n\n${isAlive("lena") ? `Later you will learn Lena kept him alive longer than protocol allowed. She does not explain why.` : ""}`; },
     choices: [
-      { text: "Thank Lena for trying. Then keep moving.", alive: "lena", next: "intro_lena", affinity: { lena: 8 }, effects: { cohesion: 2 } },
+      { text: "Thank Lena for trying. Then keep moving.", alive: "lena", next: "intro_lena", affinity: { lena: 8 }, effects: { cohesion: 2 }, reply: [{ who: "lena", text: `"Thanks noted," Lena says, and bins the gloves. "Forty-three minutes. Outcome unchanged. It goes on his chart as tried, not as wasted."` }] },
       { text: "Say nothing. The cost is already clear.", next: "intro_lena", affinity: { mira: 4 }, effects: { cohesion: -1 } }
     ],
     onEnter: () => {
