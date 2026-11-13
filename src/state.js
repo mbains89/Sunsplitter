@@ -380,7 +380,7 @@ const PRIVATE_MEMORY_OPENINGS = [
   "You took Lena's succession notes", "You counted Lena's cabinet", "Elias surrendered his off-log contingency",
   "Mira told you about the weld", "Amara offered absolution", "Amara withheld absolution",
   "You took the course numbers privately", "You attended the ritual performed for one person",
-  "You heard the beacon Vess was holding", "You kept the orphan beacon between the two of you",
+  "You heard the beacon Vess was holding", "Vess brought you the beacon alone", "You kept the orphan beacon between the two of you",
   "Elias said she was what the job was for"
 ];
 function isPrivateMemory(text) {
@@ -554,7 +554,7 @@ function relationshipDebtors() {
   }
   // Cap so debt stays readable. SUN-RECAP-HONESTY-01: then drop anyone whose own numbers say they
   // are fine, so the list only ever loses names the old rule printed.
-  return debtors.slice(0, 4).filter(k => (state.trust[k] || 0) < 60 && (state.affinity[k] || 0) < 30);
+  return debtors.slice(0, 4).filter(k => (state.trust[k] || 0) < 60 && (state.affinity[k] || 0) < 30 && k !== state.flags.junctionChoice && !hasMark(k, "held_only"));
 }
 
 // ═══ CONTENT-BLOCK DECLARATION ══════════════════════════════════
@@ -646,10 +646,10 @@ function whatRemainsCrisisFact() {
     split: "At the vault fault, both habitation and the restart package were degraded"
   };
   const breathClauses = {
-    racks: "the air-loop biofilm ended with sterile filters and outer embryo racks stripped into the air loop",
-    trunks: "the air-loop biofilm ended with crew clearing the contaminated scrubber trunks by hand",
-    garden: "the air-loop biofilm ended with the hydroponics garden converted into a disposable scrubber",
-    blacksleep: "the air-loop biofilm ended with the vulnerable in controlled black sleep while Lena managed the loop awake"
+    racks: "the biofilm ended with sterile filters and outer embryo racks stripped into the air loop",
+    trunks: "the biofilm ended with crew clearing the contaminated scrubber trunks by hand",
+    garden: "the biofilm ended with the hydroponics garden converted into a disposable scrubber",
+    blacksleep: "the biofilm ended with the vulnerable in controlled black sleep while Lena managed the loop awake"
   };
   const custodyClauses = {
     possession: "the thermal-spine overload ended with heat dumped through the inhabited ring while the vault stayed whole",
@@ -949,8 +949,8 @@ function crewEpilogues() {
     // junction pick, or her late hour after another pick (lastPrivateHour's rule).
     const atYellow = hasMark("sela", "spoken") && (f.junctionChoice === "sela" ||
       (lateHour("sela") && LATE_HOURS.sela.open() && (LATE_HOURS.sela.done() || isAlive("sela"))));
-    if (dead("sela")) p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : ``}`;
-    else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${atYellow ? ` She spoke once, at yellow, and was heard.` : ``}`;
+    if (dead("sela")) p = `${gone("sela")}${atYellow ? ` She had spoken once, at yellow, before that.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` Before that, she spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
+    else p = `Sela was alive when the run ended; the lamp still goes amber on schedule.${atYellow ? ` She spoke once, at yellow, and was heard.` : hasMark("sela", "spoken") && f.sela_attention !== "ignored" ? ` She spoke once at her yellow circle on the bulkhead, and was heard.` : ``}`;
     if (f.sela_vault_vow === "accepted") p += f.pursuit_sela_cost === "private_vow" ? ` The vault vow was spoken to her and not to the ship.` : ` The vault vow was spoken where the ship could log it: neither of you secures the other a place.`;
     else if (f.sela_vault_vow === "refused") p += ` The vault vow was refused.`;
     if (f.custody_answer === "shared") p += dead("sela") ? ` She held the second physical key to the vault.` : ` She holds the second physical key to the vault; no unilateral triage after that${state.romance.sela ? `, and where she was raised, that key is not a political instrument` : ``}.`;

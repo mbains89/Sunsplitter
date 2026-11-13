@@ -184,7 +184,7 @@ registerScenes({
     },
     get choices() {
       const c = [
-        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "relayed the orphan beacon to the crew" },
+        { text: "Tell the crew.", next: afterHour("vess"), effects: { cohesion: -1 }, remember: "Vess brought you the beacon alone, and you gave it to the crew." },
         { text: "Hold it between you.", next: afterHour("vess"), remember: "You kept the orphan beacon between the two of you." }
       ];
       if (!state.flags.last_tx_spent) {
