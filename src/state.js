@@ -1150,6 +1150,12 @@ function firstAttributableDeath() {
   }
   return null;
 }
+// SUN-DEATH-REACTIONS-01: the dead who died aboard after Tomas's recovery, in order of death. Only
+// Rourke (wake) and the lower-ring vent (crisis) precede act2_tether_dock; every other kill() is Act 3.
+function deadSinceTether() {
+  const before = ["vented with the lower ring", "vented at twenty"];
+  return (state.dead || []).filter(k => k !== "rourke" && !before.includes(state.deathCause && state.deathCause[k]));
+}
 
 function eligLena()  { return isAlive("lena"); }
 function eligElias() { return isAlive("elias") && !isAlive("mira"); } // LOCK 4: alive-Mira branch cut

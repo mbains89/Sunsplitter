@@ -70,9 +70,20 @@ Security records a disobeyed order. Medical records exposure. The casualty board
 
 Tomas's suit tag remains beyond the hatch after the collar reports seated.`;
   },
-  choices: [
-    { text: "Post the cause. Continue.", next: "act3_lethal_elias_order" }
-  ],
+  // SUN-DEATH-REACTIONS-01: one living voice answers the death, once, at the top of the next screen.
+  get choices() {
+    const where = state.dying && state.dying.tomas === "refused the order and paid for it" ? "Service throat, past the inner line" : "Annex collar, beyond the hatch";
+    const reply = isAlive("amara")
+      ? { who: "amara", text: `Amara opens her ledger to his page and leaves it open. "He kept the books on everyone else. Somebody has to keep his."` }
+      : isAlive("lena")
+        ? { who: "lena", text: `Lena closes his chart herself. "Exposure. He was the only patient I ever had who asked who else was waiting."` }
+        : isAlive("jiro")
+          ? { who: "jiro", text: `Jiro logs it before anyone asks. "Brother Tomas. ${where}. Final position."` }
+          : `The meal rota prints with one name fewer. Nobody sets the table.`;
+    return [
+      { text: "Post the cause. Continue.", next: "act3_lethal_elias_order", reply: [reply] }
+    ];
+  },
   image: "images/corridor_variant.jpg"
 },
 

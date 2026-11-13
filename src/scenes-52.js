@@ -406,7 +406,11 @@ registerScenes({
         if (deadNames.length) t += ` — ${deadNames.join(", ")}`;
         t += ` — "One for the soil. It's owed," and that's the whole ceremony.\n\n`;
       } else {
-        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."\n\n`;
+        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."`;
+        // SUN-DEATH-REACTIONS-01: the table Tomas shared keeps its empty places (the soil bed above names them).
+        const gone = deadSinceTether();
+        if (gone.length) t += ` He leaves a space at the rack for ${whatRemainsJoinNames(gone)}, and nobody stands in it.`;
+        t += `\n\n`;
       }
       if (isAlive("lena"))  t += `Lena doses herself on the exact schedule, mid-meal, not mid-task, and tells the table: "Eat slower. You all metabolize like you're being chased."\n\n`;
       if (isAlive("elias")) t += `Elias eats standing where he can see the hatch. He takes seconds. From him that's a toast.\n\n`;
