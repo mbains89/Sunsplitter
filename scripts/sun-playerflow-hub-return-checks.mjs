@@ -13,6 +13,10 @@
 //   4. seeded real play: the first rendered visit always prints the paragraph, it prints at most
 //      twice a run, and a second print follows only Elias's hour (whose mark the opening walk can
 //      also set, so it cannot prove a return).
+// SUN-HUB-REPEAT-01: a return prints the vault refrain at most once a run; other returns print a
+// corridor line that names no one and no place the player came from, never the same line on two
+// returns in a row, and a closing line once only the Continue exit is left. The first visit no
+// longer puts the vault light "behind you", since it follows Vess's arrival.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,8 +24,15 @@ import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RETURN_LINE = "The vault light is still on. There is still work.";
+const CORRIDOR_LINES = [
+  "Back in the spine corridor. The deck hums underfoot.",
+  "The corridor again. Down the spine, a hatch cycles shut and settles.",
+  "You step back into the spine. The air handlers hold their one low note."
+];
+const CLOSING_LINE = "The spine is quiet. Nothing along it is waiting on you now, except the work.";
+const RETURN_LINES = [RETURN_LINE, ...CORRIDOR_LINES, CLOSING_LINE];
 const PARAGRAPH = [
-  "The vault light stays on behind you.",
+  "At the far end of the spine, the vault light stays on.",
   "The ship has two men back who were written off, and a list of names that is no longer only numbers.",
   "A third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.",
   // SUN-RECAP-HONESTY-01: the paragraph's last line names the fracture only after a private hour
@@ -69,7 +80,7 @@ const loop = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   state.flags.vault_sacrifice = "living";
   const v = [];
   showScene("act3_spine_next"); v.push(visit());
-  choose("There's music coming"); choose("Go."); v.push(visit());
+  choose("Follow the music coming"); choose("Go."); v.push(visit());
   choose("Sit a low-stakes game with Tomas"); choose("Play until the deck runs out");
   choose('"If the vault'); choose("Leave him to the trays."); v.push(visit());
   choose("Share a quiet hour with Elias"); choose("Leave the bulb untouched"); v.push(visit());
@@ -80,8 +91,12 @@ const [first, ...later] = loop;
 for (const [i, row] of loop.entries()) assert.equal(row.scene, "act3_spine_next", `scripted visit ${i + 1} did not land on the hub`);
 for (const line of PARAGRAPH) assert.ok(first.story.includes(line), `first visit must print the corridor paragraph: ${line}`);
 assert.ok(!first.story.includes(RETURN_LINE), "first visit must not print the return line");
+assert.ok(later[0].story.includes(RETURN_LINE), "the first return prints the vault refrain");
+assert.ok(later[1].story.includes(CORRIDOR_LINES[0]) && later[2].story.includes(CORRIDOR_LINES[1]),
+  "later returns print the corridor lines in turn");
 for (const [i, row] of later.entries()) {
-  assert.ok(row.story.includes(RETURN_LINE), `later visit ${i + 2} must print the return line`);
+  assert.equal(RETURN_LINES.filter(line => row.story.includes(line)).length, 1, `later visit ${i + 2} must print one return line`);
+  if (i > 0) assert.ok(!row.story.includes(RETURN_LINE), `later visit ${i + 2} must not repeat the vault refrain`);
   for (const line of PARAGRAPH) assert.ok(!row.story.includes(line), `later visit ${i + 2} must not repeat: ${line}`);
 }
 assert.ok(!first.story.includes(ALLUSION) && !later[0].story.includes(ALLUSION), "no Tomas allusion before a promise");
@@ -92,12 +107,13 @@ for (const [i, row] of loop.entries()) {
   const expected = row.story.includes(ALLUSION) ? JSON.stringify({ prom_tomas_alluded: true }) : "null";
   assert.ok(row.spends.length && row.spends.every(f => f === expected), `visit ${i + 1}: exits must ${expected === "null" ? "write no flag" : "spend the allusion"} (${row.spends.join(", ")})`);
 }
-for (const name of CREW_NAMES) assert.ok(!RETURN_LINE.includes(name), `the return line must name no one (${name})`);
+for (const line of RETURN_LINES) for (const name of CREW_NAMES) assert.ok(!line.includes(name), `a return line must name no one (${name}): ${line}`);
+for (const line of [...RETURN_LINES, ...PARAGRAPH]) assert.ok(!line.includes("behind you"), `no hub line may place the vault behind the player: ${line}`);
 
 // Each visit offers the previous visit's choices, in the same order with the same exits and
 // effects, less only the offer spent between them.
 const spent = [
-  { next: "warmth_music", label: "There's music coming from the empty berths." },
+  { next: "warmth_music", label: "Follow the music coming from the empty berths." },
   { next: "bond_tomas", label: "Sit a low-stakes game with Tomas if he will play." },
   { next: "bond_elias", label: "Share a quiet hour with Elias — no orders." }
 ];
@@ -140,7 +156,7 @@ assert.ok(!first.story.includes(FRACTURE), "the scripted loop spent no private h
 for (const [name, html] of Object.entries(preSpent)) {
   assert.equal(html.includes(FRACTURE), name === "private_hours" || name === "ship_interrupt_fired", `${name}: the fracture line must print only after a private hour`);
   assert.ok(html.includes(PARAGRAPH[0]) && html.includes(PARAGRAPH[3]), `${name} before the hub must not turn the first visit into a return`);
-  assert.ok(!html.includes(RETURN_LINE), `${name}: first visit printed the return line`);
+  assert.ok(!RETURN_LINES.some(line => html.includes(line)), `${name}: first visit printed a return line`);
 }
 
 // 3. Rendering the hub text is pure on both branches.
@@ -150,7 +166,13 @@ const purity = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   for (const [name, setup] of Object.entries({
     first: () => {},
     returning: () => { state.flags.warmth_music = true; },
-    returningWithAllusion: () => { state.flags.warmth_meal = true; state.promises.tomas = "made"; }
+    returningWithAllusion: () => { state.flags.warmth_meal = true; state.promises.tomas = "made"; },
+    returningAfterElias: () => { state.flags.warmth_music = true; mark("elias", "bonded"); },
+    closing: () => {
+      for (const k of ["warmth_meal", "warmth_laughter", "warmth_music", "quiet_tomas_done", "pair_grudge"]) state.flags[k] = true;
+      for (const who of ["elias", "tomas", "jiro"]) mark(who, "bond_skipped");
+      mark("amara", "privacy_left");
+    }
   })) {
     resetRunState();
     state.recovered.tomas = true; state.recovered.jiro = true; state.recovered.vess = true;
@@ -170,10 +192,13 @@ assert.ok(purity.first.text.startsWith(PARAGRAPH[0]), "pure first render prints 
 assert.equal(purity.returning.text, RETURN_LINE, "a return with no allusion prints the return line alone");
 assert.ok(purity.returningWithAllusion.text.startsWith(RETURN_LINE) && purity.returningWithAllusion.text.includes(ALLUSION),
   "a return that consumes the allusion prints both");
+assert.equal(purity.returningAfterElias.text, CORRIDOR_LINES[0], "a return after the refrain's step prints a corridor line");
+assert.equal(purity.closing.text, CLOSING_LINE, "a return with only Continue left prints the closing line");
 
 // 4. Seeded real play (runner pattern from sun-playerflow-no-repeat-lap-checks.mjs).
 const RUNS_PER_PICKER = 100;
-const sweep = { runs: 0, visits: 0, returns: 0, repeats: 0, firstNotFull: [], tooMany: [], badRepeat: [], buttonMismatch: [] };
+const sweep = { runs: 0, visits: 0, returns: 0, repeats: 0, refrains: 0, firstNotFull: [], tooMany: [], badRepeat: [], buttonMismatch: [],
+  refrainTwice: [], sameLineTwice: [], noReturnLine: [] };
 for (const picker of ["random", "cheapest"]) {
   for (let chunk = 0; chunk * 20 < RUNS_PER_PICKER; chunk++) {
     const play = loadGame(ROOT);
@@ -225,6 +250,15 @@ for (const picker of ["random", "cheapest"]) {
       const full = visits.map(v => v.html.includes(PARAGRAPH[3]));
       if (!full[0]) sweep.firstNotFull.push(where);
       if (full.filter(Boolean).length > 2) sweep.tooMany.push(where);
+      const lineOf = v => RETURN_LINES.find(line => v.html.includes(line)) || null;
+      const lines = visits.map(lineOf);
+      const refrains = lines.filter(line => line === RETURN_LINE).length;
+      sweep.refrains += refrains;
+      if (refrains > 1) sweep.refrainTwice.push(where);
+      lines.forEach((line, i) => {
+        if (i && !full[i] && !line) sweep.noReturnLine.push(`${where} visit ${i + 1}`);
+        if (i && line && line === lines[i - 1]) sweep.sameLineTwice.push(`${where} visits ${i}-${i + 1}: ${line}`);
+      });
       visits.forEach((v, i) => {
         if (!v.buttonsMatch) sweep.buttonMismatch.push(`${where} visit ${i + 1}`);
         if (i === 0) return;
@@ -239,8 +273,12 @@ assert.deepEqual(sweep.firstNotFull, [], "the first rendered hub visit must alwa
 assert.deepEqual(sweep.tooMany, [], "the paragraph must print at most twice a run");
 assert.deepEqual(sweep.badRepeat, [], "a second print may follow only Elias's hour");
 assert.deepEqual(sweep.buttonMismatch, [], "rendered hub buttons must match the hub's enabled choices in order");
+assert.deepEqual(sweep.refrainTwice, [], "the vault refrain must print on one return at most");
+assert.deepEqual(sweep.noReturnLine, [], "every return must print one return line");
+assert.deepEqual(sweep.sameLineTwice, [], "two returns in a row must not print the same line");
 assert.ok(sweep.returns > sweep.repeats * 5, `returns (${sweep.returns}) should dwarf repeats (${sweep.repeats})`);
 
 console.log(`PASS sun-playerflow-hub-return: paragraph on first visit, return line after, allusion kept; ` +
   `choices equal less spent offers; pre-hub keys stay first; text pure; ` +
-  `${sweep.runs} seeded runs, ${sweep.visits} hub visits, ${sweep.returns} returns, ${sweep.repeats} Elias-hour repeats`);
+  `${sweep.runs} seeded runs, ${sweep.visits} hub visits, ${sweep.returns} returns, ${sweep.repeats} Elias-hour repeats, ` +
+  `${sweep.refrains} vault refrains`);
