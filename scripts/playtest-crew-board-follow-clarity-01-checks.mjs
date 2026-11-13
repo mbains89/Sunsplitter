@@ -41,8 +41,11 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
         count: /Crew · \\d+ living \\/ \\d+ listed/.test(panel.innerHTML),
         trust: panel.innerHTML.includes("Trust: 40/100")
       };
-      const miraBtn = panel.querySelector('[data-crew="mira"]');
+      // The headless DOM has no selectors: there, check the chip is painted and open the
+      // sheet through the function a chip click calls.
+      const miraBtn = typeof panel.querySelector === "function" ? panel.querySelector('[data-crew="mira"]') : null;
       if (miraBtn && typeof miraBtn.click === "function") miraBtn.click();
+      else if (panel.innerHTML.includes('data-crew="mira"')) openCrewSheet("mira");
       const afterChip = {
         sheet: sheet.classList.contains("visible") && !sheet.classList.contains("hidden"),
         name: document.getElementById("crew-sheet-name").textContent

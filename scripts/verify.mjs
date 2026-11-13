@@ -52,6 +52,13 @@ import { newRunChecks } from "./new-run-checks.mjs";
 import { stillBurningCorridorChecks } from "./still-burning-corridor-checks.mjs";
 import { pcViewportChecks } from "./pc-viewport-checks.mjs";
 import { reviewBuildStampChecks } from "./review-build-stamp-checks.mjs";
+import { cascadeAllusivePayoffChecks } from "./cascade-allusive-payoff-checks.mjs";
+import { cascadeSecondFlagPayoffChecks } from "./cascade-second-flag-payoff-checks.mjs";
+import { lethalResumeDeathbeatChecks } from "./lethal-resume-deathbeat-checks.mjs";
+import { midgameDelayedConsequenceChecks } from "./midgame-delayed-consequence-checks.mjs";
+import { midgameThirdConsequenceChecks } from "./midgame-third-consequence-checks.mjs";
+import { ventBunksChecks } from "./vent-bunks-checks.mjs";
+import { playtestCrewBoardFollowClarity01Checks } from "./playtest-crew-board-follow-clarity-01-checks.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_MAIN_SHA = "8d23109b63b844e0703fb36643f14b91b8800c90";
@@ -5534,6 +5541,37 @@ function titleContinueCrewCountChecks(runtime) {
   return errors;
 }
 
+// SUN-CLEAN-ORPHAN-CHECKS-01: regression checks that were written for this gate and never
+// registered, so nothing ran them. The two that need a runtime get one of their own, so they
+// cannot disturb the shared runtime or be disturbed by it. The three scripts keep their own
+// entry points and run as child processes from the repository root.
+const ADOPTED_CHECK_SCRIPTS = [
+  ["SUN-BUGHUNT-01 board counts, vent memorial, cylinder wording", "scripts/sun-bughunt-01-checks.mjs"],
+  ["SUN-V036-RESUME-PAINT-01 resume line carries the paint version", "scripts/playtest-resume-paint-01-checks.mjs"],
+  ["SUN-V036-WHAT-REMAINS-ENTRY-01 What Remains entry points", "scripts/playtest-what-remains-entry-01-checks.mjs"]
+];
+
+function adoptedChecks() {
+  const guarded = check => {
+    try { return check(); } catch (error) { return [error.stack || error.message]; }
+  };
+  const results = [
+    ["SUN-CASCADE-ALLUSIVE-PAYOFF-01 change orders paid on reckon_summary", guarded(() => cascadeAllusivePayoffChecks())],
+    ["SUN-CASCADE-SECOND-FLAG-PAYOFF-01 manifest paid on reckon_public", guarded(() => cascadeSecondFlagPayoffChecks())],
+    ["SUN-MIDGAME-DELAYED-CONSEQUENCE-01/02 change orders + manifest paid on faction_split", guarded(() => midgameDelayedConsequenceChecks())],
+    ["SUN-MIDGAME-THIRD-CONSEQUENCE-01 manifest_exposed / manifest_lie paid on faction_split", guarded(() => midgameThirdConsequenceChecks())],
+    ["SUN-LETHAL-RESUME-DEATHBEAT-01 resumed lethal scene does not re-enter", guarded(() => lethalResumeDeathbeatChecks())],
+    ["SUN-FIX-VENT-BUNKS-01 aftermath bunk and living counts", guarded(() => ventBunksChecks(loadGame(ROOT)))],
+    ["SUN-CREW-BOARD-FOLLOW-CLARITY-01 first Crew tap shows the board", guarded(() => playtestCrewBoardFollowClarity01Checks(loadGame(ROOT)))]
+  ];
+  for (const [label, script] of ADOPTED_CHECK_SCRIPTS) {
+    const run = spawnSync(process.execPath, [resolve(ROOT, script)], { cwd: ROOT, encoding: "utf8" });
+    const tail = `${run.stderr || ""}\n${run.stdout || ""}`.trim().split(/\r?\n/).filter(Boolean).slice(0, 4).join(" | ");
+    results.push([label, run.status === 0 ? [] : [`${script} exited ${run.status ?? run.signal}: ${tail}`]]);
+  }
+  return results;
+}
+
 function printCheck(label, errors, detail = "") {
   if (errors.length) {
     console.error(`FAIL ${label}${detail ? ` (${detail})` : ""}`);
@@ -5914,6 +5952,11 @@ async function main() {
     printCheck(`V6 untested dead-holder promise (${holder})`, v6.errors,
       `before=${v6.beforeEnding}; after=${v6.afterEnding}; ending=${v6.endingTitle}`);
     failures.push(...v6.errors.map(error => `V6/${holder}: ${error}`));
+  }
+
+  for (const [label, errors] of adoptedChecks()) {
+    printCheck(label, errors);
+    failures.push(...errors);
   }
 
   if (failures.length) {
