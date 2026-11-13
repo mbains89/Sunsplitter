@@ -43,7 +43,7 @@ registerScenes({
       if (state.flags.past === "owned" && isAlive("elias")) {
         t += `\n\nElias's eyes flick to you once. The past you owned in front of him is still on the table between the words.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: Lena's branch ends on "\n\n"
     },
     get choices() {
       const routes = [
@@ -124,7 +124,7 @@ registerScenes({
       if (isAlive("jiro")) t += `Jiro: "The trajectory was always for the package. We were the escort."\n\n`;
       if (isAlive("lena")) t += `Lena: "I can treat the people in this room. I cannot treat a percentage on a screen."\n\n`;
       if (isAlive("tomas")) t += `Tomas: "Whatever you choose, someone will carry it. Choose knowing that."\n\n`;
-      if (isAlive("amara")) t += `Amara: "The trays are still green. That is not a percentage. That is breath."\n\n`;
+      if (isAlive("amara")) t += `Amara: "The trays are still green. That's not a percentage. That's breath."\n\n`;
       if (isAlive("sela")) t += `Sela says nothing. Her latest yellow circle is taped above the vault hatch.\n\n`;
       if (isAlive("mira")) t += `Mira waits on the switch. "I need an order."`;
       return t;

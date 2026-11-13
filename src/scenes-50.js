@@ -149,10 +149,10 @@ registerScenes({
     get text() {
       let t = `Observation, and he's turned the lights up. That alone is a briefing. The glass is cold enough to fog where you breathe near it, and past your own faint reflection the starfield sits still — an hour of looking at where you're going instead of what's failing. There's a chair set out. He waits until you're in it.\n\n`;
       t += `"Arrival window, real numbers, no audience. `;
-      if (state.flags.position_certain) t += `We are where I say to the meter. `;
+      if (state.flags.position_certain) t += `We are where I say, inside forty kilometers. `;
       t += `Insertion margin as of tonight: `;
       if (state.flags.margin_spent_extra || state.flags.margin_committed) {
-        t += `thinner than the public figure by the width of what we spent cutting me out of the blister. I flew that burn; I get to say what it cost. `;
+        t += `thinner than the public figure by the width of what we spent cutting me out of the blister. I was on the far end of that burn; I get to say what it cost. `;
       } else {
         t += `thin, and honest about it. `;
       }

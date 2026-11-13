@@ -37,7 +37,7 @@ registerScenes({
       if (debt.length) {
         t += `Already, ${debt.map(k => crew[k].name).join(", ")} ${debt.length === 1 ? "has" : "have"} gone quieter when you pass.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when no one has gone quiet
     },
     get choices() {
       const opts = [];

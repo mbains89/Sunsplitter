@@ -20,7 +20,7 @@ registerScenes({
     ]
   },
   rourke_end: {
-    get text() { return `You held Rourke's hand. It was already cold.\n\nHe died twelve minutes later. No one speaks.\n\n${isAlive("lena") ? `Lena covers his face. When she looks at you there is something like respect, or maybe just exhaustion.` : ""}\n\n${isAlive("elias") ? `Elias mutters, "One less mouth."` : ""}\n\n${isAlive("mira") ? `Mira flinches.` : ""} ${isAlive("sela") ? `Sela watches from the edge of the room and does not look away.` : ""}`; },
+    get text() { return `You held Rourke's hand. It was already cold.\n\nHe died twelve minutes later. No one speaks.\n\n${isAlive("lena") ? `Lena covers his face. When she looks at you there is something like respect, or maybe just exhaustion.` : ""}\n\n${isAlive("elias") ? `Elias mutters, "One less mouth."` : ""}\n\n${isAlive("mira") ? `Mira Solis, the drive engineer, flinches.` : ""} ${isAlive("sela") ? `Sela, twenty years old, watches from the edge of the room and does not look away.` : ""}`; },
     choices: [
       { text: "Stay a moment longer. Then find Lena.", alive: "lena", next: "intro_lena", affinity: { lena: 8 }, effects: { cohesion: 2 } },
       { text: "Leave him covered. The living need you.", next: "intro_lena", affinity: { elias: 5 }, effects: { cohesion: -2 } }
@@ -31,7 +31,7 @@ registerScenes({
     }
   },
   rourke_stop: {
-    get text() { return `You give the order. ${isAlive("lena") ? `Lena stops working.` : ""}\n\nRourke made one small sound before the room went still.\n\nThe room feels colder. ${isAlive("mira") ? `Mira will not look at you.` : ""} ${isAlive("amara") ? `Amara turns her face to the wall.` : ""}\n\n${isAlive("elias") ? `Elias nods once, satisfied.` : ""}\n\nThe order is on Rourke's chart. It stays there.`; },
+    get text() { return `You give the order. ${isAlive("lena") ? `Lena stops working.` : ""}\n\nRourke made one small sound before the room went still.\n\nThe room feels colder. ${isAlive("mira") ? `Mira Solis, the drive engineer, will not look at you.` : ""} ${isAlive("amara") ? `Amara Vale, from hydroponics, turns her face to the wall.` : ""}\n\n${isAlive("elias") ? `Elias nods once, satisfied.` : ""}\n\nThe order is on Rourke's chart. It stays there.`; },
     choices: [
       { text: "Face Lena. Own the order.", alive: "lena", next: "intro_lena", affinity: { lena: -4 }, effects: { cohesion: -2 } },
       { text: "Do not linger. Move to the living.", next: "intro_lena", affinity: { elias: 6 }, effects: { cohesion: -3 } }
@@ -43,7 +43,7 @@ registerScenes({
     }
   },
   rourke_try: {
-    get text() { return `${isAlive("lena") ? `Lena works for forty-three minutes.` : ""}\n\nRourke still dies.\n\nThe supplies are gone. The result is the same.\n\n${isAlive("lena") ? `Lena strips off her gloves. "I told you."` : ""}\n\n${isAlive("mira") ? `But Mira looks at you differently.` : ""} The silence after is heavier than the work.\n\n${isAlive("lena") ? `Later you will learn Lena kept him alive longer than protocol allowed. She does not explain why.` : ""}`; },
+    get text() { return `${isAlive("lena") ? `Lena works for forty-three minutes.` : ""}\n\nRourke still dies.\n\nThe supplies are gone. The result is the same.\n\n${isAlive("lena") ? `Lena strips off her gloves. "I told you."` : ""}\n\n${isAlive("mira") ? `But Mira Solis, the drive engineer, looks at you differently.` : ""} The silence after is heavier than the work.\n\n${isAlive("lena") ? `Later you will learn Lena kept him alive longer than protocol allowed. She does not explain why.` : ""}`; },
     choices: [
       { text: "Thank Lena for trying. Then keep moving.", alive: "lena", next: "intro_lena", affinity: { lena: 8 }, effects: { cohesion: 2 } },
       { text: "Say nothing. The cost is already clear.", next: "intro_lena", affinity: { mira: 4 }, effects: { cohesion: -1 } }

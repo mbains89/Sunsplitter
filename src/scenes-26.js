@@ -13,7 +13,7 @@ registerScenes({
           : ` The boarding list is already in the accounting. Two hundred fourteen confirmed berths. No one has to open the tablet.`;
       } else if (state.flags.manifest === "declined") {
         t += isAlive("tomas")
-          ? ` Tomas nods through estimates. You let the manifest stay closed; the accounting has no names to point at.`
+          ? ` Tomas asks once for the names. You let the manifest stay closed; he counts the estimates and does not nod.`
           : ` The accounting uses estimates. You let the manifest stay closed.`;
       } else if (isAlive("tomas")) {
         t += ` Tomas nods through the entire accounting.`;

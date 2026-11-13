@@ -76,7 +76,7 @@ Day one hundred eighty-one is on the board behind him. Nobody does the subtracti
   observation_nightshift_ask: {
     image: "images/observation.jpg",
     onEnter: () => { if (!isAlive("jiro")) return "act3_lethal_lena_clock"; },
-    text: `"Not tonight. Position I can give you to the meter. Cause is not my column."\n\nA beat.\n\n"Not tonight."`,
+    text: `"Not tonight. Position I can give you inside forty kilometers. Cause is not my column."\n\nA beat.\n\n"Not tonight."`,
     choices: [ { text: "Return to the work.", next: "act3_lethal_lena_clock" } ]
   },
 
