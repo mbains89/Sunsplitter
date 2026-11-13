@@ -246,7 +246,9 @@ for (const who of ["mira", "amara", "sela", "lena"]) {
   requireLivingCast(`pursuit_${who}_sex`, [who], "debt_notice");
 }
 requireLivingCast("favor_mira", ["mira"], "pursuit_window");
-requireLivingCast("history_elias", ["elias"], "vault_voice");
+// SUN-SIGNAL-RETURN-01: the Elias detour returns to the signal decision while it is unmade.
+const signalDetourExit = () => state.flags.signal ? "vault_voice" : "transmission";
+requireLivingCast("history_elias", ["elias"], signalDetourExit);
 requireLivingCast("intro_elias", ["elias"], "vault_reveal");
 requireLivingCast("intro_lena", ["lena"], "intro_elias", { preserveEntry: true });
 requireLivingCast("dying", ["rourke"], "intro_lena");
@@ -257,7 +259,7 @@ requireLivingCast("quiet_tomas", ["tomas"], "act3_spine_next");
 for (const who of ["elias", "tomas", "jiro"]) {
   requireLivingCast(`bond_${who}`, [who], () => state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt");
 }
-for (const [who, next] of Object.entries({ amara: "lead_prompt", lena: "past_leak", elias: "vault_voice", sela: "lead_prompt", mira: "pursuit_window", tomas: () => state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" })) {
+for (const [who, next] of Object.entries({ amara: "lead_prompt", lena: "past_leak", elias: signalDetourExit, sela: "lead_prompt", mira: "pursuit_window", tomas: () => state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt" })) {
   requireLivingCast(`prom_make_${who} prom_r_${who}`, [who], next);
 }
 for (const who of ["amara", "lena"]) {
