@@ -34,8 +34,8 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Hold the room a moment longer. Then decide the mission.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You hold the room. Someone passes water down the row, cup by cup, and nobody leaves until you do.`] },
-      { text: "End it. Make the final order now.", next: "sun_payoff", reply: [`You end it there. The room empties fast, the way rooms do when people have heard the costs said plainly and have work to get back to.`] }
+      { text: "Hold the room a moment longer.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You hold the room. Someone passes water down the row, cup by cup, and nobody leaves until you do.`] },
+      { text: "End it. Send them back to work.", next: "sun_payoff", reply: [`You end it there. The room empties fast, the way rooms do when people have heard the costs said plainly and have work to get back to.`] }
     ]
   },
   reckon_suppress: {
@@ -55,29 +55,39 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "Let the silence stand. Make the final order.", next: "sun_payoff", effects: { cohesion: -2 }, reply: [`The silence stands. Over the next few shifts it sets into something that no longer needs enforcing. Nobody mistakes that for agreement.`] },
-      { text: "Break it once — name one cost — then decide the mission.", next: "sun_payoff", effects: { cohesion: 1 }, reply: [`You break it once, at the evening meal: one cost, named out loud, by you. Then you let the silence close again. It closes a little looser than before.`] }
+      { text: "Let the silence stand.", next: "sun_payoff", effects: { cohesion: -2 }, reply: [`The silence stands. Over the next few shifts it sets into something that no longer needs enforcing. Nobody mistakes that for agreement.`] },
+      { text: "Break it once. Name one cost.", next: "sun_payoff", effects: { cohesion: 1 }, reply: [`You break it once, at the evening meal: one cost, named out loud, by you. Then you let the silence close again. It closes a little looser than before.`] }
     ]
   },
   reckon_memory: {
     get text() {
       if (state.flags.crisis === "vent") {
         let t = `You give the remaining survivors the right to decide how the dead are remembered.\n\nThey keep Sela's last circle on the bulkhead. They keep Amara's key on a shelf in the common area.`;
-        const ventNamed = ["amara", "sela", "jiro"].filter(id => {
-          if (id === "jiro" && typeof isRecovered === "function" && !isRecovered("jiro")) return false;
-          return !isAlive(id);
-        });
-        const nameWord = ventNamed.length === 1 ? "one name" : ventNamed.length === 2 ? "two names" : ventNamed.length === 3 ? "three names" : `${ventNamed.length} names`;
+        // SUN-DEATH-REACTIONS-01: every crew death, in order of death. Tomas knows the ones before his
+        // recovery from the casualty board (pair_triage_chart: Rourke "goes in the count. A name, not an
+        // entry."); the rest died after he came aboard.
+        const named = (state.dead || []).slice();
+        const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+        const nameWord = `${words[named.length] || named.length} name${named.length === 1 ? "" : "s"}`;
+        const list = whatRemainsJoinNames(named);
         t += isAlive("tomas")
-          ? ` Tomas speaks the ${nameWord} once, carefully, and then does not speak them again.`
-          : ` The ${nameWord} are read off the manifest once, by whoever is holding it, and then not again.`;
+          ? ` Tomas speaks the ${nameWord} once, carefully — ${list} — and then does not speak them again.`
+          : ` The ${nameWord} are read off the manifest once — ${list} — by whoever is holding it, and then not again.`;
         t += `\n\nAfter that, the ship feels slightly less like a place where people disappear without record.`;
         return t;
       }
-      return `You give the survivors the right to decide how the near-loss is remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen. Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
+      // Only when someone besides Rourke has died; the list itself is the whole count, Rourke first.
+      const named = (state.dead || []).slice();
+      let dead = "";
+      if (named.some(k => k !== "rourke")) {
+        dead = isAlive("tomas")
+          ? ` Tomas speaks the names of the dead once — ${whatRemainsJoinNames(named)} — and then does not speak them again.`
+          : ` The names of the dead are read off the manifest once — ${whatRemainsJoinNames(named)} — and then not again.`;
+      }
+      return `You give the survivors the right to decide how the near-loss${dead ? " and the dead are" : " is"} remembered.\n\nThey do not make a ceremony. They simply refuse to pretend it did not happen.${dead} Sela's yellow circle stays where it is — a quiet adult mark no one has asked to take down.\n\nThe ship continues.`;
     },
     choices: [
-      { text: "Let the memory stand. Make the final order.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You let it stand, all of it. Nobody takes anything down, and over the next shifts people start choosing the corridors that pass it.`] },
+      { text: "Let the memory stand.", next: "sun_payoff", effects: { cohesion: 2 }, reply: [`You let it stand, all of it. Nobody takes anything down, and over the next shifts people start choosing the corridors that pass it.`] },
       { text: "Close it. The mission still needs a decision.", next: "sun_payoff", reply: [`You close it with one sentence and the next duty roster. Nothing is taken down, and nobody adds to it while you are watching.`] }
     ]
   },
@@ -90,8 +100,8 @@ registerScenes({
       return `You tell them the truth you have been carrying.\n\n${destination}\n\nYou ask what they still want from the time that remains.\n\nThe answers are not unified. Some want the planet. Some want speed. Some want comfort. Some want a final transmission aimed at nothing in particular.\n\nYou listen. Then you decide.`;
     },
     choices: [
-      { text: "You have heard enough. Make the final order.", next: "sun_payoff", reply: [`You close it there. Not everyone was finished. You watch them fold the rest away for later, and you let them.`] },
-      { text: "Ask one more person what they still want. Then decide.", next: "sun_payoff", effects: { cohesion: 2, supplies: -1 }, reply: [`You ask one more. The answer is small and specific and has nothing to do with the planet, and you write it down as carefully as an order.`] }
+      { text: "You have heard enough. Close it there.", next: "sun_payoff", reply: [`You close it there. Not everyone was finished. You watch them fold the rest away for later, and you let them.`] },
+      { text: "Ask one more person what they still want.", next: "sun_payoff", effects: { cohesion: 2, supplies: -1 }, reply: [`You ask one more. The answer is small and specific and has nothing to do with the planet, and you write it down as carefully as an order.`] }
     ]
   },
 });

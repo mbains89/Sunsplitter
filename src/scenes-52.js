@@ -33,9 +33,9 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 } },
-      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 } },
-      { text: "Say nothing.", next: "act3_spine_next" }
+      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 }, reply: [{ who: "amara", text: `"I know, love. Agreeing's the cheap part." Amara turns back to the pump log. "The rest you pay out where the whole garden can see it."` }] },
+      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 }, reply: [{ who: "amara", text: `"Everyone aboard is my concern. I wrote that job description myself." Amara lets the pumps have the silence. "Go on, then. I've said it once. I'll not nag."` }] },
+      { text: "Say nothing.", next: "act3_spine_next", reply: [`Amara reads the silence the way she reads a yield sheet. She nods once, as if you had answered, and lets the pumps have the room.`] }
     ]
   },
 
@@ -406,7 +406,11 @@ registerScenes({
         if (deadNames.length) t += ` — ${deadNames.join(", ")}`;
         t += ` — "One for the soil. It's owed," and that's the whole ceremony.\n\n`;
       } else {
-        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."\n\n`;
+        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."`;
+        // SUN-DEATH-REACTIONS-01: the table Tomas shared keeps its empty places (the soil bed above names them).
+        const gone = deadSinceTether();
+        if (gone.length) t += ` He leaves a space at the rack for ${whatRemainsJoinNames(gone)}, and nobody stands in it.`;
+        t += `\n\n`;
       }
       if (isAlive("lena"))  t += `Lena doses herself on the exact schedule, mid-meal, not mid-task, and tells the table: "Eat slower. You all metabolize like you're being chased."\n\n`;
       if (isAlive("elias")) t += `Elias eats standing where he can see the hatch. He takes seconds. From him that's a toast.\n\n`;
