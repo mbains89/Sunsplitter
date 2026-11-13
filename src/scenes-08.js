@@ -17,7 +17,7 @@ registerScenes({
       if (isAlive("lena") && state.flags.leadership === "hard") {
         t += `Lena, from the hatch: "Hard rules do not grow food. They only decide who goes without."`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when the last line is skipped
     },
     get choices() {
       const routes = [
@@ -58,7 +58,7 @@ registerScenes({
       } else {
         t += `The yellow marks remain on the bulkhead. Their author does not. The ship keeps the pigment and loses the argument.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when Jiro's line is skipped
     },
     get choices() {
       const routes = [
