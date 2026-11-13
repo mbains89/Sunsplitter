@@ -18,7 +18,7 @@ registerScenes({
       const intro = v === "mira"
         ? `The same fault drops Mira where she stands. The cold she carried out of the junction cut has been waiting for exactly this much slack.
 
-"I priced the cut when I made it," she manages. "The bill came early. Don't refinance me with her line."`
+"I measured the cut when I made it," she manages. "The cold ran past the margin early. Don't patch me with her line."`
         : v === "jiro"
         ? `The fault arcs through the nav bay first. Jiro is carried in with burns already going gray at the edges.
 

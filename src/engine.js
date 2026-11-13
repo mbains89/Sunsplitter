@@ -1339,7 +1339,7 @@ function buildYellowCircleText(vaultSac) {
   if (state.flags.sela_amber && isAlive("sela")) text += `Sela lit the lamp for one person once, and you stayed past amber.\n\n`;
   const memory = lastEndingMemory();
   if (memory) text += `Something private still sits with you: ${memory}\n\n`;
-  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.\n\nThat is rarer than landfall.`;
+  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.`;
   return text;
 }
 

@@ -97,7 +97,7 @@ registerScenes({
       if (hat === "hard") return "lead_hard";
       if (hat === "watch") return isAlive("elias") ? "lead_watch" : "power_crisis";
     },
-    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.\n\n"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."` : ""}`; },
+    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.\n\n"They're choosing sides. Some say you hesitate too much. Some say not enough. Name what kind of ship this is. Today."` : ""}`; },
     choices: [
       { text: "I will not rule by fear. We hold together or we die together.", next: "lead_together", effects: { cohesion: 10, integrity: -2 }, flag: { leadership: "together" } },
       { text: "Hard rules. Clear consequences. No debate.", next: "lead_hard", effects: { cohesion: -7, integrity: 6, supplies: 2 }, flag: { leadership: "hard" } },
@@ -135,7 +135,7 @@ registerScenes({
       if (hat === "hard") return "lead_hard";
       if (!isAlive("elias")) return "power_crisis";
     },
-    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The knowledge sits in your chest like a stone.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
+    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The names stay where Elias put them.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
       { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 }, reply: [{ who: "elias", text: `"Quietly," Elias agrees. He does not write the names down. He never needed to.` }] }
