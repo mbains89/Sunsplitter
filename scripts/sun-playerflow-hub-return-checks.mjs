@@ -29,7 +29,7 @@ const CORRIDOR_LINES = [
   "The corridor again. Down the spine, a hatch cycles shut and settles.",
   "You step back into the spine. The air handlers hold their one low note."
 ];
-const CLOSING_LINE = "The spine is quiet. Nothing along it is waiting on you now, except the work.";
+const CLOSING_LINE = "Every door along the spine has had its hour. What is left is the work.";
 const RETURN_LINES = [RETURN_LINE, ...CORRIDOR_LINES, CLOSING_LINE];
 const PARAGRAPH = [
   "At the far end of the spine, the vault light stays on.",

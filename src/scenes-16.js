@@ -45,7 +45,7 @@ registerScenes({
         // the Continue exit is left, the line says so.
         const step = spent + (hasMark("elias", "bonded") || hasMark("elias", "bond_skipped") ? 1 : 0);
         const offersLeft = scenes.act3_spine_next.choices.length - 1;
-        if (!offersLeft) t = `The spine is quiet. Nothing along it is waiting on you now, except the work.`;
+        if (!offersLeft) t = `Every door along the spine has had its hour. What is left is the work.`;
         else if (step === 1) t = `The vault light is still on. There is still work.`;
         else t = [
           `Back in the spine corridor. The deck hums underfoot.`,
@@ -97,7 +97,7 @@ registerScenes({
         opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
-        opts.push({ text: "Step into the trunk, where Tomas and Jiro are working and not speaking.", next: "pair_grudge_settle" });
+        opts.push({ text: "Go to the trunk, where Tomas and Jiro are working and not speaking.", next: "pair_grudge_settle" });
       }
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
         opts.push({ text: "Hear Amara out. She wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
@@ -111,7 +111,7 @@ registerScenes({
         opts.push({ text: "Go to the records bay. Jiro has asked Mira for her solution, and the pane is closed.", next: "pair_burn_archive" });
       }
       if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
-        opts.push({ text: "Go to the tracker board, where Jiro's fix and Vess's night log sit side by side.", next: "pair_fix_track" });
+        opts.push({ text: "Go to the tracker board, where Jiro's fix and Vess's night log sit side by side. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
         opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
