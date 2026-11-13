@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-// Release-gate ownership. main() below runs every check in order and prints one line for each;
-// most check functions live in the modules under scripts/verify/.
+// Release-gate ownership. main() below runs every check in order and prints a PASS or FAIL line
+// for each. A check function lives in one of three places: this file; a module under
+// scripts/verify/ (image-truth, interface, saves, choices, story, remains; shared constants in
+// shared.mjs); or one of the scripts/*-checks.mjs files imported below or run by adoptedChecks().
 // - Manifest + syntax: exact browser load order (EXPECTED_SCRIPTS, scripts/verify/shared.mjs)
 //   and parseability.
 // - Runtime + validator: one-time registration, the scene count (EXPECTED_SCENE_COUNT,
@@ -11,8 +13,10 @@
 //   and their untested promises are omitted from ending reflection.
 // - What Remains fixtures (scripts/verify/remains.mjs): 3–6 current-run facts, significance order,
 //   exact causes, tested-promise selection, relational tense, and separate-surface rendering.
-// - Other modules in scripts/verify/: image-truth, interface, saves, choices, story. This file keeps
-//   the identity, private-package and title checks, the self-test, and main().
+// - This file keeps main(), the self-test, the adopted-check runner, and the source and identity
+//   checks: manifest, syntax, retired runtime flags, version surfaces, desktop and phone layout,
+//   accessibility and performance source, registration, validator, private package, identity and
+//   authority, and the title Continue crew count. Policy simulations and V6 come from simulate.mjs.
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";

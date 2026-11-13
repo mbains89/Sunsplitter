@@ -1,4 +1,4 @@
-// Shared by scripts/verify.mjs and the check modules beside this file.
+// Shared by scripts/verify.mjs, the check modules beside this file, and scripts/review-build-stamp-checks.mjs.
 
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
