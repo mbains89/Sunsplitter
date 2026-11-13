@@ -78,8 +78,8 @@ registerScenes({
         r === "truth" ? "reckon_truth" :
         "sun_payoff";
       return [
-        { text: "Make the final decision now.", next, reply: [`You clear the board. The numbers stay true whether or not you keep looking at them.`] },
-        { text: "One more look at the numbers. Then decide.", next, effects: { cohesion: 1 }, reply: [`You read it again from the top, slowly, the dead included. Someone passing the hatch sees you doing it, and does not interrupt.`] }
+        { text: "Clear the board. Face the crew.", next, reply: [`You clear the board. The numbers stay true whether or not you keep looking at them.`] },
+        { text: "Read it once more from the top. Then face the crew.", next, effects: { cohesion: 1 }, reply: [`You read it again from the top, slowly, the dead included. Someone passing the hatch sees you doing it, and does not interrupt.`] }
       ];
     }
   },

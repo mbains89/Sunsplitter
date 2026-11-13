@@ -17,7 +17,7 @@ She is explicit in what she wants and does not ask you to be careful. The sex is
       // Context-aware exit: early path → past_leak; mid path (after past already known) → pursuit_window
       const next = state.past_known ? "pursuit_window" : "past_leak";
       const opts = [
-        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 3 }, affinity: { lena: 6 } },
+        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 3 }, affinity: { lena: 6 }, reply: [{ who: "lena", text: `"Find it, then," Lena says. "Until you do, the prognosis stands as charted. I don't amend a chart on intent."` }] },
         { text: "Say nothing. The body already said enough.", next, effects: { cohesion: 2 } }
       ];
       // 0.22.1 optional one-shot shower linger (only if not yet done)
