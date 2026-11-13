@@ -64,7 +64,7 @@ registerScenes({
     onEnter: () => {
       if (!lateHour("lena")) state.flags.junctionChoice = "lena";
       state.flags.lena_notes = true;
-      remember("took Lena's succession notes and heard how she wants the clock to end");
+      remember("You took Lena's succession notes and heard how she wants the clock to end.");
     },
     get text() {
       let t = lateHour("lena") ? `Down-corridor, the medbay channel light is still burning past cycle-turn. The prescription stands.\n\n` : ``;
@@ -117,7 +117,7 @@ registerScenes({
       if (!isAlive("lena")) return "faction_split";
       if (!state.flags.lena_last_hour) {
         state.flags.lena_last_hour = true;
-        remember("counted Lena's cabinet with her, line by line, variance zero");
+        remember("You counted Lena's cabinet with her, line by line, variance zero.");
       }
     },
     get text() {

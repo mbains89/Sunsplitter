@@ -8,7 +8,7 @@ registerScenes({
     onEnter: () => {
       state.flags.junctionChoice = "mira";
       state.flags.mira_fault_known = true;
-      remember("was told about the weld behind junction seventeen");
+      remember("Mira told you about the weld behind junction seventeen.");
     },
     get text() {
       let t = `Junction seventeen, deck two. The access panel is already off, her worklight clipped to her collar, and the hour smells of hot flux and cold metal — solder smoke curling up through the lamp beam, unhurried, the first smoke on this ship in weeks that doesn't mean anything. She works the iron with the hand that still reads temperature. The other one she uses for holding things now. She doesn't mention it, so neither do you.\n\n`;

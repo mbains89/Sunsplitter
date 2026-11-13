@@ -35,7 +35,7 @@ registerScenes({
       }
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
       if (debt.length) {
-        t += `Already, ${debt.map(k => crew[k].name).join(", ")} have gone quieter when you pass.`;
+        t += `Already, ${debt.map(k => crew[k].name).join(", ")} ${debt.length === 1 ? "has" : "have"} gone quieter when you pass.`;
       }
       return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when no one has gone quiet
     },

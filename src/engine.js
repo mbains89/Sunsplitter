@@ -1169,19 +1169,16 @@ function forceResolvePromises() {
   if (!state.promises) return;
 }
 
+// SUN-RECAP-HONESTY-01: only a private memory is cited (lastPrivateMemory in state.js).
 function lastEndingMemory() {
-  const memories = Array.isArray(state.memories) ? state.memories : [];
   const untestedHolders = Object.keys(state.promises || {}).filter(who => state.promises[who] === "made");
-  for (let i = memories.length - 1; i >= 0; i--) {
-    const memory = String(memories[i]);
+  return lastPrivateMemory(memory => {
     const lower = memory.toLowerCase();
-    const isUntestedPromise = untestedHolders.some(who => {
+    return untestedHolders.some(who => {
       const holder = crewFirstName(who).toLowerCase();
       return lower.includes("promis") && lower.includes(holder);
     });
-    if (!isUntestedPromise) return memory;
-  }
-  return null;
+  });
 }
 
 function resolveEnding() {
@@ -1400,8 +1397,11 @@ function buildQuietShipText(deadNames, shape, final) {
 function buildStillBurningText(crisis, shape, final, planet) {
   let text = `Against every reasonable expectation, the group holds.\n\n`;
   if (crisis === "vent") text += `The cost is permanent. Names are not spoken lightly.\n\n`;
-  if (shape === "future") text += `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
-  else if (shape === "living") text += `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
+  // SUN-RECAP-HONESTY-01: when the vault choice set the shape against the recorded orders What Remains
+  // cites, say it was the vault choice, so the two screens do not disagree about the lean.
+  const byVault = shape !== whatRemainsIdeologyShape();
+  if (shape === "future") text += byVault ? `At the vault fault you kept the vault and the mission. The living remember the cold — but they are still here.\n\n` : `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
+  else if (shape === "living") text += byVault ? `At the vault fault you chose the breathing. The embryo counts are wounded. The room is not.\n\n` : `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
   else text += `You refused to let either side of the argument own the ship completely.\n\n`;
   if (final === "hold") {
     text += state.flags.course_briefed
@@ -1440,8 +1440,9 @@ function buildLongDarkText(final, planet, emb, preg, shape, integ, sup) {
   if (integ < 40) text += `Hull is a daily argument (${integ}%).\n\n`;
   if (sup < 30) text += `Supplies are a shorter argument (${sup}%).\n\n`;
   if (preg === true) text += `A living child may still be possible. That fact competes with every frozen future in the vault.\n\n`;
-  if (shape === "future") text += `Your run leaned toward Future. The vault still has a claim on the ship.\n\n`;
-  else if (shape === "living") text += `Your run leaned toward Living. The warmth has a cost the numbers will not forget.\n\n`;
+  const byVault = shape !== whatRemainsIdeologyShape(); // SUN-RECAP-HONESTY-01, as in Still Burning
+  if (shape === "future") text += byVault ? `At the vault fault you chose Future. The vault still has a claim on the ship.\n\n` : `Your run leaned toward Future. The vault still has a claim on the ship.\n\n`;
+  else if (shape === "living") text += byVault ? `At the vault fault you chose Living. The warmth has a cost the numbers will not forget.\n\n` : `Your run leaned toward Living. The warmth has a cost the numbers will not forget.\n\n`;
   text += `The Sunsplitter pushes on through the black.\n\nYou do the work anyway.\n\nOne more day, then the next, then the next.`;
   return text;
 }

@@ -45,7 +45,8 @@ registerScenes({
         if (isAlive("vess")) {
           t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
         }
-        t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
+        // SUN-RECAP-HONESTY-01: the fracture is named only when a private hour was spent.
+        t += privateHourTaken() ? `\n\nThere is still work. There is still the fracture the private hours left in the corridor.` : `\n\nThere is still work.`;
       }
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
       if (act3SpineTomasAllusionDue()) {

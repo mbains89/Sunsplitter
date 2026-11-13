@@ -7,7 +7,8 @@ import { createHash } from "node:crypto";
 // SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
 // 480 rows changed in the rendered text only (field 2: the preamble replaces the general opener, which the
 // abort return keeps); everything after that opener is unchanged. Outcomes digest unchanged.
-const BASELINE_MATRIX = "c5da79df77dd8e94339186f87f09725edfb7b8b2a7cea623edfb73167d8db636";
+// SUN-RECAP-HONESTY-01: the Deck 4 preamble names the B-four breach and the debtor list left final_choice; outcomes unchanged.
+const BASELINE_MATRIX = "ef4990614a43a207afbed0e6b1c04630bf0aad7b23cf2ed82566962d71c7ca71";
 const BASELINE_OUTCOMES = "144c4006befe4006c304c4582bf44c19c014f693cf49b1ca3eb15277752e087f";
 const planets = ["unset", "deferred", "committed"];
 const navs = ["jiro", "mira", "rough", "jiro_dead", "jiro_missing", "jiro_debt", "mira_debt", "dead"];
@@ -68,8 +69,9 @@ function exerciseDestination(fixtures, mode) {
     // aborted-burn return has already collected those debts.
     expect(html().includes("Before the last orders, the ship collects its debts.") === (state.flags.patch !== "aborted"),
       "memory preamble printed on the wrong arrival");
-    const memoryLines = { proper_seal: "Deck 4's proper seal still holds.", jury_rig: "Deck 4's thin patch has been humming",
-      open_wound: "Deck 4 never got its seal." };
+    // SUN-RECAP-HONESTY-01: from 0.25 the run has met the B-four breach, and the preamble says so.
+    const memoryLines = { proper_seal: "Deck 4's proper seal still holds.", jury_rig: "Deck 4's thin patch has already let go once, at B-four.",
+      open_wound: "Deck 4 has already opened once along the underfunded seam." };
     const memoryLine = memoryLines[state.flags.ship_memory] || "Structural memory is quiet for once.";
     expect(html().includes(memoryLine) === (state.flags.patch !== "aborted"), "memory preamble lost the Deck 4 state");
     const hold = choices.find(c => c.flag.final === "hold");

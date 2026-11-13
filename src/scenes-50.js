@@ -144,7 +144,7 @@ registerScenes({
     onEnter: () => {
       state.flags.junctionChoice = "jiro";
       state.flags.course_briefed = true;
-      remember("took the course numbers privately");
+      remember("You took the course numbers privately.");
     },
     get text() {
       let t = `Observation, and he's turned the lights up. That alone is a briefing. The glass is cold enough to fog where you breathe near it, and past your own faint reflection the starfield sits still — an hour of looking at where you're going instead of what's failing. There's a chair set out. He waits until you're in it.\n\n`;
