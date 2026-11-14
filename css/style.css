@@ -1195,6 +1195,12 @@ body::before {
   outline-offset: 2px;
 }
 
+/* SUN-PHONE-UI-POLISH-01 (Muse): the Callsign and Oath selects get the same ring. */
+:where(select):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 #story:focus {
   outline: none;
 }
