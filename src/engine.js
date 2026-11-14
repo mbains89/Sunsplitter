@@ -824,6 +824,10 @@ function scrollRevealedIntoView(block) {
     const sticky = pending && main.classList.contains("reveal-roomy"); // css/paced-reveal.css: sticky only there
     // A sticky bar sticks above #main's bottom padding (20px on a phone), so that strip is covered too.
     const padBottom = sticky && typeof getComputedStyle === "function" ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+    // After the last Read on the choices are out (finishSceneReveal dropped .reveal-pending): bring
+    // the first one along with the last paragraph when both fit, as the in-flow bar comes along.
+    const firstChoice = !pending && typeof document.querySelector === "function" ? document.querySelector("#choices:not(.reveal-pending) button") : null;
+    const choiceBox = firstChoice && typeof firstChoice.getClientRects === "function" && firstChoice.getClientRects().length ? firstChoice.getBoundingClientRect() : null;
     const target = revealScrollTarget({
       scrollTop: main.scrollTop,
       viewHeight: main.clientHeight,
@@ -831,7 +835,7 @@ function scrollRevealedIntoView(block) {
       top: box.top + offset,
       bottom: box.bottom + offset,
       reserve: sticky ? bar.height + padBottom : 0,
-      follow: pending && !sticky ? bar.bottom + offset : 0
+      follow: pending && !sticky ? bar.bottom + offset : (choiceBox ? choiceBox.bottom + offset : 0)
     });
     if (target == null || target === Math.round(main.scrollTop)) return;
     const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
@@ -843,7 +847,8 @@ function scrollRevealedIntoView(block) {
 // SUN-READON-SCROLL-01: a new scene's plate grows back from minimized over 0.28s (css/style.css),
 // so a Read on tapped while it grows aims at a #main that is still shrinking, and the paragraph
 // slides back under the bar. For a short time after a Read on, a resize of #main (watchRevealRoom)
-// brings that paragraph back into view. Resizes after that leave the reader's place alone.
+// brings that paragraph back into view. Resizes after that leave the reader's place alone, and so
+// does any resize after the reader scrolls by hand (touch drag, wheel, scrolling keys).
 const REVEAL_FOLLOW_MS = 700;
 let revealFollow = null; // { block, until } just after a Read on
 function followRevealedBlock(block) {
@@ -952,6 +957,12 @@ const REVEAL_STICKY_MIN_HEIGHT = 160;
       refollowRevealedBlock();
     };
     try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
+    // A reader who scrolls by hand while the plate still resizes keeps their place.
+    const stopFollow = () => { revealFollow = null; };
+    ["touchmove", "wheel"].forEach(type => main.addEventListener(type, stopFollow, { passive: true }));
+    // Scrolling keys only: Space, Enter and → read on, so they must not cancel the follow they start.
+    const SCROLL_KEYS = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"];
+    document.addEventListener("keydown", event => { if (SCROLL_KEYS.includes(event.key)) stopFollow(); }, { capture: true, passive: true });
     update();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);

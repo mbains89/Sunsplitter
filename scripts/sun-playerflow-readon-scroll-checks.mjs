@@ -5,8 +5,8 @@
 // CI has no browser, so this drives the real engine headless over a small layout model of #main:
 //   A. revealScrollTarget, the pure scroll-target rule, on fixed cases (the cold-read layout included);
 //   B. every paced scene, read on to the end at three #main sizes (sticky bar and in-flow bar): the new
-//      paragraph must sit in the visible part of #main above the bar after every tap, and the last one
-//      must be in view when the choices arrive;
+//      paragraph must sit in the visible part of #main above the bar after every tap, the last one
+//      must be in view when the choices arrive, and so must the first choice when both fit;
 //   C. resume, instant mode and Show all do not scroll; keyboard read-on scrolls like a tap;
 //   D. source pins: the engine scrolls #main, not the sticky bar;
 //   E. a plate that grows back while a Read on lands (a new scene's plate expanding from minimized)
@@ -48,7 +48,17 @@ const INSTALL_LAYOUT = `((cfg) => {
     return nodes;
   };
   Object.defineProperty(main, "clientHeight", { get: () => cfg.mainH, configurable: true });
-  Object.defineProperty(main, "scrollHeight", { get: () => Math.max(cfg.mainH, textHeight() + (controlsShown() ? cfg.bar : 0) + cfg.pad), configurable: true });
+  // The choices follow the text once the reveal ends: a 16px gap, then 56px buttons.
+  const choicesEl = document.getElementById("choices");
+  const choicesShown = () => !controlsShown() && !choicesEl.classList.contains("reveal-pending");
+  const CHOICE_GAP = 16, CHOICE_H = 56;
+  const firstChoice = {
+    getClientRects: () => (choicesShown() ? [1] : []),
+    getBoundingClientRect: () => { const top = cfg.mainTop + textHeight() + CHOICE_GAP - main.scrollTop; return { top, bottom: top + CHOICE_H, height: CHOICE_H }; }
+  };
+  const realQuery = document.querySelector ? document.querySelector.bind(document) : null;
+  document.querySelector = selector => selector === "#choices:not(.reveal-pending) button" ? (choicesShown() ? firstChoice : null) : (realQuery ? realQuery(selector) : null);
+  Object.defineProperty(main, "scrollHeight", { get: () => Math.max(cfg.mainH, textHeight() + (controlsShown() ? cfg.bar : CHOICE_GAP + 3 * CHOICE_H) + cfg.pad), configurable: true });
   globalThis.getComputedStyle = el => ({ paddingBottom: el === main ? cfg.pad + "px" : "0px" });
   main.clientTop = 0;
   main.getBoundingClientRect = () => ({ top: cfg.mainTop, bottom: cfg.mainTop + cfg.mainH, height: cfg.mainH });
@@ -79,6 +89,14 @@ const INSTALL_LAYOUT = `((cfg) => {
     const room = bottom - mainTop;
     const visible = Math.max(0, Math.min(box.bottom, bottom) - Math.max(box.top, mainTop));
     return { shown: ps.length, visible, height: box.height, room, ok: visible >= Math.min(box.height, room) - 0.5, scrollTop: main.scrollTop };
+  };
+  // After the last Read on: is the first choice inside #main's view, and would it fit with the last paragraph?
+  globalThis.__choice = () => {
+    const ps = shownNodes();
+    const last = ps[ps.length - 1].getBoundingClientRect();
+    const box = firstChoice.getBoundingClientRect();
+    const top = cfg.mainTop, bottom = cfg.mainTop + cfg.mainH;
+    return { shown: choicesShown(), fits: box.bottom - last.top <= cfg.mainH, inView: box.top >= top - 0.5 && box.bottom <= bottom + 0.5 };
   };
   globalThis.__fresh = () => {
     localStorage.clear();
@@ -127,7 +145,7 @@ export function sunPlayerflowReadonScrollChecks() {
     const runtime = loadGame(ROOT);
     runtime.evaluate(`${INSTALL_LAYOUT}(${JSON.stringify(layout)})`);
     const r = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
-      const out = { scenes: 0, taps: 0, blind: [], lastBlind: [], scrolled: 0 };
+      const out = { scenes: 0, taps: 0, blind: [], lastBlind: [], scrolled: 0, choiceFits: 0, choiceMissed: [] };
       for (const id of Object.keys(scenes)) {
         __fresh();
         try { showScene(id); } catch (e) { continue; }
@@ -140,14 +158,19 @@ export function sunPlayerflowReadonScrollChecks() {
           if (!s.ok) (sceneReveal ? out.blind : out.lastBlind).push(id + " p" + s.shown + " " + Math.round(s.visible) + "/" + Math.round(s.height) + "px seen, room " + Math.round(s.room));
         }
         if (__scrolls.length) out.scrolled++;
+        const c = __choice();
+        if (c.shown && c.fits) { out.choiceFits++; if (!c.inView) out.choiceMissed.push(id); }
       }
       return out;
     })())`));
     check(r.scenes >= 120, `B ${layout.name}: only ${r.scenes} paced scenes`);
     check(r.blind.length === 0, `B ${layout.name}: ${r.blind.length} of ${r.taps} Read on taps left the new paragraph out of view: ${r.blind.slice(0, 6).join("; ")}`);
     check(r.lastBlind.length === 0, `B ${layout.name}: the last paragraph was out of view when the choices arrived: ${r.lastBlind.slice(0, 6).join("; ")}`);
+    // At 140px a last paragraph and a choice rarely fit together (15 scenes); on the phones, most do.
+    check(r.choiceFits >= (layout.mainH >= 200 ? r.scenes / 2 : 10), `B ${layout.name}: the last paragraph and first choice fit together in only ${r.choiceFits} of ${r.scenes} scenes; the layout model is off`);
+    check(r.choiceMissed.length === 0, `B ${layout.name}: ${r.choiceMissed.length} of ${r.choiceFits} scenes ended with the first choice out of view although it fit with the last paragraph: ${r.choiceMissed.slice(0, 8).join(", ")}`);
     check(r.scrolled > r.scenes / 2, `B ${layout.name}: #main scrolled in only ${r.scrolled} of ${r.scenes} scenes`);
-    console.log(`  B ${layout.name}: ${r.scenes} paced scenes, ${r.taps} taps, ${r.blind.length + r.lastBlind.length} out of view; #main scrolled in ${r.scrolled}`);
+    console.log(`  B ${layout.name}: ${r.scenes} paced scenes, ${r.taps} taps, ${r.blind.length + r.lastBlind.length} out of view; first choice in view in ${r.choiceFits - r.choiceMissed.length}/${r.choiceFits} that fit; #main scrolled in ${r.scrolled}`);
   }
 
   // C. Paths that must not scroll, and keyboard read-on.
@@ -192,8 +215,13 @@ export function sunPlayerflowReadonScrollChecks() {
     check(!/controls\.scrollIntoView/.test(body), "D: scrollRevealedIntoView must not scroll the sticky Read on bar into view; it is always in view, so #main never moves");
     check(/main\.scrollTo\(/.test(body) && /revealScrollTarget\(/.test(body), "D: scrollRevealedIntoView must scroll #main to revealScrollTarget's offset");
     check(/reveal-roomy/.test(body), "D: the bar's height is reserved only while it is sticky (#main.reveal-roomy)");
-    const room = src.slice(src.indexOf("function watchRevealRoom("), src.indexOf("function watchRevealRoom(") + 900);
+    const roomAt = src.indexOf("function watchRevealRoom(");
+    const room = roomAt >= 0 ? src.slice(roomAt, src.indexOf("\n})();", roomAt)) : "";
     check(/refollowRevealedBlock\(\)/.test(room), "E: watchRevealRoom's resize handler must re-follow the paragraph a Read on just revealed");
+    // A reader who drags or wheels #main (or presses a scrolling key) while the plate resizes keeps their place.
+    check(/"touchmove",\s*"wheel"/.test(room) && /revealFollow = null/.test(room), "E: touchmove and wheel on #main must cancel the follow");
+    const keys = (room.match(/SCROLL_KEYS = \[([^\]]*)\]/) || [])[1] || "";
+    check(/PageUp/.test(keys) && !/"Enter"|" "|ArrowRight/.test(keys), "E: scrolling keys cancel the follow; the Read on keys (Space, Enter, →) must not");
   }
 
   // E. #main shrinks just after a Read on (the plate growing back); the paragraph follows, briefly.
@@ -248,5 +276,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-readon-scroll", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-readon-scroll (scroll-target rule; every paced scene's new paragraph in view above the bar at three #main sizes; resume/instant/Show all do not scroll; keys read on in view; engine scrolls #main; paragraph follows a shrinking #main just after a tap)");
+  console.log("PASS sun-playerflow-readon-scroll (scroll-target rule; every paced scene's new paragraph in view above the bar at three #main sizes; resume/instant/Show all do not scroll; keys read on in view; engine scrolls #main; paragraph follows a shrinking #main just after a tap; first choice in view after the last tap)");
 }
