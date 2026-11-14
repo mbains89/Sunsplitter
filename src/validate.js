@@ -581,17 +581,6 @@ function advancePastCommanderCreate() {
   if (panel && panel.classList.contains("visible")) return confirmCommanderCreate();
   return false;
 }
-function startGameThroughCommander() {
-  const opened = typeof startGame === "function" ? startGame() : false;
-  if (opened) return true;
-  if (typeof confirmNewRun === "function") {
-    const panel = document.getElementById("new-run-confirm");
-    if (panel && panel.classList.contains("visible")) confirmNewRun();
-  }
-  if (advancePastCommanderCreate()) return true;
-  return !!opened;
-}
-
 function cancelCommanderCreate() {
   hideCommanderCreate();
   return false;
