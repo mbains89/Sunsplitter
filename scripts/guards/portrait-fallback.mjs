@@ -7,9 +7,9 @@
  * on every other path, and raising a grandfathered count fails.
  *
  * FIX FOR OWNER (do not add another):
- *   the engine 3 — crisis / priority_repairs / low-survivor crew_walk+status. Counted across
- *     src/engine.js and every src/engine-<part>.js together (L-043), so moving engine code
- *     between those files cannot raise it.
+ *   the engine 3 — counted across src/engine.js and every src/engine-<part>.js together (L-043),
+ *     so moving engine code between those files cannot raise it. On 2026-11-14 the engine has 2:
+ *     the PLATE_FACES and PLATE_FACE_FALLBACK entries for corridor.jpg in src/engine.js.
  *   src/state.js 2 — act2_spine_next, boarding_stories
  *   src/scenes-12.js 1 — act2_spine_next
  *   src/scenes-29.js 1 — boarding_stories

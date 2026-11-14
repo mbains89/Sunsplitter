@@ -10,6 +10,7 @@ const live = [
 ];
 const replays = [
   ["scripts/guards/hollow-stub.mjs", "--replay-416"],
+  ["scripts/guards/hollow-stub.mjs", "--replay-split"],
   ["scripts/guards/tip-sync-churn.mjs", "--replay-434"],
   ["scripts/guards/tip-sync-churn.mjs", "--replay-tip-sync-doc"],
   ["scripts/guards/portrait-fallback.mjs", "--replay-copy"],

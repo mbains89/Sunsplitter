@@ -24,11 +24,13 @@ const REPLAY_416_PATH = "scripts/guards/fixtures/hollow-416.js";
 const ENGINE_FILE_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
 
 // The engine files index.html loads, in load order.
+// A tag inside an HTML comment is not loaded, and a file loaded twice counts once.
 function loadedEngineFiles() {
   const html = fs.existsSync("index.html") ? fs.readFileSync("index.html", "utf8") : "";
-  return [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+  const live = html.replace(/<!--[\s\S]*?-->/g, "");
+  return [...new Set([...live.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
     .map(match => match[1].replace(/^\.\//, ""))
-    .filter(rel => ENGINE_FILE_RE.test(rel));
+    .filter(rel => ENGINE_FILE_RE.test(rel)))];
 }
 
 function checkEngine(parts) {
@@ -46,7 +48,8 @@ function checkEngine(parts) {
         "or add an overlay at src/<ticket>.js. Tip eng=93575 owns function resolveSceneImage."
     );
   }
-  if (!text.includes("function resolveSceneImage")) {
+  // Whole name only: resolveSceneImageUngated must not satisfy this.
+  if (!/\bfunction resolveSceneImage\s*\(/.test(text)) {
     errors.push(
       `HOLLOW_STUB the engine (${names}) is missing function resolveSceneImage. ` +
         "Do not replace engine code with a stub."
@@ -79,8 +82,16 @@ function checkText(rel, text) {
 }
 
 const replay = process.argv.includes("--replay-416");
+const replaySplit = process.argv.includes("--replay-split");
 const errors = [];
-if (replay) {
+if (replaySplit) {
+  // L-043 split: the loaded engine is over the floor and keeps a call site and resolveSceneImageUngated,
+  // but function resolveSceneImage itself sits only in a part index.html does not load.
+  errors.push(...checkEngine([
+    { rel: "src/engine-save.js", text: "function persistSave() { return true; }\n".repeat(1200) },
+    { rel: "src/engine.js", text: "function showScene(id) { return resolveSceneImage(id); }\nfunction resolveSceneImageUngated(id) { return id; }\n".repeat(600) }
+  ]));
+} else if (replay) {
   const text = fs.readFileSync(REPLAY_416_PATH, "utf8");
   errors.push(...checkEngine([{ rel: "src/engine.js", text }]), ...checkText("src/engine.js", text));
 } else {
@@ -97,4 +108,4 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
-console.log(replay ? "unexpected pass on #416 replay" : "hollow-stub: pass");
+console.log(replay || replaySplit ? "unexpected pass on replay" : "hollow-stub: pass");
