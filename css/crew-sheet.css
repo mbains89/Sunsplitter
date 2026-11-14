@@ -7,7 +7,8 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px 14px calc(16px + var(--safe-bottom));
-  background: rgba(8, 9, 11, 0.97);
+  /* SUN-PHONE-UI-POLISH-01 — opaque: story text and the bottom bar no longer show through. */
+  background: var(--bg);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
