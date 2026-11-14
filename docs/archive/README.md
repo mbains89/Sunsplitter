@@ -17,7 +17,7 @@ Left in place, though also from before 2026-11-05:
 - the PX4 and PX5 audits and the art-session manifest, which are audits and art records, not receipts;
 - every reference document: canon, chronology, voice cards, minted phrases, scene indexes.
 
-The Ticket column is the ID in each receipt's own heading or TASK line, which can differ from its file name. The Opening line column is the receipt's first line of prose.
+The Ticket column is the ID in each receipt's own heading or TASK line, which can differ from its file name. The Opening line column is the first line after the heading, skipping the SOURCE, RUNTIME, TASK and MODE stamp.
 
 | Receipt | Ticket | Opening line | Was in | Last changed |
 |---|---|---|---|---|
