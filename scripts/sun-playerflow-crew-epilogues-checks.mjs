@@ -87,6 +87,9 @@ for (const k of ORDER) {
   const hit = diedRe(FIRST[k]).test(out.alive.join("\n"));
   assert.equal(hit, k === "rourke", `alive: "${FIRST[k]} died" ${hit ? "present for a living" : "missing for a dead"} crew member`);
 }
+// SUN-BLEAK-ENDING-HONESTY-01 (decision 21): Rourke is dead in every run, so his cause is always in the
+// reflection lines; his paragraph opens on him and never restates how or when he died.
+assert.ok(!causeRe.test(out.alive[0]) && !/shrapnel|first hour/.test(out.alive[0]), `rourke: the paragraph repeats the death: ${out.alive[0]}`);
 for (const d of out.deaths) {
   expectOrder(d.paragraphs, `${d.who}/${d.cause}`);
   const joined = d.paragraphs.join("\n");

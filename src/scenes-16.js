@@ -114,7 +114,7 @@ registerScenes({
         opts.push({ text: "Go to the tracker board, where Jiro's fix and Vess's night log sit side by side. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
-        opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
+        opts.push({ text: state.flags.trays_dead ? ((state.dead || []).some(k => k !== "rourke") ? "Follow the sound of everyone left in one room." : "Follow the sound of the whole crew in one room.") : "Follow the smell of green down-corridor.", next: "warmth_meal" });
       }
       if (["lena","elias","mira","tomas","amara","jiro","sela","vess"].filter(isAlive).length >= 2 && !state.flags.warmth_laughter) {
         opts.push({ text: "There's laughter around the spine bend. Stop before they see you.", next: "warmth_laughter" });

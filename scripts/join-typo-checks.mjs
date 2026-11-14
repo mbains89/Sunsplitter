@@ -4,7 +4,9 @@ import { createHash } from "node:crypto";
 // SUN-V035-PLAYTEST-JOIN-TYPO-01. Exact predecessor's non-whitespace prose,
 // ordering, choices, image and state across the layout matrix.
 // SUN-RECAP-HONESTY-01: the debtor list no longer prints on faction_split; every other row is unchanged.
-const BASELINE_FINGERPRINT = "0119ce8eb9eecb568a68b9185b1bbb62fff6b785f60606df617a3843962ee8d4";
+// SUN-BLEAK-ENDING-HONESTY-01: one Future voice reads "X, who speaks in…", and "You backed down" no longer
+// opens on "Neither" when Elias is dead (94 of 188 rows; choices, image and state unchanged).
+const BASELINE_FINGERPRINT = "0915f9c1b6da21f8ae87402a9b4e234a757c7e1625bf0e89291efeb07202497c";
 
 export const joinLayoutFixtures = [];
 for (const cascade of ["none", "open", "sealed"])
