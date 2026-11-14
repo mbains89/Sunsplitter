@@ -1918,8 +1918,9 @@ function renderCrewPanel(selectedKey) {
       : (state.dying && state.dying[selectedKey]);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
-    if (!dead && favored === selectedKey) bits.push("favored");
-    if (!dead && state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
+    // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
+    // favoritism is "who you chose to keep close"; raw marks (e.g. "dying_held") stay internal.
+    if (!dead && favored === selectedKey) bits.push("kept close");
     detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
   } else {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
@@ -2691,10 +2692,12 @@ function flashSaveStatus(msg, isError, sticky) {
   });
   clearTimeout(window.__ssSaveFlash);
   if (sticky) return;
+  // SUN-PHONE-UI-POLISH-01: a passing notice clears in the game bar too, so a stale
+  // "Resumed" does not linger there for the rest of the run.
   window.__ssSaveFlash = setTimeout(() => {
     targets.forEach(el => {
       el.classList.remove("visible");
-      if (el.id === "title-save-status") el.textContent = "";
+      el.textContent = "";
     });
   }, 1800);
 }
@@ -2779,7 +2782,7 @@ function refreshTitleResumeUI() {
   const saveChip = document.getElementById("title-save-chip");
   if (saveChip) {
     if (has) {
-      saveChip.textContent = "Save slot · durable local · Continue ready";
+      saveChip.textContent = "Your run is saved on this device";
       saveChip.classList.remove("hidden");
     } else {
       saveChip.textContent = "";
