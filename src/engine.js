@@ -792,19 +792,75 @@ function beginSceneReveal(opts) {
   return true;
 }
 
+// SUN-READON-SCROLL-01: where #main should scroll so a newly revealed paragraph is on screen.
+// Values are in #main's content coordinates (0 = the top of its scrolled content): scrollTop,
+// viewHeight (#main.clientHeight), maxScroll (scrollHeight - clientHeight), the paragraph's top and
+// bottom, reserve (the sticky Read on bar's height; 0 when the bar is in normal flow or hidden) and
+// follow (the bottom of an in-flow Read on bar, which comes into view with the paragraph when both
+// fit). Returns the scrollTop to move to, or null when the paragraph is already in view.
+function revealScrollTarget(v) {
+  const room = v.viewHeight - v.reserve;
+  const visibleBottom = v.scrollTop + room;
+  const end = v.follow > v.bottom && v.follow - v.top <= room ? v.follow : v.bottom;
+  if (v.top >= v.scrollTop && end <= visibleBottom) return null;
+  // Too tall for the room, or above the view: start it at the top. Otherwise lift its end to just above the bar.
+  const target = v.bottom - v.top > room || end <= visibleBottom ? v.top : end - room;
+  return Math.round(Math.min(Math.max(0, v.maxScroll), Math.max(0, target)));
+}
+
+// SUN-READON-SCROLL-01: scroll #main itself. The Read on bar is sticky at the bottom of #main, so it
+// always counts as in view: scrolling it "into view" never moved #main, the plate never minimized,
+// and on a 390x664 phone 221 of 403 taps revealed a paragraph under the bar or below the fold.
+// Scrolling #main past MINIMIZE_AT minimizes the plate as any scroll does, which frees more room.
 function scrollRevealedIntoView(block) {
   const main = document.getElementById("main");
   const controls = document.getElementById("reveal-controls");
-  const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
-  if (!block || typeof block.scrollIntoView !== "function") return;
+  if (!block || !main || typeof block.getBoundingClientRect !== "function" || typeof main.getBoundingClientRect !== "function") return;
   try {
-    const blockHeight = block.getBoundingClientRect().height;
-    const controlsHeight = sceneReveal && controls ? controls.getBoundingClientRect().height : 0;
-    const room = main ? main.clientHeight : Infinity;
-    // Keep "read on" in view under the new paragraph when both fit; otherwise start the paragraph at the top.
-    if (sceneReveal && controls && blockHeight + controlsHeight <= room) controls.scrollIntoView({ block: "nearest", behavior });
-    else block.scrollIntoView({ block: blockHeight <= room ? "nearest" : "start", behavior });
+    const offset = main.scrollTop - main.getBoundingClientRect().top - (main.clientTop || 0);
+    const box = block.getBoundingClientRect();
+    const pending = !!(sceneReveal && controls && !controls.classList.contains("hidden"));
+    const bar = pending ? controls.getBoundingClientRect() : null;
+    const sticky = pending && main.classList.contains("reveal-roomy"); // css/paced-reveal.css: sticky only there
+    // A sticky bar sticks above #main's bottom padding (20px on a phone), so that strip is covered too.
+    const padBottom = sticky && typeof getComputedStyle === "function" ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+    // After the last Read on the choices are out (finishSceneReveal dropped .reveal-pending): bring
+    // the first one along with the last paragraph when both fit, as the in-flow bar comes along.
+    const firstChoice = !pending && typeof document.querySelector === "function" ? document.querySelector("#choices:not(.reveal-pending) button") : null;
+    const choiceBox = firstChoice && typeof firstChoice.getClientRects === "function" && firstChoice.getClientRects().length ? firstChoice.getBoundingClientRect() : null;
+    const target = revealScrollTarget({
+      scrollTop: main.scrollTop,
+      viewHeight: main.clientHeight,
+      maxScroll: main.scrollHeight - main.clientHeight,
+      top: box.top + offset,
+      bottom: box.bottom + offset,
+      reserve: sticky ? bar.height + padBottom : 0,
+      follow: pending && !sticky ? bar.bottom + offset : (choiceBox ? choiceBox.bottom + offset : 0)
+    });
+    if (target == null || target === Math.round(main.scrollTop)) return;
+    const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
+    if (typeof main.scrollTo === "function") main.scrollTo({ top: target, behavior });
+    else main.scrollTop = target;
   } catch (e) { /* layout-free hosts */ }
+}
+
+// SUN-READON-SCROLL-01: a new scene's plate grows back from minimized over 0.28s (css/style.css),
+// so a Read on tapped while it grows aims at a #main that is still shrinking, and the paragraph
+// slides back under the bar. For a short time after a Read on, a resize of #main (watchRevealRoom)
+// brings that paragraph back into view. Resizes after that leave the reader's place alone, and so
+// does any resize after the reader scrolls by hand (touch drag, wheel, scrolling keys).
+const REVEAL_FOLLOW_MS = 700;
+let revealFollow = null; // { block, until } just after a Read on
+function followRevealedBlock(block) {
+  revealFollow = block ? { block, until: Date.now() + REVEAL_FOLLOW_MS } : null;
+  scrollRevealedIntoView(block);
+}
+function refollowRevealedBlock() {
+  const follow = revealFollow;
+  if (!follow) return;
+  const main = document.getElementById("main");
+  if (Date.now() > follow.until || !main || typeof main.contains !== "function" || !main.contains(follow.block)) { revealFollow = null; return; }
+  scrollRevealedIntoView(follow.block);
 }
 
 function showRevealBlock(block) {
@@ -824,13 +880,13 @@ function advanceSceneReveal(source) {
   }
   if (reveal.shown < reveal.blocks.length) {
     setSceneRevealChrome(true);
-    scrollRevealedIntoView(block);
+    followRevealedBlock(block);
     return true;
   }
   finishSceneReveal(source);
   // From a keyboard control, focusing the first choice scrolls it in; otherwise keep the
   // last paragraph in view with the choices under it.
-  if (source !== "control-key") scrollRevealedIntoView(block);
+  if (source !== "control-key") followRevealedBlock(block);
   return true;
 }
 
@@ -896,8 +952,17 @@ const REVEAL_STICKY_MIN_HEIGHT = 160;
   function bind() {
     const main = document.getElementById("main");
     if (!main) return;
-    const update = () => main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+    const update = () => {
+      main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+      refollowRevealedBlock();
+    };
     try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
+    // A reader who scrolls by hand while the plate still resizes keeps their place.
+    const stopFollow = () => { revealFollow = null; };
+    ["touchmove", "wheel"].forEach(type => main.addEventListener(type, stopFollow, { passive: true }));
+    // Scrolling keys only: Space, Enter and → read on, so they must not cancel the follow they start.
+    const SCROLL_KEYS = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"];
+    document.addEventListener("keydown", event => { if (SCROLL_KEYS.includes(event.key)) stopFollow(); }, { capture: true, passive: true });
     update();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);

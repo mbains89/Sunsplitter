@@ -6,7 +6,7 @@
 // horizontal overflow, renders with no enabled choice, scene loops, and (with --chaos) drift after
 // reloading mid-run and pressing Continue. Exits 1 when anything is found.
 //
-//   node scripts/sun-browser-bot.mjs [--runs 5] [--viewport desktop|phone] [--input mouse|keys|tab]
+//   node scripts/sun-browser-bot.mjs [--runs 5] [--viewport desktop|phone|iphone13] [--input mouse|keys|tab]
 //                                    [--chaos] [--seed 1]   (--input touch also accepted)
 //
 //   --input keys  choices by digit keys, dialogs by focus + Enter
@@ -19,6 +19,12 @@
 // the way its input mode would (tap/click the passage or Read on, Space/Enter/→, Tab to Read on),
 // sometimes presses Show all, and flags choices shown early, a reveal that never ends, and a resume
 // that replays the reveal (--chaos reloads mid-reveal too). It waits out the settle guard before picking.
+//
+// SUN-READON-SCROLL-01: after every Read on (tap, click, Space/Enter/→ or Tab + Enter) the bot waits
+// for #main to stop scrolling and flags READON_BLIND when the paragraph it revealed is not on screen:
+// as much of it as fits must sit inside the visible part of #main, above the sticky Read on bar.
+// It used to check only the reveal state, so it passed while a 390x664 phone showed nothing new on
+// 221 of 403 taps. `--viewport iphone13` is that phone (Playwright's iPhone 13: 390x664, touch).
 //
 // Playwright resolves from SUNSPLITTER_PLAYWRIGHT_MODULE (path to index.js), then `playwright`,
 // then the global npm root.
@@ -66,7 +72,8 @@ const base = `http://127.0.0.1:${server.address().port}/index.html`;
 
 const { chromium, devices } = await loadPlaywright();
 const browser = await chromium.launch();
-const contextOptions = { ...(VIEWPORT === "phone" ? devices["Pixel 7"] : { viewport: { width: 1440, height: 900 } }), ...(INPUT === "touch" ? { hasTouch: true } : {}) };
+const DEVICE = { phone: devices["Pixel 7"], iphone13: devices["iPhone 13"] }[VIEWPORT];
+const contextOptions = { ...(DEVICE || { viewport: { width: 1440, height: 900 } }), ...(INPUT === "touch" ? { hasTouch: true } : {}) };
 const RESIZES = [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 768, height: 1024 }, { width: 1024, height: 768 }, { width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 720, height: 450 }];
 const findings = new Map();
 const note = (kind, detail) => { if (!NOISE.test(detail)) findings.set(`${kind} | ${detail}`, (findings.get(`${kind} | ${detail}`) || 0) + 1); };
@@ -81,7 +88,26 @@ const SNAPSHOT = () => JSON.stringify([state.scene, state.survivors, state.suppl
 const ORDER = ["new-run-confirm", "commander-create", "tutorial-overlay", "crew-sheet", "what-remains-screen",
   "ending-screen", "cinematic-screen", "game-screen", "title-screen", "tone-screen"];
 let incomplete = 0;
-let revealPresses = 0;
+let revealPresses = 0, blindPresses = 0;
+// The newest shown paragraph against the part of #main the reader can see (above a sticky Read on bar).
+const READON_SEEN = () => {
+  const main = document.getElementById("main");
+  const controls = document.getElementById("reveal-controls");
+  const ps = [...document.querySelectorAll("#story .scene-text > p")].filter(p => !p.classList.contains("reveal-hidden"));
+  const p = ps[ps.length - 1];
+  if (!p) return null;
+  const mb = main.getBoundingClientRect();
+  const top = Math.max(mb.top, 0);
+  let bottom = Math.min(mb.bottom, window.innerHeight);
+  if (!controls.classList.contains("hidden") && controls.getClientRects().length) {
+    const cb = controls.getBoundingClientRect();
+    if (cb.top < bottom && cb.bottom > top) bottom = Math.min(bottom, cb.top);
+  }
+  const box = p.getBoundingClientRect();
+  const visible = Math.max(0, Math.min(box.bottom, bottom) - Math.max(box.top, top));
+  return { shown: ps.length, visible: Math.round(visible), height: Math.round(box.height), room: Math.round(bottom - top),
+    ok: visible >= Math.min(box.height, bottom - top) - 2, size: `${window.innerWidth}x${window.innerHeight}` };
+};
 const REVEAL_SETTLE_WAIT = 420; // engine REVEAL_SETTLE_MS is 350
 
 for (let run = 0; run < RUNS; run++) {
@@ -119,6 +145,7 @@ for (let run = 0; run < RUNS; run++) {
     // lands focus on the first choice, where digits keep native handling; tab mode covers it).
     const all = INPUT !== "keys" && rnd() < 0.15;
     const control = all ? "#reveal-all" : "#reveal-next";
+    const shownBefore = await page.evaluate(() => [...document.querySelectorAll("#story .scene-text > p")].filter(p => !p.classList.contains("reveal-hidden")).length);
     if (INPUT === "keys") {
       await page.focus("#story").catch(() => {});
       await page.keyboard.press([" ", "Enter", "ArrowRight"][Math.floor(rnd() * 3)]);
@@ -127,12 +154,28 @@ for (let run = 0; run < RUNS; run++) {
       // Tap/click the passage itself: "anywhere on the story area" reads on.
       // Tap near the top of the passage, as a reader does. Since L-059 the sticky Read on bar
       // sits over the bottom of #main while text waits, and a tap there also reads on, but
-      // Playwright will not tap #story at a point another element covers.
-      if (INPUT === "touch") await page.tap("#story", { timeout: 2000, position: { x: 16, y: 12 } }).catch(e => note("tapfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
-      else await page.click("#story", { timeout: 2000, position: { x: 16, y: 12 } }).catch(e => note("clickfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
+      // Playwright will not tap #story at a point another element covers. Once #main has scrolled,
+      // the top of the passage is off screen, so tap 12px under the top of what #main shows.
+      const position = await page.evaluate(() => ({ x: 16, y: Math.max(12, Math.round(document.getElementById("main").getBoundingClientRect().top - document.getElementById("story").getBoundingClientRect().top) + 12) }));
+      if (INPUT === "touch") await page.tap("#story", { timeout: 2000, position }).catch(e => note("tapfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
+      else await page.click("#story", { timeout: 2000, position }).catch(e => note("clickfail", `#story @${where}: ${e.message.split("\n")[0].slice(0, 100)}`));
     } else await press(control);
     reveals++; revealPresses++;
     await page.waitForTimeout(40);
+    if (!all) {
+      // Read on must show what it revealed. Give a smooth scroll time to land before judging.
+      let seen = await page.evaluate(READON_SEEN);
+      for (let k = 0, last = -1, still = 0; seen && !seen.ok && k < 40 && still < 3; k++) {
+        await page.waitForTimeout(40);
+        const top = await page.evaluate(() => document.getElementById("main").scrollTop + document.getElementById("main").clientHeight * 1e4);
+        still = top === last ? still + 1 : 0; last = top;
+        seen = await page.evaluate(READON_SEEN);
+      }
+      if (seen && seen.shown > shownBefore && !seen.ok) {
+        blindPresses++;
+        note("READON_BLIND", `${where} paragraph ${seen.shown}: ${seen.visible}/${seen.height}px on screen, ${seen.room}px of room @${seen.size}`);
+      }
+    }
     const done = await page.evaluate(() => document.getElementById("reveal-controls").classList.contains("hidden"));
     if (done) await page.waitForTimeout(REVEAL_SETTLE_WAIT);
   };
@@ -232,5 +275,5 @@ for (let run = 0; run < RUNS; run++) {
 await browser.close();
 server.close();
 for (const [finding, count] of findings) console.log(`FINDING ${finding}${count > 1 ? ` (x${count})` : ""}`);
-console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es); ${findings.size} finding(s)`);
+console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es), ${blindPresses} blind; ${findings.size} finding(s)`);
 process.exit(findings.size ? 1 : 0);
