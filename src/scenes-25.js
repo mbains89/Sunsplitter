@@ -73,11 +73,22 @@ registerScenes({
         t += `\n\n`;
       }
 
+      // SUN-BLEAK-ENDING-HONESTY-01: one voice is one person, not "They"; the living side's motifs
+      // name only what someone still alive carries (Sela's drawings, Amara's or Tomas's plants).
       if (futureVoices.length) {
-        t += `Future still has a voice: ${futureVoices.join(", ")}. They speak in numbers, order, and the mission that justified the escape.\n\n`;
+        const futureSays = `numbers, order, and the mission that justified the escape`;
+        t += futureVoices.length === 1
+          ? `Future still has a voice: ${futureVoices[0]}, who speaks in ${futureSays}.\n\n`
+          : `Future still has a voice: ${futureVoices.join(", ")}. They speak in ${futureSays}.\n\n`;
       }
       if (livingVoices.length) {
-        t += `Living still has a voice: ${livingVoices.join(", ")}. They speak in breath, plants, drawings, and the refusal to treat the present as cargo.\n\n`;
+        const motifs = ["breath"];
+        if (isAlive("amara") || isAlive("tomas")) motifs.push("plants");
+        if (isAlive("sela")) motifs.push("drawings");
+        const livingSays = `${motifs.join(", ")}${motifs.length > 1 ? "," : ""} and the refusal to treat the present as cargo`;
+        t += livingVoices.length === 1
+          ? `Living still has a voice: ${livingVoices[0]}, who speaks in ${livingSays}.\n\n`
+          : `Living still has a voice: ${livingVoices.join(", ")}. They speak in ${livingSays}.\n\n`;
       }
       if (!futureVoices.length && !livingVoices.length) {
         t += `Too few remain for ideology to have a proper argument. The ship is mostly quiet.\n\n`;
@@ -146,9 +157,10 @@ registerScenes({
       else if (state.flags.cascade_truth === "sealed") t += `You sealed the cascade records. Someone will unseal them eventually.\n\n`;
       if (hasMark("conflict", "held")) t += `You held the line when the corridor refused you. That fact is still walking around.\n\n`;
       else if (hasMark("conflict", "backed")) {
-        t += `You backed down a step when the crew pushed.`;
-        if (isAlive("elias")) t += ` Elias has not forgotten.`;
-        t += ` Neither have the people who needed it.\n\n`;
+        // SUN-BLEAK-ENDING-HONESTY-01: "Neither" needs Elias's sentence before it.
+        t += isAlive("elias")
+          ? `You backed down a step when the crew pushed. Elias has not forgotten. Neither have the people who needed it.\n\n`
+          : `You backed down a step when the crew pushed. The people who needed it have not forgotten.\n\n`;
       }
       if (state.flags.mid_arc === shape) { /* same lean as above */ }
       else if (state.flags.mid_arc === "future") t += `The mid-voyage work leaned Future. The living sections felt it.\n\n`;

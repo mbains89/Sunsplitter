@@ -1376,7 +1376,7 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
-  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
+  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and now and then reaches for one another.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
   text += buildFinalOrderText(final);
@@ -1384,11 +1384,32 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   return text;
 }
 
+// SUN-BLEAK-ENDING-HONESTY-01: deaths that came at one of the Commander's orders or refusals. The
+// attributable causes (the vent, a diverted bus, an ordered repair, a stopped treatment, a vented
+// pocket) plus the lethal opportunities whose causes do not name the order: Lena's treatment left
+// unbuilt, Elias sealed into B-four, Tomas sent through the annex, the shared line moved to Lena.
+const ORDERED_DEATH_CAUSES = [
+  "kept working until the clock ran out",
+  "held the line",
+  "went back for the living and did not return",
+  "lost the shared medical line to Lena"
+];
+function deathByOrder() {
+  return (state.dead || []).some(k => attributableDeath(k) ||
+    ORDERED_DEATH_CAUSES.includes(state.deathCause && state.deathCause[k]));
+}
+
 function buildQuietShipText(deadNames, shape, final) {
-  let text = `Only a few of you remain — or what remains of the restart package is too thin to matter.\n\n`;
+  // SUN-BLEAK-ENDING-HONESTY-01: say which collapse this is (the gate's own terms), not both as a hedge.
+  const fewLeft = state.survivors <= 4 || (state.integrity < 15 && state.survivors <= 5);
+  const vaultThin = state.embryos < 25;
+  let text = fewLeft && vaultThin ? `Only a few of you remain, and what remains of the restart package is too thin to matter.\n\n`
+    : fewLeft ? `Only a few of you remain.\n\n`
+    : `What remains of the restart package is too thin to matter.\n\n`;
   if (deadNames.length) text += `The dead: ${deadNames.join("; ")}.\n\n`;
   if (shape === "future") text += `You protected the vault when you could. It did not save the room.\n\n`;
-  if (shape === "living") text += `You protected the living when you could. There were not enough left to matter.\n\n`;
+  // SUN-BLEAK-ENDING-HONESTY-01: not after crew died at the Commander's order or refusal.
+  if (shape === "living" && !deathByOrder()) text += `You protected the living when you could. There were not enough left to matter.\n\n`;
   text += buildFinalOrderText(final);
   text += `The Sunsplitter drifts. Systems fail one by one. There is no longer any pretense of a future.\n\nYou sit with the last of them in the observation blister and watch the stars that do not care.\n\nWhen the final systems go dark, no one speaks.\n\nThis is how the last light goes out.`;
   return text;
@@ -1472,7 +1493,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("lena", "dying_held")) text += `\n\nLena's remaining time was spent with someone who stayed. That fact outlived her.`;
   else if (hasMark("lena", "held_only") && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it.`;
   else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
-  if (hasMark("tomas", "broke")) text += `\n\nTomas broke in front of you. That fact does not leave the ship.`;
+  // SUN-BLEAK-ENDING-HONESTY-01: what tomas_break's reply shows, not a breakdown it does not show.
+  if (hasMark("tomas", "broke")) text += `\n\nYou told Tomas the future is what justifies this. He took it like a ration cut, and did not argue. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-05 (L-050): Sela's end state, cited from the answer the run gave.
   if (state.flags.sela_amber) {
@@ -1896,8 +1918,9 @@ function renderCrewPanel(selectedKey) {
       : (state.dying && state.dying[selectedKey]);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
-    if (!dead && favored === selectedKey) bits.push("favored");
-    if (!dead && state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
+    // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
+    // favoritism is "who you chose to keep close"; raw marks (e.g. "dying_held") stay internal.
+    if (!dead && favored === selectedKey) bits.push("kept close");
     detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
   } else {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
@@ -2669,10 +2692,12 @@ function flashSaveStatus(msg, isError, sticky) {
   });
   clearTimeout(window.__ssSaveFlash);
   if (sticky) return;
+  // SUN-PHONE-UI-POLISH-01: a passing notice clears in the game bar too, so a stale
+  // "Resumed" does not linger there for the rest of the run.
   window.__ssSaveFlash = setTimeout(() => {
     targets.forEach(el => {
       el.classList.remove("visible");
-      if (el.id === "title-save-status") el.textContent = "";
+      el.textContent = "";
     });
   }, 1800);
 }
@@ -2757,7 +2782,7 @@ function refreshTitleResumeUI() {
   const saveChip = document.getElementById("title-save-chip");
   if (saveChip) {
     if (has) {
-      saveChip.textContent = "Save slot · durable local · Continue ready";
+      saveChip.textContent = "Your run is saved on this device";
       saveChip.classList.remove("hidden");
     } else {
       saveChip.textContent = "";

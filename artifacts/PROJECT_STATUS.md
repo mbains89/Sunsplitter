@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-13`
+`updated_utc: 2026-11-14`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 584038c (after PR #554; this PR carries the rows for #544–#556)`
+`work_branch_tip: 8a8a320 (after PR #563; this PR carries the rows for #554 and #558–#565)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -116,6 +116,15 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 553 | SUN-EMPTY-PARAGRAPHS-01 | Blank paragraphs dropped in `showScene`, so paced reveal never spends a "Read on" tap on nothing (1,034 of 60,023 screens had one; now 0). No visible text changed. |
 | 555 | SUN-TABLET-PLATE-CROP-01 | Tablet portrait and 900×720: the plate box follows the 784×1168 ratio with `object-fit: contain`, so the whole plate shows (61% → 100% at 768×1024, 23% → 100% at 900×720). 18 other sizes identical. Muse check applied (centred letterbox). |
 | 556 | SUN-RECAP-HONESTY-01 | Recap and ending claims match the run: the debtor list names only people with reason (prints at the ending); "Something private" names a private memory (Lena's off-shift memory now kept); Sela's yellow line where true; Elias "receipt" only alive; ending and What Remains agree on the lean; Deck 4 and the two vaults named honestly. Myth read applied. |
+| 554 | SUN-CLEAN-VERIFY-SPLIT-03 | Cleanup lane, scripts only: the choice-cost checks move out of `verify.mjs`. |
+| 558 | SUN-ORDERS-ANSWERED-02 | Ten more orders that got no answer now get a reply (L-057); the reckoning choices are labelled with what they do; `power_crisis` trimmed (C14, the trim rather than a cut). Myth read applied. |
+| 559 | SUN-CLOSEOUT-544-556 | Restores the two #549 lines in `scenes-41.js` that were lost in a conflict resolution; carries the STATUS rows for #544–#556. |
+| 560 | SUN-HUB-REPEAT-01 | The corridor hub stops repeating its refrain on every visit, and its offers read as actions. Myth read applied. |
+| 561 | SUN-VESS-ARRIVAL-01 | Vess is named at boarding; the dock text matches what happens; the window shows. Myth read applied. Owner questions on "six years" and the window framing are item 40 of the pending-decisions doc. |
+| 562 | SUN-CLEAN-VERIFY-SPLIT-04 | Cleanup lane, scripts only: the story checks move out of `verify.mjs` into `scripts/verify/`. |
+| 563 | SUN-DEATH-REACTIONS-01 | After each Act 3 death, one living crew member answers it once at the top of the next screen (narration if nobody is left); Tomas names the dead in `reckon_memory`, Rourke first; `tomas_break` and the paste meal keep places for the dead he ate beside; `breath_onset` reads true when only rescued crew remain. No one is named before recovery (300 runs). Myth read applied (6 edits). Rourke in the count is item 30 for Manraj. |
+| 564 | SUN-BLEAK-ENDING-HONESTY-01 | Bleak runs read honestly: the Quiet Ship says which collapse it is; "You protected the living" drops after a death at your order; `faction_split` voices and motifs only name the living; What Remains clauses for Lena, Elias and Sela say only what the run showed; Rourke's death no longer prints twice; Tomas's "broke" lines, Sela's lamp, Lena's clock and `breath_racks` match what was shown. Myth read applied (6 edits). Items 31–32 for Manraj. |
+| 565 | SUN-PHONE-UI-POLISH-01 | Phones: the tutorial shows all five meters without an inner scroll; the crew board shows the full detail; the save notice no longer grows the bar (82 → 57px); opaque crew sheet; focus ring only for keyboard focus (now also on `select`); plainer wording ("Your run is saved on this device", "kept close"). No plate change. Muse check: land (item 34 for Manraj). |
 
 ## Open
 
@@ -197,7 +206,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 28. **Which lead session continues (decision 16 allows one).** Since the evening of 2026-11-06, two Claude Code sessions have acted as lead. `013z2UzJR…` landed #527, wrote #529 and #532, and wrote the project handoff. `013z2UzK5…` opened #528, then ran the 2026-11-08 go: it landed #528 and #530–#535, including #532 after a lead-chat Myth read. Which session continues as lead, and should the other stop opening PRs?
 29. **Cleanup lane: RULED 2026-11-11 and 2026-11-13 (in the cleanup chat, recorded in the project docs `claude/cleanup/2026-11-11.md` and `2026-11-13.md`).** A cleanup chat opens one PR per cleanup ticket. On 2026-11-11 Manraj also answered L-043 (engine split deferred to after 1.0) with "Open it now": `engine.js` may split into plain script files, still no bundler; the LOCKS row and ROADMAP §2 line still need recording, in the first cleanup PR that touches `src/`. On 2026-11-13 he let the cleanup chat merge its own PRs that touch no game code (nothing under `src/`, `css/`, `images/`, `index.html`, guards, workflows, LOCKS, ROADMAP, VERSION or AGENTS) after green CI and an independent review; #540–#542 landed that way. An owner exception to AGENTS.md §1/§4, not written into the contract.
 30. **Commander face in `lead_prompt.jpg` (Muse, 2026-11-13).** The plate shows a man's full face and eyes, matching no crew portrait; the owner's approval record lists it as the Commander's reference image. It renders in every run (`lead_prompt`, where the text has Elias in the blister). AGENTS.md §5 says the Commander stays faceless. Options: rewire `lead_prompt` to the empty observation plate `art_r2_observation_wreck.jpg`, or keep it. Recommendation: rewire.
-31. **Today's batch of owner questions (2026-11-13).** The full list with the lead's recommendations is the project doc `claude/decisions/pending-2026-11-13.md` (29 items): Wave 2 entry; decision 27's four answers; L-043 recorded; decision 28; `lead_prompt.jpg`; Tomas chaplain or grower; Jiro among the nine; one timeline; Amara's boarding; Sela's custody offer in public; the `romance_amara_tomas` consent wording; decision 26 (the cap is built and held as #557; it drops Vess's last-scene reach from 396 to 140 of 396 romancer runs, so the lead now recommends no for now); C13 keep and C14 trim; and the Wave 2 design rulings.
+31. **Today's batch of owner questions (2026-11-13).** The full list with the lead's recommendations is the project doc `claude/decisions/pending-2026-11-13.md` (29 items): Wave 2 entry; decision 27's four answers; L-043 recorded; decision 28; `lead_prompt.jpg`; Tomas chaplain or grower; Jiro among the nine; one timeline; Amara's boarding; Sela's custody offer in public; the `romance_amara_tomas` consent wording; decision 26 (the cap is built and held as #557; it drops Vess's last-scene reach from 396 to 140 of 396 romancer runs, so the lead now recommends no for now); C13 keep and C14 trim; and the Wave 2 design rulings. Items 30–40 were added later on 11-13 from the fix tickets (#563–#565).
 
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
@@ -232,6 +241,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** land the second-round cold-read fixes (post-death reactions, bleak-run ending honesty, unanswered orders, the corridor hub refrain), one PR each with a Myth read; send a fresh playtest build; land #529 on decision 25. **Manraj:** rule the batch in `claude/decisions/pending-2026-11-13.md` (Wave 2 entry, decision 27, L-043 and decision 28 first); play the next playtest build (gate 1, first half); name the gate-1 stranger (D10).
+**Lead:** land SUN-READON-SCROLL-01 ("Read on" taps that reveal nothing visible on phones) with a Muse check; then verify the tip, run a browser-bot batch and send a fresh playtest build; land #529 on decision 25. **Manraj:** rule the batch in `claude/decisions/pending-2026-11-13.md` (Wave 2 entry, decision 27, L-043 and decision 28 first); play the next playtest build (gate 1, first half); name the gate-1 stranger (D10).
 
 <!-- STATUS_COMPLETE -->
