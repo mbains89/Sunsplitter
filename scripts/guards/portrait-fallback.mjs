@@ -7,7 +7,9 @@
  * on every other path, and raising a grandfathered count fails.
  *
  * FIX FOR OWNER (do not add another):
- *   src/engine.js 3 — crisis / priority_repairs / low-survivor crew_walk+status
+ *   the engine 3 — counted across src/engine.js and every src/engine-<part>.js together (L-043),
+ *     so moving engine code between those files cannot raise it. On 2026-11-14 the engine has 2:
+ *     the PLATE_FACES and PLATE_FACE_FALLBACK entries for corridor.jpg in src/engine.js.
  *   src/state.js 2 — act2_spine_next, boarding_stories
  *   src/scenes-12.js 1 — act2_spine_next
  *   src/scenes-29.js 1 — boarding_stories
@@ -23,8 +25,10 @@ import path from "node:path";
 
 const NEEDLE = "images/corridor.jpg";
 const FIXTURE = "scripts/guards/fixtures/portrait-copy.js";
+const ENGINE_FILE_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
+const ENGINE = "src/engine.js + src/engine-*.js";
 const GRANDFATHER = {
-  "src/engine.js": 3,
+  [ENGINE]: 3,
   "src/state.js": 2,
   "src/scenes-12.js": 1,
   "src/scenes-29.js": 1,
@@ -49,7 +53,7 @@ function offense(rel, n, allowed) {
   return (
     `PORTRAIT_FALLBACK ${rel} assigns ${NEEDLE} (${n}; grandfather ${allowed}). ` +
     "That file is a Vess-lookalike. Do not copy it. Use images/corridor_variant_2.jpg " +
-    "or images/debris_field.jpg inside resolveSceneImage (src/engine.js)."
+    "or images/debris_field.jpg inside resolveSceneImage (the engine)."
   );
 }
 
@@ -58,12 +62,17 @@ if (process.argv.includes("--replay-copy")) {
   const n = count(fs.readFileSync(FIXTURE, "utf8"));
   if (n > 0) errors.push(offense("src/ticket-overlay.js", n, 0));
 } else {
+  const counts = new Map();
   for (const file of walk("src")) {
     const rel = file.split(path.sep).join("/");
     const n = count(fs.readFileSync(file, "utf8"));
     if (!n) continue;
-    const allowed = GRANDFATHER[rel] || 0;
-    if (n > allowed) errors.push(offense(rel, n, allowed));
+    const key = ENGINE_FILE_RE.test(rel) ? ENGINE : rel;
+    counts.set(key, (counts.get(key) || 0) + n);
+  }
+  for (const [key, n] of counts) {
+    const allowed = GRANDFATHER[key] || 0;
+    if (n > allowed) errors.push(offense(key, n, allowed));
   }
 }
 if (errors.length) {
