@@ -4,8 +4,13 @@
  * Evidence: PR #416 head b6284dce replaced src/engine.js with 27 bytes `// see local /tmp/engine.js`.
  * Tip 520be6ad src/engine.js is 93575 bytes and owns resolveSceneImage.
  *
- * Use instead: do not replace src/engine.js. Add an overlay at src/<ticket>.js and load it
- * the way src/dialog-keys.js is pointed from the existing validate.js data-* hook.
+ * L-043 (confirmed by Manraj 2026-11-14) lets the engine span src/engine.js plus src/engine-<part>.js
+ * files. The floor and the resolveSceneImage check apply to the engine files index.html loads,
+ * taken together; every file under src/ is still checked on its own for stub markers.
+ *
+ * Use instead: do not replace engine code with a stub. Move it to a src/engine-<part>.js that
+ * index.html loads before engine.js, or add an overlay at src/<ticket>.js and load it the way
+ * src/dialog-keys.js is pointed from the existing validate.js data-* hook.
  *
  *   node scripts/guards/hollow-stub.mjs
  *   node scripts/guards/hollow-stub.mjs --replay-416
@@ -16,6 +21,39 @@ import path from "node:path";
 const ENGINE_FLOOR = 90000;
 const STUB_RE = /see local \/tmp|SEE_LOCAL_PATCH|SEE_LOCAL_FILE|\bPLACEHOLDER\b/;
 const REPLAY_416_PATH = "scripts/guards/fixtures/hollow-416.js";
+const ENGINE_FILE_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
+
+// The engine files index.html loads, in load order.
+function loadedEngineFiles() {
+  const html = fs.existsSync("index.html") ? fs.readFileSync("index.html", "utf8") : "";
+  return [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+    .map(match => match[1].replace(/^\.\//, ""))
+    .filter(rel => ENGINE_FILE_RE.test(rel));
+}
+
+function checkEngine(parts) {
+  const errors = [];
+  const names = parts.map(part => part.rel).join(" + ") || "(none)";
+  if (!parts.some(part => part.rel === "src/engine.js")) {
+    errors.push(`HOLLOW_STUB index.html does not load src/engine.js (engine files loaded: ${names}).`);
+  }
+  const text = parts.map(part => part.text).join("\n");
+  const bytes = parts.reduce((sum, part) => sum + Buffer.byteLength(part.text), 0);
+  if (bytes < ENGINE_FLOOR) {
+    errors.push(
+      `HOLLOW_STUB the engine (${names}) is ${bytes} bytes (floor ${ENGINE_FLOOR}). ` +
+        "Do not replace engine code with a stub. Move it to a src/engine-<part>.js that index.html loads, " +
+        "or add an overlay at src/<ticket>.js. Tip eng=93575 owns function resolveSceneImage."
+    );
+  }
+  if (!text.includes("function resolveSceneImage")) {
+    errors.push(
+      `HOLLOW_STUB the engine (${names}) is missing function resolveSceneImage. ` +
+        "Do not replace engine code with a stub."
+    );
+  }
+  return errors;
+}
 
 function walk(dir, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -30,22 +68,6 @@ function walk(dir, out = []) {
 function checkText(rel, text) {
   const errors = [];
   const trimmed = text.trim();
-  if (rel.replace(/\\/g, "/") === "src/engine.js") {
-    if (Buffer.byteLength(text) < ENGINE_FLOOR) {
-      errors.push(
-        `HOLLOW_STUB ${rel} is ${Buffer.byteLength(text)} bytes (floor ${ENGINE_FLOOR}). ` +
-          "Do not replace src/engine.js. Add an overlay at src/<ticket>.js and load it " +
-          "the way src/dialog-keys.js is pointed from the existing validate.js data-* hook. " +
-          "Tip eng=93575 owns function resolveSceneImage."
-      );
-    }
-    if (!text.includes("function resolveSceneImage")) {
-      errors.push(
-        `HOLLOW_STUB ${rel} is missing function resolveSceneImage. ` +
-          "Do not replace src/engine.js. Overlay via src/<ticket>.js instead."
-      );
-    }
-  }
   if (trimmed.length < 80 || (STUB_RE.test(text) && Buffer.byteLength(text) < 1000)) {
     errors.push(
       `HOLLOW_STUB ${rel} looks like a claimed-done stub (${Buffer.byteLength(text)} bytes). ` +
@@ -59,8 +81,13 @@ function checkText(rel, text) {
 const replay = process.argv.includes("--replay-416");
 const errors = [];
 if (replay) {
-  errors.push(...checkText("src/engine.js", fs.readFileSync(REPLAY_416_PATH, "utf8")));
+  const text = fs.readFileSync(REPLAY_416_PATH, "utf8");
+  errors.push(...checkEngine([{ rel: "src/engine.js", text }]), ...checkText("src/engine.js", text));
 } else {
+  errors.push(...checkEngine(loadedEngineFiles().map(rel => ({
+    rel,
+    text: fs.existsSync(rel) ? fs.readFileSync(rel, "utf8") : ""
+  }))));
   for (const file of walk("src")) {
     const rel = file.split(path.sep).join("/");
     errors.push(...checkText(rel, fs.readFileSync(file, "utf8")));
