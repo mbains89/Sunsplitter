@@ -8,7 +8,9 @@
 //      paragraph must sit in the visible part of #main above the bar after every tap, and the last one
 //      must be in view when the choices arrive;
 //   C. resume, instant mode and Show all do not scroll; keyboard read-on scrolls like a tap;
-//   D. source pins: the engine scrolls #main, not the sticky bar.
+//   D. source pins: the engine scrolls #main, not the sticky bar;
+//   E. a plate that grows back while a Read on lands (a new scene's plate expanding from minimized)
+//      shrinks #main; for a short time after the tap a resize brings the paragraph back into view.
 // A real-browser hand run covers the same ground: `node scripts/sun-browser-bot.mjs --viewport iphone13
 // --input touch` fails with READON_BLIND when a tap reveals text the reader cannot see.
 import { dirname, resolve } from "node:path";
@@ -58,6 +60,8 @@ const INSTALL_LAYOUT = `((cfg) => {
     if (main.classList.contains("reveal-roomy")) top = Math.min(top, cfg.mainTop + cfg.mainH - cfg.pad - cfg.bar);
     return { top, bottom: top + cfg.bar, height: cfg.bar };
   };
+  globalThis.__cfg = cfg;
+  main.contains = node => node === main || nodes.includes(node);
   controls.scrollIntoView = () => {}; // sticky: already "in view", so the browser does not move #main
   main.classList.toggle("reveal-roomy", cfg.mainH >= REVEAL_STICKY_MIN_HEIGHT);
   const proto = Object.getPrototypeOf(story);
@@ -188,6 +192,51 @@ export function sunPlayerflowReadonScrollChecks() {
     check(!/controls\.scrollIntoView/.test(body), "D: scrollRevealedIntoView must not scroll the sticky Read on bar into view; it is always in view, so #main never moves");
     check(/main\.scrollTo\(/.test(body) && /revealScrollTarget\(/.test(body), "D: scrollRevealedIntoView must scroll #main to revealScrollTarget's offset");
     check(/reveal-roomy/.test(body), "D: the bar's height is reserved only while it is sticky (#main.reveal-roomy)");
+    const room = src.slice(src.indexOf("function watchRevealRoom("), src.indexOf("function watchRevealRoom(") + 900);
+    check(/refollowRevealedBlock\(\)/.test(room), "E: watchRevealRoom's resize handler must re-follow the paragraph a Read on just revealed");
+  }
+
+  // E. #main shrinks just after a Read on (the plate growing back); the paragraph follows, briefly.
+  {
+    const runtime = loadGame(ROOT);
+    runtime.evaluate(`${INSTALL_LAYOUT}(${JSON.stringify({ ...LAYOUTS[0], mainTop: 228, mainH: 379 })})`);
+    const r = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
+      const realNow = Date.now;
+      let clock = 1e12;
+      Date.now = () => clock;
+      const out = { cases: [] };
+      try {
+        if (typeof refollowRevealedBlock !== "function") return { missing: true };
+        for (const id of ["vault_reveal", "crisis", "time_pass"]) {
+          // The plate is mid-grow: #main is 379px at the tap and settles at 239px.
+          __cfg.mainTop = 228; __cfg.mainH = 379;
+          __fresh(); showScene(id);
+          if (!sceneReveal) continue;
+          readOnFromControl({ detail: 1 });
+          readOnFromControl({ detail: 1 });
+          clock += 100;
+          __cfg.mainTop = 368; __cfg.mainH = 239;
+          refollowRevealedBlock();
+          out.cases.push({ id, ok: __seen().ok, seen: __seen() });
+        }
+        // After the follow window a resize leaves the reader's place alone.
+        __cfg.mainTop = 228; __cfg.mainH = 379;
+        __fresh(); showScene("vault_reveal");
+        readOnFromControl({ detail: 1 });
+        clock += REVEAL_FOLLOW_MS + 50;
+        const before = __scrolls.length;
+        __cfg.mainTop = 368; __cfg.mainH = 120;
+        refollowRevealedBlock();
+        out.late = __scrolls.length - before;
+      } finally { Date.now = realNow; }
+      return out;
+    })())`));
+    if (r.missing) check(false, "E: the engine has no refollowRevealedBlock");
+    else {
+      check(r.cases.length >= 2, `E: too few paced scenes reached: ${JSON.stringify(r.cases)}`);
+      r.cases.forEach(c => check(c.ok, `E ${c.id}: #main shrank after a Read on and the paragraph stayed out of view: ${JSON.stringify(c.seen)}`));
+      check(r.late === 0, `E: a resize ${r.late} scroll(s) after the follow window moved the reader's place`);
+    }
   }
 
   return errors;
@@ -199,5 +248,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-readon-scroll", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-readon-scroll (scroll-target rule; every paced scene's new paragraph in view above the bar at three #main sizes; resume/instant/Show all do not scroll; keys read on in view; engine scrolls #main)");
+  console.log("PASS sun-playerflow-readon-scroll (scroll-target rule; every paced scene's new paragraph in view above the bar at three #main sizes; resume/instant/Show all do not scroll; keys read on in view; engine scrolls #main; paragraph follows a shrinking #main just after a tap)");
 }

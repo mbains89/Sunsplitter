@@ -840,6 +840,24 @@ function scrollRevealedIntoView(block) {
   } catch (e) { /* layout-free hosts */ }
 }
 
+// SUN-READON-SCROLL-01: a new scene's plate grows back from minimized over 0.28s (css/style.css),
+// so a Read on tapped while it grows aims at a #main that is still shrinking, and the paragraph
+// slides back under the bar. For a short time after a Read on, a resize of #main (watchRevealRoom)
+// brings that paragraph back into view. Resizes after that leave the reader's place alone.
+const REVEAL_FOLLOW_MS = 700;
+let revealFollow = null; // { block, until } just after a Read on
+function followRevealedBlock(block) {
+  revealFollow = block ? { block, until: Date.now() + REVEAL_FOLLOW_MS } : null;
+  scrollRevealedIntoView(block);
+}
+function refollowRevealedBlock() {
+  const follow = revealFollow;
+  if (!follow) return;
+  const main = document.getElementById("main");
+  if (Date.now() > follow.until || !main || typeof main.contains !== "function" || !main.contains(follow.block)) { revealFollow = null; return; }
+  scrollRevealedIntoView(follow.block);
+}
+
 function showRevealBlock(block) {
   block.classList.remove("reveal-hidden");
   if (!revealPrefersReducedMotion()) block.classList.add("reveal-fade");
@@ -857,13 +875,13 @@ function advanceSceneReveal(source) {
   }
   if (reveal.shown < reveal.blocks.length) {
     setSceneRevealChrome(true);
-    scrollRevealedIntoView(block);
+    followRevealedBlock(block);
     return true;
   }
   finishSceneReveal(source);
   // From a keyboard control, focusing the first choice scrolls it in; otherwise keep the
   // last paragraph in view with the choices under it.
-  if (source !== "control-key") scrollRevealedIntoView(block);
+  if (source !== "control-key") followRevealedBlock(block);
   return true;
 }
 
@@ -929,7 +947,10 @@ const REVEAL_STICKY_MIN_HEIGHT = 160;
   function bind() {
     const main = document.getElementById("main");
     if (!main) return;
-    const update = () => main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+    const update = () => {
+      main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+      refollowRevealedBlock();
+    };
     try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
     update();
   }
