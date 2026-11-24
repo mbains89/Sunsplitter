@@ -124,7 +124,10 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Adult and explicit content is permanent. Distribution constraints do not silently soften canon.
 - No exclusivity meter, jealousy system, morality bar, romance score, or relationship dashboard.
 - **L-050 (2026-11-05):** a pursued romance runs to a named end state: her offer, the private attention it costs the ship, and a late callback where that debt lands inside a hard decision, with a last scene consistent with the epilogue. Existing flags and trust carry it; no new meter. A dead or unrecovered partner ends the arc where she died, and the epilogue says so.
-- A breast-cover/explicit-content toggle is **HELD** and requires a separate canon, asset, continuity, platform, and QA decision. Re-affirmed 2026-11-05 (D6): it stays held at least until the stranger playtest reports whether anyone asked for it.
+- **L-040 (2026-11-23), nudity filter:** a reader setting covers nudity in pictures. It is off by default, so the game is unchanged unless the player turns it on.
+  - Pictures only. Scene text is not changed. The player chooses the filter, so adult content is still never silently softened.
+  - No new art. A covered picture is blurred or swapped for a picture already in the repository. Muse lists the pictures that show nudity before the setting is built.
+  - Manraj opened it from his own playtest. This replaces the 2026-11-05 hold (D6), under which the breast-cover/explicit-content toggle waited for the stranger playtest.
 
 ### Architecture and data shape
 
@@ -408,7 +411,7 @@ Split across later versions. 0.33 does not absorb this work during playtest.
 - Strengthen type scale, line length, contrast, touch targets, motion preferences, semantic structure, focus, labels, and announcements at 0.34.
 - Keep the content notice revisitable without creating a settings dashboard.
 - Opening video, tutorial, and crew portrait/details remain evidence-gated candidates.
-- The breast-cover toggle remains held.
+- The breast-cover toggle was held here. On 2026-11-23 Manraj opened it as L-040, a pictures-only nudity filter (§2).
 
 | Candidate | Gate |
 |---|---|
@@ -661,7 +664,7 @@ Rules that bind every wave:
 
 1. Six to eight ambient beds by location and two or three music cues, licensed or generated, with a mute that persists.
 2. A looping title plate from the Imagine clip prompts on Manraj's Mac, once he gives the art go.
-3. The SFW toggle decision (L-040), taken on the gate-2 playtest evidence; the toggle itself stays held until then.
+3. The SFW toggle decision (L-040) was taken early: on 2026-11-23 Manraj opened it as a pictures-only nudity filter, a reader setting that is off by default (§2). It no longer waits for the gate-2 playtest evidence.
 
 **Entry:** gate 3 passed, plus Manraj's audio and art go.
 **Exit (gate 4):** audio and title land without a layout or performance regression on phone; Manraj signs off in play. If this wave is still waiting on audio or art, Manraj may open 0.41 by name.
@@ -739,7 +742,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Clickable crew portrait/details | CANDIDATE; descriptive only |
 | Ticket 2 new-crew indicator | DEFERRED / default RETIRE under L-028 |
 | Pair residue, debt, pregnancy texture | DEFERRED to evidence-backed narrative scope |
-| Breast-cover/explicit-content toggle | HELD / UNSCHEDULED |
+| Breast-cover/explicit-content toggle | LOCKED as L-040 (2026-11-23; §2): a pictures-only nudity filter, a reader setting, off by default, no new art |
 | STORY-SURGERY-R1 | HELD |
 | ART-R2 | HELD |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
@@ -758,7 +761,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Anonymous choice counter on a serverless function (D4) | LOCKED 2026-11-05, L-053; the only backend exception; Wave 3 |
 | Cross-run ship memory: gallery, memory board, remembered endings (D5) | LOCKED 2026-11-05, L-054; never changes an outcome; Wave 2 |
 | Chapter start after a finished run | LOCKED 2026-11-05, L-055; Wave 3 |
-| Breast-cover/explicit-content toggle (D6) | HELD, re-affirmed 2026-11-05; decided on gate-2 evidence at Wave 4 |
+| Breast-cover/explicit-content toggle (D6) | HELD on 2026-11-05; opened 2026-11-23 as L-040, a pictures-only nudity filter (§2) |
 | Version renumbering: waves 0.37–0.40, review path 0.41–0.44 (D7) | LOCKED 2026-11-05, L-056 |
 | Tools budget: playtest recruiting first, art and audio at their waves (D8) | LOCKED 2026-11-05, recorded under L-056 |
 
