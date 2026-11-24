@@ -7,13 +7,16 @@
 // reloading mid-run and pressing Continue. Exits 1 when anything is found.
 //
 //   node scripts/sun-browser-bot.mjs [--runs 5] [--viewport desktop|phone|iphone13] [--input mouse|keys|tab]
-//                                    [--chaos] [--seed 1]   (--input touch also accepted)
+//                                    [--chaos] [--cover-nudity] [--seed 1]   (--input touch also accepted)
 //
 //   --input keys  choices by digit keys, dialogs by focus + Enter
 //   --input tab   every button reached by Tab only (keyboard-only evidence for ROADMAP §11 / 0.36)
 //   --input touch every press is a tap (touch events)
 //   --chaos       per choice: ~4% reload + Continue, ~3% open Crew, ~3% resize the viewport (phone/
 //                 tablet/desktop/landscape sizes); state must survive each, and choices must stay on screen
+//   --cover-nudity  SUN-NUDITY-FILTER-01 (L-040): play with the reader setting on. On every story screen the
+//                 scene picture must be blurred when it is on the engine's list (NUDITY_UNCOVERED if not),
+//                 and must not stay blurred once a picture that is off the list has loaded (COVER_STUCK)
 //
 // SUN-PACED-REVEAL-01: scenes arrive a paragraph at a time. While "Read on" shows, the bot reads on
 // the way its input mode would (tap/click the passage or Read on, Space/Enter/→, Tab to Read on),
@@ -42,6 +45,7 @@ const RUNS = Number(opt("--runs", "5"));
 const VIEWPORT = opt("--viewport", "desktop");
 const INPUT = opt("--input", "mouse");
 const CHAOS = args.includes("--chaos");
+const COVER_NUDITY = args.includes("--cover-nudity");
 let seed = Number(opt("--seed", "1"));
 const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
 // Dev-server noise, not game defects: the manifest that only exists inside a built private package.
@@ -89,6 +93,7 @@ const ORDER = ["new-run-confirm", "commander-create", "tutorial-overlay", "crew-
   "ending-screen", "cinematic-screen", "game-screen", "title-screen", "tone-screen"];
 let incomplete = 0;
 let revealPresses = 0, blindPresses = 0;
+let coveredScreens = 0;
 // The newest shown paragraph against the part of #main the reader can see (above a sticky Read on bar).
 const READON_SEEN = () => {
   const main = document.getElementById("main");
@@ -118,6 +123,7 @@ for (let run = 0; run < RUNS; run++) {
   page.on("pageerror", e => note("pageerror", `${String(e.message).slice(0, 160)} @${where}`));
   page.on("response", r => { if (r.status() >= 400) note(`http${r.status()}`, r.url().replace(/^.*?:\d+\//, "")); });
   page.on("dialog", d => { note("dialog", d.message().slice(0, 80)); d.dismiss(); });
+  if (COVER_NUDITY) await page.addInitScript(() => { try { localStorage.setItem("sunsplitter_cover_nudity_v1", "1"); } catch (e) { /* storage blocked */ } });
   await page.goto(base);
   const visible = id => page.evaluate(id => { const e = document.getElementById(id); if (!e) return false; const s = getComputedStyle(e); return !e.classList.contains("hidden") && s.display !== "none" && s.visibility !== "hidden" && e.getClientRects().length > 0; }, id);
   const press = async selector => {
@@ -218,9 +224,21 @@ for (let run = 0; run < RUNS; run++) {
             story: (document.getElementById("story").textContent || "").length,
             pending: shown(document.getElementById("reveal-controls")),
             choicesShown: shown(document.getElementById("choices")),
-            img: img && img.getAttribute("src") ? { src: img.getAttribute("src"), ok: img.complete ? img.naturalWidth > 0 : null } : null };
+            img: img && img.getAttribute("src") ? { src: img.getAttribute("src"), ok: img.complete ? img.naturalWidth > 0 : null,
+              listed: typeof pictureShowsNudity === "function" && pictureShowsNudity(img.getAttribute("src")),
+              blurred: getComputedStyle(img).filter.includes("blur") } : null };
         });
         if (!info.story) note("emptyStory", screen.scene);
+        if (COVER_NUDITY && info.img) {
+          if (info.img.blurred) coveredScreens++;
+          if (info.img.listed && !info.img.blurred) note("NUDITY_UNCOVERED", `${info.img.src} @${screen.scene}`);
+          if (!info.img.listed && info.img.blurred && info.img.ok) {
+            // The cover lifts in the picture's load event, which can trail `complete` by a task: look once more.
+            await page.waitForTimeout(200);
+            const still = await page.evaluate(() => { const i = document.getElementById("scene-image"); return !!i && getComputedStyle(i).filter.includes("blur") && !pictureShowsNudity(i.getAttribute("src") || ""); });
+            if (still) note("COVER_STUCK", `${info.img.src} @${screen.scene}`);
+          }
+        } else if (!COVER_NUDITY && info.img && info.img.blurred) note("COVERED_WHILE_OFF", `${info.img.src} @${screen.scene}`);
         if (info.img && info.img.ok === false) note("brokenImage", `${info.img.src} @${screen.scene}`);
         if (info.pending) {
           // Paced reveal: read on until the choices appear. Reveal presses do not spend the step budget.
@@ -275,5 +293,5 @@ for (let run = 0; run < RUNS; run++) {
 await browser.close();
 server.close();
 for (const [finding, count] of findings) console.log(`FINDING ${finding}${count > 1 ? ` (x${count})` : ""}`);
-console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es), ${blindPresses} blind; ${findings.size} finding(s)`);
+console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es), ${blindPresses} blind;${COVER_NUDITY ? ` nudity covered on ${coveredScreens} screen sample(s);` : ""} ${findings.size} finding(s)`);
 process.exit(findings.size ? 1 : 0);

@@ -245,7 +245,9 @@ body,
 
   /* SUN-PRICE-TAGS-01: the costs toggle and the one-shot status pulse survive forced colours. */
   #btn-show-costs[aria-pressed="true"],
-  #btn-show-costs-meta[aria-pressed="true"] {
+  #btn-show-costs-meta[aria-pressed="true"],
+  #btn-cover-nudity[aria-pressed="true"],
+  #meta-cover-nudity[aria-pressed="true"] {
     border: 3px solid Highlight;
     text-decoration: underline;
   }

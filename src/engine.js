@@ -6,6 +6,8 @@
 const TONE_ACK_KEY = "sunsplitter_tone_ack_v1";
 // SUN-PRICE-TAGS-01: reader setting "Show costs on choices". "1" = on; anything else = off.
 const SHOW_COSTS_KEY = "sunsplitter_show_costs_v1";
+// SUN-NUDITY-FILTER-01 (L-040): reader setting "Cover nudity in pictures". "1" = on; anything else = off.
+const COVER_NUDITY_KEY = "sunsplitter_cover_nudity_v1";
 // The save keys (SAVE_KEY and the rest) and all save / resume code are in src/engine-save.js,
 // which index.html loads just before this file.
 
@@ -237,6 +239,132 @@ function syncShowCostsControls() {
   else syncShowCostsControls();
 })();
 
+// SUN-NUDITY-FILTER-01 (L-040) — reader setting "Cover nudity in pictures". Default OFF.
+// Presentation only, like the cost and text-pace settings: never serialized into run state,
+// saves or exports, and it changes no text and no choice. While it is on, a picture on
+// NUDITY_PICTURES is shown blurred (css/paced-reveal.css, .nudity-covered). No picture is
+// swapped, so the plate a scene resolves to and the face gate are untouched.
+//
+// The list is Muse's audit of 2026-11-23, which looked at every file in images/. A file is on
+// it when it shows a bare breast, genitals or bare buttocks, or a person plainly nude with those
+// parts hidden. It is keyed on the file that renders, never on a scene id or on isIntimateScene,
+// and it includes files no scene can render today, so wiring one later cannot slip past the
+// setting. File names are no guide to content (the lingerie_* pictures show no lingerie): a new
+// or replaced picture is looked at before it is listed or left off, and
+// scripts/sun-playerflow-nudity-filter-checks.mjs pins the audited set.
+const NUDITY_PICTURES = new Set([
+  // Rendered by a scene today.
+  "afterglow_amara.jpg", "afterglow_lena.jpg", "afterglow_mira.jpg", "afterglow_sela.jpg",
+  "lingerie_amara.jpg", "lingerie_lena.jpg", "lingerie_mira.jpg", "lingerie_sela.jpg",
+  "pursuit_lena.jpg",
+  "rear_amara.jpg", "rear_lena.jpg", "rear_mira.jpg", "rear_sela.jpg",
+  "romance_amara_tomas.jpg", "romance_lena_1.jpg",
+  "shower_lena.jpg", "shower_mira.jpg", "shower_sela.jpg",
+  "vess_intimate.jpg",
+  // In images/ but rendered by no scene today.
+  "afterglow_vess.jpg", "amara_rear.jpg", "amara_tomas_afterglow.jpg", "lingerie_vess.jpg",
+  "mira_rear.jpg", "mira_shower.jpg", "pursuit_mira.jpg", "pursuit_sela.jpg", "rear_vess.jpg",
+  "romance_amara_1.jpg", "romance_mira_1.jpg", "romance_sela_1.jpg", "romance_vess_1.jpg",
+  "sela_rear.jpg", "shower_amara.jpg", "shower_vess.jpg"
+]);
+// Every element setManagedImageSource writes to, plus the title plate.
+const MANAGED_PICTURE_IDS = ["scene-image", "crew-sheet-image", "cinematic-image", "ending-image", "what-remains-image", "title-ship-image"];
+// Once the reader toggles it this session, that value wins over storage, so a blocked or full
+// localStorage still leaves a working toggle.
+let coverNuditySessionValue = null;
+
+function coverNudityInPictures() {
+  if (coverNuditySessionValue !== null) return coverNuditySessionValue;
+  try {
+    return localStorage.getItem(COVER_NUDITY_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function pictureShowsNudity(src) {
+  if (typeof src !== "string" || !src) return false;
+  return NUDITY_PICTURES.has(src.split(/[?#]/)[0].split("/").pop());
+}
+
+// A picture element is covered while the setting is on and any of these is on the list: the
+// picture it was asked to show, the last one it finished loading, or the one the browser reports
+// as current. A browser keeps the old picture on screen until the new one has loaded, so
+// uncovering on the request alone would show the old picture bare for that moment.
+function syncPictureCover(img) {
+  if (!img || !img.classList || typeof img.classList.toggle !== "function") return false;
+  const asked = typeof img.__ssManagedSource === "string"
+    ? img.__ssManagedSource
+    : ((typeof img.getAttribute === "function" && img.getAttribute("src")) || "");
+  const loaded = typeof img.__ssLoadedSource === "string" ? img.__ssLoadedSource : "";
+  const current = asked && typeof img.currentSrc === "string" ? img.currentSrc : "";
+  const covered = coverNudityInPictures()
+    && (pictureShowsNudity(asked) || pictureShowsNudity(loaded) || pictureShowsNudity(current));
+  img.classList.toggle("nudity-covered", covered);
+  const wrap = img.parentElement;
+  if (wrap && wrap.classList && typeof wrap.classList.toggle === "function") wrap.classList.toggle("picture-covered", covered);
+  return covered;
+}
+
+// Follow what the element has actually loaded, so a cover held for an outgoing picture lifts
+// when its replacement is on screen (or failed to load and nothing is).
+function watchPictureCover(img) {
+  if (!img || img.__ssCoverWatched || typeof img.addEventListener !== "function") return;
+  img.__ssCoverWatched = true;
+  img.addEventListener("load", () => {
+    img.__ssLoadedSource = (typeof img.currentSrc === "string" && img.currentSrc)
+      || (typeof img.__ssManagedSource === "string" ? img.__ssManagedSource : "");
+    syncPictureCover(img);
+  });
+  img.addEventListener("error", () => {
+    img.__ssLoadedSource = "";
+    syncPictureCover(img);
+  });
+}
+
+function refreshPictureCovers() {
+  for (const id of MANAGED_PICTURE_IDS) {
+    const img = document.getElementById(id);
+    watchPictureCover(img);
+    syncPictureCover(img);
+  }
+}
+
+function setCoverNudity(on) {
+  coverNuditySessionValue = !!on;
+  try {
+    localStorage.setItem(COVER_NUDITY_KEY, coverNuditySessionValue ? "1" : "0");
+  } catch (e) { /* private mode — the setting still holds for this session */ }
+  syncCoverNudityControls();
+  refreshPictureCovers();
+  return coverNuditySessionValue;
+}
+
+function toggleCoverNudity() {
+  return setCoverNudity(!coverNudityInPictures());
+}
+
+function syncCoverNudityControls() {
+  const on = coverNudityInPictures();
+  for (const id of ["btn-cover-nudity", "meta-cover-nudity"]) {
+    const btn = document.getElementById(id);
+    if (btn) btn.setAttribute("aria-pressed", String(on));
+  }
+  const chip = document.getElementById("cover-nudity-chip");
+  if (chip) {
+    chip.textContent = on
+      ? "On · pictures with nudity are blurred · the text is unchanged"
+      : "Off · pictures show as drawn";
+  }
+}
+
+(function wireCoverNudityControls() {
+  if (typeof document === "undefined") return;
+  const sync = () => { syncCoverNudityControls(); refreshPictureCovers(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sync);
+  else sync();
+})();
+
 // SUN-PRICE-TAGS-01 — after a choice, each status value that changed pulses once.
 // Feedback on the existing status bar only: no toast, no popup, no new layer.
 // #stat-announcer still carries the full status for screen readers.
@@ -398,9 +526,13 @@ function setManagedImageSource(img, src) {
     ? img.__ssManagedSource
     : ((typeof img.getAttribute === "function" && img.getAttribute("src")) || "");
   if (current === next) return false;
+  watchPictureCover(img);
   if (next) img.src = next;
   else if (typeof img.removeAttribute === "function") img.removeAttribute("src");
   img.__ssManagedSource = next;
+  // SUN-NUDITY-FILTER-01: an emptied element shows nothing, so nothing is left to keep covered.
+  if (!next) img.__ssLoadedSource = "";
+  syncPictureCover(img);
   return true;
 }
 
