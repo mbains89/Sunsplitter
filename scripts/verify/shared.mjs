@@ -9,6 +9,7 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..")
 export const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
+  "src/engine-save.js",
   "src/engine.js",
   "src/validate.js",
   "src/hitl-unshadow.js",
