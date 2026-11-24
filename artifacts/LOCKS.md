@@ -122,7 +122,7 @@ Manraj ruled these on 2026-11-23 in the Orchestrator lead chat, each as the lead
 
 | ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
 |---|---|---|---|---|---|---|
-| L-040 | LOCKED | Nudity filter: a reader setting that covers nudity in pictures only; off by default; no new art (a covered picture is blurred or swapped for an existing one); text unchanged. Replaces the 2026-11-05 hold on the breast-cover / explicit-content toggle | ROADMAP §2 romance and adult content; §14A Wave 4; §16 | 2026-11-23 | Manraj | `PENDING` |
+| L-040 | LOCKED | Nudity filter: a reader setting that covers nudity in pictures only; off by default; no new art (a covered picture is blurred or swapped for an existing one); text unchanged. Replaces the 2026-11-05 hold on the breast-cover / explicit-content toggle | ROADMAP §2 romance and adult content; §14A Wave 4; §16 | 2026-11-23 | Manraj | `710106f21aa890b28ab3b822e2c3b2f67ccfa0c1` |
 
 The same answer confirmed that L-043 covers `src/engine.js` only, as recorded above: a `src/state.js` split stays deferred.
 

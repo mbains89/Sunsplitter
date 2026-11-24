@@ -10,6 +10,7 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 |---|---|---|
 | SUN-DIET-VESS-MERGE-01 (#529) | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. Read and ready; waits on STATUS decision 25 (retire `vess_cost.jpg`). |
 | SUN-LATE-HOUR-CAP-01 | Lead | Only if Manraj says yes to STATUS decision 26: one late hour a night, to the first pending partner in crew order. |
+| SUN-NUDITY-FILTER-01 | Lead | L-040, opened 2026-11-23: a reader setting, off by default, that covers nudity in pictures only. Waits on Muse's list of pictures; then build, Muse layout check, land. |
 | Engine split, L-043 (cleanup lane) | Cleanup chat opens, lead merges | Saves landed as #570. Next, one PR each: endings, reveal, scene art. Two small follow-ups from the lead's review are in STATUS under Open. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
