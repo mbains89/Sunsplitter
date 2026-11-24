@@ -112,7 +112,7 @@ This is the separate approval the deferred row named. It covers `src/engine.js` 
 
 | ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
 |---|---|---|---|---|---|---|
-| L-043 | LOCKED | Engine split: `src/engine.js` may be split into plain script files that `index.html` loads; no bundler or build step. A `src/state.js` split stays deferred until after 1.0 or separate approval | ROADMAP §2 architecture; §16 | 2026-11-11, confirmed 2026-11-14 | Manraj | `PENDING` |
+| L-043 | LOCKED | Engine split: `src/engine.js` may be split into plain script files that `index.html` loads; no bundler or build step. A `src/state.js` split stays deferred until after 1.0 or separate approval | ROADMAP §2 architecture; §16 | 2026-11-11, confirmed 2026-11-14 | Manraj | `b49e6272c8381c521e1a6a2da6067325bdaaf97c` |
 
 Two guard rulings go with it. They are recorded in STATUS decision 29, not as locks: on 2026-11-14 Manraj let the lead change the two repo guards that pinned `src/engine.js` as one file ("2 yes"), and on 2026-11-23 he approved lowering `portrait-fallback`'s engine allowance from 3 to 2 ("go with your best recommendations", recorded in `claude/cleanup/2026-11-23-engine-split.md` §2).
 

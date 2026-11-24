@@ -10,6 +10,7 @@ Work branch: `version/0.30.1-main-reconcile-ci.1`. Branch tickets as `ticket/0.3
 |---|---|---|
 | SUN-DIET-VESS-MERGE-01 (#529) | Lead | D11 Deep step 1, C10: `vess_signal` and `vess_cost` become one screen. Read and ready; waits on STATUS decision 25 (retire `vess_cost.jpg`). |
 | SUN-LATE-HOUR-CAP-01 | Lead | Only if Manraj says yes to STATUS decision 26: one late hour a night, to the first pending partner in crew order. |
+| Engine split, L-043 (cleanup lane) | Cleanup chat opens, lead merges | Saves landed as #570. Next, one PR each: endings, reveal, scene art. Two small follow-ups from the lead's review are in STATUS under Open. |
 
 ## Wave 1 — 0.37 Deeper Crew (ROADMAP §14A), in order
 
@@ -47,7 +48,7 @@ Plan and measurements: the project doc `claude/hex/2026-11-06-d11-run-length.md`
 
 ## Waiting on Manraj
 
-- Gate 1: a full run on the tip (`playtest-c4d748c`, sent 2026-11-09) and one stranger's full read (D10).
+- Gate 1: a full run on `playtest-91d3dea` (sent 2026-11-14; playtest notes began 2026-11-23, build not stated) and one stranger's full read (D10).
 - STATUS decisions 25 (#529's `vess_cost.jpg`, and the plates behind the screens #525 left unfolded), 26 (one late hour a night), 27 (the promise payoff design), 28 (which lead session continues) and 24 (L-061, a hub visit counter).
 - STATUS decisions 14/23 (the friction plates and L-060 for the pair flags), 17 (What Remains crew block on the L-008 row), 20 (Jiro and the insertion pass), 22 (`arc_living_4`), 5 (`arc_future_2` speaker) and 8 (the art questions).
 - Close the stale PRs listed in STATUS.
