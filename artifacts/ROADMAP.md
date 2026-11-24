@@ -135,7 +135,10 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
   - It is presentation only: never written to state or the save, not replayed on Continue or a re-render, and dropped when the choice ends the run.
   - The engine drops a line whose speaker is dead or unrecovered when the screen renders. Narration never names someone who may be absent.
   - No other choice key is added, and a scene still contains only `text | choices | onEnter | image`.
-- The engine stays thin. No TypeScript, framework, bundler, component rewrite, or engine/state mechanical split before 1.0.
+- The engine stays thin. No TypeScript, framework, bundler, or component rewrite before 1.0, and no mechanical split of `src/state.js` before 1.0.
+- **L-043 (2026-11-11, confirmed 2026-11-14), engine split:** `src/engine.js` may be split into several plain script files. `index.html` loads them as classic scripts; there is still no bundler and no build step.
+  - The tooling reads the engine as `src/engine.js` plus any `src/engine-<part>.js` that `index.html` loads: the headless harness, the checks that read engine text, and the repo guards. Part files take that name.
+  - This is the separate approval the §16 register named, and it covers `src/engine.js` only. A split of `src/state.js` stays deferred until after 1.0 or a separate approval.
 - No combat loop, mining, inventory, crafting, quest log, skill tree, visible gameplay dashboard, or new management system.
 - New state keys require a recorded lock and same-change registry/schema coverage. Never invent keys speculatively.
 - Every changed scene declares live preconditions, exhaustive writes, death exposure, dead-speech/appearance checks, and image status.
@@ -740,7 +743,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | STORY-SURGERY-R1 | HELD |
 | ART-R2 | HELD |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
-| Engine/state mechanical split | DEFERRED until after 1.0 or separate approval |
+| Engine/state mechanical split | Engine: LOCKED as L-043 (2026-11-11, confirmed 2026-11-14; §2 architecture), `src/engine.js` into plain script files, no bundler. State (`src/state.js`): DEFERRED until after 1.0 or separate approval |
 | Native wrapper, gamepad, achievements, cloud saves | OUT before 1.0 |
 | Steam launch | DEFERRED to separate post-1.0 decision |
 | Fixed event-order redesign | ACCEPTED LIMITATION unless explicitly reopened |
