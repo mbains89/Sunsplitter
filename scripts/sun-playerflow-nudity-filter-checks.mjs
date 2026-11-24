@@ -279,7 +279,8 @@ function sourceChecks(errors) {
   if (!/filter:\s*blur\(\d+px\)[^;]*!important/.test(cover)) errors.push("G: the cover rule must blur and be !important");
   if (!/transition:\s*none\s*!important/.test(cover)) errors.push("G: the cover must not fade in or out");
   for (const id of PICTURE_IDS) if (!css.includes(`#${id}.nudity-covered`)) errors.push(`G: no cover rule names #${id}`);
-  if (!/@media \(max-width: 599px\) \{\s*#meta-cover-nudity \{\s*display: none;/.test(css)) errors.push("G: the footer toggle must stay out of the bar below 600px, where it pushes Load off screen");
+  if (!/@media \(max-width: 719px\) \{\s*#meta-cover-nudity \{\s*display: none;/.test(css)) errors.push("G: the footer toggle must stay out of the bar below 720px, where it pushes Load off screen");
+  if (!css.includes('content: "Picture covered · Cover nudity is on";')) errors.push("G: the cover label must name the setting as its button does");
 }
 
 export function sunPlayerflowNudityFilterChecks() {

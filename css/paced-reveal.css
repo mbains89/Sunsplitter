@@ -209,7 +209,7 @@ img.nudity-covered {
 }
 
 #scene-image-wrap.picture-covered::after {
-  content: "Picture covered · your nudity setting is on";
+  content: "Picture covered · Cover nudity is on";
   position: absolute;
   left: 8px;
   right: 8px;
@@ -235,10 +235,11 @@ img.nudity-covered {
   content: "Covered";
 }
 
-/* The in-run bar has room for a fifth button only from 600px wide: below that the slot line
-   would wrap and the bar would grow (measured: 57px to 97px at 390px wide, with Load pushed off
-   screen). A phone held upright sets this on the title screen instead. */
-@media (max-width: 599px) {
+/* The in-run bar has room for a fifth button only from 720px wide. On an upright phone the slot
+   line wrapped and the bar grew (measured: 57px to 97px at 390px wide, with Load pushed off
+   screen), and from 600px to 660px the sticky "Autosave failed" notice pushed Load off screen
+   (Muse, PR #574). Narrower windows set this on the title screen instead. */
+@media (max-width: 719px) {
   #meta-cover-nudity {
     display: none;
   }
