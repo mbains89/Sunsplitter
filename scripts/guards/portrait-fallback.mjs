@@ -7,9 +7,11 @@
  * on every other path, and raising a grandfathered count fails.
  *
  * FIX FOR OWNER (do not add another):
- *   the engine 3 — counted across src/engine.js and every src/engine-<part>.js together (L-043),
- *     so moving engine code between those files cannot raise it. On 2026-11-14 the engine has 2:
- *     the PLATE_FACES and PLATE_FACE_FALLBACK entries for corridor.jpg in src/engine.js.
+ *   the engine 2 — counted across src/engine.js and every src/engine-<part>.js together (L-043),
+ *     so moving engine code between those files cannot raise it. The two are the PLATE_FACES and
+ *     PLATE_FACE_FALLBACK entries for corridor.jpg: one records that the plate shows Vess, the other
+ *     swaps it out. Neither puts it on screen. (The allowance was 3 until 2026-11-23; the third use
+ *     was already gone, so the spare slot would have let one new copy through.)
  *   src/state.js 2 — act2_spine_next, boarding_stories
  *   src/scenes-12.js 1 — act2_spine_next
  *   src/scenes-29.js 1 — boarding_stories
@@ -28,7 +30,7 @@ const FIXTURE = "scripts/guards/fixtures/portrait-copy.js";
 const ENGINE_FILE_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
 const ENGINE = "src/engine.js + src/engine-*.js";
 const GRANDFATHER = {
-  [ENGINE]: 3,
+  [ENGINE]: 2,
   "src/state.js": 2,
   "src/scenes-12.js": 1,
   "src/scenes-29.js": 1,
