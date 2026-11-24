@@ -222,7 +222,8 @@
 /* SUN-PRICE-TAGS-01 — one reader toggle beside the other title utilities; not a settings panel.
    It inherits the neighbouring chip + button look. Pressed shows a thick gold left edge
    (a non-colour cue) that survives hover and keyboard focus; the chip text says On/Off. */
-#title-screen #btn-show-costs[aria-pressed="true"] {
+#title-screen #btn-show-costs[aria-pressed="true"],
+#title-screen #btn-cover-nudity[aria-pressed="true"] {
   border-left-width: 6px;
   border-left-style: solid;
   border-left-color: #f2c14e;
