@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `c0cd71bf412ac6bb79e70a85bc75b7462b8d67ca1e36f582da9dfa785e1183a2`
+**Roadmap source SHA-256:** `df06075eba15f63527a72872d2d0921d042182947e82f241703e4e8d26612884`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -90,7 +90,7 @@ Manraj approved the *Sunsplitter Feature Roadmap Proposal* in full on 2026-11-05
 | L-055 | LOCKED | Chapter start from Act 2 or Act 3 after a finished run, from that run's own state; grants nothing a fresh run could not reach | ROADMAP §2 UI and save model; §14A Wave 3 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
 | L-056 | LOCKED | Version renumbering: growth waves are 0.37–0.40; External Review 0.41, Cohort 0.42, Commercial 0.43, Rehearsal 0.44, then 1.0. Tools budget: playtest recruiting first, art and audio at their waves (D7, D8) | ROADMAP §4; §14A; §18 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
 
-L-040 (the explicit-content toggle) stays HELD; Manraj re-affirmed it on 2026-11-05 (D6) and will decide on the gate-2 playtest evidence at Wave 4. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
+On 2026-11-05 L-040 (the explicit-content toggle) stayed HELD: Manraj re-affirmed it (D6), to be decided on the gate-2 playtest evidence at Wave 4. He opened it on 2026-11-23; see "Ruled (2026-11-23)" below. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
 
 ## Ruled (2026-11-06)
 
@@ -116,11 +116,20 @@ This is the separate approval the deferred row named. It covers `src/engine.js` 
 
 Two guard rulings go with it. They are recorded in STATUS decision 29, not as locks: on 2026-11-14 Manraj let the lead change the two repo guards that pinned `src/engine.js` as one file ("2 yes"), and on 2026-11-23 he approved lowering `portrait-fallback`'s engine allowance from 3 to 2 ("go with your best recommendations", recorded in `claude/cleanup/2026-11-23-engine-split.md` §2).
 
+## Ruled (2026-11-23)
+
+Manraj ruled these on 2026-11-23 in the Orchestrator lead chat, each as the lead suggested ("41 and 42 lets go with your suggestions"). The items and his answer are recorded verbatim in the project doc `claude/decisions/2026-11-23.md`. The approved language is in ROADMAP §2. These rulings authorize ticket PRs on the work branch. They mint no version paint and carry no close-out, release, deploy, Netlify, certification or publication authority.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-040 | LOCKED | Nudity filter: a reader setting that covers nudity in pictures only; off by default; no new art (a covered picture is blurred or swapped for an existing one); text unchanged. Replaces the 2026-11-05 hold on the breast-cover / explicit-content toggle | ROADMAP §2 romance and adult content; §14A Wave 4; §16 | 2026-11-23 | Manraj | `PENDING` |
+
+The same answer confirmed that L-043 covers `src/engine.js` only, as recorded above: a `src/state.js` split stays deferred.
+
 ## Held, deferred, rejected, and limited
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-040 | HELD | Breast-cover / explicit-content toggle; re-affirmed 2026-11-05, decided at Wave 4 on playtest evidence | ROADMAP §§2, 14, 14A |
 | L-041 | DEFERRED | Pair residual textures, debt, and pregnancy texture to evidence-gated 0.29 scope | ROADMAP §14 |
 | L-042 | REJECTED | Unrestricted AI roadmap editing; proposal PR only | ROADMAP §14 |
 | L-044 | OUT | Native wrapper, gamepad, achievements, and cloud saves before 1.0 | ROADMAP §§13, 14 |
