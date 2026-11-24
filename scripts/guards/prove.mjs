@@ -9,6 +9,11 @@ const cases = [
     expect: 1,
   },
   {
+    name: "hollow L-043 split, resolveSceneImage only in an unloaded part",
+    args: ["scripts/guards/hollow-stub.mjs", "--replay-split"],
+    expect: 1,
+  },
+  {
     name: "tip-sync #434 2e4fdfa1 / merge 520be6ad",
     args: ["scripts/guards/tip-sync-churn.mjs", "--replay-434"],
     expect: 1,
