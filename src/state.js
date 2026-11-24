@@ -1111,18 +1111,6 @@ function stillFavoring(who) {
   return !!(fav && fav.favored === who);
 }
 
-function neglected(who) {
-  if (!isAlive(who)) return false;
-  if (hasMark(who, "bonded") || hasMark(who, "bond_skipped")) return false;
-  const living = Object.keys(state.affinity).filter(isAlive);
-  if (living.length < 2) return false;
-  let lowest = living[0], score = state.affinity[lowest];
-  for (const k of living) {
-    if (state.affinity[k] < score) { score = state.affinity[k]; lowest = k; }
-  }
-  return lowest === who;
-}
-
 // Attributable causes name command agency / spent order / resource choice.
 const ATTRIBUTABLE_CAUSES = [
   "resources diverted to the vault",
