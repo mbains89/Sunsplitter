@@ -99,6 +99,18 @@ export function titleChromeKeyboardChecks(runtime) {
       };
       hideNewRunConfirm();
 
+      // SUN-SAVED-RUNS-01: the Saved runs dialog holds the title shortcut off too.
+      beginClicks = 0;
+      showTitleScreen();
+      showSavedRuns();
+      const savedRunsEvent = dispatch(keyEvent("Enter"));
+      const savedRuns = {
+        prevented: savedRunsEvent.prevented,
+        beginClicks,
+        visible: !document.getElementById("saved-runs").classList.contains("hidden")
+      };
+      closeSavedRuns();
+
       beginClicks = 0;
       const game = document.getElementById("game-screen");
       const titleScreen = document.getElementById("title-screen");
@@ -129,7 +141,7 @@ export function titleChromeKeyboardChecks(runtime) {
 
       begin.click = originalClick;
 
-      return { tone, spacebarTone, title, space, resumePath, commander, confirm, gameplay, interactive, modified };
+      return { tone, spacebarTone, title, space, resumePath, commander, confirm, savedRuns, gameplay, interactive, modified };
     })()`);
 
     if (!fixture.tone.prevented || !fixture.tone.toneHidden || !fixture.tone.titleVisible) {
@@ -156,6 +168,9 @@ export function titleChromeKeyboardChecks(runtime) {
     // shortcut must still not fire behind it, and the dialog must stay open.
     if (fixture.confirm.beginClicks !== 0 || !fixture.confirm.visible) {
       errors.push("title chrome keydown ignored new-run-confirm guard");
+    }
+    if (fixture.savedRuns.beginClicks !== 0 || !fixture.savedRuns.visible) {
+      errors.push("title chrome keydown ignored saved-runs guard");
     }
     if (fixture.gameplay.prevented || fixture.gameplay.beginClicks !== 0) {
       errors.push("title chrome keydown ran while game-screen was visible");

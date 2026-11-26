@@ -2,7 +2,7 @@
 // SUN-MEMORY-STORE-01 (L-054, owner rulings 2026-11-25): the cross-run ship memory store.
 // One localStorage key per browser, separate from the run save and from save slots. It records what
 // finished runs reached (endings, crew lost, the five great forks), which plates were on screen, and,
-// for the run in progress only, the trail of hard-call scenes faced (D10).
+// for the run in progress in each save slot, the trail of hard-call scenes faced (D10).
 //
 // It never changes an outcome. Nothing in run state, scene files, saves or the export reads it; the
 // engine only calls the guarded recorders below. It draws no random numbers. Every storage access is
@@ -52,6 +52,11 @@ const SHIP_MEMORY_MAX_PLATES = 256;
 const SHIP_MEMORY_MAX_PRINTS = 8;
 const SHIP_MEMORY_MAX_TRAIL = 16;
 const SHIP_MEMORY_MAX_COUNT = 1_000_000;
+// SUN-SAVED-RUNS-01 (L-054, lead's call): each save slot holds its own run, and runs in different
+// slots can interleave, so the in-progress trail is kept per slot: trail = { "1": [...], "2": [...] }.
+// A hard call faced in one slot never reaches another slot's run record. A record written before
+// slots (trail as a plain list) was slot 1's run, so it reads as slot 1's trail.
+const SHIP_MEMORY_TRAIL_SLOTS = ["1", "2", "3"];
 
 // Session copy: the last good value this session read or wrote. Used whenever storage throws, and
 // in preference to storage once a write has failed, so a blocked or full store still remembers this
@@ -72,7 +77,7 @@ function shipMemoryEmpty() {
     forks: { crisis: {}, vault: {}, tether: {}, lethal: {}, final: {} },
     last: null,
     prints: [],
-    trail: []
+    trail: {}
   };
 }
 
@@ -156,8 +161,28 @@ function shipMemorySanitize(parsed) {
     };
   }
   clean.prints = shipMemoryUniqueList(parsed.prints, print => SHIP_MEMORY_PRINT_RE.test(print), SHIP_MEMORY_MAX_PRINTS);
-  clean.trail = shipMemoryUniqueList(parsed.trail, id => SHIP_MEMORY_TRAIL_IDS.includes(id)).slice(0, SHIP_MEMORY_MAX_TRAIL);
+  if (Array.isArray(parsed.trail)) {
+    const list = shipMemoryTrailList(parsed.trail);
+    if (list.length) clean.trail["1"] = list;
+  } else if (shipMemoryIsObject(parsed.trail)) {
+    for (const key of SHIP_MEMORY_TRAIL_SLOTS) {
+      const list = shipMemoryTrailList(parsed.trail[key]);
+      if (list.length) clean.trail[key] = list;
+    }
+  }
   return clean;
+}
+
+function shipMemoryTrailList(source) {
+  return shipMemoryUniqueList(source, id => SHIP_MEMORY_TRAIL_IDS.includes(id)).slice(0, SHIP_MEMORY_MAX_TRAIL);
+}
+
+// The trail key for a save slot: "1", "2" or "3". Left out, the slot this tab plays; a value that
+// names no slot gives null, and the trail recorders then write nothing.
+function shipMemoryTrailSlot(slot) {
+  const value = slot === undefined ? (typeof activeSaveSlot !== "undefined" ? activeSaveSlot : 1) : slot;
+  const key = typeof value === "number" || typeof value === "string" ? String(value) : "";
+  return SHIP_MEMORY_TRAIL_SLOTS.includes(key) ? key : null;
 }
 
 function shipMemoryClone(value) {
@@ -245,21 +270,28 @@ function shipMemoryNotePlate(img, src) {
   });
 }
 
-// Hard-call trail (D10). Called from showScene once a scene has passed its onEnter redirect check.
-function shipMemoryNoteScene(id) {
+// Hard-call trail (D10). Called from showScene once a scene has passed its onEnter redirect check,
+// with the save slot the run plays in.
+function shipMemoryNoteScene(id, slot) {
   if (!SHIP_MEMORY_TRAIL_IDS.includes(id)) return false;
+  const key = shipMemoryTrailSlot(slot);
+  if (!key) return false;
   return shipMemoryUpdate(memory => {
-    if (memory.trail.includes(id) || memory.trail.length >= SHIP_MEMORY_MAX_TRAIL) return false;
-    memory.trail.push(id);
+    const trail = memory.trail[key] || [];
+    if (trail.includes(id) || trail.length >= SHIP_MEMORY_MAX_TRAIL) return false;
+    memory.trail[key] = trail.concat(id);
     return true;
   });
 }
 
-// A fresh run (beginFreshCampaign) or an import starts with no hard calls faced.
-function shipMemoryClearTrail() {
+// A fresh run (beginFreshCampaign) or an import into a slot starts that slot with no hard calls
+// faced. Other slots' trails stay.
+function shipMemoryClearTrail(slot) {
+  const key = shipMemoryTrailSlot(slot);
+  if (!key) return false;
   return shipMemoryUpdate(memory => {
-    if (!memory.trail.length) return false;
-    memory.trail = [];
+    if (!memory.trail[key]) return false;
+    delete memory.trail[key];
     return true;
   });
 }
@@ -305,16 +337,18 @@ function shipMemoryRunForks(trail) {
   return forks;
 }
 
-// Run end. Called at the end of resolveEnding with the ending title. A Continue of a completed slot
+// Run end. Called at the end of resolveEnding with the ending title and the run's save slot; only
+// that slot's trail feeds the record, and only it is cleared. A Continue of a completed slot
 // re-runs resolveEnding on the same snapshot; its print is already in prints, so nothing is counted twice.
-function shipMemoryRecordRun(title) {
+function shipMemoryRecordRun(title, slot) {
   const ending = SHIP_MEMORY_ENDINGS[title];
   if (!ending) return false;
   let print;
   try { print = shipMemoryRunPrint(); } catch (e) { return false; }
   return shipMemoryUpdate(memory => {
     if (memory.prints.includes(print)) return false;
-    const trail = memory.trail.slice();
+    const key = shipMemoryTrailSlot(slot);
+    const trail = key && memory.trail[key] ? memory.trail[key].slice() : [];
     const forks = shipMemoryRunForks(trail);
     const lost = (state.dead || []).filter((key, index, list) => SHIP_MEMORY_CREW.includes(key) && list.indexOf(key) === index);
     memory.runs = Math.min(memory.runs + 1, SHIP_MEMORY_MAX_COUNT);
@@ -330,7 +364,7 @@ function shipMemoryRecordRun(title) {
     }
     memory.last = { ending, lost, forks };
     memory.prints = memory.prints.concat(print).slice(-SHIP_MEMORY_MAX_PRINTS);
-    memory.trail = [];
+    if (key) delete memory.trail[key];
     return true;
   });
 }

@@ -12,9 +12,13 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BUTTONS = [
   { id: "btn-begin", primary: true, containers: [".title-actions"] },
   { id: "btn-resume", primary: true, containers: [".title-actions"] },
-  { id: "btn-import-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
-  { id: "btn-export-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
-  { id: "btn-export-unreadable", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
+  // SUN-SAVED-RUNS-01: the save transfer buttons moved into the Saved runs dialog (still in .title-actions).
+  { id: "btn-saved-runs", primary: false, containers: [".title-actions"] },
+  { id: "saved-runs-load", primary: true, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions"] },
+  { id: "saved-runs-close", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions"] },
+  { id: "btn-import-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
+  { id: "btn-export-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
+  { id: "btn-export-unreadable", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
   { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm"] },
   { id: "new-run-cancel", primary: false, containers: [".title-actions", "#new-run-confirm"] },
@@ -210,5 +214,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error("FAIL sun-playerflow-title-states", errors);
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-title-states 9 buttons x 3 pairwise (hover/focus-visible/active differ on a non-colour cue and a colour) + phone 390px unchanged from style.css BASE");
+  console.log("PASS sun-playerflow-title-states " + BUTTONS.length + " buttons x 3 pairwise (hover/focus-visible/active differ on a non-colour cue and a colour) + phone 390px unchanged from style.css BASE");
 }
