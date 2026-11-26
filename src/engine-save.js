@@ -22,6 +22,13 @@
 // Every slot holds the same v3 snapshot. No slot number, name or pointer goes inside a snapshot or
 // an export, so a file is a run, not a slot.
 //
+// Text backlog (L-062; SUN-BACKLOG-RECORD-01). One key per slot, beside that slot's save and bound to
+// it by savedAt. Written only by persistSave after the save has verified; removed by clearSave; never
+// in a snapshot or an export. Its code is in src/engine-backlog.js.
+//   slot 1   sunsplitter_backlog_v1
+//   slot 2   sunsplitter_backlog_v1_slot2
+//   slot 3   sunsplitter_backlog_v1_slot3
+//
 // Reader settings and title keys. Not saves: never in a snapshot or an export, never touched by a
 // save, a new run, an import or clearSave.
 //   sunsplitter_tone_ack_v1        content notice acknowledged (engine.js)
@@ -820,6 +827,8 @@ function persistSave(opts) {
     localStorage.removeItem(slotKeys.staging);
     localStorage.removeItem(slotKeys.backup);
   } catch (e) { /* committed live slot already verified */ }
+  // L-062: the run's backlog, bound to this save by savedAt. Best effort; never changes the result.
+  if (typeof backlogWrite === "function") backlogWrite(slot, snap.savedAt);
   if (!silent) flashSaveStatus("Saved");
   else clearSaveWriteFailure();
   updateMetaSaveHint();
@@ -861,6 +870,7 @@ function loadGame() {
       return false;
     }
     loadedGameVersion = pendingLegacyResume.loadedGameVersion;
+    if (typeof backlogRestore === "function") backlogRestore(pendingLegacyResume.backlog); // L-062
     if (!persistSave({ silent: true, slot })) {
       showTitleScreen();
       return false;
@@ -883,6 +893,8 @@ function loadGame() {
     flashSaveStatus("Load failed", true);
     return false;
   }
+  // L-062: the slot's backlog, kept only when it is bound to this save; otherwise a gap.
+  if (typeof backlogLoad === "function") backlogLoad(slot, data.savedAt);
   showScreen("game");
   renderStatus();
   // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01):
@@ -897,7 +909,8 @@ function loadGame() {
       raw,
       snapshot: snapshotState(),
       loadedGameVersion,
-      slot
+      slot,
+      backlog: typeof backlogSnapshot === "function" ? backlogSnapshot() : null // L-062
     };
     showTitleScreen();
     return false;
@@ -923,6 +936,7 @@ function clearSave(slot) {
     // A value that names no slot has no keys, so nothing is removed.
     for (const key of saveSlotStorageKeys(saveSlotArg(slot))) localStorage.removeItem(key);
   } catch (e) { /* ignore */ }
+  if (typeof backlogClear === "function") backlogClear(saveSlotArg(slot)); // L-062: cleared with the save
   updateMetaSaveHint();
   refreshTitleResumeUI();
 }
