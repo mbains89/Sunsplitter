@@ -62,6 +62,18 @@ function syncMenuSheetSettings() {
   }
 }
 
+// What Return to title will do. SUN-SECOND-TAB-GUARD-01: while another tab holds the slot this run
+// plays, leaving saves nothing, and the chip says so (also repainted when that happens with the sheet
+// open, from engine-save.js).
+function syncMenuReturnTitleChip() {
+  const chip = document.getElementById("menu-return-title-chip");
+  if (!chip) return;
+  const taken = typeof saveSlotTakenElsewhere === "function" && typeof activeSaveSlot !== "undefined" &&
+    saveSlotTakenElsewhere(activeSaveSlot);
+  chip.textContent = taken ? saveSlotTakenChip(activeSaveSlot)
+    : (menuKeepsFinishedRun() ? MENU_RETURN_TITLE_CHIP_KEPT : MENU_RETURN_TITLE_CHIP);
+}
+
 function menuKeepsFinishedRun() {
   return typeof preserveCompletedSlotUntilChoice !== "undefined" && !!preserveCompletedSlotUntilChoice;
 }
@@ -84,8 +96,7 @@ function openMenuSheet() {
   if (other && other !== sheet) return false;
   // Painted while still hidden, so the status chips announce nothing on open.
   syncMenuSheetSettings();
-  const chip = document.getElementById("menu-return-title-chip");
-  if (chip) chip.textContent = menuKeepsFinishedRun() ? MENU_RETURN_TITLE_CHIP_KEPT : MENU_RETURN_TITLE_CHIP;
+  syncMenuReturnTitleChip();
   setMenuSheetStatus("");
   menuSheetReturnFocus = document.getElementById("btn-menu");
   const app = document.getElementById("app");
@@ -152,8 +163,6 @@ function menuLeaveTakenSlot() {
   if (typeof reportSaveSlotTaken === "function") reportSaveSlotTaken(slot);
   let ok = false;
   try { ok = window.confirm(saveSlotTakenLeaveQuestion(slot)) === true; } catch (e) { ok = false; }
-  // The bar's not-saving line belongs to the run; the title would show it with no Menu to act on.
-  if (ok && typeof clearSaveWriteFailure === "function") clearSaveWriteFailure();
   return ok;
 }
 
@@ -162,11 +171,16 @@ function menuLeaveTakenSlot() {
 function menuReturnToTitle() {
   const leaveTaken = menuLeaveTakenSlot();
   if (leaveTaken === false) return false;
-  if (leaveTaken === null && !menuKeepsFinishedRun() && saveGame() !== true) {
-    const bar = document.getElementById("save-status");
-    const said = bar && bar.textContent ? bar.textContent : "Save failed";
-    setMenuSheetStatus(said + " · you are still in the run", true);
-    return false;
+  if (leaveTaken === null && !menuKeepsFinishedRun()) {
+    if (saveGame() !== true) {
+      const bar = document.getElementById("save-status");
+      const said = bar && bar.textContent ? bar.textContent : "Save failed";
+      setMenuSheetStatus(said + " · you are still in the run", true);
+      return false;
+    }
+    // SUN-SECOND-TAB-GUARD-01: Continue on the title picks up here, so point it at this run's slot,
+    // and only once this run's own save has succeeded (never when leaving a slot another tab holds).
+    if (typeof writeCurrentSlotPointer === "function" && typeof activeSaveSlot !== "undefined") writeCurrentSlotPointer(activeSaveSlot);
   }
   closeMenuSheet({ returnFocus: false });
   showTitleScreen();

@@ -19,13 +19,19 @@
 //   - different slots never interfere, and neither tab's autosave moves the Continue pointer;
 //   - a title screen follows the other tab's saves (Continue appears) and never writes;
 //   - a run this tab no longer saves records no ship-memory trail under that slot;
+//   - a newer version's save in this tab's slot (a scene this build does not know, or a v:99 save)
+//     is never written over, with or without the event, and says so; an emptied slot stays free;
+//   - Play Again in a taken slot clears no ship-memory trail; Return to title from the tab's own run
+//     points Continue at its slot, and leaving a taken slot does not;
+//   - New run on the title: another slot's save leaves it open; a save in the slot it would replace
+//     closes it and says so; Begin run re-checks that slot when no event arrived;
 //   - a single tab: 200 seeded choices with real saves (and a hidden-tab save every 20) never
 //     raise the notice, and every choice is saved.
 // Part 2, Chromium through Playwright: two pages in one browser context (one localStorage, real
 // storage events), driven through the title's Begin and Continue, the Menu's Save, Load and Return to
 // title, and the engine's
-// own makeChoice: the same-slot, different-slot, pointer and title cases, the notice in the bar at
-// 360x640 and 1280x800, and a single page's 200 seeded choices. When Playwright or Chromium is
+// own makeChoice: the same-slot, different-slot, pointer, newer-version and New run cases, the notice
+// in the bar at 360x640, 844x390 and 1280x800, and a single page's 200 seeded choices. When Playwright or Chromium is
 // missing (CI has no browser) part 2 prints NOT_AVAILABLE and part 1 still decides; pass
 // --require-browser to fail instead.
 import { readFile } from "node:fs/promises";
@@ -43,7 +49,16 @@ const SLOT3 = ["sunsplitter_save_v3_slot3", "sunsplitter_save_v3_slot3_staging",
 const POINTER = "sunsplitter_save_current_v1";
 const SAVE_KEYS = [...SLOT1, ...SLOT2, ...SLOT3, POINTER];
 const NOTICE = slot => `Another tab saved Slot ${slot} · not saving here · Load in Menu`;
-const LEAVE = slot => `Another tab saved Slot ${slot} · this tab's run is not saved · Return anyway?`;
+const LEAVE = slot => `Another tab saved Slot ${slot} · this tab's run is not saved · Return to title anyway?`;
+const NEWER = slot => `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`;
+const CHIP_TAKEN = slot => `Does not save · Slot ${slot} keeps the other tab's run`;
+const CHANGED = slot => `Slot ${slot} changed in another tab · this new run did not start`;
+// A save from a newer build: valid JSON with a scene this build does not know, so it reads as unreadable.
+const newerBuildSave = raw => { const data = JSON.parse(raw); data.scene = "a_scene_from_a_newer_build"; data.savedAt += 1000; return JSON.stringify(data); };
+// A save in a newer format (v above this build's SAVE_SCHEMA_VERSION 3) on a scene this build knows.
+// Once SUN-SAVE-VERSION-GUARD-01 (#605) lands this build cannot read it; before that it reads as a
+// different run. Either way the tab must never write over it.
+const newerFormatSave = raw => { const data = JSON.parse(raw); data.v = 99; data.savedAt += 1000; return JSON.stringify(data); };
 const SINGLE_TAB_CHOICES = 200;
 
 const errors = [];
@@ -171,6 +186,10 @@ function realmChecks() {
   expect(same(A.evaluate("__asked"), [LEAVE(1)]), `${label}: Return to title asked ${JSON.stringify(A.evaluate("__asked"))}`);
   expect(same(store.keys(SLOT1), newer), `${label}: A's cancelled Return to title changed slot 1`);
   A.evaluate("window.confirm = () => true");
+  A.evaluate("openMenuSheet()");
+  const takenChip = A.evaluate(`document.getElementById("menu-return-title-chip").textContent`);
+  A.evaluate("closeMenuSheet()");
+  expect(takenChip === CHIP_TAKEN(1), `${label}: the Menu's Return to title chip reads "${takenChip}"`);
   expect(showsNotice(A, 1), `${label}: A's notice did not stay after its refused saves`);
   expect(store.get(POINTER) === "1", `${label}: pointer moved to ${store.get(POINTER)}`);
   expect(!showsNotice(B, 1) && !bar(B).error, `${label}: B, the newer tab, shows ${JSON.stringify(bar(B))}`);
@@ -215,6 +234,8 @@ function realmChecks() {
 
   // Return to title while not saving: asked, then leaves without saving; B's save stays and Continue loads it.
   label = "return to title while not saving";
+  B.browser.localStorage.setItem(POINTER, "3"); // another tab pointed Continue elsewhere
+  store.deliver(A);
   store.clearWrites();
   A.evaluate(`globalThis.__asked = []; window.confirm = message => { __asked.push(message); return true; }`);
   expect(A.evaluate("menuReturnToTitle()") === true, `${label}: A did not leave`);
@@ -224,7 +245,9 @@ function realmChecks() {
   const aLeaveWrites = store.writes(A).filter(key => SAVE_KEYS.includes(key));
   expect(!aLeaveWrites.length, `${label}: A wrote ${aLeaveWrites.join(", ")}`);
   const titleLine = A.evaluate(`document.getElementById("title-save-status").textContent`);
-  expect(titleLine !== NOTICE(1), `${label}: the title shows the in-run notice`);
+  const barLine = A.evaluate(`document.getElementById("save-status").textContent`);
+  expect(titleLine !== NOTICE(1) && barLine !== NOTICE(1), `${label}: the in-run notice stayed after leaving (title "${titleLine}", bar "${barLine}")`);
+  expect(store.get(POINTER) === "3", `${label}: leaving without saving moved the pointer to ${store.get(POINTER)}`);
   expect(!A.evaluate(`document.getElementById("btn-resume").classList.contains("hidden")`), `${label}: the title has no Continue`);
   expect(A.evaluate("resumeGame()") === true && scene(A) === scene(B), `${label}: Continue did not load B's save (${scene(A)} vs ${scene(B)})`);
   expect(same(store.keys(SLOT1), bSave) && !bar(A).error, `${label}: Continue changed slot 1 or kept the notice`);
@@ -279,6 +302,10 @@ function realmChecks() {
   const stray = (tab, own) => store.writes(tab).filter(key => SAVE_KEYS.includes(key) && !own.includes(key));
   expect(!stray(A, SLOT1).length, `${label}: A's play wrote ${stray(A, SLOT1).join(", ")}`);
   expect(!stray(B, SLOT2).length, `${label}: B's play wrote ${stray(B, SLOT2).join(", ")}`);
+  // Return to title from A's own run saves first and then points Continue at A's slot.
+  expect(A.evaluate("menuReturnToTitle()") === true, `${label}: A's Return to title failed`);
+  expect(store.get(POINTER) === "1" && store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: after A's Return to title the pointer is ${store.get(POINTER)}, expected 1`);
+  store.deliver(B);
 
   // Ship memory: the trail of a run this tab no longer saves stays out of the slot's record.
   label = "ship memory";
@@ -298,6 +325,94 @@ function realmChecks() {
   const bTrail = B.evaluate(`JSON.stringify((shipMemoryRead().trail || {})["1"] || [])`);
   if (noted) expect(bTrail.includes("act3_lethal_mira_board"), `${label}: B's own hard call did not join slot 1's trail (${bTrail})`);
   else notes.push(`${label}: act3_lethal_mira_board redirected on entry here; trail compared only`);
+  // Play Again in A (the slot is B's now) clears no trail there.
+  const trailAfterB = A.evaluate(`JSON.stringify(shipMemoryRead().trail)`);
+  expect(A.evaluate("beginFreshCampaign({ persist: false, preserveCompletedSlotUntilChoice: true })") === true, `${label}: A's Play Again failed`);
+  expect(A.evaluate(`JSON.stringify(shipMemoryRead().trail)`) === trailAfterB, `${label}: A's Play Again cleared slot 1's trail (${A.evaluate(`JSON.stringify(shipMemoryRead().trail)`)})`);
+
+  // A newer version of the game saves A's slot in another tab: A never writes over bytes it cannot read.
+  label = "newer version in another tab";
+  store.reset();
+  expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's new run failed`);
+  step(A);
+  store.deliver(B);
+  B.browser.localStorage.setItem("sunsplitter_save_v3", newerBuildSave(store.get("sunsplitter_save_v3")));
+  store.deliver(A);
+  const newerBytes = store.keys(SLOT1);
+  expect(bar(A).text === NEWER(1) && bar(A).error, `${label}: A shows ${JSON.stringify(bar(A))}`);
+  step(A);
+  A.browser.window.dispatchEvent({ type: "pagehide" });
+  expect(A.evaluate("saveGame()") === false, `${label}: A's Save reported a save`);
+  expect(same(store.keys(SLOT1), newerBytes), `${label}: A wrote over the newer version's save`);
+  expect(A.evaluate("runTrailSaveSlot()") === null, `${label}: A still records a trail under slot 1`);
+  // Before the event arrives, too.
+  store.reset();
+  expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's second new run failed`);
+  step(A);
+  B.browser.localStorage.setItem("sunsplitter_save_v3", newerBuildSave(store.get("sunsplitter_save_v3")));
+  store.drop(A);
+  const newerBytes2 = store.keys(SLOT1);
+  step(A);
+  expect(same(store.keys(SLOT1), newerBytes2) && bar(A).text === NEWER(1), `${label}: before the event, A wrote over it or was not told`);
+  // A committed v:99 save from the other tab, with and without the event.
+  const formatGuard = A.evaluate(`typeof snapshotFormatIsNewer === "function"`);
+  for (const delivered of [true, false]) {
+    store.reset();
+    expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's v:99 new run failed`);
+    step(A);
+    B.browser.localStorage.setItem("sunsplitter_save_v3", newerFormatSave(store.get("sunsplitter_save_v3")));
+    if (delivered) store.deliver(A); else store.drop(A);
+    const v99 = store.keys(SLOT1);
+    step(A);
+    A.browser.window.dispatchEvent({ type: "pagehide" });
+    A.evaluate("saveGame()");
+    const told = bar(A).text;
+    expect(same(store.keys(SLOT1), v99), `${label}: A wrote over another tab's v:99 save (event ${delivered ? "delivered" : "not yet"})`);
+    expect(formatGuard ? told === NEWER(1) : (told === NOTICE(1) || told === NEWER(1)), `${label}: after a v:99 save A shows "${told}"`);
+  }
+  notes.push(`${label}: v:99 save kept; it reads as ${formatGuard ? "a newer version (format guard present)" : "another tab's run (no format guard in this build yet)"}`);
+  // An empty slot stays free: emptied in another tab, A's next choice writes it again.
+  label = "slot emptied in another tab";
+  store.reset();
+  expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's new run failed`);
+  step(A);
+  for (const key of SLOT1) B.browser.localStorage.removeItem(key);
+  store.deliver(A);
+  step(A);
+  expect(!bar(A).error && store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: A did not save the emptied slot (${JSON.stringify(bar(A))})`);
+
+  // New run on the title beside another tab: a save in another slot leaves the New run flow open; a
+  // save in the slot it would replace closes it and says so; Begin run re-checks that slot itself.
+  label = "new run beside another tab";
+  store.reset();
+  const isOpen = id => !A.evaluate(`document.getElementById("${id}").classList.contains("hidden")`);
+  expect(B.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: B's new run failed`);
+  step(B);
+  A.evaluate("showTitleScreen()");
+  store.deliver(A);
+  A.evaluate("startGame()");
+  expect(isOpen("new-run-confirm"), `${label}: New run did not open its confirm`);
+  B.browser.localStorage.setItem("sunsplitter_save_v3_slot2", store.get("sunsplitter_save_v3"));
+  store.deliver(A);
+  expect(isOpen("new-run-confirm"), `${label}: a save in slot 2 closed the New run confirm for slot 1`);
+  expect(A.evaluate(`document.getElementById("title-save-chip").textContent`).includes("2 of 3"), `${label}: the title behind the confirm did not repaint`);
+  step(B);
+  store.deliver(A);
+  expect(!isOpen("new-run-confirm") && !isOpen("commander-create"), `${label}: a save in slot 1 left the New run flow open`);
+  expect(A.evaluate(`document.getElementById("title-save-status").textContent`) === CHANGED(1), `${label}: the title says "${A.evaluate(`document.getElementById("title-save-status").textContent`)}"`);
+  A.evaluate("startGame()");
+  A.evaluate("confirmNewRun()");
+  expect(isOpen("commander-create"), `${label}: the Commander panel did not open`);
+  step(B);
+  store.drop(A);
+  const bRun = store.keys(SLOT1);
+  expect(A.evaluate("confirmCommanderCreate()") === false, `${label}: Begin run started over another tab's change`);
+  expect(same(store.keys(SLOT1), bRun), `${label}: Begin run wrote slot 1 after another tab changed it`);
+  expect(A.evaluate(`document.getElementById("title-save-status").textContent`) === CHANGED(1), `${label}: Begin run did not say why it stopped`);
+  A.evaluate("startGame()");
+  A.evaluate("confirmNewRun()");
+  expect(A.evaluate("confirmCommanderCreate()") === true && JSON.parse(store.get("sunsplitter_save_v3")).scene === "wake" &&
+    store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: an unchanged slot did not start the new run`);
 }
 
 // One tab alone, real saves: 200 seeded choices (across runs: an ending starts the next the way Play
@@ -424,8 +539,8 @@ async function browserChecks(requireBrowser) {
     const newer = await raw(B, SLOT1);
     expect(newer.sunsplitter_save_v3 === await pseen(B, 1), `${label}: slot 1 does not hold B's save`);
 
-    // The notice in the bar, desktop and phone.
-    for (const [width, height] of [[1280, 800], [360, 640]]) {
+    // The notice in the bar: desktop, phone, and phone held sideways.
+    for (const [width, height] of [[1280, 800], [360, 640], [844, 390]]) {
       await A.setViewportSize({ width, height });
       await settle();
       const m = await A.evaluate(() => {
@@ -445,6 +560,8 @@ async function browserChecks(requireBrowser) {
       const firstButton = m.buttons.reduce((left, b) => Math.min(left, b.x), Infinity);
       expect(m.status.r <= firstButton + 1 || m.status.b <= Math.min(...m.buttons.map(b => b.y)) + 1, `${label} ${width}x${height}: the notice runs under the bar's buttons`);
       expect(m.meta.b <= m.vh + 1, `${label} ${width}x${height}: the bar runs off the screen (${JSON.stringify(m.meta)})`);
+      const lastButton = m.buttons.reduce((right, b) => Math.max(right, b.r), 0);
+      expect(lastButton <= m.meta.r + 1, `${label} ${width}x${height}: the notice pushes the bar's buttons past its edge (${lastButton} > ${m.meta.r})`);
       if (process.env.SECOND_TAB_SHOTS) await A.screenshot({ path: join(process.env.SECOND_TAB_SHOTS, `second-tab-notice-${width}x${height}.png`) });
     }
     await A.setViewportSize({ width: 1280, height: 800 });
@@ -466,8 +583,12 @@ async function browserChecks(requireBrowser) {
     A.on("dialog", dismiss);
     await menu("menu-return-title");
     A.off("dialog", dismiss);
-    const stayed = await A.evaluate(() => !document.getElementById("game-screen").classList.contains("hidden"));
-    expect(stayed && same(asked, [LEAVE(1)]), `${label}: Return to title, cancelled: in run ${stayed}, asked ${JSON.stringify(asked)}`);
+    const stayed = await A.evaluate(() => ({
+      game: !document.getElementById("game-screen").classList.contains("hidden"),
+      chip: document.getElementById("menu-return-title-chip").textContent
+    }));
+    expect(stayed.game && same(asked, [LEAVE(1)]), `${label}: Return to title, cancelled: in run ${stayed.game}, asked ${JSON.stringify(asked)}`);
+    expect(stayed.chip === CHIP_TAKEN(1), `${label}: the Menu's Return to title chip reads "${stayed.chip}"`);
     await A.click("#menu-close");
     await settle();
     expect(same(await raw(B, SLOT1), newer), `${label}: A's choice, hidden-tab save, Save or cancelled Return to title changed slot 1`);
@@ -528,6 +649,47 @@ async function browserChecks(requireBrowser) {
     expect(all.sunsplitter_save_v3_slot2 === await pseen(B, 2), `${label}: slot 2 does not hold B's last save`);
     expect(all[POINTER] === "2", `${label}: A's autosaves moved the pointer to ${all[POINTER]}`);
     expect(!(await pbar(A)).error && !(await pbar(B)).error, `${label}: a tab was told`);
+
+    // A newer version of the game writes A's slot from another tab (a scene this build does not know,
+    // then a v:99 save): A is told and never writes over it.
+    label = "browser, newer version";
+    const formatGuard = await A.evaluate(`typeof snapshotFormatIsNewer === "function"`);
+    for (const [kind, make] of [["unknown scene", newerBuildSave], ["v:99", newerFormatSave]]) {
+      if (kind === "v:99") {
+        // A takes its slot back with Load... it cannot load bytes it cannot read, so start over in slot 1.
+        await A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })");
+        await A.evaluate("__tabStep()");
+      }
+      const live = (await raw(A, ["sunsplitter_save_v3"])).sunsplitter_save_v3;
+      await B.evaluate(([key, value]) => localStorage.setItem(key, value), ["sunsplitter_save_v3", make(live)]);
+      const expected = kind === "v:99" && !formatGuard ? NOTICE(1) : NEWER(1);
+      const toldNewer = await A.waitForFunction(text => {
+        const el = document.getElementById("save-status");
+        return !!el && el.textContent === text && el.classList.contains("visible");
+      }, expected, { timeout: 5000 }).then(() => true, () => false);
+      expect(toldNewer, `${label} (${kind}): A shows ${JSON.stringify(await pbar(A))}, expected "${expected}"`);
+      const kept = await raw(A, SLOT1);
+      await A.evaluate("__tabStep()");
+      await A.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+      await settle();
+      expect(same(await raw(A, SLOT1), kept), `${label} (${kind}): A wrote over the other tab's save`);
+    }
+
+    // New run on a real title beside another tab: B saving slot 2 leaves A's New run confirm open; B
+    // saving slot 1, the slot it would replace, closes it and says so.
+    label = "browser, new run beside another tab";
+    await A.goto(url);
+    await A.waitForSelector("#btn-begin", { state: "visible" });
+    await A.click("#btn-begin");
+    await A.waitForSelector("#new-run-confirm", { state: "visible" });
+    await B.evaluate("__tabStep()");
+    await settle();
+    expect(await A.locator("#new-run-confirm").isVisible(), `${label}: B's save in slot 2 closed A's New run confirm`);
+    await B.evaluate("beginFreshCampaign({ persist: true, slot: 1 })");
+    const closed = await A.locator("#new-run-confirm").waitFor({ state: "hidden", timeout: 5000 }).then(() => true, () => false);
+    const said = await A.evaluate(() => document.getElementById("title-save-status").textContent);
+    expect(closed && said === CHANGED(1), `${label}: after B's new run in slot 1 the confirm ${closed ? "closed" : "stayed open"} and the title says "${said}"`);
+    expect(await A.locator("#btn-resume").isVisible(), `${label}: A's title did not offer Continue after B's save`);
     await A.close();
     await B.close();
     await context.close();

@@ -594,6 +594,7 @@ function commitImportedSave(raw, slot) {
       ? "Import failed · original slot kept"
       : (hadOriginal ? "Import failed · storage recovery required" : "Import failed · no replacement written");
     updateMetaSaveHint();
+    remarkNewRunSlot(slot); // SUN-SECOND-TAB-GUARD-01: this tab's own write
     // Repaint first, so the title's unreadable-slot line cannot replace the failure (SUN-SAVED-RUNS-01).
     refreshTitleResumeUI();
     flashSaveStatus(message, true, true);
@@ -781,13 +782,23 @@ function noteSaveSlotSeen(slot, raw) {
   if (!slot) return;
   saveSlotSeen[slot] = typeof raw === "string" ? raw : null;
   delete saveSlotTaken[slot];
+  remarkNewRunSlot(slot);
 }
 
-// True once another tab has saved a different run in the slot since this tab last wrote or loaded
-// it. Only a run this build can read counts: a slot that is now empty or unreadable was not saved
-// over by another tab of this game, and this tab's next save there recovers it, as before. A tab
-// that has never written or loaded the slot has nothing there to protect. A taken slot stays taken
-// until this tab loads it or starts a new run in it (noteSaveSlotSeen).
+// The bytes a slot holds as this tab compares them: its run if this build can read one, else the
+// first bytes it cannot read (unreadableSaveRaw), else null for an empty slot.
+function saveSlotBytesNow(slot) {
+  const raw = readRawSave(slot);
+  if (validRawSnapshot(raw)) return raw;
+  return unreadableSaveRaw(slot);
+}
+
+// True once another tab has put something else in the slot since this tab last wrote or loaded it:
+// a different run ("tab"), or bytes this build cannot read ("newer"; most likely a newer version of
+// the game open in another tab, and never to be written over). An empty slot stays free (site data
+// cleared, a slot deleted): this tab's next save writes it, as before. A tab that has never written
+// or loaded the slot has nothing there to protect. A taken slot stays taken until this tab loads it,
+// imports into it or starts a new run in it (noteSaveSlotSeen).
 function saveSlotTakenElsewhere(slot) {
   slot = parseSaveSlot(slot);
   if (!slot) return false;
@@ -795,19 +806,52 @@ function saveSlotTakenElsewhere(slot) {
   if (!Object.prototype.hasOwnProperty.call(saveSlotSeen, slot)) return false;
   const seen = saveSlotSeen[slot];
   const current = readRawSave(slot);
-  if (current === seen || !validRawSnapshot(current)) return false;
+  if (current === seen) return false;
+  if (!validRawSnapshot(current)) {
+    const bytes = unreadableSaveRaw(slot);
+    if (!bytes || bytes === seen) return false;
+    saveSlotTaken[slot] = "newer";
+    return true;
+  }
   const point = saveRunPoint(current);
   if (point !== null && point === saveRunPoint(seen)) {
     // The other tab saved this same moment of this same run (a background save with a new time).
     saveSlotSeen[slot] = current;
     return false;
   }
-  saveSlotTaken[slot] = true;
+  saveSlotTaken[slot] = "tab";
   return true;
 }
 
 function saveSlotTakenNotice(slot) {
-  return `Another tab saved Slot ${slot} · not saving here · Load in Menu`;
+  return saveSlotTaken[slot] === "newer"
+    ? `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`
+    : `Another tab saved Slot ${slot} · not saving here · Load in Menu`;
+}
+
+// The Menu's Return to title chip while the slot is taken: leaving saves nothing (menu-sheet.js).
+function saveSlotTakenChip(slot) {
+  return `Does not save · Slot ${slot} keeps the other tab's run`;
+}
+
+// Showing the title clears the not-saving line: the title has no Menu, and Continue there opens
+// whatever the slot now holds (showTitleScreen).
+function clearSaveSlotTakenNotice() {
+  const slot = parseSaveSlot(activeSaveSlot);
+  if (!slot) return;
+  const lines = [
+    `Another tab saved Slot ${slot} · not saving here · Load in Menu`,
+    `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`
+  ];
+  const targets = SAVE_STATUS_TARGETS.map(id => document.getElementById(id))
+    .filter(el => el && lines.includes(String(el.textContent || "")));
+  if (!targets.length) return;
+  clearTimeout(window.__ssSaveFlash);
+  targets.forEach(el => {
+    el.textContent = "";
+    el.classList.remove("error");
+    el.classList.remove("visible");
+  });
 }
 
 // What happened, what it means and what to do, short enough for the bar on a phone: Load (in the
@@ -816,6 +860,7 @@ function saveSlotTakenNotice(slot) {
 function reportSaveSlotTaken(slot) {
   const notice = saveSlotTakenNotice(slot);
   const el = document.getElementById("save-status");
+  if (typeof syncMenuReturnTitleChip === "function") syncMenuReturnTitleChip();
   if (el && el.textContent === notice && el.classList.contains("visible")) return;
   flashSaveStatus(notice, true, true);
 }
@@ -823,7 +868,7 @@ function reportSaveSlotTaken(slot) {
 // Return to title (in the Menu) asks this before it leaves without saving: the other tab's save stays,
 // and Continue on the title loads it.
 function saveSlotTakenLeaveQuestion(slot) {
-  return `Another tab saved Slot ${slot} · this tab's run is not saved · Return anyway?`;
+  return `Another tab saved Slot ${slot} · this tab's run is not saved · Return to title anyway?`;
 }
 
 // The slot this tab's run keeps its ship-memory trail under (L-054): the active slot, or none once
@@ -858,7 +903,15 @@ function handleSaveStorageEvent(event) {
     return !!el && !el.classList.contains("hidden");
   };
   if (showing("title-screen")) {
-    refreshTitleResumeUI();
+    // The New run flow closes only when the slot it would replace changed; any other save repaints
+    // the title behind it (paintTitleSaveState is the repaint without validate.js closing the flow).
+    const target = typeof newRunTargetSlot === "function" ? newRunTargetSlot() : activeSaveSlot;
+    if (["new-run-confirm", "commander-create"].some(showing) && newRunSlotChanged(target)) {
+      refreshTitleResumeUI();
+      reportNewRunSlotChanged(target);
+    } else {
+      paintTitleSaveState();
+    }
     return;
   }
   // Only a tab with a run on screen (the story, its intro, an ending) has a slot to lose.
@@ -866,6 +919,44 @@ function handleSaveStorageEvent(event) {
   const slot = parseSaveSlot(activeSaveSlot);
   if (!slot || (key !== null && !saveSlotStorageKeys(slot).includes(key))) return;
   if (saveSlotTakenElsewhere(slot)) reportSaveSlotTaken(slot);
+}
+
+// ---------- New run beside another tab (SUN-SECOND-TAB-GUARD-01) ----------
+// The title's New run flow (validate.js) marks every slot's bytes when it opens. Begin run checks the
+// slot it is about to replace against that mark, and a title that hears another tab change that slot
+// closes the flow; either way the player is told and nothing is written. A save in any other slot
+// leaves the flow open. This tab's own writes move the mark with them, so only another tab counts.
+let newRunSlotMark = null;
+
+function saveSlotFingerprint(slot) {
+  try {
+    return JSON.stringify(saveSlotStorageKeys(slot).map(key => localStorage.getItem(key)));
+  } catch (e) {
+    return null;
+  }
+}
+function markNewRunSlots() {
+  newRunSlotMark = {};
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) newRunSlotMark[slot] = saveSlotFingerprint(slot);
+}
+function clearNewRunSlotMark() {
+  newRunSlotMark = null;
+}
+function remarkNewRunSlot(slot) {
+  slot = parseSaveSlot(slot);
+  if (newRunSlotMark && slot) newRunSlotMark[slot] = saveSlotFingerprint(slot);
+}
+function newRunSlotChanged(slot) {
+  slot = parseSaveSlot(slot);
+  if (!newRunSlotMark || !slot) return false;
+  return saveSlotFingerprint(slot) !== newRunSlotMark[slot];
+}
+function newRunSlotChangedNotice(slot) {
+  return `Slot ${slot} changed in another tab · this new run did not start`;
+}
+function reportNewRunSlotChanged(slot) {
+  clearNewRunSlotMark();
+  flashSaveStatus(newRunSlotChangedNotice(slot), true, true);
 }
 
 function persistSave(opts) {
@@ -955,9 +1046,10 @@ function persistSave(opts) {
       localStorage.removeItem(slotKeys.staging);
       if (localStorage.getItem(slotKeys.live) === previousRaw) localStorage.removeItem(slotKeys.backup);
     } catch (cleanupError) { /* keep any verified backup for readRawSave recovery */ }
-    // Whatever the slot holds now is what this tab's own write left there. A failed new run keeps
-    // what this tab held before: it did not take the slot.
-    if (guarded) saveSlotSeen[slot] = readRawSave(slot);
+    // Whatever the slot holds now is what this tab's own write left there, readable or not. A failed
+    // new run keeps what this tab held before: it did not take the slot.
+    if (guarded) saveSlotSeen[slot] = saveSlotBytesNow(slot);
+    remarkNewRunSlot(slot);
     reportSaveWriteFailure(silent, priorRecoverable);
     updateMetaSaveHint();
     return false;
@@ -1120,6 +1212,7 @@ function clearSave(slot) {
     // A value that names no slot has no keys, so nothing is removed.
     for (const key of saveSlotStorageKeys(saveSlotArg(slot))) localStorage.removeItem(key);
   } catch (e) { /* ignore */ }
+  remarkNewRunSlot(saveSlotArg(slot)); // SUN-SECOND-TAB-GUARD-01: this tab's own write
   updateMetaSaveHint();
   refreshTitleResumeUI();
 }
@@ -1397,6 +1490,10 @@ function refreshTitleResumeUI() {
   }
   renderSavedRuns();
 }
+
+// SUN-SECOND-TAB-GUARD-01: the title's own repaint, kept before validate.js wraps refreshTitleResumeUI
+// to close the New run dialogs, so another tab's save repaints the title without closing them.
+const paintTitleSaveState = refreshTitleResumeUI;
 
 // SUN-SECOND-TAB-GUARD-01: the storage event fires in every other tab of this origin.
 (function wireSaveStorageWatch() {
