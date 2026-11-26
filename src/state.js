@@ -510,7 +510,7 @@ function crewConditionNote(key) {
 const CREW_MARK_WORDS = {
   lena: [
     [["watched_vent", "She watched you vent the lower ring."]],
-    [["dying_held", "She said it did not change the math, and that she was glad it happened."],
+    [["dying_held", "She said the sex did not change the math, and that she was glad it happened."],
       ["held_only", "You stayed present without the rest."],
       ["declined", "She offered; you stepped back."]],
     [["pursuit_declined", "She asked a second time; you would not spend the last dose."]]
@@ -533,7 +533,7 @@ const CREW_MARK_WORDS = {
     [["bonded", "You sat in on his card game."],
       ["bond_skipped", "You folded early; duty was waiting."]],
     [["held", "He told you he was close to breaking; your answer let him hold."],
-      ["broke", "He told you he was close to breaking. You answered with the future; he did not argue."],
+      ["broke", "He told you he was close to breaking. You answered with the future; his calm came back all at once, and he did not argue."],
       ["warned", "He told you he was close to breaking."]]
   ],
   amara: [
@@ -550,7 +550,7 @@ const CREW_MARK_WORDS = {
       ["bond_skipped", "You left him the work."]]
   ],
   sela: [
-    [["spoken", "She spoke with you at her yellow circle."]],
+    [["spoken", "She spoke to you at her yellow circle."]],
     [["held_only", "You sat with the ritual and made no further claim."],
       ["declined", "She asked, in complete sentences; you did not take it further."]],
     [["pursuit_declined", "She asked a second time; you refused the vault vow."]]
