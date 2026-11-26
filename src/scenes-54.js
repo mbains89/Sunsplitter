@@ -66,10 +66,23 @@ registerScenes({
     choices: [ { text: "Accept the count and move on.", next: "breath_after" } ]
   },
 
+  // PRE: breath_hub's free trunks choice | WRITES: entry records breath_answer; SUN-PROMISE-BREATH-01
+  //   (decision 27, Hex design A step 4): a made promise to a living Tomas breaks here, but only if the
+  //   hub had another way open. The trunks' own choices pay after entry, so the resources read here
+  //   are still the hub's. With no other way open the promise stays made (untested, L-024).
+  // DEATH: none (the break kills no one, ruling a) | DEAD SPEECH/APPEARANCE: none here | IMAGE: reuse
   breath_trunks: {
     image: "images/corridor_pressure_3.jpg",
     onEnter: () => {
       state.flags.breath_answer = "trunks";
+      if (state.promises.tomas === "made" && isAlive("tomas")) {
+        const otherWayOpen = scenes.breath_hub.choices.some(c => c.next !== "breath_trunks" &&
+          (!c.alive || isAlive(c.alive)) && meetsRequirements(c.requires) && canAffordEffects(c.effects));
+        if (otherWayOpen) {
+          state.promises.tomas = "broken";
+          remember("You broke the promise to Tomas. Crew went into the trunks.");
+        }
+      }
     },
     text: () => {
       let t = `Crew in suits crawl the contaminated trunks. Filters are scrubbed by hand. The air clears by degrees.\n\n`;
@@ -129,13 +142,30 @@ registerScenes({
     choices: [ { text: "Accept her terms.", next: "breath_after" } ]
   },
 
+  // PRE: a breath answer is committed | WRITES: SUN-PROMISE-BREATH-01 (decision 27, Hex design A step 4):
+  //   racks, garden or black sleep keep a made promise to a living Tomas (breath_trunks breaks it)
+  // DEATH: none | DEAD SPEECH/APPEARANCE: Tomas speaks only while alive; a dead Tomas gets no result
+  // IMAGE: REUSE images/corridor_pressure_4.jpg; no new art request
   breath_after: {
     image: "images/corridor_pressure_4.jpg",
+    onEnter: () => {
+      if (state.promises.tomas === "made" && isAlive("tomas") &&
+          ["racks", "garden", "blacksleep"].includes(state.flags.breath_answer)) {
+        state.promises.tomas = "kept";
+        remember("You kept the promise to Tomas. The living got the mercy.");
+      }
+    },
     text: () => {
       let t = `The air loop stabilizes. The cost is already on the boards.\n\n`;
       if (state.flags.breath_word === "given" && isAlive("tomas")) t += `Tomas's public word held. The rumor has less room to grow.\n\n`;
       else if (state.flags.breath_word === "given") t += `The public word held. The rumor has less room to grow.\n\n`;
       else if (state.flags.breath_word === "refused") t += `The refused word is still walking the corridors.\n\n`;
+      // SUN-PROMISE-BREATH-01: one Tomas line per outcome; the break line is the promise's quote-back on
+      // this path (the Custody quote-back is in custody_after, so a run renders at most one of them).
+      if (state.promises.tomas === "broken" && state.flags.breath_answer === "trunks" && isAlive("tomas"))
+        t += `Tomas has the trunk roster in his hand, every name on it. "You said: if the vault and the living need the same mercy, the living get it. There was another way on that board. I counted them into the trunks and out again, Commander. Same names. Not the same lungs."\n\n`;
+      else if (state.promises.tomas === "kept" && state.flags.breath_answer !== "trunks" && isAlive("tomas"))
+        t += `Tomas reads the shift board twice, names, not numbers. Nobody on it went into the trunks. "Whatever it cost instead," he says, "put me down for a share."\n\n`;
       t += `The ship has a path again. The fracture has not closed.`;
       return t;
     },

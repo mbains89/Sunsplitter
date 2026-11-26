@@ -9,10 +9,10 @@
 |--------|---------|-------|---------|-------|
 | the first piece of another world | Amara | breath_garden | 0.26 | Shipped. |
 | I will not vent anyone who is still breathing. | Amara | prom_make_amara / prom_make_amara_ag + prom_vent_break quote-back | 0.27 | Contract-class. Max 2 renders/run (std make XOR afterglow make + break). |
-| If the vault and the living need the same mercy, the living get it. | Tomas | prom_make_tomas + custody_after quote-back / offshift_tomas (absent-gate alternate) | 0.27 / 0.28 | Contract-class. Max ≤2 renders/run; late make exclusive with standard. |
+| If the vault and the living need the same mercy, the living get it. | Tomas | prom_make_tomas + custody_after or breath_after quote-back (crisis paths exclusive; breath_after since SUN-PROMISE-BREATH-01) / offshift_tomas (absent-gate alternate) | 0.27 / 0.28 | Contract-class. Max ≤2 renders/run; late make exclusive with standard. |
 | If Deck Four comes back, you hear it from me first. | Elias | prom_make_elias + prom_deck4_break quote-back | 0.27 | Contract-class. Two break branches exclusive. |
 | I will never kill one of them to keep you. | Lena | prom_make_lena / prom_make_lena_ag + prom_line_break quote-back | 0.27 | Contract-class. Max 2 renders/run. |
-| No one will use you as the price of their fear. | Sela | prom_make_sela + prom_price_break quote-back | 0.27 | Contract-class. |
+| No one will use you as the price of their fear. | Sela | prom_make_sela + prom_price_break quote-back (Custody or Breath; Breath since SUN-PROMISE-BREATH-01) | 0.27 | Contract-class. |
 | The living will decide what the future becomes. | Mira | prom_make_mira + prom_direct_break quote-back | 0.27 | Contract-class. |
 
 | The beds are holding. So is your line in my book. I reread it when the air runs thin. | Amara | act2_tether_sighting | 0.27.2 | Allusion carrier. One-shot via prom_amara_alluded. |

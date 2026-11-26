@@ -278,6 +278,11 @@ for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["
     enter: () => state.promises[holder] === "broken" || patientPresent()
   });
 }
+// SUN-PROMISE-BREATH-01 (decision 27): Sela's petition test also runs on Breath, from breath_onset, so
+// an absent holder exits to the hub of the path the run is on. This replaces the Custody-only exit
+// registered in the shared test loop above; cast and options are unchanged.
+requireLivingCast("prom_price prom_price_keep prom_price_break", ["sela"],
+  () => state.crisisPath === "breath" ? "breath_hub" : "custody_hub");
 for (const who of ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"]) {
   requireLivingCast(`offshift_${who}`, [who], "faction_split");
 }
