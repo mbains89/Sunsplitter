@@ -1,18 +1,15 @@
 // Sunsplitter — engine.js
 // Version 0.25.3 — Causality lies (dead speech / unread state)
-// Core game loop: showScene, choices, stats, save/load, endings
+// Core game loop: showScene, choices, stats, endings. Save/load is in engine-save.js.
 // Keep story content out of this file.
 
 const TONE_ACK_KEY = "sunsplitter_tone_ack_v1";
 // SUN-PRICE-TAGS-01: reader setting "Show costs on choices". "1" = on; anything else = off.
 const SHOW_COSTS_KEY = "sunsplitter_show_costs_v1";
-const SAVE_KEY = "sunsplitter_save_v3";
-const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
-const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
-const SAVE_BACKUP_KEY = "sunsplitter_save_v3_backup";
-const SAVE_SCHEMA_VERSION = 3;
-const MIN_IMPORT_SCHEMA_VERSION = 2;
-const MAX_IMPORT_BYTES = 1_048_576;
+// SUN-NUDITY-FILTER-01 (L-040): reader setting "Cover nudity in pictures". "1" = on; anything else = off.
+const COVER_NUDITY_KEY = "sunsplitter_cover_nudity_v1";
+// The save keys (SAVE_KEY and the rest) and all save / resume code are in src/engine-save.js,
+// which index.html loads just before this file.
 
 // 0.25: track loaded save gameVersion for in-flight skip of new Elias/Mira lethals
 let loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
@@ -242,6 +239,132 @@ function syncShowCostsControls() {
   else syncShowCostsControls();
 })();
 
+// SUN-NUDITY-FILTER-01 (L-040) — reader setting "Cover nudity in pictures". Default OFF.
+// Presentation only, like the cost and text-pace settings: never serialized into run state,
+// saves or exports, and it changes no text and no choice. While it is on, a picture on
+// NUDITY_PICTURES is shown blurred (css/paced-reveal.css, .nudity-covered). No picture is
+// swapped, so the plate a scene resolves to and the face gate are untouched.
+//
+// The list is Muse's audit of 2026-11-23, which looked at every file in images/. A file is on
+// it when it shows a bare breast, genitals or bare buttocks, or a person plainly nude with those
+// parts hidden. It is keyed on the file that renders, never on a scene id or on isIntimateScene,
+// and it includes files no scene can render today, so wiring one later cannot slip past the
+// setting. File names are no guide to content (the lingerie_* pictures show no lingerie): a new
+// or replaced picture is looked at before it is listed or left off, and
+// scripts/sun-playerflow-nudity-filter-checks.mjs pins the audited set.
+const NUDITY_PICTURES = new Set([
+  // Rendered by a scene today.
+  "afterglow_amara.jpg", "afterglow_lena.jpg", "afterglow_mira.jpg", "afterglow_sela.jpg",
+  "lingerie_amara.jpg", "lingerie_lena.jpg", "lingerie_mira.jpg", "lingerie_sela.jpg",
+  "pursuit_lena.jpg",
+  "rear_amara.jpg", "rear_lena.jpg", "rear_mira.jpg", "rear_sela.jpg",
+  "romance_amara_tomas.jpg", "romance_lena_1.jpg",
+  "shower_lena.jpg", "shower_mira.jpg", "shower_sela.jpg",
+  "vess_intimate.jpg",
+  // In images/ but rendered by no scene today.
+  "afterglow_vess.jpg", "amara_rear.jpg", "amara_tomas_afterglow.jpg", "lingerie_vess.jpg",
+  "mira_rear.jpg", "mira_shower.jpg", "pursuit_mira.jpg", "pursuit_sela.jpg", "rear_vess.jpg",
+  "romance_amara_1.jpg", "romance_mira_1.jpg", "romance_sela_1.jpg", "romance_vess_1.jpg",
+  "sela_rear.jpg", "shower_amara.jpg", "shower_vess.jpg"
+]);
+// Every element setManagedImageSource writes to, plus the title plate.
+const MANAGED_PICTURE_IDS = ["scene-image", "crew-sheet-image", "cinematic-image", "ending-image", "what-remains-image", "title-ship-image"];
+// Once the reader toggles it this session, that value wins over storage, so a blocked or full
+// localStorage still leaves a working toggle.
+let coverNuditySessionValue = null;
+
+function coverNudityInPictures() {
+  if (coverNuditySessionValue !== null) return coverNuditySessionValue;
+  try {
+    return localStorage.getItem(COVER_NUDITY_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function pictureShowsNudity(src) {
+  if (typeof src !== "string" || !src) return false;
+  return NUDITY_PICTURES.has(src.split(/[?#]/)[0].split("/").pop());
+}
+
+// A picture element is covered while the setting is on and any of these is on the list: the
+// picture it was asked to show, the last one it finished loading, or the one the browser reports
+// as current. A browser keeps the old picture on screen until the new one has loaded, so
+// uncovering on the request alone would show the old picture bare for that moment.
+function syncPictureCover(img) {
+  if (!img || !img.classList || typeof img.classList.toggle !== "function") return false;
+  const asked = typeof img.__ssManagedSource === "string"
+    ? img.__ssManagedSource
+    : ((typeof img.getAttribute === "function" && img.getAttribute("src")) || "");
+  const loaded = typeof img.__ssLoadedSource === "string" ? img.__ssLoadedSource : "";
+  const current = asked && typeof img.currentSrc === "string" ? img.currentSrc : "";
+  const covered = coverNudityInPictures()
+    && (pictureShowsNudity(asked) || pictureShowsNudity(loaded) || pictureShowsNudity(current));
+  img.classList.toggle("nudity-covered", covered);
+  const wrap = img.parentElement;
+  if (wrap && wrap.classList && typeof wrap.classList.toggle === "function") wrap.classList.toggle("picture-covered", covered);
+  return covered;
+}
+
+// Follow what the element has actually loaded, so a cover held for an outgoing picture lifts
+// when its replacement is on screen (or failed to load and nothing is).
+function watchPictureCover(img) {
+  if (!img || img.__ssCoverWatched || typeof img.addEventListener !== "function") return;
+  img.__ssCoverWatched = true;
+  img.addEventListener("load", () => {
+    img.__ssLoadedSource = (typeof img.currentSrc === "string" && img.currentSrc)
+      || (typeof img.__ssManagedSource === "string" ? img.__ssManagedSource : "");
+    syncPictureCover(img);
+  });
+  img.addEventListener("error", () => {
+    img.__ssLoadedSource = "";
+    syncPictureCover(img);
+  });
+}
+
+function refreshPictureCovers() {
+  for (const id of MANAGED_PICTURE_IDS) {
+    const img = document.getElementById(id);
+    watchPictureCover(img);
+    syncPictureCover(img);
+  }
+}
+
+function setCoverNudity(on) {
+  coverNuditySessionValue = !!on;
+  try {
+    localStorage.setItem(COVER_NUDITY_KEY, coverNuditySessionValue ? "1" : "0");
+  } catch (e) { /* private mode — the setting still holds for this session */ }
+  syncCoverNudityControls();
+  refreshPictureCovers();
+  return coverNuditySessionValue;
+}
+
+function toggleCoverNudity() {
+  return setCoverNudity(!coverNudityInPictures());
+}
+
+function syncCoverNudityControls() {
+  const on = coverNudityInPictures();
+  for (const id of ["btn-cover-nudity", "meta-cover-nudity"]) {
+    const btn = document.getElementById(id);
+    if (btn) btn.setAttribute("aria-pressed", String(on));
+  }
+  const chip = document.getElementById("cover-nudity-chip");
+  if (chip) {
+    chip.textContent = on
+      ? "On · pictures with nudity are blurred · the text is unchanged"
+      : "Off · pictures show as drawn";
+  }
+}
+
+(function wireCoverNudityControls() {
+  if (typeof document === "undefined") return;
+  const sync = () => { syncCoverNudityControls(); refreshPictureCovers(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sync);
+  else sync();
+})();
+
 // SUN-PRICE-TAGS-01 — after a choice, each status value that changed pulses once.
 // Feedback on the existing status bar only: no toast, no popup, no new layer.
 // #stat-announcer still carries the full status for screen readers.
@@ -346,6 +469,8 @@ function beginFreshCampaign(opts) {
     preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
   }
+  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   showScreen("game");
   renderStatus();
@@ -403,9 +528,15 @@ function setManagedImageSource(img, src) {
     ? img.__ssManagedSource
     : ((typeof img.getAttribute === "function" && img.getAttribute("src")) || "");
   if (current === next) return false;
+  watchPictureCover(img);
   if (next) img.src = next;
   else if (typeof img.removeAttribute === "function") img.removeAttribute("src");
   img.__ssManagedSource = next;
+  // SUN-NUDITY-FILTER-01: an emptied element shows nothing, so nothing is left to keep covered.
+  if (!next) img.__ssLoadedSource = "";
+  syncPictureCover(img);
+  // SUN-MEMORY-STORE-01 (L-054): the plate this element now shows, after the face gate.
+  if (next && typeof shipMemoryNotePlate === "function") shipMemoryNotePlate(img, next);
   return true;
 }
 
@@ -570,6 +701,8 @@ function showScene(id, opts) {
       return;
     }
   }
+  // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id);
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -601,8 +734,12 @@ function showScene(id, opts) {
   } finally {
     renderingSavedScene = false;
   }
+  // SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
+  // conditional line that printed nothing) is dropped here, so paced reveal never spends a
+  // "Read on" tap on nothing. Paced, instant and resume all render from this one markup.
   const html = String(raw)
     .split(/\n\n+/)
+    .filter(p => p.trim())
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 
@@ -788,19 +925,75 @@ function beginSceneReveal(opts) {
   return true;
 }
 
+// SUN-READON-SCROLL-01: where #main should scroll so a newly revealed paragraph is on screen.
+// Values are in #main's content coordinates (0 = the top of its scrolled content): scrollTop,
+// viewHeight (#main.clientHeight), maxScroll (scrollHeight - clientHeight), the paragraph's top and
+// bottom, reserve (the sticky Read on bar's height; 0 when the bar is in normal flow or hidden) and
+// follow (the bottom of an in-flow Read on bar, which comes into view with the paragraph when both
+// fit). Returns the scrollTop to move to, or null when the paragraph is already in view.
+function revealScrollTarget(v) {
+  const room = v.viewHeight - v.reserve;
+  const visibleBottom = v.scrollTop + room;
+  const end = v.follow > v.bottom && v.follow - v.top <= room ? v.follow : v.bottom;
+  if (v.top >= v.scrollTop && end <= visibleBottom) return null;
+  // Too tall for the room, or above the view: start it at the top. Otherwise lift its end to just above the bar.
+  const target = v.bottom - v.top > room || end <= visibleBottom ? v.top : end - room;
+  return Math.round(Math.min(Math.max(0, v.maxScroll), Math.max(0, target)));
+}
+
+// SUN-READON-SCROLL-01: scroll #main itself. The Read on bar is sticky at the bottom of #main, so it
+// always counts as in view: scrolling it "into view" never moved #main, the plate never minimized,
+// and on a 390x664 phone 221 of 403 taps revealed a paragraph under the bar or below the fold.
+// Scrolling #main past MINIMIZE_AT minimizes the plate as any scroll does, which frees more room.
 function scrollRevealedIntoView(block) {
   const main = document.getElementById("main");
   const controls = document.getElementById("reveal-controls");
-  const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
-  if (!block || typeof block.scrollIntoView !== "function") return;
+  if (!block || !main || typeof block.getBoundingClientRect !== "function" || typeof main.getBoundingClientRect !== "function") return;
   try {
-    const blockHeight = block.getBoundingClientRect().height;
-    const controlsHeight = sceneReveal && controls ? controls.getBoundingClientRect().height : 0;
-    const room = main ? main.clientHeight : Infinity;
-    // Keep "read on" in view under the new paragraph when both fit; otherwise start the paragraph at the top.
-    if (sceneReveal && controls && blockHeight + controlsHeight <= room) controls.scrollIntoView({ block: "nearest", behavior });
-    else block.scrollIntoView({ block: blockHeight <= room ? "nearest" : "start", behavior });
+    const offset = main.scrollTop - main.getBoundingClientRect().top - (main.clientTop || 0);
+    const box = block.getBoundingClientRect();
+    const pending = !!(sceneReveal && controls && !controls.classList.contains("hidden"));
+    const bar = pending ? controls.getBoundingClientRect() : null;
+    const sticky = pending && main.classList.contains("reveal-roomy"); // css/paced-reveal.css: sticky only there
+    // A sticky bar sticks above #main's bottom padding (20px on a phone), so that strip is covered too.
+    const padBottom = sticky && typeof getComputedStyle === "function" ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+    // After the last Read on the choices are out (finishSceneReveal dropped .reveal-pending): bring
+    // the first one along with the last paragraph when both fit, as the in-flow bar comes along.
+    const firstChoice = !pending && typeof document.querySelector === "function" ? document.querySelector("#choices:not(.reveal-pending) button") : null;
+    const choiceBox = firstChoice && typeof firstChoice.getClientRects === "function" && firstChoice.getClientRects().length ? firstChoice.getBoundingClientRect() : null;
+    const target = revealScrollTarget({
+      scrollTop: main.scrollTop,
+      viewHeight: main.clientHeight,
+      maxScroll: main.scrollHeight - main.clientHeight,
+      top: box.top + offset,
+      bottom: box.bottom + offset,
+      reserve: sticky ? bar.height + padBottom : 0,
+      follow: pending && !sticky ? bar.bottom + offset : (choiceBox ? choiceBox.bottom + offset : 0)
+    });
+    if (target == null || target === Math.round(main.scrollTop)) return;
+    const behavior = revealPrefersReducedMotion() ? "auto" : "smooth";
+    if (typeof main.scrollTo === "function") main.scrollTo({ top: target, behavior });
+    else main.scrollTop = target;
   } catch (e) { /* layout-free hosts */ }
+}
+
+// SUN-READON-SCROLL-01: a new scene's plate grows back from minimized over 0.28s (css/style.css),
+// so a Read on tapped while it grows aims at a #main that is still shrinking, and the paragraph
+// slides back under the bar. For a short time after a Read on, a resize of #main (watchRevealRoom)
+// brings that paragraph back into view. Resizes after that leave the reader's place alone, and so
+// does any resize after the reader scrolls by hand (touch drag, wheel, scrolling keys).
+const REVEAL_FOLLOW_MS = 700;
+let revealFollow = null; // { block, until } just after a Read on
+function followRevealedBlock(block) {
+  revealFollow = block ? { block, until: Date.now() + REVEAL_FOLLOW_MS } : null;
+  scrollRevealedIntoView(block);
+}
+function refollowRevealedBlock() {
+  const follow = revealFollow;
+  if (!follow) return;
+  const main = document.getElementById("main");
+  if (Date.now() > follow.until || !main || typeof main.contains !== "function" || !main.contains(follow.block)) { revealFollow = null; return; }
+  scrollRevealedIntoView(follow.block);
 }
 
 function showRevealBlock(block) {
@@ -820,13 +1013,13 @@ function advanceSceneReveal(source) {
   }
   if (reveal.shown < reveal.blocks.length) {
     setSceneRevealChrome(true);
-    scrollRevealedIntoView(block);
+    followRevealedBlock(block);
     return true;
   }
   finishSceneReveal(source);
   // From a keyboard control, focusing the first choice scrolls it in; otherwise keep the
   // last paragraph in view with the choices under it.
-  if (source !== "control-key") scrollRevealedIntoView(block);
+  if (source !== "control-key") followRevealedBlock(block);
   return true;
 }
 
@@ -892,8 +1085,17 @@ const REVEAL_STICKY_MIN_HEIGHT = 160;
   function bind() {
     const main = document.getElementById("main");
     if (!main) return;
-    const update = () => main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+    const update = () => {
+      main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+      refollowRevealedBlock();
+    };
     try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
+    // A reader who scrolls by hand while the plate still resizes keeps their place.
+    const stopFollow = () => { revealFollow = null; };
+    ["touchmove", "wheel"].forEach(type => main.addEventListener(type, stopFollow, { passive: true }));
+    // Scrolling keys only: Space, Enter and → read on, so they must not cancel the follow they start.
+    const SCROLL_KEYS = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"];
+    document.addEventListener("keydown", event => { if (SCROLL_KEYS.includes(event.key)) stopFollow(); }, { capture: true, passive: true });
     update();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
@@ -1165,19 +1367,16 @@ function forceResolvePromises() {
   if (!state.promises) return;
 }
 
+// SUN-RECAP-HONESTY-01: only a private memory is cited (lastPrivateMemory in state.js).
 function lastEndingMemory() {
-  const memories = Array.isArray(state.memories) ? state.memories : [];
   const untestedHolders = Object.keys(state.promises || {}).filter(who => state.promises[who] === "made");
-  for (let i = memories.length - 1; i >= 0; i--) {
-    const memory = String(memories[i]);
+  return lastPrivateMemory(memory => {
     const lower = memory.toLowerCase();
-    const isUntestedPromise = untestedHolders.some(who => {
+    return untestedHolders.some(who => {
       const holder = crewFirstName(who).toLowerCase();
       return lower.includes("promis") && lower.includes(holder);
     });
-    if (!isUntestedPromise) return memory;
-  }
-  return null;
+  });
 }
 
 function resolveEnding() {
@@ -1273,6 +1472,8 @@ function resolveEnding() {
   document.getElementById("ending-text").textContent = text;
   setEndingArt(art);
   showScreen("ending");
+  // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title);
 }
 
 function showWhatRemains() {
@@ -1335,7 +1536,7 @@ function buildYellowCircleText(vaultSac) {
   if (state.flags.sela_amber && isAlive("sela")) text += `Sela lit the lamp for one person once, and you stayed past amber.\n\n`;
   const memory = lastEndingMemory();
   if (memory) text += `Something private still sits with you: ${memory}\n\n`;
-  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.\n\nThat is rarer than landfall.`;
+  text += `You did not win the argument between Future and Living. You made a ship where Living still had a voice.`;
   return text;
 }
 
@@ -1375,7 +1576,7 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   let text = `You chose the people who were already breathing.\n\nThe embryo counts are permanently lower (${emb}%). The vault remembers the cost.\n`;
   if (futureVoices.length) text += ` ${futureVoices.join(" and ")} call it a failure of nerve.\n\n`;
   else text += `\n\n`;
-  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and occasionally touches one another without permission.\n\n`;
+  text += `But the habitation decks are warmer. The remaining crew still argues, eats, and now and then reaches for one another.\n\n`;
   if (preg === true) text += `A living pregnancy is possible. That fact sits in the medical bay like a second vault.\n\n`;
   if (livingVoices.length) text += `The living side of the argument — ${livingVoices.join(", ")} — still has a place to stand.\n\n`;
   text += buildFinalOrderText(final);
@@ -1383,11 +1584,32 @@ function buildLivingShipText(futureVoices, livingVoices, preg, emb, final) {
   return text;
 }
 
+// SUN-BLEAK-ENDING-HONESTY-01: deaths that came at one of the Commander's orders or refusals. The
+// attributable causes (the vent, a diverted bus, an ordered repair, a stopped treatment, a vented
+// pocket) plus the lethal opportunities whose causes do not name the order: Lena's treatment left
+// unbuilt, Elias sealed into B-four, Tomas sent through the annex, the shared line moved to Lena.
+const ORDERED_DEATH_CAUSES = [
+  "kept working until the clock ran out",
+  "held the line",
+  "went back for the living and did not return",
+  "lost the shared medical line to Lena"
+];
+function deathByOrder() {
+  return (state.dead || []).some(k => attributableDeath(k) ||
+    ORDERED_DEATH_CAUSES.includes(state.deathCause && state.deathCause[k]));
+}
+
 function buildQuietShipText(deadNames, shape, final) {
-  let text = `Only a few of you remain — or what remains of the restart package is too thin to matter.\n\n`;
+  // SUN-BLEAK-ENDING-HONESTY-01: say which collapse this is (the gate's own terms), not both as a hedge.
+  const fewLeft = state.survivors <= 4 || (state.integrity < 15 && state.survivors <= 5);
+  const vaultThin = state.embryos < 25;
+  let text = fewLeft && vaultThin ? `Only a few of you remain, and what remains of the restart package is too thin to matter.\n\n`
+    : fewLeft ? `Only a few of you remain.\n\n`
+    : `What remains of the restart package is too thin to matter.\n\n`;
   if (deadNames.length) text += `The dead: ${deadNames.join("; ")}.\n\n`;
   if (shape === "future") text += `You protected the vault when you could. It did not save the room.\n\n`;
-  if (shape === "living") text += `You protected the living when you could. There were not enough left to matter.\n\n`;
+  // SUN-BLEAK-ENDING-HONESTY-01: not after crew died at the Commander's order or refusal.
+  if (shape === "living" && !deathByOrder()) text += `You protected the living when you could. There were not enough left to matter.\n\n`;
   text += buildFinalOrderText(final);
   text += `The Sunsplitter drifts. Systems fail one by one. There is no longer any pretense of a future.\n\nYou sit with the last of them in the observation blister and watch the stars that do not care.\n\nWhen the final systems go dark, no one speaks.\n\nThis is how the last light goes out.`;
   return text;
@@ -1396,8 +1618,11 @@ function buildQuietShipText(deadNames, shape, final) {
 function buildStillBurningText(crisis, shape, final, planet) {
   let text = `Against every reasonable expectation, the group holds.\n\n`;
   if (crisis === "vent") text += `The cost is permanent. Names are not spoken lightly.\n\n`;
-  if (shape === "future") text += `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
-  else if (shape === "living") text += `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
+  // SUN-RECAP-HONESTY-01: when the vault choice set the shape against the recorded orders What Remains
+  // cites, say it was the vault choice, so the two screens do not disagree about the lean.
+  const byVault = shape !== whatRemainsIdeologyShape();
+  if (shape === "future") text += byVault ? `At the vault fault you kept the vault and the mission. The living remember the cold — but they are still here.\n\n` : `You leaned toward the vault and the mission. The living remember the cold — but they are still here.\n\n`;
+  else if (shape === "living") text += byVault ? `At the vault fault you chose the breathing. The embryo counts are wounded. The room is not.\n\n` : `You leaned toward the breathing. The embryo counts are wounded. The room is not.\n\n`;
   else text += `You refused to let either side of the argument own the ship completely.\n\n`;
   if (final === "hold") {
     text += state.flags.course_briefed
@@ -1436,8 +1661,9 @@ function buildLongDarkText(final, planet, emb, preg, shape, integ, sup) {
   if (integ < 40) text += `Hull is a daily argument (${integ}%).\n\n`;
   if (sup < 30) text += `Supplies are a shorter argument (${sup}%).\n\n`;
   if (preg === true) text += `A living child may still be possible. That fact competes with every frozen future in the vault.\n\n`;
-  if (shape === "future") text += `Your run leaned toward Future. The vault still has a claim on the ship.\n\n`;
-  else if (shape === "living") text += `Your run leaned toward Living. The warmth has a cost the numbers will not forget.\n\n`;
+  const byVault = shape !== whatRemainsIdeologyShape(); // SUN-RECAP-HONESTY-01, as in Still Burning
+  if (shape === "future") text += byVault ? `At the vault fault you chose Future. The vault still has a claim on the ship.\n\n` : `Your run leaned toward Future. The vault still has a claim on the ship.\n\n`;
+  else if (shape === "living") text += byVault ? `At the vault fault you chose Living. The warmth has a cost the numbers will not forget.\n\n` : `Your run leaned toward Living. The warmth has a cost the numbers will not forget.\n\n`;
   text += `The Sunsplitter pushes on through the black.\n\nYou do the work anyway.\n\nOne more day, then the next, then the next.`;
   return text;
 }
@@ -1467,7 +1693,8 @@ function buildEndingFooter(deadNames, title, fav, shape) {
   else if (hasMark("lena", "dying_held")) text += `\n\nLena's remaining time was spent with someone who stayed. That fact outlived her.`;
   else if (hasMark("lena", "held_only") && isAlive("lena")) text += `\n\nLena asked for presence without the rest, and had it.`;
   else if (hasMark("lena", "held_only")) text += `\n\nLena asked for presence without the rest, and had it. That fact outlived her.`;
-  if (hasMark("tomas", "broke")) text += `\n\nTomas broke in front of you. That fact does not leave the ship.`;
+  // SUN-BLEAK-ENDING-HONESTY-01: what tomas_break's reply shows, not a breakdown it does not show.
+  if (hasMark("tomas", "broke")) text += `\n\nYou told Tomas the future is what justifies this. He took it like a ration cut, and did not argue. That fact does not leave the ship.`;
   else if (hasMark("tomas", "held") && isAlive("tomas")) text += `\n\nTomas is still holding. He told you he might not.`;
   // SUN-ROMANCE-ARC-05 (L-050): Sela's end state, cited from the answer the run gave.
   if (state.flags.sela_amber) {
@@ -1598,7 +1825,8 @@ function resolveSceneImageUngated(id, scene) {
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
-    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela")) {
+    // SUN-PLATE-FACES-AUDIT-01: the kneeling welder in crisis.jpg reads as Mira (Muse a-m audit).
+    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela") || !isAlive("mira")) {
       return "images/corridor_variant_2.jpg";
     }
   }
@@ -1702,7 +1930,7 @@ const PLATE_FACES = {
   "images/corridor.jpg": ["vess"],
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
-  "images/crisis.jpg": ["amara", "jiro", "sela"],
+  "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
   "images/empty_berths.jpg": ["amara"],
   // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
   // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
@@ -1759,7 +1987,17 @@ const PLATE_FACES = {
   "images/arc_living_3.jpg": ["tomas", "elias"],
   "images/lead_together.jpg": ["elias", "amara"],
   "images/vault_sacrifice.jpg": ["mira", "elias"],
-  "images/ship_interrupt_resolve.jpg": ["mira"]
+  "images/ship_interrupt_resolve.jpg": ["mira"],
+  // SUN-PLATE-FACES-AUDIT-01 (Muse audits a-m and n-z): rosters read from the bytes against the
+  // official portraits. tether_dock_ruined.jpg (Tomas holding a tray) is returned for act2_tether_dock
+  // when the trays died; the rest are defensive (their scenes are guarded upstream or never show
+  // them). mira_thermal_cut.jpg is byte-identical to custody_severed.jpg, so both names are mapped.
+  "images/tether_dock_ruined.jpg": ["tomas"],
+  "images/cascade_records.jpg": ["mira", "jiro"],
+  "images/custody_severed.jpg": ["mira"],
+  "images/mira_thermal_cut.jpg": ["mira"],
+  "images/medical_bay.jpg": ["lena", "elias", "rourke"],
+  "images/lena.jpg": ["lena"]
 };
 // SUN-HITL-SHADOW-02: only plates whose bytes differ from the scene's own image. Byte-identical
 // copies under event names stay shadowed so the face gate keeps matching the original filename.
@@ -1799,6 +2037,11 @@ function plateFacesPresent(src) {
   return !faces || faces.every(isAlive);
 }
 
+// SUN-CREW-CHIP-FIRST-TAP-01: the board opens with Lena's facts painted, a default the player
+// did not pick. A chip toggles off only when the player picked it, so the first tap on Lena
+// opens her like any other name. UI state for one paint; never saved.
+let crewPanelDefaultPaint = false;
+
 function toggleCrewPanel() {
   const el = document.getElementById("crew-panel");
   if (!el) return;
@@ -1808,7 +2051,9 @@ function toggleCrewPanel() {
   const toggle = document.getElementById("btn-crew");
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
-    renderCrewPanel("lena");
+    crewPanelDefaultPaint = true;
+    try { renderCrewPanel("lena"); }
+    finally { crewPanelDefaultPaint = false; }
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
     if (wrap && wrap.classList.contains("visible")) {
@@ -1875,8 +2120,9 @@ function renderCrewPanel(selectedKey) {
       : (state.dying && state.dying[selectedKey]);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
-    if (!dead && favored === selectedKey) bits.push("favored");
-    if (!dead && state.marks && state.marks[selectedKey]) bits.push(String(state.marks[selectedKey]).replace(/_/g, " "));
+    // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
+    // favoritism is "who you chose to keep close"; raw marks (e.g. "dying_held") stay internal.
+    if (!dead && favored === selectedKey) bits.push("kept close");
     detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
   } else {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
@@ -1886,866 +2132,17 @@ function renderCrewPanel(selectedKey) {
   const listedN = order.filter(k => crew[k]).length;
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
+  const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
       const key = btn.getAttribute("data-crew");
-      renderCrewPanel(selectedKey === key ? null : key);
+      renderCrewPanel(pickedKey === key ? null : key);
       if (typeof el.querySelector === "function") {
         const replacement = el.querySelector(`[data-crew="${key}"]`);
         if (replacement && typeof replacement.focus === "function") replacement.focus();
       }
     };
   });
-}
-
-
-// ---------- Save / Resume (v0.19) ----------
-// Single slot. Survives refresh, background, tab close on iOS Safari via localStorage.
-// Schema versioned. Never wipe an existing save on failed write/parse.
-
-function snapshotState() {
-  // Explicit allowlist — full run state 0.17.1+ relies on
-  const snap = {
-    v: SAVE_SCHEMA_VERSION,
-    gameVersion: loadedGameVersion,
-    savedAt: Date.now(),
-    sceneEntered: true,
-    survivors: state.survivors,
-    integrity: state.integrity,
-    cohesion: state.cohesion,
-    supplies: state.supplies,
-    embryos: state.embryos,
-    flags: Object.assign({}, state.flags),
-    dead: (state.dead || []).slice(),
-    deathCause: Object.assign({}, state.deathCause || {}),
-    scene: state.scene,
-    affinity: Object.assign({}, state.affinity),
-    trust: Object.assign({}, state.trust),
-    romance: Object.assign({}, state.romance || {}),
-    pursuit: Object.assign({}, state.pursuit || {}),
-    favors: Object.assign({}, state.favors || {}),
-    past_known_by: Object.assign({}, state.past_known_by || {}),
-    dying: (state.dying && typeof state.dying === "object") ? Object.assign({}, state.dying) : {},
-    past_known: !!state.past_known,
-    marks: Object.assign({}, state.marks || {}),
-    memories: (state.memories || []).slice(),
-    ideology: Object.assign({ future: 0, living: 0 }, state.ideology || {}),
-    // 0.22.0 groundwork
-    recovered: Object.assign({ tomas: false, jiro: false, vess: false }, state.recovered || {}),
-    promises: Object.assign({}, state.promises || {}),
-    crisisPath: state.crisisPath != null ? state.crisisPath : null
-  };
-  if (typeof state.commanderCallsign === "string" && state.commanderCallsign) snap.commanderCallsign = state.commanderCallsign;
-  if (typeof state.commanderSeal === "string" && state.commanderSeal) snap.commanderSeal = state.commanderSeal;
-  if (typeof state.commanderOath === "string" && state.commanderOath) snap.commanderOath = state.commanderOath;
-  return snap;
-}
-
-// SUN-DIET-REPLY-FOLD-01 (L-057): one-line answer screens folded into the previous choice's reply
-// and retired from the registry. Autosave lands on every screen, so a save can be parked on one;
-// it resumes at that screen's only exit, entered fresh, exactly as if its Continue had been
-// pressed. None of them wrote anything on entry that a save parked there does not already hold.
-const RETIRED_SCENE_EXITS = {
-  hold_bolts_again: "act3_spine_next",
-  hold_bolts_silent: "act3_spine_next",
-  breath_word_given: "breath_hub",
-  breath_word_refused: "breath_hub",
-  arc_living_sela_answer: "arc_living_3",
-  filters_stencil_luck: "offshift_sela",
-  filters_stencil_silent: "offshift_sela",
-  act3_lethal_tomas_stores: "act3_lethal_elias_order",
-  act3_lethal_tomas_structure: "act3_lethal_elias_order",
-  act3_lethal_elias_brace: "act3_lethal_mira_board",
-  act3_lethal_mira_collar: () => state.romance && state.romance.mira ? "mira_root_cause" : "faction_split",
-  // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): the memory pass-through's text now opens
-  // final_choice on first arrival; a save parked on it has no patch flag yet, so the resumed
-  // final_choice prints the same debts the parked screen showed, then the final orders.
-  ship_memory_payoff: "final_choice",
-  // SUN-DIET-VESS-MERGE-01: the cost screen is merged into the signal screen, which now carries its
-  // docking choices and its entry writes (idempotent: flags re-set, memories deduped by remember()).
-  // A save parked on vess_cost resumes on the merged screen with the same two choices it had.
-  vess_cost: "vess_signal"
-};
-function retiredSceneExit(id) {
-  if (!Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, id)) return null;
-  const exit = RETIRED_SCENE_EXITS[id];
-  return typeof exit === "function" ? exit() : exit;
-}
-
-function validSnapshotShape(data) {
-  const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
-  if (!isRecord(data)) return false;
-
-  const sceneId = typeof data.scene === "string" && data.scene ? data.scene : "";
-  if (!sceneId || !(Object.prototype.hasOwnProperty.call(scenes, sceneId) ||
-      Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, sceneId))) return false;
-
-  for (const key of ["survivors", "integrity", "cohesion", "supplies", "embryos"]) {
-    const value = data[key];
-    const cap = STAT_CAPS[key];
-    if (typeof value !== "number" || !Number.isFinite(value) || value < cap.min || value > cap.max) return false;
-  }
-
-  for (const key of ["flags", "deathCause", "affinity", "trust", "romance", "pursuit", "favors", "past_known_by", "marks", "ideology", "recovered", "promises"]) {
-    if (data[key] != null && !isRecord(data[key])) return false;
-  }
-  for (const key of ["dead", "memories"]) {
-    if (data[key] != null && !Array.isArray(data[key])) return false;
-  }
-  if (data.dying != null && typeof data.dying !== "string" && !isRecord(data.dying)) return false;
-  if (data.past_known != null && typeof data.past_known !== "boolean") return false;
-  if (data.crisisPath != null && typeof data.crisisPath !== "string") return false;
-  for (const key of ["commanderCallsign", "commanderSeal", "commanderOath"]) {
-    if (data[key] != null && (typeof data[key] !== "string" || data[key].length > 128)) return false;
-  }
-  if (data.gameVersion != null && typeof data.gameVersion !== "string") return false;
-  if (data.savedAt != null && (typeof data.savedAt !== "number" || !Number.isFinite(data.savedAt))) return false;
-  if (data.sceneEntered != null && typeof data.sceneEntered !== "boolean") return false;
-  return true;
-}
-
-function applySnapshot(data) {
-  if (!validSnapshotShape(data)) return false;
-  const sceneId = data.scene;
-  if (typeof data.gameVersion === "string") loadedGameVersion = data.gameVersion;
-  else loadedGameVersion = (typeof VERSION !== "undefined" ? VERSION : "0.25");
-  // Resources
-  state.survivors = typeof data.survivors === "number" ? data.survivors : state.survivors;
-  state.integrity = typeof data.integrity === "number" ? data.integrity : state.integrity;
-  state.cohesion = typeof data.cohesion === "number" ? data.cohesion : state.cohesion;
-  state.supplies = typeof data.supplies === "number" ? data.supplies : state.supplies;
-  state.embryos = typeof data.embryos === "number" ? data.embryos : state.embryos;
-  // Causality-critical
-  state.flags = Object.assign({}, data.flags || {});
-  // L-027: retire the unused Vess course consequence from legacy saves.
-  delete state.flags.vess_course_lost;
-  state.dead = Array.isArray(data.dead) ? data.dead.slice() : [];
-  state.deathCause = Object.assign({}, data.deathCause || {});
-  state.scene = sceneId;
-  state.affinity = Object.assign({ lena: 0, elias: 0, mira: 0, tomas: 0, amara: 0, jiro: 0, sela: 0, vess: 0 }, data.affinity || {});
-  state.trust = Object.assign({ lena: 40, elias: 35, mira: 45, tomas: 50, amara: 40, jiro: 40, sela: 30, vess: 35 }, data.trust || {});
-  state.romance = Object.assign({}, data.romance || {});
-  state.pursuit = Object.assign({}, data.pursuit || {});
-  state.favors = Object.assign({}, data.favors || {});
-  state.past_known_by = Object.assign({}, data.past_known_by || {});
-  // 0.25: dying is a map { name: cause }. Normalize legacy scalar "lena".
-  if (data.dying != null && typeof data.dying === "object" && !Array.isArray(data.dying)) {
-    state.dying = Object.assign({}, data.dying);
-  } else if (typeof data.dying === "string" && data.dying) {
-    state.dying = { [data.dying]: data.dying === "lena" ? "kept working until the clock ran out" : data.dying };
-  } else {
-    state.dying = {};
-  }
-  state.past_known = !!data.past_known;
-  state.marks = Object.assign({}, data.marks || {});
-  state.memories = Array.isArray(data.memories) ? data.memories.slice() : [];
-  state.ideology = Object.assign({ future: 0, living: 0 }, data.ideology || {});
-  // 0.22.0 groundwork (default missing for older saves)
-  state.recovered = Object.assign({ tomas: false, jiro: false, vess: false }, data.recovered || {});
-  state.promises = Object.assign({}, data.promises || {});
-  state.crisisPath = data.crisisPath != null ? data.crisisPath : null;
-  if (typeof data.commanderCallsign === "string" && data.commanderCallsign) state.commanderCallsign = data.commanderCallsign;
-  if (typeof data.commanderSeal === "string" && data.commanderSeal) state.commanderSeal = data.commanderSeal;
-  if (typeof data.commanderOath === "string" && data.commanderOath) state.commanderOath = data.commanderOath;
-  // SUN-DIET-REPLY-FOLD-01: a retired answer screen resumes at its exit (loadGame enters it fresh).
-  const retiredExit = retiredSceneExit(sceneId);
-  if (retiredExit) state.scene = retiredExit;
-  return true;
-}
-
-function validRawSnapshot(raw) {
-  if (!raw) return false;
-  try {
-    return validSnapshotShape(JSON.parse(raw));
-  } catch (e) {
-    return false;
-  }
-}
-
-function safeImportTree(value, depth, budget) {
-  if (depth > 8 || budget.count > 2_000) return false;
-  if (value === null || typeof value === "boolean") return true;
-  if (typeof value === "number") return Number.isFinite(value);
-  if (typeof value === "string") return value.length <= 4_096;
-  if (Array.isArray(value)) {
-    if (value.length > 512) return false;
-    budget.count += value.length;
-    return value.every(item => safeImportTree(item, depth + 1, budget));
-  }
-  if (typeof value !== "object") return false;
-  const keys = Object.keys(value);
-  if (keys.length > 512) return false;
-  budget.count += keys.length;
-  for (const key of keys) {
-    if (key === "__proto__" || key === "prototype" || key === "constructor" || key.length > 128) return false;
-    if (!safeImportTree(value[key], depth + 1, budget)) return false;
-  }
-  return true;
-}
-
-function validImportedSnapshot(data) {
-  if (!safeImportTree(data, 0, { count: 0 }) || !validSnapshotShape(data)) return false;
-  const schema = data.v == null ? MIN_IMPORT_SCHEMA_VERSION : data.v;
-  if (!Number.isInteger(schema) || schema < MIN_IMPORT_SCHEMA_VERSION || schema > SAVE_SCHEMA_VERSION) return false;
-  const allowedTopLevel = new Set([
-    "v", "gameVersion", "savedAt", "sceneEntered", "survivors", "integrity", "cohesion", "supplies", "embryos",
-    "flags", "dead", "deathCause", "scene", "affinity", "trust", "romance", "pursuit", "favors",
-    "past_known_by", "dying", "past_known", "marks", "memories", "ideology", "recovered", "promises", "crisisPath", "commanderCallsign", "commanderSeal", "commanderOath"
-  ]);
-  if (Object.keys(data).some(key => !allowedTopLevel.has(key))) return false;
-  if (data.gameVersion != null && (!data.gameVersion.trim() || data.gameVersion.length > 32)) return false;
-  const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
-  const isCrewKey = key => Object.prototype.hasOwnProperty.call(crew, key);
-  const validMap = (map, validKey, validValue) => map == null ||
-    Object.entries(map).every(([key, value]) => validKey(key) && validValue(value, key));
-  const isBoolean = value => typeof value === "boolean";
-  const isCause = value => typeof value === "string" && value.length > 0;
-  const isBoundedScore = value => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
-  const booleanFlags = new Set([
-    "amara_rear_done", "amara_vent_delayed", "burn_unverified", "busDowngraded", "clock_known", "course_briefed",
-    "course_option_lost", "custody_roll", "last_tx_spent", "lena_authority", "lena_last_hour", "lena_notes", "lena_rear_done",
-    "lena_regen", "lena_shower_done", "manifest_exposed", "manifest_lie", "margin_committed", "margin_spent_extra",
-    "mira_fault_known", "mira_favor", "mira_memory_public", "mira_rear_done", "mira_shower_done", "pair_favor",
-    "pair_grudge", "pair_shield", "position_certain", "prom_amara", "prom_amara_alluded", "prom_deck4_buried",
-    "prom_deck4_edited", "prom_elias", "prom_elias_alluded", "prom_lena", "prom_lena_alluded", "prom_line_held",
-    "prom_mira", "prom_mira_alluded", "prom_sela", "prom_sela_alluded", "prom_tomas", "prom_tomas_alluded",
-    "quiet_tomas_done", "reaction_mass_spent", "sela_rear_done", "ship_interrupt_fired", "tether_hand_elias",
-    "tether_hand_mira", "tether_hand_sela", "tether_rushed", "tomas_scapegoated", "trays_dead", "vault_face",
-    "vault_face_read", "vess_intimate", "warmth_laughter", "warmth_meal", "warmth_music", "water_vented"
-  ]);
-  const flagDomains = Object.fromEntries(Object.entries({
-    abandoned: ["opened", "sealed", "scanned"], breath_answer: ["racks", "trunks", "garden", "blacksleep"],
-    mira_root_cause: ["drive", "you", "both"], vess_item_two: ["floor", "chair"], amara_page: ["open", "closed", "hers"], sela_amber: ["meaning", "sentence", "silence"],
-    // SUN-CREW-FRICTION-01: one flag per pair scene, written by the Commander's answer.
-    pair_triage: ["chart", "count", "open"], pair_seal: ["bulkhead", "names", "both"], pair_burn: ["finding", "width", "both"], pair_fix: ["fix", "track", "both"],
-    breath_word: ["given", "refused"], cascade_truth: ["open", "sealed", "senior"], changeorders: ["logged", "buried"],
-    coolant: ["loop", "medical", "split"], crisis: ["vent", "cut", "self"],
-    custody_answer: ["severed", "possession", "thawed", "shared"],
-    departure_truth: ["plural", "records", "living_only"], elias_power: ["high", "limited", "low"],
-    embryo_ceiling: ["lowered"], feedstock: ["seal", "food", "thin"],
-    final: ["endure", "hold", "comfort", "transmission"], hydro: ["full", "minimal", "rebuild"],
-    interrupt_return: ["bond_mira", "bond_amara", "bond_sela", "bond_lena", null],
-    junctionChoice: ["none", "lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"],
-    leadership: ["together", "hard", "watch"], leadership_style: ["hard", "balanced", "soft"],
-    manifest: ["read", "declined"], mid_arc: ["living", "future"],
-    past: ["owned", "denied", "deal", "lena_only", "threatened", "deflected"], patch: ["failed", "aborted"],
-    planet: ["committed", "deferred"], power: ["cut", "burn", "risk"], priority: ["repairs", "ration", "planet"],
-    prom_line_other: ["mira", "jiro", "vess"], pursuit_amara_cost: ["vent_delay", "half"],
-    pursuit_lena_cost: ["regen", "honest_regen"], pursuit_mira_cost: ["disclosed", "partial"],
-    pursuit_sela_cost: ["vow", "private_vow"], reckon: ["public", "suppress", "memory", "truth"],
-    rourke: ["stopped", "stayed", "tried", "ignored"], sela_attention: ["ignored", "present"],
-    sela_vault_vow: ["accepted", "refused"], ship_interrupt: ["answered", "deferred", "remote"],
-    ship_memory: ["open_wound", "jury_rig", "proper_seal"], signal: ["chase", "ignore", "study"],
-    stores: ["seize", "ignore", "vote"], sun_doctrine: ["scrubbed", "doctrine", "silent"],
-    tomas: ["future", "living", "hold"], vault_priority: ["future", "living", "both"],
-    vault_sacrifice: ["future", "living", "split"], vault_voice: ["off", "on", "restricted"]
-  }).map(([key, values]) => [key, new Set(values)]));
-  const isFlagValue = (value, key) => {
-    if (booleanFlags.has(key)) return typeof value === "boolean";
-    if (key === "pregnancy_risk") return typeof value === "boolean" || value === "unknown";
-    if (flagDomains[key]) return flagDomains[key].has(value);
-    return value === null || typeof value === "boolean" || typeof value === "string" ||
-      (typeof value === "number" && Number.isFinite(value));
-  };
-  const isMarkValue = value => typeof value === "string" ||
-    (isRecord(value) && Object.values(value).every(isBoolean));
-  const promiseStates = new Set(["made", "declined", "kept", "broken"]);
-
-  const dead = data.dead || [];
-  if (dead.some(key => typeof key !== "string" || !isCrewKey(key)) || new Set(dead).size !== dead.length) return false;
-  if ((data.memories || []).length > 12 || (data.memories || []).some(memory => typeof memory !== "string")) return false;
-  if (!validMap(data.flags, () => true, isFlagValue)) return false;
-  if (!validMap(data.deathCause, isCrewKey, isCause)) return false;
-  if (!validMap(data.affinity, isCrewKey, isBoundedScore) || !validMap(data.trust, isCrewKey, isBoundedScore)) return false;
-  if (!validMap(data.romance, key => isCrewKey(key) || key === "amara_tomas", isBoolean)) return false;
-  for (const map of [data.pursuit, data.favors, data.past_known_by, data.recovered]) {
-    if (!validMap(map, isCrewKey, isBoolean)) return false;
-  }
-  if (typeof data.dying === "string") {
-    if (!isCrewKey(data.dying)) return false;
-  } else if (!validMap(data.dying, isCrewKey, isCause)) return false;
-  if (!validMap(data.marks, () => true, isMarkValue)) return false;
-  if (!validMap(data.promises, isCrewKey, value => promiseStates.has(value))) return false;
-  if (!validMap(data.ideology, key => key === "future" || key === "living",
-    value => typeof value === "number" && Number.isFinite(value))) return false;
-  return true;
-}
-
-function inspectSaveImportText(text) {
-  if (typeof text !== "string" || !text.trim()) return { ok: false, error: "empty file" };
-  const normalizedText = text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text;
-  const byteLength = typeof TextEncoder === "function"
-    ? new TextEncoder().encode(normalizedText).length
-    : normalizedText.length;
-  if (byteLength > MAX_IMPORT_BYTES) return { ok: false, error: "file is too large" };
-  let parsed;
-  try {
-    parsed = JSON.parse(normalizedText);
-  } catch (e) {
-    return { ok: false, error: "file is not valid JSON" };
-  }
-  const schema = parsed && parsed.v == null ? MIN_IMPORT_SCHEMA_VERSION : parsed && parsed.v;
-  if (!Number.isInteger(schema) || schema < MIN_IMPORT_SCHEMA_VERSION) {
-    return { ok: false, error: "unsupported save format" };
-  }
-  if (schema > SAVE_SCHEMA_VERSION) return { ok: false, error: "save format is newer than this game" };
-  if (!validImportedSnapshot(parsed)) return { ok: false, error: "save data is unsupported or unsafe" };
-  const legacyFile = parsed.v == null || parsed.v === 2;
-  // Some later v2 saves already carry the one-time scene-entry marker.
-  if (legacyFile && parsed.sceneEntered !== true) delete parsed.sceneEntered;
-  return { ok: true, raw: JSON.stringify(parsed), snapshot: parsed, legacyFile };
-}
-
-function buildSaveExport() {
-  const raw = readRawSave();
-  if (!validRawSnapshot(raw)) return null;
-  const save = JSON.parse(raw);
-  const exportedAt = Date.now();
-  const version = String(save.gameVersion || "legacy").replace(/[^0-9A-Za-z.-]+/g, "-").slice(0, 32) || "legacy";
-  const stamp = new Date(exportedAt).toISOString().slice(0, 10);
-  return {
-    filename: `sunsplitter-save-v${version}-${stamp}.json`,
-    text: raw
-  };
-}
-
-function exportSaveFile() {
-  const prepared = buildSaveExport();
-  if (!prepared) {
-    flashSaveStatus("No valid save to export", true, true);
-    return false;
-  }
-  return downloadPreparedSave(prepared, "Export prepared");
-}
-
-// SUN-UNREADABLE-EXPORT-01 (Manraj 2026-11-05, ruling 2): a slot this build cannot read can be
-// downloaded byte-for-byte before a new run replaces it. It is never loaded, validated or
-// re-exported as a playable save; Export save above stays fail-closed (0.32) for these bytes.
-function buildUnreadableSaveExport() {
-  const raw = unreadableSaveRaw();
-  if (!raw) return null;
-  const stamp = new Date(Date.now()).toISOString().slice(0, 10);
-  return { filename: `sunsplitter-unreadable-save-${stamp}.json`, text: raw };
-}
-
-function exportUnreadableSaveFile() {
-  const prepared = buildUnreadableSaveExport();
-  if (!prepared) {
-    flashSaveStatus("No unreadable save to download", true, true);
-    return false;
-  }
-  return downloadPreparedSave(prepared, "Unreadable save downloaded");
-}
-
-function downloadPreparedSave(prepared, doneMessage) {
-  let url = null;
-  let link = null;
-  try {
-    const blob = new Blob([prepared.text], { type: "application/json" });
-    url = URL.createObjectURL(blob);
-    link = document.createElement("a");
-    link.href = url;
-    link.download = prepared.filename;
-    link.hidden = true;
-    document.body.appendChild(link);
-    link.click();
-    flashSaveStatus(doneMessage);
-    return true;
-  } catch (e) {
-    flashSaveStatus("Export failed", true, true);
-    return false;
-  } finally {
-    if (link && link.parentNode) link.parentNode.removeChild(link);
-    // Give mobile Safari time to consume the blob after the synthetic click.
-    if (url) setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
-}
-
-function restoreStorageValue(key, value) {
-  if (value === null) localStorage.removeItem(key);
-  else localStorage.setItem(key, value);
-  return localStorage.getItem(key) === value;
-}
-
-function commitImportedSave(raw) {
-  const keys = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY];
-  let originals;
-  try {
-    originals = Object.fromEntries(keys.map(key => [key, localStorage.getItem(key)]));
-  } catch (e) {
-    flashSaveStatus("Import failed · storage unavailable", true, true);
-    return false;
-  }
-  const hadOriginal = keys.some(key => originals[key] !== null);
-  let priorRaw = null;
-  try {
-    priorRaw = readRawSave();
-    localStorage.setItem(SAVE_STAGING_KEY, raw);
-    if (localStorage.getItem(SAVE_STAGING_KEY) !== raw || !validRawSnapshot(raw)) throw new Error("staging verification failed");
-    if (validRawSnapshot(priorRaw)) {
-      localStorage.setItem(SAVE_BACKUP_KEY, priorRaw);
-      if (localStorage.getItem(SAVE_BACKUP_KEY) !== priorRaw) throw new Error("backup verification failed");
-    } else {
-      localStorage.removeItem(SAVE_BACKUP_KEY);
-    }
-    localStorage.setItem(SAVE_KEY, raw);
-    if (localStorage.getItem(SAVE_KEY) !== raw || !validRawSnapshot(localStorage.getItem(SAVE_KEY))) {
-      throw new Error("import verification failed");
-    }
-    localStorage.removeItem(SAVE_KEY_LEGACY);
-    if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
-    localStorage.removeItem(SAVE_BACKUP_KEY);
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    if (localStorage.getItem(SAVE_BACKUP_KEY) !== null || localStorage.getItem(SAVE_STAGING_KEY) !== null) {
-      throw new Error("transaction cleanup failed");
-    }
-  } catch (e) {
-    let liveRestored = false;
-    try { liveRestored = restoreStorageValue(SAVE_KEY, originals[SAVE_KEY]); } catch (restoreError) { /* recover below */ }
-    try { restoreStorageValue(SAVE_KEY_LEGACY, originals[SAVE_KEY_LEGACY]); } catch (restoreError) { /* recover below */ }
-    if (liveRestored) {
-      try { restoreStorageValue(SAVE_STAGING_KEY, originals[SAVE_STAGING_KEY]); } catch (restoreError) { /* checked below */ }
-      try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
-    } else {
-      // Keep a durable interrupted-transaction marker. readRawSave() treats
-      // the matching live candidate as uncommitted and selects this backup.
-      try { restoreStorageValue(SAVE_STAGING_KEY, raw); } catch (restoreError) { /* checked below */ }
-      if (validRawSnapshot(priorRaw)) {
-        try { restoreStorageValue(SAVE_BACKUP_KEY, priorRaw); } catch (restoreError) { /* checked below */ }
-      } else {
-        try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
-      }
-    }
-    let priorRecoverable = false;
-    try {
-      const effective = readRawSave();
-      priorRecoverable = priorRaw === null ? effective === null : effective === priorRaw;
-    } catch (readError) { /* fail closed below */ }
-    const message = priorRecoverable
-      ? "Import failed · original slot kept"
-      : (hadOriginal ? "Import failed · storage recovery required" : "Import failed · no replacement written");
-    flashSaveStatus(message, true, true);
-    updateMetaSaveHint();
-    refreshTitleResumeUI();
-    return false;
-  }
-  pendingLegacyResume = null;
-  preserveCompletedSlotUntilChoice = false;
-  updateMetaSaveHint();
-  refreshTitleResumeUI();
-  flashSaveStatus("Imported · Continue to load");
-  return true;
-}
-
-function importSaveText(text) {
-  const inspected = inspectSaveImportText(text);
-  if (!inspected.ok) {
-    flashSaveStatus(`Import rejected · ${inspected.error}`, true, true);
-    return false;
-  }
-  let hasStoredBytes = false;
-  try {
-    hasStoredBytes = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY]
-      .some(key => localStorage.getItem(key) !== null);
-  } catch (e) {
-    flashSaveStatus("Import failed · storage unavailable", true, true);
-    return false;
-  }
-  const prompt = hasStoredBytes
-    ? "Import this save? This will replace the saved run on this device."
-    : "Import this save onto this device?";
-  if (!window.confirm(prompt)) {
-    flashSaveStatus("Import cancelled");
-    return false;
-  }
-  return commitImportedSave(inspected.raw);
-}
-
-function requestSaveImport() {
-  const input = document.getElementById("save-import-file");
-  if (!input) return false;
-  input.value = "";
-  input.click();
-  return true;
-}
-
-function readSaveImportFile(file) {
-  if (file && typeof file.text === "function") return file.text();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(reader.error || new Error("read failed"));
-    reader.readAsText(file);
-  });
-}
-
-async function handleSaveImportSelection(input) {
-  const file = input && input.files ? input.files[0] : null;
-  if (!file) return false;
-  try {
-    if (typeof file.size === "number" && file.size > MAX_IMPORT_BYTES) {
-      flashSaveStatus("Import rejected · file is too large", true, true);
-      return false;
-    }
-    return importSaveText(await readSaveImportFile(file));
-  } catch (e) {
-    flashSaveStatus("Import failed · file could not be read", true, true);
-    return false;
-  } finally {
-    input.value = "";
-  }
-}
-
-function readRawSave() {
-  try {
-    let raw = localStorage.getItem(SAVE_KEY);
-    const staging = localStorage.getItem(SAVE_STAGING_KEY);
-    const backup = localStorage.getItem(SAVE_BACKUP_KEY);
-    if (validRawSnapshot(staging) && raw === staging) {
-      // A live value that still matches staging never completed its
-      // transaction. Prefer the preserved prior slot, or fail closed.
-      raw = validRawSnapshot(backup) ? backup : null;
-    } else if (!validRawSnapshot(raw)) {
-      raw = validRawSnapshot(backup) ? backup : null;
-    }
-    if (!validRawSnapshot(raw)) {
-      // Read legacy v2 without mutating storage. A successful explicit load
-      // adopts it through the ordinary verified v3 save transaction.
-      const legacy = localStorage.getItem(SAVE_KEY_LEGACY);
-      raw = validRawSnapshot(legacy) ? legacy : null;
-    }
-    return raw;
-  } catch (e) {
-    return null;
-  }
-}
-
-// SUN-UNREADABLE-SAVE-01: bytes in a slot that this build cannot load (a scene id it does not
-// know, a corrupt write). The title still fails closed (no Continue/Export, per 0.32), but it
-// says the slot exists and Begin confirms before replacing it; before this Begin replaced it unasked.
-// SUN-UNREADABLE-EXPORT-01: the raw bytes can be downloaded (buildUnreadableSaveExport).
-function unreadableSaveRaw() {
-  if (hasSave()) return null;
-  for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
-    let raw = null;
-    try { raw = localStorage.getItem(key); } catch (e) { raw = null; }
-    if (typeof raw === "string" && raw.trim()) return raw;
-  }
-  return null;
-}
-function slotHasAnyBytes() {
-  return hasSave() || !!unreadableSaveRaw();
-}
-
-function hasSave() {
-  return validRawSnapshot(readRawSave());
-}
-
-function getSaveMeta() {
-  const raw = readRawSave();
-  if (!raw) return null;
-  try {
-    const data = JSON.parse(raw);
-    if (!data || !data.scene) return null;
-    return {
-      scene: data.scene,
-      savedAt: data.savedAt || 0,
-      survivors: data.survivors,
-      deadCount: Array.isArray(data.dead) ? data.dead.length : 0,
-      livingCrew: visibleLivingCrewCountFrom(data.dead, data.recovered)
-    };
-  } catch (e) {
-    return null;
-  }
-}
-
-function persistSave(opts) {
-  opts = opts || {};
-  const silent = !!opts.silent;
-  const retireLegacy = !!opts.retireLegacy;
-  const snap = snapshotState();
-  let previousRaw = null;
-  let previousValid = false;
-  let previousLegacyRaw = null;
-  let previousLegacyValid = false;
-  let json;
-  if (retireLegacy) {
-    try {
-      previousLegacyRaw = localStorage.getItem(SAVE_KEY_LEGACY);
-      previousLegacyValid = validRawSnapshot(previousLegacyRaw);
-    } catch (e) {
-      reportSaveWriteFailure(silent, false);
-      return false;
-    }
-  }
-  try {
-    const liveRaw = localStorage.getItem(SAVE_KEY);
-    const recoveryRaw = localStorage.getItem(SAVE_BACKUP_KEY);
-    previousRaw = validRawSnapshot(liveRaw)
-      ? liveRaw
-      : (validRawSnapshot(recoveryRaw) ? recoveryRaw : liveRaw);
-    previousValid = validRawSnapshot(previousRaw);
-  } catch (e) { /* storage access or malformed prior slot */ }
-  try {
-    json = JSON.stringify(snap);
-  } catch (e) {
-    reportSaveWriteFailure(silent, previousValid);
-    return false;
-  }
-  try {
-    // Stage and verify before touching the live slot. If a prior slot exists,
-    // preserve its exact bytes until the replacement has also verified.
-    localStorage.setItem(SAVE_STAGING_KEY, json);
-    if (localStorage.getItem(SAVE_STAGING_KEY) !== json) throw new Error("staging verification failed");
-    if (previousRaw !== null) {
-      localStorage.setItem(SAVE_BACKUP_KEY, previousRaw);
-      if (localStorage.getItem(SAVE_BACKUP_KEY) !== previousRaw) throw new Error("backup verification failed");
-    } else {
-      localStorage.removeItem(SAVE_BACKUP_KEY);
-    }
-    localStorage.setItem(SAVE_KEY, json);
-    if (localStorage.getItem(SAVE_KEY) !== json) throw new Error("save verification failed");
-    if (retireLegacy && previousLegacyRaw !== null) {
-      localStorage.removeItem(SAVE_KEY_LEGACY);
-      if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
-    }
-  } catch (e) {
-    let priorRecoverable = false;
-    try {
-      if (previousRaw !== null && localStorage.getItem(SAVE_KEY) !== previousRaw) {
-        localStorage.setItem(SAVE_KEY, previousRaw);
-      } else if (previousRaw === null) {
-        localStorage.removeItem(SAVE_KEY);
-      }
-      if (retireLegacy && previousLegacyRaw !== null && localStorage.getItem(SAVE_KEY_LEGACY) !== previousLegacyRaw) {
-        localStorage.setItem(SAVE_KEY_LEGACY, previousLegacyRaw);
-      }
-    } catch (restoreError) { /* verified backup remains recovery authority */ }
-    try {
-      priorRecoverable = (previousValid && (
-          localStorage.getItem(SAVE_KEY) === previousRaw ||
-          localStorage.getItem(SAVE_BACKUP_KEY) === previousRaw
-        )) || (previousLegacyValid && localStorage.getItem(SAVE_KEY_LEGACY) === previousLegacyRaw);
-    } catch (readError) { /* status fails closed when custody cannot be read */ }
-    try {
-      localStorage.removeItem(SAVE_STAGING_KEY);
-      if (localStorage.getItem(SAVE_KEY) === previousRaw) localStorage.removeItem(SAVE_BACKUP_KEY);
-    } catch (cleanupError) { /* keep any verified backup for readRawSave recovery */ }
-    reportSaveWriteFailure(silent, priorRecoverable);
-    updateMetaSaveHint();
-    return false;
-  }
-  try {
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    localStorage.removeItem(SAVE_BACKUP_KEY);
-  } catch (e) { /* committed live slot already verified */ }
-  if (!silent) flashSaveStatus("Saved");
-  else clearSaveWriteFailure();
-  updateMetaSaveHint();
-  return true;
-}
-
-function reportSaveWriteFailure(silent, priorRecoverable) {
-  const action = silent ? "Autosave failed" : "Save failed";
-  const custody = priorRecoverable ? "prior slot kept" : "progress not saved";
-  flashSaveStatus(`${action} · ${custody}`, true, true);
-}
-
-function saveGame() {
-  // Manual save — always visible feedback
-  const saved = persistSave({ silent: false });
-  if (saved) preserveCompletedSlotUntilChoice = false;
-  return saved;
-}
-
-function loadGame() {
-  if (!hasSave()) {
-    flashSaveStatus("No save", true);
-    return false;
-  }
-  const raw = readRawSave();
-  let data;
-  try {
-    data = JSON.parse(raw);
-  } catch (e) {
-    flashSaveStatus("Save corrupt", true);
-    return false;
-  }
-  if (pendingLegacyResume && pendingLegacyResume.raw === raw) {
-    if (!applySnapshot(pendingLegacyResume.snapshot)) {
-      pendingLegacyResume = null;
-      flashSaveStatus("Load failed", true, true);
-      return false;
-    }
-    loadedGameVersion = pendingLegacyResume.loadedGameVersion;
-    if (!persistSave({ silent: true })) {
-      showTitleScreen();
-      return false;
-    }
-    pendingLegacyResume = null;
-    preserveCompletedSlotUntilChoice = false;
-    showScreen("game");
-    renderStatus();
-    showScene(state.scene, { skipOnEnter: true, resume: true });
-    updateMetaSaveHint();
-    flashSaveStatus("Resumed");
-    return true;
-  }
-  pendingLegacyResume = null;
-  // Do not wipe existing storage if apply fails
-  const ok = applySnapshot(data);
-  if (!ok) {
-    flashSaveStatus("Load failed", true);
-    return false;
-  }
-  showScreen("game");
-  renderStatus();
-  // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01):
-  // enter the exit and render it as a live entry, exactly as that screen's Continue did.
-  const retiredResume = state.scene !== data.scene;
-  const sceneEntered = data.sceneEntered === true && !retiredResume;
-  showScene(state.scene, { skipOnEnter: sceneEntered, resume: !retiredResume });
-  // Older snapshots predate the scene-entry marker. Preserve their one-time
-  // compatibility entry, then adopt the marker so later resumes stay pure.
-  if (!sceneEntered && !persistSave({ silent: true })) {
-    pendingLegacyResume = {
-      raw,
-      snapshot: snapshotState(),
-      loadedGameVersion
-    };
-    showTitleScreen();
-    return false;
-  }
-  preserveCompletedSlotUntilChoice = false;
-  updateMetaSaveHint();
-  flashSaveStatus("Resumed");
-  return true;
-}
-
-function resumeGame() {
-  return loadGame();
-}
-
-function clearSave() {
-  try {
-    localStorage.removeItem(SAVE_KEY);
-    localStorage.removeItem(SAVE_KEY_LEGACY);
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    localStorage.removeItem(SAVE_BACKUP_KEY);
-  } catch (e) { /* ignore */ }
-  updateMetaSaveHint();
-  refreshTitleResumeUI();
-}
-
-function flashSaveStatus(msg, isError, sticky) {
-  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")].filter(Boolean);
-  if (!targets.length) {
-    // Fallback if meta not in DOM yet
-    if (isError) try { window.alert(msg); } catch (e) {}
-    return;
-  }
-  targets.forEach(el => {
-    el.textContent = msg;
-    el.classList.toggle("error", !!isError);
-    el.classList.add("visible");
-  });
-  clearTimeout(window.__ssSaveFlash);
-  if (sticky) return;
-  window.__ssSaveFlash = setTimeout(() => {
-    targets.forEach(el => {
-      el.classList.remove("visible");
-      if (el.id === "title-save-status") el.textContent = "";
-    });
-  }, 1800);
-}
-
-function clearSaveWriteFailure() {
-  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")]
-    .filter(el => el && el.classList.contains("error"));
-  if (!targets.length) return;
-  clearTimeout(window.__ssSaveFlash);
-  targets.forEach(el => {
-    el.textContent = "";
-    el.classList.remove("error");
-    el.classList.remove("visible");
-  });
-}
-
-function updateMetaSaveHint() {
-  const el = document.getElementById("save-hint");
-  if (!el) return;
-  const meta = getSaveMeta();
-  if (!meta || !meta.savedAt) {
-    el.textContent = "";
-    el.removeAttribute("data-paint");
-    return;
-  }
-  const d = new Date(meta.savedAt);
-  const clock = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
-  el.textContent = (paint ? "v" + paint + " · " : "") + "Slot · " + clock;
-  if (paint) el.setAttribute("data-paint", paint);
-  else el.removeAttribute("data-paint");
-}
-
-function refreshTitleResumeUI() {
-  const resumeBtn = document.getElementById("btn-resume");
-  const resumeMeta = document.getElementById("resume-meta");
-  const beginBtn = document.getElementById("btn-begin");
-  const exportBtn = document.getElementById("btn-export-save");
-  const has = hasSave();
-  if (resumeBtn) {
-    if (has) resumeBtn.classList.remove("hidden");
-    else resumeBtn.classList.add("hidden");
-  }
-  if (resumeMeta) {
-    if (has) {
-      const m = getSaveMeta();
-      const scene = m && m.scene ? m.scene : "run";
-      const dead = m && m.deadCount ? m.deadCount + " lost" : "intact";
-      const when = m && m.savedAt ? new Date(m.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-      const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
-      resumeMeta.textContent =
-        (paint ? "v" + paint + " · " : "") +
-        (m && m.livingCrew != null ? m.livingCrew + " alive · " : "") +
-        dead +
-        (when ? " · " + when : "");
-      resumeMeta.classList.remove("hidden");
-      resumeMeta.setAttribute("data-paint", paint);
-    } else {
-      resumeMeta.classList.add("hidden");
-      resumeMeta.textContent = "";
-    }
-  }
-  if (beginBtn) {
-    beginBtn.textContent = has ? "New run" : "Begin";
-  }
-  let unreadable = null;
-  if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
-  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it.", true, true);
-  const unreadableBtn = document.getElementById("btn-export-unreadable");
-  if (unreadableBtn) unreadableBtn.classList.toggle("hidden", !unreadable);
-  if (exportBtn) {
-    let exportable = false;
-    try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
-    exportBtn.classList.toggle("hidden", !exportable);
-    const xchip = document.getElementById("export-import-chip");
-    if (xchip) {
-      xchip.textContent = exportable
-        ? "Export ready · Import anytime (durable local slot)"
-        : "Import anytime · Export appears when a durable slot exists";
-    }
-  }
-  const saveChip = document.getElementById("title-save-chip");
-  if (saveChip) {
-    if (has) {
-      saveChip.textContent = "Save slot · durable local · Continue ready";
-      saveChip.classList.remove("hidden");
-    } else {
-      saveChip.textContent = "";
-      saveChip.classList.add("hidden");
-    }
-  }
 }
 
 // Autosave after every committed choice (state already mutated)

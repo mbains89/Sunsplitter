@@ -33,9 +33,9 @@ registerScenes({
       return t;
     },
     choices: [
-      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 } },
-      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 } },
-      { text: "Say nothing.", next: "act3_spine_next" }
+      { text: "You're right.", next: "act3_spine_next", affinity: { amara: 1 }, reply: [{ who: "amara", text: `"I know, love. Agreeing's the cheap part." Amara turns back to the pump log. "The rest you pay out where the whole garden can see it."` }] },
+      { text: "She's not your concern.", next: "act3_spine_next", affinity: { amara: -1 }, reply: [{ who: "amara", text: `"Everyone aboard is my concern. I wrote that job description myself." Amara lets the pumps have the silence. "Go on, then. I've said it once. I'll not nag."` }] },
+      { text: "Say nothing.", next: "act3_spine_next", reply: [`Amara reads the silence the way she reads a yield sheet. She nods once, as if you had answered, and lets the pumps have the room.`] }
     ]
   },
 
@@ -64,7 +64,7 @@ registerScenes({
       if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
         return `The watch report remains in the command log. There is no private accounting to add. The ship moves on.`;
       }
-      return `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You asked me once what the exits were for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
+      return `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You never asked what the job was for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
     },
     choices: [ { text: "Continue.", next: "faction_split" } ]
   },
@@ -406,7 +406,11 @@ registerScenes({
         if (deadNames.length) t += ` — ${deadNames.join(", ")}`;
         t += ` — "One for the soil. It's owed," and that's the whole ceremony.\n\n`;
       } else {
-        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."\n\n`;
+        t += `Paste, eaten together at the empty racks on purpose. Tomas: "We eat it here so the room stays a room."`;
+        // SUN-DEATH-REACTIONS-01: the table Tomas shared keeps its empty places (the soil bed above names them).
+        const gone = deadSinceTether();
+        if (gone.length) t += ` He leaves a space at the rack for ${whatRemainsJoinNames(gone)}, and nobody stands in it.`;
+        t += `\n\n`;
       }
       if (isAlive("lena"))  t += `Lena doses herself on the exact schedule, mid-meal, not mid-task, and tells the table: "Eat slower. You all metabolize like you're being chased."\n\n`;
       if (isAlive("elias")) t += `Elias eats standing where he can see the hatch. He takes seconds. From him that's a toast.\n\n`;
@@ -436,9 +440,9 @@ registerScenes({
       } else {
         t += ` — and one of them is telling a joke, timing it by the other voice.`;
       }
-      t += ` The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.\n\n`;
+      t += ` The setup is old. Rourke's, by the shape of it. Someone else lands it now, and the laugh that comes back is real — short, ugly, the kind that survives on this ship because it has to be fed so little.`;
       if (living.length <= 3) {
-        t += `It's two voices where there used to be a mess hall of them, and it is quieter, and it still counts. It counts more.`;
+        t += `\n\nIt's two voices where there used to be a mess hall of them, and it is quieter, and it still counts. It counts more.`;
       }
       return t;
     },

@@ -15,7 +15,7 @@ registerScenes({
       const next = state.flags.vault_sacrifice ? "act3_spine_next" : "lead_prompt";
       return [
         { text: "Drink. Let the quiet stand without turning it into a briefing.", next: "bond_elias_mending", affinity: { elias: 12 }, trust: { elias: 10 }, effects: { cohesion: 2 }, mark: { elias: "bonded" }, remember: "Elias shared a non-regulation drink and Rourke's name without demanding anything back." },
-        { text: "Ask one question about what he was before the lists.", next: "bond_elias_mending", affinity: { elias: 8 }, trust: { elias: 8 }, effects: { cohesion: 1 }, mark: { elias: "bonded" }, remember: "Elias admitted he was selection security long before the cascade — the lists were always his language." },
+        { text: "Ask one question about what he was before the lists.", next: "bond_elias_mending", affinity: { elias: 8 }, trust: { elias: 8 }, effects: { cohesion: 1 }, mark: { elias: "bonded" }, remember: "Elias admitted he was selection security long before the cascade — the lists were always his language.", reply: [{ who: "elias", text: `Elias turns his cup a quarter turn. "Selection security. Pad side. I checked names against berth lists. Long before the cascade." He drinks. "The lists were the job before they were the ship. That was one question, Commander."` }] },
         { text: "Leave the bulb untouched. You will not soften this chain of command.", next, affinity: { elias: 2 }, mark: { elias: "bond_skipped" } }
       ];
     },
@@ -97,7 +97,7 @@ registerScenes({
       if (hat === "hard") return "lead_hard";
       if (hat === "watch") return isAlive("elias") ? "lead_watch" : "power_crisis";
     },
-    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.\n\n"They're already choosing sides. Some think you hesitate too much. Some think you don't hesitate enough. You need to decide what kind of ship this is going to be before they decide for you."` : ""}`; },
+    get text() { return !isAlive("elias") ? ABSENT_CAST_TEXT : `${isAlive("elias") ? `Elias finds you in the observation blister.\n\n"They're choosing sides. Some say you hesitate too much. Some say not enough. Name what kind of ship this is. Today."` : ""}`; },
     choices: [
       { text: "I will not rule by fear. We hold together or we die together.", next: "lead_together", effects: { cohesion: 10, integrity: -2 }, flag: { leadership: "together" } },
       { text: "Hard rules. Clear consequences. No debate.", next: "lead_hard", effects: { cohesion: -7, integrity: 6, supplies: 2 }, flag: { leadership: "hard" } },
@@ -135,7 +135,7 @@ registerScenes({
       if (hat === "hard") return "lead_hard";
       if (!isAlive("elias")) return "power_crisis";
     },
-    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The knowledge sits in your chest like a stone.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
+    get text() { return `${isAlive("elias") ? `Elias gives you three names without hesitation.` : ""}\n\nYou do not act on them yet. The names stay where Elias put them.\n\nWord spreads that you asked. The corridors grow quieter when you walk them.\n\nYou have drawn a line. People are already deciding which side of it they stand on.`; },
     choices: [
       { text: "Answer the call from engineering.", next: "power_crisis" },
       { text: "Ask Elias to watch those three quietly. Do not act yet.", alive: "elias", next: "power_crisis", effects: { cohesion: -2 }, trust: { elias: 8 }, reply: [{ who: "elias", text: `"Quietly," Elias agrees. He does not write the names down. He never needed to.` }] }
@@ -146,7 +146,7 @@ registerScenes({
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira text/choice retain living guards
   // IMAGE: existing images/power_stress_2.jpg binding; no art work
   power_crisis: {
-    get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.\n\n${isAlive("mira") ? `"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.\n\nOr we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : ""}\n\nThe choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later. Supplies and trust will decide which options stay open.`; },
+    get text() { return `${isAlive("mira") ? `Mira calls you to engineering.` : ""} The main power bus is fluctuating again.${isAlive("mira") ? `\n\n"We can stabilize it by cutting non-essential systems for the next week — observation blister, most of the daylight panels, and half the common area lighting. That buys us stability.\n\nOr we can burn through the remaining high-grade capacitors to keep everything online. Those capacitors are also what I need if we ever want the drive back."` : `\n\nThe choice is simple and ugly: comfort and visibility now, or the possibility of real thrust later.`}`; },
     choices: [
       { text: "Cut non-essentials. Stabilize the ship.", next: "private_stores", effects: { integrity: 9, cohesion: -6, supplies: 3 }, flag: { power: "cut" }, reply: [{ who: "mira", text: `The observation blister goes dark at oh-two-hundred. Mira posts the load figures before anyone can complain: "Bus variance down to four percent. The view was costing us eleven." By the next shift someone has taped a printed photograph of stars over the dead panel.` }] },
       { text: "Burn the drive-repair capacitors. Keep systems running now.", next: "private_stores", effects: { integrity: -7, supplies: -9, cohesion: 4 }, flag: { power: "burn" }, requires: { supplies: { min: 12 } }, lean: { future: 2 }, reply: [{ who: "mira", text: `Mira wires the capacitor banks into the bus herself, one at a time, and logs each serial number like something she is burying. "Systems nominal," she reports. "The drive is no longer a question. Log that I said so."` }] },

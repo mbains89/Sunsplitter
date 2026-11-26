@@ -4,12 +4,14 @@ import assert from "node:assert/strict";
 // effects; this regression requires a visible answer before the conflict.
 // SUN-DIET-REPLY-FOLD-01 (L-057): the answer is now the Ask choice's reply, the first paragraph of
 // arc_living_3, instead of its own screen (arc_living_sela_answer, retired). The same guards hold
-// on the reply: shown before the parts argument, exact quiet_sela prose, once, never saved, never
-// spoken by a dead Sela; a save parked on the retired screen resumes at arc_living_3.
+// on the reply: shown before the parts argument, once, never saved, never spoken by a dead Sela;
+// a save parked on the retired screen resumes at arc_living_3.
+// SUN-VOICE-PASS-B-01: the reply answers the question asked (what she would spend) instead of
+// repeating quiet_sela's "It was warm" lines, so the guard now requires it NOT be quiet_sela prose.
 export function selaAnswerChecks(runtime) {
   const errors = [];
   const question = "Ask what she would spend to keep a warm world possible.";
-  const answer = '"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."';
+  const answer = '"I would spend all that is mine. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."';
   const check = (label, source) => {
     try {
       assert.equal(runtime.evaluate(`(() => {
@@ -55,7 +57,7 @@ export function selaAnswerChecks(runtime) {
     expect(state.scene === "arc_living_3", "question did not lead to the conflict");
     expect(opensWithAnswer(), "answer is not the first paragraph, once, above the parts argument");
     expect(JSON.parse(readRawSave()).scene === "arc_living_3", "conflict was not autosaved");
-    expect(!readRawSave().includes("It was warm."), "reply was written to the save");
+    expect(!readRawSave().includes("I would spend all that is mine."), "reply was written to the save");
     const before = JSON.stringify(state);
     display(state.scene, { skipOnEnter: true, resume: true });
     expect(!story().includes(answer) && story().includes("parts allocation"), "answer replayed on re-render");
@@ -69,7 +71,7 @@ export function selaAnswerChecks(runtime) {
       state.cohesion = 40; state.affinity.sela = 20; state.trust.sela = 30;
       display("arc_living_2");
       const originalQuiet = livingCastOriginals.get(scenes.quiet_sela).text.value;
-      expect(originalQuiet.includes(answer), "response is no longer exact existing Sela prose");
+      expect(!originalQuiet.includes(answer) && !answer.includes("It was warm."), "answer repeats quiet_sela's spent beat");
       const expected = JSON.parse(JSON.stringify(state));
       expected.scene = "arc_living_3"; expected.cohesion += 2;
       expected.affinity.sela += 8; expected.trust.sela += 8; expected.ideology.living += 2;

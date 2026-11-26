@@ -16,7 +16,7 @@ registerScenes({
       const rushed = !!state.flags.tether_rushed;
       let t = `Elias suits up the way he does everything: once, in order, no wasted motion. He checks the tether shackle three times because three is the number, not because he's afraid.`;
       if (isAlive("mira")) {
-        t += `\n\nMira stops him at the lock on a private channel. "The collar's failure modes are sequential, not simultaneous. If the primary shear ring binds, you have twelve seconds of secondary before the pressure wave. I told the room forty times the rating. That was for the room. This is for you." She does not wait for acknowledgment.`;
+        t += `\n\nMira stops him at the lock on a private channel. "The collar's failure modes are sequential, not simultaneous. If the primary shear ring binds, you have twelve seconds of secondary before the pressure wave. I gave the room the summary. This is for you." She does not wait for acknowledgment.`;
       }
       t += `\n\nOn the line, four kilometers of nothing under his boots, his comm stays flat. "On approach. Annex is bleeding light from the aft seam. ${rushed ? "Closing fast. This will bang." : "Closing slow. This will hold."} Ready."`;
       return t;
@@ -43,7 +43,7 @@ On the line she narrates the whole ride in measurements — range, closure, seam
   act2_tether_hand_sela: {
     image: "images/self_risk.jpg",
     onEnter: () => { state.flags.tether_hand_sela = true; },
-    text: () => `Sela puts the suit on without being shown twice. "I will go," she says. "I have caught falling things before. None this large. The principle holds."
+    text: () => `Sela puts the suit on without being shown twice. "I will go," she says. "I have caught falling things before. None were this large. The principle holds."
 
 On the line she does not fill the silence. Range calls only, exact, unhurried. At two hundred meters she says one thing that is not a number: "There is green light coming through the strip. It is the correct color. I wanted someone else to know that before the catch, in case I am busy afterward."`,
     choices: [

@@ -722,6 +722,16 @@ export function scanRuntimeNetworkUse(textRuntimeFiles, allowedCalls = ALLOWED_N
   return { networkApiMatches, forbiddenNetworkApiMatches, externalReferences };
 }
 
+// L-043: src/engine.js plus any src/engine-<part>.js that the commit's index.html loads, in load order.
+function engineScriptPaths(commit, root = ROOT) {
+  const indexText = blobAt(commit, "index.html", root).toString("utf8");
+  const paths = [...indexText.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+    .map(match => match[1].replace(/^\.\//, ""))
+    .filter(path => /^src\/engine(?:-[a-z0-9]+)*\.js$/.test(path));
+  if (!paths.includes("src/engine.js")) throw new Error("index.html does not load src/engine.js");
+  return paths;
+}
+
 function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externalFontStylesheets }) {
   const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/"));
   const { networkApiMatches, forbiddenNetworkApiMatches, externalReferences } = scanRuntimeNetworkUse(textRuntimeFiles);
@@ -747,7 +757,10 @@ function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externa
       ]
     },
     {
-      path: "src/engine.js",
+      // L-043: the engine is src/engine.js plus any src/engine-<part>.js that index.html loads.
+      // Each statement is looked for across those files, and evidence is recorded per file that
+      // holds one, in load order. While everything is in src/engine.js this is one record, as before.
+      engine: true,
       requiredStatements: [
         "const TONE_ACK_KEY = \"sunsplitter_tone_ack_v1\";",
         "const SAVE_KEY = \"sunsplitter_save_v3\";",
@@ -760,19 +773,31 @@ function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externa
       requiredStatements: externalFontStylesheets.map(item => item.url)
     }
   ];
-  const sourceEvidence = evidenceSpecs.map(spec => {
+  const evidenceRecord = (path, data, observedStatements) => ({
+    path,
+    gitBlob: git(["rev-parse", `${commit}:${path}`], { root }),
+    bytes: data.length,
+    sha256: sha256(data),
+    observedStatements
+  });
+  const sourceEvidence = evidenceSpecs.flatMap(spec => {
+    if (spec.engine) {
+      const files = engineScriptPaths(commit, root).map(path => ({ path, data: blobAt(commit, path, root) }));
+      const holder = new Map(spec.requiredStatements.map(statement => {
+        const file = files.find(candidate => candidate.data.toString("utf8").includes(statement));
+        if (!file) throw new Error(`private-draft evidence missing from exact source: ${files.map(item => item.path).join("+")} :: ${statement}`);
+        return [statement, file.path];
+      }));
+      return files
+        .map(file => evidenceRecord(file.path, file.data, spec.requiredStatements.filter(statement => holder.get(statement) === file.path)))
+        .filter(record => record.observedStatements.length);
+    }
     const data = blobAt(commit, spec.path, root);
     const text = data.toString("utf8");
     for (const statement of spec.requiredStatements) {
       if (!text.includes(statement)) throw new Error(`private-draft evidence missing from exact source: ${spec.path} :: ${statement}`);
     }
-    return {
-      path: spec.path,
-      gitBlob: git(["rev-parse", `${commit}:${spec.path}`], { root }),
-      bytes: data.length,
-      sha256: sha256(data),
-      observedStatements: spec.requiredStatements
-    };
+    return [evidenceRecord(spec.path, data, spec.requiredStatements)];
   });
   const commonHeader = title => [
     `# Sunsplitter — ${title}`,

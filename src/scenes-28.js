@@ -8,7 +8,7 @@ registerScenes({
       let t = `The yellow marks have become a fact of the ship.\n\n`;
       if (isAlive("sela")) {
         t += `Sela does not ask permission for the next circle. She asks what you will do with the ones already there.\n\n`;
-        t += `"If you paint them over, the corridor becomes regulation again. If you leave them, people will keep using them as landmarks — and as an argument that warmth is not a soft metric."\n\n`;
+        t += `"If you paint them over, the corridor becomes regulation again. If you leave them, people will keep using them as landmarks — and as an argument that warmth can be measured."\n\n`;
         // SUN-CALLBACKS-01: the petition test, filed with the marks. Text only.
         if (state.promises.sela === "kept") t += `"At the petition you stood between me and the room. I have filed that under the same heading as the circles. It is not a small heading."\n\n`;
         else if (state.promises.sela === "broken") t += `"The room put its fear on me, and you let it. The circles are still mine. They were never the room's to take, or yours to give."\n\n`;
@@ -85,10 +85,17 @@ registerScenes({
       if (state.flags.patch !== "aborted") {
         const mem = state.flags.ship_memory;
         t += `Before the last orders, the ship collects its debts.\n\n`;
+        // SUN-RECAP-HONESTY-01: from 0.25 every run has met the B-four breach (act3_lethal_elias_order),
+        // where the patch or the seam let go and was closed by cartridges, the brace or Elias; say so.
+        const breached = !isGameVersionBefore(loadedGameVersion, "0.25");
         if (mem === "jury_rig") {
-          t += `Deck 4's thin patch has been humming at the edge of tolerance for days. Any hard course change or full burn will ask it to hold under stress it was never given material for.\n\n`;
+          t += breached
+            ? `Deck 4's thin patch has already let go once, at B-four. Any hard course change or full burn will ask that section to hold under stress it was never given material for.\n\n`
+            : `Deck 4's thin patch has been humming at the edge of tolerance for days. Any hard course change or full burn will ask it to hold under stress it was never given material for.\n\n`;
         } else if (mem === "open_wound") {
-          t += `Deck 4 never got its seal. The section is living on pressure luck and remote valves. A destination burn will find the soft place.\n\n`;
+          t += breached
+            ? `Deck 4 has already opened once along the underfunded seam. B-four is closed now, not sealed. A destination burn will find the soft place.\n\n`
+            : `Deck 4 never got its seal. The section is living on pressure luck and remote valves. A destination burn will find the soft place.\n\n`;
         } else if (mem === "proper_seal") {
           t += `Deck 4's proper seal still holds. That feedstock is gone from the galley math — but the bulkhead does not argue when the drive spins up.\n\n`;
         } else {
@@ -129,10 +136,7 @@ registerScenes({
           : state.flags.vess_intimate ? `There is no final transmission left to send. The last outward window was Vess's: one directed burst, and then the external lane closed. She had the window. The record is yours now.\n\n`
           : `There is no final transmission left to send. The last outward window went to a dead ship's beacon, answering a name that had been saying itself to nobody, on schedule.\n\n`;
       }
-      const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
-      if (debt.length) {
-        t += `Some of the people you still need have been rationing their help: ${debt.map(k => crew[k] ? crew[k].name : k).join(", ")}.\n\n`;
-      }
+      // SUN-RECAP-HONESTY-01: the debtor list prints once, in the ending; it still shapes the orders below.
       t += `What do you order?`;
       return t;
     },

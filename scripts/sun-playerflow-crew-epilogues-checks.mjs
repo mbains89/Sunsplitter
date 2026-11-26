@@ -60,8 +60,15 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
       clauses: victims.map(k => whatRemainsDeathClause(k, state.deathCause[k])), facts: whatRemainsFacts(), paragraphs: crewEpilogues() };
   });
   // A dense living run and the same run with the partner dead.
-  const dense = () => { fresh(); state.flags.rourke = "stopped"; state.flags.ship_memory = "proper_seal"; state.flags.vault_sacrifice = "future"; state.flags.changeorders = "logged"; mark("mira","drive_first"); mark("elias","approved_vent"); state.romance.lena = true; mark("lena","dying_held"); state.flags.trays_dead = true; state.flags.tomas = "living"; mark("tomas","held"); state.flags.stores = "seize"; state.flags.hydro = "full"; mark("amara","plants_matter"); state.flags.burn_unverified = true; mark("jiro","bonded"); mark("sela","spoken"); state.flags.sela_vault_vow = "accepted"; state.flags.pursuit_sela_cost = "vow"; state.flags.custody_answer = "shared"; state.flags.busDowngraded = true; state.flags.last_tx_spent = true; state.flags.vess_intimate = true; state.romance.vess = true; state.flags.junctionChoice = "vess"; state.flags.pair_fix = "both"; state.flags.pair_burn = "finding"; state.flags.pair_triage = "count"; state.flags.pair_seal = "names"; state.flags.pair_grudge = true; state.flags.pair_favor = true; };
+  const dense = () => { fresh(); state.flags.rourke = "stopped"; state.flags.ship_memory = "proper_seal"; state.flags.vault_sacrifice = "future"; state.flags.changeorders = "logged"; mark("mira","drive_first"); mark("elias","approved_vent"); state.romance.lena = true; mark("lena","dying_held"); state.flags.trays_dead = true; state.flags.tomas = "living"; mark("tomas","held"); state.flags.stores = "seize"; state.flags.hydro = "full"; mark("amara","plants_matter"); state.flags.burn_unverified = true; mark("jiro","bonded"); mark("sela","spoken"); state.flags.sela_vault_vow = "accepted"; state.flags.pursuit_sela_cost = "vow"; state.flags.custody_answer = "shared"; state.flags.busDowngraded = true; state.flags.last_tx_spent = true; state.flags.vess_intimate = true; state.romance.vess = true; state.flags.junctionChoice = "sela"; state.flags.pair_fix = "both"; state.flags.pair_burn = "finding"; state.flags.pair_triage = "count"; state.flags.pair_seal = "names"; state.flags.pair_grudge = true; state.flags.pair_favor = true; state.flags.lena_notes = true; state.flags.vault_face_read = true; };
   dense(); row.dense = crewEpilogues();
+  // SUN-RECAP-HONESTY-01: "spoke once, at yellow" needs Sela's lamp hour attended (the dense run picks
+  // her junction hour; Vess's late hour still comes last). Another pick, or her ritual skipped, drops it.
+  dense(); state.flags.junctionChoice = "vess"; row.selaNotAttended = crewEpilogues();
+  dense(); state.flags.junctionChoice = "none"; row.selaNoHour = crewEpilogues();
+  // SUN-RECAP-HONESTY-01: the custody receipt is Elias's own word, and only a living Elias said it.
+  dense(); state.crisisPath = "custody"; row.eliasReceipt = crewEpilogues();
+  dense(); state.crisisPath = "custody"; kill("elias", "held the line"); row.eliasDeadReceipt = crewEpilogues();
   dense(); kill("jiro", "vented with the lower ring"); kill("amara", "vented with the lower ring"); row.denseDead = crewEpilogues();
   // Purity and rendering.
   dense(); const before = JSON.stringify(state); const a = crewEpilogues(), b = crewEpilogues();
@@ -80,6 +87,9 @@ for (const k of ORDER) {
   const hit = diedRe(FIRST[k]).test(out.alive.join("\n"));
   assert.equal(hit, k === "rourke", `alive: "${FIRST[k]} died" ${hit ? "present for a living" : "missing for a dead"} crew member`);
 }
+// SUN-BLEAK-ENDING-HONESTY-01 (decision 21): Rourke is dead in every run, so his cause is always in the
+// reflection lines; his paragraph opens on him and never restates how or when he died.
+assert.ok(!causeRe.test(out.alive[0]) && !/shrapnel|first hour/.test(out.alive[0]), `rourke: the paragraph repeats the death: ${out.alive[0]}`);
 for (const d of out.deaths) {
   expectOrder(d.paragraphs, `${d.who}/${d.cause}`);
   const joined = d.paragraphs.join("\n");
@@ -129,11 +139,13 @@ for (const c of out.promiseDeaths) {
   }
 }
 expectOrder(out.dense, "dense");
+assert.ok(out.eliasReceipt[ORDER.indexOf("elias")].includes("called it the receipt.") && !out.eliasDeadReceipt[ORDER.indexOf("elias")].includes("occupied sections"), "Elias custody receipt: wrong word, or a dead Elias still counts");
+for (const label of ["selaNotAttended", "selaNoHour"]) assert.ok(!out[label][ORDER.indexOf("sela")].includes("at yellow"), `${label}: yellow line printed without her lamp hour`);
 const dense = out.dense.join("\n");
-for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into his count by name", "went into a proper patch", "He approved the vent", "justification field blank", "the ship first", "fault report, root cause under it", "eats the paste in company", "the living come first, and he held", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical key", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "felt the air change in the habitation ring"]) {
+for (const needle of ["treatment stopped, by order", "you were the one who stayed", "Rourke went into his count by name", "went into a proper patch", "He approved the vent", "justification field blank", "the ship first", "fault report, root cause under it", "eats the paste in company", "the living come first, and he held", "living things matter", "who you keep close", "error bars", "argues with and wins", "took it as gospel", "spoke once, at yellow", "neither of you secures the other a place", "second physical key", "relay core online", "one directed burst", "power stayed hers", "last private hour of the run was hers", "counted who in the habitation ring paid for it", "succession notes are in your keeping", "said in your voice beside her"]) {
   assert.ok(dense.includes(needle), `dense: missing "${needle}"`);
 }
-for (const [needle, owner] of [["Rourke went into his count", "tomas"], ["fault report", "mira"], ["took it as gospel", "vess"], ["who you keep close", "amara"]]) {
+for (const [needle, owner] of [["Rourke went into his count", "tomas"], ["fault report", "mira"], ["took it as gospel", "vess"], ["who you keep close", "amara"], ["succession notes", "lena"], ["vault manifest", "sela"]]) {
   assert.equal(out.dense.filter(p => p.includes(needle)).length, 1, `dense: "${needle}" should appear in exactly one paragraph`);
   assert.ok(out.dense[ORDER.indexOf(owner)].includes(needle), `dense: "${needle}" should sit in ${owner}'s paragraph`);
 }

@@ -3,22 +3,30 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // SUN-PRIVATE-HOURS-01: from a bond_* entry the alarm comes before the moment has begun
+  // (interrupt_return names who was waiting); from pursuit_window it follows an hour that happened.
   ship_interrupt: {
     get text() {
-      let t = `The personal moment does not get to finish.\n\n`;
+      const waiting = { bond_mira: "mira", bond_amara: "amara", bond_sela: "sela", bond_lena: "lena" }[state.flags.interrupt_return];
+      let t = waiting ? `The personal moment does not get to start.\n\n` : `The personal moment does not get to finish.\n\n`;
       t += `A hull alarm cuts the corridor lights to emergency red. Deck 4 pressure differential — the same section the feedstock argument was about — has started to talk back.\n\n`;
       if (state.flags.ship_memory === "jury_rig") t += `The jury-rig is complaining in the only language bulkheads have.\n\n`;
       else if (state.flags.ship_memory === "open_wound") t += `The seal you under-funded is making its case.\n\n`;
       else if (state.flags.ship_memory === "proper_seal") t += `Even a proper patch can need hands when the ship flexes.\n\n`;
       else t += `Something in the pressure envelope wants a living decision, not a private one.\n\n`;
-      t += `Whoever you were with is still there. The ship does not care.`;
+      t += waiting
+        ? `You have not reached ${crew[waiting].first} yet. The ship does not care.`
+        : `Whoever you were with is still there. The ship does not care.`;
       return t;
     },
-    choices: [
-      { text: "Break the moment. Get to the section with tools.", next: "ship_interrupt_resolve", effects: { integrity: 4, cohesion: -2 }, flag: { ship_interrupt: "answered" } },
-      { text: "Send the nearest crew and stay. The private line matters too.", next: "ship_interrupt_resolve", effects: { integrity: -5, cohesion: 3 }, flag: { ship_interrupt: "deferred" }, lean: { living: 1 } },
-      { text: "Order a remote lockout from here. Cold, fast, imperfect.", next: "ship_interrupt_resolve", effects: { integrity: 1, supplies: -2 }, flag: { ship_interrupt: "remote" }, lean: { future: 1 } }
-    ],
+    get choices() {
+      const waiting = !!{ bond_mira: 1, bond_amara: 1, bond_sela: 1, bond_lena: 1 }[state.flags.interrupt_return];
+      return [
+        { text: waiting ? "Turn around. Get to the section with tools." : "Break the moment. Get to the section with tools.", next: "ship_interrupt_resolve", effects: { integrity: 4, cohesion: -2 }, flag: { ship_interrupt: "answered" } },
+        { text: waiting ? "Send the nearest crew and keep going. The private line matters too." : "Send the nearest crew and stay. The private line matters too.", next: "ship_interrupt_resolve", effects: { integrity: -5, cohesion: 3 }, flag: { ship_interrupt: "deferred" }, lean: { living: 1 } },
+        { text: "Order a remote lockout from here. Cold, fast, imperfect.", next: "ship_interrupt_resolve", effects: { integrity: 1, supplies: -2 }, flag: { ship_interrupt: "remote" }, lean: { future: 1 } }
+      ];
+    },
     onEnter: () => {
       state.flags.ship_interrupt_fired = true;
       remember("The ship interrupted a private hour. Deck 4 does not wait for consent.");
@@ -29,9 +37,14 @@ registerScenes({
   ship_interrupt_resolve: {
     get text() {
       const how = state.flags.ship_interrupt;
+      const waiting = { bond_mira: "mira", bond_amara: "amara", bond_sela: "sela", bond_lena: "lena" }[state.flags.interrupt_return];
       let t = `The red fades to amber.\n\n`;
-      if (how === "answered") t += `You arrive with tools and the section stabilizes. Whoever you left behind understands the math and does not pretend it did not cost something.\n\n`;
-      else if (how === "deferred") t += `Someone else bleeds time on the patch. The private hour holds. Later, the schematic will show a messier seal than if you had gone yourself.\n\n`;
+      if (how === "answered") t += waiting
+        ? `You arrive with tools and the section stabilizes. ${crew[waiting].first} is still waiting, and now you are late.\n\n`
+        : `You arrive with tools and the section stabilizes. Whoever you left behind understands the math and does not pretend it did not cost something.\n\n`;
+      else if (how === "deferred") t += waiting
+        ? `Someone else bleeds time on the patch. The private hour is still ahead of you. Later, the schematic will show a messier seal than if you had gone yourself.\n\n`
+        : `Someone else bleeds time on the patch. The private hour holds. Later, the schematic will show a messier seal than if you had gone yourself.\n\n`;
       else t += `Remote lockout holds for now. A proper inspection is still owed.\n\n`;
       t += `The ship has made its point: personal beats are not outside the pressure envelope.`;
       return t;

@@ -113,7 +113,7 @@ She does not startle when you sit. After a stretch of silence she speaks without
 
 She turns the plate so you can see the latest version.
 
-"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."
+"It was warm. That is not a memory to cry over. It is a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."
 
 When you leave she has already started the next circle — same diameter, cleaner line. The hatch stays empty.`,
     choices: [
@@ -132,9 +132,9 @@ When you leave she has already started the next circle — same diameter, cleane
 
 
   quiet_mira: {
-    text: `You touch her shoulder. Mira Solis jerks awake with a sound that is almost a word.
+    text: `You touch her shoulder. Mira jerks awake with a sound that is almost a word.
 
-Drive systems specialist. The patch on her suit is the first clean name you get for the woman who has been keeping the boards from going dark.
+Drive systems specialist. The patch on her suit is the only clean thing on the woman who has been keeping the boards from going dark.
 
 "How long?" she asks. Then she sees the fault light still open and answers herself.
 
@@ -142,9 +142,9 @@ Drive systems specialist. The patch on her suit is the first clean name you get 
 
 She waits. Not soft. Hungry for an answer that will let her work.`,
     choices: [
-      { text: "Tell her people come first when it is that or the ship.", next: "lead_prompt", affinity: { mira: 8 }, trust: { mira: 6 }, mark: { mira: "people_first" }, lean: { living: 1 } },
-      { text: "Tell her the ship has to hold or none of this matters.", next: "lead_prompt", affinity: { mira: 6 }, trust: { mira: 5 }, mark: { mira: "drive_first" }, lean: { future: 1 } },
-      { text: "Say nothing. Let the quiet stand.", next: "lead_prompt", affinity: { mira: 4 } }
+      { text: "Tell her people come first when it is that or the ship.", next: "lead_prompt", affinity: { mira: 8 }, trust: { mira: 6 }, mark: { mira: "people_first" }, lean: { living: 1 }, reply: [{ who: "mira", text: `"Life support first. The drive gets the remainder," Mira says, already re-sorting the fault queue. "That is a priority order. I can work a priority order."` }] },
+      { text: "Tell her the ship has to hold or none of this matters.", next: "lead_prompt", affinity: { mira: 6 }, trust: { mira: 5 }, mark: { mira: "drive_first" }, lean: { future: 1 }, reply: [{ who: "mira", text: `"Drive and structure first. Life support at minimum spec," Mira says. "Minimum spec is a number, not a mood. I will hold it to the decimal."` }] },
+      { text: "Say nothing. Let the quiet stand.", next: "lead_prompt", affinity: { mira: 4 }, reply: [`Mira waits four seconds, which for her is a long time. Then she picks a failure herself and goes back to work without saying which.`] }
     ]
   },
   // PRE: entry choices in crew_walk / act3_spine_next require isAlive("tomas")
@@ -152,9 +152,9 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
   // DEATH: none | DEAD SPEECH: entry gates require living, recovered Tomas | IMAGE: REUSE quiet_tomas.jpg
   quiet_tomas: {
     onEnter: () => { state.flags.quiet_tomas_done = true; },
-    text: `Brother Tomas sits where the common area still has a shadow that feels intentional.
+    text: `Tomas sits where the common area still has a shadow that feels intentional.
 
-He has no rank and no console. He was a hospital chaplain before the pads. On this ship he keeps the human cost on the ledger when everyone else is trying to close it.
+Still no rank, still no console. Before the pads he was a hospital chaplain; on this ship he keeps the human cost on the ledger when everyone else is trying to close it.
 
 "They will come to you with numbers," he says. "I will come to you with names. I am not asking you to ignore the numbers. I am asking you not to pretend the names are noise."
 
@@ -169,14 +169,14 @@ He does not ask for a promise. He waits to see whether you can sit without filli
   quiet_amara: {
     text: `Amara is on her knees between the trays, checking root systems by hand. When she sees you she does not stand.
 
-"The paste will keep us alive," she says. "It will not keep us human. That is not a metaphor. I have watched people forget the taste of green things and then forget why they were supposed to care about anything else."
+"The paste will keep us alive," she says. "It won't keep us human. That's not a metaphor, love. I have watched people forget the taste of green things and then forget why they were supposed to care about anything else."
 
 She presses a small leaf into your palm. It is pale and not much, but it is alive.
 
 "If you decide the plants are a luxury, say so clearly. I would rather know."`,
     choices: [
-      { text: "Promise the living things still matter.", next: "prom_make_amara", affinity: { amara: 8 }, mark: { amara: "plants_matter" } },
-      { text: "Tell her the math will decide, not sentiment.", next: "prom_make_amara", affinity: { amara: -4 }, mark: { amara: "math_first" } }
+      { text: "Promise the living things still matter.", next: "prom_make_amara", affinity: { amara: 8 }, mark: { amara: "plants_matter" }, reply: [{ who: "amara", text: `"Said clearly. Good," Amara says, and closes your fingers over the leaf. "Keep that somewhere it'll get light."` }] },
+      { text: "Tell her the math will decide, not sentiment.", next: "prom_make_amara", affinity: { amara: -4 }, mark: { amara: "math_first" }, reply: [{ who: "amara", text: `"Clear enough," Amara says. She does not take the leaf back. "The math and I will get on fine, love. It's the people doing it I worry about."` }] }
     ],
     onEnter: () => remember("Amara put a living leaf in your hand.")
   },

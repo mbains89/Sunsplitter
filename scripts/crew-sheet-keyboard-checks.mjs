@@ -34,8 +34,8 @@ after(async () => {
   await browser?.close();
   if (server) await new Promise(resolve => server.close(resolve));
 });
-beforeEach(async () => {
-  context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+const startRun = async (options = {}) => {
+  context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", ...options });
   page = await context.newPage();
   await page.goto(url);
   await page.getByRole("button", { name: "I understand — continue", exact: true }).click();
@@ -45,6 +45,9 @@ beforeEach(async () => {
   await page.locator("#tutorial-dismiss").click();
   assert.equal(await page.evaluate(() => state.scene), "wake");
   await settleReveal();
+};
+beforeEach(async () => {
+  await startRun();
   await page.locator("#btn-crew").click();
   await page.locator('#crew-panel [data-crew="elias"]').click();
 });
@@ -139,3 +142,78 @@ test("closing restores background inert state without clearing pre-existing iner
   assert.equal(await page.locator("#crew-panel").evaluate(el => el.inert), false);
   assert.equal(await page.locator("#scene-image-wrap").evaluate(el => el.inert), true);
 });
+
+// SUN-CREW-CHIP-FIRST-TAP-01: the board opens with Lena's facts painted, a default the player did
+// not pick. The first tap on her chip used to toggle her off, so only the second tap opened her
+// sheet, while every other name opened on the first. Each test starts its own run, so the tap
+// under test is the first of the session, and Lena is tapped first again on a reopened board.
+const chip = key => page.locator(`#crew-panel [data-crew="${key}"]`);
+const focused = () => page.evaluate(() => document.activeElement.dataset.crew || document.activeElement.id);
+const keyOn = async (target, key) => {
+  for (let i = 0; i < 12 && await focused() !== target; i++) await page.keyboard.press("Tab");
+  assert.equal(await focused(), target, `Tab did not reach ${target}`);
+  await page.keyboard.press(key);
+};
+const FIRST_TAP_MODES = {
+  mouse: {
+    crew: () => page.locator("#btn-crew").click(),
+    tap: key => chip(key).click(),
+    back: () => page.locator("#crew-sheet-close").click()
+  },
+  touch: {
+    options: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true },
+    crew: () => page.locator("#btn-crew").tap(),
+    tap: key => chip(key).tap(),
+    back: () => page.locator("#crew-sheet-close").tap()
+  },
+  keyboard: {
+    crew: async () => { await page.locator("#btn-crew").focus(); await page.keyboard.press("Enter"); },
+    tap: (key, round) => keyOn(key, round === 2 ? "Space" : "Enter"),
+    back: () => keyOn("crew-sheet-close", "Enter")
+  }
+};
+// What one tap left on screen, with the tapped member written as "self" so two members compare.
+const boardAfter = (key, name) => page.evaluate(([key, name]) => {
+  const sheet = document.getElementById("crew-sheet");
+  const open = sheet.classList.contains("visible") && !sheet.classList.contains("hidden");
+  const shown = open ? document.getElementById("crew-sheet-name").textContent : null;
+  const self = value => (value === key ? "self" : value);
+  return {
+    sheet: shown === name ? "self" : shown,
+    pressed: [...document.querySelectorAll('#crew-panel .crew-chip[aria-pressed="true"]')].map(el => self(el.dataset.crew)),
+    focus: self(document.activeElement.dataset.crew || document.activeElement.id),
+    scene: state.scene
+  };
+}, [key, name]);
+
+for (const [mode, how] of Object.entries(FIRST_TAP_MODES)) {
+  test(`first ${mode} tap on a chip opens that sheet: Lena, painted by default, the same as Mira`, async () => {
+    await context.close();
+    await startRun(how.options);
+    const trace = {};
+    let round = 0;
+    for (const [key, name] of [["lena", "Dr. Lena Voss"], ["mira", "Mira Solis"], ["lena", "Dr. Lena Voss"]]) {
+      await how.crew();
+      const opened = await boardAfter(key, name);
+      assert.equal(opened.sheet, null, "opening Crew must show the board with no sheet over it");
+      await how.tap(key, round);
+      const first = await boardAfter(key, name);
+      assert.deepEqual(first, { sheet: "self", pressed: ["self"], focus: "crew-sheet-close", scene: "wake" },
+        `the first ${mode} tap on ${key} after opening Crew (round ${round + 1}) did not open that sheet`);
+      await how.back();
+      const backed = await boardAfter(key, name);
+      // A chip the player picked still toggles: record the next two taps and compare the members.
+      await how.tap(key, round);
+      const second = await boardAfter(key, name);
+      await how.tap(key, round);
+      const third = await boardAfter(key, name);
+      if (third.sheet) await how.back();
+      trace[key] = [opened, first, backed, second, third];
+      await how.crew();
+      assert.equal(await page.locator("#crew-panel").evaluate(el => el.classList.contains("visible")), false, "Crew did not close");
+      round++;
+    }
+    // On open Lena is the painted default and Mira is not, so that row is not compared.
+    assert.deepEqual(trace.lena.slice(1), trace.mira.slice(1), `Lena and Mira answer the same ${mode} taps differently`);
+  });
+}

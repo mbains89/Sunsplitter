@@ -71,12 +71,15 @@ registerScenes({
   // DEATH EXPOSURE: none
   // DEAD-SPEECH CHECK: original four, Vess and both shared-bay partners use isAlive
   // IMAGE: REUSE current debt_notice images/corridor_pressure_4.jpg; NO ART_REQUEST
+  // SUN-PRIVATE-HOURS-01: the full notice plays once. Every route to Tomas's recovery runs through
+  //   this scene (act2_tether_sighting has no other entry), so recovered.tomas marks a later return:
+  //   a short acknowledgement (no repeated partner mirrors), the Act III facts (Vess, the shared bay) and different replies on the
+  //   same two pinned exits. No state key added. Mira's mirror agrees with one name or several.
   // ═════════════════════════════════════════════════════════════════
 
   debt_notice: {
     get text() {
       const debt = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
-      let t = `The private hours end. The ship does not.\n\n`;
       const activeOriginals = ["lena", "mira", "amara", "sela"]
         .filter(k => state.romance[k] && isAlive(k));
       const joinNames = (keys) => {
@@ -85,6 +88,24 @@ registerScenes({
         if (names.length === 2) return names[0] + " and " + names[1];
         return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
       };
+      // SUN-PRIVATE-HOURS-01: a later return does not replay the first notice word for word.
+      if (state.recovered && state.recovered.tomas) {
+        let r = `The private hours end again. The ship did not wait for these either.\n\n`;
+        if (state.romance.vess && isAlive("vess")) {
+          r += state.flags.vess_intimate
+            ? `Shared the last long-range window and a private hour with Vess.\n\n`
+            : `Vess offered the attempt and you accepted. Power stayed hers.\n\n`;
+        }
+        if (state.romance.amara_tomas && isAlive("amara") && isAlive("tomas")) {
+          r += `You shared the hydroponics bay with Amara and Tomas.\n\n`;
+        }
+        const still = debt.filter(k => !["tomas", "jiro", "vess"].includes(k) && !(k === "amara" && hasMark("amara", "privacy_left")));
+        r += still.length
+          ? `The common corridor is no warmer than the last time you came back to it. ${joinNames(still)} ${still.length === 1 ? "gives" : "give"} you the work and nothing extra.`
+          : `Nobody in the common corridor makes a speech about it.`;
+        return r;
+      }
+      let t = `The private hours end. The ship does not.\n\n`;
 
       if (state.romance.lena && isAlive("lena")) {
         const others = joinNames(activeOriginals.filter(k => k !== "lena"));
@@ -96,7 +117,7 @@ registerScenes({
       if (state.romance.mira && isAlive("mira")) {
         const others = joinNames(activeOriginals.filter(k => k !== "mira"));
         t += others
-          ? `Mira opens the next watch without preamble. "Private interval logged. ${others} remain known conditions, not faults. Drive load unchanged."\n\n`
+          ? `Mira opens the next watch without preamble. "Private interval logged. ${others} ${activeOriginals.length > 2 ? "remain known conditions, not faults" : "remains a known condition, not a fault"}. Drive load unchanged."\n\n`
           : `Mira opens the next watch without preamble. "Private interval logged. Drive load unchanged."\n\n`;
       }
 
@@ -139,9 +160,17 @@ registerScenes({
     get choices() {
       // 0.23: after private hours close → Tomas recovery (Green Tether) if not yet recovered
       const next = state.recovered && state.recovered.tomas ? (state.recovered.jiro ? "act3_spine_next" : "act3_reckoning_pattern") : "act2_tether_sighting";
+      const eliasCool = typeof relationshipDebtors === "function" && relationshipDebtors().includes("elias");
+      // SUN-PRIVATE-HOURS-01: same two exits on a later return (pinned); the replies are new.
+      if (state.recovered && state.recovered.tomas) {
+        return [
+          { text: "Take the temperature change as data. Move on.", next, reply: [`You keep walking. The ship reads no warmer than it did the last time you checked.`] },
+          { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 }, reply: [`A pressure door on the spine sticks at half-open. You take the track apart in plain view, and people step around you.`, { who: "elias", text: eliasCool ? `Elias steps around you with the rest and does not slow.` : `Elias stops long enough to hold the door while you reseat the track. Then he goes back to his round.` }] }
+        ];
+      }
       return [
         { text: "Take the temperature change as data. Move on.", next, reply: [`You note who looks up when you pass and who does not, and keep walking. By the next watch the ship reads the same: a degree cooler, wherever you go.`] },
-        { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 }, reply: [`You spend the hour on the junction panel in the common corridor, cover off, sleeves pushed back, where anyone can see. Nobody says anything about it.`, { who: "elias", text: typeof relationshipDebtors === "function" && relationshipDebtors().includes("elias") ? `Elias passes on his round, sees which driver you picked, and keeps walking.` : `Elias stops on his round and hands you the right driver without being asked. Then he keeps walking.` }] }
+        { text: "Spend one public hour fixing something with your own hands.", next, effects: { cohesion: 3, integrity: 1 }, reply: [`You spend the hour on the junction panel in the common corridor, cover off, sleeves pushed back, where anyone can see. Nobody says anything about it.`, { who: "elias", text: eliasCool ? `Elias passes on his round, sees which driver you picked, and keeps walking.` : `Elias stops on his round and hands you the right driver without being asked. Then he keeps walking.` }] }
       ];
     }
   },

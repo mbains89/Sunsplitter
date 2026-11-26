@@ -28,7 +28,7 @@ export function cascadeSecondFlagPayoffChecks() {
   if (!src.includes("The boarding list is already in the accounting. Two hundred fourteen confirmed berths. No one has to open the tablet.")) {
     errors.push("read + Tomas-dead branch missing spoken line");
   }
-  if (!src.includes("Tomas nods through estimates. You let the manifest stay closed; the accounting has no names to point at.")) {
+  if (!src.includes("Tomas asks once for the names. You let the manifest stay closed; he counts the estimates and does not nod.")) {
     errors.push("declined + Tomas-alive branch missing spoken line");
   }
   if (!src.includes("The accounting uses estimates. You let the manifest stay closed.")) {

@@ -20,7 +20,7 @@ She shuts the water off herself. The clock is still running.`;
         return [{ text: "Leave.", next }];
       }
       return [
-        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 2 }, affinity: { lena: 4 } },
+        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 2 }, affinity: { lena: 4 }, reply: [{ who: "lena", text: `"Find it, then," Lena says. "Until you do, the prognosis stands as charted. I don't amend a chart on intent."` }] },
         { text: "Say nothing. The body already said enough.", next }
       ];
     },
@@ -39,7 +39,7 @@ She shuts the water off herself. The clock is still running.`;
       }
       return `There is a rinse station off the engineering console that still holds pressure. She pulls you into it without ceremony. Water over skin, ozone and heat, her hands still exact even when they are not working the board.
 
-"They will still invent the rest," she says. "This part is just for the two of us and the ship that is already adjusting power."
+"Four minutes of hot water at this pressure," she says. "I am logging the water. Not this."
 
 She turns the water off. The bay is waiting.`;
     },
@@ -48,7 +48,7 @@ She turns the water off. The bay is waiting.`;
         return [{ text: "Leave.", next: "pursuit_window" }];
       }
       return [
-        { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 2 }, affinity: { mira: 5 } },
+        { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 2 }, affinity: { mira: 5 }, reply: [{ who: "mira", text: `"The public cost is not zero," Mira says. "I ran that number before I kissed you. I am still here."` }] },
         { text: "Hold the silence a moment longer. Then leave together.", next: "pursuit_window" }
       ];
     },

@@ -124,7 +124,10 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
 - Adult and explicit content is permanent. Distribution constraints do not silently soften canon.
 - No exclusivity meter, jealousy system, morality bar, romance score, or relationship dashboard.
 - **L-050 (2026-11-05):** a pursued romance runs to a named end state: her offer, the private attention it costs the ship, and a late callback where that debt lands inside a hard decision, with a last scene consistent with the epilogue. Existing flags and trust carry it; no new meter. A dead or unrecovered partner ends the arc where she died, and the epilogue says so.
-- A breast-cover/explicit-content toggle is **HELD** and requires a separate canon, asset, continuity, platform, and QA decision. Re-affirmed 2026-11-05 (D6): it stays held at least until the stranger playtest reports whether anyone asked for it.
+- **L-040 (2026-11-23), nudity filter:** a reader setting covers nudity in pictures. It is off by default, so the game is unchanged unless the player turns it on.
+  - Pictures only. Scene text is not changed. The player chooses the filter, so adult content is still never silently softened.
+  - No new art. A covered picture is blurred or swapped for a picture already in the repository. Muse lists the pictures that show nudity before the setting is built.
+  - Manraj opened it from his own playtest. This replaces the 2026-11-05 hold (D6), under which the breast-cover/explicit-content toggle waited for the stranger playtest.
 
 ### Architecture and data shape
 
@@ -135,7 +138,10 @@ These rules survive every version unless Manraj explicitly reopens one and Grok 
   - It is presentation only: never written to state or the save, not replayed on Continue or a re-render, and dropped when the choice ends the run.
   - The engine drops a line whose speaker is dead or unrecovered when the screen renders. Narration never names someone who may be absent.
   - No other choice key is added, and a scene still contains only `text | choices | onEnter | image`.
-- The engine stays thin. No TypeScript, framework, bundler, component rewrite, or engine/state mechanical split before 1.0.
+- The engine stays thin. No TypeScript, framework, bundler, or component rewrite before 1.0, and no mechanical split of `src/state.js` before 1.0.
+- **L-043 (2026-11-11, confirmed 2026-11-14), engine split:** `src/engine.js` may be split into several plain script files. `index.html` loads them as classic scripts; there is still no bundler and no build step.
+  - The tooling reads the engine as `src/engine.js` plus any `src/engine-<part>.js` that `index.html` loads: the headless harness, the checks that read engine text, and the repo guards. Part files take that name.
+  - This is the separate approval the §16 register named, and it covers `src/engine.js` only. A split of `src/state.js` stays deferred until after 1.0 or a separate approval.
 - No combat loop, mining, inventory, crafting, quest log, skill tree, visible gameplay dashboard, or new management system.
 - New state keys require a recorded lock and same-change registry/schema coverage. Never invent keys speculatively.
 - Every changed scene declares live preconditions, exhaustive writes, death exposure, dead-speech/appearance checks, and image status.
@@ -405,7 +411,7 @@ Split across later versions. 0.33 does not absorb this work during playtest.
 - Strengthen type scale, line length, contrast, touch targets, motion preferences, semantic structure, focus, labels, and announcements at 0.34.
 - Keep the content notice revisitable without creating a settings dashboard.
 - Opening video, tutorial, and crew portrait/details remain evidence-gated candidates.
-- The breast-cover toggle remains held.
+- The breast-cover toggle was held here. On 2026-11-23 Manraj opened it as L-040, a pictures-only nudity filter (§2).
 
 | Candidate | Gate |
 |---|---|
@@ -629,14 +635,21 @@ Rules that bind every wave:
 
 **Workstreams**
 
-1. **Text backlog.** A scrollable history of the run's scenes and choices, from the pause menu. Read-only; not a quest log.
+1. **Text backlog (L-062).** A scrollable history of the run's scenes and choices, from the in-run Menu. Read-only; not a quest log.
 2. **Three save slots plus autosave (L-052).** Named slots on the title; slot 1 is the current save; legacy saves migrate without loss; export stays.
 3. **Gallery (L-054).** Plates unlock as they are seen, adult plates included; nothing unseen is shown.
 4. **Memory board (L-054).** After a run: the seven endings as silhouettes with the ones reached lit, and the five great forks (crisis path, vault, tether, the lethals, the final choice) showing the branch taken and a marker where something else was possible. No scene-level spoilers. Post-run only, so L-047 holds.
 5. **The ship remembers (L-054).** On a later run, a handful of lines acknowledge earlier endings: the title, the tone screen, one line in the wake. Never inside an ending.
 6. **Reader settings.** Text size, line spacing and a dyslexia-friendly font, beside the existing high-contrast mode and the text-pace and cost-tag settings (L-058, L-059).
 
-**Entry:** gate 1 passed.
+**Entry:** opened early by Manraj on 2026-11-25, before gate 1 passed. Gate 1 stays open and is not credited by this, and the version paint does not move until he names it. The design rulings below are the recommendations of the three Wave 2 designs, which he accepted the same day.
+
+**Design rulings (2026-11-25)**
+
+- **Save slots (L-052).** Each slot holds its own run and autosaves. Slots are named `Slot N · callsign`, with no typed names. New run defaults to the first empty slot, and has no default when all three are full. A slot can be deleted after a confirm. When storage is blocked, play is allowed without saving, behind a sticky notice and with no Continue. An in-run Menu holds a way back to the title, which saves first. L-052 covers exactly these storage keys: `sunsplitter_save_v3` (with `_staging` and `_backup`) and `sunsplitter_save_v2` (legacy, read-only) for slot 1; `sunsplitter_save_v3_slot2` and `sunsplitter_save_v3_slot3`, each with `_staging` and `_backup`; and the pointer `sunsplitter_save_current_v1`.
+- **Backlog and reader settings.** The backlog is L-062. On phones, Save and Load move from the bar into an in-run Menu; the bar keeps the save line, Text, Costs and Menu. The reading font is OpenDyslexic, named as such, with no claim that it helps. The backlog is in-run only in Wave 2. Today's text size stays the default, and the unused larger desktop size rule is deleted.
+- **Gallery and memory board (L-054).** The board's crisis path is the Act 3 one, and its tether fork is the catch (slow or hard). A hard call's outcome reads "came back" or "did not come back". The gallery shows no count. It keeps plates of crew who died in a later run, and leaves out the ART-R2 people-free fallbacks. The export does not carry memory. The board offers "Forget this ship" from the title. It shows one unnamed marker per fork. A per-run list of hard-call scene ids (the trail) lives inside the L-054 namespace. The tone-screen line stays.
+
 **Exit (gate 2):** three to five strangers play; P0 findings closed and retested; P1s triaged. Recruiting is the first tools spend (D8).
 
 **Hard holds:** no cloud saves, no accounts, no HUD, no in-run progress surface.
@@ -658,7 +671,7 @@ Rules that bind every wave:
 
 1. Six to eight ambient beds by location and two or three music cues, licensed or generated, with a mute that persists.
 2. A looping title plate from the Imagine clip prompts on Manraj's Mac, once he gives the art go.
-3. The SFW toggle decision (L-040), taken on the gate-2 playtest evidence; the toggle itself stays held until then.
+3. The SFW toggle decision (L-040) was taken early: on 2026-11-23 Manraj opened it as a pictures-only nudity filter, a reader setting that is off by default (§2). It no longer waits for the gate-2 playtest evidence.
 
 **Entry:** gate 3 passed, plus Manraj's audio and art go.
 **Exit (gate 4):** audio and title land without a layout or performance regression on phone; Manraj signs off in play. If this wave is still waiting on audio or art, Manraj may open 0.41 by name.
@@ -736,11 +749,11 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Clickable crew portrait/details | CANDIDATE; descriptive only |
 | Ticket 2 new-crew indicator | DEFERRED / default RETIRE under L-028 |
 | Pair residue, debt, pregnancy texture | DEFERRED to evidence-backed narrative scope |
-| Breast-cover/explicit-content toggle | HELD / UNSCHEDULED |
+| Breast-cover/explicit-content toggle | LOCKED as L-040 (2026-11-23; §2): a pictures-only nudity filter, a reader setting, off by default, no new art |
 | STORY-SURGERY-R1 | HELD |
 | ART-R2 | HELD |
 | Unrestricted AI roadmap editing | REJECTED; proposal PR only |
-| Engine/state mechanical split | DEFERRED until after 1.0 or separate approval |
+| Engine/state mechanical split | Engine: LOCKED as L-043 (2026-11-11, confirmed 2026-11-14; §2 architecture), `src/engine.js` into plain script files, no bundler. State (`src/state.js`): DEFERRED until after 1.0 or separate approval |
 | Native wrapper, gamepad, achievements, cloud saves | OUT before 1.0 |
 | Steam launch | DEFERRED to separate post-1.0 decision |
 | Fixed event-order redesign | ACCEPTED LIMITATION unless explicitly reopened |
@@ -754,8 +767,9 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Three local save slots plus export (D3) | LOCKED 2026-11-05, L-052; Wave 2 |
 | Anonymous choice counter on a serverless function (D4) | LOCKED 2026-11-05, L-053; the only backend exception; Wave 3 |
 | Cross-run ship memory: gallery, memory board, remembered endings (D5) | LOCKED 2026-11-05, L-054; never changes an outcome; Wave 2 |
+| Text backlog store (2026-11-25) | LOCKED, L-062: a per-run, read-only record beside each slot's save; Wave 2 |
 | Chapter start after a finished run | LOCKED 2026-11-05, L-055; Wave 3 |
-| Breast-cover/explicit-content toggle (D6) | HELD, re-affirmed 2026-11-05; decided on gate-2 evidence at Wave 4 |
+| Breast-cover/explicit-content toggle (D6) | HELD on 2026-11-05; opened 2026-11-23 as L-040, a pictures-only nudity filter (§2) |
 | Version renumbering: waves 0.37–0.40, review path 0.41–0.44 (D7) | LOCKED 2026-11-05, L-056 |
 | Tools budget: playtest recruiting first, art and audio at their waves (D8) | LOCKED 2026-11-05, recorded under L-056 |
 

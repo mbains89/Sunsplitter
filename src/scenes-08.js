@@ -17,7 +17,7 @@ registerScenes({
       if (isAlive("lena") && state.flags.leadership === "hard") {
         t += `Lena, from the hatch: "Hard rules do not grow food. They only decide who goes without."`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when the last line is skipped
     },
     get choices() {
       const routes = [
@@ -58,7 +58,7 @@ registerScenes({
       } else {
         t += `The yellow marks remain on the bulkhead. Their author does not. The ship keeps the pigment and loses the argument.`;
       }
-      return t;
+      return t.trimEnd(); // SUN-EMPTY-PARAGRAPHS-01: no trailing "\n\n" when Jiro's line is skipped
     },
     get choices() {
       const routes = [
@@ -66,7 +66,7 @@ registerScenes({
         // SUN-DIET-REPLY-FOLD-01 (L-057): her answer (exact quiet_sela prose, SUN-V035-PLAYTEST-SELA-ANSWER-01)
         // is the reply above the conflict; arc_living_sela_answer retired.
         { text: "Ask what she would spend to keep a warm world possible.", next: "arc_living_3", effects: { cohesion: 2 }, lean: { living: 2 }, affinity: { sela: 8 }, trust: { sela: 8 }, mark: { sela: "spoken" }, alive: "sela",
-          reply: [{ who: "sela", text: `Sela answers.` }, { who: "sela", text: `"It was warm. Not a memory to cry over — a fact. If we only keep what the dark allows, we will forget what we were trying to arrive as."` }] },
+          reply: [{ who: "sela", text: `Sela answers.` }, { who: "sela", text: `"I would spend all that is mine. It is a short list: the pigment, the hours, the word no. I will not spend what belongs to someone else."` }] },
         { text: "Tell her the ship runs on numbers, not pigment.", next: "arc_living_3", effects: { cohesion: -3, integrity: 1 }, lean: { future: 2 }, affinity: { sela: -4, jiro: -2 }, flag: { sela_attention: "ignored" }, alive: "sela" }
       ];
       if (!isAlive("sela")) {

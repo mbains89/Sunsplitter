@@ -457,6 +457,7 @@ function showTutorialOverlay() {
       if (id !== "game" && isTutorialOpen()) {
         const overlay = document.getElementById("tutorial-overlay");
         if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("visible"); }
+        delete modalDialogOpeners["tutorial-overlay"];
       }
     };
   }
@@ -519,14 +520,82 @@ function focusModalDialog(id) {
   const target = document.getElementById(MODAL_DIALOG_PRIMARY[id]) || document.getElementById(id);
   if (target && typeof target.focus === "function") target.focus();
 }
+// SUN-TUTORIAL-DIALOG-01: Tab and Shift+Tab cycle inside an open dialog, Escape runs the
+// dialog's own cancel path (tutorial = Skip), and close returns focus to the opener or, when the
+// opener is gone or hidden (the intro's controls behind the first-run tutorial), the first story
+// control. The crew sheet's own capture listener runs first and already does all three.
+const MODAL_DIALOG_CANCEL = {
+  "tutorial-overlay": () => skipTutorial(),
+  "commander-create": () => cancelCommanderCreate(),
+  "new-run-confirm": () => cancelNewRun()
+};
+const MODAL_TABBABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+function modalFocusUsable(el) {
+  if (!el || el.disabled || el.hidden || el.isConnected === false) return false;
+  if (typeof el.getClientRects === "function" && el.getClientRects().length === 0) return false;
+  return true;
+}
+function modalDialogTabbables(dialog) {
+  const all = Array.from(typeof dialog.querySelectorAll === "function" ? dialog.querySelectorAll(MODAL_TABBABLE) : []);
+  return all.filter(el => {
+    if (!modalFocusUsable(el)) return false;
+    if (el.type === "radio" && !el.checked) {
+      // A radio group is one tab stop: its checked radio, else its first.
+      const group = all.filter(other => other.type === "radio" && other.name === el.name);
+      if (group.some(other => other.checked) || group[0] !== el) return false;
+    }
+    return true;
+  });
+}
+function firstStoryControl() {
+  const game = document.getElementById("game-screen");
+  if (!game || game.classList.contains("hidden")) return null;
+  const reveal = document.getElementById("reveal-controls");
+  const next = document.getElementById("reveal-next");
+  if (reveal && !reveal.classList.contains("hidden") && modalFocusUsable(next)) return next;
+  const choices = document.getElementById("choices");
+  const buttons = Array.from(choices && typeof choices.querySelectorAll === "function" ? choices.querySelectorAll("button") : []);
+  return buttons.find(modalFocusUsable) || document.getElementById("story");
+}
 function restoreModalDialogFocus(id) {
   if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, id)) return;
   const opener = modalDialogOpeners[id];
   delete modalDialogOpeners[id];
-  if (opener && opener.isConnected !== false && typeof opener.focus === "function") opener.focus();
+  if (modalFocusUsable(opener) && typeof opener.focus === "function") {
+    opener.focus();
+    if (document.activeElement === opener) return;
+  }
+  const fallback = firstStoryControl();
+  if (fallback && typeof fallback.focus === "function") fallback.focus();
+}
+function handleModalDialogFocusKeys(event) {
+  const key = event.key || "";
+  if ((key !== "Tab" && key !== "Escape") || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const dialog = openModalDialogElement();
+  if (!dialog || !Object.prototype.hasOwnProperty.call(MODAL_DIALOG_CANCEL, dialog.id)) return false;
+  if (key === "Escape") {
+    if (typeof event.preventDefault === "function") event.preventDefault();
+    if (typeof event.stopPropagation === "function") event.stopPropagation();
+    if (!event.repeat) MODAL_DIALOG_CANCEL[dialog.id]();
+    return true;
+  }
+  const stops = modalDialogTabbables(dialog);
+  const active = document.activeElement;
+  const inside = !!(active && typeof dialog.contains === "function" && dialog.contains(active) && active !== dialog);
+  let target = null;
+  if (!stops.length) target = dialog;
+  else if (event.shiftKey && (!inside || active === stops[0])) target = stops[stops.length - 1];
+  else if (!event.shiftKey && (!inside || active === stops[stops.length - 1])) target = stops[0];
+  if (!target) return false; // a middle stop: the browser's own Tab order stays inside
+  if (typeof event.preventDefault === "function") event.preventDefault();
+  if (typeof event.stopPropagation === "function") event.stopPropagation();
+  if (typeof target.focus === "function") target.focus();
+  return true;
 }
 function handleModalDialogKeydown(event) {
-  if (!event || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
+  if (!event) return false;
+  if (handleModalDialogFocusKeys(event)) return true;
+  if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return false;
   const key = event.key || "";
   const activation = key === "Enter" || key === " " || key === "Spacebar";
   if (!/^[0-9]$/.test(key) && !activation) return false;
@@ -581,17 +650,6 @@ function advancePastCommanderCreate() {
   if (panel && panel.classList.contains("visible")) return confirmCommanderCreate();
   return false;
 }
-function startGameThroughCommander() {
-  const opened = typeof startGame === "function" ? startGame() : false;
-  if (opened) return true;
-  if (typeof confirmNewRun === "function") {
-    const panel = document.getElementById("new-run-confirm");
-    if (panel && panel.classList.contains("visible")) confirmNewRun();
-  }
-  if (advancePastCommanderCreate()) return true;
-  return !!opened;
-}
-
 function cancelCommanderCreate() {
   hideCommanderCreate();
   return false;

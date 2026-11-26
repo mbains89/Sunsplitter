@@ -4,13 +4,13 @@
 registerScenes({
 
   history_elias: {
-    text: `Elias finds you alone near the docking ring — the place Rourke died.
+    text: `Elias finds you alone near the docking ring — where Rourke took the shrapnel.
 
 "You already know I have the ground-side file. What you do not know is which names on the original boarding list were struck so yours could clear."
 
 He does not open a tablet. He does not need to.
 
-"I am not offering absolution. I am offering a fact: two specialists who should have been in hydroponics never made the ring because a commander-shaped slot was protected. If the crew ever needs a reason to stop following you, that is one. I am still choosing not to spend it. For now."`,
+"I am not offering absolution. I am offering a fact: two specialists who should have been in hydroponics never made the ring because a commander-shaped slot was protected. That is the file. I am still not spending it."`,
     choices: [
       { text: "Thank him for the silence without pretending it is free.", next: "prom_make_elias", flag: { past: "owned" }, affinity: { elias: 4 }, trust: { elias: 6 }, reply: [{ who: "elias", text: `"Not free," Elias agrees. "Deferred." He looks at the docking ring a moment longer. "That is the most you get from me, Commander. It is more than the two specialists got."` }] },
       { text: "Tell him if he spends it, he had better be ready for what comes after.", next: "prom_make_elias", effects: { cohesion: -3 }, affinity: { elias: -2 }, flag: { past: "threatened" }, reply: [{ who: "elias", text: `"Noted, Commander." Elias does not move. "I do not spend things because I am threatened. I spend them when they buy something." He goes back to watching the ring.` }] },
@@ -75,16 +75,25 @@ She waits.
         return `The space where Tomas would have found you stays empty. Someone else has already taken his quiet shifts. The ship does not offer his warning.`;
       }
 
-      let t = `Tomas finds you alone.\n\nFor the first time since the launch his calm is gone. His voice is low and raw.\n\n`;
+      let t = `Tomas finds you alone.\n\nFor the first time since he came aboard his calm is gone. His voice is low and raw.\n\n`;
       if (state.flags.vault_sacrifice === "future") {
-        t += `"You chose the vault. I felt the air change in the habitation ring. People noticed. I noticed."\n\n`;
+        t += `"You chose the vault before I was aboard to argue it. I have walked the habitation ring since, and I can tell you the names of the people who sleep in the dark it left. People noticed. I noticed."\n\n`;
       } else if (state.flags.vault_sacrifice === "living") {
         t += `"You chose the living. The vault numbers dropped. Some of them will not forgive that. I am not sure I will either — or that I should."\n\n`;
       } else {
         t += `"I have held every confession this crew has offered. I have sat with the dying and the guilty and the ones who want permission to stop caring. I am running out of something. Not faith. Something quieter."\n\n`;
       }
       // SUN-CALLBACKS-01: the ring's dead, through a present habit. Text only.
-      if (state.flags.crisis === "vent") t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here. Habit is cheaper than grief, and it keeps longer."\n\n`;
+      // SUN-DEATH-REACTIONS-01: and the dead he ate beside after the tether, in order of death.
+      const table = deadSinceTether();
+      const tableNames = whatRemainsJoinNames(table);
+      if (state.flags.crisis === "vent") {
+        t += `"I set a plate for Amara and one for Sela at the evening meal. I never got to eat with them here.`;
+        if (table.length) t += ` I did eat with ${tableNames}, and ${table.length === 1 ? "that plate is" : "those plates are"} the hardest to set.`;
+        t += ` Habit is cheaper than grief, and it keeps longer."\n\n`;
+      } else if (table.length) {
+        t += `"I set a plate${table.length > 1 ? " each" : ""} for ${tableNames} at the evening meal, in the ${table.length > 1 ? "places" : "place"} I am used to seeing filled. Habit is cheaper than grief, and it keeps longer."\n\n`;
+      }
       t += `He looks at the deck.\n\n"If you order me to keep pretending compassion is free, I will break. I am telling you now so you are not surprised when it happens."\n\n"If the next hatch closes on something living, ask who pays before you call it settled."`;
       return t;
     },

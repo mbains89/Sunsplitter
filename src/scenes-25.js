@@ -73,17 +73,32 @@ registerScenes({
         t += `\n\n`;
       }
 
+      // SUN-BLEAK-ENDING-HONESTY-01: one voice is one person, not "They"; the living side's motifs
+      // name only what someone still alive carries (Sela's drawings, Amara's or Tomas's plants).
       if (futureVoices.length) {
-        t += `Future still has a voice: ${futureVoices.join(", ")}. They speak in numbers, order, and the mission that justified the escape.\n\n`;
+        const futureSays = `numbers, order, and the mission that justified the escape`;
+        t += futureVoices.length === 1
+          ? `Future still has a voice: ${futureVoices[0]}, who speaks in ${futureSays}.\n\n`
+          : `Future still has a voice: ${futureVoices.join(", ")}. They speak in ${futureSays}.\n\n`;
       }
       if (livingVoices.length) {
-        t += `Living still has a voice: ${livingVoices.join(", ")}. They speak in breath, plants, drawings, and the refusal to treat the present as cargo.\n\n`;
+        const motifs = ["breath"];
+        if (isAlive("amara") || isAlive("tomas")) motifs.push("plants");
+        if (isAlive("sela")) motifs.push("drawings");
+        const livingSays = `${motifs.join(", ")}${motifs.length > 1 ? "," : ""} and the refusal to treat the present as cargo`;
+        t += livingVoices.length === 1
+          ? `Living still has a voice: ${livingVoices[0]}, who speaks in ${livingSays}.\n\n`
+          : `Living still has a voice: ${livingVoices.join(", ")}. They speak in ${livingSays}.\n\n`;
       }
       if (!futureVoices.length && !livingVoices.length) {
         t += `Too few remain for ideology to have a proper argument. The ship is mostly quiet.\n\n`;
       }
 
-      if (shape === "future") t += `The ship has leaned Future. The cold is policy now.\n\n`;
+      // SUN-RECAP-HONESTY-01: a vault choice already said above which way the ship went (it sets the
+      // shape), so the lean is not restated; nor is a mid-voyage lean that matches it.
+      const sac = state.flags.vault_sacrifice;
+      if (sac === "future" || sac === "living") { /* said by the vault line */ }
+      else if (shape === "future") t += `The ship has leaned Future. The cold is policy now.\n\n`;
       else if (shape === "living") t += `The ship has leaned Living. The warmth has a permanent cost on the screens.\n\n`;
       else t += `Neither side owns the ship. The argument is still live.\n\n`;
 
@@ -112,7 +127,7 @@ registerScenes({
       // SUN-MIDGAME-THIRD-CONSEQUENCE-01: pay unused Green Tether disclosure write.
       if (state.flags.manifest_exposed) {
         t += isAlive("tomas")
-          ? `A third of the vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
+          ? `A third of the germplasm vault, eaten to stay alive, is no longer a recovery cost. Tomas is in the room when someone uses it as a charge.\n\n`
           : isAlive("amara")
             ? `Amara still has the arithmetic: a third gone, two-thirds green. Tomas is not here to answer the charge.\n\n`
             : `The crew still remembers the eaten third of the germplasm vault. The man who ate it is not here to answer.\n\n`;
@@ -142,11 +157,13 @@ registerScenes({
       else if (state.flags.cascade_truth === "sealed") t += `You sealed the cascade records. Someone will unseal them eventually.\n\n`;
       if (hasMark("conflict", "held")) t += `You held the line when the corridor refused you. That fact is still walking around.\n\n`;
       else if (hasMark("conflict", "backed")) {
-        t += `You backed down a step when the crew pushed.`;
-        if (isAlive("elias")) t += ` Elias has not forgotten.`;
-        t += ` Neither have the people who needed it.\n\n`;
+        // SUN-BLEAK-ENDING-HONESTY-01: "Neither" needs Elias's sentence before it.
+        t += isAlive("elias")
+          ? `You backed down a step when the crew pushed. Elias has not forgotten. Neither have the people who needed it.\n\n`
+          : `You backed down a step when the crew pushed. The people who needed it have not forgotten.\n\n`;
       }
-      if (state.flags.mid_arc === "future") t += `The mid-voyage work leaned Future. The living sections felt it.\n\n`;
+      if (state.flags.mid_arc === shape) { /* same lean as above */ }
+      else if (state.flags.mid_arc === "future") t += `The mid-voyage work leaned Future. The living sections felt it.\n\n`;
       else if (state.flags.mid_arc === "living") t += `The mid-voyage work leaned Living. The vault sections felt it.\n\n`;
       if (state.flags.elias_power === "high") {
         t += isAlive("elias")
@@ -156,10 +173,7 @@ registerScenes({
       if (hasMark("elias", "bonded") && isAlive("elias")) t += `Elias still answers faster when you ask without an audience.\n\n`;
       if (hasMark("tomas", "bonded") && isAlive("tomas")) t += `Tomas's silence toward you is less braced.\n\n`;
       if (hasMark("jiro", "bonded") && isAlive("jiro")) t += `Jiro's reports carry an extra careful line.\n\n`;
-      const debtors = typeof relationshipDebtors === "function" ? relationshipDebtors() : [];
-      if (debtors.length) {
-        t += `Some of the living have gone quiet in practical ways — not speeches, just fewer offers: ${debtors.map(k => crew[k] ? crew[k].name : k).join(", ")}.\n\n`;
-      }
+      // SUN-RECAP-HONESTY-01: the debtor list prints once, in the ending, not here and at final_choice too.
       if (state.past_known_by && state.past_known_by.lena && isAlive("lena")) {
         t += `Lena knows enough of your ground-side file to factor it into medical priorities. She has not made a speech about it.\n\n`;
       }

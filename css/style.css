@@ -281,6 +281,11 @@ body::before {
   .crew-chip {
     flex: 1 1 calc(33.333% - 6px);
   }
+  /* SUN-PHONE-UI-POLISH-01 — room for the selected person's whole detail (Condition,
+     Trust, Romance) under up to nine names, so it no longer clips or scrolls inside. */
+  #crew-panel {
+    max-height: min(46dvh, 300px);
+  }
 }
 
 .crew-detail {
@@ -574,11 +579,6 @@ body::before {
   border-color: var(--accent);
   background: #1a1e26;
   box-shadow: inset 0 0 0 1px rgba(154, 58, 58, 0.2);
-}
-
-.choice-btn:focus {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
 }
 
 .choice-btn:focus-visible {
@@ -1048,6 +1048,17 @@ body::before {
   opacity: 1;
 }
 
+/* SUN-PHONE-UI-POLISH-01 — a save notice is transient. Once it fades it takes no room
+   in the bar, so "Resumed" no longer squeezes the slot line for the rest of the run. */
+.save-status:not(.visible) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .save-status.error {
   color: var(--con);
 }
@@ -1106,6 +1117,17 @@ body::before {
     min-width: var(--touch);
     min-height: var(--touch);
   }
+  /* SUN-PHONE-UI-POLISH-01 — while a notice shows, it takes the slot line's place
+     instead of squeezing it, so the bar keeps its height. */
+  #meta:has(.save-status.visible) .save-hint {
+    display: none;
+  }
+  #meta .save-status.visible {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.35;
+  }
 }
 
 @media (max-width: 480px) and (max-height: 700px) {
@@ -1122,8 +1144,9 @@ body::before {
     max-height: min(20dvh, 140px);
   }
 
+  /* SUN-PHONE-UI-POLISH-01 — was min(30dvh, 180px); the selected detail clipped. */
   #crew-panel {
-    max-height: min(30dvh, 180px);
+    max-height: min(46dvh, 300px);
   }
 
   #tone-screen,
@@ -1153,8 +1176,9 @@ body::before {
     max-height: min(20dvh, 140px);
   }
 
+  /* SUN-PHONE-UI-POLISH-01 — was min(30dvh, 180px); the selected detail clipped. */
   #crew-panel {
-    max-height: min(30dvh, 180px);
+    max-height: min(44dvh, 180px);
   }
 
   #tone-screen,
@@ -1166,13 +1190,25 @@ body::before {
 }
 
 /* ---- 0.34 accessibility: unmistakable keyboard focus ---- */
-:where(button, input, [role="button"]):focus,
 :where(button, input, [role="button"]):focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
+/* SUN-PHONE-UI-POLISH-01 (Muse): the Callsign and Oath selects get the same ring. */
+:where(select):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 #story:focus {
+  outline: none;
+}
+
+/* SUN-PHONE-UI-POLISH-01 — screen headings take script focus on load so screen readers
+   start there. They are not Tab stops, so they draw no ring; keyboard focus on controls
+   still shows through :focus-visible above. */
+:is(h1, h2)[tabindex="-1"]:focus {
   outline: none;
 }
 

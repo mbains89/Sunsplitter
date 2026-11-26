@@ -19,7 +19,7 @@
 | Names first, then numbers. You put the order of mercy on record once. I count easier since. | Tomas | act3_spine_next | 0.27.2 | Allusion carrier. One-shot via prom_tomas_alluded. |
 | Deck Four pushed back another fragment last night. When it finishes, I hold you to the order of operations. | Elias | act2_tether_sighting | 0.27.2 | Allusion carrier. One-shot via prom_elias_alluded. |
 | Inventory: one promise, stable. I check its vitals more often than yours. | Lena | act3_reckoning_pattern | 0.27.2 | Allusion carrier. One-shot via prom_lena_alluded. |
-| I have inventoried what you have given me. One sentence about fear. It is rationed correctly. | Sela | act3_reckoning_pattern | 0.27.2 | Allusion carrier. One-shot via prom_sela_alluded. |
+| I have inventoried what you have given me. It is one sentence about fear. It is rationed correctly. | Sela | act3_reckoning_pattern | 0.27.2 | Allusion carrier. One-shot via prom_sela_alluded. |
 | Junction eleven quoted the dead at me again. I quoted you back. It complied. Precedent noted. | Mira | act3_reckoning_pattern | 0.27.2 | Allusion carrier. One-shot via prom_mira_alluded. |
 | You did the math. I'm not arguing the math. Live in it like I have to. | Elias | pair_shield_cold | 0.28 | Card realization. |
 | She was what the job was for. | Elias | pair_shield_cold / offshift_elias (dead-branch, exclusive via attributable guard) | 0.28 | Mint + spend; single use. |

@@ -134,9 +134,9 @@
           </div>
         </div>
         <div id="commander-create" class="hidden" role="dialog" aria-modal="true" aria-labelledby="commander-create-title">
-          <p id="commander-create-title"><strong>Commander creation</strong> — light hybrid</p>
+          <p id="commander-create-title"><strong>Your Commander</strong></p>
           <p class="commander-create-help">Pick a callsign, optional seal, and oath. Role stays Commander.</p>
-          <p id="commander-create-chip" class="commander-create-chip" role="status">Callsign + oath required · Seal optional · no meters / full setup</p>
+          <p id="commander-create-chip" class="commander-create-chip" role="status">Callsign and oath required · Seal optional</p>
           <label class="commander-field">Callsign <span class="commander-req">(required)</span>
             <select id="commander-callsign" aria-label="Callsign">
               <option value="Ash">Ash</option>
@@ -182,6 +182,10 @@
         <div class="reader-settings-actions" role="group" aria-label="Reader settings">
           <p id="text-pace-chip" class="text-pace-chip" role="status">Paced · tap for each paragraph</p>
           <button id="btn-text-pace" class="btn" type="button" onclick="toggleTextPace()" aria-describedby="text-pace-chip">Text: paced</button>
+        </div>
+        <div class="reader-settings-actions" role="group" aria-label="Picture setting">
+          <p id="cover-nudity-chip" class="cover-nudity-chip" role="status">Off · pictures show as drawn</p>
+          <button id="btn-cover-nudity" class="btn" type="button" onclick="toggleCoverNudity()" aria-pressed="false" aria-describedby="cover-nudity-chip">Cover nudity in pictures</button>
         </div>
         <input id="save-import-file" class="hidden" type="file" accept="application/json,.json" aria-label="Import save file" onchange="handleSaveImportSelection(this)" />
         <p id="title-save-status" class="title-save-status" aria-live="polite"></p>
@@ -247,6 +251,7 @@
     <div class="meta-actions">
       <button id="meta-text-pace" type="button" onclick="toggleTextPace()" title="Paced: a paragraph per tap. Instant: the whole scene at once.">Text: paced</button>
       <button id="btn-show-costs-meta" type="button" onclick="toggleShowCosts()" aria-pressed="false" aria-label="Show costs on choices" title="Show costs on choices">Costs</button>
+      <button id="meta-cover-nudity" type="button" onclick="toggleCoverNudity()" aria-pressed="false" aria-label="Cover nudity in pictures" title="Cover nudity in pictures">Cover nudity</button>
       <button type="button" onclick="saveGame()" title="Save now">Save</button>
       <button type="button" onclick="loadGame()" title="Load saved run">Load</button>
     </div>
@@ -310,6 +315,8 @@
 <script src="src/scenes-53.js"></script>
 <script src="src/scenes-54.js"></script>
 <script src="src/scenes-55.js"></script>
+<script src="src/ship-memory.js"></script>
+<script src="src/engine-save.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
 <script src="src/hitl-unshadow.js"></script>

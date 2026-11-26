@@ -112,7 +112,7 @@ export function sunPlayerflowPacedRevealChecks() {
           try { showScene(id); } catch (e) { return { error: String(e && e.message || e) }; }
           const html = document.getElementById("story").innerHTML;
           const text = scenes[state.scene] && scenes[state.scene].text;
-          return { html, landed: state.scene, view: __view(), rawParas: typeof text === "string" ? text.split(/\\n\\n+/).length : null,
+          return { html, landed: state.scene, view: __view(), rawParas: typeof text === "string" ? text.split(/\\n\\n+/).filter(p => p.trim()).length : null, // SUN-EMPTY-PARAGRAPHS-01: blank ones are not rendered
             markupParas: (html.match(/<p>/g) || []).length,
             words: (html.match(/<p>[\\s\\S]*?<\\/p>/g) || []).join(" ").replace(/<[^>]+>/g, " ").trim().split(/\\s+/).filter(Boolean).length };
         };

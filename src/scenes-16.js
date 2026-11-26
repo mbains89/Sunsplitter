@@ -27,26 +27,42 @@ registerScenes({
       // SUN-DIET-HUB-01: a return is read from existing state, never written here. Each key below is
       // spent only by an offer this hub makes after the vault: the warmth, favor and crew-friction pair
       // scenes are offered nowhere else, and the Tomas, Jiro and Amara-Tomas offers elsewhere need a
-      // recovered Tomas or
-      // Jiro, which the opening walk and the private hours never have. Elias's hour is left out
-      // because the opening walk can spend it; a return that spent none of these shows the paragraph
-      // again, which errs toward the old text, never toward hiding the first visit.
+      // recovered Tomas or Jiro, which the opening walk and the private hours never have. Elias's hour
+      // is left out because the opening walk can spend it; a return that spent none of these shows the
+      // paragraph again, which errs toward the old text, never toward hiding the first visit. Telling
+      // that return apart needs a visit record the state does not keep (L-061, unruled).
+      // SUN-HUB-REPEAT-01: one count per offer, so `spent` is the number of this hub's own offers the
+      // run has taken; with Elias's hour added it rises by one on every return the hub can tell apart.
       const f = state.flags;
-      const returning = !!(f.warmth_meal || f.warmth_laughter || f.warmth_music || f.pair_favor ||
-        f.pair_grudge || f.pair_seal || f.pair_burn || f.pair_fix || f.quiet_tomas_done || state.romance.amara_tomas ||
-        hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped") ||
-        hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped") ||
-        hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"));
+      const spent = [f.warmth_meal, f.warmth_laughter, f.warmth_music, f.pair_favor, f.pair_grudge,
+        f.pair_seal, f.pair_burn, f.pair_fix, f.quiet_tomas_done,
+        state.romance.amara_tomas || hasMark("amara", "privacy_left") || hasMark("amara", "interrupted"),
+        hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped"),
+        hasMark("jiro", "bonded") || hasMark("jiro", "bond_skipped")].filter(Boolean).length;
       let t;
-      if (returning) {
-        t = `The vault light is still on. There is still work.`;
+      if (spent) {
+        // SUN-HUB-REPEAT-01: the vault refrain prints on one return at most, and a later return names
+        // only the corridor, so it never claims where the player has just come from. When nothing but
+        // the Continue exit is left, the line says so.
+        const step = spent + (hasMark("elias", "bonded") || hasMark("elias", "bond_skipped") ? 1 : 0);
+        const offersLeft = scenes.act3_spine_next.choices.length - 1;
+        if (!offersLeft) t = `Every door along the spine has had its hour. What is left is the work.`;
+        else if (step === 1) t = `The vault light is still on. There is still work.`;
+        else t = [
+          `Back in the spine corridor. The deck hums underfoot.`,
+          `The corridor again. Down the spine, a hatch cycles shut and settles.`,
+          `You step back into the spine. The air handlers hold their one low note.`
+        ][(step - 2) % 3];
       } else {
-        t = `The vault light stays on behind you.`;
+        // SUN-HUB-REPEAT-01: the first visit follows Vess's arrival, not the vault, so the light is
+        // placed down the corridor rather than behind the player.
+        t = `At the far end of the spine, the vault light stays on.`;
         if (isAlive("tomas") && isAlive("jiro")) t += ` The ship has two men back who were written off, and a list of names that is no longer only numbers.`;
         if (isAlive("vess")) {
-          t += `\n\nA third name is on the board now. The Dawnbreak survivor is still finding which bulkheads answer.`;
+          t += `\n\nA third name is on the board now. Vess is still finding which bulkheads answer.`;
         }
-        t += `\n\nThere is still work. There is still the fracture the private hours left in the corridor.`;
+        // SUN-RECAP-HONESTY-01: the fracture is named only when a private hour was spent.
+        t += privateHourTaken() ? `\n\nThere is still work. There is still the fracture the private hours left in the corridor.` : `\n\nThere is still work.`;
       }
       // 0.27.2 Tomas allusion carrier — one-shot after make (bond return re-enters here)
       if (act3SpineTomasAllusionDue()) {
@@ -82,30 +98,30 @@ registerScenes({
         opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
-        opts.push({ text: "Tomas and Jiro are working the same trunk and not speaking.", next: "pair_grudge_settle" });
+        opts.push({ text: "Go to the trunk, where Tomas and Jiro are working and not speaking.", next: "pair_grudge_settle" });
       }
       if (isAlive("amara") && isAlive("sela") && stillFavoring("sela") && !state.flags.pair_favor) {
-        opts.push({ text: "Amara wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
+        opts.push({ text: "Hear Amara out. She wants a quiet word about who you keep favoring.", next: "pair_favor_confront" });
       }
       // SUN-CREW-FRICTION-01 (§14A Wave 1, workstream 3): crew disagreeing with each other, one-shot,
       // gated on both living and on the run fact they argue about. One flag per pair, written by the answer.
       if (isAlive("elias") && isAlive("tomas") && !state.flags.tomas_scapegoated && state.flags.ship_memory && !state.flags.pair_seal) {
-        opts.push({ text: "Elias and Tomas are at the Deck 4 dog. The argument is about the feedstock.", next: "pair_seal_ledger" });
+        opts.push({ text: "Go to the Deck 4 dog. Elias and Tomas are arguing about the feedstock.", next: "pair_seal_ledger" });
       }
       if (isAlive("mira") && isAlive("jiro") && state.flags.margin_committed && !state.flags.pair_burn) {
-        opts.push({ text: "Jiro has asked Mira for her solution. The pane is closed.", next: "pair_burn_archive" });
+        opts.push({ text: "Go to the records bay. Jiro has asked Mira for her solution, and the pane is closed.", next: "pair_burn_archive" });
       }
       if (isAlive("jiro") && isAlive("vess") && state.flags.position_certain && !state.flags.pair_fix) {
-        opts.push({ text: "Jiro's fix is on the tracker board, Vess's night log beside it. They are not looking at each other.", next: "pair_fix_track" });
+        opts.push({ text: "Go to the tracker board, where Jiro's fix and Vess's night log sit side by side. Jiro and Vess are not looking at each other.", next: "pair_fix_track" });
       }
       if (isAlive("tomas") && !state.flags.warmth_meal) {
-        opts.push({ text: state.flags.trays_dead ? "Follow the sound of the whole crew in one room." : "Follow the smell of green down-corridor.", next: "warmth_meal" });
+        opts.push({ text: state.flags.trays_dead ? ((state.dead || []).some(k => k !== "rourke") ? "Follow the sound of everyone left in one room." : "Follow the sound of the whole crew in one room.") : "Follow the smell of green down-corridor.", next: "warmth_meal" });
       }
       if (["lena","elias","mira","tomas","amara","jiro","sela","vess"].filter(isAlive).length >= 2 && !state.flags.warmth_laughter) {
         opts.push({ text: "There's laughter around the spine bend. Stop before they see you.", next: "warmth_laughter" });
       }
       if (!state.flags.warmth_music) {
-        opts.push({ text: "There's music coming from the empty berths.", next: "warmth_music" });
+        opts.push({ text: "Follow the music coming from the empty berths.", next: "warmth_music" });
       }
       // Preserve pregnancy check if any romance occurred; then tomas_break is reachable
       // 0.24.2: Vess pregnancy gate keys on physical intimacy (vess_intimate), not offer acceptance
@@ -131,18 +147,19 @@ registerScenes({
 
   // PRE: act3_spine_next routes here once per run while Vess is unrecovered and not dead (the
   // scenes-55 living-cast contract exits to the hub if she is recorded dead)
-  // WRITES: on entry, the docking cost — flags busDowngraded + reaction_mass_spent and their two
+  // WRITES: on entry, the docking cost: flags busDowngraded + reaction_mass_spent and their two
   // memories (moved here from the retired vess_cost; remember() dedupes, so a re-entry is idempotent)
   // DEATH: none | DEAD SPEECH/APPEARANCE: Mira's and Elias's lines are living-gated; the plate shows
   // Mira and Elias and is face-gated by PLATE_FACES | IMAGE: images/vess_signal.jpg via the HITL
   // event-plate map (scene.image transmission.jpg is the pre-HITL default it shadows)
-  // SUN-DIET-VESS-MERGE-01 (D11 Deep step 1, item C10): the vess_cost screen is merged in below the
-  // signal. Its only exit ("Prepare the intercept. Bring her in.") carried no effect, so the two
-  // docking choices sit on this screen now, unchanged. One sentence of the cost paragraph is dropped
-  // because it restated Mira's "no second window" from the paragraph above; the rest is the author's
-  // text. A save parked on vess_cost resumes here (RETIRED_SCENE_EXITS) as a live entry. A save parked
-  // on the pre-merge vess_signal resumes with its entry skipped, so both docking choices also set the
-  // two cost flags (idempotent); only the two memories stay unwritten on that one legacy path.
+  // SUN-DIET-VESS-MERGE-01 (D11 Deep step 1, item C10; Manraj, decision 25, 2026-11-25): the
+  // vess_cost screen is merged in below the signal. Its only exit ("Prepare the intercept. Bring her
+  // in.") carried no effect, so the two docking choices sit on this screen now, unchanged. The cost
+  // paragraph is the author's text, less "The window does not stay open by hesitation.", which
+  // restated "no second window" above. A save parked on vess_cost resumes here (RETIRED_SCENE_EXITS)
+  // as a live entry. A save parked on the pre-merge vess_signal resumes with its entry skipped, so
+  // both docking choices also set the two cost flags (idempotent); only the two memories stay
+  // unwritten on that one legacy path.
   vess_signal: {
     image: "images/transmission.jpg",
     onEnter: () => {
@@ -158,16 +175,16 @@ registerScenes({
       } else {
         t += `The automatic filters finally pull a clean string.`;
       }
-      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Requesting docking authority.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
+      t += `\n\nAuthentication request. Protocol three. Dawnbreak fragment. Sole survivor. Docking on your aft collar. Acknowledge.\n\nThe voice is flat, timestamped, log-trained — a woman who has been her own captain for six years.`;
       if (isAlive("mira")) {
-        t += `\n\nMira does not look away from the board. "Relative velocity is matchable. Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online. There is no second window on this heading."`;
+        t += `\n\nThe board shows the intercept geometry: relative velocity is matchable, and there is no second window on this heading. Mira does not look away from the board. "Reaction-mass cost is not optional. The bus will have to run degraded to keep her relay core online."`;
       } else {
         t += `\n\nThe geometry is clear from the boards: matchable, but the environmental bus will run degraded to power her relay core. No second window.`;
       }
       if (isAlive("elias")) {
         t += `\n\n"Eleven months of listening," Elias says. "She already knows our hull ID. Decide whether that is a gift or a problem after she is aboard."`;
       }
-      t += `\n\nMatching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nThere is no refuse-contact option that still leaves a second chance.\n\nShe is coming aboard.`;
+      t += `\n\nMatching the fragment requires an immediate docking burn. The reaction-mass gauge falls and does not come back. The environmental bus is already being re-routed; lights will be dimmer on the outer ring and the air will cycle slower.\n\nShe is coming aboard.`;
       return t;
     },
     choices: [

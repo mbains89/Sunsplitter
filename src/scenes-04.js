@@ -17,7 +17,7 @@ She is explicit in what she wants and does not ask you to be careful. The sex is
       // Context-aware exit: early path → past_leak; mid path (after past already known) → pursuit_window
       const next = state.past_known ? "pursuit_window" : "past_leak";
       const opts = [
-        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 3 }, affinity: { lena: 6 } },
+        { text: "Tell her you will find a way to buy her more time.", next, effects: { cohesion: 3 }, affinity: { lena: 6 }, reply: [{ who: "lena", text: `"Find it, then," Lena says. "Until you do, the prognosis stands as charted. I don't amend a chart on intent."` }] },
         { text: "Say nothing. The body already said enough.", next, effects: { cohesion: 2 } }
       ];
       // 0.22.1 optional one-shot shower linger (only if not yet done)
@@ -62,8 +62,15 @@ He lets that sit.
     ],
     onEnter: () => { state.past_known = true; }
   },
+  // SUN-SIGNAL-RETURN-01: hearing Elias out first is a detour, not a decision. history_elias ->
+  // prom_make_elias -> prom_r_elias come back here while flags.signal is unset. A return is read
+  // from past_known_by.elias, which only history_elias writes (and only this scene leads there):
+  // it prints one short line instead of the briefing and offers the same signal choices, less the detour.
   transmission: {
     get text() {
+      if (state.past_known_by && state.past_known_by.elias) {
+        return `The signal is still repeating on the board when you get back: the same degraded string, the same coordinates that match nothing. No one has logged an order on it.`;
+      }
       if (isAlive("jiro")) {
         return `Jiro intercepts you with a tablet.
 
@@ -86,11 +93,14 @@ She does not soften it.
 
 No one living claims the discovery as a conversation. The board simply reports the cost: fuel and time you may not recover if you chase it, or the acceptance that you are alone if you do not.`;
     },
-    choices: [
-      { text: "Change course enough to investigate. We have to know.", next: "vault_voice", effects: { supplies: -8, cohesion: 3, integrity: -3 }, flag: { signal: "chase" }, requires: { supplies: { min: 15 }, integrity: { min: 35 } }, lean: { living: 2 } },
-      { text: "Before the signal — hear Elias out on the ground-side file.", next: "history_elias", alive: "elias" },
-      { text: "Log it and hold course. We cannot afford ghosts.", next: "vault_voice", effects: { cohesion: -2, integrity: 2 }, flag: { signal: "ignore" }, lean: { future: 2 } },
-      { text: "Have Mira try to decode more before we decide.", next: "vault_voice", effects: { supplies: -3, cohesion: 1, integrity: -1 }, flag: { signal: "study" }, requires: { supplies: { min: 8 }, trust: { mira: 35 } }, alive: "mira" }
-    ]
+    get choices() {
+      const heardElias = !!(state.past_known_by && state.past_known_by.elias);
+      return [
+        { text: "Change course enough to investigate. We have to know.", next: "vault_voice", effects: { supplies: -8, cohesion: 3, integrity: -3 }, flag: { signal: "chase" }, requires: { supplies: { min: 15 }, integrity: { min: 35 } }, lean: { living: 2 }, reply: [`The burn goes in as ordered. The ship leans toward coordinates that match nothing, and the hull complains about it for an hour.`, { who: "mira", text: `"Drive's holding the load you asked for," Mira says. "The frame isn't. I'll watch the welds. You watch the fuel."` }] },
+        ...(heardElias ? [] : [{ text: "Before the signal — hear Elias out on the ground-side file.", next: "history_elias", alive: "elias" }]),
+        { text: "Log it and hold course. We cannot afford ghosts.", next: "vault_voice", effects: { cohesion: -2, integrity: 2 }, flag: { signal: "ignore" }, lean: { future: 2 }, reply: [`You log the carrier and hold course. The string keeps repeating under the entry.`, { who: "mira", text: `"Logged. Cause unknown," Mira says. "I'm putting that in the entry too, so nobody reads it later and thinks we checked."` }] },
+        { text: "Have Mira try to decode more before we decide.", next: "vault_voice", effects: { supplies: -3, cohesion: 1, integrity: -1 }, flag: { signal: "study" }, requires: { supplies: { min: 8 }, trust: { mira: 35 } }, alive: "mira", reply: [{ who: "mira", text: `Mira gives the string three hours of spare power. "Identification block is forty percent recoverable. That isn't enough to name it, and I won't guess."` }] }
+      ];
+    }
   },
 });

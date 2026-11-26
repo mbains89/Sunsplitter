@@ -10,7 +10,7 @@ act3_lethal_lena_power: {
   },
   get text() {
     if (!isAlive("lena")) return `The vault transfer remains in the power log. Medical is empty.`;
-    return `The outer cradle pumps go dark in sequence. Ten viability points leave the board before the medical isolator reaches full current.
+    return `The outer cradle pumps go dark in sequence. The vault's viability figure falls by ten before the medical isolator reaches full current.
 
 Lena's trace falls below the red line. The vault trace does not recover.
 
@@ -77,9 +77,19 @@ Her terminal stops accepting pulse data at 03:17. The last line in the active ch
 
 Medical is now a room with records and no doctor.`;
   },
-  choices: [
-    { text: "Close the active chart. Continue.", next: "act3_vault_face" }
-  ],
+  // SUN-DEATH-REACTIONS-01: one living voice answers the death, once, at the top of the next screen.
+  get choices() {
+    const reply = isAlive("tomas")
+      ? { who: "tomas", text: `"She told me I would live, in the bored voice she kept for true things," Tomas says at the medical hatch. "Write her in the count as Lena. Not as medical."` }
+      : isAlive("elias")
+        ? { who: "elias", text: `Elias takes the medical keys off her board and clips them to his belt. "Medical is uncovered. I hold the keys until somebody can use them."` }
+        : isAlive("jiro")
+          ? { who: "jiro", text: `Jiro logs it before anyone asks. "Lena Voss. Medical, oh-three-seventeen. Final position."` }
+          : `Nobody speaks on the medical channel. At the next watch the duty roster prints without her.`;
+    return [
+      { text: "Close the active chart. Continue.", next: "act3_vault_face", reply: [reply] }
+    ];
+  },
   image: "images/covered_body.jpg"
 },
 

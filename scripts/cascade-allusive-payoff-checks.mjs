@@ -1,7 +1,6 @@
-// SUN-CASCADE-ALLUSIVE-PAYOFF-01 — static proof that reckon_summary pays
-// flags.changeorders (logged|buried) with a late spoken/summary line.
-// Not a remint of SUN-MIDGAME-DELAYED-CONSEQUENCE-01/02 (those pay on
-// faction_split in src/scenes-25.js). This host is src/scenes-27.js.
+// SUN-CASCADE-ALLUSIVE-PAYOFF-01 — reckon_summary used to pay flags.changeorders a second time,
+// one screen after faction_split paid it (SUN-MIDGAME-DELAYED-CONSEQUENCE-01). SUN-RECAP-HONESTY-01
+// trimmed that restatement; this check now proves the payoff prints once, on faction_split.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,26 +10,18 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export function cascadeAllusivePayoffChecks() {
   const errors = [];
   const src = readFileSync(resolve(ROOT, "src/scenes-27.js"), "utf8");
+  const faction = readFileSync(resolve(ROOT, "src/scenes-25.js"), "utf8");
   if (!src.includes("reckon_summary")) {
     errors.push("scenes-27.js is missing reckon_summary");
   }
-  if (!src.includes("state.flags.changeorders === \"logged\"")) {
-    errors.push("reckon_summary does not read changeorders=logged");
+  // SUN-RECAP-HONESTY-01: faction_split, the screen before reckon_summary, already pays the change
+  // orders (SUN-MIDGAME-DELAYED-CONSEQUENCE-01), so reckon_summary no longer restates them.
+  if (src.includes("Change orders 4417 and 4491") || src.includes("state.flags.changeorders")) {
+    errors.push("reckon_summary restates the change orders faction_split already paid");
   }
-  if (!src.includes("state.flags.changeorders === \"buried\"")) {
-    errors.push("reckon_summary does not read changeorders=buried");
-  }
-  if (!src.includes("Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.")) {
-    errors.push("logged + Mira-alive branch missing spoken line");
-  }
-  if (!src.includes(": `Change orders 4417 and 4491 are still in the record.\\n`")) {
-    errors.push("logged + Mira-dead branch missing unique ternary arm");
-  }
-  if (!src.includes("Mira's unsigned pages never entered the record. The reckoning has no page to point at.")) {
-    errors.push("buried + Mira-alive branch missing spoken line");
-  }
-  if (!src.includes("The unsigned pages never entered the record. You left them out.")) {
-    errors.push("buried + Mira-dead branch missing spoken line");
+  if (!faction.includes("state.flags.changeorders === \"logged\"") || !faction.includes("state.flags.changeorders === \"buried\"") ||
+      !faction.includes("Change orders 4417 and 4491")) {
+    errors.push("faction_split no longer pays the change orders");
   }
   if (!src.includes("SUN-CASCADE-ALLUSIVE-PAYOFF-01")) {
     errors.push("scenes-27.js missing ticket marker");
@@ -47,5 +38,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error("FAIL cascade allusive payoff", errors);
     process.exit(1);
   }
-  console.log("PASS cascade allusive payoff (changeorders spoken on reckon_summary)");
+  console.log("PASS cascade allusive payoff (changeorders paid once, on faction_split)");
 }

@@ -31,16 +31,8 @@ registerScenes({
       else if (state.flags.rourke === "stayed") t += ` You stayed with Rourke.`;
       else if (state.flags.rourke === "tried") t += ` You spent supplies on Rourke.`;
       t += `\n`;
-      // SUN-CASCADE-ALLUSIVE-PAYOFF-01: late pay of midgame changeorders write.
-      if (state.flags.changeorders === "logged") {
-        t += isAlive("mira")
-          ? `Mira does not reopen the unsigned pages. Change orders 4417 and 4491 are still in the record you let her keep.\n`
-          : `Change orders 4417 and 4491 are still in the record.\n`;
-      } else if (state.flags.changeorders === "buried") {
-        t += isAlive("mira")
-          ? `Mira's unsigned pages never entered the record. The reckoning has no page to point at.\n`
-          : `The unsigned pages never entered the record. You left them out.\n`;
-      }
+      // SUN-RECAP-HONESTY-01: the change orders (SUN-CASCADE-ALLUSIVE-PAYOFF-01) are paid on faction_split,
+      // the screen before this one, and are not restated here.
       if (state.romance.mira && isAlive("mira")) t += `You and Mira crossed a line.\n`;
       else if (state.romance.mira) t += `You and Mira crossed a line. She is no longer here to carry it.\n`;
       if (state.romance.lena && isAlive("lena")) t += `You and Lena crossed a line.\n`;
@@ -55,7 +47,9 @@ registerScenes({
       else if (state.romance.vess) t += `Vess offered the attempt and you accepted. That fact outlived her.\n`;
       if (state.flags.pregnancy_risk === true) t += `A living pregnancy is possible.\n`;
       if (state.past_known && isAlive("elias")) t += `Elias knows how you got your seat.\n`;
-      else if (state.past_known) t += `Your past leaked. The man who used it is gone.\n`;
+      // SUN-BLEAK-ENDING-HONESTY-01: the file never leaks on screen. past_known is written only when
+      // Elias tells you he holds it (past_leak, history_elias), and no scene has him spend it.
+      else if (state.past_known) t += `Elias knew how you got your seat. He never spent it.\n`;
       if (isAlive("lena") && state.dying && state.dying.lena) t += `Lena is on a clock.\n`;
       // Tomas memory only if the private conversation actually happened
       if (state.flags.tomas === "living" && isAlive("tomas")) t += `Tomas was told the living come first.\n`;
@@ -70,7 +64,9 @@ registerScenes({
       const fav = favoritism();
       if (fav && crew[fav.favored] && isAlive(fav.favored)) t += `The crew has noticed your private preference for ${crew[fav.favored].name}.\n`;
       else if (fav && crew[fav.favored]) t += `The crew noticed your private preference for ${crew[fav.favored].name}. That preference is now a ghost.\n`;
-      if (state.memories.length) t += `\nSomething private still sits with you: ${state.memories[state.memories.length - 1]}\n`;
+      // SUN-RECAP-HONESTY-01: the newest private memory, never a logged order or public act.
+      const privateMemory = lastPrivateMemory();
+      if (privateMemory) t += `\nSomething private still sits with you: ${privateMemory}\n`;
       t += `\nThe crew is watching. The next decision is the one the ship will remember.`;
       return t;
     },
@@ -84,8 +80,8 @@ registerScenes({
         r === "truth" ? "reckon_truth" :
         "sun_payoff";
       return [
-        { text: "Make the final decision now.", next, reply: [`You clear the board. The numbers stay true whether or not you keep looking at them.`] },
-        { text: "One more look at the numbers. Then decide.", next, effects: { cohesion: 1 }, reply: [`You read it again from the top, slowly, the dead included. Someone passing the hatch sees you doing it, and does not interrupt.`] }
+        { text: "Clear the board. Face the crew.", next, reply: [`You clear the board. The numbers stay true whether or not you keep looking at them.`] },
+        { text: "Read it once more from the top. Then face the crew.", next, effects: { cohesion: 1 }, reply: [`You read it again from the top, slowly, the dead included. Someone passing the hatch sees you doing it, and does not interrupt.`] }
       ];
     }
   },

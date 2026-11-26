@@ -23,7 +23,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("mira")) return `Engineering is empty.`;
-      return `Mira is alone with the drive schematic and a cooling mug she has not touched.\n\n"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."\n\nShe finally turns. Grease on her wrist. Tired eyes. No performance.\n\n"I am not asking for a future. I am asking for one honest hour that is not the ship."`;
+      return `Mira is alone with the drive schematic and a cooling mug she has not touched.\n\n"I keep fixing things that will break again," she says without looking up. "I need something that is not a system. If that is not you, say so before I make a fool of both of us."\n\nShe finally turns. Grease on her wrist. Tired eyes. No performance.\n\n"One honest hour, off the board. I cannot verify what it does to either of us. I am asking anyway."`;
     },
     get choices() {
       if (!isAlive("mira")) return [{ text: "Leave.", next: "intimacy_window" }];
@@ -47,7 +47,7 @@ registerScenes({
     get text() { return `She does not wait for a speech. She steps into your space, pulls your mouth to hers, and the kiss is immediate and hungry.\n\nClothes come off against the console. She is explicit about what she wants — your hands, your mouth, the weight of you. The sex is intense, almost angry with need, her legs locked around you as the ship vibrates under both of you. When she comes she bites down on a sound so the rest of the crew will not hear. Afterward she stays against you longer than the work schedule allows.\n\n"That was not a mistake," she says quietly. "Do not treat it like one.${isAlive("elias") ? " And do not pretend Elias will not notice who you left engineering smelling like." : ""}"`; },
     get choices() {
       const opts = [
-        { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { mira: 8 }, lean: { living: 1 } },
+        { text: "Tell her you want more of this, whatever the public cost.", next: "pursuit_window", effects: { cohesion: 3 }, affinity: { mira: 8 }, lean: { living: 1 }, reply: [{ who: "mira", text: `"The public cost is not zero," Mira says. "I ran that number before I kissed you. I am still here."` }] },
         { text: "Hold her. Make no promise the crew can overhear.", next: "pursuit_window", effects: { cohesion: 2 }, affinity: { mira: 5 } }
       ];
       // 0.22.1 optional one-shot shower linger
@@ -130,7 +130,7 @@ registerScenes({
     },
     get text() {
       if (!isAlive("sela")) return `The bulkhead is unmarked tonight.`;
-      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.\n\n"You keep returning. That is data."\n\nA pause. She chooses the next sentence carefully.\n\n"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."\n\nHer voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
+      return `Sela sits with a fresh plate of yellow pigment. She does not look surprised to see you.\n\n"You keep returning. I have counted."\n\nA pause. She chooses the next sentence carefully.\n\n"I am not a project and I am not a child. If you are here for warmth, say the true version. If you are here because the yellow bothers you, leave it alone."\n\nHer voice stays precise. Adult. The ritual plate rests between you like a third party that will not be ignored.`;
     },
     get choices() {
       if (!isAlive("sela")) return [{ text: "Leave.", next: "intimacy_window" }];

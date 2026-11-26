@@ -66,7 +66,7 @@ Elias keeps one finger on B-four.
         requires: { integrity: { min: 17 } },
         alive: "elias",
         reply: [
-          `The brace charges fire in order. Seven Integrity points leave the board as the exterior frame turns away into the dark.`,
+          `The brace charges fire in order. Hull integrity drops by seven as the exterior frame turns away into the dark.`,
           `The pressure front follows it out instead of moving toward habitation. B-four seats without anyone crossing the access line.`,
           { who: "elias", text: `Elias reads the narrower structural envelope once. "Threat contained. That side of the ship is no longer ours to spend."` }
         ]
@@ -161,9 +161,19 @@ act3_lethal_elias_end: {
 The pressure front breaks against B-four and falls away from habitation. Station B-four remains on the breach side. Its suit feed reaches zero before the section is safe to open.
 
 The line holds. Security authority remains on the board with no living name beside it.`,
-  choices: [
-    { text: "Mark the station sealed. Continue.", next: "act3_lethal_mira_board" }
-  ],
+  // SUN-DEATH-REACTIONS-01: one living voice answers the death, once, at the top of the next screen.
+  get choices() {
+    const reply = isAlive("mira")
+      ? { who: "mira", text: `Mira reads B-four's suit feed down to zero twice before she clears it. "The door held. He checked it three times. It held with him on the wrong side of it."` }
+      : isAlive("tomas")
+        ? { who: "tomas", text: `Tomas looks at the hatch Elias always ate facing. "He stood there every meal so the rest of us could sit. Somebody tell me who stands there now."` }
+        : isAlive("jiro")
+          ? { who: "jiro", text: `Jiro enters it in the nav log, where nobody will look for it. "Elias Kane. Deck four, Station B-four. Final position."` }
+          : `The security rota prints with a blank where his name was. Nobody fills it.`;
+    return [
+      { text: "Mark the station sealed. Continue.", next: "act3_lethal_mira_board", reply: [reply] }
+    ];
+  },
   image: "images/corridor_variant.jpg"
 },
 

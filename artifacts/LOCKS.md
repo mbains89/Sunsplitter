@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `0a99c00dbcd912992288e5a12d775e5e1560616eb2c1b19e51d47f018e028e3f`
+**Roadmap source SHA-256:** `4caf1fec8c2a0a1ef95d21b64c3decf663a1270f316f364eed18f05016bf3091`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -90,7 +90,7 @@ Manraj approved the *Sunsplitter Feature Roadmap Proposal* in full on 2026-11-05
 | L-055 | LOCKED | Chapter start from Act 2 or Act 3 after a finished run, from that run's own state; grants nothing a fresh run could not reach | ROADMAP §2 UI and save model; §14A Wave 3 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
 | L-056 | LOCKED | Version renumbering: growth waves are 0.37–0.40; External Review 0.41, Cohort 0.42, Commercial 0.43, Rehearsal 0.44, then 1.0. Tools budget: playtest recruiting first, art and audio at their waves (D7, D8) | ROADMAP §4; §14A; §18 | 2026-11-05 | Manraj | `c1be5d7cc2154be576c7741a9d9846872b667bc3` |
 
-L-040 (the explicit-content toggle) stays HELD; Manraj re-affirmed it on 2026-11-05 (D6) and will decide on the gate-2 playtest evidence at Wave 4. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
+On 2026-11-05 L-040 (the explicit-content toggle) stayed HELD: Manraj re-affirmed it (D6), to be decided on the gate-2 playtest evidence at Wave 4. He opened it on 2026-11-23; see "Ruled (2026-11-23)" below. L-047 (no HUD, dashboard, meters or quest log) is untouched: the backlog, gallery and memory board are read-only and post-run.
 
 ## Ruled (2026-11-06)
 
@@ -104,14 +104,44 @@ Manraj ruled these on 2026-11-06 in the Orchestrator lead chat, each as the lead
 
 The same day Manraj named the Orchestrator chat the lead (STATUS decision 16), and ruled that Myth and Muse reads may run in the lead chat as independent reviewers (decision 15). Those are process rulings, recorded in STATUS, not locks.
 
+## Ruled (engine split; 2026-11-11, confirmed 2026-11-14)
+
+Manraj ruled this in the cleanup chat. On 2026-11-11, asked how the cleanup should treat L-043, he answered "Open it now": allow splitting `engine.js` into several plain script files, still no bundler. On 2026-11-14 he confirmed it ("1 confirmed"). On 2026-11-23, in the lead chat, he told the lead to record it. The questions and answers are verbatim in the project docs `claude/cleanup/2026-11-11.md` §1 and `claude/decisions/2026-11-14-cleanup.md`. The approved language is in ROADMAP §2 architecture.
+
+This is the separate approval the deferred row named. It covers `src/engine.js` only: a split of `src/state.js` stays deferred until after 1.0 or a separate approval, and TypeScript, a framework, a bundler and a component rewrite stay out before 1.0. The ruling authorizes ticket PRs on the work branch. It mints no version paint and carries no close-out, release, deploy, Netlify, certification or publication authority.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-043 | LOCKED | Engine split: `src/engine.js` may be split into plain script files that `index.html` loads; no bundler or build step. A `src/state.js` split stays deferred until after 1.0 or separate approval | ROADMAP §2 architecture; §16 | 2026-11-11, confirmed 2026-11-14 | Manraj | `b49e6272c8381c521e1a6a2da6067325bdaaf97c` |
+
+Two guard rulings go with it. They are recorded in STATUS decision 29, not as locks: on 2026-11-14 Manraj let the lead change the two repo guards that pinned `src/engine.js` as one file ("2 yes"), and on 2026-11-23 he approved lowering `portrait-fallback`'s engine allowance from 3 to 2 ("go with your best recommendations", recorded in `claude/cleanup/2026-11-23-engine-split.md` §2).
+
+## Ruled (2026-11-23)
+
+Manraj ruled these on 2026-11-23 in the Orchestrator lead chat, each as the lead suggested ("41 and 42 lets go with your suggestions"). The items and his answer are recorded verbatim in the project doc `claude/decisions/2026-11-23.md`. The approved language is in ROADMAP §2. These rulings authorize ticket PRs on the work branch. They mint no version paint and carry no close-out, release, deploy, Netlify, certification or publication authority.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-040 | LOCKED | Nudity filter: a reader setting that covers nudity in pictures only; off by default; no new art (a covered picture is blurred or swapped for an existing one); text unchanged. Replaces the 2026-11-05 hold on the breast-cover / explicit-content toggle | ROADMAP §2 romance and adult content; §14A Wave 4; §16 | 2026-11-23 | Manraj | `710106f21aa890b28ab3b822e2c3b2f67ccfa0c1` |
+
+The same answer confirmed that L-043 covers `src/engine.js` only, as recorded above: a `src/state.js` split stays deferred.
+
+## Ruled (2026-11-25)
+
+Manraj ruled this on 2026-11-25 in the Orchestrator lead chat. Asked which batches to unlock for that night's build, "each one I'll go ahead with on my recommendations", he picked "Wave 2 (Recommended)". The question, the options and his answer are verbatim in the project doc `claude/decisions/2026-11-25.md`. ROADMAP §14A records the early entry and the Wave 2 design rulings. This ruling authorizes ticket PRs on the work branch. It mints no version paint, credits no gate, and carries no close-out, release, deploy, Netlify, certification or publication authority.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-062 | LOCKED | Text backlog: a per-run, read-only record of the text shown and the orders given. It is kept beside its slot's save, in its own key, and bound to that save. Scenes, endings and saves never read it. Reply lines appear in it as history; L-057 still governs the live screen. It is cleared with the save and not exported. In-run only in Wave 2 | ROADMAP §14A Wave 2; §16 | 2026-11-25 | Manraj | `71c90450a68a914bea2047f22ffa5fe87f6f9b08` |
+
+The same answer settles two readings of existing locks, recorded in ROADMAP §14A Wave 2 and not as new rows. L-052 covers exactly the slot storage keys listed there. L-054's namespace holds a per-run trail of hard-call scene ids, which feeds only the memory board.
+
 ## Held, deferred, rejected, and limited
 
 | ID | Disposition | Subject | Authority |
 |---|---|---|---|
-| L-040 | HELD | Breast-cover / explicit-content toggle; re-affirmed 2026-11-05, decided at Wave 4 on playtest evidence | ROADMAP §§2, 14, 14A |
 | L-041 | DEFERRED | Pair residual textures, debt, and pregnancy texture to evidence-gated 0.29 scope | ROADMAP §14 |
 | L-042 | REJECTED | Unrestricted AI roadmap editing; proposal PR only | ROADMAP §14 |
-| L-043 | DEFERRED | Engine/state mechanical split until after 1.0 or separate approval | ROADMAP §14 |
 | L-044 | OUT | Native wrapper, gamepad, achievements, and cloud saves before 1.0 | ROADMAP §§13, 14 |
 | L-045 | DEFERRED | Steam launch to a separate post-1.0 decision | ROADMAP §§12–14 |
 | L-046 | ACCEPTED_LIMITATION | Fixed event order unless Manraj explicitly reopens it | ROADMAP §14 |

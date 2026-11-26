@@ -5,7 +5,8 @@ import { createHash } from "node:crypto";
 // SUN-DIET-MEMORY-FOLD-01: final_choice opens with the retired ship_memory_payoff text on first arrival; all
 // 81 rows changed in the rendered text only (field 2: the preamble replaces the general opener); everything
 // after that opener is unchanged. Labels, state and image unchanged.
-const BASELINE_FINGERPRINT = "6e2b21033f39f8e1801771b1fec8601d7c1a491b81adbf65c46e42dc622f8d55";
+// SUN-RECAP-HONESTY-01: final_choice drops the debtor line and names the B-four breach; nothing else moved.
+const BASELINE_FINGERPRINT = "3a239dd70eb3b9b03efd7fb7186d9c4f0ad8e9baf31c1afeb46604b3ddb695c9";
 const planets = ["unset", "deferred", "committed"];
 export const jiroVoiceFixtures = planets.flatMap(planet =>
   ["alive", "dead", "missing"].flatMap(life =>

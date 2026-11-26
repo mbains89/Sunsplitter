@@ -96,7 +96,7 @@ registerScenes({
   lena_dying: {
     get text() {
       if (!isAlive("lena")) return `Medical is empty. The conversation you meant to have has nowhere to go.`;
-      return `You stay.\n\nLena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.\n\n"I already used the last of the heavy stabilizers on Rourke. There is nothing left that will change the timeline. I can work until I can't. That is the only useful version of this."\n\nHer hand is close to yours. The ship is quiet around you.`;
+      return `You stay.\n\nLena sits on the edge of the observation blister, looking at the drifting stars. For the first time since the launch she looks younger and older at the same time.\n\n"I already used the last of the heavy stabilizers on Rourke. Nothing I would sign out to myself will change the timeline. I can work until I can't. That is the only useful version of this."\n\nHer hand is close to yours. The ship is quiet around you.`;
     },
     get choices() {
       if (!isAlive("lena")) return [{ text: "Move on.", next: "past_leak" }];
