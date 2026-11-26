@@ -1,9 +1,9 @@
 # Sunsplitter — Current Status
 
 `schema_version: 3`
-`updated_utc: 2026-11-24`
+`updated_utc: 2026-11-26`
 `work_branch: version/0.30.1-main-reconcile-ci.1`
-`work_branch_tip: 2f12399 (after PR #573; PR #574 carries its own row)`
+`work_branch_tip: 5c4b1ed (after PR #574; PR #575 carries its own row and records Wave 2 and L-062)`
 `main_sha: e5a71fc342f0d4bb151ccee92e989b65e2d0ab5a (close-out PR #492, 2026-11-05; NOT_CERTIFIED)`
 `source_main_sha: 8d23109b63b844e0703fb36643f14b91b8800c90`
 `netlify_production: deploy 6ab363f139fc952b12339989 · commit 0e7535d (PR #371, 2026-09-23) · API deploy`
@@ -134,6 +134,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 | 572 | SUN-RULINGS-2026-11-14 | Records L-043 in LOCKS and ROADMAP §2: `src/engine.js` may be split into plain script files, no bundler; a `src/state.js` split stays deferred. Docs only. |
 | 573 | SUN-RULINGS-2026-11-23 | Records Manraj's 2026-11-23 answer to items 41 and 42 ("lets go with your suggestions"): L-040 moves from HELD to LOCKED as a nudity filter, a reader setting for pictures only, off by default, with no new art; and L-043 covers the engine only, as already recorded. Docs only. |
 | 574 | SUN-NUDITY-FILTER-01 | L-040: the reader setting "Cover nudity in pictures", off by default. On, the 35 pictures on Muse's audited list (of the 238 in `images/`; 19 can render today, all in the scene picture) are shown blurred with a short label, and stay covered while the next picture loads. The text is unchanged, no picture is swapped, and nothing enters the save. The toggle is on the title screen, and in the in-run bar from 720px wide. New check `sun-playerflow-nudity-filter` pins the list and the images tree; the browser bot gains `--cover-nudity`. Muse layout check: land with edits, applied (the bar threshold moved from 600px to 720px, where a save-failure notice no longer pushes Load off screen; the label names the setting). |
+| 575 | SUN-RULINGS-2026-11-25 | Records Manraj's 2026-11-25 ruling ("Wave 2 (Recommended)", on the lead's recommendations): Wave 2 opens early, before gate 1, with gate 1 and the paint unchanged; the three Wave 2 designs' recommendations become its design rulings (ROADMAP §14A); L-062 locks the text backlog store. Docs only. |
 
 ## Open
 
@@ -156,6 +157,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
   - #529 must reapply its `RETIRED_SCENE_EXITS` hunk in `src/engine-save.js`.
   - For whenever a deploy is approved: a browser that pairs a stale cached `engine.js` with the new `engine-save.js` would fail on a `SAVE_KEY` redeclaration. Put a cache check on the deploy checklist.
   - When the pinned private package is next repinned past the split, `verify.mjs` `expectedDraftEvidencePaths` and `expectedTextPaths` need `src/engine-save.js`.
+- **Wave 2 (opened 2026-11-25), in three lines, one ticket per concern.** Save slots: storage core, then the Saved runs dialog, the New-run slot picker, delete, the second-tab guard, and blocked-storage play. Reader settings and backlog: text size and spacing, then the in-run Menu (Save and Load move into it), the OpenDyslexic font, the backlog recorder, and the backlog view. Memory: the store, then the gallery, the memory board, and "the ship remembers". New player-facing text holds for a Myth read, and new screens for a Muse check.
 - **Nudity filter (L-040): built, with two questions for Manraj** (decision 33). Follow-ups, none blocking:
   - Muse found a clothed or people-free stand-in already in the repository for most of the listed pictures. The setting blurs all of them alike; a swap is a later option if Manraj wants it (the table is in the PR).
   - The held cover while a picture loads was traced in Chromium only. Safari and Firefox are not available here.
@@ -230,6 +232,7 @@ Per AGENTS.md v2: Manraj owns product, canon, art, locks and every publish actio
 32. **Nudity filter (L-040): RULED 2026-11-23.** Manraj asked for "a filter to censor nudity" in his playtest notes, and answered the lead's items 41 and 42 with "lets go with your suggestions" (verbatim in the project doc `claude/decisions/2026-11-23.md`). L-040 is opened as a reader setting that covers nudity in pictures only, off by default, with no new art; the text is not changed. This replaces the 2026-11-05 hold (D6). Recorded in LOCKS and ROADMAP §2 by SUN-RULINGS-2026-11-23, and built as SUN-NUDITY-FILTER-01 (#574).
 33. **Nudity filter, two calls (2026-11-24; items 43 and 44 in the pending doc).** (a) `corridor.jpg` shows Vess in a tank top and briefs, with bare legs; it appears in the two warmth scenes. It is left uncovered because she is clothed and the setting covers nudity. Cover it too? Recommendation: no. (b) Below 720px wide the in-run bar has no room for a fifth button (on an upright phone it pushed Load off screen and grew the bar from 57px to 97px), so a phone held upright sets this on the title screen only. The alternative is a second row in the bar on phones. Recommendation: leave it.
 
+34. **Wave 2 opened: RULED 2026-11-25.** Manraj, asked which batches to unlock "on my recommendations", picked "Wave 2 (Recommended)" (verbatim in the project doc `claude/decisions/2026-11-25.md`). Wave 2 opens before gate 1; gate 1 stays open and the paint does not move. Every recommendation in the three Wave 2 designs stands (ROADMAP §14A), and L-062 locks the backlog store. Decision 27, the story and canon fixes, and decision 33 were offered in the same question and not picked, so they stay open.
 8. **Art questions from the SUN-HITL-SHADOW-02 roster audit:**
    - In `act2_tether_truth` and `aftermath_seal_holds`, does the short-haired man count as Elias? The gate currently treats him as Elias, so it errs toward hiding the plate.
    - Six plates show a sliver of the Commander's cheek, jaw or ear, never the eyes: `records_changeorders`, `act2_tether_lie`, `act3_reckoning_cut`, `act3_reckoning_briefing`, `aftermath_seal` and `aftermath_seal_order` (the most visible). Does that pass the faceless rule?
@@ -263,6 +266,6 @@ L-020 through L-024 remain ruled.
 
 ## Next action
 
-**Lead:** send a playtest build that has the nudity filter; review and merge the engine-split PRs as the cleanup chat opens them (endings next); turn the 2026-11-23 playtest notes into one-PR tickets once Manraj says he is done giving feedback; land #529 on decision 25. **Manraj:** finish the playtest (gate 1, first half; the last build sent is `playtest-91d3dea`) and say when the notes are complete; rule the batch in `claude/decisions/pending-2026-11-13.md` (Wave 2 entry, decision 27 and decision 28 first) and decision 33; name the gate-1 stranger (D10).
+**Lead:** build Wave 2 (three lines in parallel); review and merge the engine-split PRs as the cleanup chat opens them (endings next); turn the 2026-11-23 playtest notes into one-PR tickets once Manraj says he is done giving feedback; land #529 on decision 25. **Manraj:** finish the playtest (gate 1, first half; the last build sent is `playtest-5c4b1ed`) and say when the notes are complete; rule decision 27, decision 28 and decision 33 in `claude/decisions/pending-2026-11-13.md`; name the gate-1 stranger (D10).
 
 <!-- STATUS_COMPLETE -->
