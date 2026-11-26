@@ -20,6 +20,7 @@ const BUTTONS = [
   { id: "btn-export-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-export-unreadable", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
+  { id: "btn-gallery", primary: false, containers: [".title-actions"] },
   { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm"] },
   { id: "new-run-cancel", primary: false, containers: [".title-actions", "#new-run-confirm"] },
   { id: "commander-create-ok", primary: true, containers: [".title-actions", "#commander-create"] },
