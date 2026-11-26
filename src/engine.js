@@ -451,6 +451,14 @@ function replaceRunState(next) {
 
 function beginFreshCampaign(opts) {
   opts = opts || {};
+  // SUN-SAVE-SLOTS-CORE-01 (L-052): a persisted new run writes opts.slot, else the active slot,
+  // and on success that slot becomes active and current. Play Again (no persist) stays in the slot.
+  const slot = saveSlotArg(opts.slot);
+  if (opts.persist && !slot) {
+    // A slot value that names no slot: keep the current run and write nothing.
+    flashSaveStatus("New run failed · current run kept", true, true);
+    return false;
+  }
   let previousState = null;
   const previousGameVersion = loadedGameVersion;
   const previousSlotGuard = preserveCompletedSlotUntilChoice;
@@ -463,11 +471,15 @@ function beginFreshCampaign(opts) {
     }
   }
   resetRunState();
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true })) {
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot })) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
+  }
+  if (opts.persist) {
+    activeSaveSlot = slot;
+    writeCurrentSlotPointer(slot);
   }
   // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
   if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
@@ -2093,6 +2105,27 @@ function toggleCrewPanel() {
   });
 })();
 
+// SUN-CREW-BOARD-LANDSCAPE-01: on a short landscape phone the board's own scroller is shorter
+// than nine names plus the picked member's facts, so Condition, Trust and Romance sat below its
+// fold. Scroll only #crew-panel (never #main or the page), with no animation and no focus change,
+// and only as far as needed: a detail that already fits leaves scrollTop exactly as it was.
+function revealCrewDetail(panel) {
+  if (!panel || typeof panel.querySelector !== "function" || typeof panel.getBoundingClientRect !== "function") return;
+  const detail = panel.querySelector(".crew-detail");
+  if (!detail || typeof detail.getBoundingClientRect !== "function") return;
+  const box = panel.getBoundingClientRect();
+  const viewTop = box.top + (panel.clientTop || 0);
+  const viewBottom = viewTop + (panel.clientHeight || 0);
+  const facts = detail.getBoundingClientRect();
+  // Measure the facts' full height even if a flex layout ever squeezes their box again.
+  const factsBottom = facts.top + Math.max(facts.height, detail.scrollHeight || 0);
+  const below = factsBottom - viewBottom;
+  if (!(below > 0.5)) return;
+  // Never push the detail's own first line above the fold to show its last.
+  const room = Math.max(0, facts.top - viewTop);
+  panel.scrollTop += Math.ceil(Math.min(below + 4, room));
+}
+
 function renderCrewPanel(selectedKey) {
   const el = document.getElementById("crew-panel");
   if (!el || el.classList.contains("hidden")) return;
@@ -2141,6 +2174,8 @@ function renderCrewPanel(selectedKey) {
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
   const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
+  // Opening the board paints Lena by default (#543); that paint must not jump-scroll.
+  if (pickedKey && order.includes(pickedKey) && crew[pickedKey]) revealCrewDetail(el);
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
       const key = btn.getAttribute("data-crew");
