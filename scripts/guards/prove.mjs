@@ -14,6 +14,11 @@ const cases = [
     expect: 1,
   },
   {
+    name: "hollow data-src, engine text parked in a file no script tag loads",
+    args: ["scripts/guards/hollow-stub.mjs", "--replay-datasrc"],
+    expect: 1,
+  },
+  {
     name: "tip-sync #434 2e4fdfa1 / merge 520be6ad",
     args: ["scripts/guards/tip-sync-churn.mjs", "--replay-434"],
     expect: 1,
