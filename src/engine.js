@@ -187,6 +187,7 @@ function acknowledgeTone() {
 
 function revisitTone() {
   showScreen("tone");
+  syncShipRemembersLine("tone-remembers", typeof shipRemembersToneLine === "function" ? shipRemembersToneLine() : "");
 }
 
 // SUN-PRICE-TAGS-01 — reader setting "Show costs on choices". Default OFF.
@@ -327,6 +328,10 @@ function refreshPictureCovers() {
     const img = document.getElementById(id);
     watchPictureCover(img);
     syncPictureCover(img);
+  }
+  // SUN-GALLERY-01: the gallery's pictures follow the setting too.
+  if (typeof galleryPictureElements === "function") {
+    for (const img of galleryPictureElements()) syncPictureCover(img);
   }
 }
 
@@ -486,9 +491,10 @@ function beginFreshCampaign(opts) {
     activeSaveSlot = slot;
     writeCurrentSlotPointer(slot);
   }
-  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
-  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
+  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet (in its slot; SUN-SAVED-RUNS-01).
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
+  wakeRemembersArmed = true; // SUN-SHIP-REMEMBERS-01: this wake, and its first look after the intro
   showScreen("game");
   renderStatus();
   showScene("wake");
@@ -515,6 +521,17 @@ function playAgain() {
 function showTitleScreen() {
   showScreen("title");
   refreshTitleResumeUI();
+  syncShipRemembersLine("title-remembers", typeof shipRemembersTitleLine === "function" ? shipRemembersTitleLine() : "");
+  // SUN-GALLERY-01: the Gallery button shows once a plate has been seen.
+  if (typeof renderGallery === "function") renderGallery();
+}
+
+// SUN-SHIP-REMEMBERS-01 (L-054): the title and tone screens' one line, hidden when there is none.
+function syncShipRemembersLine(id, line) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = line || "";
+  el.classList.toggle("hidden", !line);
 }
 
 function imageAlternative(src) {
@@ -588,6 +605,8 @@ function releaseInactiveArtForScreen(id) {
     setManagedImageSource(sceneImage, "");
     if (sceneImage) sceneImage.alt = "";
   }
+  // SUN-GALLERY-01: leaving the gallery lets go of every picture it decoded.
+  if (id !== "gallery" && typeof releaseGalleryPictures === "function") releaseGalleryPictures();
   syncEndingArtForScreen(id);
 }
 
@@ -673,6 +692,10 @@ function prefetchChoicePlates(choices) {
 // onEnter may have just killed them). Held in memory only: never written to state or the save,
 // carried across onEnter redirects, dropped on resume and when the choice ends the run.
 let pendingChoiceReply = null;
+// SUN-SHIP-REMEMBERS-01 (L-054): the wake's ship-remembers paragraph shows only on a fresh run, from
+// beginFreshCampaign until the first committed choice. Load, Continue and import never arm it.
+// Presentation only, held in memory: never in state or the save.
+let wakeRemembersArmed = false;
 
 function choiceReplyLines(reply) {
   if (!reply) return [];
@@ -705,6 +728,11 @@ function sceneTextHtml(raw) {
     .join("");
 }
 
+// The wake's remembered-ending paragraph (SUN-SHIP-REMEMBERS-01), one markup for the screen and the backlog.
+function rememberedLineHtml(line) {
+  return `<p class="ship-remembers">${escapeHtml(line)}</p>`;
+}
+
 function showScene(id, opts) {
   const renderedRevision = ++choiceRenderRevision;
   opts = opts || {};
@@ -735,7 +763,7 @@ function showScene(id, opts) {
     }
   }
   // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
-  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id);
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, activeSaveSlot);
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -767,13 +795,22 @@ function showScene(id, opts) {
   } finally {
     renderingSavedScene = false;
   }
-  const html = sceneTextHtml(raw);
+  let html = sceneTextHtml(raw);
+  // SUN-SHIP-REMEMBERS-01 (L-054): on a fresh run's wake, one more paragraph when the ship remembers
+  // an earlier ending. It joins the paced reveal like any other paragraph. The backlog keeps the line
+  // as printed (SUN-BACKLOG-RECORD-01), since it is not part of the scene's text.
+  let rememberedLine = "";
+  if (id === "wake" && wakeRemembersArmed) {
+    const line = typeof shipRemembersWakeLine === "function" ? shipRemembersWakeLine() : "";
+    if (line) html += rememberedLineHtml(line);
+    rememberedLine = line || "";
+  }
 
   const replyLines = opts.resume ? (pendingChoiceReply = null, []) : takePendingChoiceReplyLines();
   document.getElementById("story").innerHTML = `<div class="scene-text">${choiceReplyHtml(replyLines)}${html}</div>`;
   // SUN-BACKLOG-RECORD-01 (L-062): a live screen joins the run's backlog as printed. A resume,
   // Continue or the intro's first view re-renders a screen that is already kept (or lost to a gap).
-  if (!opts.resume && typeof backlogRecordScreen === "function") backlogRecordScreen(id, raw, replyLines);
+  if (!opts.resume && typeof backlogRecordScreen === "function") backlogRecordScreen(id, raw, replyLines, rememberedLine);
 
   const choicesEl = document.getElementById("choices");
   choicesEl.innerHTML = "";
@@ -1556,7 +1593,7 @@ function resolveEnding() {
   const emb = state.embryos;
   const integ = state.integrity;
   const sup = state.supplies;
-  const deadNames = namedDead();
+  const deadNames = namedDead({ causes: false });
   const crisis = state.flags.crisis;
   const final = state.flags.final;
   const planet = state.flags.planet;
@@ -1643,7 +1680,7 @@ function resolveEnding() {
   setEndingArt(art);
   showScreen("ending");
   // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
-  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title);
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, activeSaveSlot);
 }
 
 function showWhatRemains() {
@@ -1991,12 +2028,13 @@ function resolveSceneImageUngated(id, scene) {
   // The Off-Shift portrait asserts Vess is present, including on saved renders.
   if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant_2.jpg";
 
-  // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
+  // Crisis / priority_repairs: Amara + Jiro + Mira faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     // SUN-PLATE-FACES-AUDIT-01: the kneeling welder in crisis.jpg reads as Mira (Muse a-m audit).
-    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela") || !isAlive("mira")) {
+    // SUN-ART-RULINGS-01 (ruled 2026-11-25): Sela is not in the plate, so her death no longer hides it.
+    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("mira")) {
       return "images/corridor_variant_2.jpg";
     }
   }
@@ -2100,7 +2138,7 @@ const PLATE_FACES = {
   "images/corridor.jpg": ["vess"],
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
-  "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
+  "images/crisis.jpg": ["amara", "jiro", "mira"], // SUN-ART-RULINGS-01: no Sela in the bytes
   "images/empty_berths.jpg": ["amara"],
   // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
   // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
@@ -2212,6 +2250,13 @@ function plateFacesPresent(src) {
 // opens her like any other name. UI state for one paint; never saved.
 let crewPanelDefaultPaint = false;
 
+// SUN-ART-RULINGS-01 (ruled 2026-11-25): the board used to open on Lena even when she was dead.
+// The default is now the first living member in board order (Lena while she lives). A dead
+// member's chip and sheet are unchanged: they stay on the board as a memorial.
+function crewPanelDefaultKey() {
+  return visibleCrewKeys().find(k => crew[k] && isAlive(k)) || null;
+}
+
 function toggleCrewPanel() {
   const el = document.getElementById("crew-panel");
   if (!el) return;
@@ -2222,7 +2267,7 @@ function toggleCrewPanel() {
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
     crewPanelDefaultPaint = true;
-    try { renderCrewPanel("lena"); }
+    try { renderCrewPanel(crewPanelDefaultKey()); }
     finally { crewPanelDefaultPaint = false; }
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
@@ -2307,8 +2352,7 @@ function renderCrewPanel(selectedKey) {
     if ((selectedKey === "amara" || selectedKey === "tomas") && state.romance && state.romance.amara_tomas) {
       romance.push("Shared Amara–Tomas encounter recorded");
     }
-    const cause = dead ? ((state.deathCause && state.deathCause[selectedKey]) || "gone")
-      : (state.dying && state.dying[selectedKey]);
+    const cause = crewConditionNote(selectedKey);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
@@ -2324,7 +2368,7 @@ function renderCrewPanel(selectedKey) {
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
   const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
-  // Opening the board paints Lena by default (#543); that paint must not jump-scroll.
+  // Opening the board paints the first living member by default (#543); that paint must not jump-scroll.
   if (pickedKey && order.includes(pickedKey) && crew[pickedKey]) revealCrewDetail(el);
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
@@ -2365,6 +2409,7 @@ function makeChoice(choice) {
   // SUN-BACKLOG-RECORD-01 (L-062): the order given closes the screen it was given on.
   if (typeof backlogRecordOrder === "function") backlogRecordOrder(state.scene, choice.text);
   pendingChoiceReply = choiceReplyLines(choice.reply);
+  wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: gone after the first order
   showScene(choice.next);
   // Changes from the order and from the next scene's entry both show on the bar.
   pulseChangedStatus(statusBefore);

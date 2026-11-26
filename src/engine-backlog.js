@@ -5,9 +5,12 @@
 //
 // What it keeps: each screen as the player saw it when it first rendered live, and the order given
 // on it. One entry per live screen, oldest first:
-//   { s: scene id, r: [reply lines as printed] (left out when none), t: the scene's text, c: order }
+//   { s: scene id, r: [reply lines as printed] (left out when none), t: the scene's text,
+//     m: the wake's remembered-ending line (left out when none), c: order }
 // t is the exact string scene.text produced, before the paragraph split; sceneTextHtml(t) in
-// engine.js gives the paragraphs #story showed. r is the reply after the dead-speaker filter
+// engine.js gives the paragraphs #story showed. m is the one paragraph a fresh run's wake adds outside
+// its text when the ship remembers an earlier ending (SUN-SHIP-REMEMBERS-01, L-054), as printed;
+// rememberedLineHtml(m) gives its markup. r is the reply after the dead-speaker filter
 // (L-057), so a line the engine dropped is never here. c is the taken choice's text, or null until
 // an order is given. s is for checks and later tickets; it is never shown. Nothing else is kept:
 // no plates, choices not taken, costs, status values or timestamps.
@@ -58,6 +61,7 @@ function backlogCopyEntry(entry) {
   const copy = { s: entry.s };
   if (entry.r) copy.r = entry.r.slice();
   copy.t = entry.t;
+  if (entry.m) copy.m = entry.m;
   copy.c = entry.c;
   return copy;
 }
@@ -77,10 +81,11 @@ function backlogRestore(copy) {
 
 // Record point: showScene, a live render only (never a resume, Continue or the intro's first view).
 // An onEnter redirect records only the screen it lands on, because only that one renders.
-function backlogRecordScreen(sceneId, text, replyLines) {
+function backlogRecordScreen(sceneId, text, replyLines, rememberedLine) {
   const entry = { s: String(sceneId) };
   if (Array.isArray(replyLines) && replyLines.length) entry.r = replyLines.map(String);
   entry.t = String(text);
+  if (rememberedLine) entry.m = String(rememberedLine);
   entry.c = null;
   runBacklog.entries.push(entry);
   if (runBacklog.entries.length > BACKLOG_MAX_ENTRIES) {
@@ -134,6 +139,7 @@ function backlogValidEntry(entry) {
   return entry !== null && typeof entry === "object" && !Array.isArray(entry) &&
     typeof entry.s === "string" && typeof entry.t === "string" &&
     (entry.c === null || typeof entry.c === "string") &&
+    (entry.m === undefined || (typeof entry.m === "string" && entry.m.length > 0)) &&
     (entry.r === undefined || (Array.isArray(entry.r) && entry.r.length > 0 && entry.r.every(line => typeof line === "string")));
 }
 

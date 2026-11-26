@@ -1,5 +1,5 @@
 // SUN-MODAL-HOTKEYS-01 — gameplay hotkeys never fire behind an open modal dialog.
-// Runs the dialog-keys spec (tutorial, commander create, new-run confirm, crew sheet) against the
+// Runs the dialog-keys spec (tutorial, commander create, new-run confirm, Saved runs, crew sheet) against the
 // real engine, plus the review repro: first-run tutorial over wake must not commit a choice.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
@@ -47,4 +47,4 @@ assert.equal(repro.behind, "wake", "hotkey behind the first-run tutorial committ
 assert.equal(repro.focusAfterOpen, "tutorial-dismiss", "tutorial did not take focus on open");
 assert.notEqual(repro.after, "wake", "hotkeys stopped working after the tutorial closed");
 
-console.log("PASS sun-playerflow-dialog-keys: 4 dialogs swallow 1-9/Enter/Space, focus primary, restore opener; tutorial-over-wake repro closed");
+console.log("PASS sun-playerflow-dialog-keys: 5 dialogs swallow 1-9/Enter/Space, focus primary, restore opener; tutorial-over-wake repro closed");

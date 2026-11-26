@@ -10,7 +10,8 @@
 // that was clicked; a reply line whose speaker is dead or unrecovered is absent; the slot's stored
 // backlog equals memory and is bound to the save just written; no other slot's key is written.
 //
-// Cases: Continue, a reload into a fresh runtime and the intro's first view add nothing; a resume
+// Cases: Continue, a reload into a fresh runtime and the intro's first view add nothing; a fresh
+// wake's remembered-ending line (#584) is kept with its entry, as printed; a resume
 // re-render adds nothing; a retired-scene resume appends its exit (also through the held one-time
 // entry); binding (savedAt, v, shape, caps); per-slot keys; a throwing setItem on the backlog key;
 // new run, a refused new run, Play Again, clearSave and import; a staged dead and an unrecovered
@@ -51,7 +52,7 @@ function vmSetup(keys) {
     stored: n => { const raw = localStorage.getItem(keys[n]); return raw === null ? null : JSON.parse(raw); },
     story: () => document.getElementById("story").innerHTML,
     // An entry rendered with the engine's own helpers, as showScene writes #story.
-    view: entry => `<div class="scene-text">${choiceReplyHtml(entry.r || [])}${sceneTextHtml(entry.t)}</div>`,
+    view: entry => `<div class="scene-text">${choiceReplyHtml(entry.r || [])}${sceneTextHtml(entry.t)}${entry.m ? rememberedLineHtml(entry.m) : ""}</div>`,
     // The reply paragraphs #story printed, back to text.
     printedReplies: () => [...document.getElementById("story").innerHTML.matchAll(/<p class="choice-reply">([\s\S]*?)<\/p>/g)]
       .map(m => m[1].replace(/<br>/g, "\n")),
@@ -280,6 +281,45 @@ ok(`real play (${RUNS} runs)`);
   ok("reload, first view and resume add nothing");
 }
 
+// 2b. A fresh run's wake that prints the ship's remembered-ending line (SUN-SHIP-REMEMBERS-01, #584)
+//     keeps that line in its entry, as printed; no other screen has one.
+{
+  const r = run(memory => {
+    const B = globalThis.__bl;
+    localStorage.clear();
+    localStorage.setItem("sunsplitter_ship_memory_v1", JSON.stringify(memory));
+    beginFreshCampaign({ persist: true, slot: 2 });
+    const wake = B.mem().entries[0];
+    const wakeStory = B.story();
+    const printed = (wakeStory.match(/<p class="ship-remembers">([^<]*)<\/p>/) || [])[1] || "";
+    for (let i = 0; i < 3; i++) B.click(B.buttons()[0]);
+    const mem = B.mem();
+    const stored = B.stored(2);
+    resetRunState();
+    resumeGame();
+    const resumed = B.mem();
+    // Without a memory there is no line, and no field.
+    localStorage.clear();
+    beginFreshCampaign({ persist: true, slot: 1 });
+    const plain = B.mem().entries[0];
+    return { wake, matches: B.view(wake) === wakeStory, printed, mem, stored, resumed, plain };
+  }, {
+    v: 1, runs: 1, endings: { landfall: 1 }, lost: { rourke: 1 }, plates: ["vault"],
+    forks: { crisis: { breath: 1 }, vault: {}, tether: {}, lethal: {}, final: { endure: 1 } },
+    last: { ending: "landfall", lost: ["rourke"], forks: { crisis: "breath", final: "endure" } },
+    prints: ["0000000a"], trail: []
+  });
+  assert.ok(r.printed.length > 0, "the seeded memory makes the wake print its remembered line");
+  assert.equal(r.wake.s, "wake");
+  assert.ok(typeof r.wake.m === "string" && r.wake.m.length > 0, "the wake's entry keeps the line");
+  assert.equal(r.matches, true, "the wake's entry, line included, renders to what #story showed");
+  assert.deepEqual(r.mem.entries.slice(1).filter(e => "m" in e), [], "no later screen has the line");
+  assert.deepEqual(r.stored.entries, r.mem.entries, "the line is stored with its entry");
+  assert.deepEqual(r.resumed, r.mem, "and restored by Continue");
+  assert.equal("m" in r.plain, false, "a wake without the line has no m");
+  ok("the wake's remembered line");
+}
+
 // 3. A retired-scene resume appends its exit, bound or not, and through the held one-time entry.
 {
   const r = run(() => {
@@ -364,6 +404,7 @@ ok(`real play (${RUNS} runs)`);
       entriesNotArray: Object.assign({}, good, { entries: {} }),
       badEntry: Object.assign({}, good, { entries: [{ s: "wake", t: 5, c: null }] }),
       emptyReply: Object.assign({}, good, { entries: [{ s: "wake", r: [], t: "x", c: null }] }),
+      badRemembered: Object.assign({}, good, { entries: [{ s: "wake", t: "x", m: 5, c: null }] }),
       overEntryCap: Object.assign({}, good, { entries: Array.from({ length: 401 }, () => entry) }),
       notJson: "{not json",
       missing: null
@@ -403,7 +444,7 @@ ok(`real play (${RUNS} runs)`);
   const gap = { gap: true, entries: [] };
   assert.deepEqual(r.match, kept, "matching savedAt and v 1: kept");
   assert.deepEqual(r.matchGap, { gap: true, entries: kept.entries }, "a stored gap stays a gap");
-  for (const name of ["otherSavedAt", "v2", "noV", "stringSavedAt", "gapNotBool", "entriesNotArray", "badEntry", "emptyReply", "overEntryCap", "notJson", "missing", "noSavedAt"]) {
+  for (const name of ["otherSavedAt", "v2", "noV", "stringSavedAt", "gapNotBool", "entriesNotArray", "badEntry", "emptyReply", "badRemembered", "overEntryCap", "notJson", "missing", "noSavedAt"]) {
     assert.deepEqual(r[name], gap, `${name}: the gap`);
   }
   assert.deepEqual(r.extra, kept, "unknown fields are dropped on load");

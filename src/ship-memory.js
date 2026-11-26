@@ -2,15 +2,15 @@
 // SUN-MEMORY-STORE-01 (L-054, owner rulings 2026-11-25): the cross-run ship memory store.
 // One localStorage key per browser, separate from the run save and from save slots. It records what
 // finished runs reached (endings, crew lost, the five great forks), which plates were on screen, and,
-// for the run in progress only, the trail of hard-call scenes faced (D10).
+// for the run in progress in each save slot, the trail of hard-call scenes faced (D10).
 //
 // It never changes an outcome. Nothing in run state, scene files, saves or the export reads it; the
 // engine only calls the guarded recorders below. It draws no random numbers. Every storage access is
 // in try/catch; when storage is blocked or full the session copy keeps the record for this session,
 // and a failed write never retries in a loop or touches another key.
 //
-// No surface reads it yet (gallery, memory board and the ship-remembers lines are later tickets);
-// shipMemoryRead() is the one reader they will use.
+// shipMemoryRead() is the one reader. The ship-remembers lines at the end of this file read it
+// (SUN-SHIP-REMEMBERS-01); the gallery and the memory board are their own tickets.
 
 const SHIP_MEMORY_KEY = "sunsplitter_ship_memory_v1";
 const SHIP_MEMORY_VERSION = 1;
@@ -52,6 +52,11 @@ const SHIP_MEMORY_MAX_PLATES = 256;
 const SHIP_MEMORY_MAX_PRINTS = 8;
 const SHIP_MEMORY_MAX_TRAIL = 16;
 const SHIP_MEMORY_MAX_COUNT = 1_000_000;
+// SUN-SAVED-RUNS-01 (L-054, lead's call): each save slot holds its own run, and runs in different
+// slots can interleave, so the in-progress trail is kept per slot: trail = { "1": [...], "2": [...] }.
+// A hard call faced in one slot never reaches another slot's run record. A record written before
+// slots (trail as a plain list) was slot 1's run, so it reads as slot 1's trail.
+const SHIP_MEMORY_TRAIL_SLOTS = ["1", "2", "3"];
 
 // Session copy: the last good value this session read or wrote. Used whenever storage throws, and
 // in preference to storage once a write has failed, so a blocked or full store still remembers this
@@ -72,7 +77,7 @@ function shipMemoryEmpty() {
     forks: { crisis: {}, vault: {}, tether: {}, lethal: {}, final: {} },
     last: null,
     prints: [],
-    trail: []
+    trail: {}
   };
 }
 
@@ -156,8 +161,28 @@ function shipMemorySanitize(parsed) {
     };
   }
   clean.prints = shipMemoryUniqueList(parsed.prints, print => SHIP_MEMORY_PRINT_RE.test(print), SHIP_MEMORY_MAX_PRINTS);
-  clean.trail = shipMemoryUniqueList(parsed.trail, id => SHIP_MEMORY_TRAIL_IDS.includes(id)).slice(0, SHIP_MEMORY_MAX_TRAIL);
+  if (Array.isArray(parsed.trail)) {
+    const list = shipMemoryTrailList(parsed.trail);
+    if (list.length) clean.trail["1"] = list;
+  } else if (shipMemoryIsObject(parsed.trail)) {
+    for (const key of SHIP_MEMORY_TRAIL_SLOTS) {
+      const list = shipMemoryTrailList(parsed.trail[key]);
+      if (list.length) clean.trail[key] = list;
+    }
+  }
   return clean;
+}
+
+function shipMemoryTrailList(source) {
+  return shipMemoryUniqueList(source, id => SHIP_MEMORY_TRAIL_IDS.includes(id)).slice(0, SHIP_MEMORY_MAX_TRAIL);
+}
+
+// The trail key for a save slot: "1", "2" or "3". Left out, the slot this tab plays; a value that
+// names no slot gives null, and the trail recorders then write nothing.
+function shipMemoryTrailSlot(slot) {
+  const value = slot === undefined ? (typeof activeSaveSlot !== "undefined" ? activeSaveSlot : 1) : slot;
+  const key = typeof value === "number" || typeof value === "string" ? String(value) : "";
+  return SHIP_MEMORY_TRAIL_SLOTS.includes(key) ? key : null;
 }
 
 function shipMemoryClone(value) {
@@ -222,6 +247,26 @@ function shipMemoryUpdate(change) {
   }
 }
 
+// SUN-MEMORY-BOARD-01 (D8(a)): "Forget this ship". Removes this key and nothing else: no save, no
+// setting, not the tone acknowledgement. A newer version's value (v > 1) is left alone, like every
+// other write. When storage is blocked the session copy is emptied, so this session forgets too.
+function shipMemoryForget() {
+  try {
+    shipMemoryCurrent();
+    if (shipMemoryForeign) return false;
+  } catch (e) { /* storage unreadable: forget the session copy below */ }
+  shipMemorySession = shipMemoryEmpty();
+  try {
+    localStorage.removeItem(SHIP_MEMORY_KEY);
+  } catch (e) {
+    shipMemoryWriteFailed = true;
+    return false;
+  }
+  shipMemoryWriteFailed = false;
+  shipMemoryRawSeen = null;
+  return true;
+}
+
 function shipMemoryPlateStem(src) {
   if (typeof src !== "string" || !src) return "";
   const path = src.split(/[?#]/)[0];
@@ -245,21 +290,28 @@ function shipMemoryNotePlate(img, src) {
   });
 }
 
-// Hard-call trail (D10). Called from showScene once a scene has passed its onEnter redirect check.
-function shipMemoryNoteScene(id) {
+// Hard-call trail (D10). Called from showScene once a scene has passed its onEnter redirect check,
+// with the save slot the run plays in.
+function shipMemoryNoteScene(id, slot) {
   if (!SHIP_MEMORY_TRAIL_IDS.includes(id)) return false;
+  const key = shipMemoryTrailSlot(slot);
+  if (!key) return false;
   return shipMemoryUpdate(memory => {
-    if (memory.trail.includes(id) || memory.trail.length >= SHIP_MEMORY_MAX_TRAIL) return false;
-    memory.trail.push(id);
+    const trail = memory.trail[key] || [];
+    if (trail.includes(id) || trail.length >= SHIP_MEMORY_MAX_TRAIL) return false;
+    memory.trail[key] = trail.concat(id);
     return true;
   });
 }
 
-// A fresh run (beginFreshCampaign) or an import starts with no hard calls faced.
-function shipMemoryClearTrail() {
+// A fresh run (beginFreshCampaign) or an import into a slot starts that slot with no hard calls
+// faced. Other slots' trails stay.
+function shipMemoryClearTrail(slot) {
+  const key = shipMemoryTrailSlot(slot);
+  if (!key) return false;
   return shipMemoryUpdate(memory => {
-    if (!memory.trail.length) return false;
-    memory.trail = [];
+    if (!memory.trail[key]) return false;
+    delete memory.trail[key];
     return true;
   });
 }
@@ -305,16 +357,18 @@ function shipMemoryRunForks(trail) {
   return forks;
 }
 
-// Run end. Called at the end of resolveEnding with the ending title. A Continue of a completed slot
+// Run end. Called at the end of resolveEnding with the ending title and the run's save slot; only
+// that slot's trail feeds the record, and only it is cleared. A Continue of a completed slot
 // re-runs resolveEnding on the same snapshot; its print is already in prints, so nothing is counted twice.
-function shipMemoryRecordRun(title) {
+function shipMemoryRecordRun(title, slot) {
   const ending = SHIP_MEMORY_ENDINGS[title];
   if (!ending) return false;
   let print;
   try { print = shipMemoryRunPrint(); } catch (e) { return false; }
   return shipMemoryUpdate(memory => {
     if (memory.prints.includes(print)) return false;
-    const trail = memory.trail.slice();
+    const key = shipMemoryTrailSlot(slot);
+    const trail = key && memory.trail[key] ? memory.trail[key].slice() : [];
     const forks = shipMemoryRunForks(trail);
     const lost = (state.dead || []).filter((key, index, list) => SHIP_MEMORY_CREW.includes(key) && list.indexOf(key) === index);
     memory.runs = Math.min(memory.runs + 1, SHIP_MEMORY_MAX_COUNT);
@@ -330,7 +384,74 @@ function shipMemoryRecordRun(title) {
     }
     memory.last = { ending, lost, forks };
     memory.prints = memory.prints.concat(print).slice(-SHIP_MEMORY_MAX_PRINTS);
-    memory.trail = [];
+    if (key) delete memory.trail[key];
     return true;
   });
+}
+
+// ─── SUN-SHIP-REMEMBERS-01 (L-054, ROADMAP §14A Wave 2 workstream 5): the ship remembers ───
+// On a later run a few lines acknowledge earlier endings, at three points only: the title, the tone
+// screen (seen after the first run only through "Revisit content notice"; D11 kept it), and one
+// paragraph in the wake of a fresh run. Never on an ending, What Remains or the cinematic. Each line
+// is fixed per ending (no randomness), names no crew member, prints no count and points at no choice.
+// The engine places them; these three functions are the only readers.
+
+// Title: every ending reached overrides the last ending's line.
+const SHIP_REMEMBERS_TITLE_ALL = "The ship has ended every way it knows. It wakes you anyway.";
+const SHIP_REMEMBERS_TITLE = {
+  yellow_circle: "Under the primer on one bulkhead: something round, something yellow. No one claims it.",
+  landfall: "The navigation cache holds a course to a cold world. No one remembers laying it in.",
+  living_ship: "The habitation decks have run warm before. The vault remembers what that cost.",
+  quiet_ship: "The observation blister has watched the last light go out before.",
+  still_burning: "The ship has carried a crew that held together. It keeps no record of how.",
+  fracture: "The hull remembers a crew that stopped moving as one.",
+  long_dark: "The Sunsplitter has pushed through the black before. One more day, then the next."
+};
+// Tone screen: one line for any later run.
+const SHIP_REMEMBERS_TONE = "You have commanded this ship before. It will not go easier for that.";
+// Wake: one paragraph after the scene's own, keyed to the last ending. Each is true of every fresh
+// wake (the medical bay's ozone and blood, its status board, nobody yet spoken, nothing yellow on the
+// bulkheads) and is only the Commander's own sense of it: no one else is said to be present or to
+// remember. None repeats the wake's closing "this room".
+const SHIP_REMEMBERS_WAKE = {
+  yellow_circle: "There is nothing yellow on these bulkheads. You look for it anyway.",
+  landfall: "You carry a heading, exact and cold. Nothing on the status board explains it.",
+  living_ship: "For a moment the bay is warm and full of people arguing over food. Then it is ozone and blood again.",
+  quiet_ship: "You find yourself listening for the systems to fail one by one. For now, they run.",
+  still_burning: "Something in you expects these people to hold. You have no grounds for it yet.",
+  fracture: "Before anyone has spoken, you are listening for where this crew will split.",
+  long_dark: "Before you have even sat up, you are thinking about the next day, and the one after it."
+};
+
+// The last ending's line from a table, or "" when no run has finished. Never throws into play.
+function shipRemembersLastLine(memory, table) {
+  if (!memory || !memory.runs || !memory.last) return "";
+  return table[memory.last.ending] || "";
+}
+
+function shipRemembersTitleLine() {
+  try {
+    const memory = shipMemoryRead();
+    if (!memory.runs) return "";
+    if (SHIP_MEMORY_ENDING_IDS.every(id => memory.endings[id])) return SHIP_REMEMBERS_TITLE_ALL;
+    return shipRemembersLastLine(memory, SHIP_REMEMBERS_TITLE);
+  } catch (e) {
+    return "";
+  }
+}
+
+function shipRemembersToneLine() {
+  try {
+    return shipMemoryRead().runs ? SHIP_REMEMBERS_TONE : "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function shipRemembersWakeLine() {
+  try {
+    return shipRemembersLastLine(shipMemoryRead(), SHIP_REMEMBERS_WAKE);
+  } catch (e) {
+    return "";
+  }
 }
