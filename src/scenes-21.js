@@ -21,6 +21,10 @@ act3_lethal_tomas_cost: {
   get text() {
     if (!isAlive("tomas")) return `The warning has no living speaker. The watch continues.`;
 
+    // SUN-PROMISE-AT-STAKE-01 (decision 27a): the lethal choice here kills Tomas, so his promise is never
+    // resolved here; while it is still made he alludes to it (never quotes it). This scene renders once
+    // per run, so no one-shot flag. WRITES: none.
+    const stake = state.promises.tomas === "made";
     const pureFuture = state.flags.vault_sacrifice === "future" &&
       (state.flags.tomas === "future" || hasMark("tomas", "broke"));
     if (pureFuture) {
@@ -37,7 +41,9 @@ Tomas has one hand on the suit rack.
 
 "Who pays?"
 
-Tomas reads the far-side tag. "${name}. Unless the stores or the vault take the loss instead."
+Tomas reads the far-side tag. "${name}. Unless the stores or the vault take the loss instead."${stake ? `
+
+His eyes stay on the tag. "You told me once what kind of answer you are. I said I'd hold the vault to that. I'm holding."` : ``}
 
 The manual release is inside the throat, on the side the automatic seal will vent.
 
@@ -58,7 +64,9 @@ Eight points of viable food stock remain behind it: root cultures, water algae, 
 
 The manual reseat takes twelve minutes. The suit has nine at the present leak rate. Tomas is already at the rack.
 
-"Who pays if we cut it loose? The mouths. Who pays if we keep it? Me, if you leave the stock and hull where they are."${stores}
+"Who pays if we cut it loose? The mouths. Who pays if we keep it? Me, if you leave the stock and hull where they are."${stores}${stake ? `
+
+"It's the annex sum again. Stock on one side, me on the other. You told me once what kind of answer you are. I'm listening."` : ``}
 
 He sets the helmet down long enough to leave the decision with you.`;
   },
