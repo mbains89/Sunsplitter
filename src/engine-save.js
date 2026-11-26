@@ -6,6 +6,30 @@
 // Three run variables it uses are declared in engine.js: loadedGameVersion, pendingLegacyResume
 // and preserveCompletedSlotUntilChoice.
 
+// ---------- Storage keys (the full inventory) ----------
+// Every localStorage key in src/. scripts/sun-playerflow-storage-keys-checks.mjs holds the same
+// list and fails if a sunsplitter_ string literal in src/ is missing from it or extra to it.
+//
+// Save slots. L-052 covers exactly these keys (Manraj 2026-11-25, O-5; SUN-SAVE-SLOTS-CORE-01):
+//   slot 1   sunsplitter_save_v3            live snapshot (today's save, unchanged)
+//            sunsplitter_save_v3_staging    slot 1 write transaction
+//            sunsplitter_save_v3_backup     slot 1 write transaction
+//            sunsplitter_save_v2            legacy, read for slot 1 only, retired by a slot 1 new run or import
+//   slot 2   sunsplitter_save_v3_slot2, sunsplitter_save_v3_slot2_staging, sunsplitter_save_v3_slot2_backup
+//   slot 3   sunsplitter_save_v3_slot3, sunsplitter_save_v3_slot3_staging, sunsplitter_save_v3_slot3_backup
+//   pointer  sunsplitter_save_current_v1    1, 2 or 3: the slot Continue resumes. Written by a new run,
+//                                           a load and an import; never by autosave. Best effort.
+// Every slot holds the same v3 snapshot. No slot number, name or pointer goes inside a snapshot or
+// an export, so a file is a run, not a slot.
+//
+// Reader settings and title keys. Not saves: never in a snapshot or an export, never touched by a
+// save, a new run, an import or clearSave.
+//   sunsplitter_tone_ack_v1        content notice acknowledged (engine.js)
+//   sunsplitter_show_costs_v1      Show costs on choices (engine.js)
+//   sunsplitter_cover_nudity_v1    Cover nudity in pictures (engine.js)
+//   sunsplitter_text_pace_v1       text pace (engine.js)
+//   sunsplitter_tutorial_seen_v1   first-run tutorial seen (validate.js)
+//   sunsplitter_validate           developer scene validation switch (validate.js)
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
@@ -14,8 +38,99 @@ const SAVE_SCHEMA_VERSION = 3;
 const MIN_IMPORT_SCHEMA_VERSION = 2;
 const MAX_IMPORT_BYTES = 1_048_576;
 
+// SUN-SAVE-SLOTS-CORE-01 (L-052, design S-1): three slots. Slot 1 is today's save on today's keys,
+// byte for byte, so an older build still sees it and nothing moves on upgrade. Slots 2 and 3 use
+// their own keys and have no legacy fallback, so a write to one slot never touches another.
+const SAVE_SLOT_COUNT = 3;
+const SAVE_POINTER_KEY = "sunsplitter_save_current_v1";
+const SAVE_SLOT_KEYS = Object.freeze({
+  1: Object.freeze({ live: SAVE_KEY, staging: SAVE_STAGING_KEY, backup: SAVE_BACKUP_KEY, legacy: SAVE_KEY_LEGACY }),
+  2: Object.freeze({
+    live: "sunsplitter_save_v3_slot2",
+    staging: "sunsplitter_save_v3_slot2_staging",
+    backup: "sunsplitter_save_v3_slot2_backup",
+    legacy: null
+  }),
+  3: Object.freeze({
+    live: "sunsplitter_save_v3_slot3",
+    staging: "sunsplitter_save_v3_slot3_staging",
+    backup: "sunsplitter_save_v3_slot3_backup",
+    legacy: null
+  })
+});
+// The slot this tab plays and saves. Set by a new run (its target slot) and by Continue or Load
+// (the slot loaded); an import does not change it. Never stored except through the pointer.
+let activeSaveSlot = 1;
+
+function isSaveSlot(n) {
+  return Number.isInteger(n) && n >= 1 && n <= SAVE_SLOT_COUNT;
+}
+function normalizeSaveSlot(n) {
+  const slot = typeof n === "string" && /^[0-9]$/.test(n) ? Number(n) : n;
+  return isSaveSlot(slot) ? slot : 1;
+}
+// An optional slot argument: a slot number names that slot; anything else (left out, or an event
+// object from a handler) means the active slot.
+function saveSlotArg(slot) {
+  return isSaveSlot(slot) ? slot : normalizeSaveSlot(activeSaveSlot);
+}
+function saveSlotKeys(n) {
+  return SAVE_SLOT_KEYS[normalizeSaveSlot(n)];
+}
+// Every key one slot owns, in the import transaction's order (slot 1 includes legacy v2).
+function saveSlotStorageKeys(slot) {
+  const keys = saveSlotKeys(slot);
+  return [keys.live, keys.legacy, keys.staging, keys.backup].filter(Boolean);
+}
+
+function readCurrentSlotPointer() {
+  let raw = null;
+  try { raw = localStorage.getItem(SAVE_POINTER_KEY); } catch (e) { return null; }
+  return raw === "1" || raw === "2" || raw === "3" ? Number(raw) : null;
+}
+// Best effort: a failed pointer write never fails a save; continueSlot() then picks by savedAt.
+function writeCurrentSlotPointer(n) {
+  if (!isSaveSlot(n)) return false;
+  try {
+    const value = String(n);
+    if (localStorage.getItem(SAVE_POINTER_KEY) !== value) localStorage.setItem(SAVE_POINTER_KEY, value);
+    return localStorage.getItem(SAVE_POINTER_KEY) === value;
+  } catch (e) {
+    return false;
+  }
+}
+
+function savedAtOfSlot(slot) {
+  try {
+    const data = JSON.parse(readRawSave(slot));
+    return data && typeof data.savedAt === "number" && Number.isFinite(data.savedAt) ? data.savedAt : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+// The slot Continue resumes: the pointer's slot if it is readable; else the readable slot saved
+// most recently (ties go to the lowest number); else null, and there is no Continue. With no
+// pointer and only slot 1 readable this is slot 1, so "slot 1 is the current save" holds on
+// upgrade without writing anything.
+function continueSlot() {
+  const pointer = readCurrentSlotPointer();
+  if (pointer && hasSave(pointer)) return pointer;
+  let best = null;
+  let bestSavedAt = -Infinity;
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    if (!hasSave(slot)) continue;
+    const savedAt = savedAtOfSlot(slot);
+    if (savedAt > bestSavedAt) {
+      best = slot;
+      bestSavedAt = savedAt;
+    }
+  }
+  return best;
+}
+
 // ---------- Save / Resume (v0.19) ----------
-// Single slot. Survives refresh, background, tab close on iOS Safari via localStorage.
+// One run per slot (L-052). Survives refresh, background, tab close on iOS Safari via localStorage.
 // Schema versioned. Never wipe an existing save on failed write/parse.
 
 function snapshotState() {
@@ -307,8 +422,8 @@ function inspectSaveImportText(text) {
   return { ok: true, raw: JSON.stringify(parsed), snapshot: parsed, legacyFile };
 }
 
-function buildSaveExport() {
-  const raw = readRawSave();
+function buildSaveExport(slot) {
+  const raw = readRawSave(saveSlotArg(slot));
   if (!validRawSnapshot(raw)) return null;
   const save = JSON.parse(raw);
   const exportedAt = Date.now();
@@ -332,8 +447,8 @@ function exportSaveFile() {
 // SUN-UNREADABLE-EXPORT-01 (Manraj 2026-11-05, ruling 2): a slot this build cannot read can be
 // downloaded byte-for-byte before a new run replaces it. It is never loaded, validated or
 // re-exported as a playable save; Export save above stays fail-closed (0.32) for these bytes.
-function buildUnreadableSaveExport() {
-  const raw = unreadableSaveRaw();
+function buildUnreadableSaveExport(slot) {
+  const raw = unreadableSaveRaw(saveSlotArg(slot));
   if (!raw) return null;
   const stamp = new Date(Date.now()).toISOString().slice(0, 10);
   return { filename: `sunsplitter-unreadable-save-${stamp}.json`, text: raw };
@@ -378,8 +493,10 @@ function restoreStorageValue(key, value) {
   return localStorage.getItem(key) === value;
 }
 
-function commitImportedSave(raw) {
-  const keys = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY];
+function commitImportedSave(raw, slot) {
+  slot = saveSlotArg(slot);
+  const slotKeys = saveSlotKeys(slot);
+  const keys = saveSlotStorageKeys(slot);
   let originals;
   try {
     originals = Object.fromEntries(keys.map(key => [key, localStorage.getItem(key)]));
@@ -390,46 +507,50 @@ function commitImportedSave(raw) {
   const hadOriginal = keys.some(key => originals[key] !== null);
   let priorRaw = null;
   try {
-    priorRaw = readRawSave();
-    localStorage.setItem(SAVE_STAGING_KEY, raw);
-    if (localStorage.getItem(SAVE_STAGING_KEY) !== raw || !validRawSnapshot(raw)) throw new Error("staging verification failed");
+    priorRaw = readRawSave(slot);
+    localStorage.setItem(slotKeys.staging, raw);
+    if (localStorage.getItem(slotKeys.staging) !== raw || !validRawSnapshot(raw)) throw new Error("staging verification failed");
     if (validRawSnapshot(priorRaw)) {
-      localStorage.setItem(SAVE_BACKUP_KEY, priorRaw);
-      if (localStorage.getItem(SAVE_BACKUP_KEY) !== priorRaw) throw new Error("backup verification failed");
+      localStorage.setItem(slotKeys.backup, priorRaw);
+      if (localStorage.getItem(slotKeys.backup) !== priorRaw) throw new Error("backup verification failed");
     } else {
-      localStorage.removeItem(SAVE_BACKUP_KEY);
+      localStorage.removeItem(slotKeys.backup);
     }
-    localStorage.setItem(SAVE_KEY, raw);
-    if (localStorage.getItem(SAVE_KEY) !== raw || !validRawSnapshot(localStorage.getItem(SAVE_KEY))) {
+    localStorage.setItem(slotKeys.live, raw);
+    if (localStorage.getItem(slotKeys.live) !== raw || !validRawSnapshot(localStorage.getItem(slotKeys.live))) {
       throw new Error("import verification failed");
     }
-    localStorage.removeItem(SAVE_KEY_LEGACY);
-    if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
-    localStorage.removeItem(SAVE_BACKUP_KEY);
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    if (localStorage.getItem(SAVE_BACKUP_KEY) !== null || localStorage.getItem(SAVE_STAGING_KEY) !== null) {
+    if (slotKeys.legacy) {
+      localStorage.removeItem(slotKeys.legacy);
+      if (localStorage.getItem(slotKeys.legacy) !== null) throw new Error("legacy retirement failed");
+    }
+    localStorage.removeItem(slotKeys.backup);
+    localStorage.removeItem(slotKeys.staging);
+    if (localStorage.getItem(slotKeys.backup) !== null || localStorage.getItem(slotKeys.staging) !== null) {
       throw new Error("transaction cleanup failed");
     }
   } catch (e) {
     let liveRestored = false;
-    try { liveRestored = restoreStorageValue(SAVE_KEY, originals[SAVE_KEY]); } catch (restoreError) { /* recover below */ }
-    try { restoreStorageValue(SAVE_KEY_LEGACY, originals[SAVE_KEY_LEGACY]); } catch (restoreError) { /* recover below */ }
+    try { liveRestored = restoreStorageValue(slotKeys.live, originals[slotKeys.live]); } catch (restoreError) { /* recover below */ }
+    if (slotKeys.legacy) {
+      try { restoreStorageValue(slotKeys.legacy, originals[slotKeys.legacy]); } catch (restoreError) { /* recover below */ }
+    }
     if (liveRestored) {
-      try { restoreStorageValue(SAVE_STAGING_KEY, originals[SAVE_STAGING_KEY]); } catch (restoreError) { /* checked below */ }
-      try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
+      try { restoreStorageValue(slotKeys.staging, originals[slotKeys.staging]); } catch (restoreError) { /* checked below */ }
+      try { restoreStorageValue(slotKeys.backup, originals[slotKeys.backup]); } catch (restoreError) { /* checked below */ }
     } else {
       // Keep a durable interrupted-transaction marker. readRawSave() treats
       // the matching live candidate as uncommitted and selects this backup.
-      try { restoreStorageValue(SAVE_STAGING_KEY, raw); } catch (restoreError) { /* checked below */ }
+      try { restoreStorageValue(slotKeys.staging, raw); } catch (restoreError) { /* checked below */ }
       if (validRawSnapshot(priorRaw)) {
-        try { restoreStorageValue(SAVE_BACKUP_KEY, priorRaw); } catch (restoreError) { /* checked below */ }
+        try { restoreStorageValue(slotKeys.backup, priorRaw); } catch (restoreError) { /* checked below */ }
       } else {
-        try { restoreStorageValue(SAVE_BACKUP_KEY, originals[SAVE_BACKUP_KEY]); } catch (restoreError) { /* checked below */ }
+        try { restoreStorageValue(slotKeys.backup, originals[slotKeys.backup]); } catch (restoreError) { /* checked below */ }
       }
     }
     let priorRecoverable = false;
     try {
-      const effective = readRawSave();
+      const effective = readRawSave(slot);
       priorRecoverable = priorRaw === null ? effective === null : effective === priorRaw;
     } catch (readError) { /* fail closed below */ }
     const message = priorRecoverable
@@ -440,15 +561,17 @@ function commitImportedSave(raw) {
     refreshTitleResumeUI();
     return false;
   }
-  pendingLegacyResume = null;
-  preserveCompletedSlotUntilChoice = false;
+  if (!pendingLegacyResume || pendingLegacyResume.slot === slot) pendingLegacyResume = null;
+  if (slot === activeSaveSlot) preserveCompletedSlotUntilChoice = false;
+  writeCurrentSlotPointer(slot);
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
   return true;
 }
 
-function importSaveText(text) {
+function importSaveText(text, slot) {
+  slot = saveSlotArg(slot);
   const inspected = inspectSaveImportText(text);
   if (!inspected.ok) {
     flashSaveStatus(`Import rejected · ${inspected.error}`, true, true);
@@ -456,7 +579,7 @@ function importSaveText(text) {
   }
   let hasStoredBytes = false;
   try {
-    hasStoredBytes = [SAVE_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY, SAVE_BACKUP_KEY]
+    hasStoredBytes = saveSlotStorageKeys(slot)
       .some(key => localStorage.getItem(key) !== null);
   } catch (e) {
     flashSaveStatus("Import failed · storage unavailable", true, true);
@@ -469,7 +592,7 @@ function importSaveText(text) {
     flashSaveStatus("Import cancelled");
     return false;
   }
-  return commitImportedSave(inspected.raw);
+  return commitImportedSave(inspected.raw, slot);
 }
 
 function requestSaveImport() {
@@ -507,11 +630,12 @@ async function handleSaveImportSelection(input) {
   }
 }
 
-function readRawSave() {
+function readRawSave(slot) {
+  const keys = saveSlotKeys(saveSlotArg(slot));
   try {
-    let raw = localStorage.getItem(SAVE_KEY);
-    const staging = localStorage.getItem(SAVE_STAGING_KEY);
-    const backup = localStorage.getItem(SAVE_BACKUP_KEY);
+    let raw = localStorage.getItem(keys.live);
+    const staging = localStorage.getItem(keys.staging);
+    const backup = localStorage.getItem(keys.backup);
     if (validRawSnapshot(staging) && raw === staging) {
       // A live value that still matches staging never completed its
       // transaction. Prefer the preserved prior slot, or fail closed.
@@ -519,10 +643,10 @@ function readRawSave() {
     } else if (!validRawSnapshot(raw)) {
       raw = validRawSnapshot(backup) ? backup : null;
     }
-    if (!validRawSnapshot(raw)) {
-      // Read legacy v2 without mutating storage. A successful explicit load
-      // adopts it through the ordinary verified v3 save transaction.
-      const legacy = localStorage.getItem(SAVE_KEY_LEGACY);
+    if (!validRawSnapshot(raw) && keys.legacy) {
+      // Read legacy v2 (slot 1 only) without mutating storage. A successful explicit
+      // load adopts it through the ordinary verified v3 save transaction.
+      const legacy = localStorage.getItem(keys.legacy);
       raw = validRawSnapshot(legacy) ? legacy : null;
     }
     return raw;
@@ -535,30 +659,37 @@ function readRawSave() {
 // know, a corrupt write). The title still fails closed (no Continue/Export, per 0.32), but it
 // says the slot exists and Begin confirms before replacing it; before this Begin replaced it unasked.
 // SUN-UNREADABLE-EXPORT-01: the raw bytes can be downloaded (buildUnreadableSaveExport).
-function unreadableSaveRaw() {
-  if (hasSave()) return null;
-  for (const key of [SAVE_KEY, SAVE_BACKUP_KEY, SAVE_KEY_LEGACY, SAVE_STAGING_KEY]) {
+function unreadableSaveRaw(slot) {
+  slot = saveSlotArg(slot);
+  if (hasSave(slot)) return null;
+  const keys = saveSlotKeys(slot);
+  for (const key of [keys.live, keys.backup, keys.legacy, keys.staging].filter(Boolean)) {
     let raw = null;
     try { raw = localStorage.getItem(key); } catch (e) { raw = null; }
     if (typeof raw === "string" && raw.trim()) return raw;
   }
   return null;
 }
-function slotHasAnyBytes() {
-  return hasSave() || !!unreadableSaveRaw();
+function slotHasAnyBytes(slot) {
+  slot = saveSlotArg(slot);
+  return hasSave(slot) || !!unreadableSaveRaw(slot);
 }
 
-function hasSave() {
-  return validRawSnapshot(readRawSave());
+function hasSave(slot) {
+  return validRawSnapshot(readRawSave(saveSlotArg(slot)));
 }
 
-function getSaveMeta() {
-  const raw = readRawSave();
+function getSaveMeta(slot) {
+  slot = saveSlotArg(slot);
+  const raw = readRawSave(slot);
   if (!raw) return null;
   try {
     const data = JSON.parse(raw);
     if (!data || !data.scene) return null;
     return {
+      slot,
+      callsign: typeof data.commanderCallsign === "string" && data.commanderCallsign ? data.commanderCallsign : "",
+      finished: data.scene === "ending_check",
       scene: data.scene,
       savedAt: data.savedAt || 0,
       survivors: data.survivors,
@@ -573,7 +704,10 @@ function getSaveMeta() {
 function persistSave(opts) {
   opts = opts || {};
   const silent = !!opts.silent;
-  const retireLegacy = !!opts.retireLegacy;
+  const slot = saveSlotArg(opts.slot);
+  const slotKeys = saveSlotKeys(slot);
+  // Only slot 1 has a legacy v2 key to retire.
+  const retireLegacy = !!opts.retireLegacy && !!slotKeys.legacy;
   const snap = snapshotState();
   let previousRaw = null;
   let previousValid = false;
@@ -582,7 +716,7 @@ function persistSave(opts) {
   let json;
   if (retireLegacy) {
     try {
-      previousLegacyRaw = localStorage.getItem(SAVE_KEY_LEGACY);
+      previousLegacyRaw = localStorage.getItem(slotKeys.legacy);
       previousLegacyValid = validRawSnapshot(previousLegacyRaw);
     } catch (e) {
       reportSaveWriteFailure(silent, false);
@@ -590,8 +724,8 @@ function persistSave(opts) {
     }
   }
   try {
-    const liveRaw = localStorage.getItem(SAVE_KEY);
-    const recoveryRaw = localStorage.getItem(SAVE_BACKUP_KEY);
+    const liveRaw = localStorage.getItem(slotKeys.live);
+    const recoveryRaw = localStorage.getItem(slotKeys.backup);
     previousRaw = validRawSnapshot(liveRaw)
       ? liveRaw
       : (validRawSnapshot(recoveryRaw) ? recoveryRaw : liveRaw);
@@ -606,49 +740,49 @@ function persistSave(opts) {
   try {
     // Stage and verify before touching the live slot. If a prior slot exists,
     // preserve its exact bytes until the replacement has also verified.
-    localStorage.setItem(SAVE_STAGING_KEY, json);
-    if (localStorage.getItem(SAVE_STAGING_KEY) !== json) throw new Error("staging verification failed");
+    localStorage.setItem(slotKeys.staging, json);
+    if (localStorage.getItem(slotKeys.staging) !== json) throw new Error("staging verification failed");
     if (previousRaw !== null) {
-      localStorage.setItem(SAVE_BACKUP_KEY, previousRaw);
-      if (localStorage.getItem(SAVE_BACKUP_KEY) !== previousRaw) throw new Error("backup verification failed");
+      localStorage.setItem(slotKeys.backup, previousRaw);
+      if (localStorage.getItem(slotKeys.backup) !== previousRaw) throw new Error("backup verification failed");
     } else {
-      localStorage.removeItem(SAVE_BACKUP_KEY);
+      localStorage.removeItem(slotKeys.backup);
     }
-    localStorage.setItem(SAVE_KEY, json);
-    if (localStorage.getItem(SAVE_KEY) !== json) throw new Error("save verification failed");
+    localStorage.setItem(slotKeys.live, json);
+    if (localStorage.getItem(slotKeys.live) !== json) throw new Error("save verification failed");
     if (retireLegacy && previousLegacyRaw !== null) {
-      localStorage.removeItem(SAVE_KEY_LEGACY);
-      if (localStorage.getItem(SAVE_KEY_LEGACY) !== null) throw new Error("legacy retirement failed");
+      localStorage.removeItem(slotKeys.legacy);
+      if (localStorage.getItem(slotKeys.legacy) !== null) throw new Error("legacy retirement failed");
     }
   } catch (e) {
     let priorRecoverable = false;
     try {
-      if (previousRaw !== null && localStorage.getItem(SAVE_KEY) !== previousRaw) {
-        localStorage.setItem(SAVE_KEY, previousRaw);
+      if (previousRaw !== null && localStorage.getItem(slotKeys.live) !== previousRaw) {
+        localStorage.setItem(slotKeys.live, previousRaw);
       } else if (previousRaw === null) {
-        localStorage.removeItem(SAVE_KEY);
+        localStorage.removeItem(slotKeys.live);
       }
-      if (retireLegacy && previousLegacyRaw !== null && localStorage.getItem(SAVE_KEY_LEGACY) !== previousLegacyRaw) {
-        localStorage.setItem(SAVE_KEY_LEGACY, previousLegacyRaw);
+      if (retireLegacy && previousLegacyRaw !== null && localStorage.getItem(slotKeys.legacy) !== previousLegacyRaw) {
+        localStorage.setItem(slotKeys.legacy, previousLegacyRaw);
       }
     } catch (restoreError) { /* verified backup remains recovery authority */ }
     try {
       priorRecoverable = (previousValid && (
-          localStorage.getItem(SAVE_KEY) === previousRaw ||
-          localStorage.getItem(SAVE_BACKUP_KEY) === previousRaw
-        )) || (previousLegacyValid && localStorage.getItem(SAVE_KEY_LEGACY) === previousLegacyRaw);
+          localStorage.getItem(slotKeys.live) === previousRaw ||
+          localStorage.getItem(slotKeys.backup) === previousRaw
+        )) || (previousLegacyValid && localStorage.getItem(slotKeys.legacy) === previousLegacyRaw);
     } catch (readError) { /* status fails closed when custody cannot be read */ }
     try {
-      localStorage.removeItem(SAVE_STAGING_KEY);
-      if (localStorage.getItem(SAVE_KEY) === previousRaw) localStorage.removeItem(SAVE_BACKUP_KEY);
+      localStorage.removeItem(slotKeys.staging);
+      if (localStorage.getItem(slotKeys.live) === previousRaw) localStorage.removeItem(slotKeys.backup);
     } catch (cleanupError) { /* keep any verified backup for readRawSave recovery */ }
     reportSaveWriteFailure(silent, priorRecoverable);
     updateMetaSaveHint();
     return false;
   }
   try {
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    localStorage.removeItem(SAVE_BACKUP_KEY);
+    localStorage.removeItem(slotKeys.staging);
+    localStorage.removeItem(slotKeys.backup);
   } catch (e) { /* committed live slot already verified */ }
   if (!silent) flashSaveStatus("Saved");
   else clearSaveWriteFailure();
@@ -669,12 +803,15 @@ function saveGame() {
   return saved;
 }
 
+// Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
-  if (!hasSave()) {
+  const slot = saveSlotArg(activeSaveSlot);
+  activeSaveSlot = slot;
+  if (!hasSave(slot)) {
     flashSaveStatus("No save", true);
     return false;
   }
-  const raw = readRawSave();
+  const raw = readRawSave(slot);
   let data;
   try {
     data = JSON.parse(raw);
@@ -682,19 +819,20 @@ function loadGame() {
     flashSaveStatus("Save corrupt", true);
     return false;
   }
-  if (pendingLegacyResume && pendingLegacyResume.raw === raw) {
+  if (pendingLegacyResume && pendingLegacyResume.slot === slot && pendingLegacyResume.raw === raw) {
     if (!applySnapshot(pendingLegacyResume.snapshot)) {
       pendingLegacyResume = null;
       flashSaveStatus("Load failed", true, true);
       return false;
     }
     loadedGameVersion = pendingLegacyResume.loadedGameVersion;
-    if (!persistSave({ silent: true })) {
+    if (!persistSave({ silent: true, slot })) {
       showTitleScreen();
       return false;
     }
     pendingLegacyResume = null;
     preserveCompletedSlotUntilChoice = false;
+    writeCurrentSlotPointer(slot);
     showScreen("game");
     renderStatus();
     showScene(state.scene, { skipOnEnter: true, resume: true });
@@ -702,7 +840,8 @@ function loadGame() {
     flashSaveStatus("Resumed");
     return true;
   }
-  pendingLegacyResume = null;
+  // A held one-time entry belongs to one slot; loading another slot leaves it for that slot.
+  if (!pendingLegacyResume || pendingLegacyResume.slot === slot) pendingLegacyResume = null;
   // Do not wipe existing storage if apply fails
   const ok = applySnapshot(data);
   if (!ok) {
@@ -718,31 +857,35 @@ function loadGame() {
   showScene(state.scene, { skipOnEnter: sceneEntered, resume: !retiredResume });
   // Older snapshots predate the scene-entry marker. Preserve their one-time
   // compatibility entry, then adopt the marker so later resumes stay pure.
-  if (!sceneEntered && !persistSave({ silent: true })) {
+  if (!sceneEntered && !persistSave({ silent: true, slot })) {
     pendingLegacyResume = {
       raw,
       snapshot: snapshotState(),
-      loadedGameVersion
+      loadedGameVersion,
+      slot
     };
     showTitleScreen();
     return false;
   }
   preserveCompletedSlotUntilChoice = false;
+  writeCurrentSlotPointer(slot);
   updateMetaSaveHint();
   flashSaveStatus("Resumed");
   return true;
 }
 
+// Continue: resume the slot continueSlot() picks (the pointer's, else the newest readable).
 function resumeGame() {
+  const slot = continueSlot();
+  if (slot) activeSaveSlot = slot;
   return loadGame();
 }
 
-function clearSave() {
+// Removes one slot's keys (the active slot by default; slot 1 includes legacy v2). Other slots,
+// the pointer and the settings keys are never touched.
+function clearSave(slot) {
   try {
-    localStorage.removeItem(SAVE_KEY);
-    localStorage.removeItem(SAVE_KEY_LEGACY);
-    localStorage.removeItem(SAVE_STAGING_KEY);
-    localStorage.removeItem(SAVE_BACKUP_KEY);
+    for (const key of saveSlotStorageKeys(saveSlotArg(slot))) localStorage.removeItem(key);
   } catch (e) { /* ignore */ }
   updateMetaSaveHint();
   refreshTitleResumeUI();
@@ -806,14 +949,18 @@ function refreshTitleResumeUI() {
   const resumeMeta = document.getElementById("resume-meta");
   const beginBtn = document.getElementById("btn-begin");
   const exportBtn = document.getElementById("btn-export-save");
-  const has = hasSave();
+  // SUN-SAVE-SLOTS-CORE-01: Continue and its line describe the slot Continue resumes. Export,
+  // Download unreadable, Import and New run still act on the active slot (slot 1 until a later
+  // ticket lets the player pick one), so their buttons below keep reading the active slot.
+  const resumeSlot = continueSlot();
+  const has = resumeSlot !== null;
   if (resumeBtn) {
     if (has) resumeBtn.classList.remove("hidden");
     else resumeBtn.classList.add("hidden");
   }
   if (resumeMeta) {
     if (has) {
-      const m = getSaveMeta();
+      const m = getSaveMeta(resumeSlot);
       const scene = m && m.scene ? m.scene : "run";
       const dead = m && m.deadCount ? m.deadCount + " lost" : "intact";
       const when = m && m.savedAt ? new Date(m.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";

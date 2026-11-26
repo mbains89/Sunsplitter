@@ -451,6 +451,9 @@ function replaceRunState(next) {
 
 function beginFreshCampaign(opts) {
   opts = opts || {};
+  // SUN-SAVE-SLOTS-CORE-01 (L-052): a persisted new run writes opts.slot, else the active slot,
+  // and on success that slot becomes active and current. Play Again (no persist) stays in the slot.
+  const slot = saveSlotArg(opts.slot);
   let previousState = null;
   const previousGameVersion = loadedGameVersion;
   const previousSlotGuard = preserveCompletedSlotUntilChoice;
@@ -463,11 +466,15 @@ function beginFreshCampaign(opts) {
     }
   }
   resetRunState();
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true })) {
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot })) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
+  }
+  if (opts.persist) {
+    activeSaveSlot = slot;
+    writeCurrentSlotPointer(slot);
   }
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   showScreen("game");
