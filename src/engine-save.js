@@ -30,6 +30,10 @@
 //   sunsplitter_text_pace_v1       text pace (engine.js)
 //   sunsplitter_tutorial_seen_v1   first-run tutorial seen (validate.js)
 //   sunsplitter_validate           developer scene validation switch (validate.js)
+//
+// Ship memory (L-054). One key per browser, outside the save slots and never in a snapshot or an
+// export. clearSave never removes it; a new run and an import clear only its in-progress trail.
+//   sunsplitter_ship_memory_v1     the cross-run ship memory store (ship-memory.js)
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
@@ -577,6 +581,7 @@ function commitImportedSave(raw, slot) {
   if (!pendingLegacyResume || pendingLegacyResume.slot === slot) pendingLegacyResume = null;
   if (slot === activeSaveSlot) preserveCompletedSlotUntilChoice = false;
   writeCurrentSlotPointer(slot);
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(); // SUN-MEMORY-STORE-01 (L-054)
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");

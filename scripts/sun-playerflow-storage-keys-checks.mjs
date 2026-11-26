@@ -1,7 +1,7 @@
 // SUN-SAVE-SLOTS-CORE-01 (L-052; Manraj 2026-11-25, O-5) — the storage-key inventory.
 // Every "sunsplitter_*" string literal in src/ must be on the recorded list below, and every key
 // on the list must be used in src/, so no storage key arrives unrecorded. The save-slot keys are
-// the ones L-052 covers; the rest are reader settings and title keys that already existed.
+// the ones L-052 covers; the ship memory key is L-054's; the rest are reader settings and title keys.
 // The same list is written out in the comment block above the save constants in
 // src/engine-save.js; this check also fails if that block drops a key.
 import assert from "node:assert/strict";
@@ -37,7 +37,11 @@ const SETTINGS_KEYS = [
   "sunsplitter_tutorial_seen_v1",
   "sunsplitter_validate"
 ];
-const RECORDED = new Set([...SAVE_SLOT_KEYS, ...SETTINGS_KEYS]);
+// SUN-MEMORY-STORE-01 (#578): the cross-run ship memory store, one key per browser.
+const SHIP_MEMORY_KEYS = [
+  "sunsplitter_ship_memory_v1"
+];
+const RECORDED = new Set([...SAVE_SLOT_KEYS, ...SETTINGS_KEYS, ...SHIP_MEMORY_KEYS]);
 
 function sourceFiles(dir) {
   return readdirSync(dir).sort().flatMap(name => {
@@ -80,4 +84,4 @@ for (const key of RECORDED) {
 }
 
 assert.deepEqual(problems, [], problems.join("\n"));
-console.log(`PASS sun-playerflow-storage-keys: ${found.size} storage keys in src/, all recorded (${SAVE_SLOT_KEYS.length} save-slot keys under L-052, ${SETTINGS_KEYS.length} settings and title keys)`);
+console.log(`PASS sun-playerflow-storage-keys: ${found.size} storage keys in src/, all recorded (${SAVE_SLOT_KEYS.length} save-slot keys under L-052, ${SETTINGS_KEYS.length} settings and title keys, ${SHIP_MEMORY_KEYS.length} ship memory key under L-054)`);
