@@ -1,0 +1,190 @@
+/* SUN-GALLERY-01 (L-054, design §3) — the title's Gallery: plates the ship memory recorded as seen.
+   Phone: 2 columns with 16px gutters (about 157×234 per tile at 360px wide), 6 a page.
+   From 600px wide: 4 columns in a centred column, 12 a page (src/ship-gallery.js matches the
+   same breakpoint). Every tile keeps the plates' 784×1168 frame and shows the whole picture
+   (object-fit: contain), so nothing is cropped. Columns are minmax(0, 1fr) and nothing has a
+   fixed width, so the grid can never push the page sideways.
+   The viewer covers the window and is bound by height; the picture is never cropped there either.
+   A picture covered by "Cover nudity in pictures" keeps the engine's blur (img.nudity-covered in
+   css/paced-reveal.css) and carries the same short label the scene picture uses. */
+
+#gallery-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  padding: 16px 0 calc(16px + var(--safe-bottom, 0px));
+}
+
+#gallery-screen .ending-title {
+  margin-bottom: 0;
+}
+
+.gallery-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.gallery-item {
+  min-width: 0;
+}
+
+.gallery-tile {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: #050608;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.gallery-tile:hover {
+  border-color: var(--accent);
+}
+
+.gallery-tile:focus-visible {
+  border-color: var(--focus);
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.gallery-tile-frame {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 784 / 1168;
+  overflow: hidden;
+}
+
+.gallery-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gallery-tile-frame.picture-covered::after,
+#gallery-viewer-frame.picture-covered::after {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 8px;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100% - 12px);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  background: rgba(8, 9, 11, 0.86);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-align: center;
+  pointer-events: none;
+}
+
+.gallery-tile-frame.picture-covered::after {
+  content: "Covered";
+}
+
+#gallery-viewer-frame.picture-covered::after {
+  content: "Picture covered · Cover nudity is on";
+  bottom: 12px;
+}
+
+.gallery-pager {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.gallery-pager:not(:has(.btn:not(.hidden))) {
+  display: none;
+}
+
+.gallery-pager .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#gallery-back {
+  width: 100%;
+  max-width: 320px;
+}
+
+#gallery-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: calc(10px + var(--safe-top, 0px)) 10px calc(10px + var(--safe-bottom, 0px));
+  background: rgba(4, 5, 7, 0.98);
+}
+
+#gallery-viewer-frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#gallery-viewer-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gallery-viewer-actions {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.gallery-viewer-actions .btn {
+  min-width: 0;
+  padding-left: 6px;
+  padding-right: 6px;
+  letter-spacing: 0.06em;
+}
+
+.gallery-viewer-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* While the Commander panel is open on the title, the Gallery button steps aside with Begin. */
+#title-screen:has(#commander-create.visible) #btn-gallery,
+#title-screen.commander-create-open #btn-gallery {
+  display: none !important;
+}
+
+@media (min-width: 600px) {
+  .gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 680px;
+  }
+}
