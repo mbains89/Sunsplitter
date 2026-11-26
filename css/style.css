@@ -493,11 +493,6 @@ body::before {
     margin: 0 auto;
   }
 
-  .scene-text {
-    font-size: 1.08rem;
-    line-height: 1.75;
-  }
-
   #meta {
     grid-column: 1 / -1;
     grid-row: 4;

@@ -862,6 +862,111 @@ function toggleTextPace() {
   return setTextPace(readTextPace() === "paced" ? "instant" : "paced");
 }
 
+// SUN-READER-TYPE-01 — reader settings "Size" and "Spacing" (Wave 2 design, WS6 §6-7).
+// Presentation only, like text pace: per-browser localStorage, a session value that wins when
+// storage throws, unknown stored values read "standard". Never in run state, saves or exports.
+// Applied as attributes on <html> (data-text-size, data-line-spacing); "standard" removes the
+// attribute, and css/reader-settings.css scales the reading surfaces only. Chrome is not scaled.
+const TEXT_SIZE_KEY = "sunsplitter_text_size_v1";
+const LINE_SPACING_KEY = "sunsplitter_line_spacing_v1";
+const TEXT_SIZE_STEPS = ["standard", "large", "larger", "largest"];
+const LINE_SPACING_STEPS = ["standard", "relaxed", "open"];
+const TEXT_SIZE_CHIPS = {
+  standard: "Standard · story and choices at your browser's text size",
+  large: "Large · story and choices a step up",
+  larger: "Larger · two steps up",
+  largest: "Largest · three steps up"
+};
+const LINE_SPACING_CHIPS = {
+  standard: "Standard · lines as the game sets them",
+  relaxed: "Relaxed · more room between lines",
+  open: "Open · the most room between lines"
+};
+let textSizeSession = null; // survives a session when storage is blocked
+let lineSpacingSession = null;
+
+function readReaderStep(session, key, steps) {
+  if (session) return session;
+  try {
+    const stored = localStorage.getItem(key);
+    return steps.includes(stored) ? stored : "standard";
+  } catch (e) {
+    return "standard";
+  }
+}
+
+function readTextSize() {
+  return readReaderStep(textSizeSession, TEXT_SIZE_KEY, TEXT_SIZE_STEPS);
+}
+
+function readLineSpacing() {
+  return readReaderStep(lineSpacingSession, LINE_SPACING_KEY, LINE_SPACING_STEPS);
+}
+
+function applyReaderType() {
+  const root = typeof document !== "undefined" ? document.documentElement : null;
+  if (!root || typeof root.setAttribute !== "function") return;
+  for (const [attr, value] of [["data-text-size", readTextSize()], ["data-line-spacing", readLineSpacing()]]) {
+    if (value === "standard") root.removeAttribute(attr);
+    else root.setAttribute(attr, value);
+  }
+}
+
+function syncReaderTypeControls() {
+  const size = readTextSize();
+  const spacing = readLineSpacing();
+  const sizeBtn = document.getElementById("btn-text-size");
+  if (sizeBtn) sizeBtn.textContent = `Size: ${size}`;
+  const sizeChip = document.getElementById("text-size-chip");
+  if (sizeChip) sizeChip.textContent = TEXT_SIZE_CHIPS[size];
+  const spacingBtn = document.getElementById("btn-line-spacing");
+  if (spacingBtn) spacingBtn.textContent = `Spacing: ${spacing}`;
+  const spacingChip = document.getElementById("line-spacing-chip");
+  if (spacingChip) spacingChip.textContent = LINE_SPACING_CHIPS[spacing];
+}
+
+function readerTypeChanged() {
+  applyReaderType();
+  syncReaderTypeControls();
+  // Larger lines need more room under a sticky Read on (watchRevealRoom).
+  if (typeof refreshRevealRoom === "function") refreshRevealRoom();
+}
+
+function setTextSize(step) {
+  const next = TEXT_SIZE_STEPS.includes(step) ? step : "standard";
+  textSizeSession = next;
+  try { localStorage.setItem(TEXT_SIZE_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  readerTypeChanged();
+  return next;
+}
+
+function setLineSpacing(step) {
+  const next = LINE_SPACING_STEPS.includes(step) ? step : "standard";
+  lineSpacingSession = next;
+  try { localStorage.setItem(LINE_SPACING_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  readerTypeChanged();
+  return next;
+}
+
+// Cycling wraps: largest -> standard, open -> standard.
+function cycleTextSize() {
+  return setTextSize(TEXT_SIZE_STEPS[(TEXT_SIZE_STEPS.indexOf(readTextSize()) + 1) % TEXT_SIZE_STEPS.length]);
+}
+
+function cycleLineSpacing() {
+  return setLineSpacing(LINE_SPACING_STEPS[(LINE_SPACING_STEPS.indexOf(readLineSpacing()) + 1) % LINE_SPACING_STEPS.length]);
+}
+
+// Applied while the script is evaluated, before any screen is shown, so no story text is ever
+// laid out at the standard size first.
+applyReaderType();
+
+(function wireReaderTypeControls() {
+  if (typeof document === "undefined") return;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", syncReaderTypeControls);
+  else syncReaderTypeControls();
+})();
+
 function revealPrefersReducedMotion() {
   try {
     return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -890,6 +995,8 @@ function setSceneRevealChrome(pending) {
   if (choicesEl) choicesEl.classList.toggle("reveal-pending", pending);
   if (controls) controls.classList.toggle("hidden", !pending);
   if (main) main.classList.toggle("reveal-active", pending);
+  // SUN-READER-TYPE-01: a new scene's text sets the line height the sticky threshold uses.
+  if (pending) refreshRevealRoom();
   const next = document.getElementById("reveal-next");
   if (next && pending && sceneReveal) {
     next.setAttribute("aria-label", `Read on: paragraph ${sceneReveal.shown + 1} of ${sceneReveal.blocks.length}`);
@@ -1073,16 +1180,50 @@ function restartPlateDrift(img) {
 // open crew panel; phone landscape before SUN-LANDSCAPE-PLATE-01 put the plate beside the text,
 // 844x390: 137px, 640x360: 75px), a 66px sticky bar would cover a third to all of the text it
 // leads into, so below 160px the controls stay in normal flow.
+// SUN-READER-TYPE-01: 160px assumed ~28px lines. With a larger text size or line spacing the
+// threshold is Read on's height, #main's bottom padding and three of the scene's own lines, never
+// below the 160px floor. Standard on a phone: 66 + 20 + 3 x 28 = 171px; every tested standard
+// layout has #main at 228px or more (scripts/sun-playerflow-reader-type-checks.mjs, C).
 const REVEAL_STICKY_MIN_HEIGHT = 160;
+const REVEAL_STICKY_LINES = 3;
+let revealBarHeight = 66; // last measured Read on height; the controls measure 0 while hidden
+let revealRoomUpdate = null; // set once watchRevealRoom is bound to a real layout
+
+function revealStickyMinHeight() {
+  try {
+    // Measured only while sticky: in normal flow the bar has no 18px fade strip on top.
+    const main = document.getElementById("main");
+    const controls = document.getElementById("reveal-controls");
+    const sticky = !!(main && main.classList && main.classList.contains("reveal-roomy") && main.classList.contains("reveal-active"));
+    const bar = sticky && controls && typeof controls.getBoundingClientRect === "function" ? controls.getBoundingClientRect().height : 0;
+    if (bar > 0) revealBarHeight = bar;
+    const text = typeof document.querySelector === "function" ? document.querySelector("#story .scene-text") : null;
+    const line = text && typeof getComputedStyle === "function" ? parseFloat(getComputedStyle(text).lineHeight) : NaN;
+    if (!(line > 0)) return REVEAL_STICKY_MIN_HEIGHT;
+    // A stuck bar sits above #main's bottom padding (20px on a phone), so that strip is not room.
+    const pad = main && typeof getComputedStyle === "function" ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+    return Math.max(REVEAL_STICKY_MIN_HEIGHT, Math.ceil(revealBarHeight + pad + REVEAL_STICKY_LINES * line));
+  } catch (e) {
+    return REVEAL_STICKY_MIN_HEIGHT;
+  }
+}
+
+// A text setting, or a new scene's text, can change the line height without resizing #main.
+function refreshRevealRoom() {
+  if (revealRoomUpdate) revealRoomUpdate();
+}
+
 (function watchRevealRoom() {
   if (typeof document === "undefined" || typeof ResizeObserver !== "function") return;
   function bind() {
     const main = document.getElementById("main");
     if (!main) return;
+    const roomy = () => main.classList.toggle("reveal-roomy", main.clientHeight >= revealStickyMinHeight());
     const update = () => {
-      main.classList.toggle("reveal-roomy", main.clientHeight >= REVEAL_STICKY_MIN_HEIGHT);
+      roomy();
       refollowRevealedBlock();
     };
+    revealRoomUpdate = roomy;
     try { new ResizeObserver(update).observe(main); } catch (e) { /* layout-free hosts */ }
     // A reader who scrolls by hand while the plate still resizes keeps their place.
     const stopFollow = () => { revealFollow = null; };
