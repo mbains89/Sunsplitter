@@ -635,14 +635,21 @@ Rules that bind every wave:
 
 **Workstreams**
 
-1. **Text backlog.** A scrollable history of the run's scenes and choices, from the pause menu. Read-only; not a quest log.
+1. **Text backlog (L-062).** A scrollable history of the run's scenes and choices, from the in-run Menu. Read-only; not a quest log.
 2. **Three save slots plus autosave (L-052).** Named slots on the title; slot 1 is the current save; legacy saves migrate without loss; export stays.
 3. **Gallery (L-054).** Plates unlock as they are seen, adult plates included; nothing unseen is shown.
 4. **Memory board (L-054).** After a run: the seven endings as silhouettes with the ones reached lit, and the five great forks (crisis path, vault, tether, the lethals, the final choice) showing the branch taken and a marker where something else was possible. No scene-level spoilers. Post-run only, so L-047 holds.
 5. **The ship remembers (L-054).** On a later run, a handful of lines acknowledge earlier endings: the title, the tone screen, one line in the wake. Never inside an ending.
 6. **Reader settings.** Text size, line spacing and a dyslexia-friendly font, beside the existing high-contrast mode and the text-pace and cost-tag settings (L-058, L-059).
 
-**Entry:** gate 1 passed.
+**Entry:** opened early by Manraj on 2026-11-25, before gate 1 passed. Gate 1 stays open and is not credited by this, and the version paint does not move until he names it. The design rulings below are the recommendations of the three Wave 2 designs, which he accepted the same day.
+
+**Design rulings (2026-11-25)**
+
+- **Save slots (L-052).** Each slot holds its own run and autosaves. Slots are named `Slot N · callsign`, with no typed names. New run defaults to the first empty slot, and has no default when all three are full. A slot can be deleted after a confirm. When storage is blocked, play is allowed without saving, behind a sticky notice and with no Continue. An in-run Menu holds a way back to the title, which saves first. L-052 covers exactly these storage keys: `sunsplitter_save_v3` (with `_staging` and `_backup`) and `sunsplitter_save_v2` (legacy, read-only) for slot 1; `sunsplitter_save_v3_slot2` and `sunsplitter_save_v3_slot3`, each with `_staging` and `_backup`; and the pointer `sunsplitter_save_current_v1`.
+- **Backlog and reader settings.** The backlog is L-062. On phones, Save and Load move from the bar into an in-run Menu; the bar keeps the save line, Text, Costs and Menu. The reading font is OpenDyslexic, named as such, with no claim that it helps. The backlog is in-run only in Wave 2. Today's text size stays the default, and the unused larger desktop size rule is deleted.
+- **Gallery and memory board (L-054).** The board's crisis path is the Act 3 one, and its tether fork is the catch (slow or hard). A hard call's outcome reads "came back" or "did not come back". The gallery shows no count. It keeps plates of crew who died in a later run, and leaves out the ART-R2 people-free fallbacks. The export does not carry memory. The board offers "Forget this ship" from the title. It shows one unnamed marker per fork. A per-run list of hard-call scene ids (the trail) lives inside the L-054 namespace. The tone-screen line stays.
+
 **Exit (gate 2):** three to five strangers play; P0 findings closed and retested; P1s triaged. Recruiting is the first tools spend (D8).
 
 **Hard holds:** no cloud saves, no accounts, no HUD, no in-run progress surface.
@@ -760,6 +767,7 @@ Playtest **bugs** (softlock, dead speech, save loss, unpaid cost, broken image, 
 | Three local save slots plus export (D3) | LOCKED 2026-11-05, L-052; Wave 2 |
 | Anonymous choice counter on a serverless function (D4) | LOCKED 2026-11-05, L-053; the only backend exception; Wave 3 |
 | Cross-run ship memory: gallery, memory board, remembered endings (D5) | LOCKED 2026-11-05, L-054; never changes an outcome; Wave 2 |
+| Text backlog store (2026-11-25) | LOCKED, L-062: a per-run, read-only record beside each slot's save; Wave 2 |
 | Chapter start after a finished run | LOCKED 2026-11-05, L-055; Wave 3 |
 | Breast-cover/explicit-content toggle (D6) | HELD on 2026-11-05; opened 2026-11-23 as L-040, a pictures-only nudity filter (§2) |
 | Version renumbering: waves 0.37–0.40, review path 0.41–0.44 (D7) | LOCKED 2026-11-05, L-056 |
