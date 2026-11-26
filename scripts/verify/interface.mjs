@@ -140,7 +140,11 @@ export function crewOverviewChecks(runtime) {
     }
   }
   if (fixture.injuredLena.html.includes("injury")) errors.push("Crew board prints a living Lena's future cause of death");
-  if (!fixture.deadDefault.includes("Condition: Dead — decline fixture") ||
+  // SUN-ART-RULINGS-01 (ruled 2026-11-25): with Lena dead the board opens on the first living member;
+  // her chip stays on the board, marked dead, as a memorial.
+  if (fixture.deadDefault.includes("decline fixture") || !fixture.deadDefault.includes("Condition: Alive") ||
+      !/class="crew-chip dead" data-crew="lena"/.test(fixture.deadDefault) ||
+      !/class="(?![^"]*\bdead\b)[^"]*\bselected\b[^"]*" data-crew="/.test(fixture.deadDefault) ||
       fixture.absentDetail.html.includes("67/100") || !fixture.absentDetail.stable) {
     errors.push("Crew default or unavailable-member detail misrepresents roster state");
   }
