@@ -1,7 +1,8 @@
 // Sunsplitter — engine-save.js
 // Save / resume: the save keys and schema limits, snapshot and apply, save export and import,
 // autosave (persistSave), load and resume, the title screen's resume line, the title's Saved runs
-// dialog (rows and actions; SUN-SAVED-RUNS-01), and the second-tab guard (SUN-SECOND-TAB-GUARD-01).
+// dialog (rows and actions; SUN-SAVED-RUNS-01, with Delete; SUN-DELETE-SLOT-01), and the second-tab
+// guard (SUN-SECOND-TAB-GUARD-01).
 // Moved out of src/engine.js unchanged (SUN-CLEAN-ENGINE-SAVE-01, L-043). A plain script that
 // index.html loads just before engine.js, so everything here exists before engine.js runs.
 // Three run variables it uses are declared in engine.js: loadedGameVersion, pendingLegacyResume
@@ -38,7 +39,8 @@
 // Ship memory (L-054). One key per browser, outside the save slots and never in a snapshot or an
 // export. Its name is written only in src/ship-memory.js and src/state.js (the ship memory
 // isolation check keeps it out of every other file); the storage-keys check records it too.
-// clearSave never removes it; a new run and an import clear only its in-progress trail.
+// clearSave never removes it; a new run, an import and a Delete (SUN-DELETE-SLOT-01) clear only that
+// slot's in-progress trail.
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
@@ -78,6 +80,8 @@ let activeSaveSlot = 1;
 // only: no storage key). When the slot later holds a different run, another tab saved it: the slot is
 // marked taken (saveSlotTaken), this tab stops writing it and says so, and nothing is deleted.
 // A Load or Continue of the slot, or a new run the player starts in it, gives this tab the slot back.
+// SUN-DELETE-SLOT-01: a slot another tab deleted while this tab played it is taken too ("deleted"):
+// autosave leaves it empty, and only the player's own Save (in the Menu) writes the run back there.
 const saveSlotSeen = {};
 const saveSlotTaken = {};
 
@@ -818,12 +822,19 @@ function saveSlotBytesNow(slot) {
 // True once another tab has put something else in the slot since this tab last wrote or loaded it:
 // a different run ("tab"), or bytes this build cannot read ("newer"; most likely a newer version of
 // the game open in another tab, and never to be written over). An empty slot stays free (site data
-// cleared, a slot deleted): this tab's next save writes it, as before. A tab that has never written
-// or loaded the slot has nothing there to protect. A taken slot stays taken until this tab loads it,
-// imports into it or starts a new run in it (noteSaveSlotSeen).
+// cleared): this tab's next save writes it, as before, unless another tab's Delete emptied it while
+// this tab played it ("deleted", noteSaveSlotDeletedElsewhere). A tab that has never written or
+// loaded the slot has nothing there to protect. A taken slot stays taken until this tab loads it,
+// imports into it or starts a new run in it (noteSaveSlotSeen), or, when it was deleted, until the
+// player's own Save writes this run back (persistSave opts.explicit).
 function saveSlotTakenElsewhere(slot) {
   slot = parseSaveSlot(slot);
   if (!slot) return false;
+  // SUN-DELETE-SLOT-01: a deleted slot that holds something again was filled by another tab (a new run
+  // or an import there): that tab's run, which this tab must not write over either.
+  if (saveSlotTaken[slot] === "deleted" && saveSlotBytesNow(slot) !== null) {
+    saveSlotTaken[slot] = validRawSnapshot(readRawSave(slot)) ? "tab" : "newer";
+  }
   if (saveSlotTaken[slot]) return true;
   if (!Object.prototype.hasOwnProperty.call(saveSlotSeen, slot)) return false;
   const seen = saveSlotSeen[slot];
@@ -845,7 +856,26 @@ function saveSlotTakenElsewhere(slot) {
   return true;
 }
 
+// SUN-DELETE-SLOT-01: another tab's storage event removed one of this slot's keys and left the slot
+// holding nothing, while this tab plays a run it wrote or loaded there. That is the other tab's Delete
+// (Saved runs), so the slot is taken as "deleted": no autosave writes this run back unasked, and the
+// Menu's Save may. Only the event tells a Delete from cleared site data (which leaves the slot free,
+// as before), so without one an emptied slot stays free.
+function noteSaveSlotDeletedElsewhere(slot) {
+  slot = parseSaveSlot(slot);
+  if (!slot || saveSlotTaken[slot]) return false;
+  if (!Object.prototype.hasOwnProperty.call(saveSlotSeen, slot) || typeof saveSlotSeen[slot] !== "string") return false;
+  if (saveSlotBytesNow(slot) !== null) return false;
+  saveSlotTaken[slot] = "deleted";
+  return true;
+}
+
+function saveSlotDeletedNotice(slot) {
+  return `Slot ${slot} was deleted in another tab · not saving here · Save in Menu to keep this run there`;
+}
+
 function saveSlotTakenNotice(slot) {
+  if (saveSlotTaken[slot] === "deleted") return saveSlotDeletedNotice(slot);
   return saveSlotTaken[slot] === "newer"
     ? `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`
     : `Another tab saved Slot ${slot} · not saving here · Load in Menu`;
@@ -853,6 +883,7 @@ function saveSlotTakenNotice(slot) {
 
 // The Menu's Return to title chip while the slot is taken: leaving saves nothing (menu-sheet.js).
 function saveSlotTakenChip(slot) {
+  if (saveSlotTaken[slot] === "deleted") return `Does not save · Save first to keep this run in Slot ${slot}`;
   return `Does not save · Slot ${slot} keeps the other tab's run`;
 }
 
@@ -863,7 +894,8 @@ function clearSaveSlotTakenNotice() {
   if (!slot) return;
   const lines = [
     `Another tab saved Slot ${slot} · not saving here · Load in Menu`,
-    `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`
+    `A newer version saved Slot ${slot} · not saving here · reopen the game to play it`,
+    saveSlotDeletedNotice(slot)
   ];
   const targets = SAVE_STATUS_TARGETS.map(id => document.getElementById(id))
     .filter(el => el && lines.includes(String(el.textContent || "")));
@@ -890,6 +922,7 @@ function reportSaveSlotTaken(slot) {
 // Return to title (in the Menu) asks this before it leaves without saving: the other tab's save stays,
 // and Continue on the title loads it.
 function saveSlotTakenLeaveQuestion(slot) {
+  if (saveSlotTaken[slot] === "deleted") return `Slot ${slot} was deleted in another tab · this tab's run is not saved · Return to title anyway?`;
   return `Another tab saved Slot ${slot} · this tab's run is not saved · Return to title anyway?`;
 }
 
@@ -942,6 +975,8 @@ function handleSaveStorageEvent(event) {
   if (!["game-screen", "cinematic-screen", "ending-screen", "what-remains-screen"].some(showing)) return;
   const slot = parseSaveSlot(activeSaveSlot);
   if (!slot || (key !== null && !saveSlotStorageKeys(slot).includes(key))) return;
+  // SUN-DELETE-SLOT-01: one of this slot's keys removed in another tab (its Delete, if the slot is now empty).
+  if (key !== null && event.newValue === null) noteSaveSlotDeletedElsewhere(slot);
   if (saveSlotTakenElsewhere(slot)) reportSaveSlotTaken(slot);
 }
 
@@ -995,7 +1030,9 @@ function persistSave(opts) {
   // SUN-SECOND-TAB-GUARD-01: never write over a run another tab has saved in this slot. A new run
   // the player confirmed (opts.newRun) replaces the slot on purpose and takes it back.
   const guarded = !opts.newRun;
-  if (guarded && saveSlotTakenElsewhere(slot)) {
+  // SUN-DELETE-SLOT-01: a slot another tab deleted stays empty under autosave; the player's own Save
+  // (opts.explicit, saveGame) writes this run back there.
+  if (guarded && saveSlotTakenElsewhere(slot) && !(opts.explicit && saveSlotTaken[slot] === "deleted")) {
     reportSaveSlotTaken(slot);
     return false;
   }
@@ -1099,8 +1136,9 @@ function reportSaveWriteFailure(silent, priorRecoverable) {
 }
 
 function saveGame() {
-  // Manual save — always visible feedback
-  const saved = persistSave({ silent: false });
+  // Manual save — always visible feedback. Explicit: it may write a run back into a slot another
+  // tab deleted (SUN-DELETE-SLOT-01).
+  const saved = persistSave({ silent: false, explicit: true });
   if (saved) preserveCompletedSlotUntilChoice = false;
   return saved;
 }
@@ -1390,16 +1428,22 @@ function savedRunsActionSlot() {
   return savedRunsSelectedSlot() || savedRunsDefaultSlot();
 }
 
+// SUN-DELETE-SLOT-01: { slot, bytes } while the delete confirm is open (see "Delete a slot" below).
+let savedRunsDeletePending = null;
+
 const SAVED_RUNS_ACTIONS = [
   // [button id, visible when, accessible name]
   ["saved-runs-load", row => row.kind === "filled" || row.kind === "finished", slot => `Load Slot ${slot}`],
   ["btn-export-save", row => row.kind === "filled" || row.kind === "finished", slot => `Export save from Slot ${slot}`],
   ["btn-export-unreadable", row => row.kind === "unreadable", slot => `Download unreadable save from Slot ${slot}`],
-  ["btn-import-save", () => true, slot => `Import save into Slot ${slot}`]
+  ["btn-import-save", () => true, slot => `Import save into Slot ${slot}`],
+  // SUN-DELETE-SLOT-01: a row that holds a run, readable or not.
+  ["saved-runs-delete", row => row.kind !== "empty", slot => `Delete Slot ${slot}`]
 ];
 
 // Paint the rows and the selected row's actions. selectSlot picks a row; without one, an open
-// dialog keeps its selection and a closed one returns to its starting row.
+// dialog keeps its selection and a closed one returns to its starting row. While the delete confirm
+// is open it takes the actions' place (SUN-DELETE-SLOT-01).
 function renderSavedRuns(selectSlot) {
   let currentSlot = null;
   try { currentSlot = continueSlot(); } catch (e) { currentSlot = null; }
@@ -1422,20 +1466,190 @@ function renderSavedRuns(selectSlot) {
     if (label && typeof label.setAttribute === "function") label.setAttribute("data-kind", row.kind);
   }
   const chosen = rows[selected - 1];
+  // SUN-DELETE-SLOT-01: the delete confirm stays only on the row it names, in an open dialog, and only
+  // while that slot holds what it held when the confirm opened. Another tab's save or delete of the
+  // slot closes it (the storage event repaints the title), says so, and puts focus on the row.
+  let changedUnderConfirm = null;
+  if (savedRunsDeletePending) {
+    const pending = savedRunsDeletePending;
+    if (!savedRunsDialogOpen() || selected !== pending.slot) {
+      savedRunsDeletePending = null;
+    } else if (saveSlotFingerprint(pending.slot) !== pending.bytes) {
+      savedRunsDeletePending = null;
+      changedUnderConfirm = pending.slot;
+    }
+  }
+  const confirming = !!savedRunsDeletePending;
   for (const [id, visible, name] of SAVED_RUNS_ACTIONS) {
     const button = document.getElementById(id);
     if (!button) continue;
-    button.classList.toggle("hidden", !visible(chosen));
+    button.classList.toggle("hidden", confirming || !visible(chosen));
     if (typeof button.setAttribute === "function") button.setAttribute("aria-label", name(selected));
+  }
+  for (const id of ["export-import-chip", "saved-runs-close"]) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle("hidden", confirming);
+  }
+  paintSavedRunsDeleteConfirm();
+  if (changedUnderConfirm) {
+    flashSaveStatus(savedRunsDeleteChangedNotice(changedUnderConfirm), true, true);
+    focusSavedRunsControl("saved-runs-slot-" + changedUnderConfirm);
   }
   return { rows, selected, currentSlot };
 }
 
-// A radio's change handler: the row it belongs to becomes the selection.
+// A radio's change handler: the row it belongs to becomes the selection (and an open delete confirm
+// for another row closes).
 function selectSavedRunsSlot(slot) {
   slot = parseSaveSlot(slot);
   if (!slot) return false;
   renderSavedRuns(slot);
+  return true;
+}
+
+// ---------- Delete a slot (SUN-DELETE-SLOT-01, L-052 design S-4) ----------
+// O-4 (Manraj 2026-11-25): a slot can be deleted, after a confirm. Delete shows for a row that holds a
+// run, readable or not, and opens a confirm in place of the row's actions that names what goes
+// ("Delete Slot 2 · Ash? This can't be undone."). Confirming removes every key the slot owns and
+// nothing else: its live, staging and backup keys (and legacy v2 for slot 1), its backlog (L-062:
+// cleared with the save) and its ship-memory trail of the run in progress (L-054; the endings, forks
+// and plates the ship remembers stay). If Continue pointed at the slot, the pointer is removed, so
+// Continue resumes the newest run left, or hides when none is left. No key is added.
+// The confirm acts on the slot it names while that slot holds what it held when the confirm opened:
+// choosing another row, Close, Escape or Cancel closes it, and another tab's change to the slot
+// closes it and says so; nothing is deleted then. (savedRunsDeletePending is declared above
+// renderSavedRuns, which reads it.)
+
+function savedRunsDeleteConfirmOpen() {
+  return !!savedRunsDeletePending;
+}
+
+// The confirm's question: what goes, and how to keep a copy first. No crew count (as New run's).
+function savedRunsDeleteQuestion(slot) {
+  let meta = null;
+  try { meta = hasSave(slot) ? getSaveMeta(slot) : null; } catch (e) { meta = null; }
+  return meta
+    ? `Delete ${saveSlotName(slot, meta)}? This can't be undone. Export it first to keep a copy.`
+    : `Delete the unreadable save in Slot ${slot}? This can't be undone. Download it first to keep a copy.`;
+}
+
+function paintSavedRunsDeleteConfirm() {
+  const pending = savedRunsDeletePending;
+  const box = document.getElementById("saved-runs-delete-confirm");
+  if (box) {
+    box.classList.toggle("hidden", !pending);
+    box.classList.toggle("visible", !!pending);
+  }
+  if (!pending) return;
+  const question = document.getElementById("saved-runs-delete-question");
+  if (question) question.textContent = savedRunsDeleteQuestion(pending.slot);
+  const ok = document.getElementById("saved-runs-delete-ok");
+  if (ok) {
+    ok.textContent = `Delete Slot ${pending.slot}`;
+    if (typeof ok.setAttribute === "function") ok.setAttribute("aria-label", `Delete Slot ${pending.slot}`);
+  }
+}
+
+function focusSavedRunsControl(id) {
+  const el = document.getElementById(id);
+  if (!el || el.classList.contains("hidden") || typeof el.focus !== "function") return false;
+  el.focus();
+  return true;
+}
+
+// Delete, the row's action: the confirm for the selected row, if that row holds a run.
+function requestDeleteSavedRun() {
+  if (!savedRunsDialogOpen()) return false;
+  const slot = savedRunsSelectedSlot();
+  if (!slot || !slotHasAnyBytes(slot)) return false;
+  savedRunsDeletePending = { slot, bytes: saveSlotFingerprint(slot) };
+  renderSavedRuns(slot);
+  focusSavedRunsControl("saved-runs-delete-cancel");
+  return true;
+}
+
+// Cancel and Escape: close the confirm, delete nothing, and put focus back on Delete. Closing the
+// dialog passes { focus: false }.
+function cancelSavedRunsDelete(opts) {
+  const pending = savedRunsDeletePending;
+  savedRunsDeletePending = null;
+  paintSavedRunsDeleteConfirm();
+  if (!pending) return false;
+  if (savedRunsDialogOpen()) renderSavedRuns();
+  if (!opts || opts.focus !== false) {
+    if (!focusSavedRunsControl("saved-runs-delete")) focusSavedRunsControl("saved-runs-slot-" + pending.slot);
+  }
+  return false;
+}
+
+// The confirm's "Delete Slot N": deletes the slot it names, if that slot still holds what it held
+// when the confirm opened. Focus goes to the slot's row, which then reads Empty.
+function confirmSavedRunsDelete() {
+  const pending = savedRunsDeletePending;
+  if (!pending || !savedRunsDialogOpen()) return false;
+  savedRunsDeletePending = null;
+  paintSavedRunsDeleteConfirm();
+  const slot = pending.slot;
+  let deleted = false;
+  if (saveSlotFingerprint(slot) !== pending.bytes) {
+    // Another tab saved or changed the slot after the confirm opened (its storage event not yet in).
+    refreshTitleResumeUI();
+    flashSaveStatus(savedRunsDeleteChangedNotice(slot), true, true);
+  } else {
+    deleted = deleteSaveSlot(slot);
+  }
+  renderSavedRuns(slot);
+  focusSavedRunsControl("saved-runs-slot-" + slot);
+  return deleted;
+}
+
+function savedRunsDeleteChangedNotice(slot) {
+  return `Slot ${slot} changed in another tab · nothing deleted`;
+}
+
+// Removes one slot's save for good. The keys go staging and backup first, then legacy v2, then live,
+// so a removal that fails part way most likely leaves the committed save readable. Only once every
+// key reads empty do the slot's backlog, its ship-memory trail and a Continue pointer naming it go.
+// Says what happened on the save status line; true when the slot is empty.
+function deleteSaveSlot(slot) {
+  slot = parseSaveSlot(slot);
+  if (!slot) return false;
+  const keys = saveSlotKeys(slot);
+  const order = [keys.staging, keys.backup, keys.legacy, keys.live].filter(Boolean);
+  const before = saveSlotBytesNow(slot);
+  let gone = true;
+  try {
+    for (const key of order) localStorage.removeItem(key);
+  } catch (e) {
+    gone = false;
+  }
+  try {
+    if (order.some(key => localStorage.getItem(key) !== null)) gone = false;
+  } catch (e) {
+    gone = false;
+  }
+  remarkNewRunSlot(slot); // SUN-SECOND-TAB-GUARD-01: this tab's own write
+  if (!gone) {
+    const kept = before !== null && saveSlotBytesNow(slot) === before;
+    updateMetaSaveHint();
+    // Repaint first, so the title's unreadable-slot line cannot replace the failure.
+    refreshTitleResumeUI();
+    flashSaveStatus(kept ? `Delete failed · Slot ${slot} kept` : `Delete failed · part of Slot ${slot} is left · try again`, true, true);
+    return false;
+  }
+  // This tab holds nothing in the slot now: to the second-tab guard it is a slot this tab never played.
+  delete saveSlotSeen[slot];
+  delete saveSlotTaken[slot];
+  if (pendingLegacyResume && pendingLegacyResume.slot === slot) pendingLegacyResume = null;
+  if (slot === activeSaveSlot) preserveCompletedSlotUntilChoice = false;
+  if (readCurrentSlotPointer() === slot) {
+    try { localStorage.removeItem(SAVE_POINTER_KEY); } catch (e) { /* continueSlot() passes over an empty slot anyway */ }
+  }
+  if (typeof backlogClear === "function") backlogClear(slot); // L-062: cleared with the save
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot); // L-054: this slot's trail only
+  updateMetaSaveHint();
+  refreshTitleResumeUI();
+  flashSaveStatus(`Slot ${slot} deleted`);
   return true;
 }
 

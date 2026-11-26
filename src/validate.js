@@ -653,6 +653,8 @@ function showCommanderCreate() {
 function hideSavedRuns() {
   const panel = document.getElementById("saved-runs");
   if (!panel) return;
+  // SUN-DELETE-SLOT-01: closing the dialog closes an open delete confirm too, deleting nothing.
+  if (typeof cancelSavedRunsDelete === "function") cancelSavedRunsDelete({ focus: false });
   panel.classList.add("hidden");
   panel.classList.remove("visible");
   restoreModalDialogFocus("saved-runs");
@@ -733,7 +735,9 @@ const MODAL_DIALOG_CANCEL = {
   "tutorial-overlay": () => skipTutorial(),
   "commander-create": () => cancelCommanderCreate(),
   "new-run-confirm": () => cancelNewRun(),
-  "saved-runs": () => closeSavedRuns(),
+  // SUN-DELETE-SLOT-01: an open delete confirm takes Escape first (focus back on Delete).
+  "saved-runs": () => (typeof savedRunsDeleteConfirmOpen === "function" && savedRunsDeleteConfirmOpen()
+    ? cancelSavedRunsDelete() : closeSavedRuns()),
   "gallery-viewer": () => closeGalleryViewer()
 };
 const MODAL_TABBABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';

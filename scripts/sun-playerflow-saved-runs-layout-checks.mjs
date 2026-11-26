@@ -67,7 +67,7 @@ const MEASURE = `(() => {
   const rect = el => { if (!el || !el.getClientRects().length) return null; const b = el.getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
   const panel = document.querySelector("#saved-runs .saved-runs-panel");
   const dialog = document.getElementById("saved-runs");
-  const visibleActions = ["saved-runs-load", "btn-export-save", "btn-export-unreadable", "btn-import-save", "saved-runs-close"]
+  const visibleActions = ["saved-runs-load", "btn-export-save", "btn-export-unreadable", "btn-import-save", "saved-runs-delete", "saved-runs-close"]
     .filter(id => { const el = document.getElementById(id); return el && el.getClientRects().length > 0; });
   return {
     vw: document.documentElement.clientWidth, vh: window.innerHeight,
@@ -166,9 +166,10 @@ async function browserChecks(errors, summary, requireBrowser) {
       // Every row, and every action each row shows: size, inside the panel, reachable.
       const seen = new Set();
       const expectActions = {
-        1: ["saved-runs-load", "btn-export-save", "btn-import-save", "saved-runs-close"],
-        2: ["btn-export-unreadable", "btn-import-save", "saved-runs-close"],
-        3: ["saved-runs-load", "btn-export-save", "btn-import-save", "saved-runs-close"]
+        // SUN-DELETE-SLOT-01: Delete on every row that holds a run (its confirm: sun-playerflow-delete-slot-checks).
+        1: ["saved-runs-load", "btn-export-save", "btn-import-save", "saved-runs-delete", "saved-runs-close"],
+        2: ["btn-export-unreadable", "btn-import-save", "saved-runs-delete", "saved-runs-close"],
+        3: ["saved-runs-load", "btn-export-save", "btn-import-save", "saved-runs-delete", "saved-runs-close"]
       };
       for (const slot of [1, 2, 3]) {
         await page.evaluate(n => document.getElementById("saved-runs-row-" + n).scrollIntoView({ block: "nearest" }), slot);
@@ -201,7 +202,7 @@ async function browserChecks(errors, summary, requireBrowser) {
         if (!f.focusInside) { fail(`${key} left the dialog for #${f.focus}`); break; }
         tabStops.add(f.focus);
       }
-      for (const id of ["saved-runs-slot-2", "btn-export-unreadable", "btn-import-save", "saved-runs-close"]) {
+      for (const id of ["saved-runs-slot-2", "btn-export-unreadable", "btn-import-save", "saved-runs-delete", "saved-runs-close"]) {
         if (!tabStops.has(id)) fail(`Tab never reached ${id} (stops: ${[...tabStops].join(", ")})`);
       }
       for (const id of ["saved-runs-slot-1", "saved-runs-slot-3", "saved-runs-load", "btn-export-save"]) {

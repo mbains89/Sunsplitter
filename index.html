@@ -277,10 +277,16 @@
             <div class="saved-runs-actions" role="group" aria-label="Saved run actions">
               <button id="saved-runs-load" class="btn btn-primary hidden" type="button" onclick="loadSelectedSavedRun()">Load</button>
               <div class="save-transfer-actions" role="group" aria-label="Save transfer">
-                <p id="export-import-chip" class="export-import-chip">Load, Export and Import use the selected slot. Nothing is uploaded.</p>
+                <p id="export-import-chip" class="export-import-chip">Load, Export, Import and Delete use the selected slot. Nothing is uploaded.</p>
                 <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
                 <button id="btn-export-unreadable" class="btn hidden" type="button" onclick="exportUnreadableSaveFile()">Download unreadable save</button>
                 <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
+              </div>
+              <button id="saved-runs-delete" class="btn hidden" type="button" onclick="requestDeleteSavedRun()">Delete</button>
+              <div id="saved-runs-delete-confirm" class="saved-runs-delete-confirm hidden" role="group" aria-labelledby="saved-runs-delete-question">
+                <p id="saved-runs-delete-question" class="saved-runs-delete-question">Delete this slot? This can't be undone.</p>
+                <button id="saved-runs-delete-cancel" class="btn" type="button" onclick="cancelSavedRunsDelete()" aria-describedby="saved-runs-delete-question">Cancel</button>
+                <button id="saved-runs-delete-ok" class="btn btn-primary" type="button" onclick="confirmSavedRunsDelete()" aria-describedby="saved-runs-delete-question">Delete</button>
               </div>
               <button id="saved-runs-close" class="btn" type="button" onclick="closeSavedRuns()">Close</button>
             </div>

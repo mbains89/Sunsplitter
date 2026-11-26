@@ -20,7 +20,8 @@
 //   - a title screen follows the other tab's saves (Continue appears) and never writes;
 //   - a run this tab no longer saves records no ship-memory trail under that slot;
 //   - a newer version's save in this tab's slot (a scene this build does not know, or a v:99 save)
-//     is never written over, with or without the event, and says so; an emptied slot stays free;
+//     is never written over, with or without the event, and says so; a slot another tab emptied
+//     (its Delete, SUN-DELETE-SLOT-01) is not written back until the Menu's Save; a cleared store stays free;
 //   - Play Again in a taken slot clears no ship-memory trail; Return to title from the tab's own run
 //     points Continue at its slot, and leaving a taken slot does not;
 //   - New run on the title: another slot's save leaves it open; a save in the slot it would replace
@@ -371,12 +372,26 @@ function realmChecks() {
     expect(formatGuard ? told === NEWER(1) : (told === NOTICE(1) || told === NEWER(1)), `${label}: after a v:99 save A shows "${told}"`);
   }
   notes.push(`${label}: v:99 save kept; it reads as ${formatGuard ? "a newer version (format guard present)" : "another tab's run (no format guard in this build yet)"}`);
-  // An empty slot stays free: emptied in another tab, A's next choice writes it again.
+  // SUN-DELETE-SLOT-01: a slot emptied in another tab (its Delete) is not written back by A's next
+  // choice; A says so, and the Menu's Save writes the run back. (sun-playerflow-delete-slot-checks
+  // covers the rest of the deleted-slot cases.)
   label = "slot emptied in another tab";
   store.reset();
   expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's new run failed`);
   step(A);
   for (const key of SLOT1) B.browser.localStorage.removeItem(key);
+  store.deliver(A);
+  step(A);
+  expect(SLOT1.every(key => store.get(key) === null), `${label}: A's next choice wrote the emptied slot back`);
+  expect(bar(A).error && bar(A).text === `Slot 1 was deleted in another tab · not saving here · Save in Menu to keep this run there`,
+    `${label}: A shows ${JSON.stringify(bar(A))}`);
+  expect(A.evaluate("saveGame()") === true && store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: A's Save did not write the run back`);
+  // A store cleared in another tab is not a delete: the emptied slot stays free, as before.
+  label = "store cleared in another tab";
+  store.reset();
+  expect(A.evaluate("beginFreshCampaign({ persist: true, slot: 1 })") === true, `${label}: A's new run failed`);
+  step(A);
+  B.browser.localStorage.clear();
   store.deliver(A);
   step(A);
   expect(!bar(A).error && store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: A did not save the emptied slot (${JSON.stringify(bar(A))})`);
