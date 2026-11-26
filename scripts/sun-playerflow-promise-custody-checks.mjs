@@ -51,6 +51,7 @@ const out = JSON.parse(loadGame(ROOT).evaluate(`JSON.stringify((() => {
     custodyVessBreak: play("custody", 1, () => { kill("jiro", "fixture"); }),
     breathKeep: play("breath", 0, () => {}),
     breathBreak: play("breath", 1, () => {}),
+    breathVess: play("breath", 0, () => { state.recovered.jiro = false; }),
     noReader: enter("custody", () => { kill("jiro", "fixture"); kill("vess", "fixture"); }),
     deadAmara: enter("custody", () => { kill("amara", "fixture"); }),
     unmade: enter("custody", () => { state.promises.amara = "declined"; }),
@@ -71,6 +72,8 @@ for (const [label, r, reader] of [["Custody keep", out.custodyKeep, "jiro"], ["C
   assert.deepEqual(r.next, ["prom_deck4"], `${label}: the outcome does not continue to prom_deck4`);
   assert.ok(r.amaraAlive, `${label}: ruling (a) - Amara died in her own test`);
 }
+assert.ok(out.custodyVessKeep.text.includes("Dawnbreak protocol for a hot section was: youngest yields") && !out.custodyVessKeep.text.includes("shared air"), "Vess's Custody read is not the hot-section form");
+assert.ok(out.custodyKeep.text.includes("Jiro says") && !out.custodyKeep.text.includes("Vess says"), "Jiro reading: Vess spoke");
 for (const r of [out.custodyKeep, out.custodyVessKeep]) {
   assert.equal(r.result, "prom_vent_keep"); assert.equal(r.promise, "kept", "Custody keep did not keep the promise");
   assert.ok(!r.dead.includes(r.reader), "Custody keep killed the reader");
@@ -89,6 +92,7 @@ for (const r of [out.custodyBreak, out.custodyVessBreak]) {
   assert.ok(!/reader still breathing/.test(r.epilogues), "Custody break: the epilogue repeats the death");
 }
 assert.ok(out.breathKeep.text.includes(BIOFILM) && !out.breathKeep.text.includes(HEAT), "Breath lost the biofilm form");
+assert.ok(out.breathVess.text.includes("Dawnbreak protocol for shared air was: youngest yields"), "Vess's Breath read changed");
 assert.ok(out.breathKeep.resultText.includes("coughing, breathing") && !out.breathKeep.resultText.includes("heat-sick"), "Breath keep text changed");
 assert.ok(out.breathBreak.dead.includes("jiro") && out.breathBreak.amaraAlive && out.breathBreak.resultText.includes(QUOTE), "Breath break changed");
 // A skipped test redirects on into the ladder (prom_deck4 onward) without rendering or picking a reader.

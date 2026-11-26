@@ -28,7 +28,7 @@ registerScenes({
         ? (state.promises.lena === "kept"
           ? `"That makes four times out of margin," Jiro says over the panel channel, even now. "Last time Lena covered the difference. Take the reading, Commander. Same rule: no kind numbers."`
           : `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`)
-        : `"Dawnbreak protocol for shared air was: youngest yields," Vess says, log-flat. "I never got to yield. Filed, in case it matters now."`;
+        : `"Dawnbreak protocol for ${heat ? "a hot section" : "shared air"} was: youngest yields," Vess says, log-flat. "I never got to yield. Filed, in case it matters now."`;
       return `${heat
         ? `The heat is not finished. The last of it has pooled in the dead-end service run beside the thermal spine, and the spine's answer is already queued: vent the pocket, keep the margin it just paid for.
 
