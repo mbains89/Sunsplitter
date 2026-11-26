@@ -215,12 +215,16 @@ async function browserChecks(errors, summary, requireBrowser) {
       if (closed.focus !== "btn-saved-runs") fail(`focus after Escape is ${closed.focus}, not the Saved runs button`);
       if (closed.resumeInColumn == null || Math.abs(closed.resumeInColumn - title.resumeInColumn) > 0.5) fail("closing the dialog moved Continue in the title column");
 
-      // Over the inline New run confirm: Saved runs closes it, keeps Tab inside, and Escape closes
-      // Saved runs, with the confirm still closed and nothing started.
+      // Over the New run confirm: Saved runs closes it, keeps Tab inside, and Escape closes Saved runs,
+      // with the confirm still closed and nothing started. SUN-NEW-RUN-SLOT-01: the confirm is now the
+      // slot picker, a full layer like Saved runs, so the Saved runs button behind it cannot be hit;
+      // the opener is called directly to keep the stacking case covered.
       if (width < 600) await page.locator("#btn-begin").tap(); else await page.locator("#btn-begin").click();
       const confirmOpen = await page.evaluate(() => document.getElementById("new-run-confirm").classList.contains("visible"));
       if (!confirmOpen) fail("New run did not open its confirm (setup)");
-      await page.locator("#btn-saved-runs").click();
+      const behind = await page.evaluate(TARGET, "btn-saved-runs");
+      if (behind.reachable) fail("the Saved runs button can be hit through the New run slot picker");
+      await page.evaluate(() => showSavedRuns());
       for (let i = 0; i < 6; i++) {
         await page.keyboard.press("Tab");
         const f = await page.evaluate(MEASURE);

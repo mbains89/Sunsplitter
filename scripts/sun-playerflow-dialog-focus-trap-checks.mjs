@@ -40,7 +40,8 @@ function markupStops(id) {
 
 const DIALOGS = [
   { id: "tutorial-overlay", primary: "tutorial-dismiss", open: "showTutorialOverlay()" },
-  { id: "new-run-confirm", primary: "new-run-ok", open: "showNewRunConfirm()" },
+  // SUN-NEW-RUN-SLOT-01: the New run slot picker opens on its default row's radio (slot 1 with nothing saved).
+  { id: "new-run-confirm", primary: "new-run-slot-1", open: "showNewRunConfirm()" },
   { id: "commander-create", primary: "commander-create-ok", open: "showCommanderCreate()" },
   // SUN-SAVED-RUNS-01: opens on the checked row's radio (slot 1 with nothing saved).
   { id: "saved-runs", primary: "saved-runs-slot-1", open: "showSavedRuns()" }

@@ -383,6 +383,8 @@ function realmChecks() {
 
   // New run on the title beside another tab: a save in another slot leaves the New run flow open; a
   // save in the slot it would replace closes it and says so; Begin run re-checks that slot itself.
+  // SUN-NEW-RUN-SLOT-01: the slot New run replaces is the one picked in the slot picker, so each case
+  // picks slot 1 (the picker would start on empty slot 2), and a save in slot 2 repaints the picker.
   label = "new run beside another tab";
   store.reset();
   const isOpen = id => !A.evaluate(`document.getElementById("${id}").classList.contains("hidden")`);
@@ -390,17 +392,19 @@ function realmChecks() {
   step(B);
   A.evaluate("showTitleScreen()");
   store.deliver(A);
-  A.evaluate("startGame()");
+  A.evaluate("startGame(); selectNewRunSlot(1)");
   expect(isOpen("new-run-confirm"), `${label}: New run did not open its confirm`);
   B.browser.localStorage.setItem("sunsplitter_save_v3_slot2", store.get("sunsplitter_save_v3"));
   store.deliver(A);
   expect(isOpen("new-run-confirm"), `${label}: a save in slot 2 closed the New run confirm for slot 1`);
+  expect(A.evaluate(`newRunSelectedSlot() === 1 && document.getElementById("new-run-row-2").getAttribute("data-kind") === "filled"`),
+    `${label}: the picker did not repaint slot 2 in place with slot 1 still selected`);
   expect(A.evaluate(`document.getElementById("title-save-chip").textContent`).includes("2 of 3"), `${label}: the title behind the confirm did not repaint`);
   step(B);
   store.deliver(A);
   expect(!isOpen("new-run-confirm") && !isOpen("commander-create"), `${label}: a save in slot 1 left the New run flow open`);
   expect(A.evaluate(`document.getElementById("title-save-status").textContent`) === CHANGED(1), `${label}: the title says "${A.evaluate(`document.getElementById("title-save-status").textContent`)}"`);
-  A.evaluate("startGame()");
+  A.evaluate("startGame(); selectNewRunSlot(1)");
   A.evaluate("confirmNewRun()");
   expect(isOpen("commander-create"), `${label}: the Commander panel did not open`);
   step(B);
@@ -409,7 +413,7 @@ function realmChecks() {
   expect(A.evaluate("confirmCommanderCreate()") === false, `${label}: Begin run started over another tab's change`);
   expect(same(store.keys(SLOT1), bRun), `${label}: Begin run wrote slot 1 after another tab changed it`);
   expect(A.evaluate(`document.getElementById("title-save-status").textContent`) === CHANGED(1), `${label}: Begin run did not say why it stopped`);
-  A.evaluate("startGame()");
+  A.evaluate("startGame(); selectNewRunSlot(1)");
   A.evaluate("confirmNewRun()");
   expect(A.evaluate("confirmCommanderCreate()") === true && JSON.parse(store.get("sunsplitter_save_v3")).scene === "wake" &&
     store.get("sunsplitter_save_v3") === seen(A, 1), `${label}: an unchanged slot did not start the new run`);
@@ -682,6 +686,8 @@ async function browserChecks(requireBrowser) {
     await A.waitForSelector("#btn-begin", { state: "visible" });
     await A.click("#btn-begin");
     await A.waitForSelector("#new-run-confirm", { state: "visible" });
+    // SUN-NEW-RUN-SLOT-01: pick slot 1, the slot B is about to start a new run in.
+    await A.click("#new-run-row-1");
     await B.evaluate("__tabStep()");
     await settle();
     expect(await A.locator("#new-run-confirm").isVisible(), `${label}: B's save in slot 2 closed A's New run confirm`);

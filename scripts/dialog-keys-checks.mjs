@@ -38,7 +38,8 @@ export function dialogKeysChecks(runtime) {
     const dialogs = [
       { id: "tutorial-overlay", open: () => showTutorialOverlay(), close: () => dismissTutorial(), primary: "tutorial-dismiss" },
       { id: "commander-create", open: () => showCommanderCreate(), close: () => hideCommanderCreate(), primary: "commander-create-ok" },
-      { id: "new-run-confirm", open: () => showNewRunConfirm(), close: () => hideNewRunConfirm(), primary: "new-run-ok" },
+      // SUN-NEW-RUN-SLOT-01: the New run slot picker opens on its default row's radio (slot 1 with nothing saved).
+      { id: "new-run-confirm", open: () => showNewRunConfirm(), close: () => hideNewRunConfirm(), primary: "new-run-slot-1" },
       // SUN-SAVED-RUNS-01: the title's Saved runs dialog opens on its checked row's radio.
       { id: "saved-runs", open: () => showSavedRuns(), close: () => closeSavedRuns(), primary: "saved-runs-slot-1" },
       { id: "crew-sheet", open: () => { if (typeof crew !== "undefined" && crew.lena) openCrewSheet("lena"); }, close: () => closeCrewSheet(), primary: "crew-sheet-close" }
@@ -84,7 +85,7 @@ export function dialogKeysChecks(runtime) {
   const primaryById = {
     "tutorial-overlay": "tutorial-dismiss",
     "commander-create": "commander-create-ok",
-    "new-run-confirm": "new-run-ok",
+    "new-run-confirm": "new-run-slot-1",
     "saved-runs": "saved-runs-slot-1",
     "crew-sheet": "crew-sheet-close"
   };
