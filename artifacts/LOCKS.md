@@ -3,7 +3,7 @@
 **Owner:** Manraj  
 **Lock steward:** Lead (Claude, per `AGENTS.md` v2)  
 **Full decision language:** [`ROADMAP.md`](ROADMAP.md)  
-**Roadmap source SHA-256:** `df06075eba15f63527a72872d2d0921d042182947e82f241703e4e8d26612884`
+**Roadmap source SHA-256:** `4caf1fec8c2a0a1ef95d21b64c3decf663a1270f316f364eed18f05016bf3091`
 
 This ledger gives decisions durable identities. IDs are never reused or renumbered. A row may change disposition only when Manraj approves and the lead records the ruling; prior meaning remains recoverable in Git. This file does not paraphrase detailed scope: the cited roadmap section remains authoritative.
 
@@ -125,6 +125,16 @@ Manraj ruled these on 2026-11-23 in the Orchestrator lead chat, each as the lead
 | L-040 | LOCKED | Nudity filter: a reader setting that covers nudity in pictures only; off by default; no new art (a covered picture is blurred or swapped for an existing one); text unchanged. Replaces the 2026-11-05 hold on the breast-cover / explicit-content toggle | ROADMAP §2 romance and adult content; §14A Wave 4; §16 | 2026-11-23 | Manraj | `710106f21aa890b28ab3b822e2c3b2f67ccfa0c1` |
 
 The same answer confirmed that L-043 covers `src/engine.js` only, as recorded above: a `src/state.js` split stays deferred.
+
+## Ruled (2026-11-25)
+
+Manraj ruled this on 2026-11-25 in the Orchestrator lead chat. Asked which batches to unlock for that night's build, "each one I'll go ahead with on my recommendations", he picked "Wave 2 (Recommended)". The question, the options and his answer are verbatim in the project doc `claude/decisions/2026-11-25.md`. ROADMAP §14A records the early entry and the Wave 2 design rulings. This ruling authorizes ticket PRs on the work branch. It mints no version paint, credits no gate, and carries no close-out, release, deploy, Netlify, certification or publication authority.
+
+| ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
+|---|---|---|---|---|---|---|
+| L-062 | LOCKED | Text backlog: a per-run, read-only record of the text shown and the orders given. It is kept beside its slot's save, in its own key, and bound to that save. Scenes, endings and saves never read it. Reply lines appear in it as history; L-057 still governs the live screen. It is cleared with the save and not exported. In-run only in Wave 2 | ROADMAP §14A Wave 2; §16 | 2026-11-25 | Manraj | `PENDING` |
+
+The same answer settles two readings of existing locks, recorded in ROADMAP §14A Wave 2 and not as new rows. L-052 covers exactly the slot storage keys listed there. L-054's namespace holds a per-run trail of hard-call scene ids, which feeds only the memory board.
 
 ## Held, deferred, rejected, and limited
 
