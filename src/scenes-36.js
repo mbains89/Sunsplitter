@@ -43,7 +43,7 @@ He does not open a tablet. He does not need to.
 
 She waits.
 
-"I can offer prevention after the fact if we are early. If we are late, it is a termination or a pregnancy carried to term on rations this ship does not have. Tell me what is true."`;
+"I can offer prevention after the fact if we are early. If we are late, it is a termination or a pregnancy carried to term. Tell me what is true."`;
     },
     get choices() {
       // 0.25: after pregnancy resolve → tomas_break if recovered, else Elias lethal entry
