@@ -422,7 +422,30 @@ export function pairShieldReachabilityChecks(runtime) {
       remember("Elias said she was what the job was for");
     });
 
+    // SUN-CONSENT-WORDING-01 (item 20): Mira lost on the shared medical line is a death by Commander
+    // call. A living Elias answers it once in pair_shield_cold, and his off-shift line is the cold one.
+    // A Jiro or Vess line death leaves the shield where it was.
+    const lineDeath = (custody, jiroAboard) => {
+      resetRunState();
+      Object.assign(state.recovered, { tomas: true, jiro: jiroAboard, vess: true });
+      state.crisisPath = "custody";
+      state.flags.custody_answer = custody;
+      state.promises.lena = "made";
+      showScene("prom_line");
+      makeChoice(scenes.prom_line.choices[1]);
+      const row = { victim: state.flags.prom_line_other, next: scenes.prom_line_break.choices[0].next };
+      makeChoice(scenes.prom_line_break.choices[0]);
+      row.scene = state.scene;
+      row.spent = state.flags.pair_shield === true;
+      showScene("offshift_elias");
+      row.offshift = String(scenes.offshift_elias.text);
+      return row;
+    };
+    const lineMira = lineDeath("severed", true);
+    const lineJiro = lineDeath("shared", true);
+
     return {
+      lineMira, lineJiro,
       lethalNext, pairScene, pairSpent, pairNext, finalScene, offeredAgain, resumedScene, noEliasNext,
       freshMiraAlive, freshEliasDead, freshUnattributable, freshSpent,
       savedMiraAlive, savedEliasDead, savedUnattributable, savedEligible
@@ -436,6 +459,13 @@ export function pairShieldReachabilityChecks(runtime) {
     errors.push("pair_shield_cold does not return to faction_split after the one-shot consequence");
   }
   if (fixture.offeredAgain) errors.push("pair_shield_cold remained eligible after its one-shot flag was spent");
+  if (fixture.lineMira.victim !== "mira" || fixture.lineMira.next !== "pair_shield_cold" || fixture.lineMira.scene !== "pair_shield_cold" ||
+      !fixture.lineMira.spent || !fixture.lineMira.offshift.includes("You heard what she was.") || fixture.lineMira.offshift.includes("You never asked what she was.")) {
+    errors.push(`Mira's shared-line death is not counted as by Commander call for Elias's shield: ${JSON.stringify(fixture.lineMira)}`);
+  }
+  if (fixture.lineJiro.victim !== "jiro" || fixture.lineJiro.next !== "prom_direct" || fixture.lineJiro.spent) {
+    errors.push(`a non-Mira shared-line death touched Elias's shield: ${JSON.stringify(fixture.lineJiro)}`);
+  }
   if (fixture.resumedScene !== "pair_shield_cold") {
     errors.push("resuming the saved Mira-lethal scene skipped the unspent L-020 consequence");
   }
