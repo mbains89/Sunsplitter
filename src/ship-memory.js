@@ -9,8 +9,8 @@
 // in try/catch; when storage is blocked or full the session copy keeps the record for this session,
 // and a failed write never retries in a loop or touches another key.
 //
-// No surface reads it yet (gallery, memory board and the ship-remembers lines are later tickets);
-// shipMemoryRead() is the one reader they will use.
+// shipMemoryRead() is the one reader. The ship-remembers lines at the end of this file read it
+// (SUN-SHIP-REMEMBERS-01); the gallery and the memory board are their own tickets.
 
 const SHIP_MEMORY_KEY = "sunsplitter_ship_memory_v1";
 const SHIP_MEMORY_VERSION = 1;
@@ -353,4 +353,71 @@ function shipMemoryRecordRun(title) {
     memory.trail = [];
     return true;
   });
+}
+
+// ─── SUN-SHIP-REMEMBERS-01 (L-054, ROADMAP §14A Wave 2 workstream 5): the ship remembers ───
+// On a later run a few lines acknowledge earlier endings, at three points only: the title, the tone
+// screen (seen after the first run only through "Revisit content notice"; D11 kept it), and one
+// paragraph in the wake of a fresh run. Never on an ending, What Remains or the cinematic. Each line
+// is fixed per ending (no randomness), names no crew member, prints no count and points at no choice.
+// The engine places them; these three functions are the only readers.
+
+// Title: every ending reached overrides the last ending's line.
+const SHIP_REMEMBERS_TITLE_ALL = "The ship has ended every way it knows. It wakes you anyway.";
+const SHIP_REMEMBERS_TITLE = {
+  yellow_circle: "Under the primer on one bulkhead: something round, something yellow. No one claims it.",
+  landfall: "The navigation cache holds a course to a cold world. No one remembers laying it in.",
+  living_ship: "The habitation decks have run warm before. The vault remembers what that cost.",
+  quiet_ship: "The observation blister has watched the last light go out before.",
+  still_burning: "The ship has carried a crew that held together. It keeps no record of how.",
+  fracture: "The hull remembers a crew that stopped moving as one.",
+  long_dark: "The Sunsplitter has pushed through the black before. One more day, then the next."
+};
+// Tone screen: one line for any later run.
+const SHIP_REMEMBERS_TONE = "You have commanded this ship before. It will not go easier for that.";
+// Wake: one paragraph after the scene's own, keyed to the last ending. Each is true of every fresh
+// wake (the medical bay's ozone and blood, its status board, nobody yet spoken, nothing yellow on the
+// bulkheads) and is only the Commander's own sense of it: no one else is said to be present or to
+// remember. None repeats the wake's closing "this room".
+const SHIP_REMEMBERS_WAKE = {
+  yellow_circle: "There is nothing yellow on these bulkheads. You look for it anyway.",
+  landfall: "You carry a heading, exact and cold. Nothing on the status board explains it.",
+  living_ship: "For a moment the bay is warm and full of people arguing over food. Then it is ozone and blood again.",
+  quiet_ship: "You find yourself listening for the systems to fail one by one. For now, they run.",
+  still_burning: "Something in you expects these people to hold. You have no grounds for it yet.",
+  fracture: "Before anyone has spoken, you are listening for where this crew will split.",
+  long_dark: "Before you have even sat up, you are thinking about the next day, and the one after it."
+};
+
+// The last ending's line from a table, or "" when no run has finished. Never throws into play.
+function shipRemembersLastLine(memory, table) {
+  if (!memory || !memory.runs || !memory.last) return "";
+  return table[memory.last.ending] || "";
+}
+
+function shipRemembersTitleLine() {
+  try {
+    const memory = shipMemoryRead();
+    if (!memory.runs) return "";
+    if (SHIP_MEMORY_ENDING_IDS.every(id => memory.endings[id])) return SHIP_REMEMBERS_TITLE_ALL;
+    return shipRemembersLastLine(memory, SHIP_REMEMBERS_TITLE);
+  } catch (e) {
+    return "";
+  }
+}
+
+function shipRemembersToneLine() {
+  try {
+    return shipMemoryRead().runs ? SHIP_REMEMBERS_TONE : "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function shipRemembersWakeLine() {
+  try {
+    return shipRemembersLastLine(shipMemoryRead(), SHIP_REMEMBERS_WAKE);
+  } catch (e) {
+    return "";
+  }
 }

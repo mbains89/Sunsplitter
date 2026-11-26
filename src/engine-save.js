@@ -843,6 +843,7 @@ function saveGame() {
 
 // Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
+  wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: Continue, Load and an imported save are not fresh runs
   const slot = saveSlotArg(activeSaveSlot);
   if (!slot || !hasSave(slot)) {
     flashSaveStatus("No save", true);
