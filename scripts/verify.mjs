@@ -142,7 +142,7 @@ const PRIVATE_PACKAGE_RUNTIME_PATHS_SHA256 = "5900313bf0dd17700edb159733bb0521a8
 
 // Digest of the sorted scene IDs produced by executing the 55 numbered modules.
 // Update only when an authorized scene-manifest change intentionally adds/removes/renames a scene.
-const EXPECTED_SCENE_IDS_SHA256 = "fb50b8e3349cb4e8c5e0c84bdce9f9fe59759face966a980d19b26a71f3bce72"; // SUN-DIET-MEMORY-FOLD-01: 230 ids, the SUN-DIET-REPLY-FOLD-01 set minus ship_memory_payoff (folded into final_choice)
+const EXPECTED_SCENE_IDS_SHA256 = "409f5932e2afd9ce09fcf42a11dbad2c0c7de1ba4f0ca55f5d6ae44fc9a35bcd"; // SUN-DIET-VESS-MERGE-01: 229 ids, the SUN-DIET-MEMORY-FOLD-01 set minus vess_cost (merged into vess_signal)
 
 function syntaxChecks(scripts) {
   const errors = [];
