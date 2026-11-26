@@ -8,6 +8,7 @@
 //
 //   node scripts/sun-browser-bot.mjs [--runs 5] [--viewport desktop|phone|iphone13] [--input mouse|keys|tab]
 //                                    [--chaos] [--cover-nudity] [--text-size largest] [--line-spacing open]
+//                                    [--reading-font opendyslexic]
 //                                    [--seed 1]   (--input touch also accepted)
 //
 //   --input keys  choices by digit keys, dialogs by focus + Enter
@@ -21,6 +22,8 @@
 //   --text-size / --line-spacing  SUN-READER-TYPE-01: play with the reader setting stored before load
 //                 (standard|large|larger|largest, standard|relaxed|open). On every story screen the scene
 //                 text must compute at that step (TYPE_NOT_APPLIED) and must not overflow sideways (TYPE_OVERFLOW)
+//   --reading-font  SUN-READER-FONT-01: play with the Font setting stored before load (standard|opendyslexic).
+//                 On every story screen the scene text must be in that typeface (FONT_NOT_APPLIED); overflow as above
 //
 // SUN-PACED-REVEAL-01: scenes arrive a paragraph at a time. While "Read on" shows, the bot reads on
 // the way its input mode would (tap/click the passage or Read on, Space/Enter/→, Tab to Read on),
@@ -54,6 +57,8 @@ const TEXT_SIZE = opt("--text-size", "standard");
 const LINE_SPACING = opt("--line-spacing", "standard");
 const TYPE_SCALE = { size: { standard: 1, large: 1.15, larger: 1.3, largest: 1.5 }[TEXT_SIZE], leading: { standard: 1, relaxed: 1.13, open: 1.28 }[LINE_SPACING] };
 if (!TYPE_SCALE.size || !TYPE_SCALE.leading) throw new Error(`unknown --text-size ${TEXT_SIZE} or --line-spacing ${LINE_SPACING}`);
+const READING_FONT = opt("--reading-font", "standard");
+if (!["standard", "opendyslexic"].includes(READING_FONT)) throw new Error(`unknown --reading-font ${READING_FONT}`);
 let seed = Number(opt("--seed", "1"));
 const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
 // Dev-server noise, not game defects: the manifest that only exists inside a built private package.
@@ -132,6 +137,7 @@ for (let run = 0; run < RUNS; run++) {
   page.on("response", r => { if (r.status() >= 400) note(`http${r.status()}`, r.url().replace(/^.*?:\d+\//, "")); });
   page.on("dialog", d => { note("dialog", d.message().slice(0, 80)); d.dismiss(); });
   if (TEXT_SIZE !== "standard" || LINE_SPACING !== "standard") await page.addInitScript(([size, spacing]) => { try { localStorage.setItem("sunsplitter_text_size_v1", size); localStorage.setItem("sunsplitter_line_spacing_v1", spacing); } catch (e) { /* storage blocked */ } }, [TEXT_SIZE, LINE_SPACING]);
+  if (READING_FONT !== "standard") await page.addInitScript(font => { try { localStorage.setItem("sunsplitter_reading_font_v1", font); } catch (e) { /* storage blocked */ } }, READING_FONT);
   if (COVER_NUDITY) await page.addInitScript(() => { try { localStorage.setItem("sunsplitter_cover_nudity_v1", "1"); } catch (e) { /* storage blocked */ } });
   await page.goto(base);
   const visible = id => page.evaluate(id => { const e = document.getElementById(id); if (!e) return false; const s = getComputedStyle(e); return !e.classList.contains("hidden") && s.display !== "none" && s.visibility !== "hidden" && e.getClientRects().length > 0; }, id);
@@ -242,7 +248,7 @@ for (let run = 0; run < RUNS; run++) {
             pending: shown(document.getElementById("reveal-controls")),
             choicesShown: shown(document.getElementById("choices")),
             type: (() => { const t = document.querySelector("#story .scene-text"); if (!t) return null; const cs = getComputedStyle(t), root = parseFloat(getComputedStyle(document.documentElement).fontSize);
-              return { size: parseFloat(cs.fontSize) / root, leading: parseFloat(cs.lineHeight) / parseFloat(cs.fontSize),
+              return { size: parseFloat(cs.fontSize) / root, leading: parseFloat(cs.lineHeight) / parseFloat(cs.fontSize), opendyslexic: /^"?OpenDyslexic"?,/.test(cs.fontFamily),
                 overflow: Math.max(document.documentElement.scrollWidth - document.documentElement.clientWidth, document.getElementById("main").scrollWidth - document.getElementById("main").clientWidth) }; })(),
             img: img && img.getAttribute("src") ? { src: img.getAttribute("src"), ok: img.complete ? img.naturalWidth > 0 : null,
               listed: typeof pictureShowsNudity === "function" && pictureShowsNudity(img.getAttribute("src")),
@@ -251,6 +257,7 @@ for (let run = 0; run < RUNS; run++) {
         if (!info.story) note("emptyStory", screen.scene);
         if (info.type) {
           if (Math.abs(info.type.size - 1.02 * TYPE_SCALE.size) > 0.005 || Math.abs(info.type.leading - 1.72 * TYPE_SCALE.leading) > 0.01) note("TYPE_NOT_APPLIED", `${info.type.size.toFixed(3)}rem / ${info.type.leading.toFixed(3)} @${screen.scene}`);
+          if (info.type.opendyslexic !== (READING_FONT === "opendyslexic")) note("FONT_NOT_APPLIED", `@${screen.scene}`);
           if (info.type.overflow > 0) note("TYPE_OVERFLOW", `${info.type.overflow}px @${screen.scene} ${page.viewportSize().width}x${page.viewportSize().height}`);
         }
         if (COVER_NUDITY && info.img) {
@@ -317,5 +324,5 @@ for (let run = 0; run < RUNS; run++) {
 await browser.close();
 server.close();
 for (const [finding, count] of findings) console.log(`FINDING ${finding}${count > 1 ? ` (x${count})` : ""}`);
-console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es), ${blindPresses} blind;${COVER_NUDITY ? ` nudity covered on ${coveredScreens} screen sample(s);` : ""}${TEXT_SIZE !== "standard" || LINE_SPACING !== "standard" ? ` text ${TEXT_SIZE}/${LINE_SPACING};` : ""} ${findings.size} finding(s)`);
+console.log(`${findings.size ? "FAIL" : "PASS"} sun-browser-bot: ${RUNS - incomplete}/${RUNS} runs reached an ending; ${revealPresses} read-on press(es), ${blindPresses} blind;${COVER_NUDITY ? ` nudity covered on ${coveredScreens} screen sample(s);` : ""}${TEXT_SIZE !== "standard" || LINE_SPACING !== "standard" ? ` text ${TEXT_SIZE}/${LINE_SPACING};` : ""}${READING_FONT !== "standard" ? ` font ${READING_FONT};` : ""} ${findings.size} finding(s)`);
 process.exit(findings.size ? 1 : 0);

@@ -1,15 +1,30 @@
 // Sunsplitter — scenes-47.js
 // 0.28.1c size hygiene. Pure mechanical. promises: price
 // Strict scene shape only: text | choices | onEnter | image
+
+// SUN-PROMISE-BREATH-01: both petition outcomes return to the hub of the crisis path they ran on.
+function priceTestExit() {
+  return state.crisisPath === "breath"
+    ? { text: "Back to the air loop.", next: "breath_hub" }
+    : { text: "Open the custody question.", next: "custody_hub" };
+}
+
 registerScenes({
 
+  // SUN-PROMISE-BREATH-01 (decision 27, Hex design A step 5): the petition test runs on both crisis
+  // paths. Custody reaches it from custody_onset and returns to custody_hub; Breath reaches it from
+  // breath_onset (Sela's promise made, Sela alive) and returns to breath_hub. Only the opening of the
+  // petition, Sela's keep speech and the exit differ by path.
+  // PRE: promises.sela made && isAlive(sela) | WRITES: none on entry | DEATH: none | IMG: reuse
   prom_price: {
     image: "images/vault_reveal.jpg",
     onEnter: () => {
-      if (state.promises.sela !== "made" || !isAlive("sela")) return "custody_hub";
+      if (state.promises.sela !== "made" || !isAlive("sela")) return state.crisisPath === "breath" ? "breath_hub" : "custody_hub";
     },
     get text() {
-      let t = `It arrives as arithmetic and lands as a crowd.
+      let t = state.crisisPath === "breath" ? `It arrives as arithmetic and lands as a crowd.
+
+The rumor has moved off the late arrivals. A petition is already on the mess board: marks, not signatures. It does not ask for a vent. The air is failing, and the racks that could buy it back have a keeper. The ask never uses her name, but it has a shape, and the shape is Sela. Put the vault's keeper out of its keeping. Give fear a body it can spend.` : `It arrives as arithmetic and lands as a crowd.
 
 Three of the crew came to you separately inside one watch. A petition is on the mess board by second shift: marks, not signatures. The ask never uses the word, but it has a shape, and the shape is Sela. Put the vault's keeper out of its keeping. Give fear a body it can spend.`;
       if (isAlive("vess")) t += `\n\n"Dawnbreak had a petition like this once," Vess says. "I have it filed under: before."`;
@@ -44,13 +59,14 @@ Three of the crew came to you separately inside one watch. A petition is on the 
     },
     get text() {
       if (!isAlive("sela")) return `The petition stays on the board with no one named under it.`;
+      // SUN-PROMISE-BREATH-01: Breath has no heat question and no custody hub, so no private custody offer.
       return `You put it on the record in the mess, in front of the marks: the keeper is not the price, and fear does not get to sign orders on this ship.
 
 Sela steps up beside you. Not behind.
 
-"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
+"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela && state.crisisPath !== "breath" ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
     },
-    choices: [ { text: "Open the custody question.", next: "custody_hub" } ]
+    get choices() { return [ priceTestExit() ]; }
   },
 
   // PRE: from prom_price choice 2 | WRITES: onEnter promises.sela="broken" (idempotent) | DEATH: none | IMG: reuse
@@ -69,6 +85,6 @@ Not a sentence. From her, that is an alarm. Then complete ones, exact.
 
 "You said: no one will use you as the price of their fear. The sentence is spent. I will be precise for you from now on, Commander. Precision is what I have left to give. You will receive all of it."`;
     },
-    choices: [ { text: "Open the custody question.", next: "custody_hub" } ]
+    get choices() { return [ priceTestExit() ]; }
   }
 });
