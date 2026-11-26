@@ -69,7 +69,7 @@ Sela steps up beside you. Not behind.
 
 Sela steps up beside you. Not behind.
 
-"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to. And when the heat question is answered, I will offer shared custody of what I keep, so that no one has to trust one pair of hands again."`;
+"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
     },
     get choices() { return [ priceTestExit() ]; }
   },
