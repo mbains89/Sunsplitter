@@ -62,6 +62,18 @@ function syncMenuSheetSettings() {
   }
 }
 
+// What Return to title will do. SUN-SECOND-TAB-GUARD-01: while another tab holds the slot this run
+// plays, leaving saves nothing, and the chip says so (also repainted when that happens with the sheet
+// open, from engine-save.js).
+function syncMenuReturnTitleChip() {
+  const chip = document.getElementById("menu-return-title-chip");
+  if (!chip) return;
+  const taken = typeof saveSlotTakenElsewhere === "function" && typeof activeSaveSlot !== "undefined" &&
+    saveSlotTakenElsewhere(activeSaveSlot);
+  chip.textContent = taken ? saveSlotTakenChip(activeSaveSlot)
+    : (menuKeepsFinishedRun() ? MENU_RETURN_TITLE_CHIP_KEPT : MENU_RETURN_TITLE_CHIP);
+}
+
 function menuKeepsFinishedRun() {
   return typeof preserveCompletedSlotUntilChoice !== "undefined" && !!preserveCompletedSlotUntilChoice;
 }
@@ -84,8 +96,7 @@ function openMenuSheet() {
   if (other && other !== sheet) return false;
   // Painted while still hidden, so the status chips announce nothing on open.
   syncMenuSheetSettings();
-  const chip = document.getElementById("menu-return-title-chip");
-  if (chip) chip.textContent = menuKeepsFinishedRun() ? MENU_RETURN_TITLE_CHIP_KEPT : MENU_RETURN_TITLE_CHIP;
+  syncMenuReturnTitleChip();
   setMenuSheetStatus("");
   menuSheetReturnFocus = document.getElementById("btn-menu");
   const app = document.getElementById("app");
@@ -142,14 +153,34 @@ function menuLoadGame() {
   return loadGame();
 }
 
+// SUN-SECOND-TAB-GUARD-01: another tab has saved over the slot this run plays, so this tab saves
+// nothing there. Return to title asks first, then leaves without saving: the other tab's save stays
+// untouched and Continue loads it. Cancel keeps the run and the sheet as they were.
+function menuLeaveTakenSlot() {
+  if (typeof saveSlotTakenElsewhere !== "function" || typeof activeSaveSlot === "undefined") return null;
+  const slot = activeSaveSlot;
+  if (!saveSlotTakenElsewhere(slot)) return null;
+  if (typeof reportSaveSlotTaken === "function") reportSaveSlotTaken(slot);
+  let ok = false;
+  try { ok = window.confirm(saveSlotTakenLeaveQuestion(slot)) === true; } catch (e) { ok = false; }
+  return ok;
+}
+
 // O-8: back to the title, saving first with the Save button's own save. If the save fails, the sheet
 // stays open, says so, and the run goes on; nothing is lost that was not already lost.
 function menuReturnToTitle() {
-  if (!menuKeepsFinishedRun() && saveGame() !== true) {
-    const bar = document.getElementById("save-status");
-    const said = bar && bar.textContent ? bar.textContent : "Save failed";
-    setMenuSheetStatus(said + " · you are still in the run", true);
-    return false;
+  const leaveTaken = menuLeaveTakenSlot();
+  if (leaveTaken === false) return false;
+  if (leaveTaken === null && !menuKeepsFinishedRun()) {
+    if (saveGame() !== true) {
+      const bar = document.getElementById("save-status");
+      const said = bar && bar.textContent ? bar.textContent : "Save failed";
+      setMenuSheetStatus(said + " · you are still in the run", true);
+      return false;
+    }
+    // SUN-SECOND-TAB-GUARD-01: Continue on the title picks up here, so point it at this run's slot,
+    // and only once this run's own save has succeeded (never when leaving a slot another tab holds).
+    if (typeof writeCurrentSlotPointer === "function" && typeof activeSaveSlot !== "undefined") writeCurrentSlotPointer(activeSaveSlot);
   }
   closeMenuSheet({ returnFocus: false });
   showTitleScreen();
