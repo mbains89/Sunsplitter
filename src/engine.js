@@ -476,7 +476,9 @@ function beginFreshCampaign(opts) {
     }
   }
   resetRunState();
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot })) {
+  // SUN-SECOND-TAB-GUARD-01: a new run replaces the slot on purpose (newRun), even one another tab
+  // saved over, and gives it back to this tab.
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot, newRun: true })) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
@@ -737,7 +739,8 @@ function showScene(id, opts) {
     }
   }
   // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
-  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: no slot once another tab has saved over the slot this tab plays (runTrailSaveSlot).
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, runTrailSaveSlot());
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -1655,7 +1658,8 @@ function resolveEnding() {
   setEndingArt(art);
   showScreen("ending");
   // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
-  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: a run this tab no longer saves reads and clears the trail of no slot.
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, runTrailSaveSlot());
 }
 
 function showWhatRemains() {
