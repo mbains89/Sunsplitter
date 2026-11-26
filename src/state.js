@@ -33,7 +33,8 @@ const VERSION = "0.36";
 // L-054 (2026-11-05; rulings 2026-11-25 D1(a) D2(a) D5(a) D6(a) D7(a) D10), cross-run ship memory:
 //   localStorage "sunsplitter_ship_memory_v1", owned by src/ship-memory.js. Its own namespace, one
 //   per browser: { v, runs, endings, lost, plates, forks { crisis, vault, tether, lethal, final },
-//   last, prints, trail } (trail = this run's hard-call scene ids). Not run state: never in `state`,
+//   last, prints, trail } (trail = each save slot's in-progress hard-call scene ids, keyed "1"-"3";
+//   SUN-SAVED-RUNS-01). Not run state: never in `state`,
 //   snapshotState, saves or the export, and no scene or rule reads it. Not `state.memories`.
 
 function freshState() {
@@ -1072,7 +1073,7 @@ function showScreen(id) {
   if (main) main.classList.toggle("cinematic-active", id === "cinematic");
   if (id !== "cinematic" && typeof cancelCinematic === "function") cancelCinematic();
   if (typeof releaseInactiveArtForScreen === "function") releaseInactiveArtForScreen(id);
-  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "memory-screen", "status", "meta", "crew-panel"].forEach(x => {
+  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "gallery-screen", "memory-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
@@ -1104,6 +1105,8 @@ function showScreen(id) {
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
   if (id === "cinematic") document.getElementById("cinematic-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
+  // SUN-GALLERY-01: reached from the title only (L-047); src/ship-gallery.js fills it.
+  if (id === "gallery") document.getElementById("gallery-screen").classList.remove("hidden");
   // SUN-MEMORY-BOARD-01 (L-054): the post-run memory board (src/memory-board.js).
   if (id === "memory") document.getElementById("memory-screen").classList.remove("hidden");
 
@@ -1113,6 +1116,7 @@ function showScreen(id) {
     cinematic: "cinematic-heading",
     ending: "ending-title",
     "what-remains": "what-remains-heading",
+    gallery: "gallery-heading",
     memory: "memory-heading"
   }[id];
   const focusTarget = focusTargetId ? document.getElementById(focusTargetId) : null;
