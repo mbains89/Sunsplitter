@@ -36,6 +36,9 @@ const fixtures = JSON.parse(loadGame(ROOT).evaluate(`JSON.stringify((() => {
     makeChoice(list(state.scene)[0]); r.after = state.scene;
     return r;
   }));
+  // A partner hears no custody offer on Breath: there is no heat question and no custody hub.
+  fresh("breath"); state.promises.sela = "made"; state.romance.sela = true; showScene("prom_price"); makeChoice(list("prom_price")[0]);
+  out.partnerKeepBreath = story();
   fresh("breath"); showScene("breath_onset"); out.selaUnmade = list("breath_onset").map(c => c.next);
   fresh("breath"); state.promises.sela = "made"; kill("sela", "fixture"); showScene("breath_onset"); out.selaDead = list("breath_onset").map(c => c.next);
   fresh("breath"); showScene("prom_price"); out.priceUnmadeBreath = state.scene;
@@ -94,6 +97,8 @@ for (const [word, pair] of fixtures.sela.entries()) {
   }
 }
 assert.ok(fixtures.sela[0][1].resultText.includes("You said: no one will use you as the price of their fear."), "Sela's Breath break lost its quote-back");
+assert.ok(fixtures.partnerKeepBreath.includes("It will last longer than you want it to.") && !fixtures.partnerKeepBreath.includes("heat question"),
+  "a partner Sela offered custody on Breath");
 assert.deepEqual(fixtures.selaUnmade, ["breath_hub", "breath_hub"], "an unmade Sela promise still routes through the petition");
 assert.deepEqual(fixtures.selaDead, ["breath_hub", "breath_hub"], "a dead Sela's promise still routes through the petition");
 assert.equal(fixtures.priceUnmadeBreath, "breath_hub", "prom_price without a made promise does not fall through to breath_hub on Breath");

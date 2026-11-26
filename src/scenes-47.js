@@ -59,17 +59,12 @@ Three of the crew came to you separately inside one watch. A petition is on the 
     },
     get text() {
       if (!isAlive("sela")) return `The petition stays on the board with no one named under it.`;
-      // SUN-PROMISE-BREATH-01: Breath has no heat question and no custody hub, so no custody offer.
-      if (state.crisisPath === "breath") return `You put it on the record in the mess, in front of the marks: the keeper is not the price, and fear does not get to sign orders on this ship.
-
-Sela steps up beside you. Not behind.
-
-"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."`;
+      // SUN-PROMISE-BREATH-01: Breath has no heat question and no custody hub, so no private custody offer.
       return `You put it on the record in the mess, in front of the marks: the keeper is not the price, and fear does not get to sign orders on this ship.
 
 Sela steps up beside you. Not behind.
 
-"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
+"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela && state.crisisPath !== "breath" ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
     },
     get choices() { return [ priceTestExit() ]; }
   },
