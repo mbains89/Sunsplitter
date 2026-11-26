@@ -94,7 +94,7 @@ registerScenes({
       }
       // 0.28: pair settle + warmth optional one-shots (gated)
       // SUN-V036-CREW-CONFLICT-01: existing pair offers named as living-vs-living conflict. No new flags.
-      if (isAlive("elias") && !isAlive("mira") && attributableDeath("mira") && !state.flags.pair_shield) {
+      if (isAlive("elias") && !isAlive("mira") && miraDiedByCommanderCall() && !state.flags.pair_shield) {
         opts.push({ text: "Elias is still at the board after Mira. The argument is not finished.", next: "pair_shield_cold" });
       }
       if (isAlive("tomas") && isAlive("jiro") && !state.flags.tomas_scapegoated && !state.flags.pair_grudge) {
