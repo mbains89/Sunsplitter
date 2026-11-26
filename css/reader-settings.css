@@ -46,11 +46,41 @@ html[data-line-spacing="open"] { --reader-leading: 1.28; }
   line-height: calc(1.7 * var(--reader-leading));
 }
 
-/* Title: the two settings sit in the "Reader settings" group under Text pace, each chip above its
-   button, laid out like the text-pace chip (css/paced-reveal.css). */
+/* Title: Size, Spacing and Font sit in the "Reader settings" group under Text pace, each chip above
+   its button, laid out like the text-pace chip (css/paced-reveal.css). */
 .reader-settings-actions .text-size-chip,
-.reader-settings-actions .line-spacing-chip {
+.reader-settings-actions .line-spacing-chip,
+.reader-settings-actions .reading-font-chip {
   flex: 1 0 100%;
   margin: 0;
   text-align: center;
+}
+
+/* SUN-READER-FONT-01 — reader setting "Font" (Wave 2 design, WS6 §6-8, T3; D3(a), 2026-11-25):
+   OpenDyslexic, named as such, with no claim that it helps anyone read. Regular only, bundled byte
+   for byte from its author's release, with its licence beside it (fonts/OFL.txt, SIL Open Font
+   License 1.1). It is declared here and used only under data-reading-font="opendyslexic", which
+   engine.js sets on <html>: a browser fetches a web font only when rendered text uses its family,
+   so a reader on "standard" never downloads it. font-display: swap shows the text at once in the
+   game's own type and swaps when the file arrives. */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The surfaces Size scales, and only those. OpenDyslexic's letters run wide, so no tracking is
+   added on top of them (the mono reason and cost-tag faces carry 0.02em), and a word too long for
+   its line wraps inside it rather than pushing the page sideways. Chrome keeps its own type. */
+html[data-reading-font="opendyslexic"] .scene-text,
+html[data-reading-font="opendyslexic"] .choice-btn,
+html[data-reading-font="opendyslexic"] .choice-reason,
+html[data-reading-font="opendyslexic"] .choice-effects,
+html[data-reading-font="opendyslexic"] .ending-text,
+html[data-reading-font="opendyslexic"] .cinematic-caption {
+  font-family: "OpenDyslexic", var(--font-ui);
+  letter-spacing: normal;
+  overflow-wrap: break-word;
 }

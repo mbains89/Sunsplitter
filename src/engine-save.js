@@ -30,6 +30,7 @@
 //   sunsplitter_text_pace_v1       text pace (engine.js)
 //   sunsplitter_text_size_v1       text size (engine.js)
 //   sunsplitter_line_spacing_v1    line spacing (engine.js)
+//   sunsplitter_reading_font_v1    reading font (engine.js)
 //   sunsplitter_tutorial_seen_v1   first-run tutorial seen (validate.js)
 //   sunsplitter_validate           developer scene validation switch (validate.js)
 //
