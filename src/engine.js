@@ -454,6 +454,11 @@ function beginFreshCampaign(opts) {
   // SUN-SAVE-SLOTS-CORE-01 (L-052): a persisted new run writes opts.slot, else the active slot,
   // and on success that slot becomes active and current. Play Again (no persist) stays in the slot.
   const slot = saveSlotArg(opts.slot);
+  if (opts.persist && !slot) {
+    // A slot value that names no slot: keep the current run and write nothing.
+    flashSaveStatus("New run failed · current run kept", true, true);
+    return false;
+  }
   let previousState = null;
   const previousGameVersion = loadedGameVersion;
   const previousSlotGuard = preserveCompletedSlotUntilChoice;

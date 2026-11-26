@@ -42,7 +42,8 @@ const ok = label => results.push(label);
       count: SAVE_SLOT_COUNT,
       pointer: SAVE_POINTER_KEY,
       k1: saveSlotKeys(1), k2: saveSlotKeys(2), k3: saveSlotKeys(3),
-      bad: [saveSlotKeys(0).live, saveSlotKeys(4).live, saveSlotKeys("x").live, normalizeSaveSlot("2")],
+      bad: [saveSlotKeys(0), saveSlotKeys(4), saveSlotKeys("x"), saveSlotKeys(null), saveSlotKeys("2") === saveSlotKeys(2)],
+      args: [saveSlotArg(), saveSlotArg({ type: "click" }), saveSlotArg("3"), saveSlotArg(4), saveSlotArg("x"), saveSlotArg(0), saveSlotArg(null)],
       active: activeSaveSlot
     };
   `);
@@ -51,7 +52,8 @@ const ok = label => results.push(label);
   assert.deepEqual(r.k1, { live: "sunsplitter_save_v3", staging: "sunsplitter_save_v3_staging", backup: "sunsplitter_save_v3_backup", legacy: "sunsplitter_save_v2" });
   assert.deepEqual(r.k2, { live: "sunsplitter_save_v3_slot2", staging: "sunsplitter_save_v3_slot2_staging", backup: "sunsplitter_save_v3_slot2_backup", legacy: null });
   assert.deepEqual(r.k3, { live: "sunsplitter_save_v3_slot3", staging: "sunsplitter_save_v3_slot3_staging", backup: "sunsplitter_save_v3_slot3_backup", legacy: null });
-  assert.deepEqual(r.bad, ["sunsplitter_save_v3", "sunsplitter_save_v3", "sunsplitter_save_v3", 2], "an invalid slot normalizes to slot 1");
+  assert.deepEqual(r.bad, [null, null, null, null, true], "a value that names no slot has no keys; \"2\" is slot 2");
+  assert.deepEqual(r.args, [1, 1, 3, null, null, null, null], "left out or an event: the active slot; a bad value: no slot");
   assert.equal(r.active, 1, "the active slot starts at 1");
   ok("key table");
 }
@@ -501,6 +503,246 @@ const ok = label => results.push(label);
   assert.equal(r.slot1StillEmpty, true, "Save in a slot 3 run writes slot 3 only");
   assert.equal(r.eventArg, true, "a non-slot argument falls back to the active slot");
   ok("title, Continue and pointer");
+}
+
+// 11. (Review finding 1) An unreadable active slot is announced even when Continue resumes another
+//     slot, offers its download, and New run asks before replacing it.
+{
+  const r = run(`
+    localStorage.setItem(SAVE_KEY, "{not json");
+    localStorage.setItem(saveSlotKeys(2).live, snap("act2_tether_sighting", { savedAt: 5 }));
+    localStorage.setItem(SAVE_POINTER_KEY, "2");
+    showScreen("title");
+    refreshTitleResumeUI();
+    const out = {
+      cont: continueSlot(),
+      active: activeSaveSlot,
+      resumeShown: !document.getElementById("btn-resume").classList.contains("hidden"),
+      status: status(),
+      downloadShown: !document.getElementById("btn-export-unreadable").classList.contains("hidden"),
+      download: (buildUnreadableSaveExport() || {}).text
+    };
+    const s2 = digest(keysOf(2));
+    startGame();
+    out.confirmShown = document.getElementById("new-run-confirm").classList.contains("visible");
+    out.slot1Untouched = localStorage.getItem(SAVE_KEY) === "{not json";
+    out.slot2Untouched = digest(keysOf(2)) === s2;
+    return out;
+  `);
+  assert.equal(r.cont, 2);
+  assert.equal(r.active, 1);
+  assert.equal(r.resumeShown, true);
+  assert.match(r.status, /can't be read/, "the unreadable slot 1 is announced beside slot 2's Continue");
+  assert.equal(r.downloadShown, true, "Download unreadable is offered for slot 1");
+  assert.equal(r.download, "{not json");
+  assert.equal(r.confirmShown, true, "New run asks before replacing slot 1's unreadable bytes");
+  assert.equal(r.slot1Untouched, true);
+  assert.equal(r.slot2Untouched, true);
+  ok("unreadable active slot beside another slot's Continue");
+}
+
+// 12. (Review finding 2) "1"-"3" name slots; any other value fails closed and touches no slot.
+{
+  const r = run(`
+    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
+    localStorage.setItem(SAVE_KEY_LEGACY, snap("priority_repairs"));
+    localStorage.setItem(saveSlotKeys(2).live, snap("priority_repairs", { savedAt: 2 }));
+    localStorage.setItem(saveSlotKeys(3).live, snap("act3_spine_next", { savedAt: 3 }));
+    localStorage.setItem(saveSlotKeys(3).backup, snap("act3_spine_next", { savedAt: 0 }));
+    const candidate = snap("wake", { savedAt: 9 });
+    const out = {};
+    const s1 = digest(SLOT1), s3 = digest(keysOf(3));
+    out.importText2 = importSaveText(candidate, "2");
+    out.slot2Is = localStorage.getItem(saveSlotKeys(2).live) === candidate;
+    out.othersSame = digest(SLOT1) === s1 && digest(keysOf(3)) === s3;
+    resetRunState(); state.scene = "hydroponics";
+    out.persistText3 = persistSave({ silent: true, slot: "3" });
+    out.slot3Scene = JSON.parse(localStorage.getItem(saveSlotKeys(3).live)).scene;
+    out.readText2 = readRawSave("2") === candidate;
+    const ALL = SLOT1.concat(keysOf(2), keysOf(3), [SAVE_POINTER_KEY]);
+    out.bad = [];
+    for (const bad of [4, "x", 0, null, "4", "0", "", 2.5, -1, true, [2], { slot: 2 }]) {
+      const before = digest(ALL);
+      resetRunState(); state.scene = "hydroponics";
+      const row = {
+        bad: JSON.stringify(bad),
+        importText: importSaveText(candidate, bad),
+        commit: commitImportedSave(candidate, bad),
+        persist: persistSave({ silent: true, slot: bad }),
+        fresh: beginFreshCampaign({ persist: true, slot: bad }),
+        sceneKept: state.scene === "hydroponics",
+        read: readRawSave(bad), has: hasSave(bad), meta: getSaveMeta(bad), bytes: slotHasAnyBytes(bad),
+        unreadable: unreadableSaveRaw(bad), exp: buildSaveExport(bad), unexp: buildUnreadableSaveExport(bad)
+      };
+      clearSave(bad);
+      row.untouched = digest(ALL) === before;
+      out.bad.push(row);
+    }
+    out.activeAfter = activeSaveSlot;
+    return out;
+  `);
+  assert.equal(r.importText2, true, "importSaveText(raw, \"2\") imports into slot 2");
+  assert.equal(r.slot2Is, true);
+  assert.equal(r.othersSame, true, "a \"2\" import leaves slots 1 and 3 byte-identical");
+  assert.equal(r.persistText3, true);
+  assert.equal(r.slot3Scene, "hydroponics", "persistSave({ slot: \"3\" }) writes slot 3");
+  assert.equal(r.readText2, true);
+  for (const row of r.bad) {
+    const at = `slot value ${row.bad}`;
+    assert.equal(row.importText, false, `${at}: importSaveText fails closed`);
+    assert.equal(row.commit, false, `${at}: commitImportedSave fails closed`);
+    assert.equal(row.persist, false, `${at}: persistSave fails closed`);
+    assert.equal(row.fresh, false, `${at}: beginFreshCampaign fails closed`);
+    assert.equal(row.sceneKept, true, `${at}: a refused new run keeps the current run`);
+    assert.deepEqual([row.read, row.has, row.meta, row.bytes, row.unreadable, row.exp, row.unexp],
+      [null, false, null, false, null, null, null], `${at}: reads name no slot`);
+    assert.equal(row.untouched, true, `${at}: every slot and the pointer stay byte-identical (clearSave included)`);
+  }
+  assert.equal(r.activeAfter, 1, "refused calls never move the active slot");
+  ok("slot values fail closed");
+}
+
+// 13. (Review finding 3a) Autosave, Save and the lifecycle save never write the pointer.
+{
+  const r = run(`
+    beginFreshCampaign({ persist: true, slot: 2 });
+    localStorage.setItem(saveSlotKeys(3).live, snap("act3_spine_next", { savedAt: 1 }));
+    localStorage.setItem(SAVE_POINTER_KEY, "3");
+    const out = { active: activeSaveSlot };
+    out.persist = persistSave({ silent: true });
+    out.afterPersist = localStorage.getItem(SAVE_POINTER_KEY);
+    saveGame();
+    out.afterSave = localStorage.getItem(SAVE_POINTER_KEY);
+    makeChoice(scenes[state.scene].choices[0]);
+    out.afterChoice = localStorage.getItem(SAVE_POINTER_KEY);
+    document.getElementById("game-screen").classList.remove("hidden");
+    window.dispatchEvent({ type: "pagehide" });
+    out.afterPagehide = localStorage.getItem(SAVE_POINTER_KEY);
+    out.slot2Saved = JSON.parse(localStorage.getItem(saveSlotKeys(2).live)).scene === state.scene;
+    return out;
+  `);
+  assert.equal(r.active, 2);
+  assert.equal(r.persist, true);
+  assert.deepEqual([r.afterPersist, r.afterSave, r.afterChoice, r.afterPagehide], ["3", "3", "3", "3"],
+    "persistSave, Save, a choice's autosave and pagehide leave the pointer alone");
+  assert.equal(r.slot2Saved, true, "the autosaves went to the active slot 2");
+  ok("autosave never writes the pointer");
+}
+
+// 14. (Review finding 3b) clearSave(slot) clears the slot named, not the active one.
+{
+  const r = run(`
+    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting"));
+    localStorage.setItem(saveSlotKeys(2).live, snap("priority_repairs"));
+    const k3 = saveSlotKeys(3);
+    localStorage.setItem(k3.live, snap("act3_spine_next"));
+    localStorage.setItem(k3.staging, "torn");
+    localStorage.setItem(k3.backup, snap("act3_spine_next", { savedAt: 1 }));
+    localStorage.setItem(SAVE_POINTER_KEY, "1");
+    const s1 = digest(SLOT1), s2 = digest(keysOf(2));
+    clearSave(3);
+    return {
+      active: activeSaveSlot,
+      slot3Gone: keysOf(3).every(key => localStorage.getItem(key) === null),
+      slot1Same: digest(SLOT1) === s1,
+      slot2Same: digest(keysOf(2)) === s2,
+      pointer: localStorage.getItem(SAVE_POINTER_KEY)
+    };
+  `);
+  assert.equal(r.active, 1);
+  assert.equal(r.slot3Gone, true, "clearSave(3) removes slot 3's live, staging and backup while slot 1 is active");
+  assert.equal(r.slot1Same, true, "clearSave(3) leaves the active slot 1 alone");
+  assert.equal(r.slot2Same, true);
+  assert.equal(r.pointer, "1");
+  ok("clearSave names its slot");
+}
+
+// 15. (Review finding 3c) An import into a slot that is not active rolls back that slot from its own
+//     prior bytes, even when the live restore fails, and never borrows the active slot's run.
+{
+  for (const variant of ["prior", "empty"]) {
+    const r = run(`
+      const active1 = snap("act2_tether_sighting", { savedAt: 1 });
+      localStorage.setItem(SAVE_KEY, active1);
+      const k2 = saveSlotKeys(2);
+      const prior2 = ${variant === "prior" ? `snap("priority_repairs", { savedAt: 2 })` : "null"};
+      if (prior2) localStorage.setItem(k2.live, prior2);
+      const candidate = snap("wake", { savedAt: 9 });
+      const s1 = digest(SLOT1), s3 = digest(keysOf(3));
+      const realSet = localStorage.setItem, realRemove = localStorage.removeItem;
+      // The candidate lands in slot 2's live key, then the write reports failure, and every
+      // attempt to restore that live key fails too.
+      localStorage.setItem = (key, value) => {
+        if (key === k2.live && value === candidate) { realSet(key, value); throw new Error("injected after write"); }
+        if (key === k2.live) throw new Error("injected restore failure");
+        return realSet(key, value);
+      };
+      localStorage.removeItem = key => { if (key === k2.live) throw new Error("injected restore failure"); return realRemove(key); };
+      const imported = importSaveText(candidate, 2);
+      localStorage.setItem = realSet; localStorage.removeItem = realRemove;
+      return {
+        imported, active: activeSaveSlot,
+        effective2: readRawSave(2), prior2, active1Leaked: readRawSave(2) === active1,
+        status: status(), slot1: digest(SLOT1) === s1, slot3: digest(keysOf(3)) === s3
+      };
+    `);
+    assert.equal(r.imported, false, `${variant}: the import fails`);
+    assert.equal(r.active, 1);
+    assert.equal(r.active1Leaked, false, `${variant}: slot 1's run never becomes slot 2's recovery`);
+    assert.equal(r.effective2, r.prior2, `${variant}: slot 2 reads back its own prior state`);
+    assert.equal(r.status, "Import failed · original slot kept", `${variant}: the status is judged on slot 2`);
+    assert.equal(r.slot1, true, `${variant}: slot 1 untouched`);
+    assert.equal(r.slot3, true, `${variant}: slot 3 untouched`);
+  }
+  ok("import rollback on a slot that is not active");
+}
+
+// 16. (Review finding 3d) A held one-time entry is matched by slot as well as bytes: the same
+//     pre-marker bytes in another slot enter fresh, and the held entry stays for its own slot.
+{
+  const r = run(`
+    globalThis.__tagEntries = 0;
+    scenes.slot_tag_probe = { text: "Probe", onEnter: () => { globalThis.__tagEntries += 1; }, choices: [] };
+    const pre = JSON.parse(snap("slot_tag_probe", { savedAt: 4 }));
+    delete pre.sceneEntered;
+    const preRaw = JSON.stringify(pre);
+    const k2 = saveSlotKeys(2);
+    localStorage.setItem(k2.live, preRaw);
+    const realSet = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key === k2.live && value.includes('"sceneEntered":true')) throw new Error("injected marker failure");
+      return realSet(key, value);
+    };
+    activeSaveSlot = 2;
+    const first = loadGame();
+    localStorage.setItem = realSet;
+    const out = { first, held: pendingLegacyResume && pendingLegacyResume.slot, entries1: globalThis.__tagEntries };
+    // Slot 1 now holds the very same pre-marker bytes.
+    localStorage.setItem(SAVE_KEY, preRaw);
+    activeSaveSlot = 1;
+    out.slot1Load = loadGame();
+    out.entriesAfterSlot1 = globalThis.__tagEntries;
+    out.slot1Marked = JSON.parse(localStorage.getItem(SAVE_KEY)).sceneEntered === true;
+    out.heldAfterSlot1 = pendingLegacyResume && pendingLegacyResume.slot;
+    out.slot2StillPre = localStorage.getItem(k2.live) === preRaw;
+    activeSaveSlot = 2;
+    out.slot2Load = loadGame();
+    out.entriesAfterSlot2 = globalThis.__tagEntries;
+    out.heldAfterSlot2 = pendingLegacyResume;
+    return out;
+  `);
+  assert.equal(r.first, false);
+  assert.equal(r.held, 2);
+  assert.equal(r.entries1, 1);
+  assert.equal(r.slot1Load, true);
+  assert.equal(r.entriesAfterSlot1, 2, "slot 1's copy of the bytes enters its scene once on its own, not through slot 2's held entry");
+  assert.equal(r.slot1Marked, true);
+  assert.equal(r.heldAfterSlot1, 2, "loading slot 1 keeps slot 2's held entry");
+  assert.equal(r.slot2StillPre, true);
+  assert.equal(r.slot2Load, true);
+  assert.equal(r.entriesAfterSlot2, 2, "slot 2's retry uses its held entry and does not enter again");
+  assert.equal(r.heldAfterSlot2, null);
+  ok("held entry matched by slot");
 }
 
 console.log(`PASS sun-playerflow-save-slots: ${results.length} groups (${results.join("; ")})`);

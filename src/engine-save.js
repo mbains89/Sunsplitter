@@ -65,22 +65,27 @@ let activeSaveSlot = 1;
 function isSaveSlot(n) {
   return Number.isInteger(n) && n >= 1 && n <= SAVE_SLOT_COUNT;
 }
-function normalizeSaveSlot(n) {
+// 1-3 or "1"-"3" name that slot; any other value names no slot (null).
+function parseSaveSlot(n) {
   const slot = typeof n === "string" && /^[0-9]$/.test(n) ? Number(n) : n;
-  return isSaveSlot(slot) ? slot : 1;
+  return isSaveSlot(slot) ? slot : null;
 }
-// An optional slot argument: a slot number names that slot; anything else (left out, or an event
-// object from a handler) means the active slot.
+// An optional slot argument. Left out, or an event object from a handler: the active slot.
+// Anything else must name a slot; a value that names none (4, "x", 0, null) gives null, and every
+// save function then fails closed without touching any slot.
 function saveSlotArg(slot) {
-  return isSaveSlot(slot) ? slot : normalizeSaveSlot(activeSaveSlot);
+  const isEvent = slot !== null && typeof slot === "object" && typeof slot.type === "string";
+  return parseSaveSlot(slot === undefined || isEvent ? activeSaveSlot : slot);
 }
+// The slot's keys, or null for a value that names no slot.
 function saveSlotKeys(n) {
-  return SAVE_SLOT_KEYS[normalizeSaveSlot(n)];
+  const slot = parseSaveSlot(n);
+  return slot ? SAVE_SLOT_KEYS[slot] : null;
 }
 // Every key one slot owns, in the import transaction's order (slot 1 includes legacy v2).
 function saveSlotStorageKeys(slot) {
   const keys = saveSlotKeys(slot);
-  return [keys.live, keys.legacy, keys.staging, keys.backup].filter(Boolean);
+  return keys ? [keys.live, keys.legacy, keys.staging, keys.backup].filter(Boolean) : [];
 }
 
 function readCurrentSlotPointer() {
@@ -423,7 +428,9 @@ function inspectSaveImportText(text) {
 }
 
 function buildSaveExport(slot) {
-  const raw = readRawSave(saveSlotArg(slot));
+  slot = saveSlotArg(slot);
+  if (!slot) return null;
+  const raw = readRawSave(slot);
   if (!validRawSnapshot(raw)) return null;
   const save = JSON.parse(raw);
   const exportedAt = Date.now();
@@ -448,7 +455,9 @@ function exportSaveFile() {
 // downloaded byte-for-byte before a new run replaces it. It is never loaded, validated or
 // re-exported as a playable save; Export save above stays fail-closed (0.32) for these bytes.
 function buildUnreadableSaveExport(slot) {
-  const raw = unreadableSaveRaw(saveSlotArg(slot));
+  slot = saveSlotArg(slot);
+  if (!slot) return null;
+  const raw = unreadableSaveRaw(slot);
   if (!raw) return null;
   const stamp = new Date(Date.now()).toISOString().slice(0, 10);
   return { filename: `sunsplitter-unreadable-save-${stamp}.json`, text: raw };
@@ -495,6 +504,10 @@ function restoreStorageValue(key, value) {
 
 function commitImportedSave(raw, slot) {
   slot = saveSlotArg(slot);
+  if (!slot) {
+    flashSaveStatus("Import failed · original slot kept", true, true);
+    return false;
+  }
   const slotKeys = saveSlotKeys(slot);
   const keys = saveSlotStorageKeys(slot);
   let originals;
@@ -572,6 +585,10 @@ function commitImportedSave(raw, slot) {
 
 function importSaveText(text, slot) {
   slot = saveSlotArg(slot);
+  if (!slot) {
+    flashSaveStatus("Import failed · original slot kept", true, true);
+    return false;
+  }
   const inspected = inspectSaveImportText(text);
   if (!inspected.ok) {
     flashSaveStatus(`Import rejected · ${inspected.error}`, true, true);
@@ -632,6 +649,7 @@ async function handleSaveImportSelection(input) {
 
 function readRawSave(slot) {
   const keys = saveSlotKeys(saveSlotArg(slot));
+  if (!keys) return null;
   try {
     let raw = localStorage.getItem(keys.live);
     const staging = localStorage.getItem(keys.staging);
@@ -661,7 +679,7 @@ function readRawSave(slot) {
 // SUN-UNREADABLE-EXPORT-01: the raw bytes can be downloaded (buildUnreadableSaveExport).
 function unreadableSaveRaw(slot) {
   slot = saveSlotArg(slot);
-  if (hasSave(slot)) return null;
+  if (!slot || hasSave(slot)) return null;
   const keys = saveSlotKeys(slot);
   for (const key of [keys.live, keys.backup, keys.legacy, keys.staging].filter(Boolean)) {
     let raw = null;
@@ -672,15 +690,18 @@ function unreadableSaveRaw(slot) {
 }
 function slotHasAnyBytes(slot) {
   slot = saveSlotArg(slot);
+  if (!slot) return false;
   return hasSave(slot) || !!unreadableSaveRaw(slot);
 }
 
 function hasSave(slot) {
-  return validRawSnapshot(readRawSave(saveSlotArg(slot)));
+  slot = saveSlotArg(slot);
+  return !!slot && validRawSnapshot(readRawSave(slot));
 }
 
 function getSaveMeta(slot) {
   slot = saveSlotArg(slot);
+  if (!slot) return null;
   const raw = readRawSave(slot);
   if (!raw) return null;
   try {
@@ -705,6 +726,11 @@ function persistSave(opts) {
   opts = opts || {};
   const silent = !!opts.silent;
   const slot = saveSlotArg(opts.slot);
+  if (!slot) {
+    // A slot value that names no slot: nothing is written anywhere.
+    reportSaveWriteFailure(silent, true);
+    return false;
+  }
   const slotKeys = saveSlotKeys(slot);
   // Only slot 1 has a legacy v2 key to retire.
   const retireLegacy = !!opts.retireLegacy && !!slotKeys.legacy;
@@ -806,8 +832,7 @@ function saveGame() {
 // Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
   const slot = saveSlotArg(activeSaveSlot);
-  activeSaveSlot = slot;
-  if (!hasSave(slot)) {
+  if (!slot || !hasSave(slot)) {
     flashSaveStatus("No save", true);
     return false;
   }
@@ -885,6 +910,7 @@ function resumeGame() {
 // the pointer and the settings keys are never touched.
 function clearSave(slot) {
   try {
+    // A value that names no slot has no keys, so nothing is removed.
     for (const key of saveSlotStorageKeys(saveSlotArg(slot))) localStorage.removeItem(key);
   } catch (e) { /* ignore */ }
   updateMetaSaveHint();
@@ -981,7 +1007,9 @@ function refreshTitleResumeUI() {
     beginBtn.textContent = has ? "New run" : "Begin";
   }
   let unreadable = null;
-  if (!has) { try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; } }
+  // The active slot's unreadable bytes are announced even when Continue resumes another slot,
+  // because New run and Download unreadable act on the active slot.
+  try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; }
   if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it.", true, true);
   const unreadableBtn = document.getElementById("btn-export-unreadable");
   if (unreadableBtn) unreadableBtn.classList.toggle("hidden", !unreadable);
