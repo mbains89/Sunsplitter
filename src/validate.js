@@ -280,7 +280,7 @@ function openCrewSheet(key) {
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
-  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
+  const cause = crewConditionNote(key); // SUN-HONESTY-LINES-01: a living clock, never a future cause
   const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
   const nameEl = document.getElementById("crew-sheet-name");
   const roleEl = document.getElementById("crew-sheet-role");
@@ -485,6 +485,15 @@ function hideNewRunConfirm() {
 function showNewRunConfirm() {
   const panel = document.getElementById("new-run-confirm");
   if (!panel) return false;
+  // SUN-SAVED-RUNS-01: until the S-3 picker, New run writes the active slot; name it.
+  const copy = document.getElementById("new-run-confirm-copy");
+  const chip = document.getElementById("new-run-confirm-chip");
+  if (copy && typeof activeSaveSlot !== "undefined" && typeof saveSlotName === "function") {
+    let meta = null;
+    try { meta = hasSave(activeSaveSlot) ? getSaveMeta(activeSaveSlot) : null; } catch (e) { meta = null; }
+    copy.textContent = `New run replaces ${saveSlotName(activeSaveSlot, meta)}. Your other slots stay as they are.`;
+    if (chip) chip.textContent = `Confirm = replace Slot ${activeSaveSlot} · Cancel = keep it`;
+  }
   panel.classList.remove("hidden");
   panel.classList.add("visible");
   focusModalDialog("new-run-confirm");
@@ -508,6 +517,58 @@ function showCommanderCreate() {
   return true;
 }
 
+// SUN-SAVED-RUNS-01 (L-052, design S-2): the title's Saved runs dialog. It opens on the slot
+// Continue resumes (else slot 1), with focus on that row's radio; Close and Escape close it and
+// focus returns to the Saved runs button. engine-save.js paints the rows and owns the actions.
+function hideSavedRuns() {
+  const panel = document.getElementById("saved-runs");
+  if (!panel) return;
+  panel.classList.add("hidden");
+  panel.classList.remove("visible");
+  restoreModalDialogFocus("saved-runs");
+}
+function showSavedRuns() {
+  const panel = document.getElementById("saved-runs");
+  if (!panel) return false;
+  // Close the title's inline dialogs first (as showCommanderCreate does), so the modal lookup
+  // finds Saved runs and Tab and Escape work it, not a confirm hidden behind it. Focus still
+  // returns to whatever opened Saved runs.
+  const opener = document.activeElement || null;
+  hideNewRunConfirm();
+  hideCommanderCreate();
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, "saved-runs")) modalDialogOpeners["saved-runs"] = opener;
+  const status = document.getElementById("saved-runs-status");
+  if (status) {
+    status.textContent = "";
+    status.classList.remove("error");
+    status.classList.remove("visible");
+  }
+  if (typeof renderSavedRuns === "function") renderSavedRuns(savedRunsDefaultSlot());
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+  focusModalDialog("saved-runs");
+  const selected = typeof savedRunsSelectedSlot === "function" ? savedRunsSelectedSlot() : null;
+  const radio = selected ? document.getElementById("saved-runs-slot-" + selected) : null;
+  if (radio && typeof radio.focus === "function") radio.focus();
+  return true;
+}
+function closeSavedRuns() {
+  hideSavedRuns();
+  return false;
+}
+// Load: the checked row's slot, passed explicitly. The dialog closes only when the run loaded; a
+// failed load keeps it open with the reason in its status line (and the active slot unchanged).
+function loadSelectedSavedRun() {
+  const slot = typeof savedRunsSelectedSlot === "function" ? savedRunsSelectedSlot() : null;
+  if (!slot) {
+    flashSaveStatus("No save", true);
+    return false;
+  }
+  const loaded = loadSaveSlot(slot);
+  if (loaded) hideSavedRuns();
+  return loaded;
+}
+
 // SUN-MODAL-HOTKEYS-01: an open aria-modal dialog owns the keyboard. Number keys, Enter and
 // Space never reach gameplay or title shortcuts behind it (first-run tutorial over wake was
 // committing a choice blind). Enter/Space on a control inside the dialog keep their native
@@ -517,7 +578,9 @@ const MODAL_DIALOG_PRIMARY = {
   "tutorial-overlay": "tutorial-dismiss",
   "commander-create": "commander-create-ok",
   "new-run-confirm": "new-run-ok",
-  "crew-sheet": "crew-sheet-close"
+  "saved-runs": "saved-runs-close",
+  "crew-sheet": "crew-sheet-close",
+  "gallery-viewer": "gallery-viewer-close"
 };
 const modalDialogOpeners = {};
 function openModalDialogElement() {
@@ -539,7 +602,9 @@ function focusModalDialog(id) {
 const MODAL_DIALOG_CANCEL = {
   "tutorial-overlay": () => skipTutorial(),
   "commander-create": () => cancelCommanderCreate(),
-  "new-run-confirm": () => cancelNewRun()
+  "new-run-confirm": () => cancelNewRun(),
+  "saved-runs": () => closeSavedRuns(),
+  "gallery-viewer": () => closeGalleryViewer()
 };
 const MODAL_TABBABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 function modalFocusUsable(el) {
@@ -719,6 +784,7 @@ function handleTitleChromeKeydown(event) {
   }
   if (!visible("title-screen")) return false;
   if (visible("commander-create") || visible("new-run-confirm")) return false;
+  if (typeof savedRunsDialogOpen === "function" && savedRunsDialogOpen()) return false;
   const resume = document.getElementById("btn-resume");
   if (resume && !resume.classList.contains("hidden")) {
     if (typeof event.preventDefault === "function") event.preventDefault();

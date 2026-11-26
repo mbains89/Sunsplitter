@@ -7,6 +7,7 @@ registerScenes({
   // save-recovery guards, not ordinary playable content. Preserve junctionChoice:
   // zero writes "none"; one defers the write to its destination scene; two-or-more
   // leaves the existing value untouched while rendering the ordinary selector.
+  // SUN-WATCH-EXIT-01: that selector may end on "Go back to the watch.", which writes "none".
   offshift_open: {
     image: "images/corridor_variant.jpg",
     onEnter: () => {
@@ -52,6 +53,12 @@ registerScenes({
       if (eligJiro())  c.push({ text: "Take the chair in observation.", next: "offshift_jiro" });
       if (eligSela())  c.push({ text: "Attend at yellow.", next: "filters_stencil" });
       if (eligVess())  c.push({ text: "Review the item Vess is holding.", next: "offshift_vess" });
+      // SUN-WATCH-EXIT-01 (pending item 22, ruled 2026-11-25): the hour can be declined, by the
+      // zero-door route above (junctionChoice "none", an existing value, then faction_split). "none"
+      // opens no late hour, so the exit shows only when no living partner has one still to come
+      // (LATE_HOURS gates, as afterHour reads them): decision 12 as widened on 2026-11-08 holds.
+      const partnerHourToCome = Object.keys(LATE_HOURS).some(w => isAlive(w) && LATE_HOURS[w].open() && !LATE_HOURS[w].done());
+      if (!partnerHourToCome) c.push({ text: "Go back to the watch.", next: "faction_split", flag: { junctionChoice: "none" } });
       return c;
     }
   },
@@ -158,7 +165,7 @@ registerScenes({
       // player who reaches this scene has a dead Mira, and the unmended jacket is the cold-Elias
       // symptom (CHARACTER_BIBLE §2); the mending sentence contradicted the paragraph under it.
       let t = `His quarters smell of gun oil and thread. The jacket on the table is torn at the shoulder and unmended. His kit sits closed beside it. He sees you see it and doesn't explain.\n\n`;
-      if (!attributableDeath("mira")) {
+      if (!state.flags.pair_shield) {
         t += `"You never asked what she was. She was what the job was for." He says it once, at the floor, and picks up the wafer instead of the needle. "That's the once."\n\n`;
       } else {
         t += `"You heard what she was. Once was the count."\n\n`;

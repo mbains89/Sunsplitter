@@ -10,9 +10,11 @@ export const EXPECTED_SCRIPTS = [
   "src/state.js",
   ...Array.from({ length: 55 }, (_, index) => `src/scenes-${String(index + 1).padStart(2, "0")}.js`),
   "src/ship-memory.js",
+  "src/ship-gallery.js",
   "src/engine-save.js",
   "src/engine.js",
   "src/validate.js",
+  "src/memory-board.js",
   "src/hitl-unshadow.js",
   "src/review-build-stamp.js"
 ];

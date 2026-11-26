@@ -207,7 +207,7 @@ function desktopCompositionChecks() {
     ["grid-column: 2", "prose placement beside scene art"],
     ["width: min(calc(100% - 32px), 48dvh, 430px)", "portrait plate desktop sizing"],
     ["max-width: 68ch", "desktop prose line-length cap"],
-    ["font-size: 1.08rem", "desktop prose type scale"]
+    ["font-size: 1.02rem", "prose type scale (one size at every width, D5a 2026-11-25)"]
   ];
   for (const [rule, label] of requiredRules) {
     if (!cssSource.includes(rule)) errors.push(`0.32 desktop composition missing ${label}`);
@@ -353,8 +353,8 @@ function performanceSourceChecks() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const engineSource = readEngineSource(ROOT);
-  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 4) {
-    errors.push("all four runtime art surfaces, including cinematic, must request asynchronous decode");
+  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 5) {
+    errors.push("all five runtime art surfaces, including cinematic and the gallery viewer, must request asynchronous decode");
   }
   for (const fragment of [
     "function setManagedImageSource(img, src)",

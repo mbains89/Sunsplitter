@@ -46,7 +46,7 @@ function exerciseVessRecap(fixtures, mode) {
       "completed Vess missing or fabricated");
     expect(!text.includes("one first-time bond"), "arbitrary first-time count remains");
     expect(text.includes(remaining) === hasOpenRomanceGates(), "remaining-check wording changes gate");
-    const second = text.match(/Someone you already crossed a line with may still come looking: ([^<]+?)\. A second approach/);
+    const second = text.match(/Someone you have already had sex with may still come looking: ([^<]+?)\. A second approach/);
     const names = ["mira", "amara", "sela", "lena"]
       .filter(who => state.romance[who] && !state.pursuit[who] && isAlive(who)).map(who => crew[who].name);
     expect((second ? second[1] : "") === names.join(", "), "second-approach list changed");

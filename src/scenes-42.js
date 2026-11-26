@@ -63,7 +63,7 @@ registerScenes({
     text: () => {
       if (!isAlive("elias")) return "The chair is empty. There is no conversation to finish. The ship's work remains.";
       // Preserve the already-authored unmended-jacket consequence, not a new reconciliation.
-      if (!isAlive("mira") && attributableDeath("mira")) {
+      if (!isAlive("mira") && miraDiedByCommanderCall()) {
         return `A work jacket lies folded beside Elias. The cuff is split. A needle rests across the open seam.\n\nHe sees you looking.\n\n"Not tonight, Commander."\n\nHe folds the jacket over the needle. You leave it where it is.`;
       }
       return `Before you leave, Elias draws a work jacket across his knees. The cuff has opened along an old seam. He puts the needle through where the previous stitches held.\n\n"Hold the edge, Commander."\n\nYou hold it. His stitches are small and close, the knot buried where it will not catch on a hatch. He tests the seam with both thumbs.\n\n"You do all of them?" you ask.\n\n"The torn ones."\n\nThere is no list beside the jacket. You have seen him keep lists for less.\n\nHe folds it with the repaired cuff on top.\n\n"Leave it on the chair. They know where to look."\n\nFor once, he has given you a task that ends when it is done.`;

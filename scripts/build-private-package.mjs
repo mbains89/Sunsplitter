@@ -725,7 +725,8 @@ export function scanRuntimeNetworkUse(textRuntimeFiles, allowedCalls = ALLOWED_N
 // L-043: src/engine.js plus any src/engine-<part>.js that the commit's index.html loads, in load order.
 function engineScriptPaths(commit, root = ROOT) {
   const indexText = blobAt(commit, "index.html", root).toString("utf8");
-  const paths = [...indexText.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+  // The space before "src" keeps data-src and the like out: a browser does not load those.
+  const paths = [...indexText.matchAll(/<script\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/gi)]
     .map(match => match[1].replace(/^\.\//, ""))
     .filter(path => /^src\/engine(?:-[a-z0-9]+)*\.js$/.test(path));
   if (!paths.includes("src/engine.js")) throw new Error("index.html does not load src/engine.js");

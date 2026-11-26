@@ -14,6 +14,9 @@
 <link rel="stylesheet" href="css/intro-nav.css">
 <link rel="stylesheet" href="css/pc-viewport.css">
 <link rel="stylesheet" href="css/paced-reveal.css">
+<link rel="stylesheet" href="css/gallery.css">
+<link rel="stylesheet" href="css/memory-board.css">
+<link rel="stylesheet" href="css/reader-settings.css">
 </head>
 <body>
 <div id="app">
@@ -101,6 +104,7 @@
         <p class="tone-meta">
           Story and consequences. Not a management sim, not combat, not a checklist.
         </p>
+        <p id="tone-remembers" class="ship-remembers hidden"></p>
         <button class="btn btn-primary" type="button" onclick="acknowledgeTone()">I understand — continue</button>
       </div>
     </div>
@@ -119,12 +123,14 @@
       <p class="title-contract">
         Choices have weight. The Future and the Living will both ask for blood.
       </p>
+      <p id="title-remembers" class="ship-remembers hidden"></p>
       <div class="title-actions">
         <p id="review-build-stamp" class="review-build-stamp hidden" role="status">Private review build</p>
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <p id="title-save-chip" class="title-save-chip hidden" role="status"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
+        <button id="btn-memory-board" class="btn hidden" type="button" onclick="openMemoryBoard('title')">Memory board</button>
         <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-confirm-copy">
           <p id="new-run-confirm-copy">New run replaces the durable local save slot. Cancel keeps Continue available.</p>
           <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Confirm = overwrite slot · Cancel = keep Continue</p>
@@ -165,11 +171,48 @@
             <button id="commander-create-ok" class="btn btn-primary" type="button" onclick="confirmCommanderCreate()">Begin run</button>
           </div>
         </div>
-        <div class="save-transfer-actions" role="group" aria-label="Save transfer">
-          <p id="export-import-chip" class="export-import-chip" role="status">Import anytime · Export appears when a durable slot exists</p>
-          <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
-          <button id="btn-export-unreadable" class="btn hidden" type="button" onclick="exportUnreadableSaveFile()">Download unreadable save</button>
-          <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
+        <button id="btn-gallery" class="btn hidden" type="button" onclick="openGallery()">Gallery</button>
+        <button id="btn-saved-runs" class="btn" type="button" onclick="showSavedRuns()" aria-haspopup="dialog">Saved runs</button>
+        <div id="saved-runs" class="hidden" role="dialog" aria-modal="true" aria-labelledby="saved-runs-title" aria-describedby="saved-runs-help">
+          <div class="saved-runs-panel">
+            <h2 id="saved-runs-title" class="saved-runs-title">Saved runs</h2>
+            <p id="saved-runs-help" class="saved-runs-help">Three slots on this device, one run in each. The run you are playing saves after every choice.</p>
+            <fieldset class="saved-runs-slots">
+              <legend>Choose a slot</legend>
+              <label id="saved-runs-row-1" class="saved-runs-row" for="saved-runs-slot-1">
+                <input type="radio" name="save-slot" id="saved-runs-slot-1" value="1" aria-labelledby="saved-runs-slot-1-name" aria-describedby="saved-runs-slot-1-detail" checked onchange="selectSavedRunsSlot(1)">
+                <span class="saved-runs-row-text">
+                  <span id="saved-runs-slot-1-name" class="saved-runs-row-name">Slot 1 · Empty</span>
+                  <span id="saved-runs-slot-1-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+              <label id="saved-runs-row-2" class="saved-runs-row" for="saved-runs-slot-2">
+                <input type="radio" name="save-slot" id="saved-runs-slot-2" value="2" aria-labelledby="saved-runs-slot-2-name" aria-describedby="saved-runs-slot-2-detail" onchange="selectSavedRunsSlot(2)">
+                <span class="saved-runs-row-text">
+                  <span id="saved-runs-slot-2-name" class="saved-runs-row-name">Slot 2 · Empty</span>
+                  <span id="saved-runs-slot-2-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+              <label id="saved-runs-row-3" class="saved-runs-row" for="saved-runs-slot-3">
+                <input type="radio" name="save-slot" id="saved-runs-slot-3" value="3" aria-labelledby="saved-runs-slot-3-name" aria-describedby="saved-runs-slot-3-detail" onchange="selectSavedRunsSlot(3)">
+                <span class="saved-runs-row-text">
+                  <span id="saved-runs-slot-3-name" class="saved-runs-row-name">Slot 3 · Empty</span>
+                  <span id="saved-runs-slot-3-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+            </fieldset>
+            <div class="saved-runs-actions" role="group" aria-label="Saved run actions">
+              <button id="saved-runs-load" class="btn btn-primary hidden" type="button" onclick="loadSelectedSavedRun()">Load</button>
+              <div class="save-transfer-actions" role="group" aria-label="Save transfer">
+                <p id="export-import-chip" class="export-import-chip">Load, Export and Import use the selected slot. Nothing is uploaded.</p>
+                <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
+                <button id="btn-export-unreadable" class="btn hidden" type="button" onclick="exportUnreadableSaveFile()">Download unreadable save</button>
+                <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
+              </div>
+              <button id="saved-runs-close" class="btn" type="button" onclick="closeSavedRuns()">Close</button>
+            </div>
+            <p id="saved-runs-status" class="title-save-status saved-runs-status" aria-live="polite"></p>
+          </div>
         </div>
         <div class="reader-setting-actions" role="group" aria-label="Reader setting">
           <p id="show-costs-chip" class="show-costs-chip">Off · choices show no costs · locked choices still say why</p>
@@ -182,6 +225,10 @@
         <div class="reader-settings-actions" role="group" aria-label="Reader settings">
           <p id="text-pace-chip" class="text-pace-chip" role="status">Paced · tap for each paragraph</p>
           <button id="btn-text-pace" class="btn" type="button" onclick="toggleTextPace()" aria-describedby="text-pace-chip">Text: paced</button>
+          <p id="text-size-chip" class="text-size-chip" role="status">Standard · the usual size</p>
+          <button id="btn-text-size" class="btn" type="button" onclick="cycleTextSize()" aria-describedby="text-size-chip">Size: standard</button>
+          <p id="line-spacing-chip" class="line-spacing-chip" role="status">Standard · the usual line spacing</p>
+          <button id="btn-line-spacing" class="btn" type="button" onclick="cycleLineSpacing()" aria-describedby="line-spacing-chip">Spacing: standard</button>
         </div>
         <div class="reader-settings-actions" role="group" aria-label="Picture setting">
           <p id="cover-nudity-chip" class="cover-nudity-chip" role="status">Off · pictures show as drawn</p>
@@ -238,9 +285,49 @@
       <div class="ending-text" id="what-remains-text"></div>
       <h2 class="ending-subheading" id="what-remains-crew-heading">The crew</h2>
       <div class="ending-text" id="what-remains-crew"></div>
+      <button id="btn-memory-board-remains" class="btn hidden" type="button" onclick="openMemoryBoard('what-remains')">Memory board</button>
       <button class="btn" type="button" onclick="showScreen('ending')">Return to ending</button>
       <button class="btn" type="button" onclick="playAgain()">Play Again</button>
     </div>
+
+    <section id="gallery-screen" class="hidden" aria-labelledby="gallery-heading">
+      <h1 class="ending-title" id="gallery-heading" tabindex="-1">Gallery</h1>
+      <ul id="gallery-grid" class="gallery-grid" aria-labelledby="gallery-heading"></ul>
+      <div class="gallery-pager" role="group" aria-label="Gallery pages">
+        <button id="gallery-earlier" class="btn hidden" type="button" onclick="galleryPage(-1)">Earlier</button>
+        <button id="gallery-more" class="btn hidden" type="button" onclick="galleryPage(1)">Later</button>
+      </div>
+      <button id="gallery-back" class="btn" type="button" onclick="closeGallery()">Back to title</button>
+      <div id="gallery-viewer" class="hidden" role="dialog" aria-modal="true" aria-label="Picture viewer">
+        <div id="gallery-viewer-frame">
+          <img id="gallery-viewer-image" alt="" decoding="async" />
+        </div>
+        <div class="gallery-viewer-actions" role="group" aria-label="Picture controls">
+          <button id="gallery-viewer-prev" class="btn" type="button" onclick="stepGalleryViewer(-1)">Previous</button>
+          <button id="gallery-viewer-close" class="btn btn-primary" type="button" onclick="closeGalleryViewer()">Back</button>
+          <button id="gallery-viewer-next" class="btn" type="button" onclick="stepGalleryViewer(1)">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="memory-screen" class="hidden" aria-labelledby="memory-heading">
+      <h1 class="ending-title" id="memory-heading" tabindex="-1">Memory board</h1>
+      <h2 class="ending-subheading" id="memory-endings-heading">Endings</h2>
+      <ul id="memory-endings" class="memory-endings" aria-labelledby="memory-endings-heading"></ul>
+      <h2 class="ending-subheading" id="memory-forks-heading">Forks</h2>
+      <ul id="memory-forks" class="memory-forks" aria-labelledby="memory-forks-heading"></ul>
+      <div class="memory-actions" role="group" aria-label="Memory board actions">
+        <button id="memory-back" class="btn btn-primary" type="button" onclick="closeMemoryBoard()">Back to title</button>
+        <button id="memory-forget" class="btn hidden" type="button" onclick="showMemoryForgetConfirm()">Forget this ship</button>
+      </div>
+      <div id="memory-forget-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="memory-forget-copy">
+        <p id="memory-forget-copy">Forget every ending, fork and picture this ship remembers? Saved runs and settings are kept.</p>
+        <div role="group" aria-label="Forget this ship confirm">
+          <button id="memory-forget-cancel" class="btn" type="button" onclick="cancelMemoryForget()">Cancel</button>
+          <button id="memory-forget-ok" class="btn btn-primary" type="button" onclick="confirmMemoryForget()">Forget this ship</button>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -316,9 +403,11 @@
 <script src="src/scenes-54.js"></script>
 <script src="src/scenes-55.js"></script>
 <script src="src/ship-memory.js"></script>
+<script src="src/ship-gallery.js"></script>
 <script src="src/engine-save.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
+<script src="src/memory-board.js"></script>
 <script src="src/hitl-unshadow.js"></script>
 <script src="src/review-build-stamp.js"></script>
 <script>
