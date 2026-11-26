@@ -44,7 +44,7 @@ const FORK_LABELS = {
   crisis: { breath: "The biofilm", custody: "The thermal-spine overload" },
   vault: { future: "The restart package kept", living: "Habitation kept", split: "Both degraded" },
   tether: { slow: "The slow catch", hard: "The hard catch" },
-  final: { hold: "The course held", comfort: "Speed and comfort", transmission: "A last transmission", endure: "One day at a time" }
+  final: { hold: "The course held", comfort: "Speed and comfort", transmission: "A final transmission", endure: "One day at a time" }
 };
 const LETHAL_FIRST = { lena: "Lena", tomas: "Tomas", elias: "Elias", mira: "Mira" };
 const LETHAL_OUTCOME = { lived: "came back", lost: "did not come back" };
@@ -123,7 +123,7 @@ function staticChecks(errors) {
   if (!titleActions || !/id="btn-memory-board"[^>]*onclick="openMemoryBoard\('title'\)"/.test(titleActions[0])) errors.push("title actions have no Memory board entry");
   const screen = elementMarkup("memory-screen");
   if (!/id="memory-forget-confirm"[^>]*role="dialog"[^>]*aria-modal="true"/.test(screen)) errors.push("Forget confirm is not an aria-modal dialog inside the board");
-  if (!screen.includes("Forget every ending, fork and plate this ship remembers? Your saved run is not touched.")) errors.push("Forget confirm text changed");
+  if (!screen.includes("Forget every ending, fork and picture this ship remembers? Saved runs and settings are kept.")) errors.push("Forget confirm text changed");
   if (/\d/.test(screen.replace(/<[^>]*>/g, ""))) errors.push("board markup prints a number");
   // Layout: two tracks that may shrink, labels that may break, nothing wider than the column.
   if (!/\.memory-endings\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(CSS)) errors.push("ending tiles are not two minmax(0, 1fr) tracks");
@@ -530,10 +530,11 @@ async function browserChecks(errors) {
       await page.click("#btn-memory-board");
       const sizes = await page.evaluate(() => {
         const main = document.getElementById("main");
-        return { doc: [document.documentElement.scrollWidth, document.documentElement.clientWidth], main: [main.scrollWidth, main.clientWidth],
+        return { doc: [document.documentElement.scrollWidth, document.documentElement.clientWidth], docV: [document.documentElement.scrollHeight, document.documentElement.clientHeight], main: [main.scrollWidth, main.clientWidth],
           widest: Math.max(...[...document.querySelectorAll("#memory-screen *")].map(el => el.getBoundingClientRect().right)), focus: document.activeElement.id };
       });
       if (sizes.doc[0] > sizes.doc[1] || sizes.main[0] > sizes.main[1] || sizes.widest > width) errors.push(`${width}×${height}: horizontal scroll ${JSON.stringify(sizes)}`);
+      if (sizes.docV[0] > sizes.docV[1]) errors.push(`${width}×${height}: root taller than the window (hidden text escapes #main) ${JSON.stringify(sizes.docV)}`);
       await page.click("#memory-forget");
       const trail = [await page.evaluate(() => document.activeElement.id)];
       for (const key of ["Tab", "Tab", "Shift+Tab", "Shift+Tab"]) { await page.keyboard.press(key); trail.push(await page.evaluate(() => document.activeElement.id)); }

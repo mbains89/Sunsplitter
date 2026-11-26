@@ -4,6 +4,9 @@
    Nothing here may widen #main: every track is minmax(0, 1fr) and every label may break. */
 
 #memory-screen {
+  /* Contain the .sr-only branch notes: without a positioned ancestor inside #main they escape its
+     scroll area and make the root taller than the window (Muse, #586). */
+  position: relative;
   width: 100%;
   max-width: 560px;
   margin: 0 auto;

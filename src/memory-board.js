@@ -28,10 +28,10 @@ const MEMORY_BOARD_ENDING_COUNT = 7;
 // fork is the catch.
 const MEMORY_BOARD_FORKS = [
   { fork: "crisis", label: "The crisis", branches: { breath: "The biofilm", custody: "The thermal-spine overload" } },
-  { fork: "vault", label: "The vault", branches: { future: "The restart package kept", living: "Habitation kept", split: "Both degraded" } },
+  { fork: "vault", label: "The vault fault", branches: { future: "The restart package kept", living: "Habitation kept", split: "Both degraded" } },
   { fork: "tether", label: "The tether", branches: { slow: "The slow catch", hard: "The hard catch" } },
   { fork: "lethal", label: "The hard calls" },
-  { fork: "final", label: "The last order", branches: { hold: "The course held", comfort: "Speed and comfort", transmission: "A last transmission", endure: "One day at a time" } }
+  { fork: "final", label: "The last order", branches: { hold: "The course held", comfort: "Speed and comfort", transmission: "A final transmission", endure: "One day at a time" } }
 ];
 // D3(a): a hard call reads "came back" or "did not come back". Fixed order; a person no run has
 // faced is never named.
@@ -223,7 +223,7 @@ function confirmMemoryForget() {
   const status = document.getElementById("title-save-status");
   if (status) {
     status.classList.remove("error");
-    status.textContent = "The ship has forgotten. Your saved run is untouched.";
+    status.textContent = "The ship has forgotten. Saved runs and settings are kept.";
   }
   return true;
 }
