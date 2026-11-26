@@ -162,7 +162,8 @@ registerScenes({
 
   // PRE: a custody answer is committed; legacy recovery may resume with a dead Tomas and an untested made promise
   // WRITES: resolves Tomas's made promise only while he is alive to witness the authored custody test
-  // DEATH: none | DEAD SPEECH/APPEARANCE: dead Tomas neither speaks nor receives a kept/broken result
+  // DEATH: none | DEAD SPEECH/APPEARANCE: dead Tomas neither speaks nor receives a kept/broken result;
+  //   Sela closes her private custody offer (partner, promise kept, non-shared answer) only while alive
   // IMAGE: REUSE images/corridor_pressure_1.jpg; no new art request
   custody_after: {
     image: "images/corridor_pressure_1.jpg",
@@ -183,6 +184,14 @@ registerScenes({
       else if (state.flags.custody_answer === "thawed") t += `Outer racks were thawed. The count is lower and permanent.\n\n`;
       else if (state.flags.custody_answer === "severed" && isAlive("mira")) t += `Mira's cut holds. She carries the cold.\n\n`;
       else if (state.flags.custody_answer === "shared" && isAlive("sela")) t += `Sela holds the second key. Unilateral control is over.\n\n`;
+      // SUN-SELA-OFFER-PAYOFF-01: a partner heard the private custody offer in prom_price_keep, the
+      // only writer of promises.sela "kept" (custody_onset > prom_price > prom_price_keep > custody_hub,
+      // no romance write between). A non-shared answer closes it; custody_shared pays it. Text only.
+      // SUN-PROMISE-BREATH-01: prom_price_keep also keeps the promise on Breath, where the offer is
+      // gated off and this scene is never reached.
+      if (state.romance.sela && state.promises.sela === "kept" && isAlive("sela") &&
+          ["possession", "thawed", "severed"].includes(state.flags.custody_answer))
+        t += `Before the log closes, Sela speaks to you alone. "The heat question is answered, and the vault still has one key. I will not make the offer, and I am telling you so that you do not wait for it."\n\n`;
       if (state.promises.tomas === "broken" && isAlive("tomas"))
         t += `Tomas reads the exposure log once. "You said: if the vault and the living need the same mercy, the living get it. The ring paid. Noted, Commander."\n\n`;
       else if (state.promises.tomas === "kept" && isAlive("tomas"))
@@ -265,10 +274,13 @@ for (const [who, next] of Object.entries({ amara: "lead_prompt", lena: "past_lea
 for (const who of ["amara", "lena"]) {
   requireLivingCast(`prom_make_${who}_ag prom_r_${who}_ag`, [who], "debt_notice");
 }
-for (const [test, holder, next] of [["deck4", "elias", "prom_line"], ["direct", "mira", "faction_split"], ["price", "sela", "custody_hub"]]) {
+// SUN-PROMISE-FORWARD-01: Elias's, Lena's and Mira's tests run before their lethals while crisisPath is
+// null, so an absent holder exits back to that lethal pre-crisis and to the post-crisis ladder after it.
+const promiseExit = (pre, post) => () => state.crisisPath == null ? pre : post;
+for (const [test, holder, next] of [["deck4", "elias", promiseExit("act3_lethal_elias_order", "prom_line")], ["direct", "mira", promiseExit("act3_lethal_mira_board", "faction_split")], ["price", "sela", "custody_hub"]]) {
   requireLivingCast(`prom_${test} prom_${test}_keep prom_${test}_break`, [holder], next);
 }
-for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["jiro", "vess"]], ["line", "lena", "prom_direct", ["mira", "jiro", "vess"]]]) {
+for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["jiro", "vess"]], ["line", "lena", promiseExit("act3_lethal_lena_clock", "prom_direct"), ["mira", "jiro", "vess"]]]) {
   const patientPresent = () => patients.includes(state.flags.prom_line_other) && isAlive(state.flags.prom_line_other);
   // The original entry selects the patient. A marked resume must NOT select again.
   requireLivingCast(`prom_${test}`, [holder], next, { render: patientPresent });

@@ -185,6 +185,9 @@ She taps the printout. "The ship keeps their signatures on file. Living engineer
 
   // ═══════════════ B. POST-CRISIS TEST CHAIN ═══════════════
   // breath_after / custody_after → prom_vent → prom_deck4 → prom_line → prom_direct → faction_split
+  // SUN-PROMISE-FORWARD-01 (decision 27c): pre-crisis, prom_line runs from act3_lethal_lena_clock,
+  // prom_deck4 from act3_lethal_elias_order and prom_direct from act3_lethal_mira_board, each returning
+  // to its lethal. A promise tested there is no longer "made", so this ladder skips it.
 
   // PRE: crisisPath breath && promises.amara made && isAlive(amara) && ladder(jiro→vess) | WRITES: onEnter prom_line_other | DEATH: none here | IMG: reuse
 });

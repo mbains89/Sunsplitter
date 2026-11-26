@@ -62,7 +62,7 @@ registerScenes({
         state.romance.mira = true;
         addAffinity("mira", 40);
         addTrust("mira", 12);
-        remember("You and Mira crossed a line in engineering. The ship is too small to hide it.");
+        remember("You and Mira had sex in engineering. The ship is too small to hide it.");
       }
     },
     image: "images/quiet_mira.jpg"

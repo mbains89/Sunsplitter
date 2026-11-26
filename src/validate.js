@@ -280,7 +280,7 @@ function openCrewSheet(key) {
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
-  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
+  const cause = crewConditionNote(key); // SUN-HONESTY-LINES-01: a living clock, never a future cause
   const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
   const nameEl = document.getElementById("crew-sheet-name");
   const roleEl = document.getElementById("crew-sheet-role");
