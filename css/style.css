@@ -231,6 +231,29 @@ body::before {
   display: flex;
 }
 
+/* SUN-CREW-BOARD-LANDSCAPE-01 — CSS-only "more" cue for the board's own scroller. A soft band
+   shows at the bottom edge only while content sits below the fold, and at the top edge only
+   while content sits above it. The panel-coloured covers scroll with the content (local) and
+   hide the bands whenever that edge is reached, so a board that fits paints as before. */
+#crew-panel {
+  background:
+    linear-gradient(var(--panel) 18px, rgba(16, 18, 22, 0)) center top / 100% 32px no-repeat local,
+    linear-gradient(rgba(16, 18, 22, 0), var(--panel) 14px) center bottom / 100% 32px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(196, 200, 206, 0.28), rgba(196, 200, 206, 0)) center top / 100% 16px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(196, 200, 206, 0.34), rgba(196, 200, 206, 0)) center bottom / 100% 18px no-repeat scroll,
+    var(--panel);
+}
+
+/* The flex column used to shrink the facts box to its 1.4em floor, so on a short board only the
+   name line had layout height. Keep the box as tall as its lines; the board scrolls instead. */
+#crew-panel .crew-detail {
+  flex-shrink: 0;
+}
+
+#crew-panel .crew-chip {
+  scroll-margin: 6px;
+}
+
 #crew-panel .crew-chips {
   display: flex;
   flex-wrap: wrap;
@@ -491,11 +514,6 @@ body::before {
   #game-screen {
     max-width: 68ch;
     margin: 0 auto;
-  }
-
-  .scene-text {
-    font-size: 1.08rem;
-    line-height: 1.75;
   }
 
   #meta {

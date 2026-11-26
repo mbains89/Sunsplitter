@@ -29,6 +29,8 @@
 //   sunsplitter_show_costs_v1      Show costs on choices (engine.js)
 //   sunsplitter_cover_nudity_v1    Cover nudity in pictures (engine.js)
 //   sunsplitter_text_pace_v1       text pace (engine.js)
+//   sunsplitter_text_size_v1       text size (engine.js)
+//   sunsplitter_line_spacing_v1    line spacing (engine.js)
 //   sunsplitter_tutorial_seen_v1   first-run tutorial seen (validate.js)
 //   sunsplitter_validate           developer scene validation switch (validate.js)
 //
