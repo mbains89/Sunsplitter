@@ -113,7 +113,7 @@ registerScenes({
         t += `Amara, on the intercom, dry even now: "I'm not calling anything in, love. Both books are open at this page. Write in the one you meant."\n\n`;
       }
       if (isAlive("sela") && state.promises.sela === "made") {
-        t += `Sela, on the intercom, each word complete: "Commander. The fear in that room has found its nearest shape. Your sentence is where I stored it."\n\n`;
+        t += `Sela, on the intercom, each word complete: "Commander. The fear on your side of the bulkhead has found its nearest shape. Your sentence is still with the seeds."\n\n`;
       }
       if (isAlive("tomas")) t += `Tomas looks only at you.\n\n`;
       t += `You have less than four minutes.`;
