@@ -464,11 +464,12 @@ export function commanderIdentityChecks(runtime) {
     "images/romance_mira_1.jpg",
     "images/romance_amara_1.jpg",
     "images/romance_sela_1.jpg",
-    "images/romance_vess_1.jpg"
+    "images/romance_vess_1.jpg",
+    // SUN-ART-RULINGS-01 (Decision 30, 2026-11-25): shows a full face; kept on disk, never wired.
+    "images/lead_prompt.jpg"
   ];
   const approvedCommanderImageHashes = {
     "images/self_risk.jpg": "427fb4c5a72239451d213dcf7d6e80bef15da646a4b5e6000ddb54ffeb9de8a7",
-    "images/lead_prompt.jpg": "63dc3d2eff8c14eae2ea0cd8d68c9a973a55489debdd90d73cfd19813c2a3744",
     "images/final_choice.jpg": "685c3c21c05c660aa43ac252329bbe7c145d9afa5182ae79d76393487954a547",
     "images/shower_lena.jpg": "cd0981c0d0e8b31f589658a77591aa73996547707567016d0f6a2a4f119cd097"
   };

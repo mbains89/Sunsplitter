@@ -124,7 +124,9 @@ const sceneImages = {
   bond_jiro:        "images/bond_jiro.jpg",
   competence_watch: "images/competence_watch.jpg",
   crew_walk:       "images/corridor_pressure_4.jpg",
-  lead_prompt:     "images/lead_prompt.jpg",
+  // SUN-ART-RULINGS-01 (Decision 30, ruled 2026-11-25): the old lead_prompt plate showed a full face
+  // with eyes in every run; the Commander stays faceless. The empty observation wreck takes its place.
+  lead_prompt:     "images/art_r2_observation_wreck.jpg",
   lead_together:   'images/lead_together.jpg',
   lead_hard:       "images/corridor_pressure_1.jpg",
   lead_watch:      "images/corridor_pressure_2.jpg",
