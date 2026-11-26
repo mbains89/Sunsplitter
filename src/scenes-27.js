@@ -33,10 +33,10 @@ registerScenes({
       t += `\n`;
       // SUN-RECAP-HONESTY-01: the change orders (SUN-CASCADE-ALLUSIVE-PAYOFF-01) are paid on faction_split,
       // the screen before this one, and are not restated here.
-      if (state.romance.mira && isAlive("mira")) t += `You and Mira crossed a line.\n`;
-      else if (state.romance.mira) t += `You and Mira crossed a line. She is no longer here to carry it.\n`;
-      if (state.romance.lena && isAlive("lena")) t += `You and Lena crossed a line.\n`;
-      else if (state.romance.lena) t += `You and Lena crossed a line. That fact outlived her.\n`;
+      if (state.romance.mira && isAlive("mira")) t += `You and Mira had sex.\n`;
+      else if (state.romance.mira) t += `You and Mira had sex. She is no longer here to carry her half of it.\n`;
+      if (state.romance.lena && isAlive("lena")) t += `You and Lena had sex.\n`;
+      else if (state.romance.lena) t += `You and Lena had sex. That fact outlived her.\n`;
       if (state.romance.amara && isAlive("amara")) t += `You and Amara claimed the bay as more than hydroponics.\n`;
       else if (state.romance.amara) t += `You and Amara claimed the bay. That fact outlived her.\n`;
       if (state.romance.sela && isAlive("sela")) t += `Sela chose you without an audience. The yellow is still a fact.\n`;
