@@ -6,10 +6,12 @@ registerScenes({
   prom_line: {
     image: "images/medbay_dim.jpg",
     onEnter: () => {
-      if (state.promises.lena !== "made" || !isAlive("lena")) return "prom_direct";
+      // SUN-PROMISE-FORWARD-01: pre-crisis this runs from act3_lethal_lena_clock and returns there.
+      const out = state.crisisPath == null ? "act3_lethal_lena_clock" : "prom_direct";
+      if (state.promises.lena !== "made" || !isAlive("lena")) return out;
       const v = (state.flags.custody_answer === "severed" && isAlive("mira")) ? "mira"
               : ["jiro", "vess"].find(k => isAlive(k));
-      if (!v) return "prom_direct";
+      if (!v) return out;
       state.flags.prom_line_other = v;
     },
     get text() {
@@ -30,7 +32,7 @@ ${state.promises.amara === "kept"
 "Dawnbreak protocol for shared air was: youngest yields," she says, flat. "I never got to yield. Filed, in case it matters now."`;
       return `The med-loop fails its load test mid-cycle. One sustained line survives the fault.
 
-Lena is on the floor beside her own crash cart before the alarm finishes. The exposure the circuit never reversed is finally collecting.
+Lena is on the floor beside her own crash cart before the alarm finishes. ${state.crisisPath == null ? "The exposure on her own chart has started to collect." : "The exposure the circuit never reversed is finally collecting."}
 
 ${intro}
 
@@ -69,7 +71,7 @@ Lena, half-conscious, finds enough voice for one line. "Two patients. One line."
       }
       return t;
     },
-    choices: [ { text: "Leave both numbers on the board. Continue.", next: "prom_direct" } ]
+    get choices() { return [ { text: "Leave both numbers on the board. Continue.", next: state.crisisPath == null ? "act3_lethal_lena_clock" : "prom_direct" } ]; }
   },
 
   // PRE: from prom_line choice 2 | WRITES: onEnter kill(victim) + promises.lena="broken" (idempotent) | DEATH: victim dies onEnter | IMG: reuse
@@ -98,14 +100,15 @@ Med-bay stays open after that. She does not.`;
       }
       return t;
     },
-    choices: [ { text: "Sign the board. Continue.", next: "prom_direct" } ]
+    get choices() { return [ { text: "Sign the board. Continue.", next: state.crisisPath == null ? "act3_lethal_lena_clock" : "prom_direct" } ]; }
   },
 
   // PRE: promises.mira made && isAlive(mira) | WRITES: none | DEATH: none | IMG: reuse
   prom_direct: {
     image: "images/power_crisis.jpg",
     onEnter: () => {
-      if (state.promises.mira !== "made" || !isAlive("mira")) return "faction_split";
+      // SUN-PROMISE-FORWARD-01: pre-crisis this runs from act3_lethal_mira_board and returns there.
+      if (state.promises.mira !== "made" || !isAlive("mira")) return state.crisisPath == null ? "act3_lethal_mira_board" : "faction_split";
     },
     text: () => {
       let t = `The offer arrives on every console at once, in the flat idiom of the ship's founders: restore Earth-era directive authority. Every safety interlock, ration schedule, and triage rule re-bound to the commissioning library. Signed by the dead. Rated for a species.
@@ -144,7 +147,7 @@ She does not say safer. She says, "Ours."`;
       }
       return t;
     },
-    choices: [ { text: "Let the walls go quiet. Continue.", next: "faction_split" } ]
+    get choices() { return [ { text: "Let the walls go quiet. Continue.", next: state.crisisPath == null ? "act3_lethal_mira_board" : "faction_split" } ]; }
   },
 
   // PRE: from prom_direct choice 2 | WRITES: onEnter promises.mira="broken" (idempotent) | DEATH: none | IMG: reuse
@@ -162,7 +165,7 @@ She does not say safer. She says, "Ours."`;
       }
       return t;
     },
-    choices: [ { text: "Take the better numbers. Continue.", next: "faction_split" } ]
+    get choices() { return [ { text: "Take the better numbers. Continue.", next: state.crisisPath == null ? "act3_lethal_mira_board" : "faction_split" } ]; }
   },
 
   // ═══════════════ C. SELA TEST (Custody insertion) ═══════════════

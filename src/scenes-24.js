@@ -9,11 +9,17 @@ act3_lethal_mira_board: {
       return "faction_split";
     }
     if (!isAlive("mira")) return "faction_split";
+    // SUN-PROMISE-FORWARD-01 (decision 27c): Mira's directive test runs before her lethal. Its outcomes
+    // return here. PRE: crisisPath null. WRITES: none here.
+    if (state.crisisPath == null && state.promises.mira === "made") return "prom_direct";
   },
   get text() {
     if (!isAlive("mira")) return `Engineering answers with automatic traces and no living engineer.`;
 
-    let t = `The secondary transfer loop loses phase during a routine load shift.
+    // SUN-PROMISE-FORWARD-01 seam: pre-crisis, a resolved directive promise was tested just before this.
+    const seam = state.promises.mira === "kept" ? `"Ours" includes the next fault.\n\n`
+      : state.promises.mira === "broken" ? `Eleven percent less often is not never.\n\n` : ``;
+    let t = seam + `The secondary transfer loop loses phase during a routine load shift.
 
 Two pumps begin driving against each other. The remote cutout reports OPEN. Temperature says it is lying. Every correction adds heat to the same sealed bay.`;
 
