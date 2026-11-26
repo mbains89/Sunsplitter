@@ -92,7 +92,7 @@ Tone: grimdark × cyberpunk. Humor is dry, black, procedural, or deadpan — nev
 
 **Core.** The man who ate the future to survive, and now argues louder than anyone that the future must never eat the living.
 
-**Background (canon, Manraj 2026-11-25).** Both, never one: a hospital chaplain before the pads ("Brother" is the chaplain's title), and the grower aboard. He kept the agri-annex alive alone after the breach, and the trays are his work once he is recovered. No rank, no console. A line that names only one of the two must not contradict the other.
+**Background (canon, Manraj 2026-11-25).** Both, never one: a hospital chaplain before the pads ("Brother" is the chaplain's title), and the grower aboard. He kept the agri-annex alive alone after the breach, and the annex seed trays are his work once he is recovered; the ship's hydroponics stay Amara's. No rank, no console. A line that names only one of the two must not contradict the other.
 
 **Intelligence texture.** Moral bookkeeping. Tracks costs in people: who paid, who was volunteered. Confirms human count before technical picture. Agricultural practical intelligence: patience, contingency, what is quietly dying.
 

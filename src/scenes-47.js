@@ -48,9 +48,7 @@ Three of the crew came to you separately inside one watch. A petition is on the 
 
 Sela steps up beside you. Not behind.
 
-"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."
-
-When the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."`;
+"I keep your future at temperature," she says to the room. "I will keep your fear there also. It will last longer than you want it to."${state.romance.sela ? `\n\nWhen the room has gone back to its meal, she speaks lower, to you alone. "When the heat question is answered, I will offer you shared custody of what I keep. I did not say that to them. My people do not make that offer in front of a room."` : ""}`;
     },
     choices: [ { text: "Open the custody question.", next: "custody_hub" } ]
   },

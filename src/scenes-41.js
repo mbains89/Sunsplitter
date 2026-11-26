@@ -154,7 +154,7 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
     onEnter: () => { state.flags.quiet_tomas_done = true; },
     text: `Tomas sits where the common area still has a shadow that feels intentional.
 
-Still no rank, still no console. Before the pads he was a hospital chaplain. On this ship he is the grower, and he keeps the human cost on the ledger when everyone else is trying to close it.
+Still no rank, still no console. Before the pads he was a hospital chaplain. On this ship he grows food, and he keeps the human cost on the ledger when everyone else is trying to close it.
 
 "They will come to you with numbers," he says. "I will come to you with names. I am not asking you to ignore the numbers. I am asking you not to pretend the names are noise."
 
