@@ -2174,7 +2174,7 @@ function renderCrewPanel(selectedKey) {
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
   const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
-  // Opening the board paints Lena by default (#543); that paint must not jump-scroll.
+  // Opening the board paints the first living member by default (#543); that paint must not jump-scroll.
   if (pickedKey && order.includes(pickedKey) && crew[pickedKey]) revealCrewDetail(el);
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
