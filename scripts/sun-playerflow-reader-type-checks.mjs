@@ -143,10 +143,10 @@ function headlessChecks(errors, summary) {
     resetRunState();
     showScene("wake");
     persistSave({ silent: true });
-    const before = { snapshot: JSON.stringify(snapshotState()), save: strip(localStorage.getItem(SAVE_KEY)), exported: strip(buildSaveExport().text), state: Object.keys(state).join(",") };
+    const before = { snapshot: strip(JSON.stringify(snapshotState())), save: strip(localStorage.getItem(SAVE_KEY)), exported: strip(buildSaveExport().text), state: Object.keys(state).join(",") };
     setTextSize("largest"); setLineSpacing("open");
     persistSave({ silent: true });
-    const after = { snapshot: JSON.stringify(snapshotState()), save: strip(localStorage.getItem(SAVE_KEY)), exported: strip(buildSaveExport().text), state: Object.keys(state).join(",") };
+    const after = { snapshot: strip(JSON.stringify(snapshotState())), save: strip(localStorage.getItem(SAVE_KEY)), exported: strip(buildSaveExport().text), state: Object.keys(state).join(",") };
     return { before, after };
   })())`));
   for (const name of ["snapshot", "save", "exported", "state"]) {
