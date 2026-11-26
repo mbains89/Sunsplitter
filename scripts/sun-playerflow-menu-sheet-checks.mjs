@@ -44,7 +44,7 @@ function elementMarkup(id) {
   return null;
 }
 
-const SHEET_STOPS = ["menu-close", "menu-save", "menu-load", "menu-return-title", "menu-text-pace", "menu-text-size", "menu-line-spacing", "menu-show-costs"];
+const SHEET_STOPS = ["menu-close", "menu-save", "menu-load", "menu-return-title", "menu-text-pace", "menu-text-size", "menu-line-spacing", "menu-reading-font", "menu-show-costs"];
 
 // ---------- A. markup ----------
 function markupChecks(errors) {
@@ -66,7 +66,7 @@ function markupChecks(errors) {
   const stops = [...sheet.matchAll(/<button\b[^>]*\bid="([^"]+)"/g)].map(m => m[1]);
   if (stops.join(",") !== SHEET_STOPS.join(",")) errors.push(`A: the sheet's controls are ${stops.join(",")}; expected ${SHEET_STOPS.join(",")}`);
   const handlers = { "menu-close": "closeMenuSheet()", "menu-save": "menuSaveGame()", "menu-load": "menuLoadGame()", "menu-return-title": "menuReturnToTitle()",
-    "menu-text-pace": "menuSheetSetting('pace')", "menu-text-size": "menuSheetSetting('size')", "menu-line-spacing": "menuSheetSetting('spacing')", "menu-show-costs": "menuSheetSetting('costs')" };
+    "menu-text-pace": "menuSheetSetting('pace')", "menu-text-size": "menuSheetSetting('size')", "menu-line-spacing": "menuSheetSetting('spacing')", "menu-reading-font": "menuSheetSetting('font')", "menu-show-costs": "menuSheetSetting('costs')" };
   for (const [id, fn] of Object.entries(handlers)) {
     const tag = new RegExp(`<button id="${id}"[^>]*>`).exec(sheet)?.[0] || "";
     if (!tag.includes('type="button"') || !tag.includes(`onclick="${fn}"`)) errors.push(`A: #${id} must be a native button calling ${fn}`);
@@ -332,13 +332,14 @@ function headlessChecks(errors, summary) {
       openMenuSheet();
       menuSheetSetting("size");
       menuSheetSetting("spacing");
+      menuSheetSetting("font"); // SUN-READER-FONT-01
       menuSheetSetting("pace");
       menuSheetSetting("costs");
-      o.values = [readTextSize(), readLineSpacing(), readTextPace(), showCostsOnChoices()];
-      o.html = [document.documentElement.getAttribute("data-text-size"), document.documentElement.getAttribute("data-line-spacing")];
-      o.sheet = ["menu-text-size", "menu-line-spacing", "menu-text-pace"].map(id => document.getElementById(id).textContent);
-      o.chips = ["menu-text-size-chip", "menu-line-spacing-chip", "menu-text-pace-chip", "menu-show-costs-chip"].map(id => document.getElementById(id).textContent);
-      o.titleChips = ["text-size-chip", "line-spacing-chip", "text-pace-chip", "show-costs-chip"].map(id => document.getElementById(id).textContent);
+      o.values = [readTextSize(), readLineSpacing(), readReadingFont(), readTextPace(), showCostsOnChoices()];
+      o.html = [document.documentElement.getAttribute("data-text-size"), document.documentElement.getAttribute("data-line-spacing"), document.documentElement.getAttribute("data-reading-font")];
+      o.sheet = ["menu-text-size", "menu-line-spacing", "menu-reading-font", "menu-text-pace"].map(id => document.getElementById(id).textContent);
+      o.chips = ["menu-text-size-chip", "menu-line-spacing-chip", "menu-reading-font-chip", "menu-text-pace-chip", "menu-show-costs-chip"].map(id => document.getElementById(id).textContent);
+      o.titleChips = ["text-size-chip", "line-spacing-chip", "reading-font-chip", "text-pace-chip", "show-costs-chip"].map(id => document.getElementById(id).textContent);
       o.pressed = [document.getElementById("menu-show-costs").getAttribute("aria-pressed"), document.getElementById("btn-show-costs-meta").getAttribute("aria-pressed")];
       o.bar = document.getElementById("meta-text-pace").textContent;
       o.stillOpen = __open();
@@ -352,16 +353,16 @@ function headlessChecks(errors, summary) {
       o.reopened = document.getElementById("menu-text-pace").textContent;
       return o;
     })()`));
-    if (JSON.stringify(r.values) !== JSON.stringify(["large", "relaxed", "paced", true])) errors.push(`A7: the sheet's settings did not apply (${JSON.stringify(r.values)})`);
-    if (JSON.stringify(r.html) !== JSON.stringify(["large", "relaxed"])) errors.push("A7: Size and Spacing from the sheet did not reach the page");
-    if (JSON.stringify(r.sheet) !== JSON.stringify(["Size: large", "Spacing: relaxed", "Text: paced"])) errors.push(`A7: the sheet's buttons read ${JSON.stringify(r.sheet)}`);
+    if (JSON.stringify(r.values) !== JSON.stringify(["large", "relaxed", "opendyslexic", "paced", true])) errors.push(`A7: the sheet's settings did not apply (${JSON.stringify(r.values)})`);
+    if (JSON.stringify(r.html) !== JSON.stringify(["large", "relaxed", "opendyslexic"])) errors.push("A7: Size, Spacing and Font from the sheet did not reach the page");
+    if (JSON.stringify(r.sheet) !== JSON.stringify(["Size: large", "Spacing: relaxed", "Font: OpenDyslexic", "Text: paced"])) errors.push(`A7: the sheet's buttons read ${JSON.stringify(r.sheet)}`);
     if (JSON.stringify(r.chips) !== JSON.stringify(r.titleChips)) errors.push("A7: the sheet's chips do not match the title's");
     if (JSON.stringify(r.pressed) !== JSON.stringify(["true", "true"])) errors.push("A7: the sheet's Costs toggle and the bar's disagree");
     if (r.bar !== "Text: paced" || !r.stillOpen) errors.push("A7: a setting closed the sheet or left the bar behind");
     if (!r.keysSame || !r.exportSame) errors.push("A7: a reader setting reached run state or the save export");
     if (r.reopened !== "Text: instant") errors.push("A7: a change from the bar did not show in the sheet on reopen");
   }
-  summary.push("A: headless: registered as a modal dialog; opens only in a run and never over the tutorial or crew sheet; background inert; 1/2/Enter/Space swallowed; Tab and Shift+Tab trapped over 8 controls; Escape and Back return focus to Menu; a screen change closes it; Save and Load inside behave as the bar's; Return to title saves first and Continue resumes; a failed save stays in the run and says so; the finished run is kept before the first order; settings apply and mirror; no run-state or export keys added");
+  summary.push(`A: headless: registered as a modal dialog; opens only in a run and never over the tutorial or crew sheet; background inert; 1/2/Enter/Space swallowed; Tab and Shift+Tab trapped over ${SHEET_STOPS.length} controls; Escape and Back return focus to Menu; a screen change closes it; Save and Load inside behave as the bar's; Return to title saves first and Continue resumes; a failed save stays in the run and says so; the finished run is kept before the first order; settings apply and mirror; no run-state or export keys added`);
 }
 
 // ---------- B. Chromium ----------
@@ -514,6 +515,12 @@ async function browserChecks(errors, summary, requireBrowser) {
       const after = await page.evaluate(() => ({ size: parseFloat(getComputedStyle(document.querySelector("#story .scene-text")).fontSize), label: document.getElementById("menu-text-size").textContent, open: document.getElementById("menu-sheet").classList.contains("visible") }));
       if (!(after.size > sizeBefore) || after.label !== "Size: large" || !after.open) errors.push(`B ${name}: Size in the sheet did not reach the scene (${sizeBefore} -> ${after.size}, "${after.label}")`);
       await page.click("#menu-text-size"); await page.click("#menu-text-size"); await page.click("#menu-text-size"); // back to standard
+      // SUN-READER-FONT-01: Font in the sheet reaches the scene behind; the sheet keeps its own type.
+      await page.click("#menu-reading-font");
+      const font = await page.evaluate(() => ({ family: getComputedStyle(document.querySelector("#story .scene-text")).fontFamily, label: document.getElementById("menu-reading-font").textContent,
+        sheetFamily: getComputedStyle(document.getElementById("menu-reading-font")).fontFamily, open: document.getElementById("menu-sheet").classList.contains("visible") }));
+      if (!/^"?OpenDyslexic"?,/.test(font.family) || font.label !== "Font: OpenDyslexic" || /OpenDyslexic/.test(font.sheetFamily) || !font.open) errors.push(`B ${name}: Font in the sheet did not reach the scene, or changed the sheet's type (${JSON.stringify(font)})`);
+      await page.click("#menu-reading-font"); // back to standard
       await page.click("#menu-close");
 
       // A choice, then Save and Load from the sheet.

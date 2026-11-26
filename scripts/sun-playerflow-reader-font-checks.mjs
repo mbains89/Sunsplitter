@@ -12,15 +12,18 @@
 //      fonts/ holds nothing else;
 //   B. source: the @font-face (font-display: swap) is used only under data-reading-font, on the
 //      Size surfaces only, with no added tracking and long words wrapping; nothing preloads or
-//      loads it from script; the button sits in the title's "Reader settings" group after Spacing,
-//      not in the in-run bar; no player-facing string says the typeface helps;
-//   C. headless (the real engine): default, toggle, the title controls, persistence into a fresh
-//      load, throwing storage, unknown stored values, and no change to snapshot, save or export;
+//      loads it from script; the button sits in the title's "Reader settings" group after Spacing
+//      and in the Menu sheet's after Spacing (#598's twin rows), never in the in-run bar; no
+//      player-facing string says the typeface helps;
+//   C. headless (the real engine): default, toggle, the title controls and their Menu sheet twins,
+//      persistence into a fresh load, throwing storage, unknown stored values, and no change to
+//      snapshot, save or export;
 //   D. the private package built from HEAD carries both files byte for byte, records them as a
 //      font and a licence, and its private server serves them as font/woff2 and text/plain;
 //   E. Chromium, when Playwright is installed (CI has no browser, so E reports NOT_AVAILABLE
 //      there; pass --require-browser to fail instead): with the setting off the browser never
-//      requests the font through a whole tour of the reading surfaces; with it on, the surfaces
+//      requests the font through a whole tour of the reading surfaces, and turning it on from the
+//      Menu sheet in a run fetches it once; with it on, the surfaces
 //      compute OpenDyslexic, document.fonts.check() is true once it has loaded, chrome keeps its
 //      own type, and at 360x640, 390x844, 844x390 and 1440x900, at every text size (spacing
 //      standard and open), no scene, choice, cost tag, ending, What Remains or caption overflows
@@ -43,8 +46,8 @@ const KEY = "sunsplitter_reading_font_v1";
 const STEPS = ["standard", "opendyslexic"];
 const BUTTONS = { standard: "Font: standard", opendyslexic: "Font: OpenDyslexic" };
 const CHIPS = {
-  standard: "Standard · the game's own type",
-  opendyslexic: "OpenDyslexic · for dyslexic readers"
+  standard: "Standard · the usual typeface",
+  opendyslexic: "OpenDyslexic · on story and choices"
 };
 
 // Provenance. OpenDyslexic by Abbie Gonzalez, SIL Open Font License 1.1, Reserved Font Name
@@ -179,6 +182,16 @@ function sourceChecks(errors) {
   if (!index.includes(`>${CHIPS.standard}</p>`) || !index.includes(`>${BUTTONS.standard}</button>`)) errors.push("B: the markup starts at the standard strings");
   const meta = index.match(/<div class="meta-actions">[\s\S]*?<\/div>/)?.[0] || "";
   if (/reading-font|ReadingFont/.test(meta)) errors.push("B: the in-run bar is full; the font goes in the Menu sheet (T2), not the bar");
+  // In a run: the Menu sheet's Reader settings, after Spacing, as a twin of the title control (#598).
+  const sheet = index.slice(index.indexOf('<section id="menu-sheet"'), index.indexOf("</section>", index.indexOf('<section id="menu-sheet"')));
+  const sheetOrder = ["menu-line-spacing", "menu-reading-font", "menu-reading-font-chip"].map(id => sheet.indexOf(`id="${id}"`));
+  if (sheetOrder.some(i => i < 0) || sheetOrder[1] < sheetOrder[0] || sheetOrder[2] < sheetOrder[1]) errors.push("B: the Menu sheet holds the font row after Spacing, button then chip, as its other rows");
+  const sheetTag = sheet.match(/<button id="menu-reading-font"[^>]*>/)?.[0] || "";
+  if (!sheetTag.includes('type="button"') || !sheetTag.includes(`onclick="menuSheetSetting('font')"`) || !sheetTag.includes('aria-describedby="menu-reading-font-chip"') || sheetTag.includes("aria-pressed")) errors.push("B: #menu-reading-font must be a native button calling menuSheetSetting('font'), described by its chip, with no pressed state");
+  if (!/id="menu-reading-font-chip"[^>]*role="status"/.test(sheet) || !sheet.includes(`>${CHIPS.standard}</p>`) || !sheet.includes(`>${BUTTONS.standard}</button>`)) errors.push("B: the sheet's font chip is a role=status chip, and the row starts at the standard strings");
+  const menuJs = readFileSync(resolve(ROOT, "src/menu-sheet.js"), "utf8");
+  if (!menuJs.includes('["menu-reading-font", "btn-reading-font", "menu-reading-font-chip", "reading-font-chip"]')) errors.push("B: src/menu-sheet.js must mirror the font row from its title twin (MENU_SETTING_TWINS)");
+  if (!/font:\s*\(\)\s*=>\s*cycleReadingFont\(\)/.test(menuJs)) errors.push("B: menuSheetSetting('font') must call cycleReadingFont()");
   for (const text of [...Object.values(CHIPS), ...Object.values(BUTTONS)]) {
     if (CLAIM_WORDS.test(text)) errors.push(`B: "${text}" reads as a claim that the typeface helps (D3(a): named, no claim)`);
   }
@@ -199,6 +212,10 @@ function headlessChecks(errors, summary) {
     o.cycle = []; o.attrs = []; o.uis = [];
     for (let i = 0; i < 3; i++) { o.cycle.push(cycleReadingFont()); o.attrs.push(document.documentElement.getAttribute("data-reading-font")); o.uis.push(ui()); }
     o.stored = localStorage.getItem(${JSON.stringify(KEY)});
+    // The Menu sheet's twin: it toggles through the same setter and mirrors the title's strings.
+    const sheetUi = () => [document.getElementById("menu-reading-font").textContent, document.getElementById("menu-reading-font-chip").textContent];
+    o.sheet = [];
+    for (let i = 0; i < 2; i++) { menuSheetSetting("font"); o.sheet.push([readReadingFont(), document.documentElement.getAttribute("data-reading-font"), ...sheetUi(), ...ui()]); }
     o.bogus = setReadingFont("OpenDyslexic");
     setTextSize("largest"); setLineSpacing("open"); setReadingFont("opendyslexic");
     o.together = ["data-text-size", "data-line-spacing", "data-reading-font"].map(a => document.documentElement.getAttribute(a));
@@ -217,6 +234,8 @@ function headlessChecks(errors, summary) {
   if (!eq(out.attrs, ["opendyslexic", null, "opendyslexic"])) errors.push(`C: <html> data-reading-font ran ${JSON.stringify(out.attrs)}; standard removes it`);
   if (!eq(out.uis, [[BUTTONS.opendyslexic, CHIPS.opendyslexic], [BUTTONS.standard, CHIPS.standard], [BUTTONS.opendyslexic, CHIPS.opendyslexic]])) errors.push(`C: the controls read ${JSON.stringify(out.uis)}`);
   if (out.stored !== "opendyslexic") errors.push(`C: the setting is stored as ${JSON.stringify(out.stored)} in ${KEY}`);
+  const sheetWant = [["standard", null, BUTTONS.standard, CHIPS.standard, BUTTONS.standard, CHIPS.standard], ["opendyslexic", "opendyslexic", BUTTONS.opendyslexic, CHIPS.opendyslexic, BUTTONS.opendyslexic, CHIPS.opendyslexic]];
+  if (!eq(out.sheet, sheetWant)) errors.push(`C: the Menu sheet's Font must toggle the setting and mirror the title (got ${JSON.stringify(out.sheet)})`);
   if (out.bogus !== "standard") errors.push(`C: setting an unknown value gave ${out.bogus}, want standard`);
   if (!eq(out.together, ["largest", "open", "opendyslexic"])) errors.push(`C: size, spacing and font must sit together on <html> (got ${JSON.stringify(out.together)})`);
   if (out.blockedThrew || !eq(out.blocked, ["opendyslexic", "opendyslexic", BUTTONS.opendyslexic])) errors.push(`C: with storage blocked the toggle still holds for the session (got ${JSON.stringify(out.blocked)})`);
@@ -255,7 +274,7 @@ function headlessChecks(errors, summary) {
     if (/reading_?font|readingFont|opendyslexic/i.test(saved.after[name])) errors.push(`C: the setting leaked into the ${name}`);
   }
   if (/reading_font|readingFont|opendyslexic/i.test(readFileSync(resolve(ROOT, "src/state.js"), "utf8"))) errors.push("C: src/state.js must not name the reading font (it is not run state)");
-  summary.push(`C: default standard; the button toggles standard > opendyslexic and back, sets and removes data-reading-font and stores ${KEY}; ${cases.length} stored values read as expected; blocked storage still toggles for the session; snapshot, save and export unchanged`);
+  summary.push(`C: default standard; the button toggles standard > opendyslexic and back, sets and removes data-reading-font and stores ${KEY}; the Menu sheet's twin toggles the same setting and mirrors the title; ${cases.length} stored values read as expected; blocked storage still toggles for the session; snapshot, save and export unchanged`);
 }
 
 // ---------- D. the private package ----------
@@ -437,11 +456,18 @@ async function browserChecks(errors, summary, requireBrowser) {
       if (s.fontRequests().length) errors.push(`E1: with the setting off the browser requested ${s.fontRequests().join(", ")}`);
       if (JSON.stringify(status) !== JSON.stringify(["unloaded"])) errors.push(`E1: with the setting off the face is ${JSON.stringify(status)}, want one face, unloaded`);
       for (const stop of tour) for (const [surface, family] of Object.entries(stop.families)) if (isFont(family)) errors.push(`E1 ${stop.where}: ${surface} uses OpenDyslexic with the setting off`);
-      // Turning it on in the run fetches it once, and the text swaps.
-      await s.page.evaluate(() => { cycleReadingFont(); showScene("wake"); });
+      // Turning it on in the run, from the Menu sheet, swaps the scene behind and fetches it once; the
+      // sheet itself is chrome and keeps its type.
+      await s.page.evaluate(() => { showScene("wake"); finishSceneReveal("setting"); });
+      await s.page.click("#btn-menu");
+      await s.page.click("#menu-reading-font");
+      const sheet = await s.page.evaluate(() => [document.getElementById("menu-reading-font").textContent, document.getElementById("menu-reading-font-chip").textContent,
+        document.getElementById("btn-reading-font").textContent, document.getElementById("menu-sheet").classList.contains("visible"), getComputedStyle(document.getElementById("menu-reading-font-chip")).fontFamily]);
+      if (JSON.stringify(sheet.slice(0, 4)) !== JSON.stringify([BUTTONS.opendyslexic, CHIPS.opendyslexic, BUTTONS.opendyslexic, true]) || isFont(sheet[4])) errors.push(`E1: the Menu sheet's Font did not toggle, mirror and stay open, or the sheet changed type (${JSON.stringify(sheet)})`);
+      await s.page.click("#menu-close");
       await s.page.evaluate(() => document.fonts.ready);
       const on = await s.page.evaluate(() => [getComputedStyle(document.querySelector("#story .scene-text")).fontFamily, document.fonts.check('16px "OpenDyslexic"')]);
-      if (!isFont(on[0]) || !on[1] || s.fontRequests().length !== 1) errors.push(`E1: turning it on in a run gave ${JSON.stringify(on)} with requests ${JSON.stringify(s.fontRequests())}`);
+      if (!isFont(on[0]) || !on[1] || s.fontRequests().length !== 1) errors.push(`E1: turning it on from the Menu sheet gave ${JSON.stringify(on)} with requests ${JSON.stringify(s.fontRequests())}`);
       for (const e of s.pageErrors) errors.push(`E1: page error ${e}`);
       await s.context.close();
     }
@@ -509,7 +535,7 @@ async function browserChecks(errors, summary, requireBrowser) {
     await browser.close();
     server.close();
   }
-  summary.push(`E: Chromium: off, a tour of every reading surface at largest/open requested no font and left the face unloaded, and turning it on fetched it once; on, the six surfaces computed OpenDyslexic with no tracking while chrome kept its type, it loaded once and document.fonts.check() was true; at ${VIEWPORTS.map(v => v.join("x")).join(", ")}, ${states} size x spacing states (${stops} screens: scenes, an ending, What Remains, the intro caption) with no sideways overflow and the last choice reachable; toggling on the title moved nothing`);
+  summary.push(`E: Chromium: off, a tour of every reading surface at largest/open requested no font and left the face unloaded, and turning it on from the Menu sheet fetched it once; on, the six surfaces computed OpenDyslexic with no tracking while chrome kept its type, it loaded once and document.fonts.check() was true; at ${VIEWPORTS.map(v => v.join("x")).join(", ")}, ${states} size x spacing states (${stops} screens: scenes, an ending, What Remains, the intro caption) with no sideways overflow and the last choice reachable; toggling on the title moved nothing`);
 }
 
 export async function sunPlayerflowReaderFontChecks({ requireBrowser = false } = {}) {

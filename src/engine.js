@@ -939,11 +939,12 @@ const READING_FONT_KEY = "sunsplitter_reading_font_v1";
 const READING_FONT_STEPS = ["standard", "opendyslexic"];
 const READING_FONT_NAMES = { standard: "standard", opendyslexic: "OpenDyslexic" };
 const READING_FONT_CHIPS = {
-  standard: "Standard · the game's own type",
-  // The design's "a typeface made for dyslexic readers" wrapped to two lines in every title layout
-  // (399px against a 294-320px chip), so the first tap moved the buttons under it. Same sense, no
-  // claim about effect, one line (held for the Myth read).
-  opendyslexic: "OpenDyslexic · for dyslexic readers"
+  standard: "Standard · the usual typeface",
+  // The chip says where the typeface goes, not who it is for: "for dyslexic readers" read as a
+  // recommendation, the wrong side of D3(a). The design's "a typeface made for dyslexic readers" also
+  // wrapped in every title layout and moved the buttons under it on the first tap (Myth and Muse,
+  // 2026-11-26). One line at 360px.
+  opendyslexic: "OpenDyslexic · on story and choices"
 };
 let readingFontSession = null;
 
