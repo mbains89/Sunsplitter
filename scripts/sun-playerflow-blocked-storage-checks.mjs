@@ -335,6 +335,16 @@ function returningRefusedCase(errors) {
     o.newRunConfirm = __shown("new-run-confirm");
     o.newRunCommander = __shown("commander-create");
     cancelCommanderCreate();
+    // The slot picker itself (S-3), opened directly: every slot reads as empty and nothing says
+    // "replaces", though slot 1 holds a run and slot 2 holds unreadable bytes.
+    if (typeof renderNewRunPicker === "function") {
+      showNewRunConfirm();
+      o.picker = { rows: [1, 2, 3].map(n => __text("new-run-slot-" + n + "-name")),
+        details: [1, 2, 3].map(n => __text("new-run-slot-" + n + "-detail")),
+        chip: __text("new-run-confirm-chip"), ok: __text("new-run-ok"), okDisabled: document.getElementById("new-run-ok").disabled === true,
+        used: saveSlotsWithBytes() };
+      cancelNewRun();
+    }
     o.slot1StillSame = localStorage.getItem(SAVE_KEY) === raw;
     localStorage.setItem = realSet;
     return o;
@@ -353,6 +363,11 @@ function returningRefusedCase(errors) {
   if (!r.slot2Actions.download.shown || r.slot2Actions.download.disabled || !r.downloadExact) fail(`Saved runs: Download unreadable is not available (${JSON.stringify(r.slot2Actions)}, exact ${r.downloadExact})`);
   if (r.newRunConfirm || !r.newRunCommander) fail(`New run asked to replace a slot with saving off (confirm ${r.newRunConfirm}, commander ${r.newRunCommander})`);
   if (!r.slot1StillSame) fail("slot 1 changed");
+  if (r.picker) {
+    const p = r.picker;
+    if (JSON.stringify(p.rows) !== JSON.stringify(["Slot 1 · Empty", "Slot 2 · Empty", "Slot 3 · Empty"]) || p.details.some(Boolean) || p.used.length) fail(`the slot picker shows slots as taken with saving off (${JSON.stringify(p)})`);
+    if (/replace/i.test(p.chip + " " + p.ok) || p.okDisabled || p.ok !== "Start in Slot 1") fail(`the slot picker says "${p.chip}" / "${p.ok}" with saving off`);
+  }
 }
 
 // Reads throw from page load (saving off), then storage comes back mid-run: the unsaved run never
