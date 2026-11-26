@@ -800,7 +800,10 @@ function persistSave(opts) {
   try {
     const liveRaw = localStorage.getItem(slotKeys.live);
     const recoveryRaw = localStorage.getItem(slotKeys.backup);
-    previousRaw = validRawSnapshot(liveRaw)
+    // SUN-SAVE-VERSION-GUARD-01: a committed newer-format live save is the slot's prior bytes, as
+    // readRawSave reads it, not a backup beside it, so a failed write puts the newer save back.
+    const newerLive = rawSnapshotFormatIsNewer(liveRaw) && liveRaw !== localStorage.getItem(slotKeys.staging);
+    previousRaw = validRawSnapshot(liveRaw) || newerLive
       ? liveRaw
       : (validRawSnapshot(recoveryRaw) ? recoveryRaw : liveRaw);
     previousValid = validRawSnapshot(previousRaw);

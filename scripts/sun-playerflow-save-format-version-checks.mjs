@@ -194,6 +194,42 @@ for (const n of [1, 2, 3]) {
   ok("confirmed New run replaces it");
 }
 
+// 2b. (Review of #605) A New run into a slot holding a committed newer save and a leftover v3
+//     backup, whose live write fails, puts the newer save back: the backup is not restored over
+//     it, the status does not claim the prior slot was kept, and the slot stays unreadable.
+{
+  const r = run(`
+    const future = newer("act3_spine_next", 99);
+    const k2 = saveSlotKeys(2);
+    localStorage.setItem(k2.live, future);
+    const leftover = snap("priority_repairs", { savedAt: 2 });
+    localStorage.setItem(k2.backup, leftover);
+    resetRunState(); state.scene = "wake";
+    const realSet = localStorage.setItem;
+    // Only the new run's own live write fails; restoring either older value into live succeeds.
+    localStorage.setItem = (key, value) => {
+      if (key === k2.live && value !== future && value !== leftover) throw new Error("injected live write failure");
+      return realSet(key, value);
+    };
+    const started = beginFreshCampaign({ persist: true, slot: 2 });
+    localStorage.setItem = realSet;
+    return {
+      started, liveIsFuture: localStorage.getItem(k2.live) === future, staging: localStorage.getItem(k2.staging),
+      status: text("save-status"), has: hasSave(2), unreadable: unreadableSaveRaw(2) === future,
+      kind: savedRunRow(2, null).kind, read: readRawSave(2)
+    };
+  `);
+  assert.equal(r.started, false, "the new run did not start");
+  assert.equal(r.liveIsFuture, true, "the newer save is back in live, byte-identical");
+  assert.equal(r.staging, null);
+  assert.equal(r.status, "Autosave failed · progress not saved", "the status does not claim the prior slot was kept");
+  assert.equal(r.has, false, "the slot is not playable");
+  assert.equal(r.read, null);
+  assert.equal(r.unreadable, true, "the newer bytes are what Download gives");
+  assert.equal(r.kind, "unreadable");
+  ok("failed New run keeps the newer save");
+}
+
 // 3. Older bytes never stand in for a committed newer save: not slot 1's legacy v2, not a backup.
 //    An uncommitted newer write (live still equal to staging) reads its backup, as today.
 {
