@@ -2040,12 +2040,13 @@ function resolveSceneImageUngated(id, scene) {
   // The Off-Shift portrait asserts Vess is present, including on saved renders.
   if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant_2.jpg";
 
-  // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
+  // Crisis / priority_repairs: Amara + Jiro + Mira faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     // SUN-PLATE-FACES-AUDIT-01: the kneeling welder in crisis.jpg reads as Mira (Muse a-m audit).
-    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela") || !isAlive("mira")) {
+    // SUN-ART-RULINGS-01 (ruled 2026-11-25): Sela is not in the plate, so her death no longer hides it.
+    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("mira")) {
       return "images/corridor_variant_2.jpg";
     }
   }
@@ -2149,7 +2150,7 @@ const PLATE_FACES = {
   "images/corridor.jpg": ["vess"],
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
-  "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
+  "images/crisis.jpg": ["amara", "jiro", "mira"], // SUN-ART-RULINGS-01: no Sela in the bytes
   "images/empty_berths.jpg": ["amara"],
   // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
   // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
@@ -2261,6 +2262,13 @@ function plateFacesPresent(src) {
 // opens her like any other name. UI state for one paint; never saved.
 let crewPanelDefaultPaint = false;
 
+// SUN-ART-RULINGS-01 (ruled 2026-11-25): the board used to open on Lena even when she was dead.
+// The default is now the first living member in board order (Lena while she lives). A dead
+// member's chip and sheet are unchanged: they stay on the board as a memorial.
+function crewPanelDefaultKey() {
+  return visibleCrewKeys().find(k => crew[k] && isAlive(k)) || null;
+}
+
 function toggleCrewPanel() {
   const el = document.getElementById("crew-panel");
   if (!el) return;
@@ -2271,7 +2279,7 @@ function toggleCrewPanel() {
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
     crewPanelDefaultPaint = true;
-    try { renderCrewPanel("lena"); }
+    try { renderCrewPanel(crewPanelDefaultKey()); }
     finally { crewPanelDefaultPaint = false; }
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
@@ -2362,7 +2370,10 @@ function renderCrewPanel(selectedKey) {
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
     // favoritism is "who you chose to keep close"; raw marks (e.g. "dying_held") stay internal.
     if (!dead && favored === selectedKey) bits.push("kept close");
-    detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
+    // SUN-CREW-MARK-WORDS-01 (decision 35): the marks come back as words (crewMarkWords in state.js),
+    // living members only; a member with no worded mark gets no extra line.
+    const between = !dead && typeof crewMarkWords === "function" ? crewMarkWords(selectedKey) : "";
+    detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}${between ? `<br>Between you: ${escapeHtml(between)}` : ""}</div>`;
   } else {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
   }
@@ -2372,7 +2383,7 @@ function renderCrewPanel(selectedKey) {
   const countLine = `<div class="crew-count" role="status">Crew · ${livingN} living / ${listedN} listed</div>`;
   el.innerHTML = `${countLine}<div class="crew-chips">${chips}</div>${detail}`;
   const pickedKey = crewPanelDefaultPaint ? null : selectedKey;
-  // Opening the board paints Lena by default (#543); that paint must not jump-scroll.
+  // Opening the board paints the first living member by default (#543); that paint must not jump-scroll.
   if (pickedKey && order.includes(pickedKey) && crew[pickedKey]) revealCrewDetail(el);
   el.querySelectorAll(".crew-chip[data-crew]").forEach(btn => {
     btn.onclick = () => {
