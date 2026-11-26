@@ -222,6 +222,26 @@ function shipMemoryUpdate(change) {
   }
 }
 
+// SUN-MEMORY-BOARD-01 (D8(a)): "Forget this ship". Removes this key and nothing else: no save, no
+// setting, not the tone acknowledgement. A newer version's value (v > 1) is left alone, like every
+// other write. When storage is blocked the session copy is emptied, so this session forgets too.
+function shipMemoryForget() {
+  try {
+    shipMemoryCurrent();
+    if (shipMemoryForeign) return false;
+  } catch (e) { /* storage unreadable: forget the session copy below */ }
+  shipMemorySession = shipMemoryEmpty();
+  try {
+    localStorage.removeItem(SHIP_MEMORY_KEY);
+  } catch (e) {
+    shipMemoryWriteFailed = true;
+    return false;
+  }
+  shipMemoryWriteFailed = false;
+  shipMemoryRawSeen = null;
+  return true;
+}
+
 function shipMemoryPlateStem(src) {
   if (typeof src !== "string" || !src) return "";
   const path = src.split(/[?#]/)[0];
