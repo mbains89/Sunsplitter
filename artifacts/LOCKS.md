@@ -132,7 +132,7 @@ Manraj ruled this on 2026-11-25 in the Orchestrator lead chat. Asked which batch
 
 | ID | Disposition | Subject | Authority | ruled_date | ruled_by | landing_sha |
 |---|---|---|---|---|---|---|
-| L-062 | LOCKED | Text backlog: a per-run, read-only record of the text shown and the orders given. It is kept beside its slot's save, in its own key, and bound to that save. Scenes, endings and saves never read it. Reply lines appear in it as history; L-057 still governs the live screen. It is cleared with the save and not exported. In-run only in Wave 2 | ROADMAP §14A Wave 2; §16 | 2026-11-25 | Manraj | `PENDING` |
+| L-062 | LOCKED | Text backlog: a per-run, read-only record of the text shown and the orders given. It is kept beside its slot's save, in its own key, and bound to that save. Scenes, endings and saves never read it. Reply lines appear in it as history; L-057 still governs the live screen. It is cleared with the save and not exported. In-run only in Wave 2 | ROADMAP §14A Wave 2; §16 | 2026-11-25 | Manraj | `71c90450a68a914bea2047f22ffa5fe87f6f9b08` |
 
 The same answer settles two readings of existing locks, recorded in ROADMAP §14A Wave 2 and not as new rows. L-052 covers exactly the slot storage keys listed there. L-054's namespace holds a per-run trail of hard-call scene ids, which feeds only the memory board.
 
