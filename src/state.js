@@ -373,7 +373,9 @@ function hasMark(who, tag) {
 // hour, a private word or a private promise; logged orders and public acts never print there. Matched
 // by the opening words of each remember() text below, so a reworded memory drops out rather than leaks.
 const PRIVATE_MEMORY_OPENINGS = [
-  "You and Lena crossed a line", "You and Mira crossed a line", "You and Amara claimed the hydroponics bay",
+  "You and Lena had sex", "You and Mira had sex", "You and Amara claimed the hydroponics bay",
+  // SUN-HONESTY-LINES-01: the two openings these memories had until then, for saves that hold them.
+  "You and Lena crossed a line", "You and Mira crossed a line",
   "Sela chose you without an audience", "You shared the hydroponics bay with Amara and Tomas",
   "Shared the last long-range window and a private hour with Vess", "The ship interrupted a private hour",
   "Lena came back while her clock", "Sela chose a second series under a private vow",
@@ -541,7 +543,7 @@ function visibleLivingCrewCount() {
 }
 
 
-// SUN-RECAP-HONESTY-01: a private hour was spent this run (a crossed line, a held hour, or one the
+// SUN-RECAP-HONESTY-01: a private hour was spent this run (a romance, a held hour, or one the
 // ship interrupted). Read from existing romance/marks/flags only.
 function privateHourTaken() {
   return ROMANCEABLE.some(k => state.romance[k] || hasMark(k, "held_only")) ||
@@ -775,18 +777,18 @@ function whatRemainsRelationalFact() {
   const dead = partners.filter(key => !isAlive(key));
   const allNames = whatRemainsJoinNames(partners);
   if (partners.length === 1) {
-    if (living.length) return `A private line was crossed with ${allNames}; she was alive when the run ended.`;
-    return `A private line was crossed with ${allNames} before her death.`;
+    if (living.length) return `You had a romance with ${allNames}; she was alive when the run ended.`;
+    return `You had a romance with ${allNames} before her death.`;
   }
   if (!dead.length) {
     const subject = partners.length === 2 ? "both" : "all";
-    return `Private lines were crossed with ${allNames}; ${subject} were alive when the run ended.`;
+    return `You had romances with ${allNames}; ${subject} were alive when the run ended.`;
   }
-  if (!living.length) return `Private lines were crossed with ${allNames} before their deaths.`;
+  if (!living.length) return `You had romances with ${allNames} before their deaths.`;
   const livingNames = whatRemainsJoinNames(living);
   const deadNames = whatRemainsJoinNames(dead);
   const livingVerb = living.length === 1 ? "was" : "were";
-  return `Private lines were crossed with ${allNames}; ${livingNames} ${livingVerb} alive at the ending, and ${deadNames} had died.`;
+  return `You had romances with ${allNames}; ${livingNames} ${livingVerb} alive at the ending, and ${deadNames} had died.`;
 }
 
 function whatRemainsFacts() {
@@ -850,7 +852,7 @@ function crewEpilogues() {
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
     else if (state.promises.lena === "broken") p += whatRemainsPromiseCausedDeath("lena") ? ` When the one line that holds a crashing patient was tested, it moved to her.` : ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
-    if (state.romance.lena) p += ` You crossed the line with her without pity, and you were the one who stayed.`;
+    if (state.romance.lena) p += ` You had sex with her without pity, and you were the one who stayed.`;
     else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
     else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
     if (f.pair_triage === "chart") p += ` Rourke stayed a prognosis on her board.`;
@@ -900,7 +902,7 @@ function crewEpilogues() {
     else if (hasMark("mira", "people_first")) p += ` At the board she read your answer back: a person, and also the repair.`;
     if (state.promises.mira === "kept") p += ` The binding to the dead's directives was refused, and the interlocks were cleared of their signatures.`;
     else if (state.promises.mira === "broken") p += ` The ark was rebound to directives written by the dead; the ration boards recalculated under signatures eight years old.`;
-    if (state.romance.mira) p += ` A private line was crossed with her${f.mira_root_cause ? `, and she asked you the one question she could not verify from the trace` : ``}.`;
+    if (state.romance.mira) p += ` You had sex with her${f.mira_root_cause ? `, and she asked you the one question she could not verify from the trace` : ``}.`;
     else if (hasMark("mira", "held_only")) p += ` You told her you cared, and that the chain of command came first that night.`;
     else if (hasMark("mira", "declined")) p += ` She offered the honest hour; you said not like this.`;
     if (f.pair_burn === "finding") p += rootCause ? ` The reckoning burn is logged as her fault report, root cause under it.` : ` The reckoning burn is logged as her finding: ninety-four, nothing under it.`;

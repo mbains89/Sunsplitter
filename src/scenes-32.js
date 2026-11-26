@@ -26,7 +26,7 @@ registerScenes({
           : `Vess offered the attempt and you accepted. Power stayed hers.\n\n`;
       }
       if (open.length) {
-        t += `Someone you already crossed a line with may still come looking: ${open.join(", ")}. A second approach is not free — the crew will read it as a pattern.\n\n`;
+        t += `Someone you have already had sex with may still come looking: ${open.join(", ")}. A second approach is not free — the crew will read it as a pattern.\n\n`;
       } else {
         t += `No one is initiating a second private claim right now.\n\n`;
       }
