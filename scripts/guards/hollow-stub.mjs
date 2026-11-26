@@ -14,6 +14,8 @@
  *
  *   node scripts/guards/hollow-stub.mjs
  *   node scripts/guards/hollow-stub.mjs --replay-416
+ *   node scripts/guards/hollow-stub.mjs --replay-split
+ *   node scripts/guards/hollow-stub.mjs --replay-datasrc
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -23,14 +25,21 @@ const STUB_RE = /see local \/tmp|SEE_LOCAL_PATCH|SEE_LOCAL_FILE|\bPLACEHOLDER\b/
 const REPLAY_416_PATH = "scripts/guards/fixtures/hollow-416.js";
 const ENGINE_FILE_RE = /^src\/engine(?:-[a-z0-9]+)*\.js$/;
 
-// The engine files index.html loads, in load order.
+// A script tag's own src attribute. The space before "src" keeps data-src and the like out:
+// a browser does not load those.
+const SCRIPT_SRC_RE = /<script\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/gi;
+
+// The engine files a page loads, in load order.
 // A tag inside an HTML comment is not loaded, and a file loaded twice counts once.
-function loadedEngineFiles() {
-  const html = fs.existsSync("index.html") ? fs.readFileSync("index.html", "utf8") : "";
+function engineFilesIn(html) {
   const live = html.replace(/<!--[\s\S]*?-->/g, "");
-  return [...new Set([...live.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+  return [...new Set([...live.matchAll(SCRIPT_SRC_RE)]
     .map(match => match[1].replace(/^\.\//, ""))
     .filter(rel => ENGINE_FILE_RE.test(rel)))];
+}
+
+function loadedEngineFiles() {
+  return engineFilesIn(fs.existsSync("index.html") ? fs.readFileSync("index.html", "utf8") : "");
 }
 
 function checkEngine(parts) {
@@ -83,8 +92,18 @@ function checkText(rel, text) {
 
 const replay = process.argv.includes("--replay-416");
 const replaySplit = process.argv.includes("--replay-split");
+const replayDataSrc = process.argv.includes("--replay-datasrc");
 const errors = [];
-if (replaySplit) {
+if (replayDataSrc) {
+  // src/engine.js is cut down and the old engine text is parked in a file that only a data-src
+  // attribute names. A browser does not load that file, so it must not count toward the floor.
+  const html = '<script src="src/dialog-keys.js" data-src="src/engine-pad.js"></script>\n<script src="src/engine.js"></script>';
+  const texts = {
+    "src/engine.js": "function resolveSceneImage(id) { return id; }\n",
+    "src/engine-pad.js": "function persistSave() { return true; }\n".repeat(3000)
+  };
+  errors.push(...checkEngine(engineFilesIn(html).map(rel => ({ rel, text: texts[rel] || "" }))));
+} else if (replaySplit) {
   // L-043 split: the loaded engine is over the floor and keeps a call site and resolveSceneImageUngated,
   // but function resolveSceneImage itself sits only in a part index.html does not load.
   errors.push(...checkEngine([
@@ -108,4 +127,4 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
-console.log(replay || replaySplit ? "unexpected pass on replay" : "hollow-stub: pass");
+console.log(replay || replaySplit || replayDataSrc ? "unexpected pass on replay" : "hollow-stub: pass");
