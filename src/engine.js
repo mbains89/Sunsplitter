@@ -447,6 +447,8 @@ function resetRunState() {
     state.promises = {};
     state.crisisPath = null;
   }
+  // SUN-BACKLOG-RECORD-01 (L-062): a new run starts with an empty backlog.
+  if (typeof backlogReset === "function") backlogReset();
 }
 
 function replaceRunState(next) {
@@ -475,6 +477,8 @@ function beginFreshCampaign(opts) {
       return false;
     }
   }
+  // SUN-BACKLOG-RECORD-01 (L-062): a refused new run keeps the current run's backlog too.
+  const previousBacklog = opts.persist && typeof backlogSnapshot === "function" ? backlogSnapshot() : null;
   resetRunState();
   // SUN-SECOND-TAB-GUARD-01: a new run replaces the slot on purpose (newRun), even one another tab
   // saved over, and gives it back to this tab.
@@ -482,6 +486,7 @@ function beginFreshCampaign(opts) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
+    if (previousBacklog && typeof backlogRestore === "function") backlogRestore(previousBacklog);
     return false;
   }
   if (opts.persist) {
@@ -704,12 +709,33 @@ function choiceReplyLines(reply) {
     .filter(entry => entry && typeof entry.text === "string" && entry.text.trim());
 }
 
-function renderPendingChoiceReply() {
+// The pending reply's lines as they print: a dead or absent speaker's line is dropped here, once.
+// SUN-BACKLOG-RECORD-01 split this from the markup so the backlog (L-062) keeps exactly these lines.
+function takePendingChoiceReplyLines() {
   const lines = pendingChoiceReply || [];
   pendingChoiceReply = null;
-  return lines.filter(line => !line.who || isAlive(line.who))
-    .map(line => `<p class="choice-reply">${String(line.text).replace(/\n/g, "<br>")}</p>`)
+  return lines.filter(line => !line.who || isAlive(line.who)).map(line => String(line.text));
+}
+
+function choiceReplyHtml(lines) {
+  return (lines || []).map(text => `<p class="choice-reply">${String(text).replace(/\n/g, "<br>")}</p>`).join("");
+}
+
+// SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
+// conditional line that printed nothing) is dropped here, so paced reveal never spends a
+// "Read on" tap on nothing. Paced, instant and resume all render from this one markup, and the
+// backlog keeps the raw text this turns into #story's paragraphs (SUN-BACKLOG-RECORD-01).
+function sceneTextHtml(raw) {
+  return String(raw)
+    .split(/\n\n+/)
+    .filter(p => p.trim())
+    .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
+}
+
+// The wake's remembered-ending paragraph (SUN-SHIP-REMEMBERS-01), one markup for the screen and the backlog.
+function rememberedLineHtml(line) {
+  return `<p class="ship-remembers">${escapeHtml(line)}</p>`;
 }
 
 function showScene(id, opts) {
@@ -775,23 +801,22 @@ function showScene(id, opts) {
   } finally {
     renderingSavedScene = false;
   }
-  // SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
-  // conditional line that printed nothing) is dropped here, so paced reveal never spends a
-  // "Read on" tap on nothing. Paced, instant and resume all render from this one markup.
-  let html = String(raw)
-    .split(/\n\n+/)
-    .filter(p => p.trim())
-    .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
-    .join("");
+  let html = sceneTextHtml(raw);
   // SUN-SHIP-REMEMBERS-01 (L-054): on a fresh run's wake, one more paragraph when the ship remembers
-  // an earlier ending. It joins the paced reveal like any other paragraph.
+  // an earlier ending. It joins the paced reveal like any other paragraph. The backlog keeps the line
+  // as printed (SUN-BACKLOG-RECORD-01), since it is not part of the scene's text.
+  let rememberedLine = "";
   if (id === "wake" && wakeRemembersArmed) {
     const line = typeof shipRemembersWakeLine === "function" ? shipRemembersWakeLine() : "";
-    if (line) html += `<p class="ship-remembers">${escapeHtml(line)}</p>`;
+    if (line) html += rememberedLineHtml(line);
+    rememberedLine = line || "";
   }
 
-  const replyHtml = opts.resume ? (pendingChoiceReply = null, "") : renderPendingChoiceReply();
-  document.getElementById("story").innerHTML = `<div class="scene-text">${replyHtml}${html}</div>`;
+  const replyLines = opts.resume ? (pendingChoiceReply = null, []) : takePendingChoiceReplyLines();
+  document.getElementById("story").innerHTML = `<div class="scene-text">${choiceReplyHtml(replyLines)}${html}</div>`;
+  // SUN-BACKLOG-RECORD-01 (L-062): a live screen joins the run's backlog as printed. A resume,
+  // Continue or the intro's first view re-renders a screen that is already kept (or lost to a gap).
+  if (!opts.resume && typeof backlogRecordScreen === "function") backlogRecordScreen(id, raw, replyLines, rememberedLine);
 
   const choicesEl = document.getElementById("choices");
   choicesEl.innerHTML = "";
@@ -2429,6 +2454,8 @@ function makeChoice(choice) {
   if (choice.lean && typeof choice.lean === "object") {
     Object.keys(choice.lean).forEach(side => lean(side, choice.lean[side]));
   }
+  // SUN-BACKLOG-RECORD-01 (L-062): the order given closes the screen it was given on.
+  if (typeof backlogRecordOrder === "function") backlogRecordOrder(state.scene, choice.text);
   pendingChoiceReply = choiceReplyLines(choice.reply);
   wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: gone after the first order
   showScene(choice.next);

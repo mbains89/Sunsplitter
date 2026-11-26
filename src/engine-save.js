@@ -23,6 +23,14 @@
 // Every slot holds the same v3 snapshot. No slot number, name or pointer goes inside a snapshot or
 // an export, so a file is a run, not a slot.
 //
+// Text backlog (L-062; SUN-BACKLOG-RECORD-01). One key per slot, beside that slot's save and bound to
+// it by savedAt. persistSave removes it before the save transaction and writes it again only after the
+// save has verified; clearSave and an import remove it; never in a snapshot or an export. Its code is
+// in src/engine-backlog.js.
+//   slot 1   sunsplitter_backlog_v1
+//   slot 2   sunsplitter_backlog_v1_slot2
+//   slot 3   sunsplitter_backlog_v1_slot3
+//
 // Reader settings and title keys. Not saves: never in a snapshot or an export, never touched by a
 // save, a new run, an import or clearSave.
 //   sunsplitter_tone_ack_v1        content notice acknowledged (engine.js)
@@ -625,6 +633,8 @@ function commitImportedSave(raw, slot) {
   writeCurrentSlotPointer(slot);
   // SUN-MEMORY-STORE-01 (L-054): the imported run has faced no hard calls in this slot yet.
   if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
+  // L-062: the imported save replaced this slot's save, so the slot's backlog goes with it.
+  if (typeof backlogClear === "function") backlogClear(slot);
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
@@ -1035,6 +1045,9 @@ function persistSave(opts) {
     return false;
   }
   try {
+    // L-062: the slot's backlog never takes the room this transaction needs; it is written again,
+    // bound to the new save, once the save has verified.
+    if (typeof backlogClear === "function") backlogClear(slot);
     // Stage and verify before touching the live slot. If a prior slot exists,
     // preserve its exact bytes until the replacement has also verified.
     localStorage.setItem(slotKeys.staging, json);
@@ -1086,6 +1099,8 @@ function persistSave(opts) {
     localStorage.removeItem(slotKeys.backup);
   } catch (e) { /* committed live slot already verified */ }
   noteSaveSlotSeen(slot, json);
+  // L-062: the run's backlog, bound to this save by savedAt. Best effort; never changes the result.
+  if (typeof backlogWrite === "function") backlogWrite(slot, snap.savedAt);
   if (!silent) flashSaveStatus("Saved");
   else clearSaveWriteFailure();
   updateMetaSaveHint();
@@ -1141,6 +1156,7 @@ function loadGame() {
     // SUN-SECOND-TAB-GUARD-01: this tab now plays the slot from the save it just read.
     noteSaveSlotSeen(slot, raw);
     loadedGameVersion = pendingLegacyResume.loadedGameVersion;
+    if (typeof backlogRestore === "function") backlogRestore(pendingLegacyResume.backlog); // L-062
     if (!persistSave({ silent: true, slot })) {
       showTitleKeepingSaveStatus();
       return false;
@@ -1166,6 +1182,8 @@ function loadGame() {
   // SUN-SECOND-TAB-GUARD-01: this tab now plays the slot from the save it just read, so a Load or
   // Continue of a slot another tab saved over gives it back to this tab.
   noteSaveSlotSeen(slot, raw);
+  // L-062: the slot's backlog, kept only when it is bound to this save; otherwise a gap.
+  if (typeof backlogLoad === "function") backlogLoad(slot, data.savedAt);
   showScreen("game");
   renderStatus();
   // A save parked on a retired answer screen has not entered its exit yet (SUN-DIET-REPLY-FOLD-01):
@@ -1180,7 +1198,8 @@ function loadGame() {
       raw,
       snapshot: snapshotState(),
       loadedGameVersion,
-      slot
+      slot,
+      backlog: typeof backlogSnapshot === "function" ? backlogSnapshot() : null // L-062
     };
     showTitleKeepingSaveStatus();
     return false;
@@ -1240,6 +1259,7 @@ function clearSave(slot) {
     for (const key of saveSlotStorageKeys(saveSlotArg(slot))) localStorage.removeItem(key);
   } catch (e) { /* ignore */ }
   remarkNewRunSlot(saveSlotArg(slot)); // SUN-SECOND-TAB-GUARD-01: this tab's own write
+  if (typeof backlogClear === "function") backlogClear(saveSlotArg(slot)); // L-062: cleared with the save
   updateMetaSaveHint();
   refreshTitleResumeUI();
 }
