@@ -707,8 +707,22 @@ function applyCommanderTokens(tokens) {
   state.commanderSeal = tokens.commanderSeal || "";
   state.commanderOath = tokens.commanderOath || "";
 }
+// SUN-SECOND-TAB-GUARD-01: the slot this New run would replace. Today that is the active slot; the
+// New-run slot picker (SUN-NEW-RUN-SLOT-01, #604) makes it the slot the player picked.
+function newRunTargetSlot() {
+  return typeof activeSaveSlot !== "undefined" ? activeSaveSlot : 1;
+}
 function commitNewRunWithCommander() {
   hideCommanderCreate();
+  // SUN-SECOND-TAB-GUARD-01: if another tab changed that slot since New run opened (a storage event
+  // the title missed, or one still on its way), stop, write nothing, and say so.
+  const target = newRunTargetSlot();
+  if (typeof newRunSlotChanged === "function" && newRunSlotChanged(target)) {
+    if (typeof refreshTitleResumeUI === "function") refreshTitleResumeUI();
+    reportNewRunSlotChanged(target);
+    return false;
+  }
+  if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
   const draft = readCommanderCreateDraft();
   const started = beginFreshCampaign({ persist: true });
   if (!started) return false;
@@ -729,6 +743,7 @@ function advancePastCommanderCreate() {
 }
 function cancelCommanderCreate() {
   hideCommanderCreate();
+  if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
   return false;
 }
 
@@ -738,10 +753,16 @@ function commitNewRun() {
   return commitNewRunWithCommander();
 }
 function confirmNewRun() { return commitNewRun(); }
-function cancelNewRun() { hideNewRunConfirm(); return false; }
+function cancelNewRun() {
+  hideNewRunConfirm();
+  if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
+  return false;
+}
 (function overlayNewRunConfirm() {
   if (typeof startGame === "function") {
     startGame = function() {
+      // SUN-SECOND-TAB-GUARD-01: what every slot holds as New run opens (see newRunSlotChanged).
+      if (typeof markNewRunSlots === "function") markNewRunSlots();
       const slotOccupied = typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave());
       if (slotOccupied) {
         if (showNewRunConfirm()) {

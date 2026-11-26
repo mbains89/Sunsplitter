@@ -221,7 +221,10 @@ function headlessChecks(errors, summary) {
       showScreen("game");
       makeChoice(__firstChoice("wake"));
       o.scene = state.scene;
-      localStorage.setItem("sunsplitter_save_v3", "{}");
+      // Empty the slot so the Save below has to write it. (SUN-SECOND-TAB-GUARD-01: bytes this tab
+      // cannot read and did not write, such as "{}", now read as another tab's save and are never
+      // written over; an empty slot is still free.)
+      localStorage.removeItem("sunsplitter_save_v3");
       openMenuSheet();
       o.saved = menuSaveGame();
       o.saveClosed = !__open();
