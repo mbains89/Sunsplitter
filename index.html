@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/intro-nav.css">
 <link rel="stylesheet" href="css/pc-viewport.css">
 <link rel="stylesheet" href="css/paced-reveal.css">
+<link rel="stylesheet" href="css/reader-settings.css">
 </head>
 <body>
 <div id="app">
@@ -182,6 +183,10 @@
         <div class="reader-settings-actions" role="group" aria-label="Reader settings">
           <p id="text-pace-chip" class="text-pace-chip" role="status">Paced · tap for each paragraph</p>
           <button id="btn-text-pace" class="btn" type="button" onclick="toggleTextPace()" aria-describedby="text-pace-chip">Text: paced</button>
+          <p id="text-size-chip" class="text-size-chip" role="status">Standard · the usual size</p>
+          <button id="btn-text-size" class="btn" type="button" onclick="cycleTextSize()" aria-describedby="text-size-chip">Size: standard</button>
+          <p id="line-spacing-chip" class="line-spacing-chip" role="status">Standard · the usual line spacing</p>
+          <button id="btn-line-spacing" class="btn" type="button" onclick="cycleLineSpacing()" aria-describedby="line-spacing-chip">Spacing: standard</button>
         </div>
         <div class="reader-settings-actions" role="group" aria-label="Picture setting">
           <p id="cover-nudity-chip" class="cover-nudity-chip" role="status">Off · pictures show as drawn</p>

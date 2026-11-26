@@ -35,6 +35,8 @@ const SETTINGS_KEYS = [
   "sunsplitter_show_costs_v1",
   "sunsplitter_cover_nudity_v1",
   "sunsplitter_text_pace_v1",
+  "sunsplitter_text_size_v1", // SUN-READER-TYPE-01
+  "sunsplitter_line_spacing_v1", // SUN-READER-TYPE-01
   "sunsplitter_tutorial_seen_v1",
   "sunsplitter_validate"
 ];
