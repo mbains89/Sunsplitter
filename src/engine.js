@@ -954,6 +954,22 @@ const LINE_SPACING_CHIPS = {
 };
 let textSizeSession = null; // survives a session when storage is blocked
 let lineSpacingSession = null;
+// SUN-READER-FONT-01 — reader setting "Font" (Wave 2 design WS6 §6-8, T3; D3(a), 2026-11-25):
+// OpenDyslexic, named as such, with no claim that it helps anyone read. The same pattern as Size and
+// Spacing, applied as data-reading-font on <html>. css/reader-settings.css declares the typeface; the
+// browser fetches it only once text on a reading surface uses it, so "standard" downloads nothing.
+const READING_FONT_KEY = "sunsplitter_reading_font_v1";
+const READING_FONT_STEPS = ["standard", "opendyslexic"];
+const READING_FONT_NAMES = { standard: "standard", opendyslexic: "OpenDyslexic" };
+const READING_FONT_CHIPS = {
+  standard: "Standard · the usual typeface",
+  // The chip says where the typeface goes, not who it is for: "for dyslexic readers" read as a
+  // recommendation, the wrong side of D3(a). The design's "a typeface made for dyslexic readers" also
+  // wrapped in every title layout and moved the buttons under it on the first tap (Myth and Muse,
+  // 2026-11-26). One line at 360px.
+  opendyslexic: "OpenDyslexic · on story and choices"
+};
+let readingFontSession = null;
 
 function readReaderStep(session, key, steps) {
   if (session) return session;
@@ -973,10 +989,14 @@ function readLineSpacing() {
   return readReaderStep(lineSpacingSession, LINE_SPACING_KEY, LINE_SPACING_STEPS);
 }
 
+function readReadingFont() {
+  return readReaderStep(readingFontSession, READING_FONT_KEY, READING_FONT_STEPS);
+}
+
 function applyReaderType() {
   const root = typeof document !== "undefined" ? document.documentElement : null;
   if (!root || typeof root.setAttribute !== "function") return;
-  for (const [attr, value] of [["data-text-size", readTextSize()], ["data-line-spacing", readLineSpacing()]]) {
+  for (const [attr, value] of [["data-text-size", readTextSize()], ["data-line-spacing", readLineSpacing()], ["data-reading-font", readReadingFont()]]) {
     if (value === "standard") root.removeAttribute(attr);
     else root.setAttribute(attr, value);
   }
@@ -993,6 +1013,11 @@ function syncReaderTypeControls() {
   if (spacingBtn) spacingBtn.textContent = `Spacing: ${spacing}`;
   const spacingChip = document.getElementById("line-spacing-chip");
   if (spacingChip) spacingChip.textContent = LINE_SPACING_CHIPS[spacing];
+  const font = readReadingFont();
+  const fontBtn = document.getElementById("btn-reading-font");
+  if (fontBtn) fontBtn.textContent = `Font: ${READING_FONT_NAMES[font]}`;
+  const fontChip = document.getElementById("reading-font-chip");
+  if (fontChip) fontChip.textContent = READING_FONT_CHIPS[font];
 }
 
 function readerTypeChanged() {
@@ -1025,6 +1050,19 @@ function cycleTextSize() {
 
 function cycleLineSpacing() {
   return setLineSpacing(LINE_SPACING_STEPS[(LINE_SPACING_STEPS.indexOf(readLineSpacing()) + 1) % LINE_SPACING_STEPS.length]);
+}
+
+function setReadingFont(step) {
+  const next = READING_FONT_STEPS.includes(step) ? step : "standard";
+  readingFontSession = next;
+  try { localStorage.setItem(READING_FONT_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  readerTypeChanged();
+  return next;
+}
+
+// Two steps, so cycling toggles: standard -> opendyslexic -> standard.
+function cycleReadingFont() {
+  return setReadingFont(READING_FONT_STEPS[(READING_FONT_STEPS.indexOf(readReadingFont()) + 1) % READING_FONT_STEPS.length]);
 }
 
 // Applied while the script is evaluated, before any screen is shown, so no story text is ever
