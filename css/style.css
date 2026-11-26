@@ -413,6 +413,15 @@ body::before {
   object-position: center 18%;
 }
 
+/* SUN-ART-RULINGS-01 (ruled 2026-11-25): act3_reckoning_pattern.jpg is 1264×1568, wider than the
+   locked 784×1168 box, so cover cut about 8% off each side and half of Sela's face at the right
+   edge. This one plate letterboxes instead, centred as the tablet rule does (#555). Keyed to the
+   src the engine sets, as the tether_dock_ruined drift rule is; every other plate is unchanged. */
+#scene-image[src$="/act3_reckoning_pattern.jpg"] {
+  object-fit: contain;
+  object-position: center;
+}
+
 @media (max-width: 480px) {
   #scene-image-wrap {
     width: calc(100% - 12px);
