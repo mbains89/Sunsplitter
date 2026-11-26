@@ -23,8 +23,10 @@ export function offshiftChoiceChecks(runtime) {
           // 112 since SUN-DIET-REPLY-FOLD-01: the same walk, minus the hold_bolts_again,
           // act3_lethal_tomas_stores and breath_word_given screens it used to tap through (now replies).
           // 111 since SUN-DIET-VESS-MERGE-01: the same walk, minus the vess_cost screen (merged into vess_signal).
+          // Tomas's promise is "kept" since SUN-PROMISE-BREATH-01: the walk strips the racks at breath_hub,
+          // which keeps it at breath_after. The Off-Shift floor reads only that it is no longer absent.
           return step === 111 && isAlive("tomas") && !isAlive("sela") &&
-            state.promises.sela === "made" && state.promises.tomas === "made" &&
+            state.promises.sela === "made" && state.promises.tomas === "kept" &&
             scenes.offshift_tomas.text.includes("He doesn't ask for anything.") &&
             scenes.offshift_tomas.choices.map(c => c.text).join("|") === "Eat with him.|Take yours and go.";
         }

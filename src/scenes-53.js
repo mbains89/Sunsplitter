@@ -72,8 +72,12 @@ registerScenes({
     },
     // SUN-DIET-REPLY-FOLD-01 (L-057): the word writes breath_word on the choice (it was the answer
     // screens' only entry write) and its answer is the reply; breath_word_given/_refused retired.
+    // SUN-PROMISE-BREATH-01 (decision 27, Hex design A step 5): when Sela's promise is made and she
+    // lives, her petition test (prom_price, Breath variant) runs between the word and the hub, and its
+    // outcomes return to breath_hub. Otherwise the word goes straight to the hub, as before.
     get choices() {
       const accusers = ["lena", "elias", "mira", "amara", "sela"].some(isAlive);
+      const next = state.promises.sela === "made" && isAlive("sela") ? "prom_price" : "breath_hub";
       const given = isAlive("tomas")
         ? [{ who: "tomas", text: `Tomas nods once. The public word is given.` },
            { who: "tomas", text: `"Then we hold the line together. I'll prep the crisis options. None of them are clean."` }]
@@ -83,13 +87,13 @@ registerScenes({
       return [
         {
           text: '"The rescued will not be treated as the cause. We find another way."',
-          next: "breath_hub",
+          next,
           flag: { breath_word: "given" },
           reply: given
         },
         {
           text: '"I make no promises. Survival is hard math."',
-          next: "breath_hub",
+          next,
           flag: { breath_word: "refused" },
           reply: [`The refusal lands.`,
             { who: "tomas", text: `Tomas does not argue. "Understood, Commander. The math is yours."` },
