@@ -350,3 +350,48 @@
     background-color: #3a1818;
   }
 }
+
+/* SUN-SHIP-REMEMBERS-01 (L-054) — on a later run, one quiet line under the title contract and one
+   under the content notice's meta line. Hidden when the ship remembers nothing. Outside .prologue,
+   so the intro cinematic never copies it. The wake's line is a scene paragraph, set in italic. */
+#title-screen .ship-remembers {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  max-width: 420px;
+  margin: -20px auto 24px;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(8, 9, 11, 0.94), 0 0 16px rgba(8, 9, 11, 0.78);
+}
+
+#tone-screen .ship-remembers {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: -8px 0 20px;
+}
+
+/* Short screens: a title line that wraps to three lines must not clip Begin (Muse, PR #584). */
+@media (max-height: 680px) {
+  #title-screen .ship-remembers {
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+}
+
+/* The wake's line reads like the title and tone lines. */
+#story .scene-text > p.ship-remembers {
+  font-style: italic;
+}
+
+@media (min-width: 800px) and (max-height: 980px) {
+  #title-screen:has(#commander-create.visible) .ship-remembers,
+  #title-screen.commander-create-open .ship-remembers {
+    display: none;
+  }
+}
