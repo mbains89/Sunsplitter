@@ -40,7 +40,7 @@ const MENU_SETTING_ACTIONS = {
 const MENU_RETURN_TITLE_CHIP = "Saves first · Continue on the title picks up here";
 // After Play Again and before the new run's first order, the slot still holds the finished run, and
 // autosave leaves it there (preserveCompletedSlotUntilChoice). Return to title does the same.
-const MENU_RETURN_TITLE_CHIP_KEPT = "Nothing to save yet · the slot keeps your finished run";
+const MENU_RETURN_TITLE_CHIP_KEPT = "Not saved until your first order · the slot keeps your finished run";
 
 function menuSheetOpen() {
   const sheet = document.getElementById(MENU_SHEET_ID);

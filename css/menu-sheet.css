@@ -156,16 +156,22 @@
     gap: 24px;
     max-width: none;
     padding-inline: max(14px, env(safe-area-inset-left, 0px));
-    padding-top: 12px;
+    padding-top: 8px;
+    padding-bottom: calc(8px + var(--safe-bottom));
   }
   .menu-top {
     padding-inline: 14px;
+    padding-block: calc(4px + var(--safe-top)) 4px;
+  }
+  .menu-group-heading {
+    margin-bottom: 6px;
   }
   .menu-setting {
     grid-template-columns: none;
+    gap: 2px;
   }
   .menu-setting + .menu-setting {
-    margin-top: 8px;
+    margin-top: 4px;
   }
 }
 

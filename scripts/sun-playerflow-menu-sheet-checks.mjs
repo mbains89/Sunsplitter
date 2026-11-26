@@ -318,7 +318,7 @@ function headlessChecks(errors, summary) {
       o.continueShown = __shown("btn-resume");
       return o;
     })()`));
-    if (r.chip !== "Nothing to save yet · the slot keeps your finished run") errors.push(`A6: the kept-run chip reads "${r.chip}"`);
+    if (r.chip !== "Not saved until your first order · the slot keeps your finished run") errors.push(`A6: the kept-run chip reads "${r.chip}"`);
     if (r.ok !== true || !r.kept || !r.title || !r.continueShown) errors.push(`A6: Return to title before the first order did not keep the finished run (${JSON.stringify(r)})`);
   }
   // 7. Settings inside apply, mirror the title and the bar, and add nothing to run state or saves.
