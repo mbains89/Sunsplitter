@@ -943,6 +943,8 @@ function handleSaveStorageEvent(event) {
       reportNewRunSlotChanged(target);
     } else {
       paintTitleSaveState();
+      // SUN-NEW-RUN-SLOT-01: an open slot picker shows the slots too; repaint it in place.
+      if (typeof refreshNewRunPickerInPlace === "function") refreshNewRunPickerInPlace();
     }
     return;
   }
@@ -1374,7 +1376,7 @@ function savedRunRow(slot, currentSlot) {
       (row.current ? " · Continue loads this" : "");
   } else if (unreadable) {
     row.name = "Slot " + slot + " · Can't be read by this version";
-    row.detail = "Download it to keep a copy. Importing into this slot replaces it.";
+    row.detail = "Download it to keep a copy. A new run or an import into this slot replaces it.";
   } else {
     row.name = "Slot " + slot + " · Empty";
   }
@@ -1469,7 +1471,7 @@ function refreshTitleResumeUI() {
   const beginBtn = document.getElementById("btn-begin");
   // SUN-SAVED-RUNS-01: Continue and its line describe the slot Continue resumes. Export, Download
   // unreadable and Import moved into the Saved runs dialog and act on its selected row. New run
-  // still starts in the active slot until the new-run slot picker (design S-3).
+  // asks which slot (SUN-NEW-RUN-SLOT-01, validate.js).
   const resumeSlot = continueSlot();
   const has = resumeSlot !== null;
   const readable = [];
@@ -1509,18 +1511,16 @@ function refreshTitleResumeUI() {
   const used = readable.length + unreadable.length;
   if (beginBtn) {
     // "New run" when any slot holds a run Continue could load; unreadable bytes alone keep "Begin"
-    // (verify's unknown-scene check pins this; New run still asks before replacing them).
+    // (verify's unknown-scene check pins this; Begin still opens the slot picker, which starts on
+    // an empty slot).
     beginBtn.textContent = has ? "New run" : "Begin";
   }
   if (unreadable.length) {
-    // Today's sentence when the only saved bytes are an unreadable run in the slot New run starts
-    // in (its Download is in Saved runs); otherwise name the slots and point to Saved runs.
-    const onlyActive = !readable.length && unreadable.length === 1 && unreadable[0] === activeSaveSlot;
-    const message = onlyActive
-      ? "A saved run here can't be read by this version. Open Saved runs to download a copy; starting a new run will replace it."
-      : unreadable.length === 1
-        ? `A saved run in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download it`
-        : `The runs in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download them`;
+    // Name the slots and point to Saved runs, where each has its Download. A new run replaces an
+    // unreadable run only if the player picks that slot (SUN-NEW-RUN-SLOT-01), so no line promises it.
+    const message = unreadable.length === 1
+      ? `A saved run in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download it`
+      : `The runs in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download them`;
     flashSaveStatus(message, true, true);
   }
   const saveChip = document.getElementById("title-save-chip");

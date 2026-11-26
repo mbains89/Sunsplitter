@@ -59,6 +59,11 @@ export function newRunChecks(runtime) {
       return copy;
     };
     const freshDigestOf = value => stableDigest(withoutCommander(value));
+    // SUN-NEW-RUN-SLOT-01 (O-3(A)): New run opens the slot picker on the first empty slot. The cases
+    // below replace the run in slot 1, so they pick slot 1 explicitly, as a player would.
+    const pickSlot = slot => {
+      if (typeof selectNewRunSlot === "function" && typeof newRunPickerOpen === "function" && newRunPickerOpen()) selectNewRunSlot(slot);
+    };
 
     localStorage.clear();
     distinctiveRun();
@@ -82,6 +87,7 @@ export function newRunChecks(runtime) {
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return true; };
     const acceptOpened = startGame();
+    pickSlot(1);
     let acceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : acceptOpened;
     if (!acceptResult && typeof advancePastCommanderCreate === "function") acceptResult = advancePastCommanderCreate();
     finishCinematic();
@@ -119,7 +125,9 @@ export function newRunChecks(runtime) {
     };
     window.confirm = () => true;
     startGame();
-    const failedResult = typeof confirmNewRun === "function" ? confirmNewRun() : false;
+    pickSlot(1);
+    let failedResult = typeof confirmNewRun === "function" ? confirmNewRun() : false;
+    if (!failedResult && typeof advancePastCommanderCreate === "function") failedResult = advancePastCommanderCreate();
     localStorage.setItem = originalSetItem;
     const failed = {
       result: failedResult,
@@ -153,6 +161,7 @@ export function newRunChecks(runtime) {
     confirmCalls = 0;
     window.confirm = () => { confirmCalls += 1; return true; };
     const legacyOpened = startGame();
+    pickSlot(1);
     let legacyAcceptResult = typeof confirmNewRun === "function" ? confirmNewRun() : legacyOpened;
     if (!legacyAcceptResult && typeof advancePastCommanderCreate === "function") legacyAcceptResult = advancePastCommanderCreate();
     const legacyAccept = {

@@ -40,7 +40,7 @@ const out = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   // L-024: untested promises never mentioned; tested ones are.
   fresh(); for (const k of ["lena", "elias", "mira", "tomas", "amara", "sela"]) state.promises[k] = "made"; row.untested = crewEpilogues();
   fresh(); state.promises.lena = "declined"; state.promises.sela = "declined"; row.declined = crewEpilogues();
-  fresh(); state.promises.lena = "kept"; state.promises.amara = "broken"; state.promises.elias = "broken"; state.flags.prom_deck4_edited = true; state.promises.mira = "kept"; state.promises.sela = "broken"; state.promises.tomas = "kept"; state.crisisPath = "custody"; row.tested = crewEpilogues();
+  fresh(); state.promises.lena = "kept"; state.promises.amara = "broken"; state.promises.elias = "broken"; state.flags.prom_deck4_edited = true; state.promises.mira = "kept"; state.promises.sela = "broken"; state.promises.tomas = "kept"; mark("tomas", "bonded"); state.crisisPath = "custody"; row.tested = crewEpilogues();
   fresh(); state.promises.lena = "broken"; row.lenaBrokenNoDeath = { paragraphs: crewEpilogues(), facts: whatRemainsFacts() };
   // SUN-PROMISE-DEATH-ONCE-01: the two promise tests that kill, played through their own scenes.
   const vent = () => { state.crisisPath = "breath"; state.promises.amara = "made"; showScene("prom_vent"); makeChoice(scenes.prom_vent.choices[1]); };
@@ -110,7 +110,7 @@ for (const k of ["lena", "elias", "mira", "tomas", "amara", "sela"]) {
   assert.ok(!promiseNear(out.untested, FIRST[k]), `untested promise read aloud for ${k} (L-024)`);
 }
 assert.ok(!promiseNear(out.declined, "Lena") && !promiseNear(out.declined, "Sela"), "declined promise read aloud (L-024)");
-assert.ok(out.tested[1].includes("was tested, it stayed with the other patient") && out.tested[2].includes("edited Deck Four record") && out.tested[3].includes("directives was refused") && out.tested[4].includes("custody test the living got") && out.tested[5].includes("pocket was vented with the reader still breathing") && out.tested[7].includes("petition named her, you gave the room"), "tested promises not cited");
+assert.ok(out.tested[1].includes("was tested, it stayed with the other patient") && out.tested[2].includes("edited Deck Four record") && out.tested[3].includes("directives was refused") && out.tested[4].includes("At the crisis the living got the mercy; he counted the cost.") && out.tested[5].includes("pocket was vented with the reader still breathing") && out.tested[7].includes("petition named her, you gave the room"), "tested promises not cited");
 // With no recorded death behind it, a broken promise keeps its full sentence (no line changes outside a promise death).
 assert.ok(out.lenaBrokenNoDeath.paragraphs[ORDER.indexOf("lena")].includes("it moved to her, and the other patient died.") && out.lenaBrokenNoDeath.facts.includes("At the shared-line test, the medical line moved to Lena and the other patient died."), "broken promise without a recorded death changed");
 // SUN-PROMISE-DEATH-ONCE-01 (decision 21): a broken promise that kills prints the death once, in the
