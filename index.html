@@ -98,6 +98,10 @@
             <p id="menu-line-spacing-chip" class="menu-chip" role="status">Standard · the usual line spacing</p>
           </div>
           <div class="menu-setting">
+            <button id="menu-reading-font" type="button" class="btn" onclick="menuSheetSetting('font')" aria-describedby="menu-reading-font-chip">Font: standard</button>
+            <p id="menu-reading-font-chip" class="menu-chip" role="status">Standard · the usual typeface</p>
+          </div>
+          <div class="menu-setting">
             <button id="menu-show-costs" type="button" class="btn" onclick="menuSheetSetting('costs')" aria-pressed="false" aria-describedby="menu-show-costs-chip">Show costs on choices</button>
             <p id="menu-show-costs-chip" class="menu-chip" role="status">Off · choices show no costs · locked choices still say why</p>
           </div>
@@ -272,6 +276,8 @@
           <button id="btn-text-size" class="btn" type="button" onclick="cycleTextSize()" aria-describedby="text-size-chip">Size: standard</button>
           <p id="line-spacing-chip" class="line-spacing-chip" role="status">Standard · the usual line spacing</p>
           <button id="btn-line-spacing" class="btn" type="button" onclick="cycleLineSpacing()" aria-describedby="line-spacing-chip">Spacing: standard</button>
+          <p id="reading-font-chip" class="reading-font-chip" role="status">Standard · the usual typeface</p>
+          <button id="btn-reading-font" class="btn" type="button" onclick="cycleReadingFont()" aria-describedby="reading-font-chip">Font: standard</button>
         </div>
         <div class="reader-settings-actions" role="group" aria-label="Picture setting">
           <p id="cover-nudity-chip" class="cover-nudity-chip" role="status">Off · pictures show as drawn</p>

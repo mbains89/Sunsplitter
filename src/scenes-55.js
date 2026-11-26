@@ -187,6 +187,8 @@ registerScenes({
       // SUN-SELA-OFFER-PAYOFF-01: a partner heard the private custody offer in prom_price_keep, the
       // only writer of promises.sela "kept" (custody_onset > prom_price > prom_price_keep > custody_hub,
       // no romance write between). A non-shared answer closes it; custody_shared pays it. Text only.
+      // SUN-PROMISE-BREATH-01: prom_price_keep also keeps the promise on Breath, where the offer is
+      // gated off and this scene is never reached.
       if (state.romance.sela && state.promises.sela === "kept" && isAlive("sela") &&
           ["possession", "thawed", "severed"].includes(state.flags.custody_answer))
         t += `Before the log closes, Sela speaks to you alone. "The heat question is answered, and the vault still has one key. I will not make the offer, and I am telling you so that you do not wait for it."\n\n`;
@@ -288,6 +290,11 @@ for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["
     enter: () => state.promises[holder] === "broken" || patientPresent()
   });
 }
+// SUN-PROMISE-BREATH-01 (decision 27): Sela's petition test also runs on Breath, from breath_onset, so
+// an absent holder exits to the hub of the path the run is on. This replaces the Custody-only exit
+// registered in the shared test loop above; cast and options are unchanged.
+requireLivingCast("prom_price prom_price_keep prom_price_break", ["sela"],
+  () => state.crisisPath === "breath" ? "breath_hub" : "custody_hub");
 for (const who of ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"]) {
   requireLivingCast(`offshift_${who}`, [who], "faction_split");
 }

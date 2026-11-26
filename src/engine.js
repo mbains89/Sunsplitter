@@ -480,7 +480,9 @@ function beginFreshCampaign(opts) {
   // SUN-BACKLOG-RECORD-01 (L-062): a refused new run keeps the current run's backlog too.
   const previousBacklog = opts.persist && typeof backlogSnapshot === "function" ? backlogSnapshot() : null;
   resetRunState();
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot })) {
+  // SUN-SECOND-TAB-GUARD-01: a new run replaces the slot on purpose (newRun), even one another tab
+  // saved over, and gives it back to this tab.
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot, newRun: true })) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
@@ -492,7 +494,8 @@ function beginFreshCampaign(opts) {
     writeCurrentSlotPointer(slot);
   }
   // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet (in its slot; SUN-SAVED-RUNS-01).
-  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
+  // SUN-SECOND-TAB-GUARD-01: Play Again in a slot another tab has saved over clears no trail there.
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(opts.persist ? slot : runTrailSaveSlot());
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   wakeRemembersArmed = true; // SUN-SHIP-REMEMBERS-01: this wake, and its first look after the intro
   showScreen("game");
@@ -520,6 +523,8 @@ function playAgain() {
 
 function showTitleScreen() {
   showScreen("title");
+  // SUN-SECOND-TAB-GUARD-01: the in-run not-saving line names the Menu, which the title has not.
+  clearSaveSlotTakenNotice();
   refreshTitleResumeUI();
   syncShipRemembersLine("title-remembers", typeof shipRemembersTitleLine === "function" ? shipRemembersTitleLine() : "");
   // SUN-GALLERY-01: the Gallery button shows once a plate has been seen.
@@ -763,7 +768,8 @@ function showScene(id, opts) {
     }
   }
   // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
-  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: no slot once another tab has saved over the slot this tab plays (runTrailSaveSlot).
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, runTrailSaveSlot());
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -956,6 +962,22 @@ const LINE_SPACING_CHIPS = {
 };
 let textSizeSession = null; // survives a session when storage is blocked
 let lineSpacingSession = null;
+// SUN-READER-FONT-01 — reader setting "Font" (Wave 2 design WS6 §6-8, T3; D3(a), 2026-11-25):
+// OpenDyslexic, named as such, with no claim that it helps anyone read. The same pattern as Size and
+// Spacing, applied as data-reading-font on <html>. css/reader-settings.css declares the typeface; the
+// browser fetches it only once text on a reading surface uses it, so "standard" downloads nothing.
+const READING_FONT_KEY = "sunsplitter_reading_font_v1";
+const READING_FONT_STEPS = ["standard", "opendyslexic"];
+const READING_FONT_NAMES = { standard: "standard", opendyslexic: "OpenDyslexic" };
+const READING_FONT_CHIPS = {
+  standard: "Standard · the usual typeface",
+  // The chip says where the typeface goes, not who it is for: "for dyslexic readers" read as a
+  // recommendation, the wrong side of D3(a). The design's "a typeface made for dyslexic readers" also
+  // wrapped in every title layout and moved the buttons under it on the first tap (Myth and Muse,
+  // 2026-11-26). One line at 360px.
+  opendyslexic: "OpenDyslexic · on story and choices"
+};
+let readingFontSession = null;
 
 function readReaderStep(session, key, steps) {
   if (session) return session;
@@ -975,10 +997,14 @@ function readLineSpacing() {
   return readReaderStep(lineSpacingSession, LINE_SPACING_KEY, LINE_SPACING_STEPS);
 }
 
+function readReadingFont() {
+  return readReaderStep(readingFontSession, READING_FONT_KEY, READING_FONT_STEPS);
+}
+
 function applyReaderType() {
   const root = typeof document !== "undefined" ? document.documentElement : null;
   if (!root || typeof root.setAttribute !== "function") return;
-  for (const [attr, value] of [["data-text-size", readTextSize()], ["data-line-spacing", readLineSpacing()]]) {
+  for (const [attr, value] of [["data-text-size", readTextSize()], ["data-line-spacing", readLineSpacing()], ["data-reading-font", readReadingFont()]]) {
     if (value === "standard") root.removeAttribute(attr);
     else root.setAttribute(attr, value);
   }
@@ -995,6 +1021,11 @@ function syncReaderTypeControls() {
   if (spacingBtn) spacingBtn.textContent = `Spacing: ${spacing}`;
   const spacingChip = document.getElementById("line-spacing-chip");
   if (spacingChip) spacingChip.textContent = LINE_SPACING_CHIPS[spacing];
+  const font = readReadingFont();
+  const fontBtn = document.getElementById("btn-reading-font");
+  if (fontBtn) fontBtn.textContent = `Font: ${READING_FONT_NAMES[font]}`;
+  const fontChip = document.getElementById("reading-font-chip");
+  if (fontChip) fontChip.textContent = READING_FONT_CHIPS[font];
 }
 
 function readerTypeChanged() {
@@ -1027,6 +1058,19 @@ function cycleTextSize() {
 
 function cycleLineSpacing() {
   return setLineSpacing(LINE_SPACING_STEPS[(LINE_SPACING_STEPS.indexOf(readLineSpacing()) + 1) % LINE_SPACING_STEPS.length]);
+}
+
+function setReadingFont(step) {
+  const next = READING_FONT_STEPS.includes(step) ? step : "standard";
+  readingFontSession = next;
+  try { localStorage.setItem(READING_FONT_KEY, next); } catch (e) { /* storage blocked: this session only */ }
+  readerTypeChanged();
+  return next;
+}
+
+// Two steps, so cycling toggles: standard -> opendyslexic -> standard.
+function cycleReadingFont() {
+  return setReadingFont(READING_FONT_STEPS[(READING_FONT_STEPS.indexOf(readReadingFont()) + 1) % READING_FONT_STEPS.length]);
 }
 
 // Applied while the script is evaluated, before any screen is shown, so no story text is ever
@@ -1680,7 +1724,8 @@ function resolveEnding() {
   setEndingArt(art);
   showScreen("ending");
   // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
-  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: a run this tab no longer saves reads and clears the trail of no slot.
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, runTrailSaveSlot());
 }
 
 function showWhatRemains() {
