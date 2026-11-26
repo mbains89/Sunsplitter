@@ -22,8 +22,12 @@ registerScenes({
       const heat = state.crisisPath === "custody";
       if (!v || !crew[v] || !isAlive(v)) return heat ? `The service run reads clear. The spine holds.` : `The service run reads clear. The loop holds.`;
       const name = crew[v].first;
+      // SUN-PROMISE-FORWARD-01 (Myth read): prom_line now runs first, so after a kept shared line Jiro
+      // has already said his "twice before" line once; he counts on instead of repeating it.
       const line = v === "jiro"
-        ? `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`
+        ? (state.promises.lena === "kept"
+          ? `"That makes four times out of margin," Jiro says over the panel channel, even now. "Last time Lena covered the difference. Take the reading, Commander. Same rule: no kind numbers."`
+          : `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`)
         : `"Dawnbreak protocol for shared air was: youngest yields," Vess says, log-flat. "I never got to yield. Filed, in case it matters now."`;
       return `${heat
         ? `The heat is not finished. The last of it has pooled in the dead-end service run beside the thermal spine, and the spine's answer is already queued: vent the pocket, keep the margin it just paid for.
@@ -110,13 +114,14 @@ She logs the vent herself, every field, exact. "The next time you say living to 
     choices: [ { text: "Close the log. Continue.", next: "prom_deck4" } ]
   },
 
-  // PRE: promises.elias made && isAlive(elias) && ship_memory open_wound|jury_rig | WRITES: none | DEATH: none | IMG: reuse
+  // PRE: promises.elias made && isAlive(elias); any ship_memory (SUN-PROMISE-FORWARD-01, decision 27b dropped
+  // the proper_seal gate). Pre-crisis it runs from act3_lethal_elias_order and its outcomes return there;
+  // post-crisis it stays in the ladder before prom_line. | WRITES: none | DEATH: none | IMG: reuse
   prom_deck4: {
     image: "images/bulkhead.jpg",
     onEnter: () => {
-      if (state.promises.elias !== "made" || !isAlive("elias") ||
-          (state.flags.ship_memory !== "open_wound" && state.flags.ship_memory !== "jury_rig")) {
-        return "prom_line";
+      if (state.promises.elias !== "made" || !isAlive("elias")) {
+        return state.crisisPath == null ? "act3_lethal_elias_order" : "prom_line";
       }
     },
     text: () => `The ship finishes a sentence it started years ago.
@@ -156,7 +161,7 @@ By second shift the whole ship has heard it. He played it in the mess, once, at 
 
 Nobody works well that day.`;
     },
-    choices: [ { text: "Let the ship carry it. Continue.", next: "prom_line" } ]
+    get choices() { return [ { text: "Let the ship carry it. Continue.", next: state.crisisPath == null ? "act3_lethal_elias_order" : "prom_line" } ]; }
   },
 
   // PRE: from prom_deck4 choices 2/3 | WRITES: onEnter promises.elias="broken" (idempotent) | DEATH: none | IMG: reuse
@@ -183,7 +188,7 @@ Elias hears the record standing in the mess with everyone else.
 
 "You said: if Deck Four comes back, I hear it from you first." His voice stays at report volume. "I heard it from the wall."`;
     },
-    choices: [ { text: "Take the report. Continue.", next: "prom_line" } ]
+    get choices() { return [ { text: "Take the report. Continue.", next: state.crisisPath == null ? "act3_lethal_elias_order" : "prom_line" } ]; }
   },
 
   // PRE: promises.lena made && isAlive(lena) && ladder(mira-if-severed→jiro→vess) | WRITES: onEnter prom_line_other (deterministic recompute) | DEATH: none here | IMG: reuse

@@ -16,19 +16,24 @@ act3_lethal_elias_order: {
       return "faction_split";
     }
     if (!isAlive("elias")) return "act3_lethal_mira_board";
+    // SUN-PROMISE-FORWARD-01 (decision 27b/c): Elias's Deck Four test runs before his lethal, for every
+    // ship_memory state. Its outcomes return here. PRE: crisisPath null. WRITES: none here.
+    if (state.crisisPath == null && state.promises.elias === "made") return "prom_deck4";
   },
   get text() {
     if (!isAlive("elias")) return `Security is a set of permissions with no living holder.`;
 
-    let t;
+    // SUN-PROMISE-FORWARD-01 seam: pre-crisis, a resolved Deck Four promise was tested just before this.
+    let t = (state.promises.elias === "kept" || state.promises.elias === "broken")
+      ? `The ship is not finished with Deck 4.\n\n` : ``;
     if (state.flags.ship_memory === "proper_seal") {
-      t = `The Deck 4 seal stays shut. The frame beside it does not.
+      t += `The Deck 4 seal stays shut. The frame beside it does not.
 
 Metal folds around Station B-four and leaves the pressure dog reporting CLOSED while pressure keeps falling. The feedstock held. The adjacent frame failed.`;
     } else if (state.flags.ship_memory === "open_wound") {
-      t = `Deck 4 opens along the seam left underfunded. First a white line of frost. Then the inner plate bows far enough for Station B-four to report CLOSED while pressure keeps falling.`;
+      t += `Deck 4 opens along the seam left underfunded. First a white line of frost. Then the inner plate bows far enough for Station B-four to report CLOSED while pressure keeps falling.`;
     } else {
-      t = `Deck 4's thin patch separates one fastener at a time. The jury-rig keeps its shape and loses its seal. Station B-four reports CLOSED while pressure keeps falling.`;
+      t += `Deck 4's thin patch separates one fastener at a time. The jury-rig keeps its shape and loses its seal. Station B-four reports CLOSED while pressure keeps falling.`;
     }
 
     t += `\n\nElias reads the access map before the gauge.
