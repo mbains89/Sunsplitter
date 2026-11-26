@@ -249,7 +249,13 @@ function closeCrewSheet() {
   crewSheetBackground = [];
   const returnFocus = crewSheetReturnFocus;
   crewSheetReturnFocus = null;
-  if (returnFocus && returnFocus.isConnected !== false && typeof returnFocus.focus === "function") returnFocus.focus();
+  if (returnFocus && returnFocus.isConnected !== false && typeof returnFocus.focus === "function") {
+    returnFocus.focus();
+    // SUN-CREW-BOARD-LANDSCAPE-01: focusing the chip can scroll the board back up; keep the facts in view.
+    const board = document.getElementById("crew-panel");
+    if (board && typeof board.contains === "function" && board.contains(returnFocus) &&
+        typeof revealCrewDetail === "function") revealCrewDetail(board);
+  }
   const img = document.getElementById("crew-sheet-image");
   if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");
   else if (img && typeof img.removeAttribute === "function") img.removeAttribute("src");
