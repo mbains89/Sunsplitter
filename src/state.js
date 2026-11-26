@@ -490,6 +490,16 @@ function namedDead({ causes = true } = {}) {
   return out;
 }
 
+// SUN-HONESTY-LINES-01 (item 33): what the crew board and sheet print after "Condition: Alive".
+// state.dying holds the cause a death will be logged with (Lena's is written at aftermath); while
+// she lives the board says how she lives, not how she will die. A death prints its logged cause.
+const LIVING_CLOCK_CONDITION = { lena: "on a clock she charted herself" };
+function crewConditionNote(key) {
+  if (!isAlive(key)) return (state.deathCause && state.deathCause[key]) || "gone";
+  if (!(state.dying && state.dying[key])) return "";
+  return LIVING_CLOCK_CONDITION[key] || "on a clock";
+}
+
 function isRecovered(who) {
   return !!(state.recovered && state.recovered[who]);
 }
