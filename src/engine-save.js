@@ -856,6 +856,17 @@ function saveGame() {
   return saved;
 }
 
+// Back to the title after a failed load, keeping the failure the player needs to read: the title
+// repaint can post the sticky unreadable-slot line, so the failure is posted again after it
+// (SUN-SAVED-RUNS-01; the same order commitImportedSave uses).
+function showTitleKeepingSaveStatus() {
+  const el = document.getElementById("title-save-status");
+  const text = el ? String(el.textContent || "") : "";
+  const isError = !!(el && el.classList.contains("error"));
+  showTitleScreen();
+  if (text) flashSaveStatus(text, isError, true);
+}
+
 // Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
   wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: Continue, Load and an imported save are not fresh runs
@@ -880,7 +891,7 @@ function loadGame() {
     }
     loadedGameVersion = pendingLegacyResume.loadedGameVersion;
     if (!persistSave({ silent: true, slot })) {
-      showTitleScreen();
+      showTitleKeepingSaveStatus();
       return false;
     }
     pendingLegacyResume = null;
@@ -917,7 +928,7 @@ function loadGame() {
       loadedGameVersion,
       slot
     };
-    showTitleScreen();
+    showTitleKeepingSaveStatus();
     return false;
   }
   preserveCompletedSlotUntilChoice = false;
@@ -939,10 +950,20 @@ function loadSaveSlot(slot) {
   const previous = activeSaveSlot;
   activeSaveSlot = slot;
   let ok = false;
+  let threw = true;
   try {
     ok = loadGame();
+    threw = false;
   } finally {
-    if (!ok) activeSaveSlot = previous;
+    if (!ok) {
+      // Put the previous slot back when the load did not take: it returned false, or it threw
+      // before leaving the title. A throw after the run is on screen keeps the slot it shows (and
+      // points Continue at it), so the run's next save goes to its own slot.
+      const title = document.getElementById("title-screen");
+      const onTitle = !title || !title.classList.contains("hidden");
+      if (!threw || onTitle) activeSaveSlot = previous;
+      else writeCurrentSlotPointer(slot);
+    }
   }
   return ok;
 }
@@ -1077,10 +1098,10 @@ function savedRunRow(slot, currentSlot) {
     const when = formatSaveWhen(meta && meta.savedAt);
     row.name = saveSlotName(slot, meta);
     row.detail = [saveRunStanding(meta), when ? "saved " + when : ""].filter(Boolean).join(" · ") +
-      (row.current ? " · last played" : "");
+      (row.current ? " · Continue loads this" : "");
   } else if (unreadable) {
     row.name = "Slot " + slot + " · Can't be read by this version";
-    row.detail = "Download it to keep a copy. A new run here replaces it.";
+    row.detail = "Download it to keep a copy. Importing into this slot replaces it.";
   } else {
     row.name = "Slot " + slot + " · Empty";
   }
@@ -1223,10 +1244,10 @@ function refreshTitleResumeUI() {
     // in (its Download is in Saved runs); otherwise name the slots and point to Saved runs.
     const onlyActive = !readable.length && unreadable.length === 1 && unreadable[0] === activeSaveSlot;
     const message = onlyActive
-      ? "A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it."
+      ? "A saved run here can't be read by this version. Open Saved runs to download a copy; starting a new run will replace it."
       : unreadable.length === 1
         ? `A saved run in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download it`
-        : `Saved runs in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download them`;
+        : `The runs in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download them`;
     flashSaveStatus(message, true, true);
   }
   const saveChip = document.getElementById("title-save-chip");

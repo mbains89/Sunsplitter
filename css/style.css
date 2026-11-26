@@ -1033,6 +1033,7 @@ body::before {
   margin: -2px 0 4px;
   text-align: center;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 #meta .meta-actions {
@@ -1476,6 +1477,23 @@ body::before {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+/* Short landscape screens (844x390): the actions stick to the bottom of the panel, so Load,
+   Export, Import and Close stay on screen while the rows scroll. */
+@media (max-height: 480px) {
+  .saved-runs-actions {
+    position: sticky;
+    bottom: -12px;
+    margin: 0 -14px -12px;
+    padding: 8px 14px 12px;
+    background: rgb(16, 18, 22); /* opaque: rows scrolling under it must not show through */
+    border-top: 1px solid var(--border);
+    z-index: 1;
+  }
+}
+/* Three rows always (chip, then two of buttons), so selecting an empty slot does not shift them. */
+#title-screen #saved-runs .saved-runs-actions {
+  grid-template-rows: auto minmax(48px, auto) minmax(48px, auto);
 }
 #title-screen #saved-runs .save-transfer-actions {
   display: contents;

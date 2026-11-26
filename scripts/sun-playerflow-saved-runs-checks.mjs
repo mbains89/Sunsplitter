@@ -6,7 +6,9 @@
 // never on activeSaveSlot; Export and Download unreadable give that slot's exact bytes; Import into an
 // empty and an occupied slot confirms with the slot named and writes only that slot's keys; the four
 // pinned import strings are unchanged; a failed Load or Continue leaves the active slot as it was,
-// so a later New run cannot land on the slot the player only tried to open; open, close and Escape.
+// so a later New run cannot land on the slot the player only tried to open, and its reason stays
+// on screen; open, close and Escape; Saved runs over the inline New run confirm; the New run confirm
+// names the slot it replaces; a load that throws keeps the slot that is on screen.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,8 +113,8 @@ const ok = label => results.push(label);
     return out;
   `);
   const finishedDetail = `Run finished · saved ${r.w3}`;
-  assert.deepEqual(r.rows[0], ["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1} · last played`], "filled, current row");
-  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. A new run here replaces it."], "unreadable row");
+  assert.deepEqual(r.rows[0], ["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1} · Continue loads this`], "filled, current row");
+  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. Importing into this slot replaces it."], "unreadable row");
   assert.deepEqual(r.rows[2], ["Slot 3", finishedDetail], "finished row without a callsign");
   assert.deepEqual(r.kinds, ["filled", "unreadable", "finished"]);
   assert.equal(r.detail2Hidden, false);
@@ -126,8 +128,8 @@ const ok = label => results.push(label);
   assert.deepEqual(r.labels2, ["Download unreadable save from Slot 2", "Import save into Slot 2"], "actions name the selected slot");
   assert.deepEqual(r.actions3, ["saved-runs-load", "btn-export-save", "btn-import-save"], "finished row actions");
   assert.deepEqual(r.labels3, ["Load Slot 3", "Export save from Slot 3", "Import save into Slot 3"]);
-  assert.deepEqual(r.rowsPointer3, [["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1}`], ["Slot 3", `${finishedDetail} · last played`]],
-    "last played follows the slot Continue resumes");
+  assert.deepEqual(r.rowsPointer3, [["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1}`], ["Slot 3", `${finishedDetail} · Continue loads this`]],
+    "'Continue loads this' follows the slot Continue resumes");
   assert.equal(r.meta3, `v${r.version} · Slot 3 · Run finished · ${r.w3}`);
   assert.equal(r.selectedPointer3, 3, "a closed dialog returns to the slot Continue resumes");
   assert.deepEqual(r.emptyRows, [["Slot 1 · Empty", ""], ["Slot 2 · Empty", ""], ["Slot 3 · Empty", ""]], "empty rows");
@@ -162,10 +164,10 @@ const ok = label => results.push(label);
     const clock = new Date(JSON.parse(localStorage.getItem(saveSlotKeys(2).live)).savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     return { only1, only3, two, hint, clock, version: String(VERSION) };
   `);
-  assert.equal(r.only1, "A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it.");
+  assert.equal(r.only1, "A saved run here can't be read by this version. Open Saved runs to download a copy; starting a new run will replace it.");
   assert.equal(r.only3, "A saved run in Slot 3 can't be read by this version · open Saved runs to download it",
     "an unreadable slot that New run does not start in is named, not promised away");
-  assert.equal(r.two, "Saved runs in Slots 2 and 3 can't be read by this version · open Saved runs to download them");
+  assert.equal(r.two, "The runs in Slots 2 and 3 can't be read by this version · open Saved runs to download them");
   assert.equal(r.hint, `v${r.version} · Slot 2 · ${r.clock}`, "meta hint names the slot");
   ok("status line and meta hint");
 }
@@ -200,7 +202,9 @@ const ok = label => results.push(label);
 }
 
 // 4. A failed Load or Continue leaves the active slot as it was (S-1 review): a pre-marker save in
-//    slot 2 whose marker write fails. A later New run still lands in slot 1, not slot 2.
+//    slot 2 whose marker write fails. A later New run still lands in slot 1, not slot 2. With an
+//    unreadable slot 3 on the device, the failure stays on screen: the title repaint's sticky
+//    unreadable-slot line does not replace it, in the dialog (Load) or on the title (Continue).
 {
   const r = run(`
     localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
@@ -209,6 +213,7 @@ const ok = label => results.push(label);
     const preRaw = JSON.stringify(pre);
     const k2 = saveSlotKeys(2);
     localStorage.setItem(k2.live, preRaw);
+    localStorage.setItem(saveSlotKeys(3).live, "{not json");
     localStorage.setItem(SAVE_POINTER_KEY, "2");
     const realSet = localStorage.setItem;
     localStorage.setItem = (key, value) => { if (key === k2.staging) throw new Error("injected"); return realSet(key, value); };
@@ -217,22 +222,25 @@ const ok = label => results.push(label);
     selectSavedRunsSlot(2);
     const viaLoad = loadSelectedSavedRun();
     const afterLoad = { active: activeSaveSlot, open: isOpen(), status: text("saved-runs-status"), title: shown("title-screen") };
+    closeSavedRuns();
     const viaContinue = resumeGame();
     const afterContinue = activeSaveSlot;
+    const continueStatus = text("title-save-status");
     localStorage.setItem = realSet;
     closeSavedRuns();
     const s2 = digest(keysOf(2));
     const started = beginFreshCampaign({ persist: true });
-    return { viaLoad, afterLoad, viaContinue, afterContinue, started, active: activeSaveSlot,
+    return { viaLoad, afterLoad, viaContinue, afterContinue, continueStatus, started, active: activeSaveSlot,
       slot2Same: digest(keysOf(2)) === s2, slot2Raw: localStorage.getItem(k2.live) === preRaw,
       slot1Scene: JSON.parse(localStorage.getItem(SAVE_KEY)).scene };
   `);
   assert.equal(r.viaLoad, false, "the injected marker write fails the Load");
   assert.equal(r.afterLoad.active, 1, "a failed Load does not make slot 2 active");
   assert.equal(r.afterLoad.open, true, "a failed Load keeps the dialog open");
-  assert.equal(r.afterLoad.status, "Autosave failed · prior slot kept", "the failure is announced inside the dialog");
+  assert.equal(r.afterLoad.status, "Autosave failed · prior slot kept", "the failure is announced inside the dialog, over the unreadable-slot line");
   assert.equal(r.viaContinue, false);
   assert.equal(r.afterContinue, 1, "a failed Continue does not make slot 2 active");
+  assert.equal(r.continueStatus, "Autosave failed · prior slot kept", "a failed Continue keeps its reason over the unreadable-slot line");
   assert.equal(r.started, true);
   assert.equal(r.active, 1, "New run after the failed loads starts in slot 1");
   assert.equal(r.slot2Same && r.slot2Raw, true, "slot 2's bytes are untouched by the New run");
@@ -385,6 +393,134 @@ await (async () => {
   assert.equal(r.primary, "saved-runs-close");
   assert.equal(r.cancel, "function");
   ok("open, Escape and focus return");
+}
+
+// 8. (Myth) The New run confirm names the run it replaces: until the S-3 picker New run writes the
+//    active slot. Slot 1 holds Harbor; a file imported into slot 2 moves Continue there, but New run
+//    still replaces slot 1, and the confirm says so. No crew count in the confirm.
+{
+  const r = run(`
+    resetRunState();
+    state.scene = "act2_tether_sighting";
+    state.commanderCallsign = "Harbor";
+    persistSave({ silent: true, slot: 1 });
+    const harbor = localStorage.getItem(SAVE_KEY);
+    const fileB = snap("priority_repairs", { savedAt: Date.now() + 1000 });
+    const imported = importSaveText(fileB, 2);
+    showScreen("title");
+    refreshTitleResumeUI();
+    const cont = continueSlot();
+    startGame();
+    const out = { imported, cont, active: activeSaveSlot,
+      shown: document.getElementById("new-run-confirm").classList.contains("visible"),
+      copy: text("new-run-confirm-copy"), chip: text("new-run-confirm-chip"),
+      harborKept: localStorage.getItem(SAVE_KEY) === harbor };
+    cancelNewRun();
+    // An empty active slot with no callsign: the slot alone.
+    localStorage.removeItem(SAVE_KEY);
+    localStorage.setItem(SAVE_KEY, "{not json");
+    showNewRunConfirm();
+    out.unreadableCopy = text("new-run-confirm-copy");
+    cancelNewRun();
+    return out;
+  `);
+  assert.equal(r.imported, true);
+  assert.equal(r.cont, 2, "Continue now resumes slot 2");
+  assert.equal(r.active, 1);
+  assert.equal(r.shown, true, "New run asks first");
+  assert.equal(r.copy, "New run replaces Slot 1 · Harbor. Your other slots stay as they are.", "the confirm names slot 1 and its callsign");
+  assert.equal(r.chip, "Confirm = replace Slot 1 · Cancel = keep it");
+  assert.doesNotMatch(r.copy + r.chip, /\d+\s+alive/, "no crew count in the confirm");
+  assert.equal(r.harborKept, true, "nothing is written before the confirm");
+  assert.equal(r.unreadableCopy, "New run replaces Slot 1. Your other slots stay as they are.");
+  ok("New run confirm names the slot it replaces");
+}
+
+// 9. (Review) Saved runs opened over the inline New run confirm closes it first: the modal lookup
+//    finds Saved runs, Tab stays in it, and Escape closes Saved runs (not a hidden confirm), so no
+//    key sequence inside Saved runs can start a New run.
+{
+  const r = run(`
+    const proto = Object.getPrototypeOf(document.getElementById("story"));
+    proto.focus = function () { document.activeElement = this; };
+    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
+    showScreen("title");
+    refreshTitleResumeUI();
+    const before = localStorage.getItem(SAVE_KEY);
+    startGame();
+    const confirmOpen = document.getElementById("new-run-confirm").classList.contains("visible");
+    const opener = document.getElementById("btn-saved-runs");
+    opener.focus();
+    showSavedRuns();
+    const dialog = document.getElementById("saved-runs");
+    const radio = document.getElementById("saved-runs-slot-1");
+    dialog.contains = node => node === dialog || node === radio;
+    dialog.querySelectorAll = () => [radio];
+    radio.tagName = "INPUT"; radio.type = "radio"; radio.name = "save-slot";
+    const key = k => ({ key: k, shiftKey: false, repeat: false, altKey: false, ctrlKey: false, metaKey: false, target: document.activeElement,
+      defaultPrevented: false, preventDefault() { this.defaultPrevented = true; }, stopPropagation() {} });
+    const modal = openModalDialogElement();
+    const out = { confirmOpen, modal: modal && modal.id,
+      confirmClosed: !document.getElementById("new-run-confirm").classList.contains("visible") };
+    out.tabs = [];
+    for (let i = 0; i < 3; i++) { handleModalDialogKeydown(key("Tab")); out.tabs.push(document.activeElement && document.activeElement.id); }
+    const enter = key("Enter");
+    handleModalDialogKeydown(enter);
+    handleTitleChromeKeydown(enter);
+    handleModalDialogKeydown(key("Escape"));
+    out.savedRunsOpen = isOpen();
+    out.focus = document.activeElement && document.activeElement.id;
+    out.confirmAfter = document.getElementById("new-run-confirm").classList.contains("visible");
+    out.untouched = localStorage.getItem(SAVE_KEY) === before;
+    out.screen = shown("game-screen");
+    return out;
+  `);
+  assert.equal(r.confirmOpen, true, "setup: the inline confirm was open");
+  assert.equal(r.confirmClosed, true, "opening Saved runs closes the inline confirm");
+  assert.equal(r.modal, "saved-runs", "the modal lookup finds Saved runs");
+  assert.deepEqual(r.tabs, ["saved-runs-slot-1", "saved-runs-slot-1", "saved-runs-slot-1"], "Tab stays inside Saved runs");
+  assert.equal(r.savedRunsOpen, false, "Escape closes Saved runs");
+  assert.equal(r.confirmAfter, false, "the confirm stays closed");
+  assert.equal(r.focus, "btn-saved-runs", "focus returns to the Saved runs button");
+  assert.equal(r.untouched && !r.screen, true, "no New run started");
+  ok("Saved runs over the New run confirm");
+}
+
+// 10. (Review) A load that throws after the run is on screen keeps that run's slot active and
+//     points Continue at it, so its next save goes to its own slot; one that throws while the
+//     title still shows puts the previous slot back.
+{
+  const r = run(`
+    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
+    localStorage.setItem(saveSlotKeys(2).live, snap("priority_repairs", { savedAt: 2 }));
+    localStorage.setItem(SAVE_POINTER_KEY, "1");
+    const realShowScene = showScene, realApply = applySnapshot;
+    const out = {};
+    showScreen("title");
+    showScene = () => { throw new Error("injected after the game screen"); };
+    try { loadSaveSlot(2); } catch (e) { out.threwLate = String(e.message); }
+    showScene = realShowScene;
+    out.lateActive = activeSaveSlot;
+    out.latePointer = localStorage.getItem(SAVE_POINTER_KEY);
+    out.lateGame = shown("game-screen");
+    activeSaveSlot = 1;
+    localStorage.setItem(SAVE_POINTER_KEY, "1");
+    showScreen("title");
+    applySnapshot = () => { throw new Error("injected on the title"); };
+    try { loadSaveSlot(2); } catch (e) { out.threwEarly = String(e.message); }
+    applySnapshot = realApply;
+    out.earlyActive = activeSaveSlot;
+    out.earlyPointer = localStorage.getItem(SAVE_POINTER_KEY);
+    return out;
+  `);
+  assert.equal(r.threwLate, "injected after the game screen");
+  assert.equal(r.lateGame, true);
+  assert.equal(r.lateActive, 2, "the run on screen keeps its slot");
+  assert.equal(r.latePointer, "2", "Continue points at the run on screen");
+  assert.equal(r.threwEarly, "injected on the title");
+  assert.equal(r.earlyActive, 1, "a throw on the title puts the previous slot back");
+  assert.equal(r.earlyPointer, "1");
+  ok("a throwing load keeps the slot that is on screen");
 }
 
 console.log(`PASS sun-playerflow-saved-runs: ${results.length} groups (${results.join("; ")})`);

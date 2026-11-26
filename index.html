@@ -174,25 +174,25 @@
         <div id="saved-runs" class="hidden" role="dialog" aria-modal="true" aria-labelledby="saved-runs-title" aria-describedby="saved-runs-help">
           <div class="saved-runs-panel">
             <h2 id="saved-runs-title" class="saved-runs-title">Saved runs</h2>
-            <p id="saved-runs-help" class="saved-runs-help">Three slots on this device. Each slot keeps one run and saves after every choice.</p>
+            <p id="saved-runs-help" class="saved-runs-help">Three slots on this device, one run in each. The run you are playing saves after every choice.</p>
             <fieldset class="saved-runs-slots">
-              <legend>Slot</legend>
+              <legend>Choose a slot</legend>
               <label id="saved-runs-row-1" class="saved-runs-row" for="saved-runs-slot-1">
-                <input type="radio" name="save-slot" id="saved-runs-slot-1" value="1" checked onchange="selectSavedRunsSlot(1)">
+                <input type="radio" name="save-slot" id="saved-runs-slot-1" value="1" aria-labelledby="saved-runs-slot-1-name" aria-describedby="saved-runs-slot-1-detail" checked onchange="selectSavedRunsSlot(1)">
                 <span class="saved-runs-row-text">
                   <span id="saved-runs-slot-1-name" class="saved-runs-row-name">Slot 1 · Empty</span>
                   <span id="saved-runs-slot-1-detail" class="saved-runs-row-detail hidden"></span>
                 </span>
               </label>
               <label id="saved-runs-row-2" class="saved-runs-row" for="saved-runs-slot-2">
-                <input type="radio" name="save-slot" id="saved-runs-slot-2" value="2" onchange="selectSavedRunsSlot(2)">
+                <input type="radio" name="save-slot" id="saved-runs-slot-2" value="2" aria-labelledby="saved-runs-slot-2-name" aria-describedby="saved-runs-slot-2-detail" onchange="selectSavedRunsSlot(2)">
                 <span class="saved-runs-row-text">
                   <span id="saved-runs-slot-2-name" class="saved-runs-row-name">Slot 2 · Empty</span>
                   <span id="saved-runs-slot-2-detail" class="saved-runs-row-detail hidden"></span>
                 </span>
               </label>
               <label id="saved-runs-row-3" class="saved-runs-row" for="saved-runs-slot-3">
-                <input type="radio" name="save-slot" id="saved-runs-slot-3" value="3" onchange="selectSavedRunsSlot(3)">
+                <input type="radio" name="save-slot" id="saved-runs-slot-3" value="3" aria-labelledby="saved-runs-slot-3-name" aria-describedby="saved-runs-slot-3-detail" onchange="selectSavedRunsSlot(3)">
                 <span class="saved-runs-row-text">
                   <span id="saved-runs-slot-3-name" class="saved-runs-row-name">Slot 3 · Empty</span>
                   <span id="saved-runs-slot-3-detail" class="saved-runs-row-detail hidden"></span>
@@ -202,7 +202,7 @@
             <div class="saved-runs-actions" role="group" aria-label="Saved run actions">
               <button id="saved-runs-load" class="btn btn-primary hidden" type="button" onclick="loadSelectedSavedRun()">Load</button>
               <div class="save-transfer-actions" role="group" aria-label="Save transfer">
-                <p id="export-import-chip" class="export-import-chip">Export and import act on the selected slot. Files stay on this device.</p>
+                <p id="export-import-chip" class="export-import-chip">Load, Export and Import use the selected slot. Nothing is uploaded.</p>
                 <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
                 <button id="btn-export-unreadable" class="btn hidden" type="button" onclick="exportUnreadableSaveFile()">Download unreadable save</button>
                 <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>

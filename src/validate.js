@@ -485,6 +485,15 @@ function hideNewRunConfirm() {
 function showNewRunConfirm() {
   const panel = document.getElementById("new-run-confirm");
   if (!panel) return false;
+  // SUN-SAVED-RUNS-01: until the S-3 picker, New run writes the active slot; name it.
+  const copy = document.getElementById("new-run-confirm-copy");
+  const chip = document.getElementById("new-run-confirm-chip");
+  if (copy && typeof activeSaveSlot !== "undefined" && typeof saveSlotName === "function") {
+    let meta = null;
+    try { meta = hasSave(activeSaveSlot) ? getSaveMeta(activeSaveSlot) : null; } catch (e) { meta = null; }
+    copy.textContent = `New run replaces ${saveSlotName(activeSaveSlot, meta)}. Your other slots stay as they are.`;
+    if (chip) chip.textContent = `Confirm = replace Slot ${activeSaveSlot} · Cancel = keep it`;
+  }
   panel.classList.remove("hidden");
   panel.classList.add("visible");
   focusModalDialog("new-run-confirm");
@@ -521,6 +530,13 @@ function hideSavedRuns() {
 function showSavedRuns() {
   const panel = document.getElementById("saved-runs");
   if (!panel) return false;
+  // Close the title's inline dialogs first (as showCommanderCreate does), so the modal lookup
+  // finds Saved runs and Tab and Escape work it, not a confirm hidden behind it. Focus still
+  // returns to whatever opened Saved runs.
+  const opener = document.activeElement || null;
+  hideNewRunConfirm();
+  hideCommanderCreate();
+  if (!Object.prototype.hasOwnProperty.call(modalDialogOpeners, "saved-runs")) modalDialogOpeners["saved-runs"] = opener;
   const status = document.getElementById("saved-runs-status");
   if (status) {
     status.textContent = "";

@@ -1,13 +1,15 @@
 // SUN-SAVED-RUNS-01 (L-052, Wave 2 design S-2) — the Saved runs dialog in a real browser.
 //
-// Chromium through Playwright, at 360x640 (phone) and 1280x800 (desktop), with slot 1 filled (with
+// Chromium through Playwright, at 360x640 (phone), 1280x800 (desktop) and 844x390 (phone sideways,
+// where the actions stick to the panel's bottom edge), with slot 1 filled (with
 // a callsign), slot 2 unreadable and slot 3 finished. For each size: the title has no horizontal
 // scroll and Continue sits above the fold; opening Saved runs does not move Continue; the dialog fits
 // the viewport and scrolls inside itself, with no horizontal scroll anywhere; every row and every
 // action that shows for each row is at least 44px each way and can be hit once scrolled into view;
 // focus starts on the current slot's radio, Tab and Shift+Tab stay inside the dialog, an arrow key
 // moves the selection and the actions follow it; Escape closes it and focus returns to the Saved runs
-// button; Load opens the chosen run and leaves no dialog open behind it. No page errors.
+// button; opened over the inline New run confirm it closes that confirm, keeps Tab and takes Escape
+// itself; Load opens the chosen run and leaves no dialog open behind it. No page errors.
 //
 // When Playwright or Chromium is missing (CI has no browser), it prints NOT_AVAILABLE and passes;
 // pass --require-browser to fail instead. SUNSPLITTER_PLAYWRIGHT_MODULE and CHROMIUM_PATH point it
@@ -20,7 +22,8 @@ import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const VIEWPORTS = [[360, 640], [1280, 800]];
+// 844x390: a phone held sideways, where the actions stick to the bottom of the panel.
+const VIEWPORTS = [[360, 640], [1280, 800], [844, 390]];
 const MIN_TARGET = 44;
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".jpg": "image/jpeg", ".png": "image/png",
   ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp" };
@@ -212,6 +215,25 @@ async function browserChecks(errors, summary, requireBrowser) {
       if (closed.focus !== "btn-saved-runs") fail(`focus after Escape is ${closed.focus}, not the Saved runs button`);
       if (closed.resumeInColumn == null || Math.abs(closed.resumeInColumn - title.resumeInColumn) > 0.5) fail("closing the dialog moved Continue in the title column");
 
+      // Over the inline New run confirm: Saved runs closes it, keeps Tab inside, and Escape closes
+      // Saved runs, with the confirm still closed and nothing started.
+      if (width < 600) await page.locator("#btn-begin").tap(); else await page.locator("#btn-begin").click();
+      const confirmOpen = await page.evaluate(() => document.getElementById("new-run-confirm").classList.contains("visible"));
+      if (!confirmOpen) fail("New run did not open its confirm (setup)");
+      await page.locator("#btn-saved-runs").click();
+      for (let i = 0; i < 6; i++) {
+        await page.keyboard.press("Tab");
+        const f = await page.evaluate(MEASURE);
+        if (!f.focusInside) { fail(`over the New run confirm, Tab left Saved runs for #${f.focus}`); break; }
+      }
+      await page.keyboard.press("Escape");
+      const overConfirm = await page.evaluate(() => ({
+        savedRuns: document.getElementById("saved-runs").classList.contains("visible"),
+        confirm: document.getElementById("new-run-confirm").classList.contains("visible"),
+        title: !document.getElementById("title-screen").classList.contains("hidden")
+      }));
+      if (overConfirm.savedRuns || overConfirm.confirm || !overConfirm.title) fail(`Escape over the New run confirm: ${JSON.stringify(overConfirm)}`);
+
       // Load the finished run in slot 3 through the dialog: the ending opens, no dialog stays open.
       await page.locator("#btn-saved-runs").click();
       await page.locator("#saved-runs-row-3").click();
@@ -253,6 +275,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     process.exit(1);
   }
   console.log(ran
-    ? "PASS sun-playerflow-saved-runs-layout (360x640 and 1280x800: fits with internal scroll, no sideways scroll, targets >= 44px and reachable, Continue unmoved, focus trap, arrow keys, Escape, focus return, Load)"
+    ? "PASS sun-playerflow-saved-runs-layout (360x640, 1280x800 and 844x390: fits with internal scroll, no sideways scroll, targets >= 44px and reachable, Continue unmoved, focus trap, arrow keys, Escape, focus return, over the New run confirm, Load)"
     : "PASS sun-playerflow-saved-runs-layout (browser NOT_AVAILABLE; nothing measured)");
 }
