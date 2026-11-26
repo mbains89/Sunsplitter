@@ -1,6 +1,6 @@
 // SUN-CREW-CHIP-FIRST-TAP-01 — the first tap on any Crew chip opens that member's sheet.
 // The board opens with Lena's facts painted (crewOverviewChecks in verify.mjs requires that
-// paint). It is a default, not the player's pick, so a tap on Lena must open her sheet as it does
+// paint), or the first living member's when Lena is dead (SUN-ART-RULINGS-01). It is a default, not the player's pick, so a tap on Lena must open her sheet as it does
 // for every other name. It used to toggle her off, so only the second tap opened her sheet.
 // A chip the player picked still toggles off on the next tap, and opens again on the one after.
 // The ticket kept that as the current design, so it is asserted here for Lena and for Mira.
@@ -148,7 +148,11 @@ out.aboard.forEach(row => assertFirstTap(row, "all aboard"));
 const [deadLena, deadRourke, livingMira] = out.dead;
 assert.ok(out.deadOpen.dead.includes("lena") && out.deadOpen.dead.includes("rourke"), "dead fixture did not paint dead chips");
 assertFirstTap(livingMira, "with Lena dead");
-// A dead member's chip: Lena (the painted default) must answer the first tap as dead Rourke does.
+// SUN-ART-RULINGS-01 (ruled 2026-11-25): with Lena dead the board opens on the first living member.
+const firstLiving = out.deadOpen.listed.find(key => !out.deadOpen.dead.includes(key));
+assert.ok(firstLiving && firstLiving !== "lena", "dead fixture has no living member before or instead of Lena");
+assert.deepEqual(out.deadOpen.selected, [firstLiving], `with Lena dead the board opened on ${out.deadOpen.selected.join(",") || "nobody"}, not ${firstLiving}`);
+// A dead member's chip: Lena, no longer the default, must answer the first tap as dead Rourke does.
 assert.deepEqual(shape(deadLena, "first"), shape(deadRourke, "first"), "dead Lena and dead Rourke answer the first tap differently");
 assert.equal(/Condition: Dead/.test(deadLena.first.facts || ""), /Condition: Dead/.test(deadRourke.first.facts || ""),
   "dead Lena and dead Rourke show different conditions on the first tap");
@@ -156,4 +160,5 @@ assert.equal(/Condition: Dead/.test(deadLena.first.facts || ""), /Condition: Dea
 const painted = out.wakeOpen.selected[0] || "nobody";
 console.log(`PASS sun-playerflow-crew-chip-first-tap: board opens with ${painted} painted; the first tap opens the sheet for ` +
   `${out.wake.length} of ${out.wake.length} names at wake and ${out.aboard.length} of ${out.aboard.length} with everyone aboard; ` +
-  "after Back and Escape a picked chip toggles off, then opens again, for Lena and for Mira; dead Lena matches dead Rourke");
+  "after Back and Escape a picked chip toggles off, then opens again, for Lena and for Mira; " +
+  `with Lena dead the board opens on ${firstLiving}; dead Lena matches dead Rourke`);

@@ -69,7 +69,7 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   // (Tomas holding a tray) under a stale or edited save with the trays dead and Tomas absent.
   const AUDIT_FACES = {
     "images/tether_dock_ruined.jpg": ["tomas"],
-    "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
+    "images/crisis.jpg": ["amara", "jiro", "mira"], // SUN-ART-RULINGS-01: Sela is not in the plate
     "images/cascade_records.jpg": ["mira", "jiro"],
     "images/custody_severed.jpg": ["mira"],
     "images/mira_thermal_cut.jpg": ["mira"],
@@ -91,6 +91,9 @@ const result = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
   if (resolveSceneImage("act2_tether_dock", scenes.act2_tether_dock) !== "images/tether_dock_ruined.jpg") fallbackErrors.push("act2_tether_dock with trays dead and Tomas aboard no longer shows the ruined dock");
   resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("mira");
   if (resolveSceneImage("crisis", scenes.crisis) !== "images/corridor_variant_2.jpg") fallbackErrors.push("crisis without Mira did not use corridor_variant_2");
+  // SUN-ART-RULINGS-01 (ruled 2026-11-25): Sela is not in crisis.jpg, so her death leaves the plate up.
+  resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("sela");
+  if (resolveSceneImage("crisis", scenes.crisis) !== "images/crisis.jpg") fallbackErrors.push("crisis without Sela no longer shows crisis.jpg");
   resetRunState(); state.recovered.tomas = state.recovered.jiro = state.recovered.vess = true; state.dead.push("lena");
   if (resolveSceneImage("vess_boarding", scenes.vess_boarding) !== "images/art_r2_empty_berths.jpg") fallbackErrors.push("vess_boarding without Lena did not use the berths fallback");
   resetRunState(); state.recovered.jiro = state.recovered.vess = true;
