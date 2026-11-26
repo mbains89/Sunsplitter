@@ -3,28 +3,41 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+  // SUN-PROMISE-CUSTODY-AMARA-01 (decision 27, Hex design A step 6): the service-pocket test runs on both
+  // crisis paths, from breath_after and from custody_after. On Custody the pocket holds trapped heat from
+  // the thermal spine instead of the biofilm; the service run, the reader, the choices and the outcomes
+  // are the same, so What Remains, the epilogue and the death cause read true on either path.
+  // PRE: crisisPath breath|custody && promises.amara made && isAlive(amara) && reader (jiro, else vess) alive
+  // WRITES: onEnter prom_line_other | DEATH: none here (the break kills the reader, never Amara) | IMG: reuse
   prom_vent: {
     image: "images/corridor_variant.jpg",
     onEnter: () => {
-      if (state.crisisPath !== "breath" || state.promises.amara !== "made" || !isAlive("amara")) return "prom_deck4";
+      if (!["breath", "custody"].includes(state.crisisPath) || state.promises.amara !== "made" || !isAlive("amara")) return "prom_deck4";
       const v = ["jiro", "vess"].find(k => isAlive(k));
       if (!v) return "prom_deck4";
       state.flags.prom_line_other = v;
     },
     get text() {
       const v = state.flags.prom_line_other;
-      if (!v || !crew[v] || !isAlive(v)) return `The service run reads clear. The loop holds.`;
+      const heat = state.crisisPath === "custody";
+      if (!v || !crew[v] || !isAlive(v)) return heat ? `The service run reads clear. The spine holds.` : `The service run reads clear. The loop holds.`;
       const name = crew[v].first;
       const line = v === "jiro"
         ? `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`
         : `"Dawnbreak protocol for shared air was: youngest yields," Vess says, log-flat. "I never got to yield. Filed, in case it matters now."`;
-      return `The biofilm is not finished. Its last pocket re-blooms in the dead-end service run behind the scrubber manifold, and the loop's answer is already queued: vent the pocket, keep the margin it just paid for.
+      return `${heat
+        ? `The heat is not finished. The last of it has pooled in the dead-end service run beside the thermal spine, and the spine's answer is already queued: vent the pocket, keep the margin it just paid for.
 
-${name} is inside it, taking the manual readings the rebuilt loop still cannot.
+${name} is inside it, taking the manual readings the cooled spine still cannot.`
+        : `The biofilm is not finished. Its last pocket re-blooms in the dead-end service run behind the scrubber manifold, and the loop's answer is already queued: vent the pocket, keep the margin it just paid for.
+
+${name} is inside it, taking the manual readings the rebuilt loop still cannot.`}
 
 ${line}
 
-Amara is at the panel with her hand flat beside the vent control, not on it. "The pocket reads one body and bad air," she says. "The loop reads margin. Somebody here keeps the other book."${state.romance.amara && state.flags.amara_vent_delayed ? `
+Amara is at the panel with her hand flat beside the vent control, not on it. ${heat
+        ? `"The pocket reads one body and too much heat," she says. "The spine reads margin. Somebody here keeps the other book."`
+        : `"The pocket reads one body and bad air," she says. "The loop reads margin. Somebody here keeps the other book."`}${state.romance.amara && state.flags.amara_vent_delayed ? `
 
 She doesn't look at you when she adds, lower: "You held a vent on my asking once and put your name on the board for it. Roots, that was. This is a reader. Don't mix the books, love."` : ""}`;
     },
@@ -52,7 +65,12 @@ She doesn't look at you when she adds, lower: "You held a vent on my asking once
     get text() {
       const v = state.flags.prom_line_other;
       const name = v && crew[v] ? crew[v].first : "The reader";
-      let t = `The cut takes most of a watch and a hull rating you did not have to spare. ${name} comes out coughing, breathing, carried the last three meters.
+      // SUN-PROMISE-CUSTODY-AMARA-01: on Custody the reader comes out of trapped heat, not the biofilm.
+      let t = state.crisisPath === "custody"
+        ? `The cut takes most of a watch and a hull rating you did not have to spare. ${name} comes out heat-sick, breathing, carried the last three meters.
+
+The pocket's heat bleeds back into the margin it was going to buy. The boards show it without comment.`
+        : `The cut takes most of a watch and a hull rating you did not have to spare. ${name} comes out coughing, breathing, carried the last three meters.
 
 The pocket re-fouls the margin it was going to buy. The boards show it without comment.`;
       if (isAlive("amara")) {
