@@ -30,6 +30,11 @@ const VERSION = "0.36";
 //   pair_seal ("bulkhead" | "names" | "both"; Elias and Tomas on the Deck 4 feedstock, from the hub).
 //   pair_burn ("finding" | "width" | "both"; Mira and Jiro on the reckoning burn, from the hub).
 //   pair_fix ("fix" | "track" | "both"; Jiro and Vess on whose position is truer, from the hub).
+// L-054 (2026-11-05; rulings 2026-11-25 D1(a) D2(a) D5(a) D6(a) D7(a) D10), cross-run ship memory:
+//   localStorage "sunsplitter_ship_memory_v1", owned by src/ship-memory.js. Its own namespace, one
+//   per browser: { v, runs, endings, lost, plates, forks { crisis, vault, tether, lethal, final },
+//   last, prints, trail } (trail = this run's hard-call scene ids). Not run state: never in `state`,
+//   snapshotState, saves or the export, and no scene or rule reads it. Not `state.memories`.
 
 function freshState() {
   return {
@@ -219,7 +224,7 @@ const sceneImages = {
   act3_lethal_elias_sealant: "images/work_elias.jpg",
   // 0.24 Vess arrival + short asymmetric romance (closest existing plates)
   vess_signal:          "images/vess_signal.jpg",
-  vess_cost:            'images/vess_cost.jpg',
+  // SUN-DIET-VESS-MERGE-01: vess_cost retired into vess_signal; images/vess_cost.jpg stays on disk, unmapped.
   vess_boarding:        "images/vess_boarding.jpg",
   vess_offer:           "images/vess_offer.jpg",
   vess_transmission:    'images/vess_transmission.jpg',
