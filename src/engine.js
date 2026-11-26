@@ -1560,7 +1560,7 @@ function resolveEnding() {
   const emb = state.embryos;
   const integ = state.integrity;
   const sup = state.supplies;
-  const deadNames = namedDead();
+  const deadNames = namedDead({ causes: false });
   const crisis = state.flags.crisis;
   const final = state.flags.final;
   const planet = state.flags.planet;
@@ -2311,8 +2311,7 @@ function renderCrewPanel(selectedKey) {
     if ((selectedKey === "amara" || selectedKey === "tomas") && state.romance && state.romance.amara_tomas) {
       romance.push("Shared Amara–Tomas encounter recorded");
     }
-    const cause = dead ? ((state.deathCause && state.deathCause[selectedKey]) || "gone")
-      : (state.dying && state.dying[selectedKey]);
+    const cause = crewConditionNote(selectedKey);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
