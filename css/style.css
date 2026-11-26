@@ -1158,6 +1158,16 @@ body::before {
   }
 }
 
+/* SUN-SECOND-TAB-GUARD-01 — above phone width a long sticky notice ("Another tab saved Slot 1 ·
+   not saving here · Load in Menu") wraps inside the bar instead of pushing Menu past its edge
+   (844x390, a phone held sideways). */
+@media (min-width: 481px) {
+  #meta .save-status.visible {
+    min-width: 0;
+    white-space: normal;
+  }
+}
+
 @media (max-width: 480px) and (max-height: 700px) {
   #scene-image-wrap,
   #scene-image-wrap.intimate {

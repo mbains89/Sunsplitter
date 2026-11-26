@@ -10,9 +10,10 @@
 // active slot untouched; the pointer moves only when the run starts; a failed write into the chosen
 // slot keeps the title and every slot; focus opens on the selected row (the first row when none is)
 // and returns to New run on Escape; leaving the title (Continue, the content notice) closes the picker
-// and the Commander panel and drops the slot; another tab writing the chosen slot stops the run and
-// reopens the picker with "Slot N changed in another tab · choose again"; the picker and the
-// Commander panel ignore the pointer for 400ms after they open.
+// and the Commander panel and drops the slot; another tab writing the chosen slot stops the run with
+// "Slot N changed in another tab · this new run did not start" (#603's check), and a save in any other
+// slot repaints the picker in place; the picker and the Commander panel ignore the pointer for 400ms
+// after they open.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -444,69 +445,89 @@ const ok = label => results.push(label);
   ok("leaving the title closes its dialogs and drops the slot");
 }
 
-// 9. (Review) Another tab writes the chosen slot while the picker or the Commander panel is open:
-//    nothing is written over it; the picker reopens with no row selected and says so. A write to
-//    another slot does not stop the run.
+// 9. Another tab (SUN-SECOND-TAB-GUARD-01's check, #603): the picker marks every slot when it opens and
+//    Begin run re-checks the chosen one. If another tab changed it, nothing is written, the flow closes
+//    and the title says "Slot N changed in another tab · this new run did not start", whether the
+//    storage event arrives (the flow closes at once) or is missed (Begin run stops). Another tab's save
+//    in any other slot repaints the picker in place, keeping the selection, and a run then started in
+//    that repainted slot is the player's informed choice.
 {
   const r = run(`
     const other = snap("act3_spine_next", { savedAt: 77, commanderCallsign: "Vigil" });
+    const event = key => window.dispatchEvent({ type: "storage", key, storageArea: localStorage });
+    const status = () => text("title-save-status");
+    const base = () => {
+      localStorage.clear(); activeSaveSlot = 1;
+      localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
+      localStorage.setItem(SAVE_POINTER_KEY, "1");
+      title();
+      startGame();
+    };
     const out = {};
-    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
-    localStorage.setItem(SAVE_POINTER_KEY, "1");
-    // a. While the picker is open (empty slot 2 selected), another tab fills slot 2; Start stops.
-    title();
-    startGame();
-    out.startSelected = newRunSelectedSlot();
+    // a. The selected slot (empty slot 2) is filled by another tab and the event arrives: the flow closes.
+    base();
+    out.aSelected = newRunSelectedSlot();
     localStorage.setItem(saveSlotKeys(2).live, other);
-    out.start = { result: confirmNewRun(), picker: picker(), commander: isOpen("commander-create"),
+    event(saveSlotKeys(2).live);
+    out.a = { picker: isOpen("new-run-confirm"), commander: isOpen("commander-create"), status: status(), pending: pendingNewRunSlot,
       slot2Other: localStorage.getItem(saveSlotKeys(2).live) === other, pointer: localStorage.getItem(SAVE_POINTER_KEY) };
-    // The player picks slot 2 again, now knowingly replacing Vigil, and the run goes there.
-    selectNewRunSlot(2);
-    out.repick = picker();
-    confirmNewRun();
-    out.repickBegun = advancePastCommanderCreate();
-    out.repickScene2 = liveScene(2);
-    // b. Start pressed on empty slot 2, then another tab fills slot 2 before Begin run.
-    localStorage.clear(); activeSaveSlot = 1;
-    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
-    localStorage.setItem(SAVE_POINTER_KEY, "1");
-    title();
-    startGame();
-    confirmNewRun();
+    // b. The same with the event missed: Start opens the Commander panel, Begin run stops.
+    base();
     localStorage.setItem(saveSlotKeys(2).live, other);
-    out.begin = { result: advancePastCommanderCreate(), picker: picker(), commander: isOpen("commander-create"), game: shown("game-screen"),
-      slot2Other: localStorage.getItem(saveSlotKeys(2).live) === other, pointer: localStorage.getItem(SAVE_POINTER_KEY), active: activeSaveSlot };
-    cancelNewRun();
-    // c. Nothing saved: Begin goes to the Commander panel for slot 1; another tab starts a run in slot 1.
+    confirmNewRun();
+    out.bCommander = isOpen("commander-create");
+    out.b = { begun: advancePastCommanderCreate(), picker: isOpen("new-run-confirm"), commander: isOpen("commander-create"), game: shown("game-screen"),
+      status: status(), slot2Other: localStorage.getItem(saveSlotKeys(2).live) === other, pointer: localStorage.getItem(SAVE_POINTER_KEY), active: activeSaveSlot };
+    // c. Nothing saved: Begin goes straight to the Commander panel for slot 1; another tab starts a run there.
     localStorage.clear(); activeSaveSlot = 1;
     title();
     startGame();
     localStorage.setItem(SAVE_KEY, other);
-    out.fresh = { result: advancePastCommanderCreate(), picker: picker(), slot1Other: localStorage.getItem(SAVE_KEY) === other,
-      pointer: localStorage.getItem(SAVE_POINTER_KEY) };
-    cancelNewRun();
-    // d. Another tab writes a slot the player did not choose: the run still starts in the chosen one.
-    localStorage.clear(); activeSaveSlot = 1;
-    localStorage.setItem(SAVE_KEY, snap("act2_tether_sighting", { savedAt: 1 }));
-    title();
-    startGame();
+    out.c = { begun: advancePastCommanderCreate(), status: status(), slot1Other: localStorage.getItem(SAVE_KEY) === other, pointer: localStorage.getItem(SAVE_POINTER_KEY) };
+    // d. Another slot (3) is filled with the event: the picker stays open on slot 2 and repaints row 3.
+    //    Picking slot 3 now names Vigil, and the run goes there.
+    base();
+    localStorage.setItem(saveSlotKeys(3).live, other);
+    event(saveSlotKeys(3).live);
+    out.d = { picker: picker(), row3: [text("new-run-slot-3-name"), document.getElementById("new-run-row-3").getAttribute("data-kind")] };
+    selectNewRunSlot(3);
+    out.dPick = picker();
+    confirmNewRun();
+    out.dBegun = advancePastCommanderCreate();
+    out.dScene3 = liveScene(3);
+    // e. Another slot filled with the event missed: the run in the selected slot still starts.
+    base();
     localStorage.setItem(saveSlotKeys(3).live, other);
     confirmNewRun();
-    out.elsewhere = { begun: advancePastCommanderCreate(), scene2: liveScene(2), slot3Other: localStorage.getItem(saveSlotKeys(3).live) === other };
+    out.e = { begun: advancePastCommanderCreate(), scene2: liveScene(2), slot3Other: localStorage.getItem(saveSlotKeys(3).live) === other };
+    // f. All three full, nothing selected: another tab's save in slot 1 repaints the picker, still with no selection.
+    localStorage.clear(); activeSaveSlot = 1;
+    [1, 2, 3].forEach(n => localStorage.setItem(saveSlotKeys(n).live, snap("act2_tether_sighting", { savedAt: n })));
+    title();
+    startGame();
+    localStorage.setItem(SAVE_KEY, other);
+    event(SAVE_KEY);
+    out.f = { picker: picker(), row1: text("new-run-slot-1-name") };
     return out;
   `);
-  const changed = n => ({ open: true, selected: null, chip: `Slot ${n} changed in another tab · choose again`, ok: "Choose a slot", okDisabled: true });
-  assert.equal(r.startSelected, 2, "setup: the picker starts on empty slot 2");
-  assert.deepEqual(r.start, { result: false, picker: changed(2), commander: false, slot2Other: true, pointer: "1" }, "Start stops when the slot changed");
-  assert.deepEqual(r.repick, { open: true, selected: 2, chip: "New run replaces Slot 2 · Vigil. Your other slots stay as they are.", ok: "Replace Slot 2", okDisabled: false },
-    "picking the slot again names what is now in it");
-  assert.equal(r.repickBegun, true);
-  assert.equal(r.repickScene2, "wake");
-  assert.deepEqual(r.begin, { result: false, picker: changed(2), commander: false, game: false, slot2Other: true, pointer: "1", active: 1 },
-    "Begin run stops when the slot changed behind the Commander panel");
-  assert.deepEqual(r.fresh, { result: false, picker: changed(1), slot1Other: true, pointer: null }, "the straight-to-Commander path is guarded too");
-  assert.deepEqual(r.elsewhere, { begun: true, scene2: "wake", slot3Other: true }, "a write to another slot does not stop the run");
-  ok("another tab writing the chosen slot stops the run");
+  const CHANGED = n => `Slot ${n} changed in another tab · this new run did not start`;
+  assert.equal(r.aSelected, 2, "setup: the picker starts on empty slot 2");
+  assert.deepEqual(r.a, { picker: false, commander: false, status: CHANGED(2), pending: null, slot2Other: true, pointer: "1" },
+    "another tab filling the selected slot closes the flow and says so");
+  assert.equal(r.bCommander, true);
+  assert.deepEqual(r.b, { begun: false, picker: false, commander: false, game: false, status: CHANGED(2), slot2Other: true, pointer: "1", active: 1 },
+    "with the event missed, Begin run stops and writes nothing");
+  assert.deepEqual(r.c, { begun: false, status: CHANGED(1), slot1Other: true, pointer: null }, "the straight-to-Commander path is checked too");
+  assert.deepEqual(r.d.picker, { open: true, selected: 2, chip: "Slot 2 is empty. Your other slots stay as they are.", ok: "Start in Slot 2", okDisabled: false },
+    "a save in another slot keeps the picker open on its selection");
+  assert.deepEqual(r.d.row3, ["Slot 3 · Vigil", "filled"], "the picker repainted that slot in place");
+  assert.deepEqual(r.dPick, { open: true, selected: 3, chip: "New run replaces Slot 3 · Vigil. Your other slots stay as they are.", ok: "Replace Slot 3", okDisabled: false });
+  assert.equal(r.dBegun, true, "a run in the repainted slot starts: the player saw what it replaces");
+  assert.equal(r.dScene3, "wake");
+  assert.deepEqual(r.e, { begun: true, scene2: "wake", slot3Other: true }, "a write to another slot does not stop the run");
+  assert.deepEqual(r.f, { picker: { open: true, selected: null, chip: "All three slots hold a run. Choose the one to replace.", ok: "Choose a slot", okDisabled: true }, row1: "Slot 1 · Vigil" },
+    "with no row selected, another tab's save repaints the picker and it stays open");
+  ok("another tab: the chosen slot is re-checked, other slots repaint in place");
 }
 
 // 10. (Review M1) A title dialog ignores the pointer for 400ms after it opens (css .arming), so the
