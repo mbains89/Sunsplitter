@@ -98,6 +98,10 @@
             <p id="menu-line-spacing-chip" class="menu-chip" role="status">Standard · the usual line spacing</p>
           </div>
           <div class="menu-setting">
+            <button id="menu-reading-font" type="button" class="btn" onclick="menuSheetSetting('font')" aria-describedby="menu-reading-font-chip">Font: standard</button>
+            <p id="menu-reading-font-chip" class="menu-chip" role="status">Standard · the usual typeface</p>
+          </div>
+          <div class="menu-setting">
             <button id="menu-show-costs" type="button" class="btn" onclick="menuSheetSetting('costs')" aria-pressed="false" aria-describedby="menu-show-costs-chip">Show costs on choices</button>
             <p id="menu-show-costs-chip" class="menu-chip" role="status">Off · choices show no costs · locked choices still say why</p>
           </div>
@@ -174,12 +178,38 @@
         <p id="title-save-chip" class="title-save-chip hidden" role="status"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
         <button id="btn-memory-board" class="btn hidden" type="button" onclick="openMemoryBoard('title')">Memory board</button>
-        <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-confirm-copy">
-          <p id="new-run-confirm-copy">New run replaces the durable local save slot. Cancel keeps Continue available.</p>
-          <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Confirm = overwrite slot · Cancel = keep Continue</p>
-          <div role="group" aria-label="New run confirm">
-            <button id="new-run-cancel" class="btn" type="button" onclick="cancelNewRun()">Cancel</button>
-            <button id="new-run-ok" class="btn btn-primary" type="button" onclick="confirmNewRun()">Confirm</button>
+        <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-title" aria-describedby="new-run-confirm-copy">
+          <div class="saved-runs-panel new-run-panel">
+            <h2 id="new-run-title" class="saved-runs-title">New run</h2>
+            <p id="new-run-confirm-copy" class="saved-runs-help">Start a new run in which slot?</p>
+            <fieldset class="saved-runs-slots" aria-labelledby="new-run-confirm-copy">
+              <label id="new-run-row-1" class="saved-runs-row" for="new-run-slot-1">
+                <input type="radio" name="new-run-slot" id="new-run-slot-1" value="1" aria-labelledby="new-run-slot-1-name" aria-describedby="new-run-slot-1-detail" checked onchange="selectNewRunSlot(1)">
+                <span class="saved-runs-row-text">
+                  <span id="new-run-slot-1-name" class="saved-runs-row-name">Slot 1 · Empty</span>
+                  <span id="new-run-slot-1-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+              <label id="new-run-row-2" class="saved-runs-row" for="new-run-slot-2">
+                <input type="radio" name="new-run-slot" id="new-run-slot-2" value="2" aria-labelledby="new-run-slot-2-name" aria-describedby="new-run-slot-2-detail" onchange="selectNewRunSlot(2)">
+                <span class="saved-runs-row-text">
+                  <span id="new-run-slot-2-name" class="saved-runs-row-name">Slot 2 · Empty</span>
+                  <span id="new-run-slot-2-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+              <label id="new-run-row-3" class="saved-runs-row" for="new-run-slot-3">
+                <input type="radio" name="new-run-slot" id="new-run-slot-3" value="3" aria-labelledby="new-run-slot-3-name" aria-describedby="new-run-slot-3-detail" onchange="selectNewRunSlot(3)">
+                <span class="saved-runs-row-text">
+                  <span id="new-run-slot-3-name" class="saved-runs-row-name">Slot 3 · Empty</span>
+                  <span id="new-run-slot-3-detail" class="saved-runs-row-detail hidden"></span>
+                </span>
+              </label>
+            </fieldset>
+            <div class="saved-runs-actions new-run-actions" role="group" aria-label="New run actions">
+              <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Slot 1 is empty. Your other slots stay as they are.</p>
+              <button id="new-run-cancel" class="btn" type="button" onclick="cancelNewRun()">Cancel</button>
+              <button id="new-run-ok" class="btn btn-primary" type="button" onclick="confirmNewRun()" aria-describedby="new-run-confirm-chip">Start in Slot 1</button>
+            </div>
           </div>
         </div>
         <div id="commander-create" class="hidden" role="dialog" aria-modal="true" aria-labelledby="commander-create-title">
@@ -272,6 +302,8 @@
           <button id="btn-text-size" class="btn" type="button" onclick="cycleTextSize()" aria-describedby="text-size-chip">Size: standard</button>
           <p id="line-spacing-chip" class="line-spacing-chip" role="status">Standard · the usual line spacing</p>
           <button id="btn-line-spacing" class="btn" type="button" onclick="cycleLineSpacing()" aria-describedby="line-spacing-chip">Spacing: standard</button>
+          <p id="reading-font-chip" class="reading-font-chip" role="status">Standard · the usual typeface</p>
+          <button id="btn-reading-font" class="btn" type="button" onclick="cycleReadingFont()" aria-describedby="reading-font-chip">Font: standard</button>
         </div>
         <div class="reader-settings-actions" role="group" aria-label="Picture setting">
           <p id="cover-nudity-chip" class="cover-nudity-chip" role="status">Off · pictures show as drawn</p>

@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, resolve } from "node:path";
+import { basename, dirname, posix, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
@@ -21,6 +21,11 @@ const UTF8_FLAG = 0x0800;
 const FILE_MODE = 0o100644;
 const ASSET_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "svg", "avif", "mp3", "ogg", "wav", "mp4", "webm"]);
 const FONT_EXTENSIONS = new Set(["woff", "woff2", "ttf", "otf", "eot"]);
+// SUN-READER-FONT-01: a bundled web font travels with its licence. Packaged fonts are .woff2 under
+// fonts/, reached only through a CSS url(); fonts/OFL.txt goes with them. The licence is evidence
+// shipped beside the font, not code, so the runtime network scan does not read it.
+const PACKAGED_FONT_PATH = /^fonts\/[A-Za-z0-9._-]+\.woff2$/;
+const FONT_LICENSE_PATH = "fonts/OFL.txt";
 
 function sha256(data) {
   return createHash("sha256").update(data).digest("hex");
@@ -72,6 +77,8 @@ function detectedMime(path, data) {
   if (ext === "gif") return /^GIF8[79]a$/.test(data.subarray(0, 6).toString("ascii")) ? "image/gif" : "application/octet-stream";
   if (ext === "webp") return data.subarray(0, 4).toString("ascii") === "RIFF" && data.subarray(8, 12).toString("ascii") === "WEBP" ? "image/webp" : "application/octet-stream";
   if (ext === "svg") return "image/svg+xml";
+  if (ext === "woff2") return data.length >= 4 && data.subarray(0, 4).toString("latin1") === "wOF2" ? "font/woff2" : "application/octet-stream";
+  if (ext === "txt") return "text/plain";
   if (ext === "html") return "text/html";
   if (ext === "css") return "text/css";
   if (ext === "js" || ext === "mjs") return "text/javascript";
@@ -106,10 +113,20 @@ function runtimeClosure(commit, tracked, root = ROOT) {
     for (const match of text.matchAll(/\bimages\/[A-Za-z0-9._/-]+\.(?:jpe?g|png|gif|webp|svg|avif)\b/gi)) {
       required.add(match[0]);
     }
+    // SUN-READER-FONT-01: a stylesheet's relative url() (the reading font) resolves against the
+    // stylesheet. Absolute, protocol-relative, data: and fragment URLs are not package files.
+    if (/\.css$/i.test(path)) {
+      for (const match of text.matchAll(/url\(\s*(['"]?)([^'")\s]+)\1\s*\)/gi)) {
+        const value = match[2];
+        if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(value)) continue;
+        required.add(posix.normalize(posix.join(posix.dirname(path), value.split(/[?#]/)[0])));
+      }
+    }
   }
+  if ([...required].some(path => PACKAGED_FONT_PATH.test(path))) required.add(FONT_LICENSE_PATH);
   const paths = [...required].sort(canonicalPathCompare);
   for (const path of paths) {
-    if (!/^(?:index\.html|VERSION\.md|css\/[^/]+\.css|src\/[^/]+\.js|images\/[^/]+\.[A-Za-z0-9]+)$/.test(path)) {
+    if (!/^(?:index\.html|VERSION\.md|css\/[^/]+\.css|src\/[^/]+\.js|images\/[^/]+\.[A-Za-z0-9]+|fonts\/[A-Za-z0-9._-]+\.woff2|fonts\/OFL\.txt)$/.test(path)) {
       throw new Error(`runtime closure escaped the package allowlist: ${path}`);
     }
     if (!byPath.has(path)) throw new Error(`runtime closure path is missing from exact tree: ${path}`);
@@ -467,7 +484,24 @@ function buildContentNotice({ commit, tree, root }) {
   return { text: lines.join("\n"), adultClassificationDraft };
 }
 
-function buildPrivatePhoneServer({ commit, tree }) {
+// The private server's MIME map. A woff2 font and its .txt licence are mapped only when the package
+// carries them (SUN-READER-FONT-01), so a package without a font builds the same server bytes.
+function phoneServerMimeLines(packagedPaths = []) {
+  const entries = [
+    [".html", "text/html; charset=utf-8"],
+    [".css", "text/css; charset=utf-8"],
+    [".js", "text/javascript; charset=utf-8"],
+    [".jpg", "image/jpeg"],
+    [".jpeg", "image/jpeg"],
+    [".md", "text/plain; charset=utf-8"]
+  ];
+  const extensions = new Set(packagedPaths.map(path => `.${extension(path)}`));
+  if (extensions.has(".woff2")) entries.push([".woff2", "font/woff2"]);
+  if (extensions.has(".txt")) entries.push([".txt", "text/plain; charset=utf-8"]);
+  return entries.map(([ext, mime], index) => `  [${JSON.stringify(ext)}, ${JSON.stringify(mime)}]${index < entries.length - 1 ? "," : ""}`);
+}
+
+function buildPrivatePhoneServer({ commit, tree, packagedPaths = [] }) {
   const lines = [
     "#!/usr/bin/env node",
     "",
@@ -488,12 +522,7 @@ function buildPrivatePhoneServer({ commit, tree }) {
     "  process.exit(1);",
     "});",
     "const MIME = new Map([",
-    "  [\".html\", \"text/html; charset=utf-8\"],",
-    "  [\".css\", \"text/css; charset=utf-8\"],",
-    "  [\".js\", \"text/javascript; charset=utf-8\"],",
-    "  [\".jpg\", \"image/jpeg\"],",
-    "  [\".jpeg\", \"image/jpeg\"],",
-    "  [\".md\", \"text/plain; charset=utf-8\"]",
+    ...phoneServerMimeLines(packagedPaths),
     "]);",
     "",
     "const nodeMajor = Number(process.versions.node.split(\".\")[0]);",
@@ -734,7 +763,7 @@ function engineScriptPaths(commit, root = ROOT) {
 }
 
 function buildPrivateDrafts({ commit, tree, version, root, runtimeFiles, externalFontStylesheets }) {
-  const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/"));
+  const textRuntimeFiles = runtimeFiles.filter(file => file.mime.startsWith("text/") && file.path !== FONT_LICENSE_PATH);
   const { networkApiMatches, forbiddenNetworkApiMatches, externalReferences } = scanRuntimeNetworkUse(textRuntimeFiles);
   if (forbiddenNetworkApiMatches.length) throw new Error(`private-draft network API scan found: ${JSON.stringify(forbiddenNetworkApiMatches)}`);
   const expectedExternalReferences = externalFontStylesheets.map(item => ({ path: "css/style.css", url: item.url }));
@@ -954,7 +983,7 @@ function buildInventory({ commit, tree, runtimeFiles, allAssetFiles, allTrackedP
     };
   });
   const fontFiles = allTrackedPaths.filter(path => FONT_EXTENSIONS.has(extension(path)));
-  const licenseFiles = allTrackedPaths.filter(path => /^(?:licen[cs]e|copying|notice)(?:\..*)?$/i.test(basename(path)));
+  const licenseFiles = allTrackedPaths.filter(path => path === FONT_LICENSE_PATH || /^(?:licen[cs]e|copying|notice)(?:\..*)?$/i.test(basename(path)));
   const imports = fontImports(cssText);
   const lines = [
     "# Sunsplitter Private Package Inventory",
@@ -1076,7 +1105,7 @@ export function buildPrivatePackage({ sourceRef, outputPath, root = ROOT } = {})
   const inventoryData = Buffer.from(inventory.text, "utf8");
   const contentNotice = buildContentNotice({ commit, tree, root });
   const contentNoticeData = Buffer.from(contentNotice.text, "utf8");
-  const phoneServerData = Buffer.from(buildPrivatePhoneServer({ commit, tree }), "utf8");
+  const phoneServerData = Buffer.from(buildPrivatePhoneServer({ commit, tree, packagedPaths: runtimeFiles.map(file => file.path) }), "utf8");
   const phoneGuideData = Buffer.from(buildPrivatePhoneGuide({ commit, tree }), "utf8");
   const version = runtimeFiles.find(file => file.path === "VERSION.md")?.data.toString("utf8").trim() || null;
   const versionLabel = version?.split(/\r?\n/).find(line => line.trim())?.trim() || null;

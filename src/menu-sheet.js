@@ -29,12 +29,14 @@ const MENU_SETTING_TWINS = [
   ["menu-text-pace", "btn-text-pace", "menu-text-pace-chip", "text-pace-chip"],
   ["menu-text-size", "btn-text-size", "menu-text-size-chip", "text-size-chip"],
   ["menu-line-spacing", "btn-line-spacing", "menu-line-spacing-chip", "line-spacing-chip"],
+  ["menu-reading-font", "btn-reading-font", "menu-reading-font-chip", "reading-font-chip"], // SUN-READER-FONT-01
   ["menu-show-costs", "btn-show-costs", "menu-show-costs-chip", "show-costs-chip"]
 ];
 const MENU_SETTING_ACTIONS = {
   pace: () => toggleTextPace(),
   size: () => cycleTextSize(),
   spacing: () => cycleLineSpacing(),
+  font: () => cycleReadingFont(),
   costs: () => toggleShowCosts()
 };
 const MENU_RETURN_TITLE_CHIP = "Saves first · Continue on the title picks up here";
