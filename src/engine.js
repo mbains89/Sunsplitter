@@ -328,6 +328,10 @@ function refreshPictureCovers() {
     watchPictureCover(img);
     syncPictureCover(img);
   }
+  // SUN-GALLERY-01: the gallery's pictures follow the setting too.
+  if (typeof galleryPictureElements === "function") {
+    for (const img of galleryPictureElements()) syncPictureCover(img);
+  }
 }
 
 function setCoverNudity(on) {
@@ -498,6 +502,8 @@ function playAgain() {
 function showTitleScreen() {
   showScreen("title");
   refreshTitleResumeUI();
+  // SUN-GALLERY-01: the Gallery button shows once a plate has been seen.
+  if (typeof renderGallery === "function") renderGallery();
 }
 
 function imageAlternative(src) {
@@ -571,6 +577,8 @@ function releaseInactiveArtForScreen(id) {
     setManagedImageSource(sceneImage, "");
     if (sceneImage) sceneImage.alt = "";
   }
+  // SUN-GALLERY-01: leaving the gallery lets go of every picture it decoded.
+  if (id !== "gallery" && typeof releaseGalleryPictures === "function") releaseGalleryPictures();
   syncEndingArtForScreen(id);
 }
 

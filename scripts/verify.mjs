@@ -353,8 +353,8 @@ function performanceSourceChecks() {
   const errors = [];
   const indexSource = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const engineSource = readEngineSource(ROOT);
-  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 4) {
-    errors.push("all four runtime art surfaces, including cinematic, must request asynchronous decode");
+  if ((indexSource.match(/<img[^>]+decoding=["']async["']/g) || []).length !== 5) {
+    errors.push("all five runtime art surfaces, including cinematic and the gallery viewer, must request asynchronous decode");
   }
   for (const fragment of [
     "function setManagedImageSource(img, src)",

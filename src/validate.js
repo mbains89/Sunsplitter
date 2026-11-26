@@ -505,7 +505,8 @@ const MODAL_DIALOG_PRIMARY = {
   "tutorial-overlay": "tutorial-dismiss",
   "commander-create": "commander-create-ok",
   "new-run-confirm": "new-run-ok",
-  "crew-sheet": "crew-sheet-close"
+  "crew-sheet": "crew-sheet-close",
+  "gallery-viewer": "gallery-viewer-close"
 };
 const modalDialogOpeners = {};
 function openModalDialogElement() {
@@ -527,7 +528,8 @@ function focusModalDialog(id) {
 const MODAL_DIALOG_CANCEL = {
   "tutorial-overlay": () => skipTutorial(),
   "commander-create": () => cancelCommanderCreate(),
-  "new-run-confirm": () => cancelNewRun()
+  "new-run-confirm": () => cancelNewRun(),
+  "gallery-viewer": () => closeGalleryViewer()
 };
 const MODAL_TABBABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 function modalFocusUsable(el) {

@@ -1058,7 +1058,7 @@ function showScreen(id) {
   if (main) main.classList.toggle("cinematic-active", id === "cinematic");
   if (id !== "cinematic" && typeof cancelCinematic === "function") cancelCinematic();
   if (typeof releaseInactiveArtForScreen === "function") releaseInactiveArtForScreen(id);
-  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
+  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "gallery-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
@@ -1090,13 +1090,16 @@ function showScreen(id) {
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
   if (id === "cinematic") document.getElementById("cinematic-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
+  // SUN-GALLERY-01: reached from the title only (L-047); src/ship-gallery.js fills it.
+  if (id === "gallery") document.getElementById("gallery-screen").classList.remove("hidden");
 
   const focusTargetId = {
     tone: "tone-heading",
     title: "title-heading",
     cinematic: "cinematic-heading",
     ending: "ending-title",
-    "what-remains": "what-remains-heading"
+    "what-remains": "what-remains-heading",
+    gallery: "gallery-heading"
   }[id];
   const focusTarget = focusTargetId ? document.getElementById(focusTargetId) : null;
   if (focusTarget && typeof focusTarget.focus === "function") {
