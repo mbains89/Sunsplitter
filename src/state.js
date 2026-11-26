@@ -30,6 +30,11 @@ const VERSION = "0.36";
 //   pair_seal ("bulkhead" | "names" | "both"; Elias and Tomas on the Deck 4 feedstock, from the hub).
 //   pair_burn ("finding" | "width" | "both"; Mira and Jiro on the reckoning burn, from the hub).
 //   pair_fix ("fix" | "track" | "both"; Jiro and Vess on whose position is truer, from the hub).
+// L-054 (2026-11-05; rulings 2026-11-25 D1(a) D2(a) D5(a) D6(a) D7(a) D10), cross-run ship memory:
+//   localStorage "sunsplitter_ship_memory_v1", owned by src/ship-memory.js. Its own namespace, one
+//   per browser: { v, runs, endings, lost, plates, forks { crisis, vault, tether, lethal, final },
+//   last, prints, trail } (trail = this run's hard-call scene ids). Not run state: never in `state`,
+//   snapshotState, saves or the export, and no scene or rule reads it. Not `state.memories`.
 
 function freshState() {
   return {
