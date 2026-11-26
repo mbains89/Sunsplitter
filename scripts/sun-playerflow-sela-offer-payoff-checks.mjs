@@ -17,7 +17,7 @@ import { loadGame } from "./simulate.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LEAD = "Before the log closes, Sela speaks to you alone.";
 const CLOSE = "The heat question is answered, and the vault still has one key. I will not make the offer, and I am telling you so that you do not wait for it.";
-const OFFER = "shared custody of what I keep";
+const OFFER = "I will offer you shared custody of what I keep. I did not say that to them.";
 const NON_SHARED = ["possession", "thawed", "severed"];
 const count = (hay, needle) => hay.split(needle).length - 1;
 
@@ -131,8 +131,9 @@ for (const t of out.targeted) {
   }
   assert.equal(t.r.scene, "custody_after", `${label}: did not reach custody_after`);
   const keep = t.r.screens.find(s => s.id === "prom_price_keep");
-  const heard = t.partner && !!keep && keep.text.includes(OFFER);
+  const heard = !!keep && keep.text.includes(OFFER);
   if (t.partner && t.test === "keep" && !t.selaDead) assert.ok(heard, `${label}: the partner did not hear the offer in prom_price_keep`);
+  if (keep && !t.partner) assert.ok(!keep.text.includes("shared custody"), `${label}: a non-partner heard the custody offer (#589 gates it to partners)`);
   const expected = heard && !t.selaDead && NON_SHARED.includes(t.answer.split("_")[0]) ? 1 : 0;
   for (const s of t.r.screens) {
     const n = count(s.text, CLOSE), m = count(s.text, LEAD);
@@ -185,7 +186,7 @@ const play = JSON.parse(runtime.evaluate(`JSON.stringify((() => {
     for (let step = 0; step < 700; step++) {
       const id = state.scene, text = story();
       if (text.includes(${JSON.stringify(CLOSE)}) || text.includes(${JSON.stringify(LEAD)})) seenAt.push(id + ":" + (text.split(${JSON.stringify(CLOSE)}).length - 1));
-      if (id === "prom_price_keep") heard = !!state.romance.sela && text.includes(${JSON.stringify(OFFER)});
+      if (id === "prom_price_keep") heard = text.includes(${JSON.stringify(OFFER)});
       if (id === "custody_after") { answerAtAfter = state.flags.custody_answer || null; aliveAtAfter = isAlive("sela"); partnerAtAfter = !!state.romance.sela; }
       if (id === "ending_check" || !scenes[id]) { ended = true; break; }
       const sc = scenes[id];
@@ -224,7 +225,7 @@ for (const [i, r] of play.entries()) {
     if (r.promise === "broken" && r.answerAtAfter) tally.broken++;
     if (r.selaDead) tally.dead++;
   }
-  if (r.heard) assert.equal(r.promise, "kept", `${label}: heard the offer without a kept promise`);
+  if (r.heard) assert.ok(r.promise === "kept" && r.partnerAtAfter !== false, `${label}: heard the offer without a kept promise or a partnership`);
 }
 for (const answer of NON_SHARED) assert.ok((tally.closed[answer] || 0) >= 3, `play: too few closed-offer runs on ${answer} (${tally.closed[answer] || 0}); widen the steer`);
 assert.ok(tally.shared >= 3 && tally.nonPartner >= 3 && tally.broken >= 3 && tally.dead >= 3, `play: thin coverage ${JSON.stringify(tally)}`);
