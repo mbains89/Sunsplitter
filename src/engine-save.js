@@ -671,6 +671,7 @@ function saveGame() {
 }
 
 function loadGame() {
+  wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: Continue, Load and an imported save are not fresh runs
   if (!hasSave()) {
     flashSaveStatus("No save", true);
     return false;
