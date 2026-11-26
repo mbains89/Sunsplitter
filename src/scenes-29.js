@@ -71,7 +71,7 @@ registerScenes({
         t += `The maintenance-layer records: atmospheric projections dated before public alerts. The people who wrote the manifests had longer than the people on the pads were told.\n\n`;
       }
       if (isAlive("amara")) {
-        t += `Amara: "I was on a secondary ring. Security closed our tube while the primary still had motion. That was not physics. That was a decision with a badge."\n\n`;
+        t += `Amara: "I was on the station's secondary ring with the manifest in my hands. Security closed the tube behind me while the line was still moving. That was not physics. That was a decision with a badge."\n\n`;
       }
       if (isAlive("tomas")) {
         t += `Tomas will not call anyone evil. He will say: "More than one true thing can be true at once. That does not make them the same story."\n\n`;
