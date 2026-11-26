@@ -11,6 +11,8 @@
 //      tapping a row (and the arrow keys) moves the selection and the line and Start follow it; Tab and
 //      Shift+Tab stay inside; Escape closes it with focus back on New run and nothing written; Start on
 //      slot 3, then Begin run, writes slot 3 only and points Continue at it.
+//   C. (storage A) a double tap, or a double click on desktop, on Start opens the Commander panel and
+//      does nothing else in it: no Begin run, no seal picked, nothing written.
 //   B. all three slots filled. Nothing is selected, focus is on the first row, Start is disabled and
 //      tapping it writes nothing; tapping slot 2 enables "Replace Slot 2", and Start then Begin run
 //      replaces slot 2 only.
@@ -184,6 +186,8 @@ async function browserChecks(errors, summary, requireBrowser) {
         if (!p || p.x < -0.5 || p.y < -0.5 || p.x + p.w > m.vw + 0.5 || p.y + p.h > m.vh + 0.5) fail(`A: panel leaves the viewport ${JSON.stringify(p)}`);
         if (m.docOverflow > 0 || m.bodyOverflow > 0) fail(`A: page scrolls sideways with the picker open (${m.docOverflow}/${m.bodyOverflow}px)`);
         if (m.panelOverflowX > 0) fail(`A: panel scrolls sideways (${m.panelOverflowX}px)`);
+        // Hit-tests wait out the picker's 400ms of ignoring the pointer (.arming).
+        await page.waitForFunction(() => !document.getElementById("new-run-confirm").classList.contains("arming"));
         const selectedShows = await page.evaluate(SELECTED_SHOWS);
         if (!selectedShows || !selectedShows.shows) fail(`A: the selected row is hidden on open (under the buttons?) ${JSON.stringify(selectedShows)}`);
         // Start and its line are on screen when the picker opens (sticky at short heights).
@@ -194,16 +198,18 @@ async function browserChecks(errors, summary, requireBrowser) {
         // Each row: tap it; the line and Start follow; rows and buttons are big enough and reachable.
         const expect = {
           1: ["New run replaces Slot 1 · Harbor. Your other slots stay as they are.", "Replace Slot 1"],
-          2: ["New run replaces the unreadable save in Slot 2. To keep a copy, download it from Saved runs first.", "Replace Slot 2"],
+          2: ["New run replaces the unreadable save in Slot 2. To keep a copy, cancel and download it from Saved runs.", "Replace Slot 2"],
           3: ["Slot 3 is empty. Your other slots stay as they are.", "Start in Slot 3"]
         };
         let seen = 0;
+        const chipHeights = [];
         for (const slot of [1, 2, 3]) {
           await page.evaluate(n => document.getElementById("new-run-row-" + n).scrollIntoView({ block: "nearest" }), slot);
           await hit(`#new-run-row-${slot}`);
           const s = await page.evaluate(MEASURE);
           if (s.selected !== slot) fail(`A: tapping row ${slot} selected ${s.selected}`);
           if (s.chip !== expect[slot][0] || s.ok !== expect[slot][1] || s.okDisabled) fail(`A: row ${slot} reads ${JSON.stringify([s.chip, s.ok, s.okDisabled])}`);
+          chipHeights.push(s.chipRect ? Math.round(s.chipRect.h) : -1);
           for (const id of [`new-run-row-${slot}`, "new-run-cancel", "new-run-ok"]) {
             const t = await page.evaluate(TARGET, id);
             seen += 1;
@@ -215,6 +221,9 @@ async function browserChecks(errors, summary, requireBrowser) {
           const after = await page.evaluate(MEASURE);
           if (after.docOverflow > 0 || after.panelOverflowX > 0) fail(`A: row ${slot}: sideways scroll ${after.docOverflow}/${after.panelOverflowX}px`);
         }
+
+        // The line keeps one height whichever row is selected, so the rows and buttons do not jump.
+        if (new Set(chipHeights).size !== 1) fail(`A: the line above Start changes height with the selection (${chipHeights.join("/")}px), moving the rows`);
 
         // Keyboard: arrows move the selection and the line follows; Tab and Shift+Tab stay inside.
         await page.locator("#new-run-slot-3").focus();
@@ -258,6 +267,33 @@ async function browserChecks(errors, summary, requireBrowser) {
         if (now.sunsplitter_save_current_v1 !== "3") fail(`A: Continue points at ${now.sunsplitter_save_current_v1}, not 3`);
         if (pageErrors.length) fail(`A: page errors: ${pageErrors.join(" | ")}`);
         summary.push(`${name} A: panel ${Math.round(p.w)}x${Math.round(p.h)}${m.panelScrolls ? " (scrolls inside)" : ""}; Start at y ${Math.round(m.okRect ? m.okRect.y : -1)}; ${seen} targets checked`);
+        await context.close();
+      }
+
+      // ---------- C: a double tap (double click) on Start ----------
+      // It opens the Commander panel and nothing more: the second tap must not press Begin run or pick
+      // a seal in the panel that appears under it (review M1).
+      {
+        const { context, page, pageErrors, hit } = await open("A");
+        const stored = await storageOf(page);
+        await page.evaluate(() => document.getElementById("btn-begin").scrollIntoView({ block: "nearest" }));
+        await hit("#btn-begin");
+        await page.waitForTimeout(450); // the picker's own 400ms
+        const okAt = await page.evaluate(() => { const b = document.getElementById("new-run-ok").getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; });
+        if (touch) { await page.touchscreen.tap(okAt.x, okAt.y); await page.touchscreen.tap(okAt.x, okAt.y); }
+        else await page.mouse.dblclick(okAt.x, okAt.y);
+        await page.waitForTimeout(100);
+        const dbl = await page.evaluate(() => ({
+          commander: document.getElementById("commander-create").classList.contains("visible"),
+          picker: document.getElementById("new-run-confirm").classList.contains("visible"),
+          savedRuns: document.getElementById("saved-runs").classList.contains("visible"),
+          game: !document.getElementById("game-screen").classList.contains("hidden"),
+          seal: (document.querySelector('input[name="commander-seal"]:checked') || {}).value
+        }));
+        if (!dbl.commander || dbl.picker || dbl.savedRuns || dbl.game || dbl.seal !== "") fail(`C: a double ${touch ? "tap" : "click"} on Start did more than open the Commander panel ${JSON.stringify(dbl)}`);
+        if (JSON.stringify(await storageOf(page)) !== JSON.stringify(stored)) fail(`C: a double ${touch ? "tap" : "click"} on Start wrote storage`);
+        if (pageErrors.length) fail(`C: page errors: ${pageErrors.join(" | ")}`);
+        summary.push(`${name} C: double ${touch ? "tap" : "click"} on Start opens the Commander panel only`);
         await context.close();
       }
 
@@ -318,6 +354,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     process.exit(1);
   }
   console.log(ran
-    ? "PASS sun-playerflow-new-run-slot-layout (360x640, 390x844, 844x390 and 1440x900: fits with internal scroll, Start on screen, no sideways scroll, targets >= 44px and reachable, Continue unmoved, default slot, line and Start follow the selection, focus trap, Escape, slot written only on Begin run; all-full: no default, disabled Start)"
+    ? "PASS sun-playerflow-new-run-slot-layout (360x640, 390x844, 844x390 and 1440x900: fits with internal scroll, Start on screen, no sideways scroll, rows hold still, targets >= 44px and reachable, Continue unmoved, default slot, line and Start follow the selection, focus trap, Escape, double tap on Start, slot written only on Begin run; all-full: no default, disabled Start)"
     : "PASS sun-playerflow-new-run-slot-layout (browser NOT_AVAILABLE; nothing measured)");
 }

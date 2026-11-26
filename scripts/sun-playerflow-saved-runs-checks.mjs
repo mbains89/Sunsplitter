@@ -114,7 +114,7 @@ const ok = label => results.push(label);
   `);
   const finishedDetail = `Run finished · saved ${r.w3}`;
   assert.deepEqual(r.rows[0], ["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1} · Continue loads this`], "filled, current row");
-  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. A new run or an import here replaces it."], "unreadable row");
+  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. A new run or an import into this slot replaces it."], "unreadable row");
   assert.deepEqual(r.rows[2], ["Slot 3", finishedDetail], "finished row without a callsign");
   assert.deepEqual(r.kinds, ["filled", "unreadable", "finished"]);
   assert.equal(r.detail2Hidden, false);
@@ -441,7 +441,7 @@ await (async () => {
   assert.equal(r.ok1, "Replace Slot 1");
   assert.doesNotMatch(r.chip + r.chip1 + r.ok + r.ok1, /\d+\s+alive/, "no crew count in the picker's line or button");
   assert.equal(r.harborKept, true, "nothing is written before the run starts");
-  assert.equal(r.unreadableChip, "New run replaces the unreadable save in Slot 1. To keep a copy, download it from Saved runs first.");
+  assert.equal(r.unreadableChip, "New run replaces the unreadable save in Slot 1. To keep a copy, cancel and download it from Saved runs.");
   ok("New run names the slot it replaces");
 }
 

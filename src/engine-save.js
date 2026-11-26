@@ -1101,7 +1101,7 @@ function savedRunRow(slot, currentSlot) {
       (row.current ? " · Continue loads this" : "");
   } else if (unreadable) {
     row.name = "Slot " + slot + " · Can't be read by this version";
-    row.detail = "Download it to keep a copy. A new run or an import here replaces it.";
+    row.detail = "Download it to keep a copy. A new run or an import into this slot replaces it.";
   } else {
     row.name = "Slot " + slot + " · Empty";
   }
