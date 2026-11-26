@@ -475,6 +475,123 @@ function showTutorialOverlay() {
   }
 })();
 
+// SUN-NEW-RUN-SLOT-01 (L-052, Wave 2 design S-3; O-3(A), Manraj 2026-11-25): New run asks which
+// slot. The picker shows the three slots with the same rows as Saved runs and starts on the first
+// empty slot; when every slot holds a run (readable or not) nothing is selected and Start stays
+// disabled until the player picks one. Start names what it does: "Start in Slot 3", or "Replace
+// Slot 1" for a slot that holds a run, with the line above it naming the run it replaces.
+// The chosen slot is read once, when Start is pressed, and held in pendingNewRunSlot through the
+// Commander panel. Only "Begin run" writes it (beginFreshCampaign then makes it the active slot and
+// points Continue at it); Cancel, Escape, Saved runs, a title repaint or leaving the title drop it
+// and write nothing. A New run never falls back to activeSaveSlot.
+// SUN-SECOND-TAB-GUARD-01 (#603) owns the check for another tab: the picker marks every slot when it
+// opens (markNewRunSlots), Begin run re-checks the chosen slot (newRunSlotChanged) and, if another tab
+// changed it, writes nothing and says "Slot N changed in another tab · this new run did not start".
+// A save by another tab in any other slot repaints the picker in place (refreshNewRunPickerInPlace).
+let pendingNewRunSlot = null;
+
+function saveSlotsWithBytes() {
+  const used = [];
+  if (typeof SAVE_SLOT_COUNT === "undefined" || typeof slotHasAnyBytes !== "function") return used;
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    let has = true; // a slot that cannot be read counts as in use, so it is never a default
+    try { has = slotHasAnyBytes(slot); } catch (e) { has = true; }
+    if (has) used.push(slot);
+  }
+  return used;
+}
+// O-3(A): the first slot that holds nothing at all, else null (no default when all three hold a run).
+function newRunDefaultSlot() {
+  if (typeof SAVE_SLOT_COUNT === "undefined") return null;
+  const used = saveSlotsWithBytes();
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    if (!used.includes(slot)) return slot;
+  }
+  return null;
+}
+function newRunPickerOpen() {
+  const panel = document.getElementById("new-run-confirm");
+  return !!(panel && panel.classList.contains("visible") && !panel.classList.contains("hidden"));
+}
+// The checked row's slot, or null when no row is checked.
+function newRunSelectedSlot() {
+  if (typeof SAVE_SLOT_COUNT === "undefined") return null;
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    const radio = document.getElementById("new-run-slot-" + slot);
+    if (radio && radio.checked === true) return slot;
+  }
+  return null;
+}
+// What Start does to the selected row, for the line above the buttons and the button itself.
+function newRunChoiceText(row) {
+  if (!row) return { line: "All three slots hold a run. Choose the one to replace.", button: "Choose a slot" };
+  if (row.kind === "empty") return { line: `Slot ${row.slot} is empty. Your other slots stay as they are.`, button: `Start in Slot ${row.slot}` };
+  if (row.kind === "unreadable") {
+    return { line: `New run replaces the unreadable save in Slot ${row.slot}. To keep a copy, cancel and download it from Saved runs.`,
+      button: `Replace Slot ${row.slot}` };
+  }
+  return { line: `New run replaces ${row.name}. Your other slots stay as they are.`, button: `Replace Slot ${row.slot}` };
+}
+// Paint the rows (each read from its own slot, as in Saved runs), check selectSlot (null checks
+// none), and set the line and Start to match.
+function renderNewRunPicker(selectSlot) {
+  if (typeof SAVE_SLOT_COUNT === "undefined" || typeof savedRunRow !== "function") return null;
+  let currentSlot = null;
+  try { currentSlot = continueSlot(); } catch (e) { currentSlot = null; }
+  const rows = [];
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) rows.push(savedRunRow(slot, currentSlot));
+  const selected = parseSaveSlot(selectSlot);
+  for (const row of rows) {
+    const radio = document.getElementById("new-run-slot-" + row.slot);
+    if (radio) radio.checked = row.slot === selected;
+    const name = document.getElementById("new-run-slot-" + row.slot + "-name");
+    if (name) name.textContent = row.name;
+    const detail = document.getElementById("new-run-slot-" + row.slot + "-detail");
+    if (detail) {
+      detail.textContent = row.detail;
+      detail.classList.toggle("hidden", !row.detail);
+    }
+    const label = document.getElementById("new-run-row-" + row.slot);
+    if (label && typeof label.setAttribute === "function") label.setAttribute("data-kind", row.kind);
+  }
+  const chosen = selected ? rows[selected - 1] : null;
+  const words = newRunChoiceText(chosen);
+  const chip = document.getElementById("new-run-confirm-chip");
+  if (chip) chip.textContent = words.line;
+  const ok = document.getElementById("new-run-ok");
+  if (ok) {
+    ok.textContent = words.button;
+    ok.disabled = !chosen;
+  }
+  return { rows, selected };
+}
+// A radio's change handler: its row becomes the selection.
+function selectNewRunSlot(slot) {
+  slot = parseSaveSlot(slot);
+  if (!slot) return false;
+  renderNewRunPicker(slot);
+  return true;
+}
+// SUN-SECOND-TAB-GUARD-01: another tab saved a slot other than the selected one while the picker is
+// open (engine-save.js handleSaveStorageEvent). Repaint the rows in place, keeping the selection, and
+// take what the player now sees as the mark for those slots. With no row selected (all three held a
+// run), a slot that has since emptied becomes the selection, as it would on opening (O-3(A)).
+function refreshNewRunPickerInPlace() {
+  if (!newRunPickerOpen()) return false;
+  let selected = newRunSelectedSlot();
+  if (typeof remarkNewRunSlot === "function" && typeof SAVE_SLOT_COUNT !== "undefined") {
+    for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) if (slot !== selected) remarkNewRunSlot(slot);
+  }
+  if (!selected) selected = newRunDefaultSlot();
+  renderNewRunPicker(selected);
+  return true;
+}
+function focusNewRunPickerRow() {
+  const slot = newRunSelectedSlot() || 1;
+  const radio = document.getElementById("new-run-slot-" + slot);
+  if (radio && typeof radio.focus === "function") radio.focus();
+}
+
 function hideNewRunConfirm() {
   const panel = document.getElementById("new-run-confirm");
   if (!panel) return;
@@ -482,25 +599,37 @@ function hideNewRunConfirm() {
   panel.classList.remove("visible");
   restoreModalDialogFocus("new-run-confirm");
 }
+// Opens the picker on the default slot (O-3(A)), with focus on that row's radio, or on the first
+// row when nothing is selected. startGame marks what every slot holds just before it opens
+// (SUN-SECOND-TAB-GUARD-01).
 function showNewRunConfirm() {
   const panel = document.getElementById("new-run-confirm");
   if (!panel) return false;
-  // SUN-SAVED-RUNS-01: until the S-3 picker, New run writes the active slot; name it.
-  const copy = document.getElementById("new-run-confirm-copy");
-  const chip = document.getElementById("new-run-confirm-chip");
-  if (copy && typeof activeSaveSlot !== "undefined" && typeof saveSlotName === "function") {
-    let meta = null;
-    try { meta = hasSave(activeSaveSlot) ? getSaveMeta(activeSaveSlot) : null; } catch (e) { meta = null; }
-    copy.textContent = `New run replaces ${saveSlotName(activeSaveSlot, meta)}. Your other slots stay as they are.`;
-    if (chip) chip.textContent = `Confirm = replace Slot ${activeSaveSlot} · Cancel = keep it`;
-  }
+  pendingNewRunSlot = null;
+  renderNewRunPicker(newRunDefaultSlot());
   panel.classList.remove("hidden");
   panel.classList.add("visible");
+  armTitleDialog(panel);
   focusModalDialog("new-run-confirm");
+  focusNewRunPickerRow();
   return true;
 }
+// A tap or click that opened a title dialog must not land inside it as well: a double-tap on Start
+// would otherwise press Begin run (or pick a seal) in the Commander panel that appears under it.
+// The dialog ignores the pointer for its first 400ms (css: .arming).
+function armTitleDialog(panel) {
+  if (!panel || !panel.classList) return;
+  panel.classList.add("arming");
+  if (panel.__armingTimer) clearTimeout(panel.__armingTimer);
+  panel.__armingTimer = setTimeout(() => {
+    panel.__armingTimer = null;
+    panel.classList.remove("arming");
+  }, 400);
+}
 
+// Closing the Commander panel, however it closes, drops the chosen slot: only "Begin run" writes it.
 function hideCommanderCreate() {
+  pendingNewRunSlot = null;
   const panel = document.getElementById("commander-create");
   if (!panel) return;
   panel.classList.add("hidden");
@@ -513,6 +642,7 @@ function showCommanderCreate() {
   hideNewRunConfirm();
   panel.classList.remove("hidden");
   panel.classList.add("visible");
+  armTitleDialog(panel);
   focusModalDialog("commander-create");
   return true;
 }
@@ -707,27 +837,34 @@ function applyCommanderTokens(tokens) {
   state.commanderSeal = tokens.commanderSeal || "";
   state.commanderOath = tokens.commanderOath || "";
 }
-// SUN-SECOND-TAB-GUARD-01: the slot this New run would replace. Today that is the active slot; the
-// New-run slot picker (SUN-NEW-RUN-SLOT-01, #604) makes it the slot the player picked.
+// SUN-SECOND-TAB-GUARD-01: the slot this New run would replace. SUN-NEW-RUN-SLOT-01: the slot the
+// player chose at Start during the Commander step; before it, the picker's selected row (null when
+// none is selected, so another tab's save repaints the picker instead of closing it).
 function newRunTargetSlot() {
-  return typeof activeSaveSlot !== "undefined" ? activeSaveSlot : 1;
+  const pending = typeof parseSaveSlot === "function" ? parseSaveSlot(pendingNewRunSlot) : null;
+  if (pending) return pending;
+  return newRunPickerOpen() ? newRunSelectedSlot() : null;
 }
+// "Begin run": the new run goes into the slot the player chose, and only that slot. With no chosen
+// slot (the Commander panel opened some other way) nothing starts and nothing is written.
+// SUN-SECOND-TAB-GUARD-01: if another tab changed that slot since New run opened (a storage event
+// the title missed, or one still on its way), stop, write nothing, and say so.
 function commitNewRunWithCommander() {
+  const slot = typeof parseSaveSlot === "function" ? parseSaveSlot(pendingNewRunSlot) : null;
+  const changed = !!slot && typeof newRunSlotChanged === "function" && newRunSlotChanged(slot);
   hideCommanderCreate();
-  // SUN-SECOND-TAB-GUARD-01: if another tab changed that slot since New run opened (a storage event
-  // the title missed, or one still on its way), stop, write nothing, and say so.
-  const target = newRunTargetSlot();
-  if (typeof newRunSlotChanged === "function" && newRunSlotChanged(target)) {
+  if (!slot) return false;
+  if (changed) {
     if (typeof refreshTitleResumeUI === "function") refreshTitleResumeUI();
-    reportNewRunSlotChanged(target);
+    reportNewRunSlotChanged(slot);
     return false;
   }
   if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
   const draft = readCommanderCreateDraft();
-  const started = beginFreshCampaign({ persist: true });
+  const started = beginFreshCampaign({ persist: true, slot });
   if (!started) return false;
   applyCommanderTokens(draft);
-  if (typeof persistSave === "function") persistSave({ silent: true });
+  if (typeof persistSave === "function") persistSave({ silent: true, slot });
   const line = document.getElementById("intro-line-3");
   if (line && draft.commanderCallsign && line.setAttribute) {
     line.setAttribute("data-commander-callsign", draft.commanderCallsign);
@@ -747,40 +884,75 @@ function cancelCommanderCreate() {
   return false;
 }
 
-function commitNewRun() {
+// The chosen slot goes to the Commander panel; "Begin run" there starts the run in it.
+function commitNewRun(slot) {
   hideNewRunConfirm();
+  slot = typeof parseSaveSlot === "function" ? parseSaveSlot(slot) : null;
+  if (!slot) return false;
+  pendingNewRunSlot = slot;
   if (showCommanderCreate()) return false;
   return commitNewRunWithCommander();
 }
-function confirmNewRun() { return commitNewRun(); }
+// The picker's Start: the checked row's slot, read once here. With none checked (every slot holds
+// a run and the player has not picked one) the picker stays open and nothing is written.
+function confirmNewRun() {
+  if (!newRunPickerOpen()) return false;
+  const slot = newRunSelectedSlot();
+  if (!slot) {
+    renderNewRunPicker(null);
+    focusNewRunPickerRow();
+    return false;
+  }
+  return commitNewRun(slot);
+}
 function cancelNewRun() {
+  pendingNewRunSlot = null;
   hideNewRunConfirm();
   if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
   return false;
+}
+// Leaving the title (Continue, Load, Gallery, Memory board, the content notice) closes the picker
+// and the Commander panel without moving focus, and drops the chosen slot, so no title dialog stays
+// open over the next screen holding the keyboard, and no slot carries into it.
+function closeTitleNewRunDialogs() {
+  for (const id of ["new-run-confirm", "commander-create"]) {
+    const panel = document.getElementById(id);
+    if (!panel) continue;
+    panel.classList.add("hidden");
+    panel.classList.remove("visible");
+    delete modalDialogOpeners[id];
+  }
+  pendingNewRunSlot = null;
+  if (typeof clearNewRunSlotMark === "function") clearNewRunSlotMark();
 }
 (function overlayNewRunConfirm() {
   if (typeof startGame === "function") {
     startGame = function() {
       // SUN-SECOND-TAB-GUARD-01: what every slot holds as New run opens (see newRunSlotChanged).
       if (typeof markNewRunSlots === "function") markNewRunSlots();
-      // SUN-BLOCKED-STORAGE-01: with saving off a new run replaces nothing, so no slot counts as taken.
-      const savingOff = typeof savingIsOff === "function" && savingIsOff();
-      const slotOccupied = !savingOff && (typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave()));
-      if (slotOccupied) {
+      // Begin with nothing saved anywhere goes straight to the Commander panel, in slot 1 (the first
+      // empty slot). Once any slot holds bytes, readable or not, the player picks the slot.
+      if (saveSlotsWithBytes().length) {
         if (showNewRunConfirm()) {
+          // Harness compatibility: a stubbed window.confirm still sees one call. Its answer is
+          // ignored; the in-page picker decides.
           const confirmFn = typeof window !== "undefined" ? window.confirm : null;
           const confirmIsNative = typeof confirmFn === "function" && Function.prototype.toString.call(confirmFn).includes("[native code]");
           if (!confirmIsNative && typeof confirmFn === "function") {
             try { confirmFn("Start a new run? This will replace your saved progress."); } catch (e) {}
           }
-          return false;
         }
-        const ok = typeof window !== "undefined" && typeof window.confirm === "function"
-          ? window.confirm("Start a new run? This will replace your saved progress.")
-          : true;
-        if (!ok) return false;
+        // Without the picker no slot can be chosen, so no run starts.
+        return false;
       }
-      return commitNewRun();
+      return commitNewRun(newRunDefaultSlot());
+    };
+  }
+  if (typeof showScreen === "function") {
+    const previousShowScreen = showScreen;
+    showScreen = function(id) {
+      if (id !== "title") closeTitleNewRunDialogs();
+      return previousShowScreen.apply(this, arguments);
     };
   }
   if (typeof refreshTitleResumeUI === "function") {

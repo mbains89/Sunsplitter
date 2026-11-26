@@ -1394,8 +1394,10 @@ body::before {
 
 /* SUN-SAVED-RUNS-01 — the title's Saved runs dialog (L-052, design S-2). A fixed layer over the
    title with its own scroll, so the title column (and Continue's place on a phone) does not move.
-   Rows are native radios; actions are two columns, each button at least the 48px touch height. */
-#title-screen #saved-runs.visible {
+   Rows are native radios; actions are two columns, each button at least the 48px touch height.
+   SUN-NEW-RUN-SLOT-01 (design S-3): the New run slot picker is the same layer, panel and rows. */
+#title-screen #saved-runs.visible,
+#title-screen #new-run-confirm.visible {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -1525,7 +1527,8 @@ body::before {
   margin: 0;
   text-align: left;
 }
-#title-screen #saved-runs .saved-runs-actions .btn {
+#title-screen #saved-runs .saved-runs-actions .btn,
+#title-screen #new-run-confirm .saved-runs-actions .btn {
   width: 100%;
   padding: 10px 8px;
   font-size: 0.8rem;
@@ -1536,4 +1539,43 @@ body::before {
 .saved-runs-status {
   margin: 10px 0 0;
   text-align: left;
+}
+/* SUN-NEW-RUN-SLOT-01 — the picker's line says what Start will do to the selected slot; it heads the
+   actions, so at short heights it sticks to the bottom edge with Cancel and Start. Start is
+   disabled until a slot is chosen when every slot holds a run (O-3(A): no default then). */
+#title-screen #new-run-confirm .new-run-confirm-chip {
+  grid-column: 1 / -1;
+  min-height: 2.7em; /* two lines, so the buttons do not move when the line wraps */
+  margin: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+/* Narrow phones: the unreadable-slot line runs to three lines, so hold three. */
+@media (max-width: 380px) {
+  #title-screen #new-run-confirm .new-run-confirm-chip {
+    min-height: 4.05em;
+  }
+}
+/* Disabled Start keeps no hover, focus or press look (the desktop title states in title-start.css). */
+#title-screen #new-run-confirm .saved-runs-actions .btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  outline: none;
+  border-style: solid;
+  background-color: transparent;
+}
+/* A title dialog ignores the pointer for its first 400ms (validate.js armTitleDialog), so the tap or
+   click that opened it cannot also press something inside it. The picker's backdrop still takes the
+   tap, so it cannot reach the title behind. */
+#title-screen #new-run-confirm.arming .new-run-panel,
+#title-screen #commander-create.arming {
+  pointer-events: none;
+}
+/* At short heights the line and buttons stick over the rows' bottom edge: keep a row that takes
+   focus (on open, or by arrow key) scrolled clear above them. */
+@media (max-height: 480px) {
+  #title-screen #new-run-confirm .new-run-panel {
+    scroll-padding-bottom: 8rem;
+  }
 }

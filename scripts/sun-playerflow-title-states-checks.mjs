@@ -21,8 +21,9 @@ const BUTTONS = [
   { id: "btn-export-unreadable", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
   { id: "btn-gallery", primary: false, containers: [".title-actions"] },
-  { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm"] },
-  { id: "new-run-cancel", primary: false, containers: [".title-actions", "#new-run-confirm"] },
+  // SUN-NEW-RUN-SLOT-01: the New run slot picker uses the Saved runs panel and action grid.
+  { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm", ".saved-runs-panel", ".new-run-panel", ".saved-runs-actions", ".new-run-actions"] },
+  { id: "new-run-cancel", primary: false, containers: [".title-actions", "#new-run-confirm", ".saved-runs-panel", ".new-run-panel", ".saved-runs-actions", ".new-run-actions"] },
   { id: "commander-create-ok", primary: true, containers: [".title-actions", "#commander-create"] },
   { id: "commander-create-cancel", primary: false, containers: [".title-actions", "#commander-create"] }
 ];

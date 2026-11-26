@@ -32,8 +32,10 @@ const RUNNER = `
     (!c.aliveAny || c.aliveAny.some(k => isAlive(k))) &&
     (!c.requires || meetsRequirements(c.requires)) && (!c.effects || canAffordEffects(c.effects));
   // Title "New run" as a player does it: startGame, then the in-page confirm and the commander form.
-  globalThis.__smNewRun = () => {
+  // SUN-NEW-RUN-SLOT-01: the confirm is the slot picker; slot names the row to pick (else its default).
+  globalThis.__smNewRun = slot => {
     let started = startGame();
+    if (!started && slot && typeof selectNewRunSlot === "function" && newRunPickerOpen()) selectNewRunSlot(slot);
     if (!started && typeof confirmNewRun === "function") started = confirmNewRun();
     if (!started && typeof confirmCommanderCreate === "function") started = confirmCommanderCreate();
     if (currentCinematic) finishCinematic();
@@ -337,9 +339,10 @@ export function sunPlayerflowShipMemoryStoreChecks() {
       const beforeImport = (shipMemoryRead().trail["1"] || []).slice();
       const imported = importSaveText(exported.text);
       const afterImport = (shipMemoryRead().trail["1"] || []).slice();
-      // Fresh run started from the title with persistence.
+      // Fresh run started from the title with persistence, replacing slot 1's run (SUN-NEW-RUN-SLOT-01:
+      // the picker would start on empty slot 2, whose run has its own trail).
       showScene("act3_lethal_lena_clock");
-      const started = __smNewRun();
+      const started = __smNewRun(1);
       const afterStart = (shipMemoryRead().trail["1"] || []).slice();
       return { afterRedirect, afterRender, afterLoad, afterFresh, beforeImport, imported, afterImport, afterStart, started };
     })()`);
