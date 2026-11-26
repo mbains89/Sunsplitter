@@ -1,0 +1,172 @@
+/* SUN-MEMORY-BOARD-01 (L-054) — the post-run memory board. Loaded after css/style.css.
+   One centred column. Ending tiles in two columns at every width (no new art: lit tiles carry
+   the ending title, dim tiles are empty frames). Forks are rows of short labels that wrap.
+   Nothing here may widen #main: every track is minmax(0, 1fr) and every label may break. */
+
+#memory-screen {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 4px 24px;
+  min-width: 0;
+}
+
+#memory-screen .ending-title {
+  text-align: center;
+}
+
+#memory-screen .ending-subheading {
+  margin-top: 20px;
+}
+
+.memory-endings {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.memory-ending {
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.memory-ending.is-lit {
+  border-color: var(--border-hot);
+  background: rgba(92, 36, 36, 0.28);
+}
+
+.memory-ending.is-dim {
+  border-style: dashed;
+  background: #0d0f12;
+  opacity: 0.55;
+}
+
+.memory-ending-title {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+}
+
+.memory-this-run {
+  align-self: flex-start;
+  padding: 2px 6px;
+  border: 1px solid var(--focus);
+  color: var(--focus);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.memory-forks {
+  list-style: none;
+}
+
+.memory-fork {
+  min-width: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.memory-fork:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.memory-fork-label {
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.memory-branches {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.memory-branch {
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.memory-branch.is-lit {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: #f2f2f2;
+}
+
+.memory-branch.is-none {
+  border-style: dashed;
+  font-style: italic;
+}
+
+.memory-branch.memory-marker {
+  border-style: dashed;
+  min-width: 2.4em;
+  text-align: center;
+}
+
+.memory-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin: 24px auto 0;
+}
+
+.memory-actions .btn {
+  width: 100%;
+}
+
+#memory-forget-confirm {
+  max-width: 320px;
+  margin: 16px auto 0;
+  padding: 12px;
+  border: 1px solid rgba(242, 243, 245, 0.28);
+  background: rgba(8, 9, 11, 0.92);
+}
+
+#memory-forget-confirm.visible {
+  display: block;
+}
+
+#memory-forget-confirm p {
+  margin-bottom: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+#memory-forget-confirm [role="group"] {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#memory-forget-confirm .btn {
+  width: 100%;
+}
+
+#btn-memory-board-remains {
+  margin-bottom: 10px;
+}
