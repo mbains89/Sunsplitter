@@ -126,8 +126,10 @@ const sceneImages = {
   competence_watch: "images/competence_watch.jpg",
   crew_walk:       "images/corridor_pressure_4.jpg",
   // SUN-ART-RULINGS-01 (Decision 30, ruled 2026-11-25): the old lead_prompt plate showed a full face
-  // with eyes in every run; the Commander stays faceless. The empty observation wreck takes its place.
-  lead_prompt:     "images/art_r2_observation_wreck.jpg",
+  // with eyes in every run; the Commander stays faceless. Manraj ruled 2026-11-25 ("swap") to use the
+  // audited empty, damaged blister instead of the wreck, because lead_together resolves to the wreck
+  // on fresh-run state and the same plate showed twice in a row (Muse, 66 of 200 runs).
+  lead_prompt:     "images/observation_bridge_alt_2.jpg",
   lead_together:   'images/lead_together.jpg',
   lead_hard:       "images/corridor_pressure_1.jpg",
   lead_watch:      "images/corridor_pressure_2.jpg",
