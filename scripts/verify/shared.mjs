@@ -13,6 +13,7 @@ export const EXPECTED_SCRIPTS = [
   "src/engine-save.js",
   "src/engine.js",
   "src/validate.js",
+  "src/memory-board.js",
   "src/hitl-unshadow.js",
   "src/review-build-stamp.js"
 ];

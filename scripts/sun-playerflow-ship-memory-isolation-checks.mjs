@@ -4,14 +4,17 @@
 // comment); shipMemoryRead( is called only inside the five allowlisted surface functions; no scene
 // file or state.js code names shipMemory; the save, rule and ending-text functions do not read it;
 // resolveEnding only calls the run recorder, after the ending text is set; the engine's hooks are
-// the four guarded recorder calls; src/ship-memory.js draws no random numbers.
+// the four guarded recorder calls and the three guarded ship-remembers line calls
+// (SUN-SHIP-REMEMBERS-01); src/ship-memory.js draws no random numbers.
 //
 // Dynamic (paired): seeded real-play runs (no-repeat-lap runner pattern: fresh campaign, recovery
 // only through its own scenes, seeded Math.imul LCG for the game and the picker, #choices cleared
 // between screens) played three times — memory empty, full (all endings, all crew lost, every
 // plate, every fork branch, a full trail) and corrupt. Per run: the same scene path, story text,
 // plate, rendered choices (text, enabled, reason) at every screen, the same final state, ending
-// title and text, and What Remains text. No difference is allowed: no surface reads memory yet.
+// title and text, and What Remains text. The only difference allowed (design §2): one
+// <p class="ship-remembers"> on the fresh wake screen, present with memory full, absent with memory
+// empty or corrupt, and on no other screen.
 // SHIP_MEMORY_ISOLATION_RUNS overrides the run count (default 200).
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
@@ -29,6 +32,9 @@ const MAX_STEPS = 700;
 const SEED = 54;
 const SURFACE_READERS = ["renderGallery", "renderMemoryBoard", "shipRemembersTitleLine", "shipRemembersToneLine", "shipRemembersWakeLine"];
 const ENGINE_HOOKS = ["shipMemoryNotePlate", "shipMemoryNoteScene", "shipMemoryClearTrail", "shipMemoryRecordRun"];
+// SUN-SHIP-REMEMBERS-01: the engine places the three lines; it calls each reader only behind a typeof guard.
+const ENGINE_LINE_HOOKS = ["shipRemembersTitleLine", "shipRemembersToneLine", "shipRemembersWakeLine"];
+const REMEMBERS_RE = /<p class="ship-remembers">[^<]*<\/p>/g;
 // Functions that decide or print outcomes, or carry the run save: none may name the memory.
 const MUST_NOT_READ = ["snapshotState", "applySnapshot", "validImportedSnapshot", "buildSaveExport", "persistSave",
   "whatRemainsFacts", "crewEpilogues", "meetsRequirements", "canAffordEffects", "showWhatRemains"];
@@ -140,15 +146,26 @@ export function shipMemoryIsolationStaticChecks(root = ROOT) {
   const ending = engineFiles.map(path => functionBody(code[path], "resolveEnding")).find(Boolean);
   if (!ending) errors.push("could not find resolveEnding");
   else {
-    const refs = [...ending.matchAll(/\b(shipMemory\w*|SHIP_MEMORY\w*)/g)].map(m => m[1]);
+    const refs = [...ending.matchAll(/\b(shipMemory\w*|SHIP_MEMORY\w*|shipRemembers\w*|SHIP_REMEMBERS\w*)/g)].map(m => m[1]);
     if (refs.some(ref => ref !== "shipMemoryRecordRun")) errors.push(`resolveEnding references ${refs.join(", ")}`);
     const recordAt = ending.lastIndexOf("shipMemoryRecordRun(");
     const textAt = ending.indexOf('getElementById("ending-text").textContent = text');
     if (recordAt < 0) errors.push("resolveEnding does not record the run");
     else if (textAt < 0 || recordAt < textAt) errors.push("resolveEnding records the run before the ending text is set");
   }
-  for (const m of engineCode.matchAll(/\b(shipMemory\w*|SHIP_MEMORY\w*)/g)) {
-    if (!ENGINE_HOOKS.includes(m[1])) errors.push(`engine references ${m[1]}, not one of the recorder hooks`);
+  for (const m of engineCode.matchAll(/\b(shipMemory\w*|SHIP_MEMORY\w*|shipRemembers\w*|SHIP_REMEMBERS\w*)/g)) {
+    if (!ENGINE_HOOKS.includes(m[1]) && !ENGINE_LINE_HOOKS.includes(m[1])) errors.push(`engine references ${m[1]}, not one of the recorder or line hooks`);
+  }
+  for (const name of MUST_NOT_READ.concat("resolveEnding", "showWhatRemains", "showCinematic")) {
+    const owner = engineFiles.find(path => functionBody(code[path], name));
+    const body = owner && functionBody(code[owner], name);
+    if (body && /shipRemembers|wakeRemembersArmed/.test(body)) errors.push(`${name} (${owner}) places a ship-remembers line`);
+  }
+  for (const hook of ENGINE_LINE_HOOKS) {
+    const calls = [...engineCode.matchAll(new RegExp(`\\b${hook}\\s*\\(`, "g"))].length;
+    const guards = [...engineCode.matchAll(new RegExp(`typeof\\s+${hook}\\s*===\\s*"function"\\s*\\?\\s*${hook}\\s*\\(`, "g"))].length;
+    if (calls !== 1) errors.push(`engine calls ${hook} ${calls} times, expected once`);
+    else if (guards !== 1) errors.push(`engine calls ${hook} without the typeof guard`);
   }
   for (const hook of ENGINE_HOOKS) {
     const calls = [...engineCode.matchAll(new RegExp(`\\b${hook}\\s*\\(`, "g"))].length;
@@ -217,9 +234,13 @@ function playChunk(runtime, mode, chunk, runs) {
       if (memoryValue === null) localStorage.removeItem(${JSON.stringify(KEY)});
       else localStorage.setItem(${JSON.stringify(KEY)}, memoryValue);
     };
+    const remembered = [];
     const screen = () => {
       const img = document.getElementById("scene-image");
-      return [state.scene, document.getElementById("story").innerHTML,
+      // SUN-SHIP-REMEMBERS-01: the wake line is lifted out and reported per screen, so the rest compares.
+      const story = document.getElementById("story").innerHTML;
+      remembered.push((story.match(${REMEMBERS_RE}) || []).length);
+      return [state.scene, story.replace(${REMEMBERS_RE}, ""),
         img && typeof img.__ssManagedSource === "string" ? img.__ssManagedSource : "",
         Array.from(choicesEl.children).map(b => [b.innerHTML, !!b.disabled])];
     };
@@ -255,7 +276,8 @@ function playChunk(runtime, mode, chunk, runs) {
           ending: outcome === "ended" ? [document.getElementById("ending-title").textContent, document.getElementById("ending-text").textContent] : null,
           remains }),
         // SUN-SAVED-RUNS-01: the trail is kept per save slot; count every slot's entries.
-        recorded: { runs: memory.runs, plates: memory.plates.length, trail: Object.values(memory.trail).flat().length }
+        recorded: { runs: memory.runs, plates: memory.plates.length, trail: Object.values(memory.trail).flat().length },
+        remembered: remembered.splice(0)
       });
     }
     return out;
@@ -273,7 +295,7 @@ export function shipMemoryIsolationDynamicChecks() {
       const runs = Math.min(CHUNK, RUNS - chunk * CHUNK);
       for (const run of playChunk(runtime, mode, chunk, runs)) {
         results[mode].push({
-          chunk, runSeed: run.runSeed, outcome: run.outcome, steps: run.steps, recorded: run.recorded,
+          chunk, runSeed: run.runSeed, outcome: run.outcome, steps: run.steps, recorded: run.recorded, remembered: run.remembered,
           digest: createHash("sha256").update(run.transcript).digest("hex")
         });
       }
@@ -290,6 +312,14 @@ export function shipMemoryIsolationDynamicChecks() {
         errors.push(`empty-store run ${i} (chunk ${run.chunk}, seed ${run.runSeed}) did not record as expected: ${JSON.stringify(run.recorded)}`);
       }
     } else errors.push(`empty-store run ${i} (chunk ${run.chunk}, seed ${run.runSeed}) did not end: ${run.outcome}`);
+    for (const mode of ["empty", "full", "corrupt"]) {
+      const got = results[mode][i] && results[mode][i].remembered;
+      const want = mode === "full" ? 1 : 0;
+      // The first screen is the fresh wake; every later screen follows a committed choice.
+      if (!got || got[0] !== want || got.slice(1).some(n => n !== 0)) {
+        errors.push(`run ${i} (seed ${run.runSeed}) with memory ${mode}: ship-remembers lines per screen ${JSON.stringify((got || []).slice(0, 4))}..., expected ${want} on the fresh wake and none after`);
+      }
+    }
     for (const mode of ["full", "corrupt"]) {
       const other = results[mode][i];
       if (!other || other.digest !== run.digest || other.outcome !== run.outcome) {
@@ -314,5 +344,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     process.exit(1);
   }
   console.log(`PASS sun-playerflow-ship-memory-isolation (static allowlist; ${dynamic.runs} seeded runs x memory empty/full/corrupt, ` +
-    `${dynamic.ended} ended, ${dynamic.screens} screens each: identical path, text, plates, choices, final state, endings and What Remains; ${seconds}s)`);
+    `${dynamic.ended} ended, ${dynamic.screens} screens each: identical path, text, plates, choices, final state, endings and What Remains; ` +
+    `the one difference is the fresh wake's ship-remembers line with memory full; ${seconds}s)`);
 }
