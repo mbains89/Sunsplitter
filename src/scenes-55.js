@@ -272,10 +272,13 @@ for (const [who, next] of Object.entries({ amara: "lead_prompt", lena: "past_lea
 for (const who of ["amara", "lena"]) {
   requireLivingCast(`prom_make_${who}_ag prom_r_${who}_ag`, [who], "debt_notice");
 }
-for (const [test, holder, next] of [["deck4", "elias", "prom_line"], ["direct", "mira", "faction_split"], ["price", "sela", "custody_hub"]]) {
+// SUN-PROMISE-FORWARD-01: Elias's, Lena's and Mira's tests run before their lethals while crisisPath is
+// null, so an absent holder exits back to that lethal pre-crisis and to the post-crisis ladder after it.
+const promiseExit = (pre, post) => () => state.crisisPath == null ? pre : post;
+for (const [test, holder, next] of [["deck4", "elias", promiseExit("act3_lethal_elias_order", "prom_line")], ["direct", "mira", promiseExit("act3_lethal_mira_board", "faction_split")], ["price", "sela", "custody_hub"]]) {
   requireLivingCast(`prom_${test} prom_${test}_keep prom_${test}_break`, [holder], next);
 }
-for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["jiro", "vess"]], ["line", "lena", "prom_direct", ["mira", "jiro", "vess"]]]) {
+for (const [test, holder, next, patients] of [["vent", "amara", "prom_deck4", ["jiro", "vess"]], ["line", "lena", promiseExit("act3_lethal_lena_clock", "prom_direct"), ["mira", "jiro", "vess"]]]) {
   const patientPresent = () => patients.includes(state.flags.prom_line_other) && isAlive(state.flags.prom_line_other);
   // The original entry selects the patient. A marked resume must NOT select again.
   requireLivingCast(`prom_${test}`, [holder], next, { render: patientPresent });
