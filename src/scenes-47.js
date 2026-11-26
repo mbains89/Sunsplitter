@@ -24,7 +24,7 @@ registerScenes({
     get text() {
       let t = state.crisisPath === "breath" ? `It arrives as arithmetic and lands as a crowd.
 
-The rumor has moved off the late arrivals. A petition is already on the mess board: marks, not signatures. It does not ask for a vent. The air is failing, and the racks that could buy it back have a keeper. The ask never uses the word, but it has a shape, and the shape is Sela. Put the vault's keeper out of its keeping. Give fear a body it can spend.` : `It arrives as arithmetic and lands as a crowd.
+The rumor has moved off the late arrivals. A petition is already on the mess board: marks, not signatures. It does not ask for a vent. The air is failing, and the racks that could buy it back have a keeper. The ask never uses her name, but it has a shape, and the shape is Sela. Put the vault's keeper out of its keeping. Give fear a body it can spend.` : `It arrives as arithmetic and lands as a crowd.
 
 Three of the crew came to you separately inside one watch. A petition is on the mess board by second shift: marks, not signatures. The ask never uses the word, but it has a shape, and the shape is Sela. Put the vault's keeper out of its keeping. Give fear a body it can spend.`;
       if (isAlive("vess")) t += `\n\n"Dawnbreak had a petition like this once," Vess says. "I have it filed under: before."`;

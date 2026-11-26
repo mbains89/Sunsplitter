@@ -67,18 +67,18 @@ registerScenes({
   },
 
   // PRE: breath_hub's free trunks choice | WRITES: entry records breath_answer; SUN-PROMISE-BREATH-01
-  //   (decision 27, Hex design A step 4): a made promise to a living Tomas breaks here, but only if the
-  //   hub had another way open. The trunks' own choices pay after entry, so the resources read here
-  //   are still the hub's. With no other way open the promise stays made (untested, L-024).
+  //   (decision 27, Hex design A step 4; Myth read): a made promise to a living Tomas breaks here, but
+  //   only if the racks were open at the hub, so the vault could have paid instead. The trunks' own
+  //   choices pay after entry, so the resources read here are still the hub's. With the racks closed
+  //   the promise stays made (untested, L-024), even if garden or black sleep was open.
   // DEATH: none (the break kills no one, ruling a) | DEAD SPEECH/APPEARANCE: none here | IMAGE: reuse
   breath_trunks: {
     image: "images/corridor_pressure_3.jpg",
     onEnter: () => {
       state.flags.breath_answer = "trunks";
       if (state.promises.tomas === "made" && isAlive("tomas")) {
-        const otherWayOpen = scenes.breath_hub.choices.some(c => c.next !== "breath_trunks" &&
-          (!c.alive || isAlive(c.alive)) && meetsRequirements(c.requires) && canAffordEffects(c.effects));
-        if (otherWayOpen) {
+        const racks = scenes.breath_hub.choices.find(c => c.next === "breath_racks");
+        if (meetsRequirements(racks.requires) && canAffordEffects(racks.effects)) {
           state.promises.tomas = "broken";
           remember("You broke the promise to Tomas. Crew went into the trunks.");
         }
@@ -163,7 +163,7 @@ registerScenes({
       // SUN-PROMISE-BREATH-01: one Tomas line per outcome; the break line is the promise's quote-back on
       // this path (the Custody quote-back is in custody_after, so a run renders at most one of them).
       if (state.promises.tomas === "broken" && state.flags.breath_answer === "trunks" && isAlive("tomas"))
-        t += `Tomas has the trunk roster in his hand, every name on it. "You said: if the vault and the living need the same mercy, the living get it. There was another way on that board. I counted them into the trunks and out again, Commander. Same names. Not the same lungs."\n\n`;
+        t += `Tomas has the trunk roster in his hand, every name on it. "You said: if the vault and the living need the same mercy, the living get it. The racks were on that board. I counted them into the trunks and out again, Commander. Same names. Not the same lungs."\n\n`;
       else if (state.promises.tomas === "kept" && state.flags.breath_answer !== "trunks" && isAlive("tomas"))
         t += `Tomas reads the shift board twice, names, not numbers. Nobody on it went into the trunks. "Whatever it cost instead," he says, "put me down for a share."\n\n`;
       t += `The ship has a path again. The fracture has not closed.`;

@@ -6,8 +6,8 @@
 //     petition elsewhere; keep and break return to breath_hub on Breath and custody_hub on Custody; a
 //     dead Sela's saved test exits to the hub of the run's own path.
 //   - Tomas: racks, garden or black sleep keep his made promise at breath_after with one Tomas line;
-//     breath_trunks breaks it only while another way was open at the hub, with the quote-back; forced
-//     trunks or a dead Tomas leave it made and say nothing.
+//     breath_trunks breaks it only while the racks were open at the hub (Myth read), with the quote-back;
+//     racks closed (even with garden or black sleep open) or a dead Tomas leave it made and say nothing.
 //   - Ruling (a): in seeded real play no promise resolves in the same choice that kills its holder,
 //     and each promise sentence renders at most twice in a run (make and quote-back).
 import assert from "node:assert/strict";
@@ -67,6 +67,8 @@ const fixtures = JSON.parse(loadGame(ROOT).evaluate(`JSON.stringify((() => {
     blacksleep: tomas("breath_blacksleep", () => {}),
     trunksOpen: tomas("breath_trunks", () => {}),
     trunksOnlyBlacksleep: tomas("breath_trunks", () => { state.embryos = 0; state.supplies = 4; }),
+    trunksGardenAndBlacksleep: tomas("breath_trunks", () => { state.embryos = 0; state.supplies = 10; }),
+    trunksRacksLowCohesion: tomas("breath_trunks", () => { state.cohesion = 1; }),
     trunksForced: tomas("breath_trunks", () => { state.embryos = 0; state.supplies = 3; }),
     trunksForcedDeadHelpers: tomas("breath_trunks", () => { state.embryos = 0; kill("amara", "fixture"); kill("lena", "fixture"); }),
     deadRacks: tomas("breath_racks", () => kill("tomas", "fixture")),
@@ -119,12 +121,12 @@ for (const key of ["racks", "garden", "blacksleep"]) {
   assert.ok(t[key].text.includes(TOMAS_KEPT) && !t[key].text.includes(TOMAS_BROKEN) && !t[key].text.includes(QUOTE_TOMAS), `Tomas ${key}: wrong line`);
   assert.equal(t[key].killed, 0, `Tomas ${key}: someone died`);
 }
-for (const key of ["trunksOpen", "trunksOnlyBlacksleep"]) {
-  assert.equal(t[key].atAnswer, "broken", `Tomas ${key}: the open hub did not break the promise at breath_trunks`);
+for (const key of ["trunksOpen"]) {
+  assert.equal(t[key].atAnswer, "broken", `Tomas ${key}: open racks did not break the promise at breath_trunks`);
   assert.ok(t[key].text.includes(TOMAS_BROKEN) && t[key].text.includes(QUOTE_TOMAS) && !t[key].text.includes(TOMAS_KEPT), `Tomas ${key}: the quote-back did not render`);
   assert.equal(t[key].killed, 0, `Tomas ${key}: ruling (a) - the break killed someone`);
 }
-for (const key of ["trunksForced", "trunksForcedDeadHelpers", "deadRacks", "deadTrunks"]) {
+for (const key of ["trunksOnlyBlacksleep", "trunksGardenAndBlacksleep", "trunksRacksLowCohesion", "trunksForced", "trunksForcedDeadHelpers", "deadRacks", "deadTrunks"]) {
   assert.equal(t[key].final, "made", `Tomas ${key}: an untestable promise resolved (L-024)`);
   assert.ok(!t[key].text.includes(TOMAS_KEPT) && !t[key].text.includes(TOMAS_BROKEN) && !t[key].text.includes(QUOTE_TOMAS), `Tomas ${key}: an untested or dead Tomas spoke`);
   assert.ok(!/promised to Tomas|promise to Tomas/i.test(t[key].remains), `Tomas ${key}: an untested promise reached What Remains`);
