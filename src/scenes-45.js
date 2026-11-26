@@ -15,8 +15,12 @@ registerScenes({
       const v = state.flags.prom_line_other;
       if (!v || !crew[v] || !isAlive(v)) return `The service run reads clear. The loop holds.`;
       const name = crew[v].first;
+      // SUN-PROMISE-FORWARD-01 (Myth read): prom_line now runs first, so after a kept shared line Jiro
+      // has already said his "twice before" line once; he counts on instead of repeating it.
       const line = v === "jiro"
-        ? `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`
+        ? (state.promises.lena === "kept"
+          ? `"That makes four times out of margin," Jiro says over the panel channel, even now. "Last time Lena covered the difference. Take the reading, Commander. Same rule: no kind numbers."`
+          : `"I've run out of margin twice before," Jiro says over the panel channel, even now. "Take the reading, Commander. Don't round it kindly."`)
         : `"Dawnbreak protocol for shared air was: youngest yields," Vess says, log-flat. "I never got to yield. Filed, in case it matters now."`;
       return `The biofilm is not finished. Its last pocket re-blooms in the dead-end service run behind the scrubber manifold, and the loop's answer is already queued: vent the pocket, keep the margin it just paid for.
 

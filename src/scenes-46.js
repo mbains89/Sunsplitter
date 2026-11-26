@@ -32,7 +32,7 @@ ${state.promises.amara === "kept"
 "Dawnbreak protocol for shared air was: youngest yields," she says, flat. "I never got to yield. Filed, in case it matters now."`;
       return `The med-loop fails its load test mid-cycle. One sustained line survives the fault.
 
-Lena is on the floor beside her own crash cart before the alarm finishes. ${state.crisisPath == null ? "The exposure on her own chart has started to collect." : "The exposure the circuit never reversed is finally collecting."}
+Lena is on the floor beside her own crash cart before the alarm finishes. ${state.crisisPath == null ? "The exposure on her chart is coming due." : "The exposure nothing aboard could reverse is finally collecting."}
 
 ${intro}
 
