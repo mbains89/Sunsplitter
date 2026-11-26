@@ -331,6 +331,7 @@ Strict candidate simulation remains random, cheapest, and priciest at seed `2026
 ### Systemic-truth law
 
 - **L-024:** an untested dead holder remains `made` and is omitted from reflection; never invent a betrayal.
+  - **Decision 27 (Manraj, 2026-11-25).** A promise never resolves as broken in the same act that kills its holder; that moment gets an at-stake line instead. Lena's, Elias's and Mira's promise tests run just before their own Act 3 lethal scenes (VC-09/VC-10 follow), and Elias's test also runs on `proper_seal`. The higher Jiro death rate this brings (about 86 in 800 seeded runs, from 16) is accepted.
 - **L-026:** Last Off-Shift zero/one routes remain defensive save-recovery guards and preserve `junctionChoice`.
 - **L-027:** `vess_course_lost` and its promised downstream course are retired; do not add a consumer.
 - V2 stays a classified spike detector. V1, V3, V4, V5, and approved V6 semantics are hard at candidate closure, which this file does not authorize.
@@ -628,6 +629,7 @@ Rules that bind every wave:
 **Exit (gate 1):** Manraj plays a full run on the tip, and one person who has never seen the game reads a full run. Scene coverage, verify and the browser bot are green at the tip; face exposures stay at zero.
 
 **Hard holds:** ART-R2 beyond people-free fallbacks; audio; any meter or score; new named crew.
+**Ruled 2026-11-25 (decision 26):** no cap of one late hour a night for now; #557 stays unmerged.
 
 ### 0.38 — Wave 2: Replay Tools
 
