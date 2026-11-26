@@ -207,7 +207,7 @@ function desktopCompositionChecks() {
     ["grid-column: 2", "prose placement beside scene art"],
     ["width: min(calc(100% - 32px), 48dvh, 430px)", "portrait plate desktop sizing"],
     ["max-width: 68ch", "desktop prose line-length cap"],
-    ["font-size: 1.08rem", "desktop prose type scale"]
+    ["font-size: 1.02rem", "prose type scale (one size at every width, D5a 2026-11-25)"]
   ];
   for (const [rule, label] of requiredRules) {
     if (!cssSource.includes(rule)) errors.push(`0.32 desktop composition missing ${label}`);

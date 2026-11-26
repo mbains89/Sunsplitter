@@ -1,0 +1,56 @@
+/* SUN-READER-TYPE-01 — reader settings "Size" and "Spacing" (Wave 2 design, WS6 §6-7).
+   Linked last in index.html. engine.js sets data-text-size / data-line-spacing on <html> from the
+   reader's choice (never from run state) and removes them at "standard", where every value below
+   computes to exactly what css/style.css sets. Only the reading surfaces scale: scene text, choices,
+   a locked choice's reason and its cost tags, ending and What Remains text, cinematic captions.
+   Chrome does not: status bar, meta bar, Read on / Show all, title chips, crew panel. Browser zoom and
+   the OS text size still multiply on top. D5(a), 2026-11-25: one scene-text size at every width
+   (the dead 1.08rem desktop rule is gone). */
+:root {
+  --reader-size: 1;
+  --reader-leading: 1;
+}
+
+html[data-text-size="large"] { --reader-size: 1.15; }
+html[data-text-size="larger"] { --reader-size: 1.3; }
+html[data-text-size="largest"] { --reader-size: 1.5; }
+html[data-line-spacing="relaxed"] { --reader-leading: 1.13; }
+html[data-line-spacing="open"] { --reader-leading: 1.28; }
+
+.scene-text {
+  font-size: calc(1.02rem * var(--reader-size));
+  line-height: calc(1.72 * var(--reader-leading));
+}
+
+.choice-btn {
+  font-size: calc(1rem * var(--reader-size));
+  line-height: calc(1.4 * var(--reader-leading));
+}
+
+.choice-reason {
+  font-size: calc(0.72rem * var(--reader-size));
+}
+
+/* Cost tags scale with the choice they price: costs decide choices (Muse and lead, 2026-11-26). */
+.choice-effects {
+  font-size: calc(0.78rem * var(--reader-size));
+}
+
+.ending-text {
+  font-size: calc(1rem * var(--reader-size));
+  line-height: calc(1.75 * var(--reader-leading));
+}
+
+.cinematic-caption {
+  font-size: calc(1.1rem * var(--reader-size));
+  line-height: calc(1.7 * var(--reader-leading));
+}
+
+/* Title: the two settings sit in the "Reader settings" group under Text pace, each chip above its
+   button, laid out like the text-pace chip (css/paced-reveal.css). */
+.reader-settings-actions .text-size-chip,
+.reader-settings-actions .line-spacing-chip {
+  flex: 1 0 100%;
+  margin: 0;
+  text-align: center;
+}
