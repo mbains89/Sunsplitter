@@ -41,7 +41,8 @@ registerScenes({
 
   // ═══ SCENE DECLARATION ═══════════════════════════════════════════
   // SCENE_ID: pair_shield_cold
-  // PRECONDITIONS: Elias alive; Mira dead from an attributable cause;
+  // PRECONDITIONS: Elias alive; Mira dead by Commander call (miraDiedByCommanderCall: an
+  //   attributable cause, or the shared medical line moved to Lena);
   //   pair_shield not already spent on fresh entry
   // STATE WRITES: eligible fresh entry sets pair_shield and records one memory;
   //   invalid or spent fresh entry redirects to faction_split
@@ -54,14 +55,14 @@ registerScenes({
   pair_shield_cold: {
     image: "images/elias.jpg",
     onEnter: () => {
-      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira") || state.flags.pair_shield) {
+      if (!isAlive("elias") || isAlive("mira") || !miraDiedByCommanderCall() || state.flags.pair_shield) {
         return "faction_split";
       }
       state.flags.pair_shield = true;
       remember("Elias said she was what the job was for");
     },
     get text() {
-      if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
+      if (!isAlive("elias") || isAlive("mira") || !miraDiedByCommanderCall()) {
         return `The watch report remains in the command log. There is no private accounting to add. The ship moves on.`;
       }
       return `Elias gives the watch report in full sentences with nothing in them. When it's done he doesn't leave. "You never asked what the job was for. She was what the job was for." He says it at the bulkhead, not at you, and it is the only time he will ever say it. "You did the math. I'm not arguing the math. Live in it like I have to." After that, "Commander" is the warmest word you get. On his table, from then on: a torn jacket, kit closed beside it, unmended on purpose.`;
