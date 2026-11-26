@@ -64,7 +64,7 @@ registerScenes({
   arc_living_4: {
     get text() {
       let t = `Power, food, and hull come due on the same board.\n\n`;
-      t += `You can stabilize the ring for another stretch by burning supply margin. You can protect the margin and accept colder corridors. You can ask the crew to work a double cycle for a temporary patch that will fail later.\n\n`;
+      t += `You can stabilize the ring for another stretch by burning supply margin. You can protect the margin and accept colder corridors.\n\n`;
       if (hasMark("conflict", "held") && isAlive("tomas")) {
         t += `Tomas is present and silent. Holding the line earlier has a cost in how he looks at the options.\n\n`;
       }
