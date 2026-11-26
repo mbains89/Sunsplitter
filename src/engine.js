@@ -486,8 +486,8 @@ function beginFreshCampaign(opts) {
     activeSaveSlot = slot;
     writeCurrentSlotPointer(slot);
   }
-  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
-  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
+  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet (in its slot; SUN-SAVED-RUNS-01).
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   wakeRemembersArmed = true; // SUN-SHIP-REMEMBERS-01: this wake, and its first look after the intro
   showScreen("game");
@@ -737,7 +737,7 @@ function showScene(id, opts) {
     }
   }
   // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
-  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id);
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, activeSaveSlot);
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -1655,7 +1655,7 @@ function resolveEnding() {
   setEndingArt(art);
   showScreen("ending");
   // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
-  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title);
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, activeSaveSlot);
 }
 
 function showWhatRemains() {

@@ -11,7 +11,8 @@
 //      gets no line; a recorded romance takes the place of the stay-or-step-back sentence;
 //   4. seeded real play (fresh campaign, recovery only through its own scenes): at every screen,
 //      every living listed member with a mark gets words, and no board detail shows a raw tag;
-//   5. the four title chips #565 listed as internal-sounding now read as plain words.
+//   5. the content notice chip #565 listed as internal-sounding reads as plain words (the export/import
+//      and New run chips are SUN-SAVED-RUNS-01's since #594).
 // It reads state only; no state key, flag or scene field is added.
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -261,49 +262,21 @@ export function sunPlayerflowCrewMarkWordsChecks() {
   if (play.raw.length) errors.push(`real play: board shows a raw tag: ${JSON.stringify(play.raw.slice(0, 4))}`);
   if (play.ended < RUNS * 0.9) errors.push(`real play: only ${play.ended}/${RUNS} runs reached the ending`);
 
-  // Part 5: the four title chips #565 listed (open question 4).
+  // Part 5: the title chips #565 listed as internal-sounding (its open question 4). SUN-SAVED-RUNS-01
+  // (#594) moved the export/import chip into the Saved runs dialog with its own words and paints the
+  // New run confirm per slot (S-3's picker replaces it next), so those are #594's and not pinned here.
+  // The content notice chip stays on the title in plain words; the export/import pair stays retired.
   const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
   const save = readFileSync(resolve(ROOT, "src/engine-save.js"), "utf8");
   const retired = [
     "Import anytime · Export appears when a durable slot exists",
     "Export ready · Import anytime (durable local slot)",
-    "Confirm = overwrite slot · Cancel = keep Continue",
     "Reopens tone notice · does not clear notice acknowledged or save"
   ];
   for (const old of retired) if (html.includes(old) || save.includes(old)) errors.push(`title chip still reads ${JSON.stringify(old)}`);
-  // A fresh runtime: the real-play pass above stubbed persistSave. The headless DOM does not parse
-  // index.html, so the two static chips are read from the markup and the export chip from the paint.
-  const chips = loadGame(ROOT).evaluate(`(() => {
-    const read = id => String(document.getElementById(id).textContent || "");
-    localStorage.clear();
-    resetRunState();
-    showScreen("title");
-    refreshTitleResumeUI();
-    const empty = read("export-import-chip");
-    showScene("wake");
-    persistSave({ silent: true });
-    showScreen("title");
-    refreshTitleResumeUI();
-    const saved = read("export-import-chip");
-    return JSON.stringify({ empty, saved });
-  })()`);
-  const staticChip = id => (html.match(new RegExp(`<p id="${id}"[^>]*>([^<]*)</p>`)) || [])[1] ?? null;
-  const painted = Object.assign(JSON.parse(chips), {
-    staticEmpty: staticChip("export-import-chip"),
-    confirm: staticChip("new-run-confirm-chip"),
-    notice: staticChip("content-notice-chip")
-  });
-  const plain = {
-    empty: "Import a save file anytime · Export appears once a run is saved",
-    staticEmpty: "Import a save file anytime · Export appears once a run is saved",
-    saved: "Export your run to a file · Import one anytime",
-    confirm: "Confirm replaces your saved run · Cancel keeps it",
-    notice: "Shows the content notice again · nothing is reset"
-  };
-  for (const [key, text] of Object.entries(plain)) {
-    if (painted[key] !== text) errors.push(`title chip ${key}: ${JSON.stringify(painted[key])} != ${JSON.stringify(text)}`);
-    if (/=|durable|acknowledged|\(|_/.test(painted[key])) errors.push(`title chip ${key} still reads as internal: ${JSON.stringify(painted[key])}`);
-  }
+  const notice = (html.match(/<p id="content-notice-chip"[^>]*>([^<]*)<\/p>/) || [])[1] ?? null;
+  const plainNotice = "Shows the content notice again · nothing is reset";
+  if (notice !== plainNotice) errors.push(`content notice chip: ${JSON.stringify(notice)} != ${JSON.stringify(plainNotice)}`);
 
   return { errors, pinned, play };
 }
@@ -317,5 +290,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   }
   console.log(`PASS sun-playerflow-crew-mark-words (${pinned} scene-written crew mark tags each paint their own words; ` +
     `${play.ended}/${RUNS} seeded runs, ${play.screens} screens, ${play.worded} worded board reads, no raw tag; ` +
-    `${play.seen.length} tags met in play; four title chips plain)`);
+    `${play.seen.length} tags met in play; content notice chip plain)`);
 }

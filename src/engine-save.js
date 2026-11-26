@@ -1,6 +1,7 @@
 // Sunsplitter — engine-save.js
 // Save / resume: the save keys and schema limits, snapshot and apply, save export and import,
-// autosave (persistSave), load and resume, and the title screen's resume line.
+// autosave (persistSave), load and resume, the title screen's resume line, and the title's Saved runs
+// dialog (rows and actions; SUN-SAVED-RUNS-01).
 // Moved out of src/engine.js unchanged (SUN-CLEAN-ENGINE-SAVE-01, L-043). A plain script that
 // index.html loads just before engine.js, so everything here exists before engine.js runs.
 // Three run variables it uses are declared in engine.js: loadedGameVersion, pendingLegacyResume
@@ -65,8 +66,9 @@ const SAVE_SLOT_KEYS = Object.freeze({
     legacy: null
   })
 });
-// The slot this tab plays and saves. Set by a new run (its target slot) and by Continue or Load
-// (the slot loaded); an import does not change it. Never stored except through the pointer.
+// The slot this tab plays and saves. Set by a new run (its target slot) and by a Continue or Load
+// that succeeds (the slot loaded; a failed one leaves it as it was); an import does not change it.
+// Never stored except through the pointer.
 let activeSaveSlot = 1;
 
 function isSaveSlot(n) {
@@ -453,8 +455,10 @@ function buildSaveExport(slot) {
   };
 }
 
+// The Saved runs dialog's Export save button (SUN-SAVED-RUNS-01). It exports the slot of the row the
+// player selected, read once here and passed on explicitly; it never falls back to activeSaveSlot.
 function exportSaveFile() {
-  const prepared = buildSaveExport();
+  const prepared = buildSaveExport(savedRunsActionSlot());
   if (!prepared) {
     flashSaveStatus("No valid save to export", true, true);
     return false;
@@ -475,7 +479,7 @@ function buildUnreadableSaveExport(slot) {
 }
 
 function exportUnreadableSaveFile() {
-  const prepared = buildUnreadableSaveExport();
+  const prepared = buildUnreadableSaveExport(savedRunsActionSlot());
   if (!prepared) {
     flashSaveStatus("No unreadable save to download", true, true);
     return false;
@@ -580,15 +584,17 @@ function commitImportedSave(raw, slot) {
     const message = priorRecoverable
       ? "Import failed · original slot kept"
       : (hadOriginal ? "Import failed · storage recovery required" : "Import failed · no replacement written");
-    flashSaveStatus(message, true, true);
     updateMetaSaveHint();
+    // Repaint first, so the title's unreadable-slot line cannot replace the failure (SUN-SAVED-RUNS-01).
     refreshTitleResumeUI();
+    flashSaveStatus(message, true, true);
     return false;
   }
   if (!pendingLegacyResume || pendingLegacyResume.slot === slot) pendingLegacyResume = null;
   if (slot === activeSaveSlot) preserveCompletedSlotUntilChoice = false;
   writeCurrentSlotPointer(slot);
-  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(); // SUN-MEMORY-STORE-01 (L-054)
+  // SUN-MEMORY-STORE-01 (L-054): the imported run has faced no hard calls in this slot yet.
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
@@ -614,9 +620,10 @@ function importSaveText(text, slot) {
     flashSaveStatus("Import failed · storage unavailable", true, true);
     return false;
   }
+  // SUN-SAVED-RUNS-01: the prompt names the slot the file goes into.
   const prompt = hasStoredBytes
-    ? "Import this save? This will replace the saved run on this device."
-    : "Import this save onto this device?";
+    ? `Import this save into Slot ${slot}? This will replace the saved run in that slot.`
+    : `Import this save into Slot ${slot}?`;
   if (!window.confirm(prompt)) {
     flashSaveStatus("Import cancelled");
     return false;
@@ -624,9 +631,12 @@ function importSaveText(text, slot) {
   return commitImportedSave(inspected.raw, slot);
 }
 
+// The Saved runs dialog's Import save button. The selected row's slot is read here, before the file
+// picker opens, and kept on the input until the file arrives, so the file goes into that slot.
 function requestSaveImport() {
   const input = document.getElementById("save-import-file");
   if (!input) return false;
+  if (typeof input.setAttribute === "function") input.setAttribute("data-slot", String(savedRunsActionSlot()));
   input.value = "";
   input.click();
   return true;
@@ -645,17 +655,22 @@ function readSaveImportFile(file) {
 async function handleSaveImportSelection(input) {
   const file = input && input.files ? input.files[0] : null;
   if (!file) return false;
+  // The slot requestSaveImport recorded; with none recorded, the selected row. A recorded value
+  // that names no slot fails closed in importSaveText.
+  const recorded = typeof input.getAttribute === "function" ? input.getAttribute("data-slot") : null;
+  const slot = recorded === null ? savedRunsActionSlot() : parseSaveSlot(recorded);
   try {
     if (typeof file.size === "number" && file.size > MAX_IMPORT_BYTES) {
       flashSaveStatus("Import rejected · file is too large", true, true);
       return false;
     }
-    return importSaveText(await readSaveImportFile(file));
+    return importSaveText(await readSaveImportFile(file), slot);
   } catch (e) {
     flashSaveStatus("Import failed · file could not be read", true, true);
     return false;
   } finally {
     input.value = "";
+    if (typeof input.removeAttribute === "function") input.removeAttribute("data-slot");
   }
 }
 
@@ -841,6 +856,17 @@ function saveGame() {
   return saved;
 }
 
+// Back to the title after a failed load, keeping the failure the player needs to read: the title
+// repaint can post the sticky unreadable-slot line, so the failure is posted again after it
+// (SUN-SAVED-RUNS-01; the same order commitImportedSave uses).
+function showTitleKeepingSaveStatus() {
+  const el = document.getElementById("title-save-status");
+  const text = el ? String(el.textContent || "") : "";
+  const isError = !!(el && el.classList.contains("error"));
+  showTitleScreen();
+  if (text) flashSaveStatus(text, isError, true);
+}
+
 // Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
   wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: Continue, Load and an imported save are not fresh runs
@@ -865,7 +891,7 @@ function loadGame() {
     }
     loadedGameVersion = pendingLegacyResume.loadedGameVersion;
     if (!persistSave({ silent: true, slot })) {
-      showTitleScreen();
+      showTitleKeepingSaveStatus();
       return false;
     }
     pendingLegacyResume = null;
@@ -902,7 +928,7 @@ function loadGame() {
       loadedGameVersion,
       slot
     };
-    showTitleScreen();
+    showTitleKeepingSaveStatus();
     return false;
   }
   preserveCompletedSlotUntilChoice = false;
@@ -912,11 +938,44 @@ function loadGame() {
   return true;
 }
 
+// Load one named slot (Continue, and the Saved runs dialog's Load). The slot becomes active only
+// if the load succeeds: a failed load puts the previous active slot back, so no later title action
+// (New run, the in-run Save) can land on a slot the player only tried to open (SUN-SAVED-RUNS-01).
+function loadSaveSlot(slot) {
+  slot = parseSaveSlot(slot);
+  if (!slot || !hasSave(slot)) {
+    flashSaveStatus("No save", true);
+    return false;
+  }
+  const previous = activeSaveSlot;
+  activeSaveSlot = slot;
+  let ok = false;
+  let threw = true;
+  try {
+    ok = loadGame();
+    threw = false;
+  } finally {
+    if (!ok) {
+      // Put the previous slot back when the load did not take: it returned false, or it threw
+      // before leaving the title. A throw after the run is on screen keeps the slot it shows (and
+      // points Continue at it), so the run's next save goes to its own slot.
+      const title = document.getElementById("title-screen");
+      const onTitle = !title || !title.classList.contains("hidden");
+      if (!threw || onTitle) activeSaveSlot = previous;
+      else writeCurrentSlotPointer(slot);
+    }
+  }
+  return ok;
+}
+
 // Continue: resume the slot continueSlot() picks (the pointer's, else the newest readable).
 function resumeGame() {
   const slot = continueSlot();
-  if (slot) activeSaveSlot = slot;
-  return loadGame();
+  if (!slot) {
+    flashSaveStatus("No save", true);
+    return false;
+  }
+  return loadSaveSlot(slot);
 }
 
 // Removes one slot's keys (the active slot by default; slot 1 includes legacy v2). Other slots,
@@ -930,8 +989,11 @@ function clearSave(slot) {
   refreshTitleResumeUI();
 }
 
+// #saved-runs-status repeats the title line inside the Saved runs dialog: a live region outside an
+// aria-modal dialog may not be announced while the dialog is open.
+const SAVE_STATUS_TARGETS = ["save-status", "title-save-status", "saved-runs-status"];
 function flashSaveStatus(msg, isError, sticky) {
-  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")].filter(Boolean);
+  const targets = SAVE_STATUS_TARGETS.map(id => document.getElementById(id)).filter(Boolean);
   if (!targets.length) {
     // Fallback if meta not in DOM yet
     if (isError) try { window.alert(msg); } catch (e) {}
@@ -955,7 +1017,7 @@ function flashSaveStatus(msg, isError, sticky) {
 }
 
 function clearSaveWriteFailure() {
-  const targets = [document.getElementById("save-status"), document.getElementById("title-save-status")]
+  const targets = SAVE_STATUS_TARGETS.map(id => document.getElementById(id))
     .filter(el => el && el.classList.contains("error"));
   if (!targets.length) return;
   clearTimeout(window.__ssSaveFlash);
@@ -978,21 +1040,177 @@ function updateMetaSaveHint() {
   const d = new Date(meta.savedAt);
   const clock = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
-  el.textContent = (paint ? "v" + paint + " · " : "") + "Slot · " + clock;
+  el.textContent = (paint ? "v" + paint + " · " : "") + "Slot " + meta.slot + " · " + clock;
   if (paint) el.setAttribute("data-paint", paint);
   else el.removeAttribute("data-paint");
+}
+
+// ---------- Saved runs (SUN-SAVED-RUNS-01, L-052 design S-2) ----------
+// The title's Saved runs dialog: one row per slot, a radio each, and the actions that apply to the
+// selected row (Load, Export save, Download unreadable save, Import save). Each row's state is read
+// from its own slot. Every action reads the selected row's number once and passes it on explicitly;
+// none of them reads or changes activeSaveSlot except a successful Load (loadSaveSlot).
+// Slot names are derived, never typed (O-2(A)): "Slot N", plus " · callsign" when the run has one.
+
+function formatSaveWhen(savedAt) {
+  if (!savedAt) return "";
+  try {
+    return new Date(savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  } catch (e) {
+    return "";
+  }
+}
+
+function saveSlotName(slot, meta) {
+  return "Slot " + slot + (meta && meta.callsign ? " · " + meta.callsign : "");
+}
+
+// "5 alive · 1 lost" (or "intact"), or "Run finished" for a completed run.
+function saveRunStanding(meta) {
+  if (!meta) return "";
+  if (meta.finished) return "Run finished";
+  const lost = meta.deadCount ? meta.deadCount + " lost" : "intact";
+  return (meta.livingCrew != null ? meta.livingCrew + " alive · " : "") + lost;
+}
+
+// One slot's row, computed from that slot alone. kind: filled, finished, empty or unreadable.
+// current: this is the slot Continue resumes (passed in, so every row compares against one answer).
+function savedRunRow(slot, currentSlot) {
+  slot = parseSaveSlot(slot);
+  if (!slot) return null;
+  let readable = false;
+  let unreadable = false;
+  let meta = null;
+  try { readable = hasSave(slot); } catch (e) { readable = false; }
+  if (readable) {
+    try { meta = getSaveMeta(slot); } catch (e) { meta = null; }
+  } else {
+    try { unreadable = !!unreadableSaveRaw(slot); } catch (e) { unreadable = false; }
+  }
+  const row = {
+    slot,
+    kind: readable ? (meta && meta.finished ? "finished" : "filled") : (unreadable ? "unreadable" : "empty"),
+    current: readable && slot === currentSlot,
+    name: "",
+    detail: ""
+  };
+  if (readable) {
+    const when = formatSaveWhen(meta && meta.savedAt);
+    row.name = saveSlotName(slot, meta);
+    row.detail = [saveRunStanding(meta), when ? "saved " + when : ""].filter(Boolean).join(" · ") +
+      (row.current ? " · Continue loads this" : "");
+  } else if (unreadable) {
+    row.name = "Slot " + slot + " · Can't be read by this version";
+    row.detail = "Download it to keep a copy. Importing into this slot replaces it.";
+  } else {
+    row.name = "Slot " + slot + " · Empty";
+  }
+  return row;
+}
+
+function savedRunsDialogOpen() {
+  const dialog = document.getElementById("saved-runs");
+  return !!(dialog && dialog.classList.contains("visible") && !dialog.classList.contains("hidden"));
+}
+
+// The checked row's slot, or null when no row is checked.
+function savedRunsSelectedSlot() {
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    const radio = document.getElementById("saved-runs-slot-" + slot);
+    if (radio && radio.checked === true) return slot;
+  }
+  return null;
+}
+
+// The row the dialog starts on: the slot Continue resumes, else slot 1.
+function savedRunsDefaultSlot() {
+  let slot = null;
+  try { slot = continueSlot(); } catch (e) { slot = null; }
+  return slot || 1;
+}
+
+// The slot a dialog action acts on: the checked row. Before the dialog has ever been painted (a
+// harness with no markup) that is the row it would start on, never activeSaveSlot.
+function savedRunsActionSlot() {
+  return savedRunsSelectedSlot() || savedRunsDefaultSlot();
+}
+
+const SAVED_RUNS_ACTIONS = [
+  // [button id, visible when, accessible name]
+  ["saved-runs-load", row => row.kind === "filled" || row.kind === "finished", slot => `Load Slot ${slot}`],
+  ["btn-export-save", row => row.kind === "filled" || row.kind === "finished", slot => `Export save from Slot ${slot}`],
+  ["btn-export-unreadable", row => row.kind === "unreadable", slot => `Download unreadable save from Slot ${slot}`],
+  ["btn-import-save", () => true, slot => `Import save into Slot ${slot}`]
+];
+
+// Paint the rows and the selected row's actions. selectSlot picks a row; without one, an open
+// dialog keeps its selection and a closed one returns to its starting row.
+function renderSavedRuns(selectSlot) {
+  let currentSlot = null;
+  try { currentSlot = continueSlot(); } catch (e) { currentSlot = null; }
+  const rows = [];
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) rows.push(savedRunRow(slot, currentSlot));
+  const selected = parseSaveSlot(selectSlot) ||
+    (savedRunsDialogOpen() ? savedRunsSelectedSlot() : null) ||
+    currentSlot || 1;
+  for (const row of rows) {
+    const radio = document.getElementById("saved-runs-slot-" + row.slot);
+    if (radio) radio.checked = row.slot === selected;
+    const name = document.getElementById("saved-runs-slot-" + row.slot + "-name");
+    if (name) name.textContent = row.name;
+    const detail = document.getElementById("saved-runs-slot-" + row.slot + "-detail");
+    if (detail) {
+      detail.textContent = row.detail;
+      detail.classList.toggle("hidden", !row.detail);
+    }
+    const label = document.getElementById("saved-runs-row-" + row.slot);
+    if (label && typeof label.setAttribute === "function") label.setAttribute("data-kind", row.kind);
+  }
+  const chosen = rows[selected - 1];
+  for (const [id, visible, name] of SAVED_RUNS_ACTIONS) {
+    const button = document.getElementById(id);
+    if (!button) continue;
+    button.classList.toggle("hidden", !visible(chosen));
+    if (typeof button.setAttribute === "function") button.setAttribute("aria-label", name(selected));
+  }
+  return { rows, selected, currentSlot };
+}
+
+// A radio's change handler: the row it belongs to becomes the selection.
+function selectSavedRunsSlot(slot) {
+  slot = parseSaveSlot(slot);
+  if (!slot) return false;
+  renderSavedRuns(slot);
+  return true;
+}
+
+// "Slot 1", "Slots 1 and 3", "Slots 1, 2 and 3".
+function saveSlotList(slots) {
+  if (slots.length === 1) return "Slot " + slots[0];
+  return "Slots " + slots.slice(0, -1).join(", ") + " and " + slots[slots.length - 1];
 }
 
 function refreshTitleResumeUI() {
   const resumeBtn = document.getElementById("btn-resume");
   const resumeMeta = document.getElementById("resume-meta");
   const beginBtn = document.getElementById("btn-begin");
-  const exportBtn = document.getElementById("btn-export-save");
-  // SUN-SAVE-SLOTS-CORE-01: Continue and its line describe the slot Continue resumes. Export,
-  // Download unreadable, Import and New run still act on the active slot (slot 1 until a later
-  // ticket lets the player pick one), so their buttons below keep reading the active slot.
+  // SUN-SAVED-RUNS-01: Continue and its line describe the slot Continue resumes. Export, Download
+  // unreadable and Import moved into the Saved runs dialog and act on its selected row. New run
+  // still starts in the active slot until the new-run slot picker (design S-3).
   const resumeSlot = continueSlot();
   const has = resumeSlot !== null;
+  const readable = [];
+  const unreadable = [];
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    let isReadable = false;
+    let isUnreadable = false;
+    try { isReadable = hasSave(slot); } catch (e) { isReadable = false; }
+    if (!isReadable) {
+      try { isUnreadable = !!unreadableSaveRaw(slot); } catch (e) { isUnreadable = false; }
+    }
+    if (isReadable) readable.push(slot);
+    if (isUnreadable) unreadable.push(slot);
+  }
   if (resumeBtn) {
     if (has) resumeBtn.classList.remove("hidden");
     else resumeBtn.classList.add("hidden");
@@ -1000,14 +1218,13 @@ function refreshTitleResumeUI() {
   if (resumeMeta) {
     if (has) {
       const m = getSaveMeta(resumeSlot);
-      const scene = m && m.scene ? m.scene : "run";
-      const dead = m && m.deadCount ? m.deadCount + " lost" : "intact";
-      const when = m && m.savedAt ? new Date(m.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+      const when = formatSaveWhen(m && m.savedAt);
       const paint = (typeof VERSION !== "undefined" ? String(VERSION) : "");
+      // v0.36 · Slot 2 · Ash · 5 alive · 1 lost · Nov 13, 09:58 PM
       resumeMeta.textContent =
         (paint ? "v" + paint + " · " : "") +
-        (m && m.livingCrew != null ? m.livingCrew + " alive · " : "") +
-        dead +
+        saveSlotName(resumeSlot, m) + " · " +
+        (m ? saveRunStanding(m) : "intact") +
         (when ? " · " + when : "");
       resumeMeta.classList.remove("hidden");
       resumeMeta.setAttribute("data-paint", paint);
@@ -1016,35 +1233,32 @@ function refreshTitleResumeUI() {
       resumeMeta.textContent = "";
     }
   }
+  const used = readable.length + unreadable.length;
   if (beginBtn) {
+    // "New run" when any slot holds a run Continue could load; unreadable bytes alone keep "Begin"
+    // (verify's unknown-scene check pins this; New run still asks before replacing them).
     beginBtn.textContent = has ? "New run" : "Begin";
   }
-  let unreadable = null;
-  // The active slot's unreadable bytes are announced even when Continue resumes another slot,
-  // because New run and Download unreadable act on the active slot.
-  try { unreadable = unreadableSaveRaw(); } catch (e) { unreadable = null; }
-  if (unreadable) flashSaveStatus("A saved run here can't be read by this version. Download it to keep a copy; starting a new run will replace it.", true, true);
-  const unreadableBtn = document.getElementById("btn-export-unreadable");
-  if (unreadableBtn) unreadableBtn.classList.toggle("hidden", !unreadable);
-  if (exportBtn) {
-    let exportable = false;
-    try { exportable = validRawSnapshot(readRawSave()); } catch (e) { /* keep hidden */ }
-    exportBtn.classList.toggle("hidden", !exportable);
-    const xchip = document.getElementById("export-import-chip");
-    if (xchip) {
-      xchip.textContent = exportable
-        ? "Export your run to a file · Import one anytime"
-        : "Import a save file anytime · Export appears once a run is saved";
-    }
+  if (unreadable.length) {
+    // Today's sentence when the only saved bytes are an unreadable run in the slot New run starts
+    // in (its Download is in Saved runs); otherwise name the slots and point to Saved runs.
+    const onlyActive = !readable.length && unreadable.length === 1 && unreadable[0] === activeSaveSlot;
+    const message = onlyActive
+      ? "A saved run here can't be read by this version. Open Saved runs to download a copy; starting a new run will replace it."
+      : unreadable.length === 1
+        ? `A saved run in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download it`
+        : `The runs in ${saveSlotList(unreadable)} can't be read by this version · open Saved runs to download them`;
+    flashSaveStatus(message, true, true);
   }
   const saveChip = document.getElementById("title-save-chip");
   if (saveChip) {
-    if (has) {
-      saveChip.textContent = "Your run is saved on this device";
+    if (used) {
+      saveChip.textContent = `Saved on this device · ${used} of ${SAVE_SLOT_COUNT} slots used`;
       saveChip.classList.remove("hidden");
     } else {
       saveChip.textContent = "";
       saveChip.classList.add("hidden");
     }
   }
+  renderSavedRuns();
 }

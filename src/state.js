@@ -33,7 +33,8 @@ const VERSION = "0.36";
 // L-054 (2026-11-05; rulings 2026-11-25 D1(a) D2(a) D5(a) D6(a) D7(a) D10), cross-run ship memory:
 //   localStorage "sunsplitter_ship_memory_v1", owned by src/ship-memory.js. Its own namespace, one
 //   per browser: { v, runs, endings, lost, plates, forks { crisis, vault, tether, lethal, final },
-//   last, prints, trail } (trail = this run's hard-call scene ids). Not run state: never in `state`,
+//   last, prints, trail } (trail = each save slot's in-progress hard-call scene ids, keyed "1"-"3";
+//   SUN-SAVED-RUNS-01). Not run state: never in `state`,
 //   snapshotState, saves or the export, and no scene or rule reads it. Not `state.memories`.
 
 function freshState() {

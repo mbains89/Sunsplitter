@@ -39,6 +39,8 @@ export function dialogKeysChecks(runtime) {
       { id: "tutorial-overlay", open: () => showTutorialOverlay(), close: () => dismissTutorial(), primary: "tutorial-dismiss" },
       { id: "commander-create", open: () => showCommanderCreate(), close: () => hideCommanderCreate(), primary: "commander-create-ok" },
       { id: "new-run-confirm", open: () => showNewRunConfirm(), close: () => hideNewRunConfirm(), primary: "new-run-ok" },
+      // SUN-SAVED-RUNS-01: the title's Saved runs dialog opens on its checked row's radio.
+      { id: "saved-runs", open: () => showSavedRuns(), close: () => closeSavedRuns(), primary: "saved-runs-slot-1" },
       { id: "crew-sheet", open: () => { if (typeof crew !== "undefined" && crew.lena) openCrewSheet("lena"); }, close: () => closeCrewSheet(), primary: "crew-sheet-close" }
     ];
 
@@ -75,14 +77,15 @@ export function dialogKeysChecks(runtime) {
     return { perDialog, clearOne };
   })()`);
 
-  if (!fixture || !Array.isArray(fixture.perDialog) || fixture.perDialog.length !== 4) {
-    errors.push("dialog key fixture did not cover the four modal dialogs");
+  if (!fixture || !Array.isArray(fixture.perDialog) || fixture.perDialog.length !== 5) {
+    errors.push("dialog key fixture did not cover the five modal dialogs");
     return errors;
   }
   const primaryById = {
     "tutorial-overlay": "tutorial-dismiss",
     "commander-create": "commander-create-ok",
     "new-run-confirm": "new-run-ok",
+    "saved-runs": "saved-runs-slot-1",
     "crew-sheet": "crew-sheet-close"
   };
   for (const row of fixture.perDialog) {
