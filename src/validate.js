@@ -763,7 +763,9 @@ function cancelNewRun() {
     startGame = function() {
       // SUN-SECOND-TAB-GUARD-01: what every slot holds as New run opens (see newRunSlotChanged).
       if (typeof markNewRunSlots === "function") markNewRunSlots();
-      const slotOccupied = typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave());
+      // SUN-BLOCKED-STORAGE-01: with saving off a new run replaces nothing, so no slot counts as taken.
+      const savingOff = typeof savingIsOff === "function" && savingIsOff();
+      const slotOccupied = !savingOff && (typeof slotHasAnyBytes === "function" ? slotHasAnyBytes() : (typeof hasSave === "function" && hasSave()));
       if (slotOccupied) {
         if (showNewRunConfirm()) {
           const confirmFn = typeof window !== "undefined" ? window.confirm : null;

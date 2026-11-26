@@ -12,10 +12,13 @@
 //    disabled with a reason, Return to title asks and leaves without saving (Cancel stays), a second
 //    run starts from the title, reader settings read their defaults and still change for the session,
 //    ship memory and the gallery start empty, and nothing throws or logs an error.
-// B. vm harness, storage that works: a returning player whose browser starts refusing every write
-//    (tone acknowledged, a run in slot 1) gets an unsaved run with the slot's bytes untouched; a
-//    one-off failed write (only the staging key throws) keeps today's rule (title, current run,
-//    every slot); with storage working nothing about the title, the Menu or saving changes.
+// B. vm harness: a returning player whose browser starts refusing every write (tone acknowledged, a
+//    run in slot 1) gets an unsaved run with the slot's bytes untouched, then a read-only Saved runs
+//    (Load and Import disabled with the reason; Export and Download unreadable give the exact bytes)
+//    and a New run that asks to replace nothing; reads that throw from page load and then recover
+//    mid-run never let the unsaved run write over slot 1; one failed read and a one-off failed write
+//    (only the staging key throws) keep today's rule (title, current run, every slot, the ordinary
+//    failure line); with storage working nothing about the title, the Menu or saving changes.
 // C. Chromium through Playwright, localStorage throwing on access (init script): 30 choices with no
 //    page error and the line in the game bar on screen after each; the Menu; Return to title. Then
 //    setItem throwing (Storage.prototype), so the refusal is learned from the content notice's write.
@@ -35,8 +38,9 @@ import vm from "node:vm";
 import { loadGame } from "./simulate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const NOTICE = "Saving is off on this device · this browser won't let the game save";
-const MENU_CHIP = "Saving is off on this device · Save and Load can't work · leaving ends this run";
+const NOTICE = "Can't save in this browser · progress won't be kept";
+const MENU_CHIP = "Can't save or load in this browser · leaving loses unsaved progress";
+const QUESTION_RE = /^Can't save in this browser · unsaved progress will be lost · Return to title anyway\?$/;
 const CHOICES = 30;
 const SAVE_KEY_RE = /^sunsplitter_save/;
 const TONE_KEY = "sunsplitter_tone_ack_v1";
@@ -71,6 +75,9 @@ function breakStorage(sandbox, mode) {
     const getter = { configurable: true, get() { calls.access++; throw storageError("SecurityError"); } };
     Object.defineProperty(sandbox, "localStorage", getter);
     Object.defineProperty(sandbox.window, "localStorage", getter);
+  } else if (mode === "getItemRecovers") {
+    calls.broken = true;
+    store.getItem = key => { calls.get++; if (calls.broken) throw storageError("SecurityError"); return real.get(key); };
   } else if (mode === "getItem") {
     store.getItem = key => { calls.get++; throw storageError("SecurityError"); };
   } else if (mode === "setItem") {
@@ -158,6 +165,8 @@ function evaluate(runtime, body) {
 }
 
 const BLOCKED_MODES = ["missing", "null", "access", "getItem", "setItem", "quota"];
+// Writes refused but reads working: Saved runs stays enabled and opens read-only.
+const READABLE_MODES = new Set(["setItem", "quota"]);
 
 function blockedModeCase(mode, errors) {
   const fail = message => errors.push(`A ${mode}: ${message}`);
@@ -184,8 +193,12 @@ function blockedModeCase(mode, errors) {
       const memory = shipMemoryRead();
       o.memory = { runs: memory.runs, plates: memory.plates.length, endings: Object.keys(memory.endings).length,
         gallery: __shown("btn-gallery"), board: __shown("btn-memory-board"), remembers: __shown("title-remembers") };
-      // The Saved runs actions, called directly (the button is disabled), say no and write nothing.
+      // The Saved runs actions, called directly, say no and write nothing; Load and Import are disabled.
       o.exported = exportSaveFile();
+      renderSavedRuns(1);
+      o.dialog = { load: document.getElementById("saved-runs-load").disabled === true, import: document.getElementById("btn-import-save").disabled === true,
+        loadDescribedBy: __attr("saved-runs-load", "aria-describedby"), chip: __text("export-import-chip") };
+      o.loadSlot = loadSaveSlot(1);
       o.startCalls = __storageCalls.set.filter(k => /^sunsplitter_save/.test(k)).length;
       // Begin, then 30 choices.
       o.started = __begin();
@@ -236,7 +249,9 @@ function blockedModeCase(mode, errors) {
   if (t.resume || t.resumeMeta) fail("Continue is offered with saving off");
   if (t.begin !== "Begin") fail(`the title's start button reads "${t.begin}", not Begin`);
   if (!t.chipShown || t.chip !== NOTICE) fail(`the save chip reads "${t.chip}" (shown ${t.chipShown}), not the saving-off line`);
-  if (!t.savedRunsDisabled || t.savedRunsDescribedBy !== "title-save-chip") fail(`Saved runs is not disabled with the chip as its reason (${t.savedRunsDisabled}, ${t.savedRunsDescribedBy})`);
+  const readable = READABLE_MODES.has(mode);
+  if (t.savedRunsDisabled === readable || t.savedRunsDescribedBy !== "title-save-chip") fail(`Saved runs should be ${readable ? "enabled read-only" : "disabled"} with the chip as its reason (disabled ${t.savedRunsDisabled}, ${t.savedRunsDescribedBy})`);
+  if (r.dialog.load !== true || r.dialog.import !== true || r.dialog.loadDescribedBy !== "export-import-chip" || r.dialog.chip !== NOTICE) fail(`Saved runs is not read-only: ${JSON.stringify(r.dialog)}`);
   if (t.status) fail(`the title status line repeats or adds "${t.status}"`);
   const defaults = { pace: "paced", size: "standard", spacing: "standard", costs: false, nudity: false };
   if (JSON.stringify(r.settings) !== JSON.stringify(defaults)) fail(`reader settings did not read their defaults: ${JSON.stringify(r.settings)}`);
@@ -246,6 +261,7 @@ function blockedModeCase(mode, errors) {
   }
   if (r.memory.runs || r.memory.plates || r.memory.endings || r.memory.gallery || r.memory.board || r.memory.remembers) fail(`ship memory or the gallery is not empty: ${JSON.stringify(r.memory)}`);
   if (r.exported !== false) fail("Export reported a file with nothing saved");
+  if (r.loadSlot !== false) fail("loadSaveSlot loaded with saving off");
   if (r.startCalls) fail(`${r.startCalls} save-key write(s) before any run started`);
   if (!r.started || !r.start.game || r.start.title || r.start.scene !== "wake") fail(`Begin did not start a run on wake (${JSON.stringify(r.start)}, started ${r.started})`);
   if (r.start.bar.text !== NOTICE || !r.start.bar.visible) fail(`the game bar reads "${r.start.bar.text}" (visible ${r.start.bar.visible}) at the start of the run`);
@@ -262,9 +278,9 @@ function blockedModeCase(mode, errors) {
   if (r.menu.chip !== MENU_CHIP) fail(`Menu: the line under the run actions reads "${r.menu.chip}"`);
   if (r.menuSave !== false || r.menuLoad !== false || !r.menuStillOpen) fail(`Menu: Save or Load acted with saving off (${r.menuSave}, ${r.menuLoad}, open ${r.menuStillOpen})`);
   if (r.stay !== false || !r.stayed.open || !r.stayed.game) fail(`Menu: Cancel on Return to title left the run (${JSON.stringify(r.stayed)})`);
-  if (r.leave !== true || r.asked.length !== 2 || !/^Saving is off/.test(r.asked[0])) fail(`Menu: Return to title did not ask, then leave (${r.leave}, ${JSON.stringify(r.asked)})`);
+  if (r.leave !== true || r.asked.length !== 2 || !QUESTION_RE.test(r.asked[0])) fail(`Menu: Return to title did not ask, then leave (${r.leave}, ${JSON.stringify(r.asked)})`);
   const ta = r.titleAfter;
-  if (!ta.title || ta.resume || ta.begin !== "Begin" || ta.chip !== NOTICE || !ta.savedRunsDisabled || ta.status) fail(`the title after the run: ${JSON.stringify(ta)}`);
+  if (!ta.title || ta.resume || ta.begin !== "Begin" || ta.chip !== NOTICE || ta.savedRunsDisabled === readable || ta.status) fail(`the title after the run: ${JSON.stringify(ta)}`);
   if (!r.second.started || !r.second.game || r.second.bar.text !== NOTICE || r.secondPlay.threw || r.secondPlay.made < 3) fail(`a second run did not start and play (${JSON.stringify(r.second)}, ${JSON.stringify(r.secondPlay)})`);
   // The latch is learned from one refused write (the content notice's); after that no save key is tried.
   if (r.saveWrites.length || r.saveRemoves.length) fail(`save keys were written or removed with saving off: ${JSON.stringify([r.saveWrites, r.saveRemoves])}`);
@@ -298,6 +314,28 @@ function returningRefusedCase(errors) {
     window.confirm = () => true;
     o.left = menuReturnToTitle();
     o.after = __title();
+    // Saved runs opens read-only: Load and Import disabled with the chip's reason, Export and
+    // Download unreadable working on the bytes as stored (slot 2 holds bytes this build cannot read).
+    realSet(saveSlotKeys(2).live, "{not this build");
+    showSavedRuns();
+    const action = id => { const el = document.getElementById(id); return { shown: !el.classList.contains("hidden"), disabled: el.disabled === true, describedBy: el.getAttribute("aria-describedby") }; };
+    selectSavedRunsSlot(1);
+    o.slot1Actions = { load: action("saved-runs-load"), exportSave: action("btn-export-save"), importSave: action("btn-import-save"), chip: __text("export-import-chip") };
+    const exported = buildSaveExport(1);
+    o.exportExact = !!exported && exported.text === raw;
+    o.loaded = loadSelectedSavedRun();
+    o.stillTitle = __shown("title-screen");
+    selectSavedRunsSlot(2);
+    o.slot2Actions = { download: action("btn-export-unreadable"), importSave: action("btn-import-save") };
+    const unreadable = buildUnreadableSaveExport(2);
+    o.downloadExact = !!unreadable && unreadable.text === "{not this build";
+    closeSavedRuns();
+    // A new run replaces nothing with saving off, so it asks nothing (no replace confirm).
+    startGame();
+    o.newRunConfirm = __shown("new-run-confirm");
+    o.newRunCommander = __shown("commander-create");
+    cancelCommanderCreate();
+    o.slot1StillSame = localStorage.getItem(SAVE_KEY) === raw;
     localStorage.setItem = realSet;
     return o;
   `);
@@ -307,7 +345,73 @@ function returningRefusedCase(errors) {
   if (r.play.threw || r.play.made < 5) fail(`play did not continue (${JSON.stringify(r.play)})`);
   if (!r.slot1Same || !r.toneSame) fail(`a refused write changed bytes (slot 1 kept ${r.slot1Same}, tone kept ${r.toneSame})`);
   if (r.writesAfterLatch.length) fail(`save keys were still tried after the refusal was learned: ${r.writesAfterLatch.join(", ")}`);
-  if (!r.left || r.after.resume || r.after.chip !== NOTICE || !r.after.savedRunsDisabled) fail(`the title after the unsaved run: ${JSON.stringify(r.after)}`);
+  if (!r.left || r.after.resume || r.after.chip !== NOTICE || r.after.savedRunsDisabled || r.after.savedRunsDescribedBy !== "title-save-chip") fail(`the title after the unsaved run: ${JSON.stringify(r.after)}`);
+  const a1 = r.slot1Actions;
+  if (!a1.load.shown || !a1.load.disabled || a1.load.describedBy !== "export-import-chip" || !a1.importSave.disabled || a1.chip !== NOTICE) fail(`Saved runs: Load and Import are not disabled with the reason (${JSON.stringify(a1)})`);
+  if (!a1.exportSave.shown || a1.exportSave.disabled || !r.exportExact) fail(`Saved runs: Export is not available with the slot's exact bytes (${JSON.stringify(a1.exportSave)}, exact ${r.exportExact})`);
+  if (r.loaded !== false || !r.stillTitle) fail("Saved runs: Load loaded a run with saving off");
+  if (!r.slot2Actions.download.shown || r.slot2Actions.download.disabled || !r.downloadExact) fail(`Saved runs: Download unreadable is not available (${JSON.stringify(r.slot2Actions)}, exact ${r.downloadExact})`);
+  if (r.newRunConfirm || !r.newRunCommander) fail(`New run asked to replace a slot with saving off (confirm ${r.newRunConfirm}, commander ${r.newRunCommander})`);
+  if (!r.slot1StillSame) fail("slot 1 changed");
+}
+
+// Reads throw from page load (saving off), then storage comes back mid-run: the unsaved run never
+// writes over the older run in slot 1 (review M: before the latch, the next autosave did, with no backup).
+function recoveredMidRunCase(errors) {
+  const fail = message => errors.push(`B recovered: ${message}`);
+  const runtime = loadWithStorage("getItemRecovers");
+  const r = evaluate(runtime, `
+    __storageCalls.broken = false;
+    resetRunState(); state.scene = "act2_tether_sighting"; state.cohesion = 33;
+    const raw = JSON.stringify(snapshotState());
+    localStorage.setItem(SAVE_KEY, raw);
+    __storageCalls.broken = true;
+    const before = __storageCalls.set.length;
+    acknowledgeTone();
+    const o = { title: __title() };
+    o.started = __begin();
+    o.firstPlay = __play(3);
+    __storageCalls.broken = false;
+    o.offAfterRecovery = savingIsOff();
+    o.secondPlay = __play(3);
+    document.visibilityState = "hidden"; document.dispatchEvent({ type: "visibilitychange" }); document.visibilityState = "visible";
+    o.bar = __bar();
+    o.slot1Same = localStorage.getItem(SAVE_KEY) === raw;
+    o.saveWrites = __storageCalls.set.slice(before).filter(k => /^sunsplitter_save/.test(k));
+    return o;
+  `);
+  if (!r.title.off || r.title.chip !== NOTICE) fail(`the title did not say it can't save (${JSON.stringify(r.title)})`);
+  if (!r.started || r.firstPlay.threw || r.secondPlay.threw || r.secondPlay.made < 3) fail(`the run did not play through the recovery (${JSON.stringify([r.firstPlay.made, r.secondPlay.made, r.firstPlay.threw, r.secondPlay.threw])})`);
+  if (!r.offAfterRecovery || r.bar.text !== NOTICE) fail(`saving came back on mid-run (off ${r.offAfterRecovery}, bar "${r.bar.text}")`);
+  if (!r.slot1Same || r.saveWrites.length) fail(`the unsaved run wrote save keys after storage came back: ${JSON.stringify(r.saveWrites)} (slot 1 kept ${r.slot1Same})`);
+}
+
+// One read fails at the moment of a new run on a device that saves: not saving off. The run keeps
+// today's rule, and the title shows the ordinary failure line, not the can't-save line (review L1).
+function oneFailedReadCase(errors) {
+  const fail = message => errors.push(`B one failed read: ${message}`);
+  const runtime = loadWithStorage("working", { [TONE_KEY]: "1" });
+  const r = evaluate(runtime, `
+    resetRunState(); state.scene = "act2_tether_sighting"; state.cohesion = 33;
+    const raw = JSON.stringify(snapshotState());
+    localStorage.setItem(SAVE_KEY, raw);
+    showTitleScreen();
+    window.confirm = () => true;
+    startGame();
+    if (__shown("new-run-confirm")) {
+      if (typeof selectNewRunSlot === "function" && document.getElementById("new-run-slot-1")) selectNewRunSlot(1);
+      confirmNewRun();
+    }
+    const real = saveStorageReadable;
+    let once = true;
+    saveStorageReadable = () => { if (once) { once = false; return false; } return real(); };
+    const started = advancePastCommanderCreate();
+    saveStorageReadable = real;
+    return { started, title: __shown("title-screen"), off: savingIsOff(), status: __text("title-save-status"), bar: __bar().text,
+      slot1Same: localStorage.getItem(SAVE_KEY) === raw, resume: __shown("btn-resume"), scene: state.scene };
+  `);
+  if (r.started || !r.title || r.off || r.scene !== "act2_tether_sighting" || !r.slot1Same || !r.resume) fail(`the failed read changed the run, the slot or the title (${JSON.stringify(r)})`);
+  if (r.status === NOTICE || r.bar === NOTICE || !/^Autosave failed · /.test(r.status)) fail(`the title shows "${r.status}" (bar "${r.bar}"), not the ordinary failure line`);
 }
 
 // A one-off failed write (only the staging key throws) is not blocked storage: today's rule holds.
@@ -368,11 +472,12 @@ function vmChecks(errors, summary) {
     const result = blockedModeCase(mode, errors);
     if (result) results.push(`${mode} ${result.choices}`);
   }
-  for (const [label, run] of [["returning", returningRefusedCase], ["one-off", oneOffFailureCase], ["working", workingCase]]) {
+  for (const [label, run] of [["returning", returningRefusedCase], ["recovered", recoveredMidRunCase], ["one failed read", oneFailedReadCase],
+    ["one-off", oneOffFailureCase], ["working", workingCase]]) {
     try { run(errors); } catch (error) { errors.push(`B ${label}: threw: ${String(error && error.message).split("\n")[0]}`); }
   }
   summary.push(`A: ${BLOCKED_MODES.length} blocked modes from page load (choices played: ${results.join(", ")}); title, Menu, Return to title, second run, settings, memory, no save-key write`);
-  summary.push("B: returning player with writes refused plays unsaved and keeps slot 1; a one-off failure keeps today's rule; working storage unchanged");
+  summary.push("B: returning player with writes refused plays unsaved, keeps slot 1, and gets read-only Saved runs (Export and Download work) and a New run that asks nothing; storage back mid-run writes nothing; one failed read and a one-off failed write keep today's rule; working storage unchanged");
 }
 
 // ---------- C: Chromium ----------
@@ -454,11 +559,12 @@ async function startRun(page, fail) {
   return title;
 }
 
-function checkTitle(view, fail) {
+// readable: writes refused but saves can still be read, so Saved runs stays enabled (read-only).
+function checkTitle(view, fail, readable = false) {
   if (view.chip !== NOTICE) fail(`the title chip reads "${view.chip}"`);
   if (!view.chipRect) fail("the title chip is not shown");
   if (view.resume) fail("Continue is shown");
-  if (!view.savedRunsDisabled) fail("Saved runs is not disabled");
+  if (view.savedRunsDisabled === readable) fail(`Saved runs is ${view.savedRunsDisabled ? "disabled" : "enabled"}; want ${readable ? "enabled read-only" : "disabled"}`);
   if (view.begin !== "Begin") fail(`the start button reads "${view.begin}"`);
   if (view.overflowX > 0) fail(`the title scrolls sideways (${view.overflowX}px)`);
   if (view.chipRect && view.beginRect && view.chipRect.b > view.beginRect.y + 1) fail("the chip is not above Begin");
@@ -548,7 +654,7 @@ async function browserChecks(errors, summary, requireBrowser) {
       page.once("dialog", dialog => { asked = dialog.message(); dialog.accept(); });
       await page.click("#menu-return-title");
       await page.waitForFunction(() => !document.getElementById("title-screen").classList.contains("hidden"), null, { timeout: 5000 }).catch(() => fail("Return to title did not reach the title"));
-      if (!/^Saving is off/.test(asked)) fail(`Return to title asked "${asked}"`);
+      if (!QUESTION_RE.test(asked)) fail(`Return to title asked "${asked}"`);
       checkTitle(await page.evaluate(VIEW), fail);
       if (pageErrors.length) fail(`page errors: ${pageErrors.join(" | ")}`);
       await context.close();
@@ -557,7 +663,7 @@ async function browserChecks(errors, summary, requireBrowser) {
     {
       const fail = message => errors.push(`C setItem 390x844: ${message}`);
       const { context, page, pageErrors } = await newPage(390, 844, refuseWrites);
-      checkTitle(await startRun(page, fail), fail);
+      checkTitle(await startRun(page, fail), fail, true);
       checkBar(await page.evaluate(VIEW), fail, "first scene");
       if (pageErrors.length) fail(`page errors: ${pageErrors.join(" | ")}`);
       await context.close();
@@ -616,6 +722,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(1);
   }
   console.log(ran
-    ? "PASS sun-playerflow-blocked-storage (vm: six blocked modes, returning player, one-off failure, working storage; Chromium: 30 choices with storage blocked, Menu, four sizes)"
-    : "PASS sun-playerflow-blocked-storage (vm: six blocked modes, returning player, one-off failure, working storage; browser NOT_AVAILABLE)");
+    ? "PASS sun-playerflow-blocked-storage (vm: six blocked modes, returning player with read-only Saved runs, recovery mid-run, one failed read, one-off failure, working storage; Chromium: 30 choices with storage blocked, Menu, four sizes)"
+    : "PASS sun-playerflow-blocked-storage (vm: six blocked modes, returning player with read-only Saved runs, recovery mid-run, one failed read, one-off failure, working storage; browser NOT_AVAILABLE)");
 }

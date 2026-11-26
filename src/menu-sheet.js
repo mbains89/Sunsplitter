@@ -43,8 +43,8 @@ const MENU_RETURN_TITLE_CHIP = "Saves first · Continue on the title picks up he
 const MENU_RETURN_TITLE_CHIP_KEPT = "Not saved until your first order · the slot keeps your finished run";
 // SUN-BLOCKED-STORAGE-01 (O-7(A)): when the browser keeps nothing, Save and Load are disabled with
 // this line as their reason, and Return to title asks before it ends the run.
-const MENU_RETURN_TITLE_CHIP_OFF = "Saving is off on this device · Save and Load can't work · leaving ends this run";
-const MENU_RETURN_TITLE_QUESTION_OFF = "Saving is off on this device, so this run will end. Return to the title anyway?";
+const MENU_RETURN_TITLE_CHIP_OFF = "Can't save or load in this browser · leaving loses unsaved progress";
+const MENU_RETURN_TITLE_QUESTION_OFF = "Can't save in this browser · unsaved progress will be lost · Return to title anyway?";
 
 function menuSavingOff() {
   return typeof savingIsOff === "function" && savingIsOff();

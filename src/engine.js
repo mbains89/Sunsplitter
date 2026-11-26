@@ -488,9 +488,15 @@ function beginFreshCampaign(opts) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
+    // SUN-BLOCKED-STORAGE-01: a read that failed once and works again is not saving off; the line
+    // persistSave posted for it gives way to the ordinary failure line.
+    if (!savingIsOff() && savingOffNoticeShown()) reportSaveWriteFailure(true, false);
     return false;
   }
   const unsaved = savingIsOff();
+  // An unsaved run stays unsaved: if storage comes back mid-run, its autosave must not write this
+  // run over an older run in the slot.
+  if (unsaved) noteSaveStorageRefused();
   if (opts.persist && !unsaved) {
     activeSaveSlot = slot;
     writeCurrentSlotPointer(slot);

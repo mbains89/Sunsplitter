@@ -1201,6 +1201,12 @@ function loadGame() {
 // if the load succeeds: a failed load puts the previous active slot back, so no later title action
 // (New run, the in-run Save) can land on a slot the player only tried to open (SUN-SAVED-RUNS-01).
 function loadSaveSlot(slot) {
+  // SUN-BLOCKED-STORAGE-01: a run that could not be saved is not loaded (Continue is absent and Load
+  // is disabled while saving is off; this holds for any other caller).
+  if (savingIsOff()) {
+    showSavingOffNotice();
+    return false;
+  }
   slot = parseSaveSlot(slot);
   if (!slot || !hasSave(slot)) {
     flashSaveStatus("No save", true);
@@ -1309,12 +1315,14 @@ function updateMetaSaveHint() {
 // ---------- Saving is off (SUN-BLOCKED-STORAGE-01; Manraj 2026-11-25, O-7(A)) ----------
 // When the browser keeps nothing for this page (private browsing, storage turned off, localStorage
 // missing or throwing on access or on a read, or refusing every write), the game is played without
-// saving: a run starts and plays as usual, a sticky line says saving is off and why, Continue is
-// absent, Saved runs (Load, Export, Import) and the Menu's Save and Load are disabled with that line
-// as their reason, and nothing tries to write a save. Before this, Begin run left the player on the
-// title with "Autosave failed · progress not saved" and no way to play.
+// saving: a run starts and plays as usual, a sticky line says it can't save and why, Continue is
+// absent, the Menu's Save and Load are disabled with that line as their reason, and nothing tries to
+// write a save. Saved runs is disabled when nothing can be read; when saves can still be read it opens
+// read-only (Load and Import disabled, Export and Download unreadable kept, since they only read).
+// Before this, Begin run left the player on the title with "Autosave failed · progress not saved"
+// and no way to play.
 // No storage key of its own and nothing stored: the state below is this page's memory only.
-const SAVING_OFF_NOTICE = "Saving is off on this device · this browser won't let the game save";
+const SAVING_OFF_NOTICE = "Can't save in this browser · progress won't be kept";
 
 // Set once a write the page makes anyway is refused (the content notice's acknowledgement, or the
 // probe after a new run's first save failed). It stays set for this page: nothing is retried.
@@ -1358,6 +1366,12 @@ function newRunPlaysUnsaved() {
   return refused;
 }
 
+// True while the save line shows the saving-off notice.
+function savingOffNoticeShown() {
+  const bar = document.getElementById("save-status");
+  return !!bar && bar.textContent === SAVING_OFF_NOTICE;
+}
+
 // The game bar's save line, sticky like a failed save. Already on screen: left alone, so it is not
 // announced again after every choice.
 function showSavingOffNotice() {
@@ -1367,13 +1381,14 @@ function showSavingOffNotice() {
 }
 
 // The title while saving is off: the line in the save chip above Begin, no Continue, Begin (a new run
-// replaces nothing), and Saved runs disabled with the line as its reason. With saving on, Saved runs
-// is enabled and the rest is as refreshTitleResumeUI painted it.
+// replaces nothing), and Saved runs described by the line: disabled when nothing can be read, read-only
+// (see syncSavedRunsReadOnly) when saves can still be read. With saving on, Saved runs is enabled and
+// the rest is as refreshTitleResumeUI painted it.
 function syncSavingOffTitle() {
   const off = savingIsOff();
   const savedRuns = document.getElementById("btn-saved-runs");
   if (savedRuns) {
-    savedRuns.disabled = off;
+    savedRuns.disabled = off && !saveStorageReadable();
     if (typeof savedRuns.setAttribute === "function") {
       if (off) savedRuns.setAttribute("aria-describedby", "title-save-chip");
       else savedRuns.removeAttribute("aria-describedby");
@@ -1404,6 +1419,32 @@ function syncSavingOffTitle() {
     el.classList.remove("visible");
   }
   return true;
+}
+
+// Saved runs while saving is off but saves can still be read: Load (a run that could not be saved)
+// and Import (a write) are disabled, and the chip above the transfer buttons carries the line as their
+// reason. Export save and Download unreadable save only read, so they work as usual.
+let savedRunsChipText = null;
+function syncSavedRunsReadOnly() {
+  const off = savingIsOff();
+  for (const id of ["saved-runs-load", "btn-import-save"]) {
+    const button = document.getElementById(id);
+    if (!button) continue;
+    button.disabled = off;
+    if (typeof button.setAttribute !== "function") continue;
+    if (off) button.setAttribute("aria-describedby", "export-import-chip");
+    else button.removeAttribute("aria-describedby");
+  }
+  const chip = document.getElementById("export-import-chip");
+  if (!chip) return off;
+  if (off) {
+    if (chip.textContent !== SAVING_OFF_NOTICE) savedRunsChipText = chip.textContent;
+    chip.textContent = SAVING_OFF_NOTICE;
+  } else if (savedRunsChipText !== null) {
+    chip.textContent = savedRunsChipText;
+    savedRunsChipText = null;
+  }
+  return off;
 }
 
 // ---------- Saved runs (SUN-SAVED-RUNS-01, L-052 design S-2) ----------
@@ -1534,6 +1575,8 @@ function renderSavedRuns(selectSlot) {
     button.classList.toggle("hidden", !visible(chosen));
     if (typeof button.setAttribute === "function") button.setAttribute("aria-label", name(selected));
   }
+  // SUN-BLOCKED-STORAGE-01: read-only while saving is off.
+  syncSavedRunsReadOnly();
   return { rows, selected, currentSlot };
 }
 
