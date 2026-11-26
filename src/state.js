@@ -1137,6 +1137,14 @@ function attributableDeath(who) {
 function anyAttributableDeath() {
   return (state.dead || []).some(attributableDeath);
 }
+// SUN-CONSENT-WORDING-01 (item 20, ruled 2026-11-25): Elias's shield breaks when Mira dies by
+// Commander call (CHARACTER_BIBLE §2). Moving the shared medical line to Lena is that call, though
+// its cause does not name the order (the ending already counts it, ORDERED_DEATH_CAUSES), so the
+// shield's test adds it. Mira only: attributableDeath() and every other reader are unchanged.
+function miraDiedByCommanderCall() {
+  return attributableDeath("mira") ||
+    !!(state.deathCause && state.deathCause.mira === "lost the shared medical line to Lena");
+}
 function firstAttributableDeath() {
   for (const k of (state.dead || [])) {
     if (attributableDeath(k)) return { who: k, name: (crew[k] && crew[k].name) || k, cause: state.deathCause[k] };
