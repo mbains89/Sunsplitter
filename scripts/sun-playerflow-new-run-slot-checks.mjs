@@ -4,7 +4,8 @@
 // that holds nothing; none when all three hold a run, with Start disabled and Start doing nothing);
 // the picker's rows match Saved runs, and its line and Start name what Start does; a New run writes
 // only the slot the player chose (after an import into slot 2 or 3, after a failed load, after
-// Continue, when the radios change behind the Commander panel), never activeSaveSlot; Cancel, Escape,
+// Continue, after the menu's Return to title, when the radios change behind the Commander panel),
+// never activeSaveSlot; Cancel, Escape,
 // the Commander panel's Cancel, Saved runs and a title repaint leave every slot, the pointer and the
 // active slot untouched; the pointer moves only when the run starts; a failed write into the chosen
 // slot keeps the title and every slot; focus opens on the selected row (the first row when none is)
@@ -204,7 +205,8 @@ const ok = label => results.push(label);
 }
 
 // 4. A New run writes only the chosen slot: after an import into slot 2 (and 3), after a failed
-//    load, after Continue, and when the radios change behind the Commander panel.
+//    load, after Continue, after the menu's Return to title, and when the radios change behind the
+//    Commander panel.
 {
   const r = run(`
     const out = {};
@@ -261,6 +263,16 @@ const ok = label => results.push(label);
     keep = others(3);
     const begun = advancePastCommanderCreate();
     out.radiosMoved = { begun, scene3: liveScene(3), othersSame: others(3) === keep };
+    // f. The menu's Return to title from a run in slot 2 (slot 2 active): the picker starts on empty
+    //    slot 3, and the run goes there only.
+    localStorage.clear(); activeSaveSlot = 1; harbor();
+    localStorage.setItem(saveSlotKeys(2).live, snap("priority_repairs", { savedAt: 2 }));
+    const loaded2 = loadSaveSlot(2);
+    const returned = typeof menuReturnToTitle === "function" ? menuReturnToTitle() : "missing";
+    const activeAfterReturn = activeSaveSlot;
+    keep = others(3);
+    go = newRunTo(null);
+    out.afterReturn = { loaded2, returned, activeAfterReturn, def: go.before.selected, scene3: liveScene(3), othersSame: others(3) === keep, active: activeSaveSlot };
     return out;
   `);
   assert.deepEqual(r.importTo2, { def: 3, scene3: "wake", othersSame: true, pointer: "3", active: 3 }, "after an import into slot 2 the run goes to slot 3 only");
@@ -274,6 +286,8 @@ const ok = label => results.push(label);
     { resumed: undefined, activeAfterContinue: undefined, scene1: "wake", callsign1: "Keel", othersSame: true, scene2: "priority_repairs", pointer: "1", active: 1 },
     "after Continue into slot 2, a run picked for slot 1 (and its Commander) lands in slot 1 only");
   assert.deepEqual(r.radiosMoved, { begun: true, scene3: "wake", othersSame: true }, "the slot is read once, at Start");
+  assert.deepEqual(r.afterReturn, { loaded2: true, returned: true, activeAfterReturn: 2, def: 3, scene3: "wake", othersSame: true, active: 3 },
+    "after the menu's Return to title from slot 2, the run goes to the slot picked, not the slot just played");
   ok("a New run writes only the chosen slot");
 }
 
