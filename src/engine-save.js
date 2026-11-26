@@ -225,9 +225,26 @@ function retiredSceneExit(id) {
   return typeof exit === "function" ? exit() : exit;
 }
 
+// SUN-SAVE-VERSION-GUARD-01: a snapshot whose format version (v) is newer than SAVE_SCHEMA_VERSION
+// was written by a newer build and may carry fields this build misreads. This build cannot read it:
+// it is never loaded and never stood in for by older bytes, so it is kept as it is, shown as
+// unreadable and offered for download, like any unreadable slot. A missing or older v reads as before.
+function snapshotFormatIsNewer(data) {
+  return data !== null && typeof data === "object" && typeof data.v === "number" && data.v > SAVE_SCHEMA_VERSION;
+}
+function rawSnapshotFormatIsNewer(raw) {
+  if (typeof raw !== "string") return false;
+  try {
+    return snapshotFormatIsNewer(JSON.parse(raw));
+  } catch (e) {
+    return false;
+  }
+}
+
 function validSnapshotShape(data) {
   const isRecord = value => value !== null && typeof value === "object" && !Array.isArray(value);
   if (!isRecord(data)) return false;
+  if (snapshotFormatIsNewer(data)) return false;
 
   const sceneId = typeof data.scene === "string" && data.scene ? data.scene : "";
   if (!sceneId || !(Object.prototype.hasOwnProperty.call(scenes, sceneId) ||
@@ -693,6 +710,10 @@ function readRawSave(slot) {
     let raw = localStorage.getItem(keys.live);
     const staging = localStorage.getItem(keys.staging);
     const backup = localStorage.getItem(keys.backup);
+    // SUN-SAVE-VERSION-GUARD-01: a committed save from a newer build holds this slot. Neither the
+    // backup nor legacy v2 stands in for it, so nothing older is loaded here and then autosaved
+    // over it. (A live value that still matches staging never committed: it reads on as below.)
+    if (raw !== staging && rawSnapshotFormatIsNewer(raw)) return null;
     if (validRawSnapshot(staging) && raw === staging) {
       // A live value that still matches staging never completed its
       // transaction. Prefer the preserved prior slot, or fail closed.
@@ -996,7 +1017,10 @@ function persistSave(opts) {
   try {
     const liveRaw = localStorage.getItem(slotKeys.live);
     const recoveryRaw = localStorage.getItem(slotKeys.backup);
-    previousRaw = validRawSnapshot(liveRaw)
+    // SUN-SAVE-VERSION-GUARD-01: a committed newer-format live save is the slot's prior bytes, as
+    // readRawSave reads it, not a backup beside it, so a failed write puts the newer save back.
+    const newerLive = rawSnapshotFormatIsNewer(liveRaw) && liveRaw !== localStorage.getItem(slotKeys.staging);
+    previousRaw = validRawSnapshot(liveRaw) || newerLive
       ? liveRaw
       : (validRawSnapshot(recoveryRaw) ? recoveryRaw : liveRaw);
     previousValid = validRawSnapshot(previousRaw);
