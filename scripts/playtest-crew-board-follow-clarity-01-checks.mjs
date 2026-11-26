@@ -17,8 +17,9 @@ export function playtestCrewBoardFollowClarity01Checks(runtime) {
   if (!html.includes('id="btn-crew"') || !html.includes('id="crew-panel"') || !html.includes('id="crew-sheet"')) {
     errors.push("Crew board markup tokens missing");
   }
-  if (!engine.includes('renderCrewPanel("lena")')) {
-    errors.push("toggleCrewPanel lost the Lena panel paint required by crewOverviewChecks");
+  // SUN-ART-RULINGS-01: the default paint is the first living member (Lena while she lives).
+  if (!engine.includes('renderCrewPanel(crewPanelDefaultKey())')) {
+    errors.push("toggleCrewPanel lost the default panel paint required by crewOverviewChecks");
   }
   if (!(html.includes("src/crew-board-follow-clarity.js") || validate.includes("crewBoardOpenPass"))) {
     errors.push("index.html does not load crew-board-follow-clarity.js after validate.js");
