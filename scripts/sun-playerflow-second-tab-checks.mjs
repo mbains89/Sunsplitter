@@ -9,8 +9,10 @@
 // and a write in one queues a storage event for the other, delivered after the writing call returns,
 // as a browser does. Checks:
 //   - same slot: the tab whose save is older never writes over the newer save (autosave after a
-//     choice, the hidden-tab save, Save, Return to title), shows the notice, keeps playing, and Load gives
-//     the slot back; then the other tab is the one told;
+//     choice, the hidden-tab save, Save, a cancelled Return to title), shows the notice, keeps playing,
+//     and Load gives the slot back; then the other tab is the one told;
+//   - Return to title while not saving asks first, then leaves without saving; the other tab's save
+//     stays, and Continue loads it;
 //   - the same, before the storage event has arrived (the check before each write catches it);
 //   - another tab saving the same moment of the same run (only the time differs) is no alarm;
 //   - a new run in the slot takes it back on purpose;
@@ -41,6 +43,7 @@ const SLOT3 = ["sunsplitter_save_v3_slot3", "sunsplitter_save_v3_slot3_staging",
 const POINTER = "sunsplitter_save_current_v1";
 const SAVE_KEYS = [...SLOT1, ...SLOT2, ...SLOT3, POINTER];
 const NOTICE = slot => `Another tab saved Slot ${slot} · not saving here · Load in Menu`;
+const LEAVE = slot => `Another tab saved Slot ${slot} · this tab's run is not saved · Return anyway?`;
 const SINGLE_TAB_CHOICES = 200;
 
 const errors = [];
@@ -161,9 +164,13 @@ function realmChecks() {
   expect(same(store.keys(SLOT1), newer), `${label}: A's hidden-tab save changed slot 1`);
   expect(A.evaluate("saveGame()") === false, `${label}: A's Save button reported a save`);
   expect(same(store.keys(SLOT1), newer), `${label}: A's Save button changed slot 1`);
+  // Return to title asks first; Cancel keeps A in the run, and nothing is written.
+  A.evaluate(`globalThis.__asked = []; window.confirm = message => { __asked.push(message); return false; }`);
   expect(A.evaluate("menuReturnToTitle()") === false && A.evaluate(`document.getElementById("title-screen").classList.contains("hidden")`),
-    `${label}: A's Return to title left the run without its save`);
-  expect(same(store.keys(SLOT1), newer), `${label}: A's Return to title changed slot 1`);
+    `${label}: A's Return to title, cancelled, left the run`);
+  expect(same(A.evaluate("__asked"), [LEAVE(1)]), `${label}: Return to title asked ${JSON.stringify(A.evaluate("__asked"))}`);
+  expect(same(store.keys(SLOT1), newer), `${label}: A's cancelled Return to title changed slot 1`);
+  A.evaluate("window.confirm = () => true");
   expect(showsNotice(A, 1), `${label}: A's notice did not stay after its refused saves`);
   expect(store.get(POINTER) === "1", `${label}: pointer moved to ${store.get(POINTER)}`);
   expect(!showsNotice(B, 1) && !bar(B).error, `${label}: B, the newer tab, shows ${JSON.stringify(bar(B))}`);
@@ -205,6 +212,23 @@ function realmChecks() {
   step(A);
   expect(same(store.keys(SLOT1), bSave), `${label}: A's choice wrote over B's save before the event arrived`);
   expect(showsNotice(A, 1), `${label}: A's refused write did not show the notice`);
+
+  // Return to title while not saving: asked, then leaves without saving; B's save stays and Continue loads it.
+  label = "return to title while not saving";
+  store.clearWrites();
+  A.evaluate(`globalThis.__asked = []; window.confirm = message => { __asked.push(message); return true; }`);
+  expect(A.evaluate("menuReturnToTitle()") === true, `${label}: A did not leave`);
+  expect(same(A.evaluate("__asked"), [LEAVE(1)]), `${label}: asked ${JSON.stringify(A.evaluate("__asked"))}`);
+  expect(!A.evaluate(`document.getElementById("title-screen").classList.contains("hidden")`), `${label}: A is not on the title`);
+  expect(same(store.keys(SLOT1), bSave), `${label}: leaving changed slot 1`);
+  const aLeaveWrites = store.writes(A).filter(key => SAVE_KEYS.includes(key));
+  expect(!aLeaveWrites.length, `${label}: A wrote ${aLeaveWrites.join(", ")}`);
+  const titleLine = A.evaluate(`document.getElementById("title-save-status").textContent`);
+  expect(titleLine !== NOTICE(1), `${label}: the title shows the in-run notice`);
+  expect(!A.evaluate(`document.getElementById("btn-resume").classList.contains("hidden")`), `${label}: the title has no Continue`);
+  expect(A.evaluate("resumeGame()") === true && scene(A) === scene(B), `${label}: Continue did not load B's save (${scene(A)} vs ${scene(B)})`);
+  expect(same(store.keys(SLOT1), bSave) && !bar(A).error, `${label}: Continue changed slot 1 or kept the notice`);
+  A.evaluate("window.confirm = () => true");
 
   // The same moment of the same run, saved again with a new time: no alarm, either way round.
   label = "same run point";
@@ -425,8 +449,8 @@ async function browserChecks(requireBrowser) {
     }
     await A.setViewportSize({ width: 1280, height: 800 });
 
-    // A keeps playing: a choice, a hidden-tab save, the Menu's Save and its Return to title leave B's
-    // save alone; Return to title keeps A in the run and says why.
+    // A keeps playing: a choice, a hidden-tab save, the Menu's Save and a cancelled Return to title
+    // leave B's save alone; Return to title asks first, and Cancel keeps A in the run.
     const menu = async id => {
       await A.click("#btn-menu");
       await A.waitForSelector("#menu-sheet", { state: "visible" });
@@ -436,15 +460,17 @@ async function browserChecks(requireBrowser) {
     await A.evaluate("__tabStep()");
     await A.evaluate(() => window.dispatchEvent(new Event("pagehide")));
     await menu("menu-save");
+    const asked = [];
+    const answer = accept => dialog => { asked.push(dialog.message()); return accept ? dialog.accept() : dialog.dismiss(); };
+    const dismiss = answer(false);
+    A.on("dialog", dismiss);
     await menu("menu-return-title");
-    const stayed = await A.evaluate(() => ({
-      game: !document.getElementById("game-screen").classList.contains("hidden"),
-      status: document.getElementById("menu-status").textContent
-    }));
-    expect(stayed.game && stayed.status === NOTICE(1) + " · you are still in the run", `${label}: Return to title while told: ${JSON.stringify(stayed)}`);
+    A.off("dialog", dismiss);
+    const stayed = await A.evaluate(() => !document.getElementById("game-screen").classList.contains("hidden"));
+    expect(stayed && same(asked, [LEAVE(1)]), `${label}: Return to title, cancelled: in run ${stayed}, asked ${JSON.stringify(asked)}`);
     await A.click("#menu-close");
     await settle();
-    expect(same(await raw(B, SLOT1), newer), `${label}: A's choice, hidden-tab save, Save or Return to title changed slot 1`);
+    expect(same(await raw(B, SLOT1), newer), `${label}: A's choice, hidden-tab save, Save or cancelled Return to title changed slot 1`);
     expect(await told(A, 1), `${label}: A's notice did not stay`);
     expect((await raw(A, [POINTER]))[POINTER] === "1", `${label}: the pointer moved`);
     expect(!(await pbar(B)).error, `${label}: B, the newer tab, shows ${JSON.stringify(await pbar(B))}`);
@@ -460,6 +486,29 @@ async function browserChecks(requireBrowser) {
     await settle();
     expect(same(await raw(A, SLOT1), aNewer), `${label}: B's choice wrote over A's newer save`);
     expect(await pbar(A).then(b => !b.error), `${label}: A was told after its own newer save`);
+
+    // B, told, returns to the title through the Menu: asked, then leaves without saving; A's save
+    // stays, and the title's Continue loads it.
+    asked.length = 0;
+    const accept = answer(true);
+    B.on("dialog", accept);
+    await B.click("#btn-menu");
+    await B.waitForSelector("#menu-sheet", { state: "visible" });
+    await B.click("#menu-return-title");
+    await B.waitForSelector("#btn-resume", { state: "visible", timeout: 5000 }).catch(() => {});
+    B.off("dialog", accept);
+    const onTitle = await B.evaluate(() => ({
+      title: !document.getElementById("title-screen").classList.contains("hidden"),
+      line: document.getElementById("title-save-status").textContent
+    }));
+    expect(onTitle.title && same(asked, [LEAVE(1)]) && onTitle.line !== NOTICE(1), `${label}: Return anyway: ${JSON.stringify({ onTitle, asked })}`);
+    expect(same(await raw(A, SLOT1), aNewer), `${label}: B's Return anyway changed slot 1`);
+    await B.click("#btn-resume");
+    await B.waitForSelector("#game-screen", { state: "visible" });
+    await settle();
+    expect(await B.evaluate("state.scene") === await A.evaluate("state.scene") && !(await pbar(B)).error,
+      `${label}: B's Continue after Return anyway did not load A's save`);
+    expect(same(await raw(A, SLOT1), aNewer), `${label}: B's Continue changed slot 1`);
 
     // Different slots: B reloads, starts a run in slot 2; both play; neither is told; A never moves the pointer.
     label = "browser, different slots";

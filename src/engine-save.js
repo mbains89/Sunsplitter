@@ -820,6 +820,12 @@ function reportSaveSlotTaken(slot) {
   flashSaveStatus(notice, true, true);
 }
 
+// Return to title (in the Menu) asks this before it leaves without saving: the other tab's save stays,
+// and Continue on the title loads it.
+function saveSlotTakenLeaveQuestion(slot) {
+  return `Another tab saved Slot ${slot} · this tab's run is not saved · Return anyway?`;
+}
+
 // The slot this tab's run keeps its ship-memory trail under (L-054): the active slot, or none once
 // another tab has saved over it, so play this tab no longer saves never joins that slot's run.
 function runTrailSaveSlot() {

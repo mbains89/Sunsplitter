@@ -142,10 +142,27 @@ function menuLoadGame() {
   return loadGame();
 }
 
+// SUN-SECOND-TAB-GUARD-01: another tab has saved over the slot this run plays, so this tab saves
+// nothing there. Return to title asks first, then leaves without saving: the other tab's save stays
+// untouched and Continue loads it. Cancel keeps the run and the sheet as they were.
+function menuLeaveTakenSlot() {
+  if (typeof saveSlotTakenElsewhere !== "function" || typeof activeSaveSlot === "undefined") return null;
+  const slot = activeSaveSlot;
+  if (!saveSlotTakenElsewhere(slot)) return null;
+  if (typeof reportSaveSlotTaken === "function") reportSaveSlotTaken(slot);
+  let ok = false;
+  try { ok = window.confirm(saveSlotTakenLeaveQuestion(slot)) === true; } catch (e) { ok = false; }
+  // The bar's not-saving line belongs to the run; the title would show it with no Menu to act on.
+  if (ok && typeof clearSaveWriteFailure === "function") clearSaveWriteFailure();
+  return ok;
+}
+
 // O-8: back to the title, saving first with the Save button's own save. If the save fails, the sheet
 // stays open, says so, and the run goes on; nothing is lost that was not already lost.
 function menuReturnToTitle() {
-  if (!menuKeepsFinishedRun() && saveGame() !== true) {
+  const leaveTaken = menuLeaveTakenSlot();
+  if (leaveTaken === false) return false;
+  if (leaveTaken === null && !menuKeepsFinishedRun() && saveGame() !== true) {
     const bar = document.getElementById("save-status");
     const said = bar && bar.textContent ? bar.textContent : "Save failed";
     setMenuSheetStatus(said + " · you are still in the run", true);
