@@ -4,7 +4,7 @@
 registerScenes({
 
   priority_repairs: {
-    get text() { return `${isAlive("mira") && isAlive("amara") ? `You put Mira and Amara on the hull and life support.` : ""} The nav station stays dark — Jiro is not among the nine who made the hatch.
+    get text() { return `${isAlive("mira") && isAlive("amara") ? `You put Mira and Amara on the hull and life support.` : ""} The nav station stays dark. Jiro cleared the hatch with the rest of you; no one has heard from him since the breach.
 
 They work through the next cycle without sleep. Temporary seals hold. Hull climbs.
 
