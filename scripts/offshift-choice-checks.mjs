@@ -22,7 +22,8 @@ export function offshiftChoiceChecks(runtime) {
           // three steps each (pair, reply, hub). act2_spine_next keeps "Back to the work." on the tie.
           // 112 since SUN-DIET-REPLY-FOLD-01: the same walk, minus the hold_bolts_again,
           // act3_lethal_tomas_stores and breath_word_given screens it used to tap through (now replies).
-          return step === 112 && isAlive("tomas") && !isAlive("sela") &&
+          // 111 since SUN-DIET-VESS-MERGE-01: the same walk, minus the vess_cost screen (merged into vess_signal).
+          return step === 111 && isAlive("tomas") && !isAlive("sela") &&
             state.promises.sela === "made" && state.promises.tomas === "made" &&
             scenes.offshift_tomas.text.includes("He doesn't ask for anything.") &&
             scenes.offshift_tomas.choices.map(c => c.text).join("|") === "Eat with him.|Take yours and go.";
