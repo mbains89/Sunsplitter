@@ -275,7 +275,8 @@ function playChunk(runtime, mode, chunk, runs) {
         transcript: JSON.stringify({ screens, snap,
           ending: outcome === "ended" ? [document.getElementById("ending-title").textContent, document.getElementById("ending-text").textContent] : null,
           remains }),
-        recorded: { runs: memory.runs, plates: memory.plates.length, trail: memory.trail.length },
+        // SUN-SAVED-RUNS-01: the trail is kept per save slot; count every slot's entries.
+        recorded: { runs: memory.runs, plates: memory.plates.length, trail: Object.values(memory.trail).flat().length },
         remembered: remembered.splice(0)
       });
     }
