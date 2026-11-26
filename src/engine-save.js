@@ -442,6 +442,7 @@ function commitImportedSave(raw) {
   }
   pendingLegacyResume = null;
   preserveCompletedSlotUntilChoice = false;
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(); // SUN-MEMORY-STORE-01 (L-054)
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
