@@ -253,8 +253,14 @@ function closeCrewSheet() {
     returnFocus.focus();
     // SUN-CREW-BOARD-LANDSCAPE-01: focusing the chip can scroll the board back up; keep the facts in view.
     const board = document.getElementById("crew-panel");
-    if (board && typeof board.contains === "function" && board.contains(returnFocus) &&
-        typeof revealCrewDetail === "function") revealCrewDetail(board);
+    if (board && typeof board.contains === "function" && board.contains(returnFocus)) {
+      // Keyboard Back keeps the focused chip whole (Muse, #577); mouse and touch keep the facts in view.
+      let keyboard = false;
+      try { keyboard = typeof returnFocus.matches === "function" && returnFocus.matches(":focus-visible"); }
+      catch (e) { keyboard = false; }
+      if (keyboard && typeof returnFocus.scrollIntoView === "function") returnFocus.scrollIntoView({ block: "nearest" });
+      else if (typeof revealCrewDetail === "function") revealCrewDetail(board);
+    }
   }
   const img = document.getElementById("crew-sheet-image");
   if (img && typeof setManagedImageSource === "function") setManagedImageSource(img, "");

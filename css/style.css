@@ -250,6 +250,10 @@ body::before {
   flex-shrink: 0;
 }
 
+#crew-panel .crew-chip {
+  scroll-margin: 6px;
+}
+
 #crew-panel .crew-chips {
   display: flex;
   flex-wrap: wrap;
