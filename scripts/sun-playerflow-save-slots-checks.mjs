@@ -296,7 +296,9 @@ const ok = label => results.push(label);
   `);
   assert.equal(r.cont, 1);
   assert.equal(r.resumeShown, true, "Continue shows for slot 1 beside an unreadable slot 2");
-  assert.doesNotMatch(r.status, /can't be read/, "S-1 adds no new unreadable-slot line");
+  // SUN-SAVED-RUNS-01 (S-2): the title line names the unreadable slot and points to Saved runs.
+  assert.equal(r.status, "A saved run in Slot 2 can't be read by this version · open Saved runs to download it",
+    "the unreadable slot 2 is named beside slot 1's Continue");
   assert.equal(r.unreadable2, "{not json");
   assert.equal(r.unreadableExport2, "{not json", "slot 2's unreadable bytes download exactly");
   assert.equal(r.bytes2, true);
@@ -470,13 +472,17 @@ const ok = label => results.push(label);
     out.savedWithoutPointer = localStorage.getItem(SAVE_KEY) !== null;
     out.pointerMissing = localStorage.getItem(SAVE_POINTER_KEY);
     localStorage.setItem = realSet;
-    // Continue's line describes the slot Continue resumes; Export follows the active slot.
+    // Continue's line describes the slot Continue resumes. SUN-SAVED-RUNS-01: Export moved into the
+    // Saved runs dialog and follows its selected row, which starts on the slot Continue resumes.
     localStorage.clear();
     activeSaveSlot = 1;
     localStorage.setItem(saveSlotKeys(3).live, snap("act3_spine_next", { savedAt: Date.now() }));
     showScreen("title"); refreshTitleResumeUI();
     out.resumeShownForSlot3 = !document.getElementById("btn-resume").classList.contains("hidden");
-    out.exportHiddenSlot1Empty = document.getElementById("btn-export-save").classList.contains("hidden");
+    out.exportShownForRow3 = !document.getElementById("btn-export-save").classList.contains("hidden") &&
+      savedRunsSelectedSlot() === 3;
+    selectSavedRunsSlot(1);
+    out.exportHiddenRow1Empty = document.getElementById("btn-export-save").classList.contains("hidden");
     out.resumed3 = resumeGame();
     out.active3 = activeSaveSlot;
     out.pointer3 = localStorage.getItem(SAVE_POINTER_KEY);
@@ -495,7 +501,8 @@ const ok = label => results.push(label);
   assert.equal(r.savedWithoutPointer, true);
   assert.equal(r.pointerMissing, null);
   assert.equal(r.resumeShownForSlot3, true);
-  assert.equal(r.exportHiddenSlot1Empty, true, "Export reads the active slot, which is empty");
+  assert.equal(r.exportShownForRow3, true, "Export follows the selected row, which starts on slot 3");
+  assert.equal(r.exportHiddenRow1Empty, true, "Export is hidden for the empty slot 1 row");
   assert.equal(r.resumed3, true);
   assert.equal(r.active3, 3);
   assert.equal(r.pointer3, "3");
@@ -519,9 +526,13 @@ const ok = label => results.push(label);
       active: activeSaveSlot,
       resumeShown: !document.getElementById("btn-resume").classList.contains("hidden"),
       status: status(),
-      downloadShown: !document.getElementById("btn-export-unreadable").classList.contains("hidden"),
+      // SUN-SAVED-RUNS-01: Download unreadable is in the Saved runs dialog, on slot 1's row.
+      row: savedRunsSelectedSlot(),
+      downloadShownOnRow2: !document.getElementById("btn-export-unreadable").classList.contains("hidden"),
       download: (buildUnreadableSaveExport() || {}).text
     };
+    selectSavedRunsSlot(1);
+    out.downloadShown = !document.getElementById("btn-export-unreadable").classList.contains("hidden");
     const s2 = digest(keysOf(2));
     startGame();
     out.confirmShown = document.getElementById("new-run-confirm").classList.contains("visible");
@@ -532,7 +543,10 @@ const ok = label => results.push(label);
   assert.equal(r.cont, 2);
   assert.equal(r.active, 1);
   assert.equal(r.resumeShown, true);
-  assert.match(r.status, /can't be read/, "the unreadable slot 1 is announced beside slot 2's Continue");
+  assert.equal(r.status, "A saved run in Slot 1 can't be read by this version · open Saved runs to download it",
+    "the unreadable slot 1 is announced beside slot 2's Continue");
+  assert.equal(r.row, 2, "Saved runs starts on the slot Continue resumes");
+  assert.equal(r.downloadShownOnRow2, false, "slot 2's row offers no unreadable download");
   assert.equal(r.downloadShown, true, "Download unreadable is offered for slot 1");
   assert.equal(r.download, "{not json");
   assert.equal(r.confirmShown, true, "New run asks before replacing slot 1's unreadable bytes");
