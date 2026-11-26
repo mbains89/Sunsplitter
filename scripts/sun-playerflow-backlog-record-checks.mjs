@@ -240,8 +240,8 @@ ok(`real play (${RUNS} runs)`);
   const played = inVm(first, () => {
     const B = globalThis.__bl;
     localStorage.clear();
-    // The real new-run path: Begin -> commander -> intro -> first view.
-    commitNewRunWithCommander();
+    // The real new-run path: Begin -> slot (S-3, #604) -> commander -> intro -> first view.
+    if (commitNewRun(1) === false && document.getElementById("commander-create").classList.contains("visible")) commitNewRunWithCommander();
     const afterCommit = B.mem();
     const storedAfterCommit = B.stored(1);
     finishCinematic();
