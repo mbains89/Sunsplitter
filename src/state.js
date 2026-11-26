@@ -499,7 +499,7 @@ const LIVING_CLOCK_CONDITION = { lena: "on a clock she charted herself" };
 function crewConditionNote(key) {
   if (!isAlive(key)) return (state.deathCause && state.deathCause[key]) || "gone";
   if (!(state.dying && state.dying[key])) return "";
-  return LIVING_CLOCK_CONDITION[key] || "on a clock";
+  return LIVING_CLOCK_CONDITION[key] || "";
 }
 
 function isRecovered(who) {
@@ -852,7 +852,7 @@ function crewEpilogues() {
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
     else if (state.promises.lena === "broken") p += whatRemainsPromiseCausedDeath("lena") ? ` When the one line that holds a crashing patient was tested, it moved to her.` : ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
-    if (state.romance.lena) p += ` You had sex with her without pity, and you were the one who stayed.`;
+    if (state.romance.lena) p += ` You had sex with her, not out of pity, and you were the one who stayed.`;
     else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
     else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
     if (f.pair_triage === "chart") p += ` Rourke stayed a prognosis on her board.`;

@@ -114,7 +114,7 @@ registerScenes({
         state.pursuit.mira = true;
         addAffinity("mira", 22);
         if (state.flags.mira_memory_public) {
-          remember("Mira came back. The second crossing forced full disclosure of the retained intimate and vault record. The closed door is gone.");
+          remember("Mira came back. Sex with her a second time forced full disclosure of the retained intimate and vault record. The closed door is gone.");
         } else {
           remember("Mira came back. Partial disclosure of the vault talk. The pattern is public enough.");
         }

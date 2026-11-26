@@ -104,7 +104,7 @@ registerScenes({
         t += `Someone is still willing to meet you without an audience: ${avail.join(", ")}.\n\n`;
         t += `You can take more than one private hour before the next fracture — but each acceptance is public in its own way.\n\n`;
       } else {
-        t += `No open private claims remain — either you have already had sex with them, or you declined them.\n\n`;
+        t += `No open private claims remain. Each one has been answered or closed.\n\n`;
       }
       t += `What you accept here still changes how the crew looks at you afterward.`;
       return t;
