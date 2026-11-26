@@ -779,10 +779,22 @@ function whatRemainsPromiseCausedDeath(owner) {
   return false;
 }
 
+// SUN-TOMAS-PROMISE-LINE-01 (Myth read of #597): Tomas's promise as a crisis test settled it, or null.
+// An Off-Shift vow is "kept" by fiat with no test (offshift_tomas_r), so a kept result counts only
+// after a pre-crisis make: prom_make_tomas is reached only from bond_tomas, and every bond_tomas
+// answer marks Tomas "bonded" or "bond_skipped"; a run that vows at Off-Shift never has either mark.
+// "broken" is written only by the crisis tests (custody_after, breath_trunks). No new key.
+function tomasCrisisResult() {
+  const result = state.promises.tomas;
+  if (result === "broken") return state.crisisPath === "custody" || state.crisisPath === "breath" ? "broken" : null;
+  if (result === "kept") return hasMark("tomas", "bonded") || hasMark("tomas", "bond_skipped") ? "kept" : null;
+  return null;
+}
+
 function whatRemainsPromiseLine(owner) {
   const result = state.promises[owner];
   if (result !== "kept" && result !== "broken") return null;
-  if (owner === "tomas" && state.crisisPath !== "custody") return null;
+  if (owner === "tomas" && !tomasCrisisResult()) return null;
   // SUN-PROMISE-DEATH-ONCE-01 (decision 21): when the break killed someone, the death line above
   // carries the death and its cause, so the promise line says only that the promise broke.
   const lines = {
@@ -792,8 +804,10 @@ function whatRemainsPromiseLine(owner) {
       fatal: "At the service-pocket test, the vent did not stay shut."
     },
     tomas: {
-      kept: "At the custody test, the living received the shared mercy promised to Tomas.",
-      broken: "At the custody test, the inhabited ring paid to keep the vault as possession."
+      kept: "At the crisis, the living received the mercy promised to Tomas.",
+      broken: state.crisisPath === "breath"
+        ? "At the crisis, crew went into the trunks while the racks could have paid."
+        : "At the custody test, the inhabited ring paid to keep the vault as possession."
     },
     lena: {
       kept: "At the shared-line test, the medical line stayed with the other patient.",
@@ -1001,8 +1015,10 @@ function crewEpilogues() {
     if (f.tomas === "living") p += ` When he asked, you told him the living come first, and he held.`;
     else if (f.tomas === "future") p += ` When he asked, you told him the future is what justifies this; his calm came back all at once, and he did not argue.`;
     else if (f.tomas === "hold") p += ` When he asked, you asked him to hold on a little longer, and he held.`;
-    if (state.promises.tomas === "kept" && state.crisisPath === "custody") p += ` At the custody test the living got the shared mercy; he counted the cost.`;
-    else if (state.promises.tomas === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
+    const tomasTest = tomasCrisisResult();
+    if (tomasTest === "kept") p += ` At the crisis the living got the mercy; he counted the cost.`;
+    else if (tomasTest === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
+    else if (tomasTest === "broken") p += ` At the crisis crew went into the trunks while the racks could have paid, and he counted who was sent.`;
     else if (f.vault_sacrifice === "future") p += ` The vault had already been kept when the annex docked; he counted who in the habitation ring paid for it.`;
     if (f.pair_triage === "count") p += ` Rourke went into his count by name.`;
     else if (f.pair_seal === "names") p += ` The Deck 4 feedstock went on his slate under names.`;

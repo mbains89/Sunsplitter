@@ -94,27 +94,33 @@ export function whatRemainsChecks(runtime) {
     errors.push("death-causing promise did not win the promise slot, or restated the death");
   }
 
+  // SUN-TOMAS-PROMISE-LINE-01: a crisis keep follows a pre-crisis make (bond_tomas marks Tomas); an
+  // Off-Shift vow (no mark) is kept by fiat and never reads as a crisis result on either path.
   const tomasCrisisGate = runtime.evaluate(`(() => {
-    resetRunState();
-    state.promises.tomas = "kept";
-    state.crisisPath = "breath";
-    state.flags.breath_answer = "garden";
-    const breathFacts = whatRemainsFacts();
+    const run = (path, answer, made) => {
+      resetRunState();
+      if (made) mark("tomas", "bonded");
+      state.promises.tomas = "kept";
+      state.crisisPath = path;
+      state.flags[path === "breath" ? "breath_answer" : "custody_answer"] = answer;
+      return whatRemainsFacts();
+    };
+    const breathFacts = run("breath", "garden", true);
     const afterBreath = state.promises.tomas;
-
-    resetRunState();
-    state.promises.tomas = "kept";
-    state.crisisPath = "custody";
-    state.flags.custody_answer = "shared";
-    const custodyFacts = whatRemainsFacts();
+    const custodyFacts = run("custody", "shared", true);
     const afterCustody = state.promises.tomas;
-    return { breathFacts, custodyFacts, afterBreath, afterCustody };
+    const vowFacts = run("custody", "possession", false).concat(run("breath", "trunks", false));
+    return { breathFacts, custodyFacts, vowFacts, afterBreath, afterCustody };
   })()`);
-  if (tomasCrisisGate.breathFacts.some(line => /custody test/i.test(line))) {
-    errors.push("Tomas custody-test reflection surfaced on the Breath crisis path");
+  const tomasKept = "At the crisis, the living received the mercy promised to Tomas.";
+  if (tomasCrisisGate.breathFacts.some(line => /custody test/i.test(line)) || !tomasCrisisGate.breathFacts.includes(tomasKept)) {
+    errors.push("Tomas kept-promise reflection wrong on the Breath crisis path");
   }
-  if (!tomasCrisisGate.custodyFacts.includes("At the custody test, the living received the shared mercy promised to Tomas.")) {
+  if (!tomasCrisisGate.custodyFacts.includes(tomasKept)) {
     errors.push("Tomas kept-promise reflection missing on the Custody crisis path");
+  }
+  if (tomasCrisisGate.vowFacts.some(line => /promised to Tomas|custody test/i.test(line))) {
+    errors.push("an Off-Shift vow surfaced as a crisis result in What Remains");
   }
   if (tomasCrisisGate.afterBreath !== "kept" || tomasCrisisGate.afterCustody !== "kept") {
     errors.push("What Remains Tomas path gate mutated promise lifecycle state");
