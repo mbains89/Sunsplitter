@@ -1160,11 +1160,13 @@ body::before {
 
 /* SUN-SECOND-TAB-GUARD-01 — above phone width a long sticky notice ("Another tab saved Slot 1 ·
    not saving here · Load in Menu") wraps inside the bar instead of pushing Menu past its edge
-   (844x390, a phone held sideways). */
+   (844x390, a phone held sideways). SUN-BLOCKED-STORAGE-01's "Can't save in this browser" line
+   wraps here too, at the phone rule's line height. */
 @media (min-width: 481px) {
   #meta .save-status.visible {
     min-width: 0;
     white-space: normal;
+    line-height: 1.35;
   }
 }
 

@@ -181,7 +181,11 @@ function hasAcknowledgedTone() {
 function acknowledgeTone() {
   try {
     localStorage.setItem(TONE_ACK_KEY, "1");
-  } catch (e) { /* private mode — still proceed */ }
+  } catch (e) {
+    // Private mode: still proceed. The browser refused a one-character write, so it will not keep a
+    // save either; the title says saving is off (SUN-BLOCKED-STORAGE-01).
+    noteSaveStorageRefused();
+  }
   showTitleScreen();
 }
 
@@ -478,13 +482,22 @@ function beginFreshCampaign(opts) {
   resetRunState();
   // SUN-SECOND-TAB-GUARD-01: a new run replaces the slot on purpose (newRun), even one another tab
   // saved over, and gives it back to this tab.
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot, newRun: true })) {
+  // SUN-BLOCKED-STORAGE-01 (O-7(A)): when the browser keeps nothing, the run starts anyway, unsaved,
+  // and writes nothing (newRunPlaysUnsaved). Any other failed first write keeps the current run.
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot, newRun: true }) && !newRunPlaysUnsaved()) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
+    // SUN-BLOCKED-STORAGE-01: a read that failed once and works again is not saving off; the line
+    // persistSave posted for it gives way to the ordinary failure line.
+    if (!savingIsOff() && savingOffNoticeShown()) reportSaveWriteFailure(true, false);
     return false;
   }
-  if (opts.persist) {
+  const unsaved = savingIsOff();
+  // An unsaved run stays unsaved: if storage comes back mid-run, its autosave must not write this
+  // run over an older run in the slot.
+  if (unsaved) noteSaveStorageRefused();
+  if (opts.persist && !unsaved) {
     activeSaveSlot = slot;
     writeCurrentSlotPointer(slot);
   }
@@ -496,6 +509,10 @@ function beginFreshCampaign(opts) {
   showScreen("game");
   renderStatus();
   showScene("wake");
+  if (unsaved) {
+    updateMetaSaveHint();
+    showSavingOffNotice();
+  }
   return true;
 }
 

@@ -490,9 +490,16 @@ function showTutorialOverlay() {
 // A save by another tab in any other slot repaints the picker in place (refreshNewRunPickerInPlace).
 let pendingNewRunSlot = null;
 
+// SUN-BLOCKED-STORAGE-01: while the browser keeps nothing (savingIsOff), a new run writes nothing and
+// replaces nothing, so every slot reads as empty here and in the picker's rows.
+function newRunSavingOff() {
+  return typeof savingIsOff === "function" && savingIsOff();
+}
+
 function saveSlotsWithBytes() {
   const used = [];
   if (typeof SAVE_SLOT_COUNT === "undefined" || typeof slotHasAnyBytes !== "function") return used;
+  if (newRunSavingOff()) return used;
   for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
     let has = true; // a slot that cannot be read counts as in use, so it is never a default
     try { has = slotHasAnyBytes(slot); } catch (e) { has = true; }
@@ -539,7 +546,10 @@ function renderNewRunPicker(selectSlot) {
   let currentSlot = null;
   try { currentSlot = continueSlot(); } catch (e) { currentSlot = null; }
   const rows = [];
-  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) rows.push(savedRunRow(slot, currentSlot));
+  const off = newRunSavingOff();
+  for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot += 1) {
+    rows.push(off ? { slot, kind: "empty", current: false, name: "Slot " + slot + " · Empty", detail: "" } : savedRunRow(slot, currentSlot));
+  }
   const selected = parseSaveSlot(selectSlot);
   for (const row of rows) {
     const radio = document.getElementById("new-run-slot-" + row.slot);

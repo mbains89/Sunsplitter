@@ -209,3 +209,17 @@
     background-color: #1a1214;
   }
 }
+
+/* SUN-BLOCKED-STORAGE-01 — with saving off, Save and Load are disabled and the line under them says
+   why. A disabled button reads as unavailable and does not light up on hover or press. */
+#menu-sheet .btn:disabled,
+#menu-sheet .btn:disabled:hover,
+#menu-sheet .btn:disabled:active {
+  opacity: 0.48;
+  cursor: not-allowed;
+  border-style: solid;
+  border-color: var(--border);
+  color: var(--text);
+  background-color: transparent;
+  box-shadow: none;
+}

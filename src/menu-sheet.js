@@ -43,6 +43,25 @@ const MENU_RETURN_TITLE_CHIP = "Saves first · Continue on the title picks up he
 // After Play Again and before the new run's first order, the slot still holds the finished run, and
 // autosave leaves it there (preserveCompletedSlotUntilChoice). Return to title does the same.
 const MENU_RETURN_TITLE_CHIP_KEPT = "Not saved until your first order · the slot keeps your finished run";
+// SUN-BLOCKED-STORAGE-01 (O-7(A)): when the browser keeps nothing, Save and Load are disabled with
+// this line as their reason, and Return to title asks before it ends the run.
+const MENU_RETURN_TITLE_CHIP_OFF = "Can't save or load in this browser · leaving loses unsaved progress";
+const MENU_RETURN_TITLE_QUESTION_OFF = "Can't save in this browser · unsaved progress will be lost · Return to title anyway?";
+
+function menuSavingOff() {
+  return typeof savingIsOff === "function" && savingIsOff();
+}
+
+// Save and Load: disabled while saving is off, described by the line under them.
+function syncMenuSaveActions(off) {
+  for (const id of ["menu-save", "menu-load"]) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    btn.disabled = off;
+    if (off) btn.setAttribute("aria-describedby", "menu-return-title-chip");
+    else if (typeof btn.removeAttribute === "function") btn.removeAttribute("aria-describedby");
+  }
+}
 
 function menuSheetOpen() {
   const sheet = document.getElementById(MENU_SHEET_ID);
@@ -70,6 +89,11 @@ function syncMenuSheetSettings() {
 function syncMenuReturnTitleChip() {
   const chip = document.getElementById("menu-return-title-chip");
   if (!chip) return;
+  // SUN-BLOCKED-STORAGE-01: with saving off there is no slot to keep or lose, so that line comes first.
+  if (menuSavingOff()) {
+    chip.textContent = MENU_RETURN_TITLE_CHIP_OFF;
+    return;
+  }
   const taken = typeof saveSlotTakenElsewhere === "function" && typeof activeSaveSlot !== "undefined" &&
     saveSlotTakenElsewhere(activeSaveSlot);
   chip.textContent = taken ? saveSlotTakenChip(activeSaveSlot)
@@ -98,6 +122,7 @@ function openMenuSheet() {
   if (other && other !== sheet) return false;
   // Painted while still hidden, so the status chips announce nothing on open.
   syncMenuSheetSettings();
+  syncMenuSaveActions(menuSavingOff());
   syncMenuReturnTitleChip();
   setMenuSheetStatus("");
   menuSheetReturnFocus = document.getElementById("btn-menu");
@@ -146,11 +171,13 @@ function menuSheetSetting(name) {
 // Save and Load: the bar's handlers, unchanged. The sheet closes first, so their notice shows in the
 // bar's save line as it always did (on a phone the sheet covers the bar).
 function menuSaveGame() {
+  if (menuSavingOff()) return false;
   closeMenuSheet();
   return saveGame();
 }
 
 function menuLoadGame() {
+  if (menuSavingOff()) return false;
   closeMenuSheet();
   return loadGame();
 }
@@ -170,7 +197,16 @@ function menuLeaveTakenSlot() {
 
 // O-8: back to the title, saving first with the Save button's own save. If the save fails, the sheet
 // stays open, says so, and the run goes on; nothing is lost that was not already lost.
+// With saving off there is nothing to save to: it asks, and on yes leaves the run unsaved.
 function menuReturnToTitle() {
+  if (menuSavingOff()) {
+    let leave = false;
+    try { leave = window.confirm(MENU_RETURN_TITLE_QUESTION_OFF) === true; } catch (e) { leave = false; }
+    if (!leave) return false;
+    closeMenuSheet({ returnFocus: false });
+    showTitleScreen();
+    return true;
+  }
   const leaveTaken = menuLeaveTakenSlot();
   if (leaveTaken === false) return false;
   if (leaveTaken === null && !menuKeepsFinishedRun()) {

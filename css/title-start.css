@@ -395,3 +395,15 @@
     display: none;
   }
 }
+
+/* SUN-BLOCKED-STORAGE-01 — with saving off (the browser keeps nothing), Saved runs is disabled and
+   the save chip above Begin says why. A disabled button reads as unavailable and does not light up. */
+#title-screen #btn-saved-runs:disabled,
+#title-screen #btn-saved-runs:disabled:hover,
+#title-screen #btn-saved-runs:disabled:active {
+  opacity: 0.48;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text);
+  background: transparent;
+}
