@@ -2013,7 +2013,7 @@ function resolveSceneImageUngated(id, scene) {
   // Elias's private Mira-loss plate requires the same living/death predicate
   // as the scene. Saved invalid state must never render a dead speaker's face.
   if (id === "pair_shield_cold") {
-    if (!isAlive("elias") || isAlive("mira") || !attributableDeath("mira")) {
+    if (!isAlive("elias") || isAlive("mira") || !miraDiedByCommanderCall()) {
       return "images/corridor_variant_2.jpg";
     }
   }
