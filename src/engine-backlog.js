@@ -20,11 +20,12 @@
 //
 // Where it lives: beside its slot's save, one key per slot, bound to that save by savedAt:
 //   { v: 1, savedAt: <the save's savedAt from the same persistSave>, gap: <bool>, entries: [...] }
-// persistSave writes it after the save itself has verified; a failed write removes the key and never
-// changes persistSave's result or messages. Continue and Load keep it only when v is 1 and savedAt
-// matches the save just loaded; otherwise the run opens with a gap (earlier screens not kept).
-// clearSave removes it with the save. An import leaves it, and the binding decides: a file exported
-// from this slot's own save keeps it, any other file opens with the gap.
+// persistSave removes it before the save transaction, so it never takes the room the save needs, and
+// writes it again after the save itself has verified; a failed write removes the key and never
+// changes persistSave's result or messages (a save that fails leaves the slot's prior save with no
+// backlog: the gap). Continue and Load keep it only when v is 1 and savedAt matches the save just
+// loaded; otherwise the run opens with a gap (earlier screens not kept). clearSave removes it with the
+// save, and so does an import, which replaces the slot's save.
 
 const BACKLOG_KEYS = Object.freeze({
   1: "sunsplitter_backlog_v1",
@@ -95,10 +96,12 @@ function backlogRecordScreen(sceneId, text, replyLines, rememberedLine) {
 }
 
 // Choice point: makeChoice, before the next screen renders. The order closes the newest screen if
-// that screen is the one on display; a screen from before a gap is never on display.
+// that screen is the one on display. If the screen on display is not the newest entry (a Load whose
+// store was lost, or a run loaded on its first screen), that screen was seen and is not kept: a gap.
 function backlogRecordOrder(sceneId, label) {
   const last = runBacklog.entries[runBacklog.entries.length - 1];
-  if (last && last.s === sceneId && last.c === null) last.c = label == null ? "" : String(label);
+  if (!last || last.s !== sceneId) runBacklog.gap = true;
+  else if (last.c === null) last.c = label == null ? "" : String(label);
 }
 
 // The stored value for a save written at savedAt. Past the character cap, the oldest screens are

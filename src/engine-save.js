@@ -24,8 +24,9 @@
 // an export, so a file is a run, not a slot.
 //
 // Text backlog (L-062; SUN-BACKLOG-RECORD-01). One key per slot, beside that slot's save and bound to
-// it by savedAt. Written only by persistSave after the save has verified; removed by clearSave; never
-// in a snapshot or an export. Its code is in src/engine-backlog.js.
+// it by savedAt. persistSave removes it before the save transaction and writes it again only after the
+// save has verified; clearSave and an import remove it; never in a snapshot or an export. Its code is
+// in src/engine-backlog.js.
 //   slot 1   sunsplitter_backlog_v1
 //   slot 2   sunsplitter_backlog_v1_slot2
 //   slot 3   sunsplitter_backlog_v1_slot3
@@ -602,6 +603,8 @@ function commitImportedSave(raw, slot) {
   writeCurrentSlotPointer(slot);
   // SUN-MEMORY-STORE-01 (L-054): the imported run has faced no hard calls in this slot yet.
   if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
+  // L-062: the imported save replaced this slot's save, so the slot's backlog goes with it.
+  if (typeof backlogClear === "function") backlogClear(slot);
   updateMetaSaveHint();
   refreshTitleResumeUI();
   flashSaveStatus("Imported · Continue to load");
@@ -798,6 +801,9 @@ function persistSave(opts) {
     return false;
   }
   try {
+    // L-062: the slot's backlog never takes the room this transaction needs; it is written again,
+    // bound to the new save, once the save has verified.
+    if (typeof backlogClear === "function") backlogClear(slot);
     // Stage and verify before touching the live slot. If a prior slot exists,
     // preserve its exact bytes until the replacement has also verified.
     localStorage.setItem(slotKeys.staging, json);

@@ -14,7 +14,8 @@
 // wake's remembered-ending line (#584) is kept with its entry, as printed; a resume
 // re-render adds nothing; a retired-scene resume appends its exit (also through the held one-time
 // entry); binding (savedAt, v, shape, caps); per-slot keys; a throwing setItem on the backlog key;
-// new run, a refused new run, Play Again, clearSave and import; a staged dead and an unrecovered
+// a capped store never fails an autosave; an order on an unkept screen marks the gap;
+// new run, a refused new run, Play Again, clearSave and import (which clears the slot's backlog); a staged dead and an unrecovered
 // speaker; snapshotState(), the export and run state unchanged; the entry and character caps.
 // Prints the measured write cost per choice.
 import assert from "node:assert/strict";
@@ -524,7 +525,8 @@ ok(`real play (${RUNS} runs)`);
           staging: localStorage.getItem(saveSlotKeys(2).staging), backup: localStorage.getItem(saveSlotKeys(2).backup) });
       }
     }
-    // A failed save writes no backlog: the slot keeps the pair it had.
+    // A failed save writes no backlog, and the backlog was cleared before the save transaction (M1):
+    // the slot keeps its prior save, and Load opens it with the gap.
     localStorage.clear();
     beginFreshCampaign({ persist: true, slot: 1 });
     B.click(B.buttons()[0]);
@@ -535,10 +537,11 @@ ok(`real play (${RUNS} runs)`);
     out.failedSave = persistSave({ silent: true });
     localStorage.setItem = realSet;
     out.failedStatus = status()[0];
-    out.pairKept = readRawSave(1) === pair[0] && B.raw(1) === pair[1];
+    out.priorSaveKept = readRawSave(1) === pair[0];
+    out.backlogAfterFailedSave = B.raw(1);
     resetRunState();
-    resumeGame();
-    out.pairLoads = B.mem().entries.length === JSON.parse(pair[1]).entries.length && !B.mem().gap;
+    out.priorLoads = resumeGame();
+    out.priorMem = B.mem();
     return out;
   });
   const byMode = mode => r.cases.filter(c => c.mode === mode);
@@ -559,12 +562,98 @@ ok(`real play (${RUNS} runs)`);
   assert.deepEqual(byMode("normal").map(c => c.status[0]), ["", "Saved"]);
   assert.deepEqual(byMode("normal").map(c => c.backlog), ["written", "written"]);
   assert.deepEqual(byMode("throwSet").map(c => c.backlog), ["removed", "removed"], "a failed backlog write removes the key");
+  // With removeItem also throwing for the key, neither the clear before the save nor the clear after
+  // the failed write can remove it; the old value stays, bound to the older save.
   assert.deepEqual(byMode("throwSetAndRemove").map(c => c.backlog), ["prior kept", "prior kept"], "a key that cannot be removed is left as it was");
   assert.equal(r.failedSave, false);
   assert.equal(r.failedStatus, "Autosave failed · prior slot kept");
-  assert.equal(r.pairKept, true, "a failed save leaves the prior save and its backlog as they were");
-  assert.equal(r.pairLoads, true, "and they still load together");
+  assert.equal(r.priorSaveKept, true, "a failed save leaves the prior save");
+  assert.equal(r.backlogAfterFailedSave, null, "the backlog was cleared before the save transaction and not rewritten");
+  assert.equal(r.priorLoads, true);
+  assert.deepEqual(r.priorMem, { gap: true, entries: [] }, "Load opens the prior save with the gap");
   ok("throwing setItem");
+}
+
+// 6b. Short storage (review M1): with localStorage capped at 12,348 characters a real run's backlog
+//     soon cannot fit. It never takes the room the save transaction needs: every autosave succeeds,
+//     the backlog is dropped once it is too big, and Load opens the run with the gap.
+{
+  const r = run(cap => {
+    const B = globalThis.__bl;
+    localStorage.clear();
+    const sizes = new Map();
+    let used = 0;
+    const realSet = localStorage.setItem, realRemove = localStorage.removeItem, realClear = localStorage.clear;
+    localStorage.setItem = (key, value) => {
+      const size = String(key).length + String(value).length;
+      const next = used - (sizes.get(key) || 0) + size;
+      if (next > cap) throw new Error("QuotaExceededError");
+      realSet(key, value); used = next; sizes.set(key, size);
+    };
+    localStorage.removeItem = key => { realRemove(key); used -= sizes.get(key) || 0; sizes.delete(key); };
+    localStorage.clear = () => { realClear(); sizes.clear(); used = 0; };
+    let seed = 4242;
+    Math.random = () => { seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const realPersist = persistSave;
+    let saves = 0, failures = 0, stored = 0;
+    persistSave = opts => { const ok = realPersist(opts); saves++; if (!ok) failures++; if (B.raw(1) !== null) stored++; return ok; };
+    beginFreshCampaign({ persist: true, slot: 1 });
+    for (let step = 0; step < 700 && state.scene !== "ending_check"; step++) {
+      const buttons = B.buttons();
+      if (!buttons.length) break;
+      B.click(buttons[Math.floor(Math.random() * buttons.length)]);
+    }
+    persistSave = realPersist;
+    const ended = state.scene === "ending_check";
+    const lastScene = JSON.parse(readRawSave(1)).scene;
+    const screens = runBacklog.entries.length;
+    resetRunState();
+    const loaded = resumeGame();
+    localStorage.setItem = realSet; localStorage.removeItem = realRemove; localStorage.clear = realClear;
+    return { saves, failures, stored, ended, lastScene, screens, loaded, scene: state.scene, mem: B.mem(), maxUsed: cap };
+  }, 12_348);
+  assert.ok(r.saves > 50, `a real run autosaved (${r.saves})`);
+  assert.equal(r.failures, 0, `no autosave fails under a capped store (${r.failures} of ${r.saves} failed)`);
+  assert.ok(r.stored > 0 && r.stored < r.saves, "the backlog was kept while it fit, then dropped");
+  assert.equal(r.loaded, true);
+  assert.equal(r.scene, r.lastScene, "Load opens the last save");
+  assert.equal(r.mem.gap, true, "and shows the gap for the backlog that could not be kept");
+  ok("short storage never fails the save");
+}
+
+// 6c. An order given on a screen that is not the newest entry marks the gap (review L1): a run Loaded
+//     on its first screen with no store, and the export of such a run imported into another slot.
+{
+  const r = run(() => {
+    const B = globalThis.__bl;
+    const out = {};
+    localStorage.clear();
+    localStorage.setItem(SAVE_KEY, B.snap("wake", { savedAt: 3000 }));
+    resetRunState();
+    resumeGame();
+    out.beforeOrder = B.mem();
+    B.click(B.buttons()[0]);
+    out.afterOrder = B.mem();
+    // The review's repro: a run exported on its first screen, imported into slot 2, Loaded there.
+    localStorage.clear();
+    beginFreshCampaign({ persist: true, slot: 1 });
+    const exported = buildSaveExport(1).text;
+    out.imported = importSaveText(exported, 2);
+    resetRunState();
+    activeSaveSlot = 2;
+    loadGame();
+    B.click(B.buttons()[0]);
+    out.importedAfterOrder = B.mem();
+    return out;
+  });
+  assert.deepEqual(r.beforeOrder, { gap: false, entries: [] }, "a run on its first screen opens with no gap");
+  assert.equal(r.afterOrder.gap, true, "an order on a screen that was not kept marks the gap");
+  assert.equal(r.afterOrder.entries.length, 1, "the next screen is still recorded");
+  assert.equal(r.afterOrder.entries[0].c, null);
+  assert.equal(r.imported, true);
+  assert.equal(r.importedAfterOrder.gap, true, "the review's import repro now shows the gap");
+  assert.equal(r.importedAfterOrder.entries.length, 1);
+  ok("an order on an unkept screen marks the gap");
 }
 
 // 7. New run, a refused new run, Play Again, clearSave and import.
@@ -589,7 +678,11 @@ ok(`real play (${RUNS} runs)`);
     out.refused = beginFreshCampaign({ persist: true, slot: 2 });
     localStorage.setItem = realSet;
     out.refusedMemKept = JSON.stringify(runBacklog) === memBefore;
-    out.refusedPairKept = readRawSave(2) === pair2[0] && B.raw(2) === pair2[1];
+    // The failed save cleared slot 2's backlog first (M1); the run's next autosave writes the pair again.
+    out.refusedSaveKept = readRawSave(2) === pair2[0];
+    out.refusedBacklog = B.raw(2);
+    B.click(B.buttons()[0]);
+    out.rewritten = B.stored(2) && B.stored(2).savedAt === B.savedAt(2) && JSON.stringify(B.stored(2).entries) === JSON.stringify(runBacklog.entries);
     // Play Again after an ending: the finished slot keeps its backlog until the first choice.
     state.scene = "ending_check";
     persistSave({ silent: true });
@@ -607,13 +700,24 @@ ok(`real play (${RUNS} runs)`);
     // clearSave removes the slot's backlog with its save.
     clearSave(2);
     out.cleared = [readRawSave(2), B.raw(2), B.raw(1) === slot1Pair[1]];
-    // Import: the stored backlog stays on disk and the binding decides on Continue.
+    // Import replaces the slot's save, so it clears that slot's backlog (review L2), even for a
+    // file exported from this very slot; a failed import keeps it, and other slots are untouched.
     const exported = buildSaveExport(1).text;
+    persistSave({ silent: true, slot: 3 });
+    const slot3Backlog = B.raw(3);
+    const realSetForImport = localStorage.setItem;
+    localStorage.setItem = (key, value) => { if (key === SAVE_KEY) throw new Error("QuotaExceededError"); return realSetForImport(key, value); };
+    out.importFailed = importSaveText(B.snap("act3_spine_next", { savedAt: 1233 }), 1);
+    localStorage.setItem = realSetForImport;
+    out.failedImportKeptBacklog = B.raw(1) === slot1Pair[1];
     out.importOther = importSaveText(B.snap("act3_spine_next", { savedAt: 1234 }), 1);
-    out.importOtherKeyKept = B.raw(1) === slot1Pair[1];
+    out.importOtherKey = B.raw(1);
+    out.slot3Untouched = B.raw(3) === slot3Backlog;
     resetRunState(); activeSaveSlot = 1; loadGame();
     out.importOtherMem = B.mem();
+    localStorage.setItem(B.keys[1], slot1Pair[1]); // the slot's own backlog back on disk
     out.importOwn = importSaveText(exported, 1);
+    out.importOwnKey = B.raw(1);
     resetRunState(); activeSaveSlot = 1; loadGame();
     out.importOwnMem = B.mem();
     out.slot1Entries = JSON.parse(slot1Pair[1]).entries.length;
@@ -626,7 +730,9 @@ ok(`real play (${RUNS} runs)`);
   assert.equal(r.newRun.slot1Same, true, "a new run in slot 2 leaves slot 1's save and backlog alone");
   assert.equal(r.refused, false);
   assert.equal(r.refusedMemKept, true, "a refused new run keeps the current run's backlog");
-  assert.equal(r.refusedPairKept, true);
+  assert.equal(r.refusedSaveKept, true, "a refused new run keeps slot 2's save");
+  assert.equal(r.refusedBacklog, null, "its failed save cleared slot 2's backlog before the transaction");
+  assert.equal(r.rewritten, true, "the run's next autosave writes the pair again");
   assert.deepEqual(r.playAgainMem.entries.map(e => e.s), ["wake"], "Play Again starts a new backlog");
   assert.equal(r.keptThroughPagehide, true, "Play Again keeps the finished slot's backlog through a lifecycle save");
   assert.equal(r.afterFirstChoice.savedAtBound, true, "the first choice replaces the pair together");
@@ -635,12 +741,15 @@ ok(`real play (${RUNS} runs)`);
   assert.equal(r.afterFirstChoice.entries.length, 2);
   assert.equal(r.afterFirstChoice.gap, false);
   assert.deepEqual(r.cleared, [null, null, true], "clearSave(2) removes slot 2's save and backlog, not slot 1's");
+  assert.equal(r.importFailed, false);
+  assert.equal(r.failedImportKeptBacklog, true, "a failed import keeps the slot's save and its backlog");
   assert.equal(r.importOther, true);
-  assert.equal(r.importOtherKeyKept, true, "an import does not write the backlog key");
-  assert.deepEqual(r.importOtherMem, { gap: true, entries: [] }, "a different imported save opens with the gap");
+  assert.equal(r.importOtherKey, null, "an import clears the slot's backlog with the save it replaces");
+  assert.equal(r.slot3Untouched, true, "an import into slot 1 leaves slot 3's backlog alone");
+  assert.deepEqual(r.importOtherMem, { gap: true, entries: [] }, "the imported save opens with the gap");
   assert.equal(r.importOwn, true);
-  assert.equal(r.importOwnMem.gap, false, "re-importing this slot's own export keeps its backlog");
-  assert.equal(r.importOwnMem.entries.length, r.slot1Entries);
+  assert.equal(r.importOwnKey, null, "re-importing this slot's own export clears its backlog too");
+  assert.deepEqual(r.importOwnMem, { gap: true, entries: [] });
   ok("new run, Play Again, clearSave and import");
 }
 
