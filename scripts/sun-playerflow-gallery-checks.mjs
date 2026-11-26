@@ -402,7 +402,8 @@ function checkWithheldAndRenderable(errors) {
     showTitleScreen(); openGallery();
     const all = []; for (let g = 0; g < 10; g++) { all.push(...__tiles()); if (!galleryPage(1)) break; }
     o.all = all;
-    // Seen in play: lead_prompt is on screen today and the store records it; the gallery still withholds it.
+    // Seen in an old run: lead_prompt was on screen before #587 rewired it (2026-11-25), so a stored
+    // memory can still name it; the store records it and the gallery still withholds it.
     closeGallery(); localStorage.clear(); resetRunState(); showScreen("game");
     o.leadRenders = galleryRenderableStems().has("lead_prompt");
     setManagedImageSource(document.getElementById("scene-image"), "images/lead_prompt.jpg");
@@ -445,7 +446,7 @@ function checkWithheldAndRenderable(errors) {
     return o;
   })())`));
   if (JSON.stringify(out.all) !== JSON.stringify(["vault", "medical_bay"])) errors.push(`L: a memory naming withheld and unknown plates shows ${JSON.stringify(out.all)}`);
-  if (!out.leadRenders) errors.push("L: lead_prompt is no longer renderable; drop this case once #587 lands, keep it withheld");
+  if (out.leadRenders) errors.push("L: lead_prompt renders its own plate again; #587 rewired it to the empty blister");
   if (!out.recorded.includes("lead_prompt")) errors.push("L: the store did not record lead_prompt, so the in-play case proved nothing");
   if (!out.buttonHidden) errors.push("L: the Gallery button shows when the only plate seen is withheld");
   if (!out.hasOnerror || !out.brokenHidden || !out.otherShown) errors.push(`L: a picture that fails to load must hide its own tile only (${JSON.stringify(out)})`);
