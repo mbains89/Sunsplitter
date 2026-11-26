@@ -502,6 +502,75 @@ function crewConditionNote(key) {
   return LIVING_CLOCK_CONDITION[key] || "";
 }
 
+// SUN-CREW-MARK-WORDS-01 (decision 35, item 34): the crew board's words for state.marks, which
+// #565 stopped printing as raw tags. Each inner list is one thread of the run; the first tag
+// present prints its sentence, in What Remains' order (crewEpilogues). Many sentences are that
+// paragraph's own. A tag with no entry here prints nothing, so no raw tag reaches the board.
+const CREW_MARK_WORDS = {
+  lena: [
+    [["watched_vent", "She watched you vent the lower ring."]],
+    [["dying_held", "She said it did not change the math, and that she was glad it happened."],
+      ["held_only", "You stayed present without the rest."],
+      ["declined", "She offered; you stepped back."]],
+    [["pursuit_declined", "She asked a second time; you would not spend the last dose."]]
+  ],
+  elias: [
+    [["approved_vent", "He approved the vent."]],
+    [["bonded", "You sat with him over a drink that was never ship-issue."],
+      ["bond_skipped", "You left his drink untouched."]]
+  ],
+  mira: [
+    [["watched_stop", "She looked away when you ordered Rourke's treatment stopped."]],
+    [["people_first", "At the schematic you told her people come first."],
+      ["drive_first", "At the schematic you told her the ship comes first."]],
+    [["held_only", "You told her you cared, and that the chain of command came first that night."],
+      ["declined", "She offered the honest hour; you said not like this."]],
+    [["pursuit_declined", "She asked a second time; you would not make the record public."]]
+  ],
+  tomas: [
+    [["grief", "He grieved the lower ring."]],
+    [["bonded", "You sat in on his card game."],
+      ["bond_skipped", "You folded early; duty was waiting."]],
+    [["held", "He told you he was close to breaking; your answer let him hold."],
+      ["broke", "He told you he was close to breaking. You answered with the future; he did not argue."],
+      ["warned", "He told you he was close to breaking."]]
+  ],
+  amara: [
+    [["plants_matter", "She heard you say living things matter."],
+      ["math_first", "She heard you put the math first."]],
+    [["held_only", "You wanted her company without sex that night, and said so."],
+      ["declined", "She asked if you wanted her; you said no and kept the line clean."]],
+    [["privacy_left", "You left her and Tomas the hour they had claimed."],
+      ["interrupted", "You walked in on her and Tomas and asked them to stop."]],
+    [["pursuit_declined", "She asked a second time; you would not claim the vent delay."]]
+  ],
+  jiro: [
+    [["bonded", "You stayed with him at the star tracker."],
+      ["bond_skipped", "You left him the work."]]
+  ],
+  sela: [
+    [["spoken", "She spoke with you at her yellow circle."]],
+    [["held_only", "You sat with the ritual and made no further claim."],
+      ["declined", "She asked, in complete sentences; you did not take it further."]],
+    [["pursuit_declined", "She asked a second time; you refused the vault vow."]]
+  ],
+  vess: [
+    [["accepted", "She offered the attempt and you accepted; power stayed hers."],
+      ["declined", "She offered the attempt once; you declined, and she did not ask again."]]
+  ]
+};
+function crewMarkWords(key) {
+  // Living only, as the board printed marks before #565. Reads state; writes nothing.
+  if (!isAlive(key) || !state.marks || !state.marks[key]) return "";
+  // A recorded romance is the board's Romance line, so the stay-or-step-back sentence yields to
+  // it, as the What Remains paragraph does.
+  const romance = !!(state.romance && (state.romance[key] || (key === "amara" && state.romance.amara_tomas)));
+  return (CREW_MARK_WORDS[key] || []).map(thread => {
+    const hit = thread.find(([tag]) => hasMark(key, tag) && !(romance && (tag === "held_only" || tag === "declined")));
+    return hit ? hit[1] : "";
+  }).filter(Boolean).join(" ");
+}
+
 function isRecovered(who) {
   return !!(state.recovered && state.recovered[who]);
 }

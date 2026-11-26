@@ -132,7 +132,7 @@
         <button id="btn-memory-board" class="btn hidden" type="button" onclick="openMemoryBoard('title')">Memory board</button>
         <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-confirm-copy">
           <p id="new-run-confirm-copy">New run replaces the durable local save slot. Cancel keeps Continue available.</p>
-          <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Confirm = overwrite slot · Cancel = keep Continue</p>
+          <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Confirm replaces your saved run · Cancel keeps it</p>
           <div role="group" aria-label="New run confirm">
             <button id="new-run-cancel" class="btn" type="button" onclick="cancelNewRun()">Cancel</button>
             <button id="new-run-ok" class="btn btn-primary" type="button" onclick="confirmNewRun()">Confirm</button>
@@ -171,7 +171,7 @@
           </div>
         </div>
         <div class="save-transfer-actions" role="group" aria-label="Save transfer">
-          <p id="export-import-chip" class="export-import-chip" role="status">Import anytime · Export appears when a durable slot exists</p>
+          <p id="export-import-chip" class="export-import-chip" role="status">Import a save file anytime · Export appears once a run is saved</p>
           <button id="btn-export-save" class="btn hidden" type="button" onclick="exportSaveFile()">Export save</button>
           <button id="btn-export-unreadable" class="btn hidden" type="button" onclick="exportUnreadableSaveFile()">Download unreadable save</button>
           <button id="btn-import-save" class="btn" type="button" onclick="requestSaveImport()">Import save</button>
@@ -181,7 +181,7 @@
           <button id="btn-show-costs" class="btn" type="button" onclick="toggleShowCosts()" aria-pressed="false" aria-describedby="show-costs-chip">Show costs on choices</button>
         </div>
         <div class="content-notice-actions" role="group" aria-label="Content notice">
-          <p id="content-notice-chip" class="content-notice-chip" role="status">Reopens tone notice · does not clear notice acknowledged or save</p>
+          <p id="content-notice-chip" class="content-notice-chip" role="status">Shows the content notice again · nothing is reset</p>
           <button id="btn-content-notice" class="btn" type="button" onclick="revisitTone()" aria-describedby="content-notice-chip">Revisit content notice</button>
         </div>
         <div class="reader-settings-actions" role="group" aria-label="Reader settings">

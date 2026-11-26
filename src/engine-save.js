@@ -1033,8 +1033,8 @@ function refreshTitleResumeUI() {
     const xchip = document.getElementById("export-import-chip");
     if (xchip) {
       xchip.textContent = exportable
-        ? "Export ready · Import anytime (durable local slot)"
-        : "Import anytime · Export appears when a durable slot exists";
+        ? "Export your run to a file · Import a save file anytime"
+        : "Import a save file anytime · Export appears once a run is saved";
     }
   }
   const saveChip = document.getElementById("title-save-chip");

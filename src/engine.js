@@ -2317,7 +2317,10 @@ function renderCrewPanel(selectedKey) {
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
     // favoritism is "who you chose to keep close"; raw marks (e.g. "dying_held") stay internal.
     if (!dead && favored === selectedKey) bits.push("kept close");
-    detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}</div>`;
+    // SUN-CREW-MARK-WORDS-01 (decision 35): the marks come back as words (crewMarkWords in state.js),
+    // living members only; a member with no worded mark gets no extra line.
+    const between = !dead && typeof crewMarkWords === "function" ? crewMarkWords(selectedKey) : "";
+    detail = `<div class="crew-detail" role="status"><strong>${escapeHtml(c.name)}</strong> · ${bits.map(escapeHtml).join(" · ")}<br>Condition: ${escapeHtml(condition)}<br>${dead ? "Trust (last recorded)" : "Trust"}: ${escapeHtml(trustText)}<br>Romance: ${escapeHtml(romance.join("; ") || "None recorded")}${between ? `<br>Between you: ${escapeHtml(between)}` : ""}</div>`;
   } else {
     detail = `<div class="crew-detail dim" role="status">Tap a name for trust, romance, and condition.</div>`;
   }
