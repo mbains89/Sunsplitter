@@ -109,7 +109,7 @@ const PRELUDE = `
     begin: __text("btn-begin"), chip: __text("title-save-chip"), chipShown: __shown("title-save-chip"),
     savedRunsDisabled: document.getElementById("btn-saved-runs").disabled === true,
     savedRunsDescribedBy: __attr("btn-saved-runs", "aria-describedby"),
-    status: __text("title-save-status"), off: savingIsOff()
+    status: __text("title-save-status"), off: typeof savingIsOff === "function" ? savingIsOff() : null
   });
   const __choicesEl = document.getElementById("choices");
   if (!__choicesEl.__clears) {
@@ -368,9 +368,9 @@ function vmChecks(errors, summary) {
     const result = blockedModeCase(mode, errors);
     if (result) results.push(`${mode} ${result.choices}`);
   }
-  returningRefusedCase(errors);
-  oneOffFailureCase(errors);
-  workingCase(errors);
+  for (const [label, run] of [["returning", returningRefusedCase], ["one-off", oneOffFailureCase], ["working", workingCase]]) {
+    try { run(errors); } catch (error) { errors.push(`B ${label}: threw: ${String(error && error.message).split("\n")[0]}`); }
+  }
   summary.push(`A: ${BLOCKED_MODES.length} blocked modes from page load (choices played: ${results.join(", ")}); title, Menu, Return to title, second run, settings, memory, no save-key write`);
   summary.push("B: returning player with writes refused plays unsaved and keeps slot 1; a one-off failure keeps today's rule; working storage unchanged");
 }
