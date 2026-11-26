@@ -11,7 +11,7 @@ import vm from "node:vm";
 
 export const POLICY_NAMES = ["living", "future", "pragmatic"];
 export const LOCKED_POLICY_NAMES = ["random", "cheapest", "priciest"];
-export const EXPECTED_SCENE_COUNT = 230; // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 answer screens folded into replies (RETIRED_SCENE_EXITS); SUN-DIET-MEMORY-FOLD-01: - ship_memory_payoff folded into final_choice
+export const EXPECTED_SCENE_COUNT = 229; // SUN-CREW-FRICTION-01: + four pair scenes and their replies; SUN-DIET-REPLY-FOLD-01: - 11 answer screens folded into replies (RETIRED_SCENE_EXITS); SUN-DIET-MEMORY-FOLD-01: - ship_memory_payoff folded into final_choice; SUN-DIET-VESS-MERGE-01: - vess_cost merged into vess_signal
 export const LOCKED_SEED = 20260817;
 export const STRICT_RUNS_PER_POLICY = 2_000;
 export const STRICT_SHARD_SIZE = 500;
@@ -20,7 +20,8 @@ export const WORKER_HEAP_MB = 384;
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DEFAULT_ROOT = resolve(dirname(SCRIPT_PATH), "..");
 const DEFAULT_BASELINE = "scripts/fixtures/main-reconcile-ci-pr-baseline.json";
-const SCRIPT_TAG_RE = /<script\b[^>]*\bsrc\s*=\s*(["'])([^"']+)\1[^>]*><\/script>/gi;
+// The space before "src" keeps data-src and the like out: a browser does not load those.
+const SCRIPT_TAG_RE = /<script\b[^>]*?\ssrc\s*=\s*(["'])([^"']+)\1[^>]*><\/script>/gi;
 const RESOURCE_KEYS = ["survivors", "integrity", "cohesion", "supplies", "embryos"];
 const ECONOMY_KEYS = ["integrity", "cohesion", "supplies", "embryos"];
 const CREW_KEYS = ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess", "rourke"];
@@ -861,6 +862,10 @@ function runSelfTest() {
     assert.equal(readEngineSource(engineFixture), "CORE\nSAVE");
     writeFileSync(resolve(engineFixture, "index.html"), ["src/state.js", "src/engine-save.js"].map(tag).join("\n"));
     assert.throws(() => readEngineSource(engineFixture), /does not load src\/engine\.js/);
+    // A data-src attribute is not a loaded script, whichever side of src it sits on.
+    writeFileSync(resolve(engineFixture, "index.html"), `<script src="src/state.js" data-src="src/engine-save.js"></script>\n<script data-src="src/engine-save.js" src="src/engine.js"></script>`);
+    assert.deepEqual(readScriptManifest(engineFixture).scripts, ["src/state.js", "src/engine.js"]);
+    assert.equal(readEngineSource(engineFixture), "CORE");
   } finally {
     rmSync(engineFixture, { recursive: true, force: true });
   }
