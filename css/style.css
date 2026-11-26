@@ -1512,9 +1512,11 @@ body::before {
     z-index: 1;
   }
 }
-/* Three rows always (chip, then two of buttons), so selecting an empty slot does not shift them. */
+/* Rows held always (the chip, then the buttons), so selecting an empty slot does not shift them.
+   SUN-DELETE-SLOT-01: a run's row has five buttons (Load, Export, Import, Delete, Close), so phones hold
+   three rows of two; from 480px wide three columns hold them in two rows (below). */
 #title-screen #saved-runs .saved-runs-actions {
-  grid-template-rows: auto minmax(48px, auto) minmax(48px, auto);
+  grid-template-rows: auto minmax(48px, auto) minmax(48px, auto) minmax(48px, auto);
 }
 #title-screen #saved-runs .save-transfer-actions {
   display: contents;
@@ -1575,5 +1577,47 @@ body::before {
 @media (max-height: 480px) {
   #title-screen #new-run-confirm .new-run-panel {
     scroll-padding-bottom: 8rem;
+  }
+}
+
+/* SUN-DELETE-SLOT-01 (design S-4) — Delete's confirm takes the place of the selected row's actions:
+   its question where the chip was, Cancel and "Delete Slot N" in the first row of buttons, the other
+   rows held empty, so opening it does not move the panel. The chip and the question hold one height. */
+#title-screen #saved-runs .saved-runs-delete-confirm.visible {
+  display: contents;
+}
+#title-screen #saved-runs .export-import-chip,
+#title-screen #saved-runs .saved-runs-delete-question {
+  min-height: 2.7em; /* two lines */
+}
+#title-screen #saved-runs .saved-runs-delete-question {
+  order: -1;
+  grid-column: 1 / -1;
+  margin: 0;
+  font: 600 12px/1.35 system-ui, sans-serif;
+  color: #f0c8a0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+/* The narrowest phones (320px): the unreadable save's question runs to three lines, so hold three. */
+@media (max-width: 340px) {
+  #title-screen #saved-runs .export-import-chip,
+  #title-screen #saved-runs .saved-runs-delete-question {
+    min-height: 4.05em;
+  }
+}
+/* From 480px wide the panel is 440px: three columns, so a run's five buttons take two rows, and the
+   sticky actions on a phone held sideways (844x390) keep the height they had before Delete. */
+@media (min-width: 480px) {
+  #title-screen #saved-runs .saved-runs-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto minmax(48px, auto) minmax(48px, auto);
+  }
+}
+/* "Download unreadable save" runs to three lines in a third of the panel, which grew that row and
+   moved the panel when the unreadable row was chosen; it spans two columns instead. */
+@media (min-width: 480px) {
+  #title-screen #saved-runs #btn-export-unreadable {
+    grid-column: span 2;
   }
 }

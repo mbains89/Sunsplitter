@@ -19,6 +19,10 @@ const BUTTONS = [
   { id: "btn-import-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-export-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-export-unreadable", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
+  // SUN-DELETE-SLOT-01: Delete, and its confirm's two buttons in place of the row's actions.
+  { id: "saved-runs-delete", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions"] },
+  { id: "saved-runs-delete-cancel", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".saved-runs-delete-confirm"] },
+  { id: "saved-runs-delete-ok", primary: true, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".saved-runs-delete-confirm"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
   { id: "btn-gallery", primary: false, containers: [".title-actions"] },
   // SUN-NEW-RUN-SLOT-01: the New run slot picker uses the Saved runs panel and action grid.
