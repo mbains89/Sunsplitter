@@ -890,13 +890,13 @@ const LINE_SPACING_KEY = "sunsplitter_line_spacing_v1";
 const TEXT_SIZE_STEPS = ["standard", "large", "larger", "largest"];
 const LINE_SPACING_STEPS = ["standard", "relaxed", "open"];
 const TEXT_SIZE_CHIPS = {
-  standard: "Standard · story and choices at your browser's text size",
+  standard: "Standard · the usual size",
   large: "Large · story and choices a step up",
   larger: "Larger · two steps up",
   largest: "Largest · three steps up"
 };
 const LINE_SPACING_CHIPS = {
-  standard: "Standard · lines as the game sets them",
+  standard: "Standard · the usual line spacing",
   relaxed: "Relaxed · more room between lines",
   open: "Open · the most room between lines"
 };

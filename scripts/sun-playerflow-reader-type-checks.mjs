@@ -14,7 +14,8 @@
 //   C. Chromium, when Playwright is installed (CI has no browser, so C reports NOT_AVAILABLE
 //      there; pass --require-browser to fail instead): at 360x640, 390x844, 640x360, 844x390,
 //      1280x720 and 1440x900, the standard setting computes exactly what the page computes without
-//      css/reader-settings.css; and for every size x spacing combination on three scenes: no
+//      css/reader-settings.css; and, with Costs on, for every size x spacing combination on four
+//      scenes: cost tags scaled with their choice, no
 //      horizontal overflow, the status bar, meta bar and plate unchanged from standard, the last
 //      choice scrolled to and hit-testable, and a pending Read on either in normal flow or sticky
 //      with at least three of the scene's lines above it.
@@ -35,13 +36,13 @@ const SPACINGS = ["standard", "relaxed", "open"];
 const SIZE_FACTOR = { standard: 1, large: 1.15, larger: 1.3, largest: 1.5 };
 const SPACING_FACTOR = { standard: 1, relaxed: 1.13, open: 1.28 };
 const SIZE_CHIPS = {
-  standard: "Standard · story and choices at your browser's text size",
+  standard: "Standard · the usual size",
   large: "Large · story and choices a step up",
   larger: "Larger · two steps up",
   largest: "Largest · three steps up"
 };
 const SPACING_CHIPS = {
-  standard: "Standard · lines as the game sets them",
+  standard: "Standard · the usual line spacing",
   relaxed: "Relaxed · more room between lines",
   open: "Open · the most room between lines"
 };
@@ -50,12 +51,14 @@ const SURFACES = {
   ".scene-text": [1.02, 1.72],
   ".choice-btn": [1, 1.4],
   ".choice-reason": [0.72, null],
+  ".choice-effects": [0.78, null], // cost tags scale with their choice (Muse and lead, 2026-11-26)
   ".ending-text": [1, 1.75],
   ".cinematic-caption": [1.1, 1.7]
 };
 const VIEWPORTS = [[360, 640], [390, 844], [640, 360], [844, 390], [1280, 720], [1440, 900]];
 // The first screen; the screen with the most choices; one of the longest scenes, with a plate.
-const SCENES = ["wake", "crew_walk", "act2_tether_sighting"];
+// final_choice: long cost tags on every choice once Costs is on.
+const SCENES = ["wake", "crew_walk", "final_choice", "act2_tether_sighting"];
 const REVEAL_STICKY_FLOOR = 160;
 
 // ---------- A. headless ----------
@@ -184,7 +187,7 @@ function sourceChecks(errors) {
     if (!body.includes(`font-size: calc(${rem}rem * var(--reader-size))`)) errors.push(`B: ${selector} must scale its ${rem}rem by --reader-size`);
     if (leading && !body.includes(`line-height: calc(${leading} * var(--reader-leading))`)) errors.push(`B: ${selector} must scale its ${leading} leading by --reader-leading`);
   }
-  for (const chrome of ["#status", "#meta", "#reveal-controls", ".stat-value", "#crew-panel", ".choice-effects", ".text-pace-chip", ".btn {"]) {
+  for (const chrome of ["#status", "#meta", "#reveal-controls", ".stat-value", "#crew-panel", ".choice-tag", ".text-pace-chip", ".btn {"]) {
     if (new RegExp(`${chrome.replace(/[.*+?^${}()|[\]\\#]/g, "\\$&")}[^{]*\\{[^}]*var\\(--reader-`).test(reader)) errors.push(`B: ${chrome} is chrome and must not scale`);
   }
   if (!/REVEAL_STICKY_MIN_HEIGHT\s*=\s*160\b/.test(engine)) errors.push("B: the sticky Read on keeps its 160px floor");
@@ -206,16 +209,17 @@ async function loadPlaywright() {
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".jpg": "image/jpeg", ".png": "image/png", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp" };
 
 // In the page: the computed size and leading of every reading surface. .choice-reason is only in
-// a locked choice, so a probe reason is added to the first choice and removed again.
+// a locked choice and .choice-effects only on a choice with costs, so a probe of each is added to
+// the first choice and removed again.
 const MEASURE = `(() => {
   const btn = document.querySelector("#choices .choice-btn");
-  const probe = document.createElement("span"); probe.className = "choice-reason"; probe.textContent = "probe";
-  if (btn) btn.appendChild(probe);
-  const els = { ".scene-text": document.querySelector("#story .scene-text"), ".choice-btn": btn, ".choice-reason": btn ? probe : null,
-    ".ending-text": document.getElementById("ending-text"), ".cinematic-caption": document.querySelector(".cinematic-caption") };
+  const probe = cls => { const el = document.createElement("span"); el.className = cls; el.textContent = "probe"; if (btn) btn.appendChild(el); return el; };
+  const reason = probe("choice-reason"), effects = probe("choice-effects");
+  const els = { ".scene-text": document.querySelector("#story .scene-text"), ".choice-btn": btn, ".choice-reason": btn ? reason : null,
+    ".choice-effects": btn ? effects : null, ".ending-text": document.getElementById("ending-text"), ".cinematic-caption": document.querySelector(".cinematic-caption") };
   const out = {};
   for (const [name, el] of Object.entries(els)) { if (!el) { out[name] = null; continue; } const cs = getComputedStyle(el); out[name] = [cs.fontSize, cs.lineHeight]; }
-  probe.remove();
+  reason.remove(); effects.remove();
   return out;
 })()`;
 
@@ -243,7 +247,7 @@ async function browserChecks(errors, summary, requireBrowser) {
     if (requireBrowser) errors.push(line); else summary.push(line);
     return;
   }
-  let combos = 0, stickyChecked = 0, inFlow = 0, standardMinMain = Infinity;
+  let combos = 0, stickyChecked = 0, inFlow = 0, standardMinMain = Infinity, tagStates = 0;
   try {
     for (const [width, height] of VIEWPORTS) {
       const name = `${width}x${height}`;
@@ -255,7 +259,7 @@ async function browserChecks(errors, summary, requireBrowser) {
       await page.goto(url);
       await page.waitForFunction(() => typeof beginFreshCampaign === "function");
       // Into a run, past the intro, with paced text.
-      await page.evaluate(() => { localStorage.setItem("sunsplitter_text_pace_v1", "paced"); persistSave = () => true; beginFreshCampaign({ persist: false }); showScreen("game"); renderStatus(); });
+      await page.evaluate(() => { localStorage.setItem("sunsplitter_text_pace_v1", "paced"); persistSave = () => true; beginFreshCampaign({ persist: false }); showScreen("game"); renderStatus(); setShowCostsOnChoices(true); });
 
       // C1: at standard the page computes exactly what it computes without the stylesheet.
       await page.evaluate(() => showScene("wake"));
@@ -324,6 +328,11 @@ async function browserChecks(errors, summary, requireBrowser) {
                 o.lastReach = { inView: b.top >= -0.5 && b.top + 20 <= window.innerHeight, hit: !!hit && (hit === last || last.contains(hit)), right: Math.round(b.right), vw: window.innerWidth };
                 o.lastOverflow = last.scrollWidth - last.clientWidth;
               }
+              // Cost tags (Costs is on): they scale with the choice, and no choice overflows sideways.
+              const tags = [...document.querySelectorAll("#choices .choice-effects")];
+              o.tags = tags.length;
+              o.tagFont = tags.length ? parseFloat(getComputedStyle(tags[0]).fontSize) : null;
+              o.choiceOverflow = Math.max(0, ...buttons.map(b => b.scrollWidth - b.clientWidth), ...tags.map(t => Math.ceil(t.getBoundingClientRect().right - t.closest(".choice-btn").getBoundingClientRect().right)));
               main.scrollTop = 0;
               return o;
             }, { scene, size, spacing });
@@ -334,6 +343,11 @@ async function browserChecks(errors, summary, requireBrowser) {
             if (Math.abs(m.line - wantFont * 1.72 * SPACING_FACTOR[spacing]) > 0.1) errors.push(`${where}: scene leading ${m.line}px, want ${(wantFont * 1.72 * SPACING_FACTOR[spacing]).toFixed(2)}px`);
             if (m.docOverflow > 0 || m.bodyOverflow > 0 || m.mainOverflow > 0) errors.push(`${where}: horizontal overflow (document ${m.docOverflow}px, body ${m.bodyOverflow}px, #main ${m.mainOverflow}px)`);
             if (m.lastOverflow > 0) errors.push(`${where}: the last choice overflows by ${m.lastOverflow}px`);
+            if (m.choiceOverflow > 0) errors.push(`${where}: a choice or its cost tag overflows by ${m.choiceOverflow}px`);
+            if (m.tags) {
+              tagStates++;
+              if (Math.abs(m.tagFont - 0.78 * 16 * SIZE_FACTOR[size]) > 0.05) errors.push(`${where}: cost tag ${m.tagFont}px, want ${(0.78 * 16 * SIZE_FACTOR[size]).toFixed(2)}px`);
+            }
             const key = scene;
             if (size === "standard" && spacing === "standard") baseline[key] = m;
             else {
@@ -385,7 +399,8 @@ async function browserChecks(errors, summary, requireBrowser) {
     await browser.close();
     server.close();
   }
-  summary.push(`C: Chromium at ${VIEWPORTS.map(v => v.join("x")).join(", ")}: standard computes as without the stylesheet; ${combos} size x spacing x scene states with no overflow, bars and plate unchanged, the last choice reachable; ${stickyChecked} sticky Read on bars with three lines above, ${inFlow} in normal flow; at standard #main was never under ${standardMinMain}px`);
+  if (!tagStates) errors.push("C: no state showed a cost tag with Costs on, so cost-tag scaling proved nothing; add a scene with costs");
+  summary.push(`C: Chromium at ${VIEWPORTS.map(v => v.join("x")).join(", ")}: standard computes as without the stylesheet; ${combos} size x spacing x scene states with no overflow, bars and plate unchanged, the last choice reachable; ${tagStates} with cost tags shown and scaled, none overflowing; ${stickyChecked} sticky Read on bars with three lines above, ${inFlow} in normal flow; at standard #main was never under ${standardMinMain}px`);
 }
 
 export async function sunPlayerflowReaderTypeChecks({ requireBrowser = false } = {}) {

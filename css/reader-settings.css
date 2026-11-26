@@ -2,8 +2,8 @@
    Linked last in index.html. engine.js sets data-text-size / data-line-spacing on <html> from the
    reader's choice (never from run state) and removes them at "standard", where every value below
    computes to exactly what css/style.css sets. Only the reading surfaces scale: scene text, choices,
-   a locked choice's reason, ending and What Remains text, cinematic captions. Chrome does not:
-   status bar, meta bar, Read on / Show all, title chips, crew panel, cost tags. Browser zoom and
+   a locked choice's reason and its cost tags, ending and What Remains text, cinematic captions.
+   Chrome does not: status bar, meta bar, Read on / Show all, title chips, crew panel. Browser zoom and
    the OS text size still multiply on top. D5(a), 2026-11-25: one scene-text size at every width
    (the dead 1.08rem desktop rule is gone). */
 :root {
@@ -29,6 +29,11 @@ html[data-line-spacing="open"] { --reader-leading: 1.28; }
 
 .choice-reason {
   font-size: calc(0.72rem * var(--reader-size));
+}
+
+/* Cost tags scale with the choice they price: costs decide choices (Muse and lead, 2026-11-26). */
+.choice-effects {
+  font-size: calc(0.78rem * var(--reader-size));
 }
 
 .ending-text {
