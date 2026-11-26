@@ -165,7 +165,7 @@ registerScenes({
       // player who reaches this scene has a dead Mira, and the unmended jacket is the cold-Elias
       // symptom (CHARACTER_BIBLE §2); the mending sentence contradicted the paragraph under it.
       let t = `His quarters smell of gun oil and thread. The jacket on the table is torn at the shoulder and unmended. His kit sits closed beside it. He sees you see it and doesn't explain.\n\n`;
-      if (!attributableDeath("mira")) {
+      if (!state.flags.pair_shield) {
         t += `"You never asked what she was. She was what the job was for." He says it once, at the floor, and picks up the wafer instead of the needle. "That's the once."\n\n`;
       } else {
         t += `"You heard what she was. Once was the count."\n\n`;
