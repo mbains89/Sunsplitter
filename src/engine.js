@@ -1386,7 +1386,7 @@ function resolveEnding() {
   const emb = state.embryos;
   const integ = state.integrity;
   const sup = state.supplies;
-  const deadNames = namedDead();
+  const deadNames = namedDead({ causes: false });
   const crisis = state.flags.crisis;
   const final = state.flags.final;
   const planet = state.flags.planet;

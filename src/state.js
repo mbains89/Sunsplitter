@@ -474,7 +474,9 @@ function favoritism() {
   return null;
 }
 
-function namedDead() {
+// SUN-HONESTY-LINES-01 (item 31, decision 21): the endings list names only, `namedDead({ causes:
+// false })`; a death's cause prints once, in What Remains. reckon_summary keeps its causes.
+function namedDead({ causes = true } = {}) {
   // Dedup by crew key so the same death is never listed twice
   const seen = new Set();
   const out = [];
@@ -482,7 +484,7 @@ function namedDead() {
     if (seen.has(k)) continue;
     seen.add(k);
     const name = crew[k] ? crew[k].name : k;
-    const cause = state.deathCause && state.deathCause[k];
+    const cause = causes && state.deathCause && state.deathCause[k];
     out.push(cause ? `${name} (${cause})` : name);
   }
   return out;
