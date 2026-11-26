@@ -296,7 +296,7 @@ export function sunPlayerflowCrewMarkWordsChecks() {
   const plain = {
     empty: "Import a save file anytime · Export appears once a run is saved",
     staticEmpty: "Import a save file anytime · Export appears once a run is saved",
-    saved: "Export your run to a file · Import a save file anytime",
+    saved: "Export your run to a file · Import one anytime",
     confirm: "Confirm replaces your saved run · Cancel keeps it",
     notice: "Shows the content notice again · nothing is reset"
   };

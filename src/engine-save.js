@@ -1033,7 +1033,7 @@ function refreshTitleResumeUI() {
     const xchip = document.getElementById("export-import-chip");
     if (xchip) {
       xchip.textContent = exportable
-        ? "Export your run to a file · Import a save file anytime"
+        ? "Export your run to a file · Import one anytime"
         : "Import a save file anytime · Export appears once a run is saved";
     }
   }
