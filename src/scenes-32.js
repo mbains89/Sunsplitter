@@ -26,7 +26,7 @@ registerScenes({
           : `Vess offered the attempt and you accepted. Power stayed hers.\n\n`;
       }
       if (open.length) {
-        t += `Someone you already crossed a line with may still come looking: ${open.join(", ")}. A second approach is not free — the crew will read it as a pattern.\n\n`;
+        t += `Someone you have already had sex with may still come looking: ${open.join(", ")}. A second approach is not free — the crew will read it as a pattern.\n\n`;
       } else {
         t += `No one is initiating a second private claim right now.\n\n`;
       }
@@ -114,7 +114,7 @@ registerScenes({
         state.pursuit.mira = true;
         addAffinity("mira", 22);
         if (state.flags.mira_memory_public) {
-          remember("Mira came back. The second crossing forced full disclosure of the retained intimate and vault record. The closed door is gone.");
+          remember("Mira came back. Sex with her a second time forced full disclosure of the retained intimate and vault record. The closed door is gone.");
         } else {
           remember("Mira came back. Partial disclosure of the vault talk. The pattern is public enough.");
         }

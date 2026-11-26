@@ -33,7 +33,7 @@ export function whatRemainsChecks(runtime) {
     "Rourke died with company.",
     "At the vault fault, the restart package was kept and habitation paid the cost; the thermal-spine overload ended with Mira severing the fused junction and carrying the cold-radiation injury.",
     "The Earth-era directive binding was refused; authority stayed with the living.",
-    "A private line was crossed with Mira; she was alive when the run ended."
+    "You had a romance with Mira; she was alive when the run ended."
   ];
   expected.forEach((line, index) => {
     if (facts[index] !== line) errors.push(`primary fixture fact[${index}] mismatch: ${JSON.stringify(facts[index])}`);
@@ -145,7 +145,7 @@ export function whatRemainsChecks(runtime) {
     return whatRemainsFacts();
   })()`);
   const mixedRelational = mixed[mixed.length - 1];
-  if (mixedRelational !== "Private lines were crossed with Lena and Mira; Lena was alive at the ending, and Mira had died.") {
+  if (mixedRelational !== "You had romances with Lena and Mira; Lena was alive at the ending, and Mira had died.") {
     errors.push(`mixed relational tense mismatch: ${JSON.stringify(mixedRelational)}`);
   }
 

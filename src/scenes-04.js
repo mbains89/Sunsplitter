@@ -34,7 +34,7 @@ She is explicit in what she wants and does not ask you to be careful. The sex is
         addAffinity("lena", 35);
         addTrust("lena", 12);
         mark("lena", "dying_held");
-        remember("You and Lena crossed a line in the observation blister. The crew will notice who you keep close.");
+        remember("You and Lena had sex in the observation blister. The crew will notice who you keep close.");
       }
     },
     image: "images/afterglow_lena.jpg"
