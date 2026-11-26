@@ -200,7 +200,11 @@ const RETIRED_SCENE_EXITS = {
   // SUN-DIET-MEMORY-FOLD-01 (D11 Deep step 1, C04): the memory pass-through's text now opens
   // final_choice on first arrival; a save parked on it has no patch flag yet, so the resumed
   // final_choice prints the same debts the parked screen showed, then the final orders.
-  ship_memory_payoff: "final_choice"
+  ship_memory_payoff: "final_choice",
+  // SUN-DIET-VESS-MERGE-01: the cost screen is merged into the signal screen, which now carries its
+  // docking choices and its entry writes (idempotent: flags re-set, memories deduped by remember()).
+  // A save parked on vess_cost resumes on the merged screen with the same two choices it had.
+  vess_cost: "vess_signal"
 };
 function retiredSceneExit(id) {
   if (!Object.prototype.hasOwnProperty.call(RETIRED_SCENE_EXITS, id)) return null;

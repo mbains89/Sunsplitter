@@ -2018,7 +2018,9 @@ const HITL_EVENT_PLATE_IDS = new Set([
   "act2_tether_truth", "act2_tether_lie", "act3_reckoning_heading", "act3_reckoning_burn_stale",
   "act3_reckoning_burn_verified", "act3_reckoning_delay", "act3_reckoning_cut", "act3_reckoning_briefing",
   "observation_nightshift", "observation_nightshift_ask", "observation_nightshift_leave", "vess_signal",
-  "vess_cost", "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
+  // SUN-DIET-VESS-MERGE-01: vess_cost is retired (merged into vess_signal); its plate stays on disk
+  // and in PLATE_FACES, referenced by no scene.
+  "vess_transmission", "act3_lethal_mira_board", "act3_lethal_mira_reserve", "aftermath_seal",
   "aftermath_seal_order", "aftermath_seal_holds", "sun_payoff", "ship_interrupt", "pair_grudge_settle",
   "custody_shared",
   // SUN-HITL-LATE-SIX-01: njQ5P is berths_manifest's own plate; empty_berths keeps empty_berths.jpg.
