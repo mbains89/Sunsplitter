@@ -67,8 +67,8 @@ He bolted the vault down himself and signed the load-out deviation, because mass
 Later surface: "People were tier four." is a minted single-owner phrase (Grok lock, §4) — it should recur at most once, late, in a Living-aligned reckon or ending, in his mouth only. His signature on the deviation is a debt object: the trade that made him is the trade he keeps re-litigating in the trays.
 
 ### Amara — the list in her hands *(lane: political selection)*
-The manifest was physically in her hands when the alarm sounded; that is the entire mechanism of her survival, and she knows how it sounds. Two hundred fourteen confirmed berths. Some names carry annotation codes she was never taught — sponsor codes, triage codes, somebody's shorthand. She has decided not to decide, because the day she interprets those codes, she starts assigning blame among the dead.
-- "The manifest was in my hands when the alarm sounded. That's the whole story of how I boarded. I was holding the list."
+The manifest was physically in her hands when the alarm sounded, on the station's secondary ring, and she came through Tube 3 still holding it; that is the entire mechanism of her survival, and she knows how it sounds. Two hundred fourteen confirmed berths. Some names carry annotation codes she was never taught — sponsor codes, triage codes, somebody's shorthand. She has decided not to decide, because the day she interprets those codes, she starts assigning blame among the dead.
+- "The manifest was in my hands when the alarm sounded. I was on the station's secondary ring, working the boarding list, and I came through the tube still holding it. That's the whole story of how I boarded."
 - "Two hundred fourteen confirmed berths. Some names have codes beside them I was never taught. Sponsor codes. Triage codes. Somebody's shorthand. I've decided not to decide."
 - "Everyone aboard is owed by someone who isn't. I keep that ledger too. Nobody has asked to see it."
 - *(private)* "Their columns stay on the board. That isn't sentiment. That's the debt staying legible."

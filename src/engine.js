@@ -187,6 +187,7 @@ function acknowledgeTone() {
 
 function revisitTone() {
   showScreen("tone");
+  syncShipRemembersLine("tone-remembers", typeof shipRemembersToneLine === "function" ? shipRemembersToneLine() : "");
 }
 
 // SUN-PRICE-TAGS-01 — reader setting "Show costs on choices". Default OFF.
@@ -484,6 +485,7 @@ function beginFreshCampaign(opts) {
   // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
   if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
+  wakeRemembersArmed = true; // SUN-SHIP-REMEMBERS-01: this wake, and its first look after the intro
   showScreen("game");
   renderStatus();
   showScene("wake");
@@ -510,6 +512,15 @@ function playAgain() {
 function showTitleScreen() {
   showScreen("title");
   refreshTitleResumeUI();
+  syncShipRemembersLine("title-remembers", typeof shipRemembersTitleLine === "function" ? shipRemembersTitleLine() : "");
+}
+
+// SUN-SHIP-REMEMBERS-01 (L-054): the title and tone screens' one line, hidden when there is none.
+function syncShipRemembersLine(id, line) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = line || "";
+  el.classList.toggle("hidden", !line);
 }
 
 function imageAlternative(src) {
@@ -668,6 +679,10 @@ function prefetchChoicePlates(choices) {
 // onEnter may have just killed them). Held in memory only: never written to state or the save,
 // carried across onEnter redirects, dropped on resume and when the choice ends the run.
 let pendingChoiceReply = null;
+// SUN-SHIP-REMEMBERS-01 (L-054): the wake's ship-remembers paragraph shows only on a fresh run, from
+// beginFreshCampaign until the first committed choice. Load, Continue and import never arm it.
+// Presentation only, held in memory: never in state or the save.
+let wakeRemembersArmed = false;
 
 function choiceReplyLines(reply) {
   if (!reply) return [];
@@ -749,11 +764,17 @@ function showScene(id, opts) {
   // SUN-EMPTY-PARAGRAPHS-01: a blank paragraph (a leading or trailing "\n\n", or one around a
   // conditional line that printed nothing) is dropped here, so paced reveal never spends a
   // "Read on" tap on nothing. Paced, instant and resume all render from this one markup.
-  const html = String(raw)
+  let html = String(raw)
     .split(/\n\n+/)
     .filter(p => p.trim())
     .map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
+  // SUN-SHIP-REMEMBERS-01 (L-054): on a fresh run's wake, one more paragraph when the ship remembers
+  // an earlier ending. It joins the paced reveal like any other paragraph.
+  if (id === "wake" && wakeRemembersArmed) {
+    const line = typeof shipRemembersWakeLine === "function" ? shipRemembersWakeLine() : "";
+    if (line) html += `<p class="ship-remembers">${escapeHtml(line)}</p>`;
+  }
 
   const replyHtml = opts.resume ? (pendingChoiceReply = null, "") : renderPendingChoiceReply();
   document.getElementById("story").innerHTML = `<div class="scene-text">${replyHtml}${html}</div>`;
@@ -1539,7 +1560,7 @@ function resolveEnding() {
   const emb = state.embryos;
   const integ = state.integrity;
   const sup = state.supplies;
-  const deadNames = namedDead();
+  const deadNames = namedDead({ causes: false });
   const crisis = state.flags.crisis;
   const final = state.flags.final;
   const planet = state.flags.planet;
@@ -2290,8 +2311,7 @@ function renderCrewPanel(selectedKey) {
     if ((selectedKey === "amara" || selectedKey === "tomas") && state.romance && state.romance.amara_tomas) {
       romance.push("Shared Amara–Tomas encounter recorded");
     }
-    const cause = dead ? ((state.deathCause && state.deathCause[selectedKey]) || "gone")
-      : (state.dying && state.dying[selectedKey]);
+    const cause = crewConditionNote(selectedKey);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for
@@ -2346,6 +2366,7 @@ function makeChoice(choice) {
     Object.keys(choice.lean).forEach(side => lean(side, choice.lean[side]));
   }
   pendingChoiceReply = choiceReplyLines(choice.reply);
+  wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: gone after the first order
   showScene(choice.next);
   // Changes from the order and from the next scene's entry both show on the bar.
   pulseChangedStatus(statusBefore);

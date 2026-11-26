@@ -27,7 +27,7 @@ In the laundry nook, uniforms hang in sizes that will not be filled. The ship's 
 
 This is not a mystery. It is a design that assumed a different launch day. The Sunsplitter did not become empty by accident. It launched incomplete.`;
       if (!state.flags.manifest && isAlive("amara")) {
-        t += `\n\nAmara is at the far end of the berth rows, tablet face-down against her thigh. She does not ask why you are here. Nobody asks that, here.\n\n"The manifest was in my hands when the alarm sounded," she says. "That is the whole story of how I boarded. I was holding the list."\n\nShe turns the tablet face-up. She does not offer it. She does not withdraw it.`;
+        t += `\n\nAmara is at the far end of the berth rows, tablet face-down against her thigh. She does not ask why you are here. Nobody asks that, here.\n\n"The manifest was in my hands when the alarm sounded," she says. "I was on the station's secondary ring, working the boarding list, and I came through the tube still holding it. That is the whole story of how I boarded."\n\nShe turns the tablet face-up. She does not offer it. She does not withdraw it.`;
       }
       return t;
     },
@@ -154,7 +154,7 @@ She waits. Not soft. Hungry for an answer that will let her work.`,
     onEnter: () => { state.flags.quiet_tomas_done = true; },
     text: `Tomas sits where the common area still has a shadow that feels intentional.
 
-Still no rank, still no console. Before the pads he was a hospital chaplain; on this ship he keeps the human cost on the ledger when everyone else is trying to close it.
+Still no rank, still no console. Before the pads he was a hospital chaplain. On this ship he grows food, and he keeps the human cost on the ledger when everyone else is trying to close it.
 
 "They will come to you with numbers," he says. "I will come to you with names. I am not asking you to ignore the numbers. I am asking you not to pretend the names are noise."
 

@@ -84,7 +84,7 @@ const crew = {
   lena:   { name: "Dr. Lena Voss", first: "Lena", role: "Medical", bio: "Former trauma surgeon from the orbital hospitals. Lost her entire staff during the evacuation. Attractive, sharp, exhausted. The living come first until the math forces her hand." },
   elias:  { name: "Elias Kane", first: "Elias", role: "Security", bio: "Ex-corporate security. Believes soft leadership is a luxury the dead cannot afford. Tall, scarred, magnetic. The mission outranks comfort." },
   mira:   { name: "Mira Solis", first: "Mira", role: "Engineer", bio: "Drive systems specialist. Still believes the ship can be saved if she is given enough time and parts. Intense, brilliant, hungry for connection. Torn between systems and people." },
-  tomas:  { name: "Brother Tomas", first: "Tomas", role: "None", bio: "Hospital chaplain turned refugee. Carries no rank and no weapons, only presence. Quiet intensity under the calm. Keeps the human cost on the ledger." },
+  tomas:  { name: "Brother Tomas", first: "Tomas", role: "None", bio: "Hospital chaplain before the pads; a grower now, who kept the agri-annex alive alone. Carries no rank and no weapons, only presence. Quiet intensity under the calm. Keeps the human cost on the ledger." },
   amara:  { name: "Amara Vale", first: "Amara", role: "Hydroponics", bio: "Grew food for three habitats before the fall. Still carries the house key from her home in Lagos. Grounded, sensual, grieving. Living things are not a luxury." },
   jiro:   { name: "Jiro Okada", first: "Jiro", role: "Navigation", bio: "Navigator who plotted the escape trajectory. Speaks little. Watches everything. Reserved, precise, carrying quiet grief. The numbers are the only honest language left." },
   sela:   { name: "Sela", first: "Sela", role: "None", bio: "Twenty years old. Draws yellow circles that look like suns. Speaks carefully and precisely when she chooses to — refusal as much as grief. Quiet, watchful, present. Wants a world that is still warm." },
@@ -373,7 +373,9 @@ function hasMark(who, tag) {
 // hour, a private word or a private promise; logged orders and public acts never print there. Matched
 // by the opening words of each remember() text below, so a reworded memory drops out rather than leaks.
 const PRIVATE_MEMORY_OPENINGS = [
-  "You and Lena crossed a line", "You and Mira crossed a line", "You and Amara claimed the hydroponics bay",
+  "You and Lena had sex", "You and Mira had sex", "You and Amara claimed the hydroponics bay",
+  // SUN-HONESTY-LINES-01: the two openings these memories had until then, for saves that hold them.
+  "You and Lena crossed a line", "You and Mira crossed a line",
   "Sela chose you without an audience", "You shared the hydroponics bay with Amara and Tomas",
   "Shared the last long-range window and a private hour with Vess", "The ship interrupted a private hour",
   "Lena came back while her clock", "Sela chose a second series under a private vow",
@@ -474,7 +476,9 @@ function favoritism() {
   return null;
 }
 
-function namedDead() {
+// SUN-HONESTY-LINES-01 (item 31, decision 21): the endings list names only, `namedDead({ causes:
+// false })`; a death's cause prints once, in What Remains. reckon_summary keeps its causes.
+function namedDead({ causes = true } = {}) {
   // Dedup by crew key so the same death is never listed twice
   const seen = new Set();
   const out = [];
@@ -482,10 +486,20 @@ function namedDead() {
     if (seen.has(k)) continue;
     seen.add(k);
     const name = crew[k] ? crew[k].name : k;
-    const cause = state.deathCause && state.deathCause[k];
+    const cause = causes && state.deathCause && state.deathCause[k];
     out.push(cause ? `${name} (${cause})` : name);
   }
   return out;
+}
+
+// SUN-HONESTY-LINES-01 (item 33): what the crew board and sheet print after "Condition: Alive".
+// state.dying holds the cause a death will be logged with (Lena's is written at aftermath); while
+// she lives the board says how she lives, not how she will die. A death prints its logged cause.
+const LIVING_CLOCK_CONDITION = { lena: "on a clock she charted herself" };
+function crewConditionNote(key) {
+  if (!isAlive(key)) return (state.deathCause && state.deathCause[key]) || "gone";
+  if (!(state.dying && state.dying[key])) return "";
+  return LIVING_CLOCK_CONDITION[key] || "";
 }
 
 function isRecovered(who) {
@@ -529,7 +543,7 @@ function visibleLivingCrewCount() {
 }
 
 
-// SUN-RECAP-HONESTY-01: a private hour was spent this run (a crossed line, a held hour, or one the
+// SUN-RECAP-HONESTY-01: a private hour was spent this run (a romance, a held hour, or one the
 // ship interrupted). Read from existing romance/marks/flags only.
 function privateHourTaken() {
   return ROMANCEABLE.some(k => state.romance[k] || hasMark(k, "held_only")) ||
@@ -763,18 +777,18 @@ function whatRemainsRelationalFact() {
   const dead = partners.filter(key => !isAlive(key));
   const allNames = whatRemainsJoinNames(partners);
   if (partners.length === 1) {
-    if (living.length) return `A private line was crossed with ${allNames}; she was alive when the run ended.`;
-    return `A private line was crossed with ${allNames} before her death.`;
+    if (living.length) return `You had a romance with ${allNames}; she was alive when the run ended.`;
+    return `You had a romance with ${allNames} before her death.`;
   }
   if (!dead.length) {
     const subject = partners.length === 2 ? "both" : "all";
-    return `Private lines were crossed with ${allNames}; ${subject} were alive when the run ended.`;
+    return `You had romances with ${allNames}; ${subject} were alive when the run ended.`;
   }
-  if (!living.length) return `Private lines were crossed with ${allNames} before their deaths.`;
+  if (!living.length) return `You had romances with ${allNames} before their deaths.`;
   const livingNames = whatRemainsJoinNames(living);
   const deadNames = whatRemainsJoinNames(dead);
   const livingVerb = living.length === 1 ? "was" : "were";
-  return `Private lines were crossed with ${allNames}; ${livingNames} ${livingVerb} alive at the ending, and ${deadNames} had died.`;
+  return `You had romances with ${allNames}; ${livingNames} ${livingVerb} alive at the ending, and ${deadNames} had died.`;
 }
 
 function whatRemainsFacts() {
@@ -838,7 +852,7 @@ function crewEpilogues() {
     else if (f.rourke === "tried") p += ` She worked on Rourke for forty-three minutes past her own call.`;
     if (state.promises.lena === "kept") p += ` When the one line that holds a crashing patient was tested, it stayed with the other patient.`;
     else if (state.promises.lena === "broken") p += whatRemainsPromiseCausedDeath("lena") ? ` When the one line that holds a crashing patient was tested, it moved to her.` : ` When the one line that holds a crashing patient was tested, it moved to her, and the other patient died.`;
-    if (state.romance.lena) p += ` You crossed the line with her without pity, and you were the one who stayed.`;
+    if (state.romance.lena) p += ` You had sex with her, not out of pity, and you were the one who stayed.`;
     else if (hasMark("lena", "held_only")) p += ` You stayed present without the rest.`;
     else if (hasMark("lena", "declined")) p += ` She offered once; you stepped back.`;
     if (f.pair_triage === "chart") p += ` Rourke stayed a prognosis on her board.`;
@@ -888,7 +902,7 @@ function crewEpilogues() {
     else if (hasMark("mira", "people_first")) p += ` At the board she read your answer back: a person, and also the repair.`;
     if (state.promises.mira === "kept") p += ` The binding to the dead's directives was refused, and the interlocks were cleared of their signatures.`;
     else if (state.promises.mira === "broken") p += ` The ark was rebound to directives written by the dead; the ration boards recalculated under signatures eight years old.`;
-    if (state.romance.mira) p += ` A private line was crossed with her${f.mira_root_cause ? `, and she asked you the one question she could not verify from the trace` : ``}.`;
+    if (state.romance.mira) p += ` You had sex with her${f.mira_root_cause ? `, and she asked you the one question she could not verify from the trace` : ``}.`;
     else if (hasMark("mira", "held_only")) p += ` You told her you cared, and that the chain of command came first that night.`;
     else if (hasMark("mira", "declined")) p += ` She offered the honest hour; you said not like this.`;
     if (f.pair_burn === "finding") p += rootCause ? ` The reckoning burn is logged as her fault report, root cause under it.` : ` The reckoning burn is logged as her finding: ninety-four, nothing under it.`;
@@ -1058,7 +1072,7 @@ function showScreen(id) {
   if (main) main.classList.toggle("cinematic-active", id === "cinematic");
   if (id !== "cinematic" && typeof cancelCinematic === "function") cancelCinematic();
   if (typeof releaseInactiveArtForScreen === "function") releaseInactiveArtForScreen(id);
-  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "status", "meta", "crew-panel"].forEach(x => {
+  ["tone-screen", "title-screen", "cinematic-screen", "game-screen", "ending-screen", "what-remains-screen", "memory-screen", "status", "meta", "crew-panel"].forEach(x => {
     const el = document.getElementById(x);
     if (el) el.classList.add("hidden");
   });
@@ -1090,13 +1104,16 @@ function showScreen(id) {
   if (id === "ending") document.getElementById("ending-screen").classList.remove("hidden");
   if (id === "cinematic") document.getElementById("cinematic-screen").classList.remove("hidden");
   if (id === "what-remains") document.getElementById("what-remains-screen").classList.remove("hidden");
+  // SUN-MEMORY-BOARD-01 (L-054): the post-run memory board (src/memory-board.js).
+  if (id === "memory") document.getElementById("memory-screen").classList.remove("hidden");
 
   const focusTargetId = {
     tone: "tone-heading",
     title: "title-heading",
     cinematic: "cinematic-heading",
     ending: "ending-title",
-    "what-remains": "what-remains-heading"
+    "what-remains": "what-remains-heading",
+    memory: "memory-heading"
   }[id];
   const focusTarget = focusTargetId ? document.getElementById(focusTargetId) : null;
   if (focusTarget && typeof focusTarget.focus === "function") {

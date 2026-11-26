@@ -131,13 +131,15 @@ export function crewOverviewChecks(runtime) {
     tomas: ["Romance: Shared Amara–Tomas encounter recorded"],
     zeroTrust: ["Trust: 0/100"],
     maxTrust: ["Trust: 100/100"],
-    injuredLena: ["Condition: Alive — &lt;injury&gt; &amp; decline"]
+    // SUN-HONESTY-LINES-01: a living Lena's clock, never the cause her death would be logged with.
+    injuredLena: ["Condition: Alive — on a clock she charted herself"]
   };
   for (const [key, fragments] of Object.entries(expected)) {
     if (!fixture[key].stable || fragments.some(fragment => !fixture[key].html.includes(fragment))) {
       errors.push(`Crew ${key} facts missing or render mutated state`);
     }
   }
+  if (fixture.injuredLena.html.includes("injury")) errors.push("Crew board prints a living Lena's future cause of death");
   if (!fixture.deadDefault.includes("Condition: Dead — decline fixture") ||
       fixture.absentDetail.html.includes("67/100") || !fixture.absentDetail.stable) {
     errors.push("Crew default or unavailable-member detail misrepresents roster state");
