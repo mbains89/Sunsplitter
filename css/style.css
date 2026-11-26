@@ -1091,6 +1091,17 @@ body::before {
   color: var(--con);
 }
 
+/* SUN-BLOCKED-STORAGE-01 — a long sticky notice in the bar ("Saving is off on this device · …")
+   wraps beside the buttons instead of pushing Menu out of the bar on a phone held sideways or a
+   narrow window. Short notices ("Saved", "Resumed") still sit on one line. Phones (480px and
+   below) keep their own rule further down. */
+#meta .save-status.visible {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.35;
+}
+
 @media (max-width: 480px) {
   .save-hint {
     max-width: 22%;

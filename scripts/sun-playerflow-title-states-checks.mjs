@@ -118,6 +118,9 @@ function collect(css, width) {
 function selectorApplies(selector, button, pseudo) {
   const one = selector.trim();
   if (!one || one.startsWith("@")) return false;
+  // A disabled button is not one of the states checked here (SUN-BLOCKED-STORAGE-01: Saved runs is
+  // disabled while saving is off); its rule must not count as rest, hover or pressed.
+  if (/:disabled\b|\[disabled\]/.test(one)) return false;
   const pseudoMatch = one.match(/:(hover|focus-visible|active|focus)\b/);
   const got = pseudoMatch ? pseudoMatch[1] : "";
   if (got !== pseudo) return false;

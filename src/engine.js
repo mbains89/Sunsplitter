@@ -181,7 +181,11 @@ function hasAcknowledgedTone() {
 function acknowledgeTone() {
   try {
     localStorage.setItem(TONE_ACK_KEY, "1");
-  } catch (e) { /* private mode — still proceed */ }
+  } catch (e) {
+    // Private mode: still proceed. The browser refused a one-character write, so it will not keep a
+    // save either; the title says saving is off (SUN-BLOCKED-STORAGE-01).
+    noteSaveStorageRefused();
+  }
   showTitleScreen();
 }
 
@@ -476,13 +480,16 @@ function beginFreshCampaign(opts) {
     }
   }
   resetRunState();
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot })) {
+  // SUN-BLOCKED-STORAGE-01 (O-7(A)): when the browser keeps nothing, the run starts anyway, unsaved,
+  // and writes nothing (newRunPlaysUnsaved). Any other failed first write keeps the current run.
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot }) && !newRunPlaysUnsaved()) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
   }
-  if (opts.persist) {
+  const unsaved = savingIsOff();
+  if (opts.persist && !unsaved) {
     activeSaveSlot = slot;
     writeCurrentSlotPointer(slot);
   }
@@ -493,6 +500,10 @@ function beginFreshCampaign(opts) {
   showScreen("game");
   renderStatus();
   showScene("wake");
+  if (unsaved) {
+    updateMetaSaveHint();
+    showSavingOffNotice();
+  }
   return true;
 }
 
