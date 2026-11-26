@@ -80,6 +80,10 @@ registerScenes({
       { text: "Answer the alarm.", next: "crisis" }
     ]
   },
+  // PRE: from time_pass | WRITES: choice flags/effects/affinity only; nothing on entry
+  // DEATH: none here (vent kills on its own entry) | DEAD SPEECH/APPEARANCE: trapped names, Elias/Lena/Tomas lines
+  //   and the SUN-PROMISE-AT-STAKE-01 intercom lines are isAlive-gated
+  // IMAGE: REUSE images/crisis.jpg via the engine's crisis guards; no new art request
   crisis: {
     get text() {
       // 0.22.0: Jiro/Tomas may still be missing; name only the living trapped
@@ -102,6 +106,15 @@ registerScenes({
 
       if (isAlive("elias")) t += `\n\nElias: "Vent it. Now."\n\n`;
       if (isAlive("lena") && isAlive("sela")) t += `Lena: "Sela is in there."\n\n`;
+      // SUN-PROMISE-AT-STAKE-01 (decision 27a): venting here kills the holder, so the promise is never
+      // resolved here; a living holder behind the bulkhead alludes to it instead (never quotes it).
+      // This scene renders once per run, so no one-shot flag. WRITES: none.
+      if (isAlive("amara") && state.promises.amara === "made") {
+        t += `Amara, on the intercom, dry even now: "I'm not calling anything in, love. Both books are open at this page. Write in the one you meant."\n\n`;
+      }
+      if (isAlive("sela") && state.promises.sela === "made") {
+        t += `Sela, on the intercom, each word complete: "Commander. The fear in that room has found its nearest shape. Your sentence is where I stored it."\n\n`;
+      }
       if (isAlive("tomas")) t += `Tomas looks only at you.\n\n`;
       t += `You have less than four minutes.`;
       return t;
