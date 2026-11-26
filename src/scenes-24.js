@@ -245,7 +245,7 @@ act3_lethal_mira_end: {
     if (state.dead.includes("mira") && state.deathCause &&
         ["would not leave the board", "finished the repair"].includes(state.deathCause.mira)) return;
     if (!isAlive("mira")) {
-      return isAlive("elias") && attributableDeath("mira") && !state.flags.pair_shield
+      return isAlive("elias") && miraDiedByCommanderCall() && !state.flags.pair_shield
         ? "pair_shield_cold"
         : "faction_split";
     }
@@ -269,7 +269,7 @@ The access door remains above safe-open temperature longer than the suit feed la
     return t;
   },
   get choices() {
-    const next = isAlive("elias") && attributableDeath("mira") && !state.flags.pair_shield
+    const next = isAlive("elias") && miraDiedByCommanderCall() && !state.flags.pair_shield
       ? "pair_shield_cold"
       : "faction_split";
     // SUN-DEATH-REACTIONS-01: one living voice answers the death, once, at the top of the next screen.

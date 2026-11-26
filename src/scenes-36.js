@@ -25,6 +25,8 @@ He does not open a tablet. He does not need to.
 
   // PRE: medical route with an existing dead-Lena exit | WRITES: paid choices affect resources/pregnancy_risk/lean; governed floor writes pregnancy_risk="unknown"
   // PREGNANCY-LENA-01: living participant opening reads romance.lena only; entry/render write nothing
+  // SUN-CONSENT-WORDING-01 (item 19, ruled 2026-11-25): Lena names termination and pregnancy plainly;
+  //   no euphemism in her lines or replies. Choice objects (minus reply) are unchanged.
   // DEATH: none | DEAD SPEECH/APPEARANCE: Lena text and recovered-Tomas routing are guarded
   // IMAGE: unchanged living images/lena.jpg / absent images/corridor_pressure_3.jpg resolver; no art work
   pregnancy_check: {
@@ -41,7 +43,7 @@ He does not open a tablet. He does not need to.
 
 She waits.
 
-"I can offer prevention after the fact if we are early. Or we can prepare for the harder path. Tell me what is true."`;
+"I can offer prevention after the fact if we are early. If we are late, it is a termination or a pregnancy carried to term. Tell me what is true."`;
     },
     get choices() {
       // 0.25: after pregnancy resolve → tomas_break if recovered, else Elias lethal entry
@@ -50,10 +52,10 @@ She waits.
         return [{ text: "Move on. Medical is empty.", next: after }];
       }
       return [
-        { text: "There is a possibility. Prepare for both outcomes.", next: after, effects: { cohesion: -2, supplies: -6, embryos: -3 }, flag: { pregnancy_risk: true }, requires: { supplies: { min: 12 }, trust: { lena: 40 } }, lean: { living: 3 }, reply: [{ who: "lena", text: `"Then I plan for both and stock for both," Lena says, already writing. "Some of it comes out of the vault margin. The draw goes on the board as medical. No names."` }] },
+        { text: "There is a possibility. Prepare for both outcomes.", next: after, effects: { cohesion: -2, supplies: -6, embryos: -3 }, flag: { pregnancy_risk: true }, requires: { supplies: { min: 12 }, trust: { lena: 40 } }, lean: { living: 3 }, reply: [{ who: "lena", text: `"Then I stock for a pregnancy carried to term and for a termination if one is asked for," Lena says, already writing. "Some of it comes out of the vault margin. The draw goes on the board as medical. No names."` }] },
         { text: "It will not become a problem. Handle prevention.", next: after, effects: { supplies: -3, cohesion: 1 }, flag: { pregnancy_risk: false }, reply: [{ who: "lena", text: `Lena handles it that shift with the medical hatch shut and logs one line: prophylaxis, elective, complete. "Chart closed," she says. "Not because it was small. Because it belongs to the people in it."` }] },
-        { text: "That is private. Do your job when asked.", next: after, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `"Understood, Commander." Lena writes one word on her chart and turns it face down. "When you do ask, ask early. Late costs more. That is not a threat. That is pharmacology."` }] },
-        { text: "End the discussion. There is nothing left to spend.", next: after, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `Lena does not argue. "Then it stays an open question," she says. "In my department those get more expensive by the day. If the answer changes, I want to be the first to know."` }] }
+        { text: "That is private. Do your job when asked.", next: after, effects: { cohesion: -5, integrity: -1 }, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `"Understood, Commander." Lena writes one word on her chart and turns it face down. "When you do ask, ask early. Early is a pill. Late is a termination or a birth. That is not a threat. That is obstetrics."` }] },
+        { text: "End the discussion. There is nothing left to spend.", next: after, flag: { pregnancy_risk: "unknown" }, reply: [{ who: "lena", text: `Lena does not argue. "Then a possible pregnancy stays unexamined," she says. "In my department that gets more expensive by the day. If anyone aboard is pregnant, I want to be the first to know."` }] }
       ];
     }
   },

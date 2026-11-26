@@ -28,6 +28,8 @@
 //   sunsplitter_show_costs_v1      Show costs on choices (engine.js)
 //   sunsplitter_cover_nudity_v1    Cover nudity in pictures (engine.js)
 //   sunsplitter_text_pace_v1       text pace (engine.js)
+//   sunsplitter_text_size_v1       text size (engine.js)
+//   sunsplitter_line_spacing_v1    line spacing (engine.js)
 //   sunsplitter_tutorial_seen_v1   first-run tutorial seen (validate.js)
 //   sunsplitter_validate           developer scene validation switch (validate.js)
 //
@@ -841,6 +843,7 @@ function saveGame() {
 
 // Loads the active slot (resumeGame() first points it at continueSlot()).
 function loadGame() {
+  wakeRemembersArmed = false; // SUN-SHIP-REMEMBERS-01: Continue, Load and an imported save are not fresh runs
   const slot = saveSlotArg(activeSaveSlot);
   if (!slot || !hasSave(slot)) {
     flashSaveStatus("No save", true);

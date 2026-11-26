@@ -101,6 +101,11 @@ registerScenes({
         } else {
           t += `Structural memory is quiet for once. Other debts are louder.\n\n`;
         }
+        // SUN-CANON-FIXES-01 (item 17): offshift_mira's sixty-percent weld pays off as holding. Text only;
+        // the dead fallback leaves her name out.
+        if (state.flags.mira_fault_known) t += isAlive("mira")
+          ? `Behind the panel at junction seventeen, Mira's weld is still holding: sixty percent, she said, ten either side. You still know which panel comes off in one move.\n\n`
+          : `Behind the panel at junction seventeen, the weld rebuilt in the dark is still holding. You still know which panel comes off in one move.\n\n`;
         if (state.flags.sun_doctrine === "doctrine") t += `The yellow marks remain. People orient by them without being told to.\n\n`;
         else if (state.flags.sun_doctrine === "scrubbed") t += `Where the yellow was, there is only primer and the ghost of a circle.\n\n`;
         if (state.flags.departure_truth === "plural") t += `No single boarding story won. The crew lives with the friction.\n\n`;

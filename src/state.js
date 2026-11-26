@@ -84,7 +84,7 @@ const crew = {
   lena:   { name: "Dr. Lena Voss", first: "Lena", role: "Medical", bio: "Former trauma surgeon from the orbital hospitals. Lost her entire staff during the evacuation. Attractive, sharp, exhausted. The living come first until the math forces her hand." },
   elias:  { name: "Elias Kane", first: "Elias", role: "Security", bio: "Ex-corporate security. Believes soft leadership is a luxury the dead cannot afford. Tall, scarred, magnetic. The mission outranks comfort." },
   mira:   { name: "Mira Solis", first: "Mira", role: "Engineer", bio: "Drive systems specialist. Still believes the ship can be saved if she is given enough time and parts. Intense, brilliant, hungry for connection. Torn between systems and people." },
-  tomas:  { name: "Brother Tomas", first: "Tomas", role: "None", bio: "Hospital chaplain turned refugee. Carries no rank and no weapons, only presence. Quiet intensity under the calm. Keeps the human cost on the ledger." },
+  tomas:  { name: "Brother Tomas", first: "Tomas", role: "None", bio: "Hospital chaplain before the pads; a grower now, who kept the agri-annex alive alone. Carries no rank and no weapons, only presence. Quiet intensity under the calm. Keeps the human cost on the ledger." },
   amara:  { name: "Amara Vale", first: "Amara", role: "Hydroponics", bio: "Grew food for three habitats before the fall. Still carries the house key from her home in Lagos. Grounded, sensual, grieving. Living things are not a luxury." },
   jiro:   { name: "Jiro Okada", first: "Jiro", role: "Navigation", bio: "Navigator who plotted the escape trajectory. Speaks little. Watches everything. Reserved, precise, carrying quiet grief. The numbers are the only honest language left." },
   sela:   { name: "Sela", first: "Sela", role: "None", bio: "Twenty years old. Draws yellow circles that look like suns. Speaks carefully and precisely when she chooses to — refusal as much as grief. Quiet, watchful, present. Wants a world that is still warm." },
@@ -1136,6 +1136,14 @@ function attributableDeath(who) {
 }
 function anyAttributableDeath() {
   return (state.dead || []).some(attributableDeath);
+}
+// SUN-CONSENT-WORDING-01 (item 20, ruled 2026-11-25): Elias's shield breaks when Mira dies by
+// Commander call (CHARACTER_BIBLE §2). Moving the shared medical line to Lena is that call, though
+// its cause does not name the order (the ending already counts it, ORDERED_DEATH_CAUSES), so the
+// shield's test adds it. Mira only: attributableDeath() and every other reader are unchanged.
+function miraDiedByCommanderCall() {
+  return attributableDeath("mira") ||
+    !!(state.deathCause && state.deathCause.mira === "lost the shared medical line to Lena");
 }
 function firstAttributableDeath() {
   for (const k of (state.dead || [])) {
