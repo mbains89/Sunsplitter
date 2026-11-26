@@ -12,9 +12,13 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BUTTONS = [
   { id: "btn-begin", primary: true, containers: [".title-actions"] },
   { id: "btn-resume", primary: true, containers: [".title-actions"] },
-  { id: "btn-import-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
-  { id: "btn-export-save", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
-  { id: "btn-export-unreadable", primary: false, containers: [".title-actions", ".save-transfer-actions"] },
+  // SUN-SAVED-RUNS-01: the save transfer buttons moved into the Saved runs dialog (still in .title-actions).
+  { id: "btn-saved-runs", primary: false, containers: [".title-actions"] },
+  { id: "saved-runs-load", primary: true, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions"] },
+  { id: "saved-runs-close", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions"] },
+  { id: "btn-import-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
+  { id: "btn-export-save", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
+  { id: "btn-export-unreadable", primary: false, containers: [".title-actions", "#saved-runs", ".saved-runs-panel", ".saved-runs-actions", ".save-transfer-actions"] },
   { id: "btn-content-notice", primary: false, containers: [".title-actions", ".content-notice-actions"] },
   { id: "btn-gallery", primary: false, containers: [".title-actions"] },
   { id: "new-run-ok", primary: true, containers: [".title-actions", "#new-run-confirm"] },

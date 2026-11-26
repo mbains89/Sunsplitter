@@ -1033,6 +1033,7 @@ body::before {
   margin: -2px 0 4px;
   text-align: center;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 #meta .meta-actions {
@@ -1369,3 +1370,149 @@ body::before {
 }
 .commander-req { font-weight: 600; color: #e0c8a8; font-size: 0.85em; }
 .commander-opt { font-weight: 600; color: #a8b8c8; font-size: 0.85em; }
+
+/* SUN-SAVED-RUNS-01 — the title's Saved runs dialog (L-052, design S-2). A fixed layer over the
+   title with its own scroll, so the title column (and Continue's place on a phone) does not move.
+   Rows are native radios; actions are two columns, each button at least the 48px touch height. */
+#title-screen #saved-runs.visible {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+  background: rgba(8, 9, 11, 0.8);
+}
+.saved-runs-panel {
+  width: 100%;
+  max-width: 440px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  padding: 16px 14px 12px;
+  background: rgba(16, 18, 22, 0.98);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-dim);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  text-align: left;
+  color: var(--text);
+  text-shadow: none;
+}
+.saved-runs-title {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f2f3f5;
+}
+.saved-runs-help {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.saved-runs-slots {
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+.saved-runs-slots legend {
+  margin: 0 0 6px;
+  padding: 0;
+  font: 600 12px/1.35 system-ui, sans-serif;
+  color: #c8d4e0;
+}
+.saved-runs-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 48px;
+  box-sizing: border-box;
+  margin: 0 0 6px;
+  padding: 10px 10px 10px 12px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  cursor: pointer;
+}
+.saved-runs-row:has(input:checked) {
+  border-color: #f2c14e;
+  background: rgba(42, 33, 24, 0.6);
+}
+.saved-runs-row:has(input:focus-visible) {
+  outline: 3px solid #f2c14e;
+  outline-offset: 2px;
+}
+.saved-runs-row input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  accent-color: #f2c14e;
+}
+.saved-runs-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.saved-runs-row-name {
+  font-weight: 600;
+  color: #f2f3f5;
+  overflow-wrap: anywhere;
+}
+.saved-runs-row-detail {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.saved-runs-row[data-kind="unreadable"] .saved-runs-row-name {
+  color: #f0a0a0;
+}
+.saved-runs-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+/* Short landscape screens (844x390): the actions stick to the bottom of the panel, so Load,
+   Export, Import and Close stay on screen while the rows scroll. */
+@media (max-height: 480px) {
+  .saved-runs-actions {
+    position: sticky;
+    bottom: -12px;
+    margin: 0 -14px -12px;
+    padding: 8px 14px 12px;
+    background: rgb(16, 18, 22); /* opaque: rows scrolling under it must not show through */
+    border-top: 1px solid var(--border);
+    z-index: 1;
+  }
+}
+/* Three rows always (chip, then two of buttons), so selecting an empty slot does not shift them. */
+#title-screen #saved-runs .saved-runs-actions {
+  grid-template-rows: auto minmax(48px, auto) minmax(48px, auto);
+}
+#title-screen #saved-runs .save-transfer-actions {
+  display: contents;
+}
+#title-screen #saved-runs .export-import-chip {
+  order: -1;
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: left;
+}
+#title-screen #saved-runs .saved-runs-actions .btn {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.saved-runs-status {
+  margin: 10px 0 0;
+  text-align: left;
+}

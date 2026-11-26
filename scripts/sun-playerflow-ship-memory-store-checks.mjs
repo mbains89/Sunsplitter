@@ -2,7 +2,8 @@
 // Drives the real scripts through simulate.loadGame. Covers: empty, corrupt, partial, newer-version,
 // blocked and full storage; one record per finished run across a Continue of the completed slot (same
 // VM and a new VM); the trail of hard calls (rendered openers only, reset by a fresh run and by an
-// import); plates recorded after the face gate, never from prefetch, never from non-plate pictures;
+// import; kept per save slot, so a hard call in one slot never reaches another slot's run record —
+// SUN-SAVED-RUNS-01); plates recorded after the face gate, never from prefetch, never from non-plate pictures;
 // nothing in snapshotState or the export; clearSave, New run and Play Again leave memory alone.
 import { pathToFileURL } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -88,7 +89,7 @@ export function sunPlayerflowShipMemoryStoreChecks() {
     })()`);
     expect(out.raw === null, "a read wrote the key");
     expect(out.memory.v === 1 && out.memory.runs === 0 && out.memory.plates.length === 0 && out.memory.last === null &&
-      out.memory.trail.length === 0 && Object.keys(out.memory.endings).length === 0, "empty read was not empty: " + JSON.stringify(out.memory));
+      Object.keys(out.memory.trail).length === 0 && Object.keys(out.memory.endings).length === 0, "empty read was not empty: " + JSON.stringify(out.memory));
   });
 
   check("unparsable storage reads as empty and is overwritten at the next record", () => {
@@ -131,7 +132,8 @@ export function sunPlayerflowShipMemoryStoreChecks() {
       forks: { crisis: { breath: 2 }, vault: {}, tether: { hard: 3 }, lethal: { lena: { lived: 1, lost: 1 } }, final: { hold: 1 } },
       last: { ending: "long_dark", lost: ["rourke"], forks: { crisis: "breath", lethal: { lena: "lost" } } },
       prints: ["9f3a1c2e"],
-      trail: ["act3_lethal_lena_clock"]
+      // A trail stored as a plain list (before save slots) was slot 1's run: it reads as slot 1's trail.
+      trail: { "1": ["act3_lethal_lena_clock"] }
     };
     expect(JSON.stringify(out) === JSON.stringify(want), "salvage mismatch:\n got  " + JSON.stringify(out) + "\n want " + JSON.stringify(want));
     // Non-object JSON reads as empty.
@@ -185,7 +187,7 @@ export function sunPlayerflowShipMemoryStoreChecks() {
       return { threw, memory, callsPerRecord, saveAfter: localStorage.getItem(SAVE_KEY), save, raw: localStorage.getItem(${JSON.stringify(KEY)}) };
     })()`);
     expect(out.threw === null, "a recorder threw: " + out.threw);
-    expect(out.memory && out.memory.plates.join() === "vault,ending_ship" && out.memory.trail.join() === "act3_lethal_mira_board",
+    expect(out.memory && out.memory.plates.join() === "vault,ending_ship" && (out.memory.trail["1"] || []).join() === "act3_lethal_mira_board",
       "session copy lost records: " + JSON.stringify(out.memory));
     expect(out.callsPerRecord <= 2, "one record touched storage " + out.callsPerRecord + " times (retry loop?)");
     expect(out.saveAfter === out.save, "run save changed");
@@ -249,7 +251,7 @@ export function sunPlayerflowShipMemoryStoreChecks() {
     const endingIds = { "The Yellow Circle": "yellow_circle", "Landfall": "landfall", "The Living Ship": "living_ship", "The Quiet Ship": "quiet_ship", "Still Burning": "still_burning", "Fracture": "fracture", "The Long Dark": "long_dark" };
     const id = endingIds[played.title];
     expect(m.runs === 1 && m.endings[id] === 1 && m.last && m.last.ending === id, "run not recorded once: " + JSON.stringify(m));
-    expect(m.prints.length === 1 && m.trail.length === 0, "print/trail wrong after the run: " + JSON.stringify(m));
+    expect(m.prints.length === 1 && Object.keys(m.trail).length === 0, "print/trail wrong after the run: " + JSON.stringify(m));
     expect(m.lost.rourke === 1 && m.last.lost.includes("rourke"), "crew lost not recorded");
     expect(m.last.forks.final && m.forks.final[m.last.forks.final] === 1, "final order not recorded");
     expect(m.plates.length > 5, "too few plates recorded: " + m.plates.length);
@@ -313,32 +315,32 @@ export function sunPlayerflowShipMemoryStoreChecks() {
       resetRunState();
       // Lena is not dying: the opener redirects away, so it is not faced.
       showScene("act3_lethal_lena_clock");
-      const afterRedirect = shipMemoryRead().trail.slice();
+      const afterRedirect = (shipMemoryRead().trail["1"] || []).slice();
       // Lena dying: the opener renders.
       resetRunState();
       state.dying.lena = "radiation";
       showScene("act3_lethal_lena_clock");
       showScene("act3_lethal_lena_clock", { skipOnEnter: true, resume: true }); // a resume does not add twice
-      const afterRender = shipMemoryRead().trail.slice();
+      const afterRender = (shipMemoryRead().trail["1"] || []).slice();
       // A save parked mid-run: Load (Continue) keeps the trail.
       persistSave({ silent: true });
       const exported = buildSaveExport();
       resumeGame();
-      const afterLoad = shipMemoryRead().trail.slice();
+      const afterLoad = (shipMemoryRead().trail["1"] || []).slice();
       // A fresh run clears it.
       beginFreshCampaign({ persist: false });
-      const afterFresh = shipMemoryRead().trail.slice();
+      const afterFresh = (shipMemoryRead().trail["1"] || []).slice();
       // An import clears it.
       resetRunState();
       state.dying.lena = "radiation";
       showScene("act3_lethal_lena_clock");
-      const beforeImport = shipMemoryRead().trail.slice();
+      const beforeImport = (shipMemoryRead().trail["1"] || []).slice();
       const imported = importSaveText(exported.text);
-      const afterImport = shipMemoryRead().trail.slice();
+      const afterImport = (shipMemoryRead().trail["1"] || []).slice();
       // Fresh run started from the title with persistence.
       showScene("act3_lethal_lena_clock");
       const started = __smNewRun();
-      const afterStart = shipMemoryRead().trail.slice();
+      const afterStart = (shipMemoryRead().trail["1"] || []).slice();
       return { afterRedirect, afterRender, afterLoad, afterFresh, beforeImport, imported, afterImport, afterStart, started };
     })()`);
     expect(out.afterRedirect.length === 0, "a redirected opener joined the trail: " + out.afterRedirect);
@@ -365,8 +367,74 @@ export function sunPlayerflowShipMemoryStoreChecks() {
     })()`);
     expect(JSON.stringify(out.last.forks.lethal) === JSON.stringify({ lena: "lived", elias: "lost", mira: "lost" }), "lethal outcomes wrong: " + JSON.stringify(out.last.forks));
     expect(out.forks.lethal.lena.lived === 1 && out.forks.lethal.elias.lost === 1 && !out.forks.lethal.tomas, "lethal counts wrong: " + JSON.stringify(out.forks.lethal));
-    expect(out.trail.length === 0, "trail not cleared at run end");
+    expect(Object.keys(out.trail).length === 0, "trail not cleared at run end");
     expect(out.last.forks.final === "endure" && !("crisis" in out.last.forks), "fork read wrong: " + JSON.stringify(out.last.forks));
+  });
+
+  // SUN-SAVED-RUNS-01 (L-054, lead's call): runs in different save slots interleave, so the trail is
+  // kept per slot. A hard call faced in slot 2 never reaches slot 1's run record, and slot 1's run end
+  // leaves slot 2's trail for slot 2's own record.
+  check("trail per save slot: a hard call in slot 2 never reaches slot 1's run record", () => {
+    const rt = fresh();
+    const out = rt.evaluate(`(() => {
+      localStorage.clear();
+      const trailOf = slot => (shipMemoryRead().trail[slot] || []).slice();
+      // Slot 1's run faces Lena's call and saves.
+      activeSaveSlot = 1;
+      resetRunState();
+      state.dying.lena = "radiation";
+      showScene("act3_lethal_lena_clock");
+      persistSave({ silent: true, slot: 1 });
+      // Slot 2's run (started in this tab) faces Elias's call and ends it.
+      beginFreshCampaign({ persist: true, slot: 2 });
+      const slot1AfterStart2 = trailOf("1");
+      kill("lena", "slot 2 fixture");
+      showScene("act3_lethal_elias_order");
+      showScene("act3_lethal_elias_end");
+      const slot2Trail = trailOf("2");
+      // Back to slot 1 (Continue loads it) and play it to its ending.
+      const loaded1 = loadSaveSlot(1);
+      const active = activeSaveSlot;
+      const slot1Trail = trailOf("1");
+      state.flags.final = "endure";
+      shipMemoryRecordRun("The Long Dark", activeSaveSlot);
+      const m = shipMemoryRead();
+      // A fresh run and an import in slot 2 clear only slot 2.
+      const before = trailOf("1").length;
+      return {
+        slot1AfterStart2, slot2Trail, loaded1, active, slot1Trail,
+        lethal: m.last.forks.lethal || {}, counts: m.forks.lethal, after: m.trail, before,
+        noSlot: shipMemoryNoteScene("act3_lethal_mira_board", 4), noSlotTrail: shipMemoryRead().trail
+      };
+    })()`);
+    expect(out.slot1AfterStart2.join() === "act3_lethal_lena_clock", "a new run in slot 2 cleared slot 1's trail: " + out.slot1AfterStart2);
+    expect(out.slot2Trail.join() === "act3_lethal_elias_order,act3_lethal_elias_end", "slot 2's trail wrong: " + out.slot2Trail);
+    expect(out.loaded1 === true && out.active === 1, "slot 1 did not load");
+    expect(out.slot1Trail.join() === "act3_lethal_lena_clock", "slot 1's trail picked up slot 2's calls: " + out.slot1Trail);
+    expect(JSON.stringify(out.lethal) === JSON.stringify({ lena: "lived" }), "slot 1's record holds another slot's call: " + JSON.stringify(out.lethal));
+    expect(!out.counts.elias, "Elias's call in slot 2 was counted in slot 1's run: " + JSON.stringify(out.counts));
+    expect(!out.after["1"] && (out.after["2"] || []).join() === "act3_lethal_elias_order,act3_lethal_elias_end",
+      "slot 1's run end did not clear only slot 1's trail: " + JSON.stringify(out.after));
+    expect(out.noSlot === false && !out.noSlotTrail["4"], "a value that names no slot wrote a trail");
+
+    const cleared = rt.evaluate(`(() => {
+      localStorage.clear();
+      localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, trail: { "1": ["act3_lethal_lena_clock"], "2": ["act3_lethal_mira_board"], "3": ["act3_lethal_tomas_cost"] } }));
+      activeSaveSlot = 1;
+      resetRunState();
+      state.scene = "wake";
+      const raw = JSON.stringify(snapshotState());
+      window.confirm = () => true;
+      const imported = importSaveText(raw, 3);
+      const afterImport = shipMemoryRead().trail;
+      const started = beginFreshCampaign({ persist: true, slot: 2 });
+      const afterStart = shipMemoryRead().trail;
+      return { imported, afterImport, started, afterStart };
+    })()`);
+    expect(cleared.imported === true && JSON.stringify(cleared.afterImport) === JSON.stringify({ "1": ["act3_lethal_lena_clock"], "2": ["act3_lethal_mira_board"] }),
+      "an import into slot 3 did not clear only slot 3's trail: " + JSON.stringify(cleared.afterImport));
+    expect(cleared.started === true && JSON.stringify(cleared.afterStart) === JSON.stringify({ "1": ["act3_lethal_lena_clock"] }),
+      "a new run in slot 2 did not clear only slot 2's trail: " + JSON.stringify(cleared.afterStart));
   });
 
   check("forks: crisis path, vault, tether catch (hard wins over slow), final", () => {
@@ -523,5 +591,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     errors.forEach(error => console.error(" - " + error));
     process.exit(1);
   }
-  console.log("PASS sun-playerflow-ship-memory-store (empty/corrupt/partial/v2/blocked/quota, one record per run across Continue, trail, post-gate plates, no prefetch, not in snapshot/export, clearSave/New run/Play Again)");
+  console.log("PASS sun-playerflow-ship-memory-store (empty/corrupt/partial/v2/blocked/quota, one record per run across Continue, trail, trail per save slot, post-gate plates, no prefetch, not in snapshot/export, clearSave/New run/Play Again)");
 }
