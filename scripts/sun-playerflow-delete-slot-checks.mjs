@@ -570,6 +570,23 @@ function secondTabChecks() {
     expect(told(A, NOTICE_TAB(2)), `${label}: A shows ${JSON.stringify(bar(A))}, expected another tab's run`);
   }
 
+  // Taken by another tab's run first, then deleted there: A is told of the delete, and Save writes back.
+  label = "second tab, taken then deleted";
+  store.reset();
+  A.evaluate("beginFreshCampaign({ persist: true, slot: 2 })");
+  step(A);
+  store.deliver(B);
+  expect(B.evaluate("loadSaveSlot(2)") === true, `${label}: B's Load of slot 2 failed`);
+  step(B);
+  store.deliver(A);
+  expect(told(A, NOTICE_TAB(2)), `${label}: A was not told of B's save (${JSON.stringify(bar(A))})`);
+  expect(B.evaluate("__deleteSlot(2)") === true, `${label}: B's delete of slot 2 failed`);
+  store.deliver(A);
+  expect(told(A, NOTICE_DELETED(2)), `${label}: after B's delete A shows ${JSON.stringify(bar(A))}`);
+  step(A);
+  expect(empty(2), `${label}: A's autosave wrote slot 2 back`);
+  expect(A.evaluate("saveGame()") === true && live(2) === seen(A, 2), `${label}: A's Save did not write the run back`);
+
   // A slot this tab never played (slot 3) stays free; so does one it deleted itself.
   label = "second tab, free";
   store.reset();

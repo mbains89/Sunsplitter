@@ -859,11 +859,12 @@ function saveSlotTakenElsewhere(slot) {
 // SUN-DELETE-SLOT-01: another tab's storage event removed one of this slot's keys and left the slot
 // holding nothing, while this tab plays a run it wrote or loaded there. That is the other tab's Delete
 // (Saved runs), so the slot is taken as "deleted": no autosave writes this run back unasked, and the
-// Menu's Save may. Only the event tells a Delete from cleared site data (which leaves the slot free,
-// as before), so without one an emptied slot stays free.
+// Menu's Save may. A slot already taken by another tab's run becomes "deleted" too once that run is
+// deleted, since there is no longer anything there to load. Only the event tells a Delete from
+// cleared site data (which leaves the slot free, as before), so without one an emptied slot stays free.
 function noteSaveSlotDeletedElsewhere(slot) {
   slot = parseSaveSlot(slot);
-  if (!slot || saveSlotTaken[slot]) return false;
+  if (!slot || saveSlotTaken[slot] === "deleted") return false;
   if (!Object.prototype.hasOwnProperty.call(saveSlotSeen, slot) || typeof saveSlotSeen[slot] !== "string") return false;
   if (saveSlotBytesNow(slot) !== null) return false;
   saveSlotTaken[slot] = "deleted";
