@@ -480,9 +480,11 @@ function beginFreshCampaign(opts) {
     }
   }
   resetRunState();
+  // SUN-SECOND-TAB-GUARD-01: a new run replaces the slot on purpose (newRun), even one another tab
+  // saved over, and gives it back to this tab.
   // SUN-BLOCKED-STORAGE-01 (O-7(A)): when the browser keeps nothing, the run starts anyway, unsaved,
   // and writes nothing (newRunPlaysUnsaved). Any other failed first write keeps the current run.
-  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot }) && !newRunPlaysUnsaved()) {
+  if (opts.persist && !persistSave({ silent: true, retireLegacy: true, slot, newRun: true }) && !newRunPlaysUnsaved()) {
     replaceRunState(previousState);
     loadedGameVersion = previousGameVersion;
     preserveCompletedSlotUntilChoice = previousSlotGuard;
@@ -494,7 +496,8 @@ function beginFreshCampaign(opts) {
     writeCurrentSlotPointer(slot);
   }
   // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet (in its slot; SUN-SAVED-RUNS-01).
-  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(slot);
+  // SUN-SECOND-TAB-GUARD-01: Play Again in a slot another tab has saved over clears no trail there.
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail(opts.persist ? slot : runTrailSaveSlot());
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   wakeRemembersArmed = true; // SUN-SHIP-REMEMBERS-01: this wake, and its first look after the intro
   showScreen("game");
@@ -526,6 +529,8 @@ function playAgain() {
 
 function showTitleScreen() {
   showScreen("title");
+  // SUN-SECOND-TAB-GUARD-01: the in-run not-saving line names the Menu, which the title has not.
+  clearSaveSlotTakenNotice();
   refreshTitleResumeUI();
   syncShipRemembersLine("title-remembers", typeof shipRemembersTitleLine === "function" ? shipRemembersTitleLine() : "");
   // SUN-GALLERY-01: the Gallery button shows once a plate has been seen.
@@ -748,7 +753,8 @@ function showScene(id, opts) {
     }
   }
   // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
-  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: no slot once another tab has saved over the slot this tab plays (runTrailSaveSlot).
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id, runTrailSaveSlot());
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -1666,7 +1672,8 @@ function resolveEnding() {
   setEndingArt(art);
   showScreen("ending");
   // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
-  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, activeSaveSlot);
+  // SUN-SECOND-TAB-GUARD-01: a run this tab no longer saves reads and clears the trail of no slot.
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title, runTrailSaveSlot());
 }
 
 function showWhatRemains() {

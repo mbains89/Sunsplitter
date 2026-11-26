@@ -1091,17 +1091,6 @@ body::before {
   color: var(--con);
 }
 
-/* SUN-BLOCKED-STORAGE-01 — a long sticky notice in the bar ("Saving is off on this device · …")
-   wraps beside the buttons instead of pushing Menu out of the bar on a phone held sideways or a
-   narrow window. Short notices ("Saved", "Resumed") still sit on one line. Phones (480px and
-   below) keep their own rule further down. */
-#meta .save-status.visible {
-  flex: 0 1 auto;
-  min-width: 0;
-  white-space: normal;
-  line-height: 1.35;
-}
-
 @media (max-width: 480px) {
   .save-hint {
     max-width: 22%;
@@ -1163,6 +1152,18 @@ body::before {
   }
   #meta .save-status.visible {
     flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.35;
+  }
+}
+
+/* SUN-SECOND-TAB-GUARD-01 — above phone width a long sticky notice ("Another tab saved Slot 1 ·
+   not saving here · Load in Menu") wraps inside the bar instead of pushing Menu past its edge
+   (844x390, a phone held sideways). SUN-BLOCKED-STORAGE-01's "Can't save in this browser" line
+   wraps here too, at the phone rule's line height. */
+@media (min-width: 481px) {
+  #meta .save-status.visible {
     min-width: 0;
     white-space: normal;
     line-height: 1.35;
