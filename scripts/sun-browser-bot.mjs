@@ -216,7 +216,15 @@ for (let run = 0; run < RUNS; run++) {
           expectResume = null;
         } else await press("#btn-begin");
         continue;
-      case "new-run-confirm": await press("#new-run-ok"); continue;
+      case "new-run-confirm":
+        // SUN-NEW-RUN-SLOT-01 (O-3(A)): the slot picker starts on the first empty slot; with every slot
+        // in use nothing is selected and Start is disabled, so pick slot 1 first.
+        if (await page.evaluate(() => document.getElementById("new-run-ok").disabled)) {
+          if (INPUT === "tab" || INPUT === "keys") { await page.focus("#new-run-slot-1").catch(() => {}); await page.keyboard.press("Space"); }
+          else if (INPUT === "touch") await page.tap("#new-run-row-1", { timeout: 2000 }).catch(() => {});
+          else await page.click("#new-run-row-1", { timeout: 2000 }).catch(() => {});
+        }
+        await press("#new-run-ok"); continue;
       case "commander-create": await page.fill("#commander-callsign", "Test").catch(() => {}); await press("#commander-create-ok"); continue;
       case "cinematic-screen": await press(rnd() < 0.5 ? "#cinematic-skip" : "#cinematic-next"); continue;
       case "tutorial-overlay": await press("#tutorial-dismiss"); continue;

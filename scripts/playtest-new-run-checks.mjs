@@ -90,6 +90,8 @@ export function playtestNewRunChecks(runtime) {
 
       showTitleScreen();
       startGame();
+      // SUN-NEW-RUN-SLOT-01 (O-3(A)): the picker starts on empty slot 2; this case replaces slot 1's run.
+      if (typeof selectNewRunSlot === "function") selectNewRunSlot(1);
       const confirmed = confirmNewRun();
       const commanderAfterConfirm = !!(commander && commander.classList.contains("visible"));
       const afterCommanderConfirm = typeof confirmCommanderCreate === "function" ? confirmCommanderCreate() : false;

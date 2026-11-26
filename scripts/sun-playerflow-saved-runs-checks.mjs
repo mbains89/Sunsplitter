@@ -7,8 +7,8 @@
 // empty and an occupied slot confirms with the slot named and writes only that slot's keys; the four
 // pinned import strings are unchanged; a failed Load or Continue leaves the active slot as it was,
 // so a later New run cannot land on the slot the player only tried to open, and its reason stays
-// on screen; open, close and Escape; Saved runs over the inline New run confirm; the New run confirm
-// names the slot it replaces; a load that throws keeps the slot that is on screen.
+// on screen; open, close and Escape; Saved runs over the New run slot picker; the picker names the
+// slot it replaces; a load that throws keeps the slot that is on screen.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -114,7 +114,7 @@ const ok = label => results.push(label);
   `);
   const finishedDetail = `Run finished · saved ${r.w3}`;
   assert.deepEqual(r.rows[0], ["Slot 1 · Ash", `${r.living} alive · 1 lost · saved ${r.w1} · Continue loads this`], "filled, current row");
-  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. Importing into this slot replaces it."], "unreadable row");
+  assert.deepEqual(r.rows[1], ["Slot 2 · Can't be read by this version", "Download it to keep a copy. A new run or an import here replaces it."], "unreadable row");
   assert.deepEqual(r.rows[2], ["Slot 3", finishedDetail], "finished row without a callsign");
   assert.deepEqual(r.kinds, ["filled", "unreadable", "finished"]);
   assert.equal(r.detail2Hidden, false);
@@ -140,8 +140,9 @@ const ok = label => results.push(label);
   ok("row text, Continue line, chip and status");
 }
 
-// 2. The status line: today's sentence when the only bytes are an unreadable run in the slot New run
-//    starts in; slots named otherwise. The meta hint names the active slot.
+// 2. The status line names the unreadable slots and points to Saved runs; since the New run slot
+//    picker (SUN-NEW-RUN-SLOT-01) no line promises that a new run replaces them. The meta hint names
+//    the active slot.
 {
   const r = run(`
     showScreen("title");
@@ -164,9 +165,10 @@ const ok = label => results.push(label);
     const clock = new Date(JSON.parse(localStorage.getItem(saveSlotKeys(2).live)).savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     return { only1, only3, two, hint, clock, version: String(VERSION) };
   `);
-  assert.equal(r.only1, "A saved run here can't be read by this version. Open Saved runs to download a copy; starting a new run will replace it.");
+  assert.equal(r.only1, "A saved run in Slot 1 can't be read by this version · open Saved runs to download it",
+    "an unreadable slot 1 is named, not promised away: New run starts on an empty slot");
   assert.equal(r.only3, "A saved run in Slot 3 can't be read by this version · open Saved runs to download it",
-    "an unreadable slot that New run does not start in is named, not promised away");
+    "an unreadable slot is named, not promised away");
   assert.equal(r.two, "The runs in Slots 2 and 3 can't be read by this version · open Saved runs to download them");
   assert.equal(r.hint, `v${r.version} · Slot 2 · ${r.clock}`, "meta hint names the slot");
   ok("status line and meta hint");
@@ -395,9 +397,10 @@ await (async () => {
   ok("open, Escape and focus return");
 }
 
-// 8. (Myth) The New run confirm names the run it replaces: until the S-3 picker New run writes the
-//    active slot. Slot 1 holds Harbor; a file imported into slot 2 moves Continue there, but New run
-//    still replaces slot 1, and the confirm says so. No crew count in the confirm.
+// 8. (Myth) New run names the run it would replace. Since SUN-NEW-RUN-SLOT-01 the confirm is the
+//    slot picker: slot 1 holds Harbor and a file imported into slot 2 moves Continue there; New run
+//    starts on empty slot 3, and picking slot 1 names Harbor. No crew count in the picker's line.
+//    (sun-playerflow-new-run-slot-checks.mjs covers the picker in full.)
 {
   const r = run(`
     resetRunState();
@@ -413,14 +416,17 @@ await (async () => {
     startGame();
     const out = { imported, cont, active: activeSaveSlot,
       shown: document.getElementById("new-run-confirm").classList.contains("visible"),
-      copy: text("new-run-confirm-copy"), chip: text("new-run-confirm-chip"),
-      harborKept: localStorage.getItem(SAVE_KEY) === harbor };
+      selected: newRunSelectedSlot(), chip: text("new-run-confirm-chip"), ok: text("new-run-ok") };
+    selectNewRunSlot(1);
+    out.chip1 = text("new-run-confirm-chip");
+    out.ok1 = text("new-run-ok");
+    out.harborKept = localStorage.getItem(SAVE_KEY) === harbor;
     cancelNewRun();
-    // An empty active slot with no callsign: the slot alone.
-    localStorage.removeItem(SAVE_KEY);
+    // An unreadable slot 1, picked: the line says what is lost and where to download it.
     localStorage.setItem(SAVE_KEY, "{not json");
     showNewRunConfirm();
-    out.unreadableCopy = text("new-run-confirm-copy");
+    selectNewRunSlot(1);
+    out.unreadableChip = text("new-run-confirm-chip");
     cancelNewRun();
     return out;
   `);
@@ -428,12 +434,15 @@ await (async () => {
   assert.equal(r.cont, 2, "Continue now resumes slot 2");
   assert.equal(r.active, 1);
   assert.equal(r.shown, true, "New run asks first");
-  assert.equal(r.copy, "New run replaces Slot 1 · Harbor. Your other slots stay as they are.", "the confirm names slot 1 and its callsign");
-  assert.equal(r.chip, "Confirm = replace Slot 1 · Cancel = keep it");
-  assert.doesNotMatch(r.copy + r.chip, /\d+\s+alive/, "no crew count in the confirm");
-  assert.equal(r.harborKept, true, "nothing is written before the confirm");
-  assert.equal(r.unreadableCopy, "New run replaces Slot 1. Your other slots stay as they are.");
-  ok("New run confirm names the slot it replaces");
+  assert.equal(r.selected, 3, "the picker starts on the first empty slot, not the active slot");
+  assert.equal(r.chip, "Slot 3 is empty. Your other slots stay as they are.");
+  assert.equal(r.ok, "Start in Slot 3");
+  assert.equal(r.chip1, "New run replaces Slot 1 · Harbor. Your other slots stay as they are.", "picking slot 1 names it and its callsign");
+  assert.equal(r.ok1, "Replace Slot 1");
+  assert.doesNotMatch(r.chip + r.chip1 + r.ok + r.ok1, /\d+\s+alive/, "no crew count in the picker's line or button");
+  assert.equal(r.harborKept, true, "nothing is written before the run starts");
+  assert.equal(r.unreadableChip, "New run replaces the unreadable save in Slot 1. To keep a copy, download it from Saved runs first.");
+  ok("New run names the slot it replaces");
 }
 
 // 9. (Review) Saved runs opened over the inline New run confirm closes it first: the modal lookup
