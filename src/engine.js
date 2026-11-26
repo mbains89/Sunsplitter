@@ -329,6 +329,10 @@ function refreshPictureCovers() {
     watchPictureCover(img);
     syncPictureCover(img);
   }
+  // SUN-GALLERY-01: the gallery's pictures follow the setting too.
+  if (typeof galleryPictureElements === "function") {
+    for (const img of galleryPictureElements()) syncPictureCover(img);
+  }
 }
 
 function setCoverNudity(on) {
@@ -513,6 +517,8 @@ function showTitleScreen() {
   showScreen("title");
   refreshTitleResumeUI();
   syncShipRemembersLine("title-remembers", typeof shipRemembersTitleLine === "function" ? shipRemembersTitleLine() : "");
+  // SUN-GALLERY-01: the Gallery button shows once a plate has been seen.
+  if (typeof renderGallery === "function") renderGallery();
 }
 
 // SUN-SHIP-REMEMBERS-01 (L-054): the title and tone screens' one line, hidden when there is none.
@@ -594,6 +600,8 @@ function releaseInactiveArtForScreen(id) {
     setManagedImageSource(sceneImage, "");
     if (sceneImage) sceneImage.alt = "";
   }
+  // SUN-GALLERY-01: leaving the gallery lets go of every picture it decoded.
+  if (id !== "gallery" && typeof releaseGalleryPictures === "function") releaseGalleryPictures();
   syncEndingArtForScreen(id);
 }
 
@@ -1597,7 +1605,7 @@ function resolveEnding() {
   const emb = state.embryos;
   const integ = state.integrity;
   const sup = state.supplies;
-  const deadNames = namedDead();
+  const deadNames = namedDead({ causes: false });
   const crisis = state.flags.crisis;
   const final = state.flags.final;
   const planet = state.flags.planet;
@@ -2348,8 +2356,7 @@ function renderCrewPanel(selectedKey) {
     if ((selectedKey === "amara" || selectedKey === "tomas") && state.romance && state.romance.amara_tomas) {
       romance.push("Shared Amara–Tomas encounter recorded");
     }
-    const cause = dead ? ((state.deathCause && state.deathCause[selectedKey]) || "gone")
-      : (state.dying && state.dying[selectedKey]);
+    const cause = crewConditionNote(selectedKey);
     const condition = (dead ? "Dead" : "Alive") + (cause ? ` — ${cause}` : "");
     const bits = [role];
     // SUN-PHONE-UI-POLISH-01: player words, not internal tags. The ending's own phrase for

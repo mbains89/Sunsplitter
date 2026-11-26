@@ -280,7 +280,7 @@ function openCrewSheet(key) {
   const c = crew[key];
   const dead = typeof isAlive === "function" ? !isAlive(key) : false;
   const role = c.role && c.role !== "None" ? c.role : "No rank";
-  const cause = dead ? ((state.deathCause && state.deathCause[key]) || "gone") : (state.dying && state.dying[key]);
+  const cause = crewConditionNote(key); // SUN-HONESTY-LINES-01: a living clock, never a future cause
   const condition = (dead ? "Dead" : "Alive") + (cause ? " - " + cause : "");
   const nameEl = document.getElementById("crew-sheet-name");
   const roleEl = document.getElementById("crew-sheet-role");
@@ -517,7 +517,8 @@ const MODAL_DIALOG_PRIMARY = {
   "tutorial-overlay": "tutorial-dismiss",
   "commander-create": "commander-create-ok",
   "new-run-confirm": "new-run-ok",
-  "crew-sheet": "crew-sheet-close"
+  "crew-sheet": "crew-sheet-close",
+  "gallery-viewer": "gallery-viewer-close"
 };
 const modalDialogOpeners = {};
 function openModalDialogElement() {
@@ -539,7 +540,8 @@ function focusModalDialog(id) {
 const MODAL_DIALOG_CANCEL = {
   "tutorial-overlay": () => skipTutorial(),
   "commander-create": () => cancelCommanderCreate(),
-  "new-run-confirm": () => cancelNewRun()
+  "new-run-confirm": () => cancelNewRun(),
+  "gallery-viewer": () => closeGalleryViewer()
 };
 const MODAL_TABBABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 function modalFocusUsable(el) {
