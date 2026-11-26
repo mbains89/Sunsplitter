@@ -469,6 +469,8 @@ function beginFreshCampaign(opts) {
     preserveCompletedSlotUntilChoice = previousSlotGuard;
     return false;
   }
+  // SUN-MEMORY-STORE-01 (L-054): a fresh run has faced no hard calls yet.
+  if (typeof shipMemoryClearTrail === "function") shipMemoryClearTrail();
   preserveCompletedSlotUntilChoice = !!opts.preserveCompletedSlotUntilChoice;
   showScreen("game");
   renderStatus();
@@ -533,6 +535,8 @@ function setManagedImageSource(img, src) {
   // SUN-NUDITY-FILTER-01: an emptied element shows nothing, so nothing is left to keep covered.
   if (!next) img.__ssLoadedSource = "";
   syncPictureCover(img);
+  // SUN-MEMORY-STORE-01 (L-054): the plate this element now shows, after the face gate.
+  if (next && typeof shipMemoryNotePlate === "function") shipMemoryNotePlate(img, next);
   return true;
 }
 
@@ -697,6 +701,8 @@ function showScene(id, opts) {
       return;
     }
   }
+  // SUN-MEMORY-STORE-01 (L-054, D10): a hard call that renders joins this run's trail.
+  if (typeof shipMemoryNoteScene === "function") shipMemoryNoteScene(id);
 
   // Scene illustration
   const imgWrap = document.getElementById("scene-image-wrap");
@@ -1607,6 +1613,8 @@ function resolveEnding() {
   document.getElementById("ending-text").textContent = text;
   setEndingArt(art);
   showScreen("ending");
+  // SUN-MEMORY-STORE-01 (L-054): one record per finished run, after the ending text is set.
+  if (typeof shipMemoryRecordRun === "function") shipMemoryRecordRun(title);
 }
 
 function showWhatRemains() {
