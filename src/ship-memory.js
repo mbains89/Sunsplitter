@@ -351,21 +351,22 @@ const SHIP_REMEMBERS_TITLE = {
   quiet_ship: "The observation blister has watched the last light go out before.",
   still_burning: "The ship has carried a crew that held together. It keeps no record of how.",
   fracture: "The hull remembers a crew that stopped moving as one.",
-  long_dark: "The ship has done this before. One more day, then the next."
+  long_dark: "The Sunsplitter has pushed through the black before. One more day, then the next."
 };
 // Tone screen: one line for any later run.
 const SHIP_REMEMBERS_TONE = "You have commanded this ship before. It will not go easier for that.";
 // Wake: one paragraph after the scene's own, keyed to the last ending. Each is true of every fresh
-// wake (the medical bay, its status board, the dying man, nothing yellow in the room) and is only
-// the Commander's own sense of it: no one else is said to be present or to remember.
+// wake (the medical bay's ozone and blood, its status board, nobody yet spoken, nothing yellow on the
+// bulkheads) and is only the Commander's own sense of it: no one else is said to be present or to
+// remember. None repeats the wake's closing "this room".
 const SHIP_REMEMBERS_WAKE = {
-  yellow_circle: "There is nothing yellow in this room. You look for it anyway.",
-  landfall: "A heading sits in your head, exact and cold. Nothing on the board explains it.",
-  living_ship: "For a moment the bay is warm and full of people arguing over food. Then it is only this room.",
+  yellow_circle: "There is nothing yellow on these bulkheads. You look for it anyway.",
+  landfall: "You carry a heading, exact and cold. Nothing on the status board explains it.",
+  living_ship: "For a moment the bay is warm and full of people arguing over food. Then it is ozone and blood again.",
   quiet_ship: "You find yourself listening for the systems to fail one by one. For now, they run.",
   still_burning: "Something in you expects these people to hold. You have no grounds for it yet.",
-  fracture: "Before anyone has said a word, you are listening for who will stop speaking to whom.",
-  long_dark: "You know this room. You have never been in it."
+  fracture: "Before anyone has spoken, you are listening for where this crew will split.",
+  long_dark: "Before you have even sat up, you are thinking about the next day, and the one after it."
 };
 
 // The last ending's line from a table, or "" when no run has finished. Never throws into play.

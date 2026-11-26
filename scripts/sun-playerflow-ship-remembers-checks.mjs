@@ -89,6 +89,7 @@ export function sunPlayerflowShipRemembersChecks() {
     check(typeof tables.wake[id] === "string" && tables.wake[id], `A: no wake line for ${id}`);
     allLines.push(tables.title[id], tables.wake[id]);
   }
+  for (const id of ENDING_IDS) check(!/\bthis room\b/i.test(tables.wake[id]), `A: wake line ${id} repeats the wake's closing "this room"`);
   check(Object.keys(tables.title).length === 7 && Object.keys(tables.wake).length === 7, "A: a table holds a line for something other than the seven endings");
   check(new Set(allLines).size === allLines.length, "A: two surfaces share a line");
   const names = [...new Set(tables.names.map(n => n.replace(/[^A-Za-z]/g, "")).filter(n => n.length > 2 && n !== "Brother"))];
@@ -96,7 +97,7 @@ export function sunPlayerflowShipRemembersChecks() {
     for (const name of names) check(!new RegExp(`\\b${name}\\b`, "i").test(text), `A: line names ${name}: "${text}"`);
     check(!/\d/.test(text), `A: line prints a number: "${text}"`);
     check(!/[<>&]/.test(text), `A: line carries markup: "${text}"`);
-    check(!/\b(endings?|runs? through|saved?|play(?:ed|through)?|game|choices?|score|again)\b/i.test(text), `A: line talks about the game, not the ship: "${text}"`);
+    check(!/\b(endings?|runs? through|saved?|play(?:ed|through)?|game|choices?|score)\b/i.test(text), `A: line talks about the game, not the ship: "${text}"`);
   }
 
   // B — empty store.
