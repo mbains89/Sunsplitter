@@ -277,6 +277,9 @@ async function runDeviceProof({ browser, playwright, deviceName, url, alternateU
     const firstChoice = page.locator(".choice-btn:not(:disabled)").first();
     assert.match((await firstChoice.textContent()) || "", /^Sit up\. Take command\./);
     await firstChoice.click();
+    // SUN-MENU-SHEET-01 moved in-run Save into the Menu sheet; the default pinned package predates it.
+    const menu = page.getByRole("button", { name: "Menu", exact: true });
+    if (await menu.count()) await menu.click();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.locator("#save-status").filter({ hasText: "Saved" }).waitFor({ state: "visible" });
     const saved = await page.evaluate(() => ({
