@@ -5,11 +5,11 @@
 //   A  the Gallery button is hidden while memory has no plate, shows once one is seen, and is
 //      reached from the title only (nothing in a run, L-047);
 //   B  exactly the recorded stems show, in order, across pages (6 a page narrow, 12 wide);
-//   C  no count or total anywhere: the gallery's words are all in index.html and none has a digit,
-//      and ship-gallery.js writes no text of its own;
+//   C  no count or total anywhere: the gallery's words (index.html and the one tile name) hold no
+//      digit, and ship-gallery.js writes no text of its own;
 //   D  an adult plate shows once seen in play; a plate of someone who died later stays (D5);
 //   E  ART-R2 people-free fallbacks never show (D6), even if a stored list names one;
-//   F  paging: Earlier/More appear only when there is a page that way;
+//   F  paging: Earlier/Later appear only when there is a page that way;
 //   G  viewer: opens on a tile, Previous/Next stop at the ends, Escape (the gallery's own key
 //      handler and the shared dialog handler) closes it and focus returns to the tile, on the
 //      tile's own page; a second Escape leaves to the title with focus on the Gallery button;
@@ -17,7 +17,13 @@
 //   I  "Cover nudity in pictures" on: every picture on the engine's NUDITY_PICTURES list is covered
 //      in the grid and in the viewer, nothing else is, toggling updates the open gallery, and off
 //      covers nothing. The list is read from the engine, never copied here;
-//   J  layout rules that keep the grid inside the window (static, always run).
+//   J  layout rules that keep the grid inside the window (static, always run);
+//   L  Commander faces and unknown plates (L-025): lead_prompt, every face-revealing Commander plate
+//      the identity check forbids, and a stem the engine cannot render draw no tile, even when the
+//      memory names them; the renderable set covers every plate resolveSceneImage returns for every
+//      scene under four crew profiles, and every ending's art; a tile whose picture fails is hidden;
+//   M  tile names: every tile is named "Open picture" with no caption, the viewer picture has empty
+//      alt, and no name carries a file stem or a scene id.
 // Browser (only where Playwright resolves; CI has none, so it prints NOT_AVAILABLE there):
 //   K  no horizontal scroll at 360×640 and 1280×800 on the title, grid and viewer; 6 and 12 tiles.
 import { readFileSync } from "node:fs";
@@ -34,7 +40,8 @@ const GALLERY_JS = readFileSync(resolve(ROOT, "src/ship-gallery.js"), "utf8");
 const GALLERY_CSS = readFileSync(resolve(ROOT, "css/gallery.css"), "utf8");
 // Recorded order is deliberately not alphabetical.
 const STEMS = ["vault", "romance_lena_1", "ending_ship", "shower_lena", "lena", "act2_tether_dock", "medical_bay",
-  "corridor_variant_3", "observation_bridge", "ending_fracture", "rear_mira", "ship_exterior_2", "ending_landfall", "debris_field"];
+  "corridor_variant_3", "observation_bridge", "ending_fracture", "rear_mira", "aftermath", "ending_landfall", "debris_field"];
+const STORY_VERIFY = readFileSync(resolve(ROOT, "scripts/verify/story.mjs"), "utf8");
 
 function memoryWith(plates, extra = {}) {
   return JSON.stringify(Object.assign({ v: 1, runs: 1, plates }, extra));
@@ -123,15 +130,15 @@ function checkOrderAndPaging(errors) {
     if (JSON.stringify(flat) !== JSON.stringify(STEMS)) errors.push(`B: ${wide ? "wide" : "narrow"} pages show ${JSON.stringify(flat)}, recorded ${JSON.stringify(STEMS)}`);
     if (pages.slice(0, -1).some(page => page.length !== size) || pages.at(-1).length > size) errors.push(`B: ${wide ? "wide" : "narrow"} page sizes ${pages.map(p => p.length)} (want ${size} a page)`);
     if (first.gridKids !== Math.min(size, STEMS.length)) errors.push(`B: the grid holds ${first.gridKids} tiles on the first page`);
-    if (!first.earlier || first.more) errors.push("F: on the first page Earlier must be hidden and More shown");
+    if (!first.earlier || first.more) errors.push("F: on the first page Earlier must be hidden and Later shown");
     if (first.focus !== "gallery-heading") errors.push(`G: opening the gallery focuses ${first.focus}, not its heading`);
     const end = JSON.parse(rt.evaluate(`JSON.stringify((() => {
       const o = { earlier: __hidden("gallery-earlier"), more: __hidden("gallery-more"), moreAgain: galleryPage(1) };
       const before = __tiles(); o.back = galleryPage(-1); o.backTiles = __tiles(); o.focus = __focus(); o.before = before;
       return o;
     })())`));
-    if (end.earlier || !end.more) errors.push("F: on the last page Earlier must be shown and More hidden");
-    if (end.moreAgain !== false) errors.push("F: More past the last page must do nothing");
+    if (end.earlier || !end.more) errors.push("F: on the last page Earlier must be shown and Later hidden");
+    if (end.moreAgain !== false) errors.push("F: Later past the last page must do nothing");
     if (end.back !== true || JSON.stringify(end.backTiles) !== JSON.stringify(pages.at(-2))) errors.push("F: Earlier does not return to the previous page");
     if (end.focus !== "tile:" + pages.at(-2)[0]) errors.push(`F: after a page turn focus is ${end.focus}, not the page's first tile`);
     results[wide ? "wide" : "narrow"] = pages.map(p => p.length).join("+");
@@ -161,12 +168,15 @@ function checkNoCount(errors) {
     .concat([...gallery.matchAll(/aria-label="([^"]*)"/g)].map(m => m[1]));
   const entry = (/<button id="btn-gallery"[^>]*>([^<]*)</.exec(INDEX) || [])[1];
   words.push(entry || "");
+  const tileName = (/const GALLERY_TILE_NAME = "([^"]*)";/.exec(GALLERY_JS) || [])[1];
+  if (!tileName) errors.push("C: ship-gallery.js has no GALLERY_TILE_NAME");
+  words.push(tileName || "");
   for (const word of words) if (/\d/.test(word)) errors.push(`C: gallery wording "${word}" holds a number`);
   if (entry !== "Gallery") errors.push(`C: the title button reads "${entry}", not "Gallery"`);
   const code = GALLERY_JS.replace(/\/\/[^\n]*/g, "");
   if (/\b(?:textContent|innerText|insertAdjacentHTML)\b|innerHTML\s*=(?!\s*""\s*;)/.test(code)) errors.push("C: ship-gallery.js writes text of its own; the gallery's words live in index.html");
   for (const label of ["aria-valuenow", "aria-setsize", "aria-posinset"]) if (code.includes(label)) errors.push(`C: ship-gallery.js sets ${label}, which reads out a count`);
-  // At run time: the tiles' names are the engine's picture descriptions, with no "n of N" in them.
+  // At run time: no tile or viewer name reads as a count.
   const rt = boot();
   setMemory(rt, memoryWith(STEMS));
   rt.evaluate(`showTitleScreen(); openGallery();`);
@@ -174,7 +184,6 @@ function checkNoCount(errors) {
     for (let guard = 0; guard < 10; guard++) { for (const tile of galleryTiles) all.push(tile.button.getAttribute("aria-label")); if (!galleryPage(1)) break; }
     openGalleryViewer(0); all.push(document.getElementById("gallery-viewer-image").alt); return all; })())`));
   for (const label of labels) {
-    if (!/^(?:Scene illustration: |Portrait of )/.test(label || "")) errors.push(`C: a tile is named "${label}"`);
     if (/\b\d+\s*(?:of|\/)\s*\d+\b|\b\d+\s+(?:plates?|pictures?|images?)\b/i.test(label || "")) errors.push(`C: "${label}" reads as a count`);
   }
 }
@@ -270,7 +279,7 @@ function checkViewer(errors) {
     return o;
   })())`));
   if (!out.open || !out.modal) errors.push("G: a tile does not open the viewer as the open dialog");
-  if (out.src !== "images/romance_lena_1.jpg" || !/^Scene illustration: /.test(out.alt)) errors.push(`G: the viewer shows ${out.src} with alt "${out.alt}"`);
+  if (out.src !== "images/romance_lena_1.jpg" || out.alt !== "") errors.push(`G: the viewer shows ${out.src} with alt "${out.alt}"`);
   if (out.focus !== "gallery-viewer-close") errors.push(`G: the viewer opens with focus on ${out.focus}`);
   if (out.prevAtStart !== false) errors.push("G: Previous is disabled on the second picture");
   if (!out.closed || !out.released) errors.push("G: Escape does not close the viewer and let go of its picture");
@@ -325,6 +334,10 @@ function checkNudity(errors) {
   const clothed = ["vault", "medical_bay", "lena", "ending_ship", "corridor_variant_3", "observation_bridge"];
   const stems = [];
   listed.forEach((name, index) => { stems.push(name.replace(/\.jpg$/, "")); if (index < clothed.length) stems.push(clothed[index]); });
+  // What the gallery may show of them: the plates the engine renders today, less any withheld (L).
+  const showable = JSON.parse(rt.evaluate(`JSON.stringify(${JSON.stringify(stems)}.filter(galleryShowsStem))`));
+  const listedShowable = showable.filter(stem => listed.includes(stem + ".jpg"));
+  if (listedShowable.length < 15) errors.push(`I: only ${listedShowable.length} listed pictures are showable; the engine renders 19 today`);
   const summary = {};
   for (const on of [true, false]) {
     setMemory(rt, memoryWith(stems));
@@ -357,8 +370,8 @@ function checkNudity(errors) {
       return { bad, covered, viewerCovered, seen, live };
     })())`));
     for (const line of out.bad.slice(0, 12)) errors.push(`I: setting ${on ? "on" : "off"}: ${line}`);
-    if (out.seen !== stems.length) errors.push(`I: walked ${out.seen} tiles of ${stems.length}`);
-    if (on && (out.covered !== listed.length || out.viewerCovered !== listed.length)) errors.push(`I: with the setting on ${out.covered} tiles and ${out.viewerCovered} viewer pictures were covered, the list has ${listed.length}`);
+    if (out.seen !== showable.length) errors.push(`I: walked ${out.seen} tiles of ${showable.length} showable`);
+    if (on && (out.covered !== listedShowable.length || out.viewerCovered !== listedShowable.length)) errors.push(`I: with the setting on ${out.covered} tiles and ${out.viewerCovered} viewer pictures were covered; ${listedShowable.length} listed pictures are shown`);
     if (!on && (out.covered || out.viewerCovered)) errors.push("I: with the setting off a gallery picture was covered");
     if (JSON.stringify(out.live) !== "[true,false]") errors.push(`I: toggling the setting does not update the open gallery (${JSON.stringify(out.live)})`);
     summary[on ? "on" : "off"] = `${out.covered}/${out.seen} tiles, ${out.viewerCovered} viewer`;
@@ -373,6 +386,113 @@ function checkNudity(errors) {
   const cover = readFileSync(resolve(ROOT, "css/paced-reveal.css"), "utf8");
   if (!/img\.nudity-covered\s*\{\s*filter:\s*blur/.test(cover.replace(/,\s*\n\s*img\.nudity-covered/, "\nimg.nudity-covered"))) errors.push("I: css/paced-reveal.css no longer covers every img.nudity-covered");
   return summary;
+}
+
+function checkWithheldAndRenderable(errors) {
+  const forbidden = [...((/forbiddenCommanderFaceImages = \[([\s\S]*?)\]/.exec(STORY_VERIFY) || [])[1] || "").matchAll(/"images\/([a-z0-9_]+)\.jpg"/g)].map(m => m[1]);
+  if (forbidden.length < 4) errors.push(`L: could not read the identity check's forbidden plates (got ${forbidden.join(", ")})`);
+  const rt = boot();
+  const withheld = JSON.parse(rt.evaluate(`JSON.stringify([...GALLERY_WITHHELD])`));
+  for (const stem of ["lead_prompt", ...forbidden]) if (!withheld.includes(stem)) errors.push(`L: ${stem} is not withheld from the gallery`);
+  // A memory naming each of them, plus unknown and retired stems, around two plates that do show.
+  const named = ["vault", "lead_prompt", ...forbidden, "no_such_plate", "vess_cost", "medical_bay"];
+  setMemory(rt, memoryWith(named));
+  const out = JSON.parse(rt.evaluate(`JSON.stringify((() => {
+    const o = {};
+    showTitleScreen(); openGallery();
+    const all = []; for (let g = 0; g < 10; g++) { all.push(...__tiles()); if (!galleryPage(1)) break; }
+    o.all = all;
+    // Seen in play: lead_prompt is on screen today and the store records it; the gallery still withholds it.
+    closeGallery(); localStorage.clear(); resetRunState(); showScreen("game");
+    o.leadRenders = galleryRenderableStems().has("lead_prompt");
+    setManagedImageSource(document.getElementById("scene-image"), "images/lead_prompt.jpg");
+    o.recorded = shipMemoryRead().plates;
+    showTitleScreen(); o.buttonHidden = __hidden("btn-gallery");
+    // A tile whose picture will not load is hidden, not drawn broken.
+    localStorage.setItem(${JSON.stringify(KEY)}, ${JSON.stringify(memoryWith(["vault", "medical_bay"]))});
+    showTitleScreen(); openGallery();
+    const tile = galleryTiles[0];
+    o.hasOnerror = typeof tile.img.onerror === "function";
+    if (o.hasOnerror) tile.img.onerror();
+    o.brokenHidden = tile.item.classList.contains("hidden");
+    o.otherShown = !galleryTiles[1].item.classList.contains("hidden");
+    // Coverage: every plate resolveSceneImage returns for every scene, under four crew profiles,
+    // is in the renderable set.
+    const renderable = galleryRenderableStems();
+    const profiles = {
+      fresh: () => {},
+      recovered: () => { state.recovered = { tomas: true, jiro: true, vess: true }; },
+      romanced: () => { state.recovered = { tomas: true, jiro: true, vess: true };
+        for (const key of ["lena", "mira", "amara", "sela", "vess"]) state.romance[key] = true;
+        for (const key of Object.keys(state.affinity)) state.affinity[key] = 100;
+        for (const key of Object.keys(state.trust)) state.trust[key] = 100; },
+      depleted: () => { state.recovered = { tomas: true, jiro: true, vess: true };
+        for (const key of ["lena", "elias", "mira", "tomas", "amara", "jiro", "sela", "vess"]) if (isAlive(key)) kill(key, "gallery coverage fixture"); }
+    };
+    const missing = new Set(); let resolved = 0;
+    for (const setup of Object.values(profiles)) {
+      for (const id of Object.keys(scenes)) {
+        resetRunState(); setup();
+        let src = ""; try { src = resolveSceneImage(id, scenes[id]) || ""; } catch (e) { src = ""; }
+        if (!src) continue;
+        resolved++;
+        const stem = src.startsWith("images/") && src.endsWith(".jpg") ? src.slice(7, -4) : "";
+        if (!stem || !renderable.has(stem)) missing.add(src);
+      }
+    }
+    o.missing = [...missing]; o.resolved = resolved; o.renderable = renderable.size;
+    resetRunState();
+    return o;
+  })())`));
+  if (JSON.stringify(out.all) !== JSON.stringify(["vault", "medical_bay"])) errors.push(`L: a memory naming withheld and unknown plates shows ${JSON.stringify(out.all)}`);
+  if (!out.leadRenders) errors.push("L: lead_prompt is no longer renderable; drop this case once #587 lands, keep it withheld");
+  if (!out.recorded.includes("lead_prompt")) errors.push("L: the store did not record lead_prompt, so the in-play case proved nothing");
+  if (!out.buttonHidden) errors.push("L: the Gallery button shows when the only plate seen is withheld");
+  if (!out.hasOnerror || !out.brokenHidden || !out.otherShown) errors.push(`L: a picture that fails to load must hide its own tile only (${JSON.stringify(out)})`);
+  for (const src of out.missing.slice(0, 10)) errors.push(`L: resolveSceneImage renders ${src}, which the gallery's renderable set lacks`);
+  // Every ending's art (resolveEnding assigns it as a literal).
+  const engine = readFileSync(resolve(ROOT, "src/engine.js"), "utf8");
+  const endingArt = [...engine.matchAll(/\bart = "images\/([a-z0-9_]+)\.jpg"/g)].map(m => m[1]);
+  const renderable = JSON.parse(rt.evaluate(`JSON.stringify([...galleryRenderableStems()])`));
+  if (endingArt.length < 7) errors.push(`L: found ${endingArt.length} ending art assignments, expected 7`);
+  for (const stem of endingArt) if (!renderable.includes(stem)) errors.push(`L: ending art ${stem} is not renderable in the gallery`);
+  if (/images\/romance_/.test(GALLERY_JS)) errors.push("L: ship-gallery.js names a romance plate path; withhold by stem only");
+  return out;
+}
+
+function checkTileNames(errors) {
+  const rt = boot();
+  setMemory(rt, memoryWith(STEMS));
+  const out = JSON.parse(rt.evaluate(`JSON.stringify((() => {
+    const names = []; const captions = []; const alts = [];
+    showTitleScreen(); openGallery();
+    for (let g = 0; g < 10; g++) {
+      for (const tile of galleryTiles) {
+        names.push(tile.button.getAttribute("aria-label"));
+        const text = [tile.button.textContent, tile.item.textContent, ...tile.button.children.map(c => c.textContent)].join("");
+        if (text) captions.push(tile.stem + ": " + text);
+        if (tile.img.alt !== "") alts.push(tile.stem + ": " + tile.img.alt);
+        tile.button.onclick();
+        const v = document.getElementById("gallery-viewer-image").alt;
+        if (v !== "") alts.push("viewer " + tile.stem + ": " + v);
+        closeGalleryViewer();
+      }
+      if (!galleryPage(1)) break;
+    }
+    return { names, captions, alts, sceneIds: Object.keys(scenes) };
+  })())`));
+  const words = value => value.toLowerCase().replace(/_/g, " ");
+  for (const name of new Set(out.names)) {
+    if (name !== "Open picture") errors.push(`M: a tile is named "${name}", not "Open picture"`);
+    const lower = words(name || "");
+    for (const stem of STEMS) if (lower.includes(words(stem))) errors.push(`M: tile name "${name}" carries the file stem ${stem}`);
+    for (const id of out.sceneIds) if (id.includes("_") && lower.includes(words(id))) errors.push(`M: tile name "${name}" carries the scene id ${id}`);
+  }
+  if (out.names.length !== STEMS.length) errors.push(`M: named ${out.names.length} tiles of ${STEMS.length}`);
+  for (const line of out.captions.slice(0, 5)) errors.push(`M: a tile carries a caption (${line})`);
+  for (const line of out.alts.slice(0, 5)) errors.push(`M: a picture carries alt text (${line})`);
+  if (!/id="gallery-viewer"[^>]*role="dialog"[^>]*aria-label="Picture viewer"/.test(INDEX)) errors.push("M: the viewer dialog must be labelled \"Picture viewer\"");
+  if (/imageAlternative\(/.test(GALLERY_JS)) errors.push("M: ship-gallery.js names pictures from their file names (imageAlternative)");
 }
 
 function checkLayoutRules(errors) {
@@ -460,16 +580,18 @@ export async function sunPlayerflowGalleryChecks() {
   checkRelease(errors);
   const nudity = checkNudity(errors);
   checkLayoutRules(errors);
+  const withheld = checkWithheldAndRenderable(errors);
+  checkTileNames(errors);
   const browser = await browserChecks(errors);
-  return { errors, pages, adult, nudity, browser };
+  return { errors, pages, adult, nudity, withheld, browser };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const { errors, pages, adult, nudity, browser } = await sunPlayerflowGalleryChecks();
+  const { errors, pages, adult, nudity, withheld, browser } = await sunPlayerflowGalleryChecks();
   if (errors.length) {
     console.error("FAIL sun-playerflow-gallery");
     for (const line of errors) console.error("  " + line);
     process.exit(1);
   }
-  console.log(`PASS sun-playerflow-gallery: hidden when empty; ${STEMS.length} recorded stems in order (narrow pages ${pages.narrow}, wide ${pages.wide}); no count text; adult plate ${adult.stem} seen at ${adult.scene} shows and stays after Lena dies later; art_r2 absent; viewer Escape/focus return; pictures released; cover nudity on ${nudity.on}, off ${nudity.off}; browser: ${browser}`);
+  console.log(`PASS sun-playerflow-gallery: hidden when empty; ${STEMS.length} recorded stems in order (narrow pages ${pages.narrow}, wide ${pages.wide}); no count text; adult plate ${adult.stem} seen at ${adult.scene} shows and stays after Lena dies later; art_r2 absent; viewer Escape/focus return; pictures released; cover nudity on ${nudity.on}, off ${nudity.off}; lead_prompt, the Commander-face plates and unknown stems draw no tile (renderable set ${withheld.renderable} plates covers ${withheld.resolved} resolved scene plates across 4 profiles and all ending art); tiles named "Open picture", no alt, no caption; browser: ${browser}`);
 }

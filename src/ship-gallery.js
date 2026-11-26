@@ -7,6 +7,12 @@
 //   anywhere (D4(a)). The title's Gallery button stays hidden until one plate has been seen.
 // - A plate stays here once seen, even if someone in it died in a later run (D5(a)).
 // - ART-R2 people-free fallback plates are never shown (D6(a)); the store does not record them.
+// - Only a plate the engine can put on screen today (scene, ending or What Remains) is shown, read
+//   from the engine's own tables and resolvers, so a renamed, retired or crafted stem draws nothing.
+//   GALLERY_WITHHELD is never shown even then: plates that show the Commander's face (L-025).
+//   A tile whose picture fails to load is hidden.
+// - Tiles carry no caption. Each is named "Open picture"; the viewer is the "Picture viewer"
+//   dialog and its picture has empty alt. File names and scene ids are never read out.
 // - Adult plates show once seen. "Cover nudity in pictures" (L-040) covers them here as it does in
 //   play: every picture is set through setManagedImageSource, which applies the engine's own list.
 // - 6 plates a page on a phone, 12 from 600px wide, so decoded plates stay bounded. Changing page
@@ -19,11 +25,17 @@ const GALLERY_PAGE_NARROW = 6;
 const GALLERY_PAGE_WIDE = 12;
 const GALLERY_WIDE_QUERY = "(min-width: 600px)";
 const GALLERY_STEM_RE = /^[a-z0-9_]+$/;
+const GALLERY_TILE_NAME = "Open picture";
+// L-025: never in the gallery, even once seen. lead_prompt showed the Commander's face in every run
+// until its scene was rewired; the romance_*_1 plates are the face-revealing Commander plates the
+// identity check (commanderIdentityChecks, scripts/verify/story.mjs) forbids at runtime.
+const GALLERY_WITHHELD = new Set(["lead_prompt", "romance_amara_1", "romance_mira_1", "romance_sela_1", "romance_vess_1"]);
 
 let galleryStems = [];
 let galleryPageStart = 0;
 let galleryViewerIndex = -1;
 let galleryTiles = [];
+let galleryRenderableCache = null;
 
 function galleryPlateSource(stem) {
   return `images/${stem}.jpg`;
@@ -55,6 +67,52 @@ function galleryClear(el) {
   else el.innerHTML = "";
 }
 
+function galleryStripComments(text) {
+  return String(text).replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
+// Stems of every plate the engine can render as a scene, ending or What Remains picture today:
+// the sceneImages map, each scene's own image (a getter's every branch), the face-gate fallbacks,
+// and the plates resolveSceneImage and resolveEnding name in their code. Read once; the engine's
+// tables do not change while the page is open.
+function galleryRenderableStems() {
+  if (galleryRenderableCache) return galleryRenderableCache;
+  const stems = new Set();
+  const addPath = src => {
+    if (typeof src !== "string") return;
+    const match = /(?:^|\/)images\/([a-z0-9_]+)\.jpg$/.exec(src.split(/[?#]/)[0]);
+    if (match) stems.add(match[1]);
+  };
+  const addCode = fn => {
+    if (typeof fn !== "function") return;
+    let text = "";
+    try { text = galleryStripComments(Function.prototype.toString.call(fn)); } catch (e) { return; }
+    for (const match of text.matchAll(/["'`](?:\.\/)?images\/([a-z0-9_]+)\.jpg["'`]/g)) stems.add(match[1]);
+  };
+  try { if (typeof sceneImages === "object" && sceneImages) Object.values(sceneImages).forEach(addPath); } catch (e) { /* none */ }
+  try {
+    if (typeof scenes === "object" && scenes) {
+      for (const id of Object.keys(scenes)) {
+        const field = scenes[id] ? Object.getOwnPropertyDescriptor(scenes[id], "image") : null;
+        if (!field) continue;
+        if (typeof field.get === "function") addCode(field.get);
+        else addPath(field.value);
+      }
+    }
+  } catch (e) { /* none */ }
+  try { if (typeof PLATE_FACE_FALLBACK === "object" && PLATE_FACE_FALLBACK) Object.values(PLATE_FACE_FALLBACK).forEach(addPath); } catch (e) { /* none */ }
+  if (typeof resolveSceneImage === "function") addCode(resolveSceneImage);
+  if (typeof resolveSceneImageUngated === "function") addCode(resolveSceneImageUngated);
+  if (typeof resolveEnding === "function") addCode(resolveEnding);
+  galleryRenderableCache = stems;
+  return stems;
+}
+
+function galleryShowsStem(stem) {
+  return typeof stem === "string" && GALLERY_STEM_RE.test(stem) && !stem.startsWith("art_r2_")
+    && !GALLERY_WITHHELD.has(stem) && galleryRenderableStems().has(stem);
+}
+
 // Reads the ship memory, shows or hides the title's Gallery button, and redraws the open page.
 function renderGallery() {
   let plates = [];
@@ -64,8 +122,7 @@ function renderGallery() {
   } catch (e) {
     plates = [];
   }
-  galleryStems = plates.filter((stem, index, list) => typeof stem === "string"
-    && GALLERY_STEM_RE.test(stem) && !stem.startsWith("art_r2_") && list.indexOf(stem) === index);
+  galleryStems = plates.filter((stem, index, list) => galleryShowsStem(stem) && list.indexOf(stem) === index);
   const entry = document.getElementById("btn-gallery");
   if (entry) entry.classList.toggle("hidden", !galleryStems.length);
   if (galleryScreenOpen()) renderGalleryPage();
@@ -84,6 +141,7 @@ function releaseGalleryTiles() {
   for (const tile of galleryTiles) {
     setManagedImageSource(tile.img, "");
     tile.img.alt = "";
+    tile.img.onerror = null;
     tile.button.onclick = null;
   }
   galleryTiles = [];
@@ -123,7 +181,7 @@ function renderGalleryPage() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-tile";
-    button.setAttribute("aria-label", imageAlternative(src));
+    button.setAttribute("aria-label", GALLERY_TILE_NAME);
     button.setAttribute("data-gallery-stem", stem);
     button.onclick = () => openGalleryViewer(index);
     const frame = document.createElement("span");
@@ -133,12 +191,14 @@ function renderGalleryPage() {
     img.alt = "";
     img.setAttribute("loading", "lazy");
     img.setAttribute("decoding", "async");
+    // A plate that will not load is not shown as a broken tile.
+    img.onerror = () => item.classList.add("hidden");
     frame.appendChild(img);
     button.appendChild(frame);
     item.appendChild(button);
     if (grid) grid.appendChild(item);
     setManagedImageSource(img, src);
-    galleryTiles.push({ stem, index, button, img });
+    galleryTiles.push({ stem, index, item, button, img });
   });
   const earlier = document.getElementById("gallery-earlier");
   if (earlier) earlier.classList.toggle("hidden", galleryPageStart === 0);
@@ -187,7 +247,7 @@ function showGalleryViewerPicture() {
   const src = galleryPlateSource(galleryStems[galleryViewerIndex]);
   const img = document.getElementById("gallery-viewer-image");
   setManagedImageSource(img, src);
-  if (img) img.alt = imageAlternative(src);
+  if (img) img.alt = "";
   const prev = document.getElementById("gallery-viewer-prev");
   const next = document.getElementById("gallery-viewer-next");
   if (prev) prev.disabled = galleryViewerIndex <= 0;
