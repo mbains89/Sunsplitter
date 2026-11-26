@@ -78,8 +78,8 @@ assert.equal(out.brokenCustody.promise, "broken");
 assert.ok(out.brokenCustody.facts.includes("At the custody test, the inhabited ring paid to keep the vault as possession."), "Custody break missing from What Remains");
 assert.ok(out.brokenCustody.tomas.includes("At the custody test the inhabited ring paid to keep the vault, and he counted who paid."), "Custody break missing from the epilogue");
 assert.equal(out.brokenBreath.promise, "broken");
-assert.ok(out.brokenBreath.facts.includes("At the crisis, crew went into the trunks while the racks could have paid."), "Breath break missing from What Remains");
-assert.ok(out.brokenBreath.tomas.includes("At the crisis crew went into the trunks while the racks could have paid, and he counted who was sent."), "Breath break missing from the epilogue");
+assert.ok(out.brokenBreath.facts.includes("At the crisis, the outer embryo racks were spared while crew went into the trunks."), "Breath break missing from What Remains");
+assert.ok(out.brokenBreath.tomas.includes("At the crisis the outer embryo racks were spared while crew went into the trunks, and he counted who was sent."), "Breath break missing from the epilogue");
 assert.equal(out.untestedForcedTrunks.promise, "made", "forced trunks resolved Tomas's promise");
 assert.ok(!ANY_TEST.test(out.untestedForcedTrunks.facts) && !ANY_TEST.test(out.untestedForcedTrunks.tomas), "an untested promise reached the ending (L-024)");
 

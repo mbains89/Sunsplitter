@@ -806,7 +806,7 @@ function whatRemainsPromiseLine(owner) {
     tomas: {
       kept: "At the crisis, the living received the mercy promised to Tomas.",
       broken: state.crisisPath === "breath"
-        ? "At the crisis, crew went into the trunks while the racks could have paid."
+        ? "At the crisis, the outer embryo racks were spared while crew went into the trunks."
         : "At the custody test, the inhabited ring paid to keep the vault as possession."
     },
     lena: {
@@ -1018,7 +1018,7 @@ function crewEpilogues() {
     const tomasTest = tomasCrisisResult();
     if (tomasTest === "kept") p += ` At the crisis the living got the mercy; he counted the cost.`;
     else if (tomasTest === "broken" && state.crisisPath === "custody") p += ` At the custody test the inhabited ring paid to keep the vault, and he counted who paid.`;
-    else if (tomasTest === "broken") p += ` At the crisis crew went into the trunks while the racks could have paid, and he counted who was sent.`;
+    else if (tomasTest === "broken") p += ` At the crisis the outer embryo racks were spared while crew went into the trunks, and he counted who was sent.`;
     else if (f.vault_sacrifice === "future") p += ` The vault had already been kept when the annex docked; he counted who in the habitation ring paid for it.`;
     if (f.pair_triage === "count") p += ` Rourke went into his count by name.`;
     else if (f.pair_seal === "names") p += ` The Deck 4 feedstock went on his slate under names.`;
