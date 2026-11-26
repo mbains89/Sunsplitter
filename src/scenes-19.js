@@ -3,8 +3,13 @@
 // Strict scene shape only: text | choices | onEnter | image
 registerScenes({
 
+// SUN-PROMISE-FORWARD-01 (decision 27c): Lena's shared-line test runs here, before her clock, when her
+// promise is made and a patient is aboard (pre-crisis the patient ladder is Jiro, then Vess). Its
+// outcomes return here. PRE: crisisPath null. WRITES: none here (prom_line owns its writes).
 act3_lethal_lena_clock: {
   onEnter: () => {
+    if (state.crisisPath == null && state.promises.lena === "made" && isAlive("lena") &&
+        state.dying && state.dying.lena && ["jiro", "vess"].some(k => isAlive(k))) return "prom_line";
     if (!isAlive("lena") || !state.dying || !state.dying.lena) {
       return "act3_vault_face";
     }
@@ -12,7 +17,10 @@ act3_lethal_lena_clock: {
   get text() {
     if (!isAlive("lena")) return `Medical is empty. The watch continues.`;
 
-    let t = `The treatment-bay alarm is not a patient call. It is Lena's blood chemistry crossing the red limit she posted after Jiro's prognosis.
+    // SUN-PROMISE-FORWARD-01 seam: the clock only ever follows a tested shared line pre-crisis.
+    const seam = (state.promises.lena === "kept" || state.promises.lena === "broken")
+      ? `The shared line was the first crash. Her chart always listed a second.\n\n` : ``;
+    let t = seam + `The treatment-bay alarm is not a patient call. It is Lena's blood chemistry crossing the red limit she posted after Jiro's prognosis.
 
 She catches herself on the sterile-field frame, looks past the red trace, and reaches for the triage slate.
 
