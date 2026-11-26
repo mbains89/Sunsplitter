@@ -2,8 +2,8 @@
 // Every "sunsplitter_*" string literal in src/ must be on the recorded list below, and every key
 // on the list must be used in src/, so no storage key arrives unrecorded. The save-slot keys are
 // the ones L-052 covers; the ship memory key is L-054's; the rest are reader settings and title keys.
-// The same list is written out in the comment block above the save constants in
-// src/engine-save.js; this check also fails if that block drops a key.
+// The save-slot and settings keys are also written out in the comment block above the save
+// constants in src/engine-save.js; this check also fails if that block drops one.
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -74,12 +74,14 @@ const unused = [...RECORDED].filter(key => !found.has(key)).sort();
 for (const key of unrecorded) problems.push(`unrecorded storage key ${key} at ${found.get(key).join(", ")}`);
 for (const key of unused) problems.push(`recorded storage key ${key} is not used in src/ (remove it from the list, or restore it)`);
 
-// The comment block above the save constants names every recorded key.
+// The comment block above the save constants names every save-slot and settings key. The ship
+// memory key is left out of it on purpose: sun-playerflow-ship-memory-isolation-checks allows its
+// name only in src/ship-memory.js and src/state.js.
 const engineSave = readFileSync(join(SRC, "engine-save.js"), "utf8");
 const blockEnd = engineSave.indexOf("const SAVE_KEY =");
 assert.ok(blockEnd > 0, "src/engine-save.js lost const SAVE_KEY");
 const block = engineSave.slice(0, blockEnd);
-for (const key of RECORDED) {
+for (const key of [...SAVE_SLOT_KEYS, ...SETTINGS_KEYS]) {
   if (!new RegExp(`\\b${key}\\b`).test(block)) problems.push(`the key-list comment above SAVE_KEY in src/engine-save.js does not name ${key}`);
 }
 

@@ -32,8 +32,9 @@
 //   sunsplitter_validate           developer scene validation switch (validate.js)
 //
 // Ship memory (L-054). One key per browser, outside the save slots and never in a snapshot or an
-// export. clearSave never removes it; a new run and an import clear only its in-progress trail.
-//   sunsplitter_ship_memory_v1     the cross-run ship memory store (ship-memory.js)
+// export. Its name is written only in src/ship-memory.js and src/state.js (the ship memory
+// isolation check keeps it out of every other file); the storage-keys check records it too.
+// clearSave never removes it; a new run and an import clear only its in-progress trail.
 const SAVE_KEY = "sunsplitter_save_v3";
 const SAVE_KEY_LEGACY = "sunsplitter_save_v2";
 const SAVE_STAGING_KEY = "sunsplitter_save_v3_staging";
