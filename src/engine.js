@@ -1821,12 +1821,13 @@ function resolveSceneImageUngated(id, scene) {
   // The Off-Shift portrait asserts Vess is present, including on saved renders.
   if (id === "offshift_vess" && !isAlive("vess")) return "images/corridor_variant_2.jpg";
 
-  // Crisis / priority_repairs: Amara + Jiro + Sela faces. Fallback when any missing.
+  // Crisis / priority_repairs: Amara + Jiro + Mira faces. Fallback when any missing.
   if (id === "crisis" || id === "priority_repairs" || id === "aftermath") {
     if (state.flags.crisis === "vent" && map.vent) return map.vent;
     if (state.flags.crisis === "cut" && map.cut_out) return map.cut_out;
     // SUN-PLATE-FACES-AUDIT-01: the kneeling welder in crisis.jpg reads as Mira (Muse a-m audit).
-    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("sela") || !isAlive("mira")) {
+    // SUN-ART-RULINGS-01 (ruled 2026-11-25): Sela is not in the plate, so her death no longer hides it.
+    if (!isAlive("amara") || !isAlive("jiro") || !isAlive("mira")) {
       return "images/corridor_variant_2.jpg";
     }
   }
@@ -1930,7 +1931,7 @@ const PLATE_FACES = {
   "images/corridor.jpg": ["vess"],
   "images/corridor_variant.jpg": ["amara", "jiro"],
   "images/observation_bridge_alt.jpg": ["amara", "elias"],
-  "images/crisis.jpg": ["amara", "jiro", "sela", "mira"],
+  "images/crisis.jpg": ["amara", "jiro", "mira"], // SUN-ART-RULINGS-01: no Sela in the bytes
   "images/empty_berths.jpg": ["amara"],
   // SUN-PLATE-FACES-06: from the owner HITL approval record (SUN_ART_HITL_APPROVED_ANALYSIS.md,
   // 2026-09-27), each confirmed by eye against images/bodysuit_*.jpg. medbay_dim shows Lena in
