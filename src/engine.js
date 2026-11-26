@@ -2041,6 +2041,13 @@ function plateFacesPresent(src) {
 // opens her like any other name. UI state for one paint; never saved.
 let crewPanelDefaultPaint = false;
 
+// SUN-ART-RULINGS-01 (ruled 2026-11-25): the board used to open on Lena even when she was dead.
+// The default is now the first living member in board order (Lena while she lives). A dead
+// member's chip and sheet are unchanged: they stay on the board as a memorial.
+function crewPanelDefaultKey() {
+  return visibleCrewKeys().find(k => crew[k] && isAlive(k)) || null;
+}
+
 function toggleCrewPanel() {
   const el = document.getElementById("crew-panel");
   if (!el) return;
@@ -2051,7 +2058,7 @@ function toggleCrewPanel() {
   if (toggle) toggle.setAttribute("aria-expanded", opening ? "true" : "false");
   if (opening) {
     crewPanelDefaultPaint = true;
-    try { renderCrewPanel("lena"); }
+    try { renderCrewPanel(crewPanelDefaultKey()); }
     finally { crewPanelDefaultPaint = false; }
     // Opening Crew must not squeeze the story out of a short phone viewport.
     const wrap = document.getElementById("scene-image-wrap");
