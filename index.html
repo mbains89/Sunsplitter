@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/intro-nav.css">
 <link rel="stylesheet" href="css/pc-viewport.css">
 <link rel="stylesheet" href="css/paced-reveal.css">
+<link rel="stylesheet" href="css/memory-board.css">
 <link rel="stylesheet" href="css/reader-settings.css">
 </head>
 <body>
@@ -102,6 +103,7 @@
         <p class="tone-meta">
           Story and consequences. Not a management sim, not combat, not a checklist.
         </p>
+        <p id="tone-remembers" class="ship-remembers hidden"></p>
         <button class="btn btn-primary" type="button" onclick="acknowledgeTone()">I understand — continue</button>
       </div>
     </div>
@@ -120,12 +122,14 @@
       <p class="title-contract">
         Choices have weight. The Future and the Living will both ask for blood.
       </p>
+      <p id="title-remembers" class="ship-remembers hidden"></p>
       <div class="title-actions">
         <p id="review-build-stamp" class="review-build-stamp hidden" role="status">Private review build</p>
         <button id="btn-resume" class="btn btn-primary hidden" type="button" onclick="resumeGame()">Continue</button>
         <p id="resume-meta" class="resume-meta hidden"></p>
         <p id="title-save-chip" class="title-save-chip hidden" role="status"></p>
         <button id="btn-begin" class="btn btn-primary" type="button" onclick="startGame()">Begin</button>
+        <button id="btn-memory-board" class="btn hidden" type="button" onclick="openMemoryBoard('title')">Memory board</button>
         <div id="new-run-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="new-run-confirm-copy">
           <p id="new-run-confirm-copy">New run replaces the durable local save slot. Cancel keeps Continue available.</p>
           <p id="new-run-confirm-chip" class="new-run-confirm-chip" role="status">Confirm = overwrite slot · Cancel = keep Continue</p>
@@ -243,9 +247,29 @@
       <div class="ending-text" id="what-remains-text"></div>
       <h2 class="ending-subheading" id="what-remains-crew-heading">The crew</h2>
       <div class="ending-text" id="what-remains-crew"></div>
+      <button id="btn-memory-board-remains" class="btn hidden" type="button" onclick="openMemoryBoard('what-remains')">Memory board</button>
       <button class="btn" type="button" onclick="showScreen('ending')">Return to ending</button>
       <button class="btn" type="button" onclick="playAgain()">Play Again</button>
     </div>
+
+    <section id="memory-screen" class="hidden" aria-labelledby="memory-heading">
+      <h1 class="ending-title" id="memory-heading" tabindex="-1">Memory board</h1>
+      <h2 class="ending-subheading" id="memory-endings-heading">Endings</h2>
+      <ul id="memory-endings" class="memory-endings" aria-labelledby="memory-endings-heading"></ul>
+      <h2 class="ending-subheading" id="memory-forks-heading">Forks</h2>
+      <ul id="memory-forks" class="memory-forks" aria-labelledby="memory-forks-heading"></ul>
+      <div class="memory-actions" role="group" aria-label="Memory board actions">
+        <button id="memory-back" class="btn btn-primary" type="button" onclick="closeMemoryBoard()">Back to title</button>
+        <button id="memory-forget" class="btn hidden" type="button" onclick="showMemoryForgetConfirm()">Forget this ship</button>
+      </div>
+      <div id="memory-forget-confirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="memory-forget-copy">
+        <p id="memory-forget-copy">Forget every ending, fork and picture this ship remembers? Saved runs and settings are kept.</p>
+        <div role="group" aria-label="Forget this ship confirm">
+          <button id="memory-forget-cancel" class="btn" type="button" onclick="cancelMemoryForget()">Cancel</button>
+          <button id="memory-forget-ok" class="btn btn-primary" type="button" onclick="confirmMemoryForget()">Forget this ship</button>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -324,6 +348,7 @@
 <script src="src/engine-save.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
+<script src="src/memory-board.js"></script>
 <script src="src/hitl-unshadow.js"></script>
 <script src="src/review-build-stamp.js"></script>
 <script>
