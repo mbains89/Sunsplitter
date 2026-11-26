@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/intro-nav.css">
 <link rel="stylesheet" href="css/pc-viewport.css">
 <link rel="stylesheet" href="css/paced-reveal.css">
+<link rel="stylesheet" href="css/menu-sheet.css">
 <link rel="stylesheet" href="css/reader-settings.css">
 </head>
 <body>
@@ -58,6 +59,48 @@
       <p id="crew-sheet-role"></p>
       <div id="crew-sheet-facts"></div>
       <p id="crew-sheet-bio"></p>
+    </div>
+  </section>
+
+  <section id="menu-sheet" class="hidden" role="dialog" aria-modal="true" aria-labelledby="menu-heading">
+    <div class="menu-panel">
+      <div class="menu-top">
+        <h2 id="menu-heading">Menu</h2>
+        <button id="menu-close" type="button" class="btn" onclick="closeMenuSheet()">Back to the scene</button>
+      </div>
+      <div class="menu-body">
+        <!-- SUN-BACKLOG-VIEW-01 (T5) puts the Backlog button here and its view inside this dialog. Empty until then. -->
+        <div id="menu-backlog" class="menu-group hidden"></div>
+        <div class="menu-group" role="group" aria-labelledby="menu-run-heading">
+          <h3 id="menu-run-heading" class="menu-group-heading">This run</h3>
+          <div class="menu-run-actions">
+            <button id="menu-save" type="button" class="btn" onclick="menuSaveGame()">Save</button>
+            <button id="menu-load" type="button" class="btn" onclick="menuLoadGame()">Load</button>
+            <button id="menu-return-title" type="button" class="btn" onclick="menuReturnToTitle()" aria-describedby="menu-return-title-chip">Return to title</button>
+          </div>
+          <p id="menu-return-title-chip" class="menu-chip">Saves first · Continue on the title picks up here</p>
+          <p id="menu-status" class="menu-status" aria-live="polite"></p>
+        </div>
+        <div class="menu-group" role="group" aria-labelledby="menu-reader-heading">
+          <h3 id="menu-reader-heading" class="menu-group-heading">Reader settings</h3>
+          <div class="menu-setting">
+            <button id="menu-text-pace" type="button" class="btn" onclick="menuSheetSetting('pace')" aria-describedby="menu-text-pace-chip">Text: paced</button>
+            <p id="menu-text-pace-chip" class="menu-chip" role="status">Paced · tap for each paragraph</p>
+          </div>
+          <div class="menu-setting">
+            <button id="menu-text-size" type="button" class="btn" onclick="menuSheetSetting('size')" aria-describedby="menu-text-size-chip">Size: standard</button>
+            <p id="menu-text-size-chip" class="menu-chip" role="status">Standard · the usual size</p>
+          </div>
+          <div class="menu-setting">
+            <button id="menu-line-spacing" type="button" class="btn" onclick="menuSheetSetting('spacing')" aria-describedby="menu-line-spacing-chip">Spacing: standard</button>
+            <p id="menu-line-spacing-chip" class="menu-chip" role="status">Standard · the usual line spacing</p>
+          </div>
+          <div class="menu-setting">
+            <button id="menu-show-costs" type="button" class="btn" onclick="menuSheetSetting('costs')" aria-pressed="false" aria-describedby="menu-show-costs-chip">Show costs on choices</button>
+            <p id="menu-show-costs-chip" class="menu-chip" role="status">Off · choices show no costs · locked choices still say why</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -257,8 +300,7 @@
       <button id="meta-text-pace" type="button" onclick="toggleTextPace()" title="Paced: a paragraph per tap. Instant: the whole scene at once.">Text: paced</button>
       <button id="btn-show-costs-meta" type="button" onclick="toggleShowCosts()" aria-pressed="false" aria-label="Show costs on choices" title="Show costs on choices">Costs</button>
       <button id="meta-cover-nudity" type="button" onclick="toggleCoverNudity()" aria-pressed="false" aria-label="Cover nudity in pictures" title="Cover nudity in pictures">Cover nudity</button>
-      <button type="button" onclick="saveGame()" title="Save now">Save</button>
-      <button type="button" onclick="loadGame()" title="Load saved run">Load</button>
+      <button id="btn-menu" type="button" onclick="openMenuSheet()" aria-haspopup="dialog" title="Save, load, reader settings, return to title">Menu</button>
     </div>
   </div>
 
@@ -324,6 +366,7 @@
 <script src="src/engine-save.js"></script>
 <script src="src/engine.js"></script>
 <script src="src/validate.js" data-crew-board-follow="src/crew-board-follow-clarity.js"></script>
+<script src="src/menu-sheet.js"></script>
 <script src="src/hitl-unshadow.js"></script>
 <script src="src/review-build-stamp.js"></script>
 <script>
